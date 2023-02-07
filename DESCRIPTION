@@ -1,0 +1,33 @@
+Package: exageostat
+SystemRequirements: GNU Make, GNU CMake, GCC Compiler Suite (C and
+        Fortran), nlopt (>= 2.4.2 http://ab-initio.mit.edu), lapack
+        (https://github.com/xianyi/OpenBLAS/releases), lapacke
+        (https://github.com/xianyi/OpenBLAS/releases), blas
+        (https://github.com/xianyi/OpenBLAS/releases), cblas
+        (https://github.com/xianyi/OpenBLAS/releases), hwloc (>=1.11.5
+        https://www.open-mpi.org), gsl (>= 2.4 https://ftp.gnu.org)
+Version: 1.0.0
+Date: 2023-01-31
+Title: R Package Demonstrates the R / C Language Interface for
+        Exageostat
+Author: Sameh Abdulah <sameh.abdulah@kaust.edu.sa>
+Maintainer: Sameh Abdulah <sameh.abdulah@kaust.edu.sa>
+Depends: R (>= 3.5.0), assertthat (>= 0.2.1), MASS
+Imports:
+    assertthat (>= 0.2.1),
+    MASS
+Description: An R-wrapper for ExaGeoStat: a parallel high performance
+	     unified framework for geostatistics on  manycore systems.
+	     Its abbreviation stands for Exascale Geostatistics. The
+             framework aims at optimizing the likelihood function for
+	     a given spatial data to provide an efficient way to predict
+	     missing observations. The framework targets many-core systems:
+	     clusters of CPUs and GPUs.
+License: GPL (>= 2)
+URL: https://www.github.com/ecrc/exageostatr
+Packaged: 2022-09-24 22:38:27 UTC; abdullsm
+OS_type: unix
+RoxygenNote: 7.2.2
+NeedsCompilation: yes
+StagedInstall: no
+Encoding: UTF-8
