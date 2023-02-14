@@ -10,8 +10,8 @@
 # @date 2023-02-03
 
 set(SOURCES
-#        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/SyntheticDataConfigurations.cpp
-#        ${CMAKE_CURRENT_SOURCE_DIR}/DataConfigurations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/SyntheticDataConfigurations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DataConfigurations.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

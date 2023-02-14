@@ -8,10 +8,5 @@
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-01-31
-set(EXAGEOSTAT_TESTFILES
-
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestSyntheticDataConfigurations.cpp
-
-        ${EXAGEOSTAT_TESTFILES}
-        PARENT_SCOPE
-        )
+add_executable(Example_Synthetic_Data_Generation SyntheticData.cpp)
+target_link_libraries(Example_Synthetic_Data_Generation ${PROJECT_NAME})

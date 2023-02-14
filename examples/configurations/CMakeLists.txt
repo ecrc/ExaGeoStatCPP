@@ -8,4 +8,4 @@
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-02-05
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generation)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generation)
