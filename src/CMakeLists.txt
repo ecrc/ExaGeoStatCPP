@@ -9,6 +9,7 @@
 # @date 2023-01-30
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
 
 set(LIB_NAME ${PROJECT_NAME})
 add_library(${LIB_NAME}
