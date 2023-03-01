@@ -20,6 +20,8 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              */
             virtual ~DataGenerator() = default;
+
+
         };
     }//namespace generators
 }//namespace exageostat

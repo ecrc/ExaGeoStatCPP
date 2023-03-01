@@ -13,7 +13,6 @@
 * @date 2023-01-31
 **/
 
-#include <iostream>
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 

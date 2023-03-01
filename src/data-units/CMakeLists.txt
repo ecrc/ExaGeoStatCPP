@@ -7,11 +7,10 @@
 # @file CMakeLists.txt
 # @version 1.0.0
 # @author Sameh Abdulah
-# @date 2023-02-14
+# @date 2023-02-27
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/DataGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

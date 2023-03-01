@@ -84,46 +84,7 @@ namespace exageostat {
                  */
                 int
                 GetPGrid();
-                /**
-                 * @brief LocationX setter.
-                 * @param apLocationX
-                 */
-                void
-                SetLocationX(char *apLocationX);
-                /**
-                 * @brief LocationX getter.
-                 * @return mpLocationX
-                 */
-                char*
-                GetLocationX();
-                /**
-                 * @brief LocationY setter.
-                 * @param apLocationY
-                 */
-                void
-                SetLocationY(char *apLocationY);
-                /**
-                 * @brief LocationY getter.
-                 * @return mpLocationY
-                 */
-                char*
-                GetLocationY();
-                /**
-                 * @brief LocationZ setter.
-                 * @param apLocationZ
-                 */
-                void
-                SetLocationZ(char *apLocationZ);
-                /**
-                 * @brief LocationZ getter.
-                 * @return mpLocationZ
-                 */
-                char*
-                GetLocationZ();
-                /**
-                 * @brief Check Dimension value.
-                 * @param aDimensions
-                 */
+
                 void CheckDimensionValue(std::string aDimension);
 
             private:
