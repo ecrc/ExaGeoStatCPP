@@ -10,4 +10,5 @@
 #include <data-generators/DataGenerator.hpp>
 
 using namespace exageostat::generators;
+using namespace exageostat::configurations::data_configurations;
 

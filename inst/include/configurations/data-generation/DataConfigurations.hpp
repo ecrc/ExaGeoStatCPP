@@ -52,9 +52,25 @@ namespace exageostat {
                  */
                 void CheckKernelValue(std::string aKernel);
 
+                /**
+                 * @brief Kernel setter.
+                 * @param aKernel
+                 */
+                void
+                SetIsSynthetic(bool aIsSynthetic);
+
+                /**
+                 * @brief Kernel getter.
+                 * @return mKernel
+                 */
+                bool
+                GetIsSynthetic();
+
             protected:
                 /// Used Kernel.
                 std::string mKernel;
+                /// Used type of data.
+                bool mIsSynthetic = false;
             };
 
         }//namespace data_configurations

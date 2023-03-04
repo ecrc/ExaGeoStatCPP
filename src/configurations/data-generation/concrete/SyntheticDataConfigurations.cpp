@@ -76,7 +76,11 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
         else {
             if (argumentName == "--help") {
                 PrintUsage();
-            } else {
+            }
+            if (argumentName == "--syntheticData"){
+                SetIsSynthetic(true);
+            }
+            else {
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");
             }
@@ -90,7 +94,9 @@ void SyntheticDataConfigurations::PrintUsage() {
     cout << "\t\t --Kernel=value : Used Kernel." << endl;
     cout << "\t\t --Dimensions=value : Used Dimension." << endl;
     cout << "\t\t --P=value : Used P-Grid." << endl;
-
+    cout << "\t\t --P=value : Used P-Grid." << endl;
+    cout << "\t\t --syntheticData : Used to enable generating synthetic data." << endl;
+    cout << "\n\n";
 
     exit(0);
 
