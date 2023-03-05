@@ -11,6 +11,7 @@
 
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Kernels.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

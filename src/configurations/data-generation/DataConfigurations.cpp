@@ -13,12 +13,13 @@
  * @author Sameh Abdulah
  * @date 2023-02-03
 **/
-#include <iostream>
-#include <configurations/data-generation/DataConfigurations.hpp>
 
+#include <configurations/data-generation/DataConfigurations.hpp>
+#include <data-units/Helpers.hpp>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
+using namespace exageostat::dataunits;
 
 string DataConfigurations::GetKernel() {
     return this->mKernel;
@@ -37,30 +38,12 @@ bool DataConfigurations::GetIsSynthetic() {
 }
 
 void DataConfigurations::CheckKernelValue(std::string aKernel) {
-    if (aKernel != "univariate_matern_stationary"
-        and aKernel != "univariate_matern_non_stationary"
-        and aKernel != "bivariate_matern_flexible"
-        and aKernel != "bivariate_matern_parsimonious"
-        and aKernel != "bivariate_matern_parsimonious_profile"
-        and aKernel != "univariate_matern_nuggets_stationary"
-        and aKernel != "univariate_spacetime_matern_stationary"
-        and aKernel != "univariate_matern_dsigma_square"
-        and aKernel != "univariate_matern_dnu"
-        and aKernel != "univariate_matern_dbeta"
-        and aKernel != "univariate_matern_ddsigma_square"
-        and aKernel != "univariate_matern_ddsigma_square_beta"
-        and aKernel != "univariate_matern_ddsigma_square_nu"
-        and aKernel != "univariate_matern_ddbeta_beta"
-        and aKernel != "univariate_matern_ddbeta_nu"
-        and aKernel != "univariate_matern_ddnu_nu"
-        and aKernel != "bivariate_spacetime_matern_stationary"
-        and aKernel != "univariate_matern_non_gaussian"
-        and aKernel != "univariate_exp_non_gaussian"
-        and aKernel != "bivariate_spacetime_matern_stationary"
-        and aKernel != "trivariate_matern_parsimonious"
-        and aKernel != "trivariate_matern_parsimonious_profile"
-        and aKernel != "univariate_matern_non_stat") {
 
+    // finding position of input kernel
+    auto position = availableKernels.find(aKernel);
+
+    // If the element is not found,  then the iterator points to the position just after the last element in the set.
+    if (position == availableKernels.end()) {
         throw range_error("Invalid value for Kernel. Please check manual.");
     }
 }
