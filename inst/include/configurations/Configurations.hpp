@@ -16,6 +16,8 @@
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 
+#include <iostream>
+
 namespace exageostat {
     namespace configurations {
 

@@ -81,18 +81,3 @@ if (EXAGEOSTAT_BUILD_TESTS)
             COMMAND exageostat-tests
             )
 endif ()
-
-###############################################################################
-##                            PRELIMINARIES                                  ##
-###############################################################################
-
-
-## Find R and Rcpp using FindR Module
-#FIND_PACKAGE(R REQUIRED)
-#if (${R_FOUND})
-#    message(STATUS "Using R technology")
-#    list(APPEND LIBS "R")
-#    set(USE_R ON)
-#    add_definitions(-DUSING_R)
-#endif ()
-

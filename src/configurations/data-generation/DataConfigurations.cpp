@@ -16,6 +16,7 @@
 #include <iostream>
 #include <configurations/data-generation/DataConfigurations.hpp>
 
+
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
 

@@ -24,7 +24,7 @@ Description: An R-wrapper for ExaGeoStat: a parallel high performance
 	     missing observations. The framework targets many-core systems:
 	     clusters of CPUs and GPUs.
 License: GPL (>= 2)
-URL: https://www.github.com/ecrc/exageostatr
+URL: https://www.github.com/ecrc/exageostat-cpp
 Packaged: 2022-09-24 22:38:27 UTC; abdullsm
 OS_type: unix
 RoxygenNote: 7.2.2

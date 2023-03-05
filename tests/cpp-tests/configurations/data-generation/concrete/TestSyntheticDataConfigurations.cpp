@@ -12,8 +12,8 @@
 * @author Sameh Abdulah
 * @date 2023-01-31
 **/
-#include "libraries/catch/catch.hpp"
-#include "configurations/data-generation/concrete/SyntheticDataConfigurations.h"
+#include <libraries/catch/catch.hpp>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
 #include <iostream>
 
 using namespace std;
@@ -55,6 +55,8 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         syntheticDataConfigurations->SetPGrid(test_nb);
         REQUIRE(syntheticDataConfigurations->GetPGrid() == 512);
     }
+
+    delete syntheticDataConfigurations;
 }
 
 void TEST_DATA_CONFIGURATIONS() {
@@ -75,6 +77,7 @@ void TEST_DATA_CONFIGURATIONS() {
                 "Invalid value for Kernel. Please check manual.");
         syntheticDataConfigurations->CheckKernelValue("univariate_matern_dnu");
     }
+    delete syntheticDataConfigurations;
 }
 void TEST_CONFIGURATIONS() {
     SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations();
@@ -97,9 +100,11 @@ void TEST_CONFIGURATIONS() {
         syntheticDataConfigurations->SetProblemSize(test_nb);
         REQUIRE(syntheticDataConfigurations->GetProblemSize() == 512);
     }
+    delete syntheticDataConfigurations;
 }
 
 TEST_CASE("Synthetic Data Configurations") {
     TEST_SYNTHETIC_CONFIGURATIONS();
     TEST_DATA_CONFIGURATIONS();
+    TEST_CONFIGURATIONS();
 }
