@@ -13,10 +13,9 @@
 **/
 
 #include <iostream>
-#include "configurations/data-generation/concrete/SyntheticDataConfigurations.h"
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
 
 using namespace std;
-using namespace exageostat::configurations;
 using namespace exageostat::configurations::data_configurations;
 
 int main(int argc, char **argv) {
@@ -43,5 +42,6 @@ int main(int argc, char **argv) {
         cout << "You set N by: " << PGrid << endl;
     }
 
+    delete syntheticDataConfigurations;
     return 0;
 }
