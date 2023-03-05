@@ -10,6 +10,7 @@
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-units)
 
 set(LIB_NAME ${PROJECT_NAME})
 add_library(${LIB_NAME}

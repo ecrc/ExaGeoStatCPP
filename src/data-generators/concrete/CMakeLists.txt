@@ -7,7 +7,9 @@
 # @file CMakeLists.txt
 # @version 1.0.0
 # @author Sameh Abdulah
-# @date 2023-01-31
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/end-to-end)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
+# @date 2023-02-14
+set(SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp
+        ${SOURCES}
+        PARENT_SCOPE
+        )

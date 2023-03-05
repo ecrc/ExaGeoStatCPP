@@ -28,6 +28,14 @@ void DataConfigurations::SetKernel(std::string aKernel) {
     this->mKernel = aKernel;
 }
 
+void DataConfigurations::SetIsSynthetic(bool aIsSynthetic) {
+    this->mIsSynthetic = aIsSynthetic;
+}
+
+bool DataConfigurations::GetIsSynthetic() {
+    return this->mIsSynthetic;
+}
+
 void DataConfigurations::CheckKernelValue(std::string aKernel) {
     if (aKernel != "univariate_matern_stationary"
         and aKernel != "univariate_matern_non_stationary"

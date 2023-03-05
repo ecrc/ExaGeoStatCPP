@@ -8,5 +8,5 @@
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-01-31
-add_executable(Example_Synthetic_Data_Generation SyntheticData.cpp)
-target_link_libraries(Example_Synthetic_Data_Generation ${PROJECT_NAME})
+add_executable(Example_Synthetic_Data_Configurations SyntheticData.cpp)
+target_link_libraries(Example_Synthetic_Data_Configurations ${PROJECT_NAME})
