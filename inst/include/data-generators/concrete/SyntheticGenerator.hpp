@@ -25,11 +25,11 @@ namespace exageostat {
 //                 * @param[in] aConfigurations
 //                 * The Synthetic data configuration inputs.
 //                 */
-//                SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations aConfigurations);
+                SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations * aConfigurations);
                 /**
                  * @brief Default constructor.
                  */
-                SyntheticGenerator() = default;
+//                SyntheticGenerator() = default;
 
                 /**
                  * @brief

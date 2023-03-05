@@ -14,14 +14,14 @@
 
 #include <iostream>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <data-generators/DataGenerationFactory.hpp>
+#include <data-generators/DataGenerator.hpp>
 
 using namespace exageostat::generators;
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
 
 int main(int argc, char **argv) {
-    DataGenerationFactory *dataGenerationFactory;
+    DataGenerator *dataGenerationFactory;
     DataGenerator *syntheticGenerator;
 
     SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);

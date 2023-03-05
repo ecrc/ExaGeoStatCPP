@@ -33,6 +33,8 @@ namespace exageostat {
 
             virtual void Print() = 0;
 
+            DataGenerator *createGenerator(configurations::data_configurations::SyntheticDataConfigurations *aConfigurations);
+
 
 
         protected:

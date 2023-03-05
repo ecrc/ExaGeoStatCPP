@@ -32,3 +32,8 @@ void SyntheticGenerator::GenerateLocations(int aN, int aSeed) {
 void SyntheticGenerator::Print() {
     std::cout << "HELLO YOU'RE USING SYNTHETIC DATA GENERATION" << std::endl;
 }
+
+SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations * aConfigurations) {
+
+    std::cout << "Hi Hoda bos kda: " << aConfigurations->GetProblemSize() << std::endl;
+}
