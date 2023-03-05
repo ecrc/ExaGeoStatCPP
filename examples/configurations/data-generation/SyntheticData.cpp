@@ -13,7 +13,7 @@
 **/
 
 #include <iostream>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;

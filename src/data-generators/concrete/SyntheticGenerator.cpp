@@ -13,15 +13,8 @@ using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations::data_configurations;
 
-//SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations aConfigurations) {
-//
-//}
-
-
 Locations SyntheticGenerator::InitializeLocations(Locations aLocations) {
 
-
-//    GenerateLocations(N, seed);
     return aLocations;
 }
 
@@ -33,7 +26,7 @@ void SyntheticGenerator::Print() {
     std::cout << "HELLO YOU'RE USING SYNTHETIC DATA GENERATION" << std::endl;
 }
 
-SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations * aConfigurations) {
+SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *aConfigurations) {
 
-    std::cout << "Hi Hoda bos kda: " << aConfigurations->GetProblemSize() << std::endl;
+    std::cout << "Hi: " << aConfigurations->GetProblemSize() << std::endl;
 }

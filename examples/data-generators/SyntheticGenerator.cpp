@@ -13,7 +13,6 @@
 **/
 
 #include <iostream>
-#include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-generators/DataGenerator.hpp>
 
 using namespace exageostat::generators;
@@ -26,8 +25,7 @@ int main(int argc, char **argv) {
 
     SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
-
-    syntheticGenerator = dataGenerationFactory->createGenerator(syntheticDataConfigurations);
+    syntheticGenerator = dataGenerationFactory->CreateGenerator(syntheticDataConfigurations);
     syntheticGenerator->Print();
 
     return 0;

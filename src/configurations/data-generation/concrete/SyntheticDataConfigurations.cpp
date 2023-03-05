@@ -14,7 +14,7 @@
  * @date 2023-02-01
 **/
 
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <iostream>
 
 using namespace exageostat::configurations::data_configurations;
@@ -77,10 +77,9 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             if (argumentName == "--help") {
                 PrintUsage();
             }
-            if (argumentName == "--syntheticData"){
+            if (argumentName == "--syntheticData") {
                 SetIsSynthetic(true);
-            }
-            else {
+            } else {
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");
             }

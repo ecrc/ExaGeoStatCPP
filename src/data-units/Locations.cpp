@@ -38,5 +38,3 @@ void Locations::SetLocationZ(double *apLocationZ) {
 double *Locations::GetLocationZ() {
     return this->mpLocationZ;
 }
-
-

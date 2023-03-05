@@ -15,21 +15,17 @@
 namespace exageostat {
     namespace generators {
         namespace Synthetic {
-            class SyntheticGenerator : public DataGenerator{
 
+            class SyntheticGenerator : public DataGenerator {
             public:
-//                /**
-//                 * @brief
-//                 * Constructor for Synthetic Generation.
-//                 *
-//                 * @param[in] aConfigurations
-//                 * The Synthetic data configuration inputs.
-//                 */
-                SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations * aConfigurations);
+
                 /**
-                 * @brief Default constructor.
+                 *  @brief Class constructor.
+                 *
+                 *  @param[in] apConfigurations
+                 *  Pointer to Synthetic data Configurations.
                  */
-//                SyntheticGenerator() = default;
+                SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
                 /**
                  * @brief

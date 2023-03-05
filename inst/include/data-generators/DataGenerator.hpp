@@ -11,7 +11,7 @@
 #define EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 
 #include <data-units/Locations.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 
 namespace exageostat {
     namespace generators {
@@ -23,21 +23,38 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              */
             virtual ~DataGenerator() = default;
+
             /**
-             * @brief Initialize data locations.
-             * @param aLocations
-             * @return Locations
+             * @brief
+             * Initialize data locations.
+             *
+             * @param[in] aLocations
+             * X, Y and Z variables.
+             *
+             * @return aLocations
+             * The modified X, Y and Z variables.
              */
             virtual dataunits::Locations
             InitializeLocations(dataunits::Locations aLocations) = 0;
 
+            /**
+             * @brief
+             * Factory creation, Whether it's Synthetic or Real data.
+             *
+             * @param[in] apConfigurations
+             *  Pointer to Synthetic data Configurations.
+             *
+             * @return DataGenerator
+             * Pointer to the created type of Data Generators.
+             */
+            DataGenerator *
+            CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+
             virtual void Print() = 0;
-
-            DataGenerator *createGenerator(configurations::data_configurations::SyntheticDataConfigurations *aConfigurations);
-
 
 
         protected:
+            /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations mConfigurations;
 
         };

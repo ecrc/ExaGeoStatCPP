@@ -13,7 +13,7 @@
 * @date 2023-01-31
 **/
 #include <libraries/catch/catch.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <iostream>
 
 using namespace std;
@@ -28,8 +28,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE(syntheticDataConfigurations->GetDimension() == "");
         syntheticDataConfigurations->SetDimension("2D");
         REQUIRE(syntheticDataConfigurations->GetDimension() == "2D");
-    }
-    SECTION("Dimensions value checker test")
+    }SECTION("Dimensions value checker test")
     {
         REQUIRE_THROWS_WITH(
                 syntheticDataConfigurations->CheckDimensionValue("4D"),
@@ -42,12 +41,11 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE(syntheticDataConfigurations->GetPGrid() == 0);
         syntheticDataConfigurations->SetPGrid(random_number);
         REQUIRE(syntheticDataConfigurations->GetPGrid() == random_number);
-    }
-    SECTION("P-GRID value checker test")
+    }SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
-            syntheticDataConfigurations->CheckNumericalValue("K"),
-            "Invalid value. Please use Numerical values only.");
+                syntheticDataConfigurations->CheckNumericalValue("K"),
+                "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
                 syntheticDataConfigurations->CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
@@ -66,8 +64,7 @@ void TEST_DATA_CONFIGURATIONS() {
         REQUIRE(syntheticDataConfigurations->GetKernel() == "");
         syntheticDataConfigurations->SetKernel("univariate_matern_stationary");
         REQUIRE(syntheticDataConfigurations->GetKernel() == "univariate_matern_stationary");
-    }
-    SECTION("Kernel checker value test")
+    }SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
                 syntheticDataConfigurations->CheckKernelValue("100"),
@@ -79,6 +76,7 @@ void TEST_DATA_CONFIGURATIONS() {
     }
     delete syntheticDataConfigurations;
 }
+
 void TEST_CONFIGURATIONS() {
     SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations();
     int random_number = 512;
@@ -87,8 +85,7 @@ void TEST_CONFIGURATIONS() {
         REQUIRE(syntheticDataConfigurations->GetProblemSize() == 0);
         syntheticDataConfigurations->SetProblemSize(random_number);
         REQUIRE(syntheticDataConfigurations->GetProblemSize() == random_number);
-    }
-    SECTION("Problem size checker value test")
+    }SECTION("Problem size checker value test")
     {
         REQUIRE_THROWS_WITH(
                 syntheticDataConfigurations->CheckNumericalValue("K"),

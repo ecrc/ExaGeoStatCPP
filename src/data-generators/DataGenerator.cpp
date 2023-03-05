@@ -14,11 +14,11 @@ using namespace exageostat::generators;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::Synthetic;
 
-DataGenerator *DataGenerator::createGenerator(SyntheticDataConfigurations *aConfigurations) {
+DataGenerator *DataGenerator::CreateGenerator(SyntheticDataConfigurations *aConfigurations) {
 
     bool isSynthetic = aConfigurations->GetIsSynthetic();
 
-    if (isSynthetic){
+    if (isSynthetic) {
         return new SyntheticGenerator(aConfigurations);
     }
 
