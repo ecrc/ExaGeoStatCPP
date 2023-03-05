@@ -19,14 +19,6 @@ namespace exageostat {
         class DataGenerator {
         public:
 
-//            /**
-//            * @brief
-//                    * Constructor for Synthetic Generation.
-//            *
-//            * @param[in] aConfigurations
-//                    * The Synthetic data configuration inputs.
-//            */
-//            DataGenerator(configurations::data_configurations::SyntheticDataConfigurations aConfigurations);
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              */
