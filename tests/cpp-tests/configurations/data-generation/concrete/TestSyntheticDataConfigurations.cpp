@@ -20,12 +20,14 @@ using namespace std;
 using namespace exageostat::configurations::data_configurations;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
-    SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations();
+
+    // Init using unique ptr as when unique_ptr is destroyed/get out of scope, the resource is automatically claimed.
+    unique_ptr<SyntheticDataConfigurations> syntheticDataConfigurations = make_unique<SyntheticDataConfigurations>();
     int random_number = 512;
 
     SECTION("Dimensions setter/getter test")
     {
-        REQUIRE(syntheticDataConfigurations->GetDimension() == "");
+        REQUIRE(syntheticDataConfigurations->GetDimension().empty());
         syntheticDataConfigurations->SetDimension("2D");
         REQUIRE(syntheticDataConfigurations->GetDimension() == "2D");
     }SECTION("Dimensions value checker test")
@@ -53,12 +55,10 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         syntheticDataConfigurations->SetPGrid(test_nb);
         REQUIRE(syntheticDataConfigurations->GetPGrid() == 512);
     }
-
-    delete syntheticDataConfigurations;
 }
 
 void TEST_DATA_CONFIGURATIONS() {
-    SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations();
+    unique_ptr<SyntheticDataConfigurations> syntheticDataConfigurations = make_unique<SyntheticDataConfigurations>();
     SECTION("Kernel setter/getter test")
     {
         REQUIRE(syntheticDataConfigurations->GetKernel() == "");
@@ -74,11 +74,10 @@ void TEST_DATA_CONFIGURATIONS() {
                 "Invalid value for Kernel. Please check manual.");
         syntheticDataConfigurations->CheckKernelValue("univariate_matern_dnu");
     }
-    delete syntheticDataConfigurations;
 }
 
 void TEST_CONFIGURATIONS() {
-    SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations();
+    unique_ptr<SyntheticDataConfigurations> syntheticDataConfigurations = make_unique<SyntheticDataConfigurations>();
     int random_number = 512;
     SECTION("Problem size setter/getter test")
     {
@@ -97,7 +96,6 @@ void TEST_CONFIGURATIONS() {
         syntheticDataConfigurations->SetProblemSize(test_nb);
         REQUIRE(syntheticDataConfigurations->GetProblemSize() == 512);
     }
-    delete syntheticDataConfigurations;
 }
 
 TEST_CASE("Synthetic Data Configurations") {

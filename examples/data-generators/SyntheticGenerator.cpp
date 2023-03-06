@@ -21,7 +21,9 @@ using namespace exageostat::configurations::data_configurations;
 
 int main(int argc, char **argv) {
     unique_ptr<DataGenerator> syntheticGenerator;
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
+
+    // Object has automatic storage duration (usually is on the stack)
+    auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
     syntheticGenerator = syntheticGenerator->CreateGenerator(syntheticDataConfigurations);
     syntheticGenerator->Print();
