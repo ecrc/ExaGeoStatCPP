@@ -20,12 +20,10 @@ using namespace std;
 using namespace exageostat::configurations::data_configurations;
 
 int main(int argc, char **argv) {
-    DataGenerator *dataGenerationFactory;
-    DataGenerator *syntheticGenerator;
+    unique_ptr<DataGenerator> syntheticGenerator;
+    auto *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
-    SyntheticDataConfigurations *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
-
-    syntheticGenerator = dataGenerationFactory->CreateGenerator(syntheticDataConfigurations);
+    syntheticGenerator = syntheticGenerator->CreateGenerator(syntheticDataConfigurations);
     syntheticGenerator->Print();
 
     return 0;

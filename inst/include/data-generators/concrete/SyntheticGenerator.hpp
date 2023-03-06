@@ -20,16 +20,20 @@ namespace exageostat {
             public:
 
                 /**
-                 *  @brief Class constructor.
+                *  @brief
+                *  Class constructor.
+                *
+                *  @param[in] apConfigurations
+                *  Pointer to Synthetic data Configurations.
                  *
-                 *  @param[in] apConfigurations
-                 *  Pointer to Synthetic data Configurations.
-                 */
-                SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+                */
+                explicit SyntheticGenerator(
+                        configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
                 /**
                  * @brief
                  * Virtual destructor to allow calls to the correct concrete destructor.
+                 *
                  */
                 virtual ~SyntheticGenerator() = default;
 
@@ -57,9 +61,9 @@ namespace exageostat {
                  * The modified X, Y and Z variables.
                  */
                 dataunits::Locations
-                InitializeLocations(dataunits::Locations aLocations);
+                InitializeLocations(dataunits::Locations aLocations) override;
 
-                void Print();
+                void Print() override;
 
             };
 

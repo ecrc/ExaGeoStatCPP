@@ -14,13 +14,20 @@ using namespace exageostat::generators;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::Synthetic;
 
-DataGenerator *DataGenerator::CreateGenerator(SyntheticDataConfigurations *aConfigurations) {
+std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfigurations *apConfigurations) {
 
-    bool isSynthetic = aConfigurations->GetIsSynthetic();
+    // Check the used Data generation method, Whether it's synthetic or real.
+    bool isSynthetic = apConfigurations->GetIsSynthetic();
 
+    // Return DataGenerator unique pointer of Synthetic type
     if (isSynthetic) {
-        return new SyntheticGenerator(aConfigurations);
+        return std::make_unique<SyntheticGenerator>(apConfigurations);
     }
 
+    // Return DataGenerator unique pointer of real type
     return nullptr;
+}
+
+void DataGenerator::SetConfigurations(SyntheticDataConfigurations *apConfigurations) {
+    this->mpConfigurations = apConfigurations;
 }

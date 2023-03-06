@@ -12,6 +12,7 @@
 
 #include <data-units/Locations.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include <memory>
 
 namespace exageostat {
     namespace generators {
@@ -45,17 +46,28 @@ namespace exageostat {
              *  Pointer to Synthetic data Configurations.
              *
              * @return DataGenerator
-             * Pointer to the created type of Data Generators.
+             * Unique Pointer to the created type of Data Generators.
              */
-            DataGenerator *
+            static std::unique_ptr<DataGenerator>
             CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+
+            /**
+             * @brief
+             * Configuration map setter.
+             *
+             * @param apConfigurations
+             * Argument pointer to Synthetic Data generation configuration map
+             *
+             */
+            void
+            SetConfigurations(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
             virtual void Print() = 0;
 
 
         protected:
             /// Used Synthetic Configuration.
-            configurations::data_configurations::SyntheticDataConfigurations mConfigurations;
+            configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{};
 
         };
     }//namespace generators

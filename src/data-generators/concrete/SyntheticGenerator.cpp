@@ -24,9 +24,10 @@ void SyntheticGenerator::GenerateLocations(int aN, int aSeed) {
 
 void SyntheticGenerator::Print() {
     std::cout << "HELLO YOU'RE USING SYNTHETIC DATA GENERATION" << std::endl;
+    std::cout << "N: " << mpConfigurations->GetProblemSize() << std::endl;
 }
 
-SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *aConfigurations) {
-
-    std::cout << "Hi: " << aConfigurations->GetProblemSize() << std::endl;
+SyntheticGenerator::SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
+    // Set configuration map.
+    this->SetConfigurations(apConfigurations);
 }
