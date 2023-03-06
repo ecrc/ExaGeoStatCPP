@@ -52,6 +52,40 @@ namespace exageostat {
 
                 /**
                  * @brief
+                 * Generate uniform distribution between rangeLow , rangeHigh.
+                 *
+                 * @param[in] aRangeLow
+                 * The Lower range.
+                 *
+                 * @param[in] aRangeHigh
+                 * The Higher range.
+                 *
+                 * @return scaled_range
+                 * The scaled uniform distribution between the two bounds .
+                 *
+                 */
+                double UniformDistribution(double aRangeLow, double aRangeHigh);
+
+                /**
+                 * @brief
+                 * Sort in Morton order (input points must be in [0;1]x[0;1] square]).
+                 *
+                 * @param[in] aN
+                 * The problem size.
+                 *
+                 * @param[in] aLocations
+                 * X, Y and Z variables.
+                 *
+                 */
+                void SortLocations(int aN, dataunits::Locations aLocations);
+
+                uint32_t EncodeMorton2(uint32_t x, uint32_t y);
+                uint32_t Part1By1(uint32_t x);
+                static int compare_uint32(const void *a, const void *b);
+                uint32_t Compact1By1(uint32_t x);
+
+                /**
+                 * @brief
                  * Initialize data locations.
                  *
                  * @param[in] aLocations
@@ -64,6 +98,9 @@ namespace exageostat {
                 InitializeLocations(dataunits::Locations aLocations) override;
 
                 void Print() override;
+
+            private:
+
 
             };
 

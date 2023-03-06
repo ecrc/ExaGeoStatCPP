@@ -21,11 +21,6 @@ namespace exageostat {
         public:
 
             /**
-             * @brief Virtual destructor to allow calls to the correct concrete destructor.
-             */
-            virtual ~DataGenerator() = default;
-
-            /**
              * @brief
              * Initialize data locations.
              *
@@ -68,7 +63,8 @@ namespace exageostat {
         protected:
             /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{};
-
+            /// Used Locations
+            dataunits::Locations mLocations;
         };
     }//namespace generators
 }//namespace exageostat

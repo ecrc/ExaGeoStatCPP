@@ -18,7 +18,10 @@
 
 namespace exageostat {
     namespace dataunits {
+        class Kernels{
+        public:
 
+        };
     }//namespace configurations
 }//namespace exageostat
 
