@@ -14,6 +14,11 @@ using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations::data_configurations;
 
+SyntheticGenerator::SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
+    // Set configuration map.
+    this->SetConfigurations(apConfigurations);
+}
+
 Locations SyntheticGenerator::InitializeLocations(Locations aLocations) {
 
     int p = 1;
@@ -38,7 +43,6 @@ void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
     }
 
     int rootN;
-
     if (dimension == "3D"){
         // Cubic root.
         rootN = ceil(cbrt(aN));
@@ -49,7 +53,6 @@ void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
     }
 
     int *grid = (int *) calloc((int) rootN, sizeof(int));
-
     for (auto i = 0; i < rootN; i++) {
         grid[i] = i + 1;
     }
@@ -89,22 +92,16 @@ void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
     }
 }
 
-void SyntheticGenerator::Print() {
-    std::cout << "HELLO YOU'RE USING SYNTHETIC DATA GENERATION" << std::endl;
-    std::cout << "N: " << mpConfigurations->GetProblemSize() << std::endl;
-}
-
-SyntheticGenerator::SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
-    // Set configuration map.
-    this->SetConfigurations(apConfigurations);
-}
-
 double SyntheticGenerator::UniformDistribution(double aRangeLow, double aRangeHigh) {
 
     double myRand = (double) rand() / (double) (1.0 + RAND_MAX);
     double range = aRangeHigh - aRangeLow;
-
     return (myRand * range) + aRangeLow;
+}
+
+void SyntheticGenerator::Print() {
+    std::cout << "HELLO YOU'RE USING SYNTHETIC DATA GENERATION" << std::endl;
+    std::cout << "N: " << mpConfigurations->GetProblemSize() << std::endl;
 }
 
 uint32_t SyntheticGenerator::SpreadBits(uint32_t aInputByte)
