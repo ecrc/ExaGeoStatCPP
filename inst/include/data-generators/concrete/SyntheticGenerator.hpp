@@ -48,7 +48,7 @@ namespace exageostat {
                  * The input seed.
                  *
                  */
-                void GenerateLocations(int aN, int aSeed);
+                void GenerateLocations(int aN, int aTimeSlots = 1);
 
                 /**
                  * @brief
@@ -79,10 +79,49 @@ namespace exageostat {
                  */
                 void SortLocations(int aN, dataunits::Locations aLocations);
 
-                uint32_t EncodeMorton2(uint32_t x, uint32_t y);
-                uint32_t Part1By1(uint32_t x);
-                static int compare_uint32(const void *a, const void *b);
-                uint32_t Compact1By1(uint32_t x);
+                /**
+                 * @brief
+                 * Spread bits one by one.
+                 *
+                 * @param[in] aInputByte
+                 * The input byte to be spread.
+                 *
+                 * @return aInputByte
+                 * Returns Input byte After being spread.
+                 *
+                 */
+                uint32_t SpreadBits(uint32_t aInputByte);
+
+                /**
+                 * @brief
+                 * Spread bits one by one.
+                 *
+                 * @param[in] aInputByte
+                 * The input spreaded byte to be compacted.
+                 *
+                 * @return aInputByte
+                 * Returns Input byte After being compacted.
+                 *
+                 */
+                uint32_t ReverseSpreadBits(uint32_t aInputByte);
+
+                /**
+                 * @brief
+                 * Compares two Unit32 values
+                 *
+                 * @param[in] apFirstValue
+                 * Pointer to the first input Unit32 value
+                 *
+                 * @param[in] apSecondValue
+                 * Pointer to the second input Unit32 value
+                 *
+                 * @return value
+                 *  0  in case of equality,
+                 *  1  in case of apFirstValue bigger than apSecondValue
+                 *  -1 in case of apSecondValue bigger than apFirstValue
+                 *
+                 */
+                static int CompareUint32(const void *apFirstValue, const void *apSecondValue);
 
                 /**
                  * @brief
