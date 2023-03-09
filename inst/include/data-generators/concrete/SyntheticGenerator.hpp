@@ -48,7 +48,7 @@ namespace exageostat {
                  * The input seed.
                  *
                  */
-                void GenerateLocations(int aN, int aTimeSlots = 1);
+                void GenerateLocations(int aN, int aTimeSlots);
 
                 /**
                  * @brief
@@ -77,7 +77,7 @@ namespace exageostat {
                  * X, Y and Z variables.
                  *
                  */
-                void SortLocations(int aN, dataunits::Locations aLocations);
+                void SortLocations(int aN);
 
                 /**
                  * @brief
@@ -90,7 +90,7 @@ namespace exageostat {
                  * Returns Input byte After being spread.
                  *
                  */
-                uint32_t SpreadBits(uint32_t aInputByte);
+                uint64_t SpreadBits(uint64_t aInputByte);
 
                 /**
                  * @brief
@@ -103,7 +103,7 @@ namespace exageostat {
                  * Returns Input byte After being compacted.
                  *
                  */
-                uint32_t ReverseSpreadBits(uint32_t aInputByte);
+                uint64_t ReverseSpreadBits(uint64_t aInputByte);
 
                 /**
                  * @brief
@@ -121,7 +121,7 @@ namespace exageostat {
                  *  -1 in case of apSecondValue bigger than apFirstValue
                  *
                  */
-                static int CompareUint32(const void *apFirstValue, const void *apSecondValue);
+                static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
 
                 /**
                  * @brief
@@ -133,8 +133,8 @@ namespace exageostat {
                  * @return aLocations
                  * The modified X, Y and Z variables.
                  */
-                dataunits::Locations
-                InitializeLocations(dataunits::Locations aLocations) override;
+                void
+                InitializeLocations(int aTimeSlots = 1) override;
 
                 void Print() override;
 

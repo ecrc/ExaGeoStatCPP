@@ -13,6 +13,7 @@
 using namespace exageostat::generators;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::Synthetic;
+using namespace exageostat::dataunits;
 
 std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfigurations *apConfigurations) {
 
@@ -30,4 +31,12 @@ std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfi
 
 void DataGenerator::SetConfigurations(SyntheticDataConfigurations *apConfigurations) {
     this->mpConfigurations = apConfigurations;
+}
+
+void DataGenerator::InitLocationsClass() {
+    this->mpLocations = new Locations();
+}
+
+Locations* DataGenerator::GetLocations() {
+    return this->mpLocations;
 }

@@ -30,8 +30,8 @@ namespace exageostat {
              * @return aLocations
              * The modified X, Y and Z variables.
              */
-            virtual dataunits::Locations
-            InitializeLocations(dataunits::Locations aLocations) = 0;
+            virtual void
+            InitializeLocations(int aTimeSlots) = 0;
 
             /**
              * @brief
@@ -57,6 +57,12 @@ namespace exageostat {
             void
             SetConfigurations(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
+            void
+            InitLocationsClass();
+
+            dataunits::Locations *
+            GetLocations();
+
             virtual void Print() = 0;
 
 
@@ -64,7 +70,7 @@ namespace exageostat {
             /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{};
             /// Used Locations
-            dataunits::Locations mLocations;
+            dataunits::Locations * mpLocations;
         };
     }//namespace generators
 }//namespace exageostat
