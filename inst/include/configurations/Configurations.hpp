@@ -16,7 +16,6 @@
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 
-#include <iostream>
 
 namespace exageostat {
     namespace configurations {
@@ -28,6 +27,7 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              */
             virtual ~Configurations() = default;
+
             /**
              * @brief
              * Set default values for input arguments
@@ -40,17 +40,20 @@ namespace exageostat {
              *
              */
             virtual void
-            InitializeArguments(int argc, char** argv) = 0;
+            InitializeArguments(int argc, char **argv) = 0;
+
             /**
              * @brief Print the usage and accepted Arguments.
              */
             virtual void
             PrintUsage() = 0;
+
             /**
              * @brief Check Numerical value.
              * @param aValue
              */
             int CheckNumericalValue(std::string aValue);
+
             /**
              * @brief Problem size setter.
              * @param aProblemSize
@@ -65,9 +68,28 @@ namespace exageostat {
             int
             GetProblemSize();
 
+            /**
+            * @brief Time slot setter.
+            * @param aTimeSlot
+            */
+            void
+            SetTimeSlot(int aTimeSlot);
+
+            /**
+             * @brief Time slot getter.
+             * @return mTimeSlot
+             */
+            int
+            GetTimeSlot();
+
+
+
         protected:
-            /// Problem size.
+            /// Used Problem size.
             int mProblemSize;
+            /// Used Time slot.
+            int mTimeSlot = 1;
+
         };
 
     }//namespace configurations

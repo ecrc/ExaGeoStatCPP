@@ -11,7 +11,8 @@
 #define EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 
 #include <data-units/Locations.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include <memory>
 
 namespace exageostat {
     namespace generators {
@@ -19,33 +20,67 @@ namespace exageostat {
         class DataGenerator {
         public:
 
-//            /**
-//            * @brief
-//                    * Constructor for Synthetic Generation.
-//            *
-//            * @param[in] aConfigurations
-//                    * The Synthetic data configuration inputs.
-//            */
-//            DataGenerator(configurations::data_configurations::SyntheticDataConfigurations aConfigurations);
             /**
-             * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             * @brief
+             * Initialize data locations.
+             *
+             * @param[in] aLocations
+             * X, Y and Z variables.
+             *
+             * @return aLocations
+             * The modified X, Y and Z variables.
              */
-            virtual ~DataGenerator() = default;
+            virtual void
+            InitializeLocations() = 0;
+
             /**
-             * @brief Initialize data locations.
-             * @param aLocations
-             * @return Locations
+             * @brief
+             * Factory creation, Whether it's Synthetic or Real data.
+             *
+             * @param[in] apConfigurations
+             *  Pointer to Synthetic data Configurations.
+             *
+             * @return DataGenerator
+             * Unique Pointer to the created type of Data Generators.
              */
-            virtual dataunits::Locations
-            InitializeLocations(dataunits::Locations aLocations) = 0;
+            static std::unique_ptr<DataGenerator>
+            CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
-            virtual void Print() = 0;
+            /**
+             * @brief
+             * Configuration map setter.
+             *
+             * @param apConfigurations
+             * Argument pointer to Synthetic Data generation configuration map
+             *
+             */
+            void
+            SetConfigurations(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
+            /**
+             * @brief
+             * Initialize locations class.
+             *
+             */
+            void
+            InitLocationsClass();
+
+            /**
+             * @brief
+             * Gets data locations class.
+             *
+             * @return mpLocations
+             * Pointer to locations object.
+             */
+            dataunits::Locations *
+            GetLocations();
 
 
         protected:
-            configurations::data_configurations::SyntheticDataConfigurations mConfigurations;
-
+            /// Used Synthetic Configuration.
+            configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{};
+            /// Used Locations
+            dataunits::Locations * mpLocations;
         };
     }//namespace generators
 }//namespace exageostat

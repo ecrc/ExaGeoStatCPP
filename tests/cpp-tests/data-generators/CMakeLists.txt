@@ -7,6 +7,11 @@
 # @file CMakeLists.txt
 # @version 1.0.0
 # @author Sameh Abdulah
-# @date 2023-01-31
-add_executable(Example_Synthetic_Data_Configurations main.cpp)
-target_link_libraries(Example_Synthetic_Data_Configurations ${PROJECT_NAME})
+# @date 2023-03-08
+set(EXAGEOSTAT_TESTFILES
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestSyntheticGenerator.cpp
+
+        ${EXAGEOSTAT_TESTFILES}
+        PARENT_SCOPE
+        )

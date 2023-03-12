@@ -19,25 +19,29 @@
 
 #include <iostream>
 #include <configurations/data-generation/DataConfigurations.hpp>
+#include <data-units/Helpers.hpp>
 
 namespace exageostat {
     namespace configurations {
         namespace data_configurations {
-            class SyntheticDataConfigurations : public DataConfigurations{
+            class SyntheticDataConfigurations : public DataConfigurations {
 
             public:
                 /**
                  * @brief Default constructor.
                  */
                 SyntheticDataConfigurations() = default;
+
                 /**
                 * @brief Command line constructor.
                 */
-                SyntheticDataConfigurations(int argc, char** argv);
+                SyntheticDataConfigurations(int argc, char **argv);
+
                 /**
                 * @brief JSON file constructor.
                 */
                 SyntheticDataConfigurations(std::string JSON_path);
+
                 /**
                  * @brief Virtual destructor to allow calls to the correct concrete destructor.
                  */
@@ -54,30 +58,35 @@ namespace exageostat {
                  * The array of arguments.
                  *
                  */
-                void InitializeArguments(int argc, char** argv) override;
+                void InitializeArguments(int argc, char **argv) override;
+
                 /**
                  * @brief Print the usage and accepted Arguments.
                  */
                 void
                 PrintUsage() override;
+
                 /**
                  * @brief Dimension setter.
                  * @param aDimension
                  */
                 void
-                SetDimension(std::string aDimension);
+                SetDimension(exageostat::dataunits::Dimension aDimension);
+
                 /**
                  * @brief Dimension getter.
                  * @return mDimension
                  */
-                std::string
+                exageostat::dataunits::Dimension
                 GetDimension();
+
                 /**
                  * @brief PGrid setter.
                  * @param aPGrid
                  */
                 void
                 SetPGrid(int aPGrid);
+
                 /**
                  * @brief PGrid getter.
                  * @return mPGrid
@@ -85,11 +94,11 @@ namespace exageostat {
                 int
                 GetPGrid();
 
-                void CheckDimensionValue(std::string aDimension);
+                exageostat::dataunits::Dimension CheckDimensionValue(std::string aDimension);
 
             private:
                 /// Used Dimension.
-                std::string mDimension;
+                exageostat::dataunits::Dimension mDimension;
                 /// Used PGrid.
                 int mPGrid;
                 /// Used Location X.

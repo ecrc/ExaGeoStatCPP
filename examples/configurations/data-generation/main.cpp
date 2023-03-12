@@ -13,14 +13,16 @@
 **/
 
 #include <iostream>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.h>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::dataunits;
 
 int main(int argc, char **argv) {
 
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
+    // Object has automatic storage duration (usually is on the stack)
+    auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
     int N = syntheticDataConfigurations->GetProblemSize();
     if (N != 0) {
@@ -32,9 +34,15 @@ int main(int argc, char **argv) {
         cout << "You set Kernel by: " << kernel << endl;
     }
 
-    string dimension = syntheticDataConfigurations->GetDimension();
-    if (!dimension.empty()) {
-        cout << "You set Dimension by: " << dimension << endl;
+    Dimension dimension = syntheticDataConfigurations->GetDimension();
+    if (dimension == Dimension2D) {
+        cout << "You set Dimension by: 2D" << endl;
+    }
+    else if (dimension == Dimension3D) {
+        cout << "You set Dimension by: 3D" << endl;
+    }
+    else if (dimension == DimensionST) {
+        cout << "You set Dimension by: ST" << endl;
     }
 
     int PGrid = syntheticDataConfigurations->GetPGrid();

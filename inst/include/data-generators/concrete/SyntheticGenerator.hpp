@@ -15,40 +15,27 @@
 namespace exageostat {
     namespace generators {
         namespace Synthetic {
-            class SyntheticGenerator : public DataGenerator{
 
+            class SyntheticGenerator : public DataGenerator {
             public:
-//                /**
-//                 * @brief
-//                 * Constructor for Synthetic Generation.
-//                 *
-//                 * @param[in] aConfigurations
-//                 * The Synthetic data configuration inputs.
-//                 */
-//                SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations aConfigurations);
+
                 /**
-                 * @brief Default constructor.
-                 */
-                SyntheticGenerator() = default;
+                *  @brief
+                *  Class constructor.
+                *
+                *  @param[in] apConfigurations
+                *  Pointer to Synthetic data Configurations.
+                 *
+                */
+                explicit SyntheticGenerator(
+                        configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
                 /**
                  * @brief
                  * Virtual destructor to allow calls to the correct concrete destructor.
+                 *
                  */
                 virtual ~SyntheticGenerator() = default;
-
-                /**
-                 * @brief
-                 * Set default values for input arguments
-                 *
-                 * @param[in] aN
-                 * The problem size divided by P-Grid.
-                 *
-                 * @param[in] aSeed
-                 * The input seed.
-                 *
-                 */
-                void GenerateLocations(int aN, int aSeed);
 
                 /**
                  * @brief
@@ -60,10 +47,90 @@ namespace exageostat {
                  * @return aLocations
                  * The modified X, Y and Z variables.
                  */
-                dataunits::Locations
-                InitializeLocations(dataunits::Locations aLocations);
+                void
+                InitializeLocations() override;
 
-                void Print();
+                /**
+                 * @brief
+                 * Set default values for input arguments
+                 *
+                 * @param[in] aN
+                 * The problem size divided by P-Grid.
+                 *
+                 */
+                void GenerateLocations(int aN);
+
+                /**
+                 * @brief
+                 * Generate uniform distribution between rangeLow , rangeHigh.
+                 *
+                 * @param[in] aRangeLow
+                 * The Lower range.
+                 *
+                 * @param[in] aRangeHigh
+                 * The Higher range.
+                 *
+                 * @return scaled_range
+                 * The scaled uniform distribution between the two bounds .
+                 *
+                 */
+                double UniformDistribution(double aRangeLow, double aRangeHigh);
+
+                /**
+                 * @brief
+                 * Sort in Morton order (input points must be in [0;1]x[0;1] square]).
+                 *
+                 * @param[in] aN
+                 * The problem size divided by P-Grid.
+                 *
+                 */
+                void SortLocations(int aN);
+
+                /**
+                 * @brief
+                 * Spread bits by three spaces.
+                 *
+                 * @param[in] aInputByte
+                 * The input 64 bit to be spread.
+                 *
+                 * @returns aInputByte
+                 * The byte after being spread.
+                 *
+                 */
+                uint64_t SpreadBits(uint64_t aInputByte);
+
+                /**
+                 * @brief
+                 * Reverse Spread bits operation.
+                 *
+                 * @param[in] aInputByte
+                 *  The input spread 64 bit to be compacted.
+                 *
+                 * @returns aInputByte
+                 * The byte after being compacted.
+                 *
+                 */
+                uint64_t ReverseSpreadBits(uint64_t aInputByte);
+
+                /**
+                 * @brief
+                 * Compares two Unit64 values
+                 *
+                 * @param[in] aFirstValue
+                 * Constant reference to the first input 64 bit value.
+                 *
+                 * @param[in] aSecondValue
+                 * Constant reference to the second input 64 bit value.
+                 *
+                 * @return boolean
+                 *  True in case of second value bigger than first value.
+                 *  False otherwise.
+                 *
+                 */
+                static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
+
+            private:
+
 
             };
 

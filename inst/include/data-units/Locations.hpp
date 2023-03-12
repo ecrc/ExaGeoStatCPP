@@ -30,45 +30,70 @@ namespace exageostat {
             virtual ~Locations() = default;
 
             /**
-             * @brief LocationX setter.
-             * @param apLocationX
+             * @brief
+             * LocationX setter.
+             *
+             * @param[in] apLocationX
+             * Pointer to X data.
+             *
              */
             void
             SetLocationX(double *apLocationX);
+
             /**
-             * @brief LocationX getter.
+             * @brief
+             * LocationX getter.
+             *
              * @return mpLocationX
+             * Pointer to X data.
+             *
              */
-            double*
+            double *
             GetLocationX();
+
             /**
-             * @brief LocationY setter.
-             * @param apLocationY
+             * @brief
+             * LocationY setter.
+             *
+             * @param[in] apLocationY
+             * Pointer to Y data.
+             *
              */
             void
             SetLocationY(double *apLocationY);
+
             /**
-             * @brief LocationY getter.
+             * @brief
+             * LocationY getter.
+             *
              * @return mpLocationY
+             * Pointer to Y data.
+             *
              */
-            double*
+            double *
             GetLocationY();
+
             /**
-             * @brief LocationZ setter.
-             * @param apLocationZ
+             * @brief
+             * LocationZ setter.
+             *
+             * @param[in] apLocationZ
+             * Pointer to Z data.
+             *
              */
             void
             SetLocationZ(double *apLocationZ);
+
             /**
-             * @brief LocationZ getter.
+             * @brief
+             * LocationZ getter.
+             *
              * @return mpLocationZ
+             * Pointer to Z data.
+             *
              */
-            double*
+            double *
             GetLocationZ();
-            /**
-             * @brief Check Dimension value.
-             * @param aDimensions
-             */
 
         private:
             /// Used Location X.

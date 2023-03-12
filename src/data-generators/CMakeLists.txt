@@ -10,9 +10,9 @@
 # @date 2023-02-14
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
+
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/DataGenerator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/DataGenerationFactory.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -28,11 +28,6 @@ namespace exageostat {
 
             public:
                 /**
-                 * @brief Virtual destructor to allow calls to the correct concrete destructor.
-                 */
-                virtual ~DataConfigurations() = default;
-
-                /**
                  * @brief Kernel setter.
                  * @param aKernel
                  */
