@@ -20,6 +20,10 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
 
+# Cmake Module Paths
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake;${CMAKE_MODULE_PATH}")
+
+
 # Toolchain selection
 if (USE_CUDA)
     add_definitions(-DUSE_CUDA=TRUE)
@@ -56,9 +60,9 @@ if (USE_CUDA)
     )
 else ()
     message("-- Build x86 Support")
-    set(gpu_backend CACHE "none" FORCE)
-    include(ImportBlasPP)
-    include(ImportLapackPP)
+#    set(gpu_backend CACHE "none" FORCE)
+#    include(ImportBlasPP)
+#    include(ImportLapackPP)
 endif ()
 
 if(EXAGEOSTAT_BUILD_DOCS)
