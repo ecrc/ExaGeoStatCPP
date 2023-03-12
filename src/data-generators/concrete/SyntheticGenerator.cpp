@@ -21,29 +21,30 @@ SyntheticGenerator::SyntheticGenerator(configurations::data_configurations::Synt
     this->InitLocationsClass();
 }
 
-void SyntheticGenerator::InitializeLocations(int aTimeSlots) {
+void SyntheticGenerator::InitializeLocations() {
 
     int p = 1;
     int N = this->mpConfigurations->GetProblemSize() / p;
 
-    this->GenerateLocations(N, aTimeSlots);
+    this->GenerateLocations(N);
 }
 
-void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
+void SyntheticGenerator::GenerateLocations(int aN) {
 
     int index = 0;
-    std::string dimension = this->mpConfigurations->GetDimension();
+    Dimension dimension = this->mpConfigurations->GetDimension();
+    int timeSlots = this->mpConfigurations->GetTimeSlot();
 
     //Allocate memory
-    this->mpLocations->SetLocationX((double *) malloc(aN * aTimeSlots * sizeof(double)));
-    this->mpLocations->SetLocationY((double *) malloc(aN * aTimeSlots * sizeof(double)));
+    this->mpLocations->SetLocationX((double *) malloc(aN * timeSlots * sizeof(double)));
+    this->mpLocations->SetLocationY((double *) malloc(aN * timeSlots * sizeof(double)));
 
-    if (dimension != "2D") {
-        this->mpLocations->SetLocationZ((double *) malloc(aN * aTimeSlots * sizeof(double)));
+    if (dimension != Dimension2D) {
+        this->mpLocations->SetLocationZ((double *) malloc(aN * timeSlots * sizeof(double)));
     }
 
     int rootN;
-    if (dimension == "3D"){
+    if (dimension == Dimension3D){
         //Cubic root.
         rootN = ceil(cbrt(aN));
     }
@@ -59,7 +60,7 @@ void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
 
     for (auto i = 0; i < rootN && index < aN; i++) {
         for (auto j = 0; j < rootN && index < aN; j++) {
-            if (dimension == "3D"){
+            if (dimension == Dimension3D){
                 for (auto k = 0; k < rootN && index < aN; k++) {
                     this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
                     this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
@@ -70,7 +71,7 @@ void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
             else{
                 this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
                 this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
-                if (dimension == "ST"){
+                if (dimension == DimensionST){
                     this->mpLocations->GetLocationZ()[index] = 1.0;
                 }
                 index++;
@@ -78,11 +79,11 @@ void SyntheticGenerator::GenerateLocations(int aN, int aTimeSlots) {
         }
     }
     free(grid);
-    if (dimension != "ST"){
+    if (dimension != DimensionST){
         SortLocations(aN);
     }
     else{
-        for (auto j = 1; j < aTimeSlots; j++) {
+        for (auto j = 1; j < timeSlots; j++) {
             for (auto i = 0; i < aN; i++) {
                 this->mpLocations->GetLocationX()[i + j * aN] = this->mpLocations->GetLocationX()[i];
                 this->mpLocations->GetLocationY()[i + j * aN] = this->mpLocations->GetLocationY()[i];
@@ -99,10 +100,6 @@ double SyntheticGenerator::UniformDistribution(double aRangeLow, double aRangeHi
     return (myRand * range) + aRangeLow;
 }
 
-void SyntheticGenerator::Print() {
-    std::cout << "HELLO YOU'RE USING SYNTHETIC DATA GENERATION" << std::endl;
-    std::cout << "N: " << mpConfigurations->GetProblemSize() << std::endl;
-}
 
 uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte)
 {
@@ -144,14 +141,14 @@ void SyntheticGenerator::SortLocations(int aN) {
 
     // Some sorting, required by spatial statistics code
     uint16_t x, y, z;
-    std::string dimension = this->mpConfigurations->GetDimension();
+    Dimension dimension = this->mpConfigurations->GetDimension();
     uint64_t vectorZ[aN];
 
     // Encode data into vector z
     for (auto i = 0; i < aN; i++) {
         x = (uint16_t) (this->mpLocations->GetLocationX()[i] * (double) UINT16_MAX + .5);
         y = (uint16_t) (this->mpLocations->GetLocationY()[i] * (double) UINT16_MAX + .5);
-        if (dimension == "3D"){
+        if (dimension != Dimension2D){
             z = (uint16_t) (this->mpLocations->GetLocationZ()[i] * (double) UINT16_MAX + .5);
         }
         else{
@@ -169,7 +166,7 @@ void SyntheticGenerator::SortLocations(int aN) {
         z = ReverseSpreadBits(vectorZ[i] >> 2);
         this->mpLocations->GetLocationX()[i] = (double) x / (double) UINT16_MAX;
         this->mpLocations->GetLocationY()[i] = (double) y / (double) UINT16_MAX;
-        if (dimension == "3D"){
+        if (dimension == Dimension3D){
             this->mpLocations->GetLocationZ()[i] = (double) z / (double) UINT16_MAX;
         }
     }

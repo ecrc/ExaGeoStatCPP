@@ -44,3 +44,11 @@ int Configurations::CheckNumericalValue(string aValue) {
     }
     return numericalValue;
 }
+
+void Configurations::SetTimeSlot(int aTimeSlot) {
+    this->mTimeSlot = aTimeSlot;
+}
+
+int Configurations::GetTimeSlot() {
+    return this->mTimeSlot;
+}

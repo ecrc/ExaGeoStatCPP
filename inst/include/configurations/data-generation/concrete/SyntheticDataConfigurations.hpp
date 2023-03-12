@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <configurations/data-generation/DataConfigurations.hpp>
+#include <data-units/Helpers.hpp>
 
 namespace exageostat {
     namespace configurations {
@@ -70,13 +71,13 @@ namespace exageostat {
                  * @param aDimension
                  */
                 void
-                SetDimension(std::string aDimension);
+                SetDimension(exageostat::dataunits::Dimension aDimension);
 
                 /**
                  * @brief Dimension getter.
                  * @return mDimension
                  */
-                std::string
+                exageostat::dataunits::Dimension
                 GetDimension();
 
                 /**
@@ -93,11 +94,11 @@ namespace exageostat {
                 int
                 GetPGrid();
 
-                void CheckDimensionValue(std::string aDimension);
+                exageostat::dataunits::Dimension CheckDimensionValue(std::string aDimension);
 
             private:
                 /// Used Dimension.
-                std::string mDimension;
+                exageostat::dataunits::Dimension mDimension;
                 /// Used PGrid.
                 int mPGrid;
                 /// Used Location X.

@@ -182,7 +182,7 @@ void TEST_GENERATE_LOCATIONS(){
     Locations locations;
 
     SECTION("2D Generation"){
-        syntheticDataConfigurations->SetDimension("2D");
+        syntheticDataConfigurations->SetDimension(Dimension2D);
         syntheticGenerator.InitializeLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
@@ -196,7 +196,7 @@ void TEST_GENERATE_LOCATIONS(){
     }
 
     SECTION("3D Generation"){
-        syntheticDataConfigurations->SetDimension("3D");
+        syntheticDataConfigurations->SetDimension(Dimension3D);
         syntheticGenerator.InitializeLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
@@ -210,15 +210,15 @@ void TEST_GENERATE_LOCATIONS(){
         }
     }
     SECTION("ST Generation"){
-        syntheticDataConfigurations->SetDimension("ST");
-        int timeSlot = 8;
-        syntheticGenerator.InitializeLocations(timeSlot);
+        syntheticDataConfigurations->SetDimension(DimensionST);
+        syntheticDataConfigurations->SetTimeSlot(3);
+        syntheticGenerator.InitializeLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
         double* z = syntheticGenerator.GetLocations()->GetLocationZ();
 
-        for (auto i = 0; i < syntheticDataConfigurations->GetProblemSize() * timeSlot; i ++){
+        for (auto i = 0; i < syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetTimeSlot(); i ++){
             REQUIRE( x[i] != 0 );
             REQUIRE( y[i] != 0 );
             REQUIRE( z[i] != 0 );

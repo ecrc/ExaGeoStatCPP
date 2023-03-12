@@ -68,9 +68,28 @@ namespace exageostat {
             int
             GetProblemSize();
 
+            /**
+            * @brief Time slot setter.
+            * @param aTimeSlot
+            */
+            void
+            SetTimeSlot(int aTimeSlot);
+
+            /**
+             * @brief Time slot getter.
+             * @return mTimeSlot
+             */
+            int
+            GetTimeSlot();
+
+
+
         protected:
-            /// Problem size.
+            /// Used Problem size.
             int mProblemSize;
+            /// Used Time slot.
+            int mTimeSlot = 1;
+
         };
 
     }//namespace configurations

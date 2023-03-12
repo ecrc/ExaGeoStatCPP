@@ -48,7 +48,7 @@ namespace exageostat {
                  * The input seed.
                  *
                  */
-                void GenerateLocations(int aN, int aTimeSlots);
+                void GenerateLocations(int aN);
 
                 /**
                  * @brief
@@ -134,9 +134,7 @@ namespace exageostat {
                  * The modified X, Y and Z variables.
                  */
                 void
-                InitializeLocations(int aTimeSlots = 1) override;
-
-                void Print() override;
+                InitializeLocations() override;
 
             private:
 

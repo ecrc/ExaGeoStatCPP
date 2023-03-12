@@ -18,6 +18,7 @@
 #include <iostream>
 
 using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::dataunits;
 using namespace std;
 
 
@@ -61,12 +62,16 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetKernel(argumentValue);
             } else if (argumentName == "--Dimensions" || argumentName == "--dimensions"
                        || argumentName == "--dim" || argumentName == "--Dim") {
-                CheckDimensionValue(argumentValue);
-                SetDimension(argumentValue);
+                SetDimension(CheckDimensionValue(argumentValue));
             } else if (argumentName == "--P" || argumentName == "--p") {
                 numericalValue = CheckNumericalValue(argumentValue);
                 SetPGrid(numericalValue);
-            } else {
+            }
+            else if (argumentName == "--TimeSlot" || argumentName == "--timeslot") {
+                numericalValue = CheckNumericalValue(argumentValue);
+                SetTimeSlot(numericalValue);
+            }
+            else {
                 cout << "!! " << argumentName << " !!" << endl;
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");
@@ -94,6 +99,7 @@ void SyntheticDataConfigurations::PrintUsage() {
     cout << "\t\t --Dimensions=value : Used Dimension." << endl;
     cout << "\t\t --P=value : Used P-Grid." << endl;
     cout << "\t\t --P=value : Used P-Grid." << endl;
+    cout << "\t\t --TimeSlot=value : Time slot value for ST." << endl;
     cout << "\t\t --syntheticData : Used to enable generating synthetic data." << endl;
     cout << "\n\n";
 
@@ -101,11 +107,11 @@ void SyntheticDataConfigurations::PrintUsage() {
 
 }
 
-string SyntheticDataConfigurations::GetDimension() {
+Dimension SyntheticDataConfigurations::GetDimension() {
     return this->mDimension;
 }
 
-void SyntheticDataConfigurations::SetDimension(string aDimension) {
+void SyntheticDataConfigurations::SetDimension(Dimension aDimension) {
     this->mDimension = aDimension;
 }
 
@@ -117,13 +123,20 @@ int SyntheticDataConfigurations::GetPGrid() {
     return this->mPGrid;
 }
 
-void SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
+Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
 
     if (aDimension != "2D" and aDimension != "2d"
         and aDimension != "3D" and aDimension != "3d"
         and aDimension != "st" and aDimension != "ST") {
         throw range_error("Invalid value for Dimension. Please use 2D, 3D or ST.");
     }
+    if (aDimension == "2D" or aDimension == "2d"){
+        return Dimension2D;
+    }
+    else if ( aDimension == "3D" or aDimension == "3d"){
+        return Dimension3D;
+    }
+    return DimensionST;
 }
 
 

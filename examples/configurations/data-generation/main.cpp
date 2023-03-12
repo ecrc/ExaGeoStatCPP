@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::dataunits;
 
 int main(int argc, char **argv) {
 
@@ -33,9 +34,15 @@ int main(int argc, char **argv) {
         cout << "You set Kernel by: " << kernel << endl;
     }
 
-    string dimension = syntheticDataConfigurations->GetDimension();
-    if (!dimension.empty()) {
-        cout << "You set Dimension by: " << dimension << endl;
+    Dimension dimension = syntheticDataConfigurations->GetDimension();
+    if (dimension == Dimension2D) {
+        cout << "You set Dimension by: 2D" << endl;
+    }
+    else if (dimension == Dimension3D) {
+        cout << "You set Dimension by: 3D" << endl;
+    }
+    else if (dimension == DimensionST) {
+        cout << "You set Dimension by: ST" << endl;
     }
 
     int PGrid = syntheticDataConfigurations->GetPGrid();

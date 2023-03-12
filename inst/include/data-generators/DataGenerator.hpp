@@ -31,7 +31,7 @@ namespace exageostat {
              * The modified X, Y and Z variables.
              */
             virtual void
-            InitializeLocations(int aTimeSlots) = 0;
+            InitializeLocations() = 0;
 
             /**
              * @brief
@@ -57,13 +57,23 @@ namespace exageostat {
             void
             SetConfigurations(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
+            /**
+             * @brief
+             * Initialize locations class.
+             *
+             */
             void
             InitLocationsClass();
 
+            /**
+             * @brief
+             * Gets data locations class.
+             *
+             * @return mpLocations
+             * Pointer to locations object.
+             */
             dataunits::Locations *
             GetLocations();
-
-            virtual void Print() = 0;
 
 
         protected:

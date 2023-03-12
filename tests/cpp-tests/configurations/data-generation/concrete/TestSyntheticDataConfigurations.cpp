@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::dataunits;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
@@ -27,9 +28,8 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
 
     SECTION("Dimensions setter/getter test")
     {
-        REQUIRE(syntheticDataConfigurations->GetDimension().empty());
-        syntheticDataConfigurations->SetDimension("2D");
-        REQUIRE(syntheticDataConfigurations->GetDimension() == "2D");
+        syntheticDataConfigurations->SetDimension(Dimension2D);
+        REQUIRE(syntheticDataConfigurations->GetDimension() == Dimension2D);
     }SECTION("Dimensions value checker test")
     {
         REQUIRE_THROWS_WITH(

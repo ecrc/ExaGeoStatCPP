@@ -20,7 +20,7 @@
 namespace exageostat {
     namespace dataunits {
 
-        std::set<std::string> availableKernels = {"univariate_matern_stationary",
+        inline std::set<std::string> availableKernels = {"univariate_matern_stationary",
                                                   "univariate_matern_non_stationary",
                                                   "bivariate_matern_flexible",
                                                   "bivariate_matern_parsimonious",
@@ -44,7 +44,12 @@ namespace exageostat {
                                                   "trivariate_matern_parsimonious_profile",
                                                   "univariate_matern_non_stat"
         };
+        enum Dimension{
+            Dimension2D = 0,
+            Dimension3D = 1,
+            DimensionST = 2,
+        };
 
-    }//namespace configurations
+    }//namespace dataunits
 }//namespace exageostat
 #endif //EXAGEOSTAT_CPP_HELPERS_HPP
