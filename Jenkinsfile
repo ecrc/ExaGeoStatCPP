@@ -101,9 +101,9 @@ pipeline {
                     ./config.sh -t -e
                     ./clean_build.sh
                     cd bin
-                    #make docs
+                    make docs
                     '''
-//                  publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'bin/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
+                 publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'bin/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
              }
         }
     }
