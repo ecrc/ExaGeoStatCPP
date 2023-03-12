@@ -15,7 +15,7 @@ using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations::data_configurations;
 
-SyntheticGenerator::SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
+SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
     // Set configuration map.
     this->SetConfigurations(apConfigurations);
     this->InitLocationsClass();
@@ -25,7 +25,6 @@ void SyntheticGenerator::InitializeLocations() {
 
     int p = 1;
     int N = this->mpConfigurations->GetProblemSize() / p;
-
     this->GenerateLocations(N);
 }
 
@@ -101,6 +100,41 @@ double SyntheticGenerator::UniformDistribution(double aRangeLow, double aRangeHi
 }
 
 
+void SyntheticGenerator::SortLocations(int aN) {
+
+    // Some sorting, required by spatial statistics code
+    uint16_t x, y, z;
+    Dimension dimension = this->mpConfigurations->GetDimension();
+    uint64_t vectorZ[aN];
+
+    // Encode data into vector z
+    for (auto i = 0; i < aN; i++) {
+        x = (uint16_t) (this->mpLocations->GetLocationX()[i] * (double) UINT16_MAX + .5);
+        y = (uint16_t) (this->mpLocations->GetLocationY()[i] * (double) UINT16_MAX + .5);
+        if (dimension != Dimension2D){
+            z = (uint16_t) (this->mpLocations->GetLocationZ()[i] * (double) UINT16_MAX + .5);
+        }
+        else{
+            z = (uint16_t) 0.0;
+        }
+        vectorZ[i] = (this->SpreadBits(z) << 2) + (this->SpreadBits(y) << 1) + this->SpreadBits(x);
+    }
+    // Sort vector z
+    std::sort(vectorZ, vectorZ + aN, CompareUint64);
+
+    // Decode data from vector z
+    for (auto i = 0; i < aN; i++) {
+        x = ReverseSpreadBits(vectorZ[i] >> 0);
+        y = ReverseSpreadBits(vectorZ[i] >> 1);
+        z = ReverseSpreadBits(vectorZ[i] >> 2);
+        this->mpLocations->GetLocationX()[i] = (double) x / (double) UINT16_MAX;
+        this->mpLocations->GetLocationY()[i] = (double) y / (double) UINT16_MAX;
+        if (dimension == Dimension3D){
+            this->mpLocations->GetLocationZ()[i] = (double) z / (double) UINT16_MAX;
+        }
+    }
+}
+
 uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte)
 {
     aInputByte &= 0x000000000000ffff;
@@ -135,39 +169,4 @@ uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte)
 
 bool SyntheticGenerator::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
     return aFirstValue < aSecondValue;
-}
-
-void SyntheticGenerator::SortLocations(int aN) {
-
-    // Some sorting, required by spatial statistics code
-    uint16_t x, y, z;
-    Dimension dimension = this->mpConfigurations->GetDimension();
-    uint64_t vectorZ[aN];
-
-    // Encode data into vector z
-    for (auto i = 0; i < aN; i++) {
-        x = (uint16_t) (this->mpLocations->GetLocationX()[i] * (double) UINT16_MAX + .5);
-        y = (uint16_t) (this->mpLocations->GetLocationY()[i] * (double) UINT16_MAX + .5);
-        if (dimension != Dimension2D){
-            z = (uint16_t) (this->mpLocations->GetLocationZ()[i] * (double) UINT16_MAX + .5);
-        }
-        else{
-            z = (uint16_t) 0.0;
-        }
-        vectorZ[i] = (this->SpreadBits(z) << 2) + (this->SpreadBits(y) << 1) + this->SpreadBits(x);
-    }
-    // Sort vector z
-    std::sort(vectorZ, vectorZ + aN, CompareUint64);
-
-    // Decode data from vector z
-    for (auto i = 0; i < aN; i++) {
-        x = ReverseSpreadBits(vectorZ[i] >> 0);
-        y = ReverseSpreadBits(vectorZ[i] >> 1);
-        z = ReverseSpreadBits(vectorZ[i] >> 2);
-        this->mpLocations->GetLocationX()[i] = (double) x / (double) UINT16_MAX;
-        this->mpLocations->GetLocationY()[i] = (double) y / (double) UINT16_MAX;
-        if (dimension == Dimension3D){
-            this->mpLocations->GetLocationZ()[i] = (double) z / (double) UINT16_MAX;
-        }
-    }
 }

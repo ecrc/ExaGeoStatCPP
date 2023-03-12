@@ -39,13 +39,23 @@ namespace exageostat {
 
                 /**
                  * @brief
+                 * Initialize data locations.
+                 *
+                 * @param[in] aLocations
+                 * X, Y and Z variables.
+                 *
+                 * @return aLocations
+                 * The modified X, Y and Z variables.
+                 */
+                void
+                InitializeLocations() override;
+
+                /**
+                 * @brief
                  * Set default values for input arguments
                  *
                  * @param[in] aN
                  * The problem size divided by P-Grid.
-                 *
-                 * @param[in] aSeed
-                 * The input seed.
                  *
                  */
                 void GenerateLocations(int aN);
@@ -71,70 +81,53 @@ namespace exageostat {
                  * Sort in Morton order (input points must be in [0;1]x[0;1] square]).
                  *
                  * @param[in] aN
-                 * The problem size.
-                 *
-                 * @param[in] aLocations
-                 * X, Y and Z variables.
+                 * The problem size divided by P-Grid.
                  *
                  */
                 void SortLocations(int aN);
 
                 /**
                  * @brief
-                 * Spread bits one by one.
+                 * Spread bits by three spaces.
                  *
                  * @param[in] aInputByte
-                 * The input byte to be spread.
+                 * The input 64 bit to be spread.
                  *
-                 * @return aInputByte
-                 * Returns Input byte After being spread.
+                 * @returns aInputByte
+                 * The byte after being spread.
                  *
                  */
                 uint64_t SpreadBits(uint64_t aInputByte);
 
                 /**
                  * @brief
-                 * Spread bits one by one.
+                 * Reverse Spread bits operation.
                  *
                  * @param[in] aInputByte
-                 * The input spreaded byte to be compacted.
+                 *  The input spread 64 bit to be compacted.
                  *
-                 * @return aInputByte
-                 * Returns Input byte After being compacted.
+                 * @returns aInputByte
+                 * The byte after being compacted.
                  *
                  */
                 uint64_t ReverseSpreadBits(uint64_t aInputByte);
 
                 /**
                  * @brief
-                 * Compares two Unit32 values
+                 * Compares two Unit64 values
                  *
-                 * @param[in] apFirstValue
-                 * Pointer to the first input Unit32 value
+                 * @param[in] aFirstValue
+                 * Constant reference to the first input 64 bit value.
                  *
-                 * @param[in] apSecondValue
-                 * Pointer to the second input Unit32 value
+                 * @param[in] aSecondValue
+                 * Constant reference to the second input 64 bit value.
                  *
-                 * @return value
-                 *  0  in case of equality,
-                 *  1  in case of apFirstValue bigger than apSecondValue
-                 *  -1 in case of apSecondValue bigger than apFirstValue
+                 * @return boolean
+                 *  True in case of second value bigger than first value.
+                 *  False otherwise.
                  *
                  */
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
-
-                /**
-                 * @brief
-                 * Initialize data locations.
-                 *
-                 * @param[in] aLocations
-                 * X, Y and Z variables.
-                 *
-                 * @return aLocations
-                 * The modified X, Y and Z variables.
-                 */
-                void
-                InitializeLocations() override;
 
             private:
 
