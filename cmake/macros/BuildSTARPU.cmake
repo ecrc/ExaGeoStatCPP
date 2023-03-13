@@ -27,7 +27,7 @@ macro(BuildStarPU raw_name url tag)
             COMMAND_ERROR_IS_FATAL ANY)
 
     if (USE_CUDA)
-        execute_process(COMMAND ./configure --prefix=${${name}_installpath} --enable-cuda --disable-starpufft --disable-opencl --disable-starpu-top --disable-starpufft --disable-build-doc --disable-starpufft-examples --disable-fortran --disable-glpk --with-perf-model-dir=${${name}_srcpath} --disable-fstack-protector-all --disable-gcc-extensions
+        execute_process(COMMAND ./configure --prefix=${${name}_installpath} --enable-cuda --disable-opencl --enable-shared --disable-build-doc --disable-export-dynamic --disable-mpi
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
     else()
