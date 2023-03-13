@@ -17,9 +17,7 @@ macro(BuildStarPU raw_name url tag)
     FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
     FetchContent_Populate(${name})
     set(${name}_srcpath ${CMAKE_BINARY_DIR}/_deps/${name}-src)
-    set(${name}_binpath ${CMAKE_BINARY_DIR}/_deps/${name}-bin)
     set(${name}_installpath ${CMAKE_BINARY_DIR}/_deps/${name}-install)
-    file(MAKE_DIRECTORY ${${name}_binpath})
     file(MAKE_DIRECTORY ${${name}_installpath})
     # Configure subproject into <subproject-build-dir>
     include(ProcessorCount)
@@ -29,19 +27,17 @@ macro(BuildStarPU raw_name url tag)
             COMMAND_ERROR_IS_FATAL ANY)
 
     if (USE_CUDA)
-        execute_process(COMMAND ./configure --prefix=${${name}_installpath} --enable-cuda --disable-starpufft --disable-opencl --disable-starpu-top --disable-starpufft --disable-build-doc --disable-starpufft-examples --disable-fortran --disable-glpk --with-perf-model-dir=${${name}_srcpath} --disable-fstack-protector-all --disable-gcc-extensions
-                WORKING_DIRECTORY ${${name}_srcpath}
-                COMMAND_ERROR_IS_FATAL ANY)
+        set(${using_cuda} --enable-cuda)
+    endif()
 
-    else()
-        execute_process(COMMAND ./configure --prefix=${${name}_installpath} --disable-starpufft --disable-opencl --disable-starpu-top --disable-starpufft --disable-build-doc --disable-starpufft-examples --disable-fortran --disable-glpk --with-perf-model-dir=${${name}_srcpath} --disable-fstack-protector-all --disable-gcc-extensions
+    execute_process(COMMAND ./configure --prefix=${${name}_installpath} ${using_cuda} --disable-starpufft --disable-opencl --disable-starpu-top --disable-starpufft --disable-build-doc --disable-starpufft-examples --disable-fortran --disable-glpk --with-perf-model-dir=${${name}_srcpath} --disable-fstack-protector-all --disable-gcc-extensions
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
-    endif ()
 
     execute_process(COMMAND make install -j ${N}
             WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
+
     set(ENV{LD_LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LD_LIBRARY_PATH}")
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")

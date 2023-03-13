@@ -26,6 +26,7 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
+                            set -x
                             ./config.sh -t -e
                             ./clean_build.sh
                         '''
