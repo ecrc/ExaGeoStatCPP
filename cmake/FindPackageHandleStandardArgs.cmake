@@ -210,7 +210,7 @@ Example for the usage:
   endif()
 #]=======================================================================]
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageMessage.cmake)
+include(FindPackageMessage)
 
 
 cmake_policy(PUSH)

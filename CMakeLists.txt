@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
 
 # Cmake Module Paths
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake;${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 
 # Toolchain selection
@@ -48,6 +48,7 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 
 # Add all dependencies for Exageostat
+include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
     include(ImportCuSolver)
@@ -60,9 +61,9 @@ if (USE_CUDA)
     )
 else ()
     message("-- Build x86 Support")
-#    set(gpu_backend CACHE "none" FORCE)
-#    include(ImportBlasPP)
-#    include(ImportLapackPP)
+    set(gpu_backend CACHE "none" FORCE)
+    include(ImportBlasPP)
+    include(ImportLapackPP)
 endif ()
 
 # EXAGEOSTAT depends on a runtime

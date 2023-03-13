@@ -88,7 +88,52 @@ pipeline {
                 }
             }
         }
-	stage('documentation') {
+        stage ('cuda') {
+            stages {
+                stage ('build') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Configure and build
+                            ####################################################
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ####################################################
+                            # BLAS/LAPACK
+                            ####################################################
+                            module load mkl/2020.0.166
+                            module load cuda/11.4
+                            set -x
+                            ./config.sh -t -e -c
+                            ./clean_build.sh
+                        '''
+                    }
+                }
+                stage ('test') {
+                    steps {
+
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Run tester
+                            ####################################################
+                            echo "========================================"
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ####################################################
+                            # BLAS/LAPACK
+                            ####################################################
+                            module load mkl/2020.0.166
+                            module load cuda/11.4
+                            cd bin/
+                            make test
+                            '''
+                    }
+                }
+            }
+        }
+	    stage('documentation') {
              agent { label 'jenkinsfile'}
              steps {
                  sh '''#!/bin/bash -le
