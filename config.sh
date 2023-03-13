@@ -18,7 +18,7 @@ NC='\033[0m'
 INSTALL_PREFIX=$PWD/bin/installdir
 PROJECT_SOURCE_DIR=$(dirname "$0")
 
-while getopts ":tevhHCi:d" opt; do
+while getopts ":tevhHCi:dc" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -40,6 +40,10 @@ while getopts ":tevhHCi:d" opt; do
         echo -e "${GREEN}Using Chameleon.${NC}"
         USING_CHAMELEON="ON"
         ;;
+    c)##### Using cuda enabled #####
+        echo -e "${GREEN}Cuda enabled ${NC}"
+        USE_CUDA=ON
+        ;;
     v) ##### printing full output of make #####
       echo -e "${YELLOW}printing make with details.${NC}"
       VERBOSE=ON
@@ -54,15 +58,15 @@ while getopts ":tevhHCi:d" opt; do
       USING_HiCMA="OFF"
       USING_CHAMELEON="OFF"
       INSTALL_PREFIX=$PWD/bin/installdir
+      VERBOSE=OFF
+      BUILD_TYPE="RELEASE"
+      USE_CUDA="OFF"
 
       echo -e "${RED}Building tests disabled.${NC}"
       echo -e "${RED}Building examples disabled.${NC}"
       echo -e "${BLUE}Installation path set to $INSTALL_PREFIX.${NC}"
       echo -e "${BLUE}Using HiCMA is disabled.${NC}"
       echo -e "${BLUE}Using Chameleon is disabled.${NC}"
-
-      VERBOSE=OFF
-      BUILD_TYPE="RELEASE"
       ;;
     :) ##### Error in an option #####
       echo "Option $OPTARG requires parameter(s)"
@@ -111,6 +115,10 @@ if [ -z "$BUILD_TYPE" ]; then
   BUILD_TYPE="RELEASE"
   echo -e "${GREEN}Building in release mode${NC}"
 fi
+if [ -z "$USE_CUDA" ]; then
+  USE_CUDA="OFF"
+  echo -e "${RED}Using CUDA disabled${NC}"
+fi
 
 
 echo ""
@@ -125,7 +133,7 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
   -DEXAGEOSTAT_BUILD_TESTS="$BUILDING_TESTS" \
   -DEXAGEOSTAT_BUILD_EXAMPLES="$BUILDING_EXAMPLES" \
   -DEXAGEOSTAT_USE_HICMA="$USING_HiCMA" \
-  -DEXAGEOSTAT_USE_CHAMELEON="$USING_CHAMELEON" \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=$VERBOSE \
+  -DUSE_CUDA="$USE_CUDA"\
   -H"${PROJECT_SOURCE_DIR}" \
   -B"${PROJECT_SOURCE_DIR}/bin"

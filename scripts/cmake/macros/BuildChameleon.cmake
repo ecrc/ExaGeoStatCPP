@@ -4,12 +4,13 @@
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
-# @file BuildDependency.cmake
+# @file BuildChameleon.cmake
 # @version 1.0.0
 # @author Sameh Abdulah
-# @date 2023-03-12
+# @date 2023-03-13
 
-macro(BuildDependency raw_name url tag)
+
+macro(BuildChameleon raw_name url tag)
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
@@ -22,24 +23,28 @@ macro(BuildDependency raw_name url tag)
     file(MAKE_DIRECTORY ${${name}_binpath})
     file(MAKE_DIRECTORY ${${name}_installpath})
     # Configure subproject into <subproject-build-dir>
+    include(ProcessorCount)
+    ProcessorCount(N)
     execute_process(COMMAND ${CMAKE_COMMAND}
             -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
+            -DCHAMELEON_SCHED_STARPU=ON
+            -DCHAMELEON_USE_CUDA=${USE_CUDA}
             ${${name}_srcpath}
             WORKING_DIRECTORY
             ${${name}_binpath})
-    # Build and install subproject
-    include(ProcessorCount)
-    ProcessorCount(N)
-    if(NOT N EQUAL 0)
-        execute_process(COMMAND ${CMAKE_COMMAND} --build ${${name}_binpath} --parallel ${N} --target install)
-    else()
-        execute_process(COMMAND ${CMAKE_COMMAND} --build ${${name}_binpath} --parallel 48 --target install)
-    endif()
+
+    execute_process(COMMAND make -j ${N}
+            WORKING_DIRECTORY ${${name}_binpath}
+            COMMAND_ERROR_IS_FATAL ANY)
+
+    execute_process(COMMAND make install -j ${N}
+            WORKING_DIRECTORY ${${name}_binpath}
+            COMMAND_ERROR_IS_FATAL ANY)
     set(ENV{LD_LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LD_LIBRARY_PATH}")
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
     set(ENV{PKG_CONFIG_PATH} "${${name}_installpath}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-    set(${capital_name}_DIR "${${name}_installpath}/lib")
+    set(${capital_name}_DIR "${${name}_installpath}")
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
     install(
@@ -61,4 +66,3 @@ macro(BuildDependency raw_name url tag)
             ./
     )
 endmacro()
-

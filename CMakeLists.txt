@@ -44,7 +44,7 @@ option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
 option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
 option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
-message("CMAKE VERSION: ${CMAKE_VERSION}")
+message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 
 # Add all dependencies for Exageostat
@@ -65,6 +65,28 @@ else ()
 #    include(ImportLapackPP)
 endif ()
 
+# EXAGEOSTAT depends on a runtime
+# -------------------------------
+include(ImportSTARPU)
+
+# EXAGEOSTAT depends on CHAMELEON
+# -------------------------------
+include(ImportChameleon)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if(EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
     if(DOXYGEN_FOUND)
@@ -84,7 +106,7 @@ add_subdirectory(src)
 
 # Add tests if enabled
 if (${EXAGEOSTAT_BUILD_TESTS})
-    message(STATUS "Building Tests")
+    message(STATUS "Building Tests is Enabled")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp-tests)
     include(CTest)
     add_test(NAME exageostat-tests
@@ -93,7 +115,7 @@ if (${EXAGEOSTAT_BUILD_TESTS})
 endif ()
 
 if (EXAGEOSTAT_BUILD_EXAMPLES)
-    message(STATUS "Building Examples")
+    message(STATUS "Building Examples  is Enabled")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples)
 endif ()
 
