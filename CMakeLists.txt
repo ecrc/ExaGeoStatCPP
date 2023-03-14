@@ -48,6 +48,7 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 
 # Add all dependencies for Exageostat
+include(ImportGFortran)
 include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
@@ -68,26 +69,24 @@ endif ()
 
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
-include(ImportSTARPU)
+include(ImportStarPu)
 
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
-include(ImportChameleon)
+if (EXAGEOSTAT_USE_CHAMELEON)
+    include(ImportChameleon)
+endif ()
 
 
+# EXAGEOSTAT depends on HiCMA
+# -------------------------------
+if (EXAGEOSTAT_USE_HiCMA)
+    include(ImportStarsH)
+    include(ImportHiCMA)
+endif ()
 
 
-
-
-
-
-
-
-
-
-
-
-
+# EXAGEOSTAT DOCUMENTATIONS
 if(EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
     if(DOXYGEN_FOUND)

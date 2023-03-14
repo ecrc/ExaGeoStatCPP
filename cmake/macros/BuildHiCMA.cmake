@@ -4,12 +4,12 @@
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
-# @file BuildChameleon.cmake
+# @file BuildHiCMA.cmake
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-13
 
-macro(BuildChameleon raw_name url tag)
+macro(BuildHiCMA raw_name url tag)
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
@@ -24,6 +24,7 @@ macro(BuildChameleon raw_name url tag)
     # Configure subproject into <subproject-build-dir>
     include(ProcessorCount)
     ProcessorCount(N)
+
     execute_process(COMMAND ${CMAKE_COMMAND}
             -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
             -DCHAMELEON_SCHED_STARPU=ON
