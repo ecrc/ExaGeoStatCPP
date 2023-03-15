@@ -16,6 +16,8 @@ include(macros/BuildChameleon)
 
 if (NOT TARGET CHAMELEON_FOUND)
     include(FindPkgConfig)
+    find_package(PkgConfig QUIET)
+
     find_package(Chameleon QUIET)
 
     if (CHAMELEON_FOUND)

@@ -127,10 +127,8 @@ endif()
 
 # Optionally use pkg-config to detect include/library dirs (if pkg-config is available)
 # -------------------------------------------------------------------------------------
-if(NOT PKG_CONFIG_FOUND)
-    include(CMakeFindDependencyMacro)
-    find_dependency(PkgConfig)
-endif()
+include(FindPkgConfig)
+find_package(PkgConfig QUIET)
 if(PKG_CONFIG_EXECUTABLE AND NOT CHAMELEON_GIVEN_BY_USER)
 
     pkg_search_module(CHAMELEON chameleon)

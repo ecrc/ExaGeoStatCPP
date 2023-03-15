@@ -48,7 +48,7 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 
 # Add all dependencies for Exageostat
-include(ImportGFortran)
+#include(ImportGFortran)
 include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
@@ -62,9 +62,9 @@ if (USE_CUDA)
     )
 else ()
     message("-- Build x86 Support")
-    set(gpu_backend CACHE "none" FORCE)
-    include(ImportBlasPP)
-    include(ImportLapackPP)
+#    set(gpu_backend CACHE "none" FORCE)
+#    include(ImportBlasPP)
+#    include(ImportLapackPP)
 endif ()
 
 # EXAGEOSTAT depends on a runtime
@@ -89,6 +89,7 @@ endif ()
 # EXAGEOSTAT DOCUMENTATIONS
 if(EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
+
     if(DOXYGEN_FOUND)
         add_subdirectory("docs")
     else()
