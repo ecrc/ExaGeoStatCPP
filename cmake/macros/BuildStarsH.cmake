@@ -18,7 +18,7 @@ macro(BuildStarsH raw_name url tag)
     FetchContent_Populate(${name})
     set(${name}_srcpath ${CMAKE_BINARY_DIR}/_deps/${name}-src)
     set(${name}_binpath ${CMAKE_BINARY_DIR}/_deps/${name}-src/${name}-bin)
-    set(${name}_installpath ${CMAKE_BINARY_DIR}/_deps/${name}-src/${name}-bin/${name}-install)
+    set(${name}_installpath ${CMAKE_BINARY_DIR}/_deps/${name}-install)
     file(MAKE_DIRECTORY ${${name}_binpath})
     file(MAKE_DIRECTORY ${${name}_installpath})
     # Configure subproject into <subproject-build-dir>
@@ -44,11 +44,8 @@ macro(BuildStarsH raw_name url tag)
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
     set(ENV{PKG_CONFIG_PATH} "${${name}_installpath}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-
-    message("AHOOOOOOOOOOOOOOOOOOOOOOOOOO")
-    message("${PKG_CONFIG_PATH}")
-
     set(${capital_name}_DIR "${${name}_installpath}")
+    message("PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
     install(

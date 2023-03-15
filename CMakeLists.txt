@@ -49,11 +49,11 @@ enable_language(CXX)
 
 # Add all dependencies for Exageostat
 #include(ImportGFortran)
-include(ImportOpenMP)
+#include(ImportOpenMP)
+
 if (USE_CUDA)
     message("-- Build CUDA Support")
     include(ImportCuSolver)
-    include(ImportBlasPP)
     unset(BLA_VENDOR)
     include(ImportLapack)
     set(LIBS
@@ -62,8 +62,7 @@ if (USE_CUDA)
     )
 else ()
     message("-- Build x86 Support")
-#    set(gpu_backend CACHE "none" FORCE)
-#    include(ImportBlasPP)
+    set(gpu_backend CACHE "none" FORCE)
 #    include(ImportLapackPP)
 endif ()
 
@@ -84,6 +83,12 @@ if (EXAGEOSTAT_USE_HiCMA)
     include(ImportStarsH)
     include(ImportHiCMA)
 endif ()
+
+
+find_package(LAPACKE)
+list(APPEND LIBS  ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
 
 
 # EXAGEOSTAT DOCUMENTATIONS

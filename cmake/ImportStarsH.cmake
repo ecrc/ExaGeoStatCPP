@@ -16,7 +16,10 @@ include(macros/BuildStarsH)
 
 if (NOT TARGET STARSH_FOUND)
     include(FindPkgConfig)
-    find_package(STARSH QUIET)
+    find_package(PkgConfig QUIET)
+
+    find_package(STARSH)
+
     if (STARSH_FOUND)
         message("   Found STARSH: ${STARSH_LIBRARIES}")
     else()
@@ -30,7 +33,6 @@ else()
 endif()
 
 include_directories(${STARSH_INCLUDE_DIRS_DEP})
-
 if (STARSH_LINKER_FLAGS)
     list(APPEND CMAKE_EXE_LINKER_FLAGS "${STARSH_LINKER_FLAGS}")
 endif ()
