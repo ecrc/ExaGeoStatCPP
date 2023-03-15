@@ -11,17 +11,21 @@
 
 message("")
 message("---------------------------------------- Hicma")
-message(STATUS "Checking for Chameleon")
+message(STATUS "Checking for HiCMA")
 include(macros/BuildHiCMA)
 
 if (NOT TARGET HICMA_FOUND)
     include(FindPkgConfig)
+    find_package(PkgConfig QUIET)
     find_package(HICMA QUIET)
 
     if (HICMA_FOUND)
         message("   Found HiCMA: ${HICMA_LIBDIR}")
     else ()
-
+        message(STATUS "Add Hcore, Dependency needed for HiCMA")
+        include(ImportHcore)
+        message(STATUS "Add StarsH, Dependency needed for HiCMA")
+        include(ImportStarsH)
         set(hicma_installpath ${CMAKE_BINARY_DIR}/_deps/hicma-install)
         set(HICMA_DIR "${hicma_installpath}/")
         BuildHiCMA(HiCMA "https://github.com/ecrc/hicma.git" "v1.0.0")

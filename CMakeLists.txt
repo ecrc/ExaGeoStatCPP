@@ -33,7 +33,6 @@ if (USE_CUDA)
 else ()
     include(toolchains/GccToolchain)
 endif ()
-
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
 
@@ -66,6 +65,18 @@ else ()
 #    include(ImportLapackPP)
 endif ()
 
+# EXAGEOSTAT depends on a MPI
+# -------------------------------
+if(MPI_VALUE)
+    message("Trying to find MPI")
+    find_package(MPI REQUIRED)
+    message("FOUND MPI.....")
+endif()
+
+# EXAGEOSTAT depends on a Hwloc
+# -------------------------------
+include(ImportHwloc)
+
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
 include(ImportStarPu)
@@ -80,7 +91,7 @@ endif ()
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
 if (EXAGEOSTAT_USE_HiCMA)
-    include(ImportStarsH)
+    include(ImportGSL)
     include(ImportHiCMA)
 endif ()
 
