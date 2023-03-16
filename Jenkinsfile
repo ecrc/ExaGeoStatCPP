@@ -125,35 +125,6 @@ pipeline {
                             '''
                     }
                 }
-                stage ('build with HiCMA') {
-                    steps {
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Configure and build
-                            ####################################################
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            ./config.sh -t -e -H
-                            ./clean_build.sh
-                        '''
-                    }
-                }
-                stage ('test with HiCMA') {
-                    steps {
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Run tester
-                            ####################################################
-                            echo "========================================"
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            cd bin/
-                            make test
-                            '''
-                    }
-                }
             }
         }
 

@@ -29,7 +29,7 @@ macro(BuildStarsH raw_name url tag)
     execute_process(COMMAND ${CMAKE_COMMAND}
             -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
             -DSTARPU=OFF
-            -DMPI=OFF
+            -DMPI=${USE_MPI}
             ${${name}_srcpath}
             WORKING_DIRECTORY
             ${${name}_binpath})

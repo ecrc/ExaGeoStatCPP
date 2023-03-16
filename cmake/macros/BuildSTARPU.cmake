@@ -26,8 +26,16 @@ macro(BuildStarPU raw_name url tag)
             WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
 
-    if (USE_CUDA)
+    if (USE_CUDA AND USE_MPI)
+        execute_process(COMMAND ./configure --prefix=${${name}_installpath} --enable-cuda --disable-opencl --enable-shared --disable-build-doc --disable-export-dynamic --enable-mpi
+                WORKING_DIRECTORY ${${name}_srcpath}
+                COMMAND_ERROR_IS_FATAL ANY)
+    elseif(USE_CUDA)
         execute_process(COMMAND ./configure --prefix=${${name}_installpath} --enable-cuda --disable-opencl --enable-shared --disable-build-doc --disable-export-dynamic --disable-mpi
+                WORKING_DIRECTORY ${${name}_srcpath}
+                COMMAND_ERROR_IS_FATAL ANY)
+    elseif(USE_MPI)
+        execute_process(COMMAND ./configure --prefix=${${name}_installpath} --disable-cuda --disable-opencl --enable-shared --disable-build-doc --disable-export-dynamic --enable-mpi
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
     else()

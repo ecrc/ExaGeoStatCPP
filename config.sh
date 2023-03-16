@@ -18,7 +18,7 @@ NC='\033[0m'
 INSTALL_PREFIX=$PWD/bin/installdir
 PROJECT_SOURCE_DIR=$(dirname "$0")
 
-while getopts ":tevhHCi:dc" opt; do
+while getopts ":tevhHCi:dcm" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -44,6 +44,10 @@ while getopts ":tevhHCi:dc" opt; do
         echo -e "${GREEN}Cuda enabled ${NC}"
         USE_CUDA=ON
         ;;
+    m)##### Using MPI enabled #####
+        echo -e "${GREEN}MPI enabled ${NC}"
+        USE_MPI=ON
+        ;;
     v) ##### printing full output of make #####
       echo -e "${YELLOW}printing make with details.${NC}"
       VERBOSE=ON
@@ -61,6 +65,7 @@ while getopts ":tevhHCi:dc" opt; do
       VERBOSE=OFF
       BUILD_TYPE="RELEASE"
       USE_CUDA="OFF"
+      USE_MPI="OFF"
 
       echo -e "${RED}Building tests disabled.${NC}"
       echo -e "${RED}Building examples disabled.${NC}"
@@ -119,6 +124,10 @@ if [ -z "$USE_CUDA" ]; then
   USE_CUDA="OFF"
   echo -e "${RED}Using CUDA disabled${NC}"
 fi
+if [ -z "$USE_MPI" ]; then
+  USE_MPI="OFF"
+  echo -e "${RED}Using MPI disabled${NC}"
+fi
 
 
 echo ""
@@ -135,7 +144,8 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
   -DEXAGEOSTAT_USE_HiCMA="$USING_HiCMA" \
   -DEXAGEOSTAT_USE_CHAMELEON="$USING_CHAMELEON" \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=$VERBOSE \
-  -DUSE_CUDA="$USE_CUDA"\
+  -DUSE_CUDA="$USE_CUDA" \
+  -DUSE_MPI="$USE_MPI" \
   -H"${PROJECT_SOURCE_DIR}" \
   -B"${PROJECT_SOURCE_DIR}/bin" \
   -G "Unix Makefiles"

@@ -22,7 +22,17 @@ cmake_policy(SET CMP0048 NEW)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+# Project Name and Version
+project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
+# Show the current version of Cmake.
+message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 
+# Project Options.
+option(USE_CUDA "Use Cuda, if available" false)
+option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
+option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
+option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
+option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Toolchain selection
 if (USE_CUDA)
@@ -33,24 +43,8 @@ if (USE_CUDA)
 else ()
     include(toolchains/GccToolchain)
 endif ()
-# Project Name and Version
-project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
 
-# Project Options.
-option(USE_CUDA "Use Cuda, if available" false)
-option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
-option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
-option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
-option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
-
-message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
-
-# Add all dependencies for Exageostat
-#include(ImportGFortran)
-#include(ImportOpenMP)
-
-#    include(ImportLapackPP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
     include(ImportCuSolver)
@@ -65,17 +59,16 @@ else ()
     set(gpu_backend CACHE "none" FORCE)
 endif ()
 
-find_package(LAPACKE)
-list(APPEND LIBS  ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
+
+
+# Add all dependencies for Exageostat
 
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
-if(MPI_VALUE)
-    message("Trying to find MPI")
+if(USE_MPI)
+    message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
-    message("FOUND MPI.....")
+    message("FOUND MPI .....")
 endif()
 
 # EXAGEOSTAT depends on a Hwloc
@@ -85,6 +78,17 @@ include(ImportHwloc)
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
 include(ImportStarPu)
+
+find_package(CBLAS COMPONENTS BLASEXT)
+list(APPEND LIBS  ${BLAS_LIBRARIES})
+link_directories(${BLAS_LIBRARY_DIRS_DEP})
+include_directories(${BLAS_INCLUDE_DIRS})
+
+find_package(LAPACKE)
+list(APPEND LIBS  ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
+
 
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------

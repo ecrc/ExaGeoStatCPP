@@ -28,7 +28,7 @@ macro(BuildHiCMA raw_name url tag)
 
     execute_process(COMMAND ${CMAKE_COMMAND}
             -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
-            -DHICMA_USE_MPI=OFF
+            -DHICMA_USE_MPI=${USE_MPI}
             ${${name}_srcpath}
             WORKING_DIRECTORY
             ${${name}_binpath})
