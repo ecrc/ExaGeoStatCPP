@@ -14,11 +14,12 @@ macro(BuildHiCMA raw_name url tag)
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
+    set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/installdir/")
     FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
     FetchContent_Populate(${name})
-    set(${name}_srcpath ${CMAKE_BINARY_DIR}/_deps/${name}-src)
-    set(${name}_binpath ${CMAKE_BINARY_DIR}/_deps/${name}-bin)
-    set(${name}_installpath ${CMAKE_BINARY_DIR}/_deps/${name}-install)
+    set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/${name}-src)
+    set(${name}_binpath ${PROJECT_SOURCE_DIR}/installdir/${name}-bin)
+    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/${name}-install)
     file(MAKE_DIRECTORY ${${name}_binpath})
     file(MAKE_DIRECTORY ${${name}_installpath})
     # Configure subproject into <subproject-build-dir>
@@ -27,8 +28,7 @@ macro(BuildHiCMA raw_name url tag)
 
     execute_process(COMMAND ${CMAKE_COMMAND}
             -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
-            -DCHAMELEON_SCHED_STARPU=ON
-            -DCHAMELEON_USE_CUDA=${USE_CUDA}
+            -DHICMA_USE_MPI=OFF
             ${${name}_srcpath}
             WORKING_DIRECTORY
             ${${name}_binpath})

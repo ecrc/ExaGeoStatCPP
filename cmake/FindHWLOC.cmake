@@ -51,7 +51,7 @@ include(CheckStructHasMember)
 include(CheckCSourceCompiles)
 
 if (NOT HWLOC_FOUND)
-    set(HWLOC_DIR "" CACHE PATH "Installation directory of HWLOC library")
+    set(HWLOC_DIR "")
     if (NOT HWLOC_FIND_QUIETLY)
         message(STATUS "A cache variable, namely HWLOC_DIR, has been set to specify the install directory of HWLOC")
     endif()

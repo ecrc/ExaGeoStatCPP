@@ -17,14 +17,11 @@ include(macros/BuildHcore)
 if (NOT TARGET HCORE_FOUND)
     include(FindPkgConfig)
     find_package(PkgConfig QUIET)
-
     find_package(HCORE QUIET)
 
     if (HCORE_FOUND)
-        message("   Found Chameleon: ${CHAMELEON_LIBDIR}")
+        message("   Found Hcore: ${HCORE_LIBDIR}")
     else ()
-        set(hcore_installpath ${CMAKE_BINARY_DIR}/_deps/hcore-install)
-        set(HCORE_DIR "${chameleon_installpath}/")
         BuildHcore(HCORE "https://github.com/ecrc/hcore.git" "v0.1.3")
         find_package(HCORE REQUIRED)
     endif ()
@@ -33,3 +30,7 @@ else()
 endif()
 
 message(STATUS "Hcore done")
+
+list(APPEND LIBS  ${HCORE_LIBRARIES})
+link_directories(${HCORE_LIBRARY_DIRS_DEP})
+include_directories(${HCORE_INCLUDE_DIRS})

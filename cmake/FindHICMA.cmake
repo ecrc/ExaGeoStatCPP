@@ -72,7 +72,7 @@
 
 
 if (NOT HICMA_FOUND)
-    set(HICMA_DIR "" CACHE PATH "Installation directory of HiCMA library")
+    set(HICMA_DIR "")
     if (NOT HICMA_FIND_QUIETLY)
         message(STATUS "A cache variable, namely HICMA_DIR, has been set to specify the install directory of HiCMA")
     endif()

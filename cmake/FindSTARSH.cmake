@@ -67,7 +67,7 @@
 
 
 if(NOT STARSH_FOUND)
-    set(STARSH_DIR "" CACHE PATH "Installation directory of STARSH library")
+    set(STARSH_DIR "")
     if (NOT STARSH_FIND_QUIETLY)
         message(STATUS "A cache variable, namely STARSH_DIR, has been set to specify the install directory of STARSH")
     endif()

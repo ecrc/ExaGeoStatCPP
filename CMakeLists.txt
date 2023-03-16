@@ -91,7 +91,7 @@ endif ()
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
 if (EXAGEOSTAT_USE_HiCMA)
-    include(ImportGSL)
+#    include(ImportGSL)
     include(ImportHiCMA)
 endif ()
 

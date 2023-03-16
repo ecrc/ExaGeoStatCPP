@@ -63,7 +63,7 @@
 
 
 if (NOT HCORE_FOUND)
-    set(HCORE_DIR "" CACHE PATH "Installation directory of HCORE library")
+    set(HCORE_DIR "")
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "A cache variable, namely HCORE_DIR, has been set to specify the install directory of HCORE")
     endif()
