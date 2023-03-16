@@ -29,6 +29,7 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 
 # Project Options.
 option(USE_CUDA "Use Cuda, if available" false)
+option(USE_MPI "Use MPI, if available" false)
 option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
 option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
 option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
@@ -79,16 +80,12 @@ include(ImportHwloc)
 # -------------------------------
 include(ImportStarPu)
 
-find_package(CBLAS COMPONENTS BLASEXT)
-list(APPEND LIBS  ${BLAS_LIBRARIES})
-link_directories(${BLAS_LIBRARY_DIRS_DEP})
-include_directories(${BLAS_INCLUDE_DIRS})
-
+# EXAGEOSTAT depends on a LAPACKE
+# -------------------------------
 find_package(LAPACKE)
 list(APPEND LIBS  ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
 include_directories(${LAPACKE_INCLUDE_DIRS})
-
 
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
