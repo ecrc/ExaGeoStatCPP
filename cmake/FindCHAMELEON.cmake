@@ -70,9 +70,8 @@
 # (To distribute this file outside of Morse, substitute the full
 #  License text for the above reference.)
 
-
 if (NOT CHAMELEON_FOUND)
-    set(CHAMELEON_DIR "" CACHE PATH "Installation directory of CHAMELEON library")
+    set(CHAMELEON_DIR "")
     if (NOT CHAMELEON_FIND_QUIETLY)
         message(STATUS "A cache variable, namely CHAMELEON_DIR, has been set to specify the install directory of CHAMELEON")
     endif()
@@ -121,6 +120,7 @@ set(ENV_CHAMELEON_DIR "$ENV{CHAMELEON_DIR}")
 set(ENV_CHAMELEON_INCDIR "$ENV{CHAMELEON_INCDIR}")
 set(ENV_CHAMELEON_LIBDIR "$ENV{CHAMELEON_LIBDIR}")
 set(CHAMELEON_GIVEN_BY_USER "FALSE")
+
 if ( CHAMELEON_DIR OR ( CHAMELEON_INCDIR AND CHAMELEON_LIBDIR) OR ENV_CHAMELEON_DIR OR (ENV_CHAMELEON_INCDIR AND ENV_CHAMELEON_LIBDIR) )
     set(CHAMELEON_GIVEN_BY_USER "TRUE")
 endif()
@@ -135,11 +135,6 @@ if(PKG_CONFIG_EXECUTABLE AND NOT CHAMELEON_GIVEN_BY_USER)
     if (NOT CHAMELEON_FIND_QUIETLY)
         if (CHAMELEON_FOUND AND CHAMELEON_LIBRARIES)
             message(STATUS "Looking for CHAMELEON - found using PkgConfig")
-            #if(NOT CHAMELEON_INCLUDE_DIRS)
-            #    message("${Magenta}CHAMELEON_INCLUDE_DIRS is empty using PkgConfig."
-            #        "Perhaps the path to chameleon headers is already present in your"
-            #        "C(PLUS)_INCLUDE_PATH environment variable.${ColourReset}")
-            #endif()
         else()
             message("${Magenta}Looking for CHAMELEON - not found using PkgConfig."
                     "Perhaps you should add the directory containing chameleon.pc"
@@ -175,7 +170,6 @@ if(PKG_CONFIG_EXECUTABLE AND NOT CHAMELEON_GIVEN_BY_USER)
 endif(PKG_CONFIG_EXECUTABLE AND NOT CHAMELEON_GIVEN_BY_USER)
 
 if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT CHAMELEON_FOUND) OR (CHAMELEON_GIVEN_BY_USER) )
-
     if (NOT CHAMELEON_FIND_QUIETLY)
         message(STATUS "Looking for CHAMELEON - PkgConfig not used")
     endif()
