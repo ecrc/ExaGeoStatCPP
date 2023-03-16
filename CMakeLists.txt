@@ -50,20 +50,25 @@ enable_language(CXX)
 #include(ImportGFortran)
 #include(ImportOpenMP)
 
+#    include(ImportLapackPP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
     include(ImportCuSolver)
     unset(BLA_VENDOR)
     include(ImportLapack)
     set(LIBS
-        LAPACK::LAPACK
-        ${LIBS}
-    )
+            LAPACK::LAPACK
+            ${LIBS}
+            )
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
-#    include(ImportLapackPP)
 endif ()
+
+find_package(LAPACKE)
+list(APPEND LIBS  ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
 
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
@@ -91,16 +96,9 @@ endif ()
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
 if (EXAGEOSTAT_USE_HiCMA)
-#    include(ImportGSL)
+    include(ImportGSL)
     include(ImportHiCMA)
 endif ()
-
-
-find_package(LAPACKE)
-list(APPEND LIBS  ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
-
 
 # EXAGEOSTAT DOCUMENTATIONS
 if(EXAGEOSTAT_BUILD_DOCS)

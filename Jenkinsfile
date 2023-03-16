@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage ('mkl') {
             stages {
-                stage ('build') {
+                stage ('build with Chameleon') {
                     steps {
                         sh '''#!/bin/bash -le
                             ####################################################
@@ -32,7 +32,46 @@ pipeline {
                         '''
                     }
                 }
-                stage ('test') {
+                stage ('test with Chameleon') {
+                    steps {
+
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Run tester
+                            ####################################################
+                            echo "========================================"
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ####################################################
+                            # BLAS/LAPACK
+                            ####################################################
+                            module load mkl/2020.0.166
+                            cd bin/
+                            make test
+                            '''
+                    }
+                }
+                stage ('build with HiCMA') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Configure and build
+                            ####################################################
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ####################################################
+                            # BLAS/LAPACK
+                            ####################################################
+                            module load mkl/2020.0.166
+                            set -x
+                            ./config.sh -t -e -H
+                            ./clean_build.sh
+                        '''
+                    }
+                }
+                stage ('test with HiCMA') {
                     steps {
 
                         sh '''#!/bin/bash -le
@@ -57,7 +96,7 @@ pipeline {
         stage('openblas') {
             agent { label 'jenkinsfile' }
             stages {
-                stage ('build') {
+                stage ('build with Chameleon') {
                     steps {
                         sh '''#!/bin/bash -le
                             ####################################################
@@ -71,7 +110,36 @@ pipeline {
                         '''
                     }
                 }
-                stage ('test') {
+                stage ('test with Chameleon') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Run tester
+                            ####################################################
+                            echo "========================================"
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            cd bin/
+                            make test
+                            '''
+                    }
+                }
+                stage ('build with HiCMA') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Configure and build
+                            ####################################################
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ./config.sh -t -e -H
+                            ./clean_build.sh
+                        '''
+                    }
+                }
+                stage ('test with HiCMA') {
                     steps {
                         sh '''#!/bin/bash -le
                             ####################################################

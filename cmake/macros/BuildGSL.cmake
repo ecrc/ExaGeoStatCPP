@@ -20,7 +20,7 @@
 # @author Sameh Abdulah
 # @date 2023-03-13
 
-macro(BuildChameleon raw_name url tag)
+macro(BuildGSL raw_name url tag)
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
@@ -29,27 +29,23 @@ macro(BuildChameleon raw_name url tag)
     FetchContent_Declare(${name} URL "${url}")
     FetchContent_Populate(${name})
     set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/${name}-src)
-    set(${name}_binpath ${PROJECT_SOURCE_DIR}/installdir/${name}-bin)
     set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/${name}-install)
-    file(MAKE_DIRECTORY ${${name}_binpath})
     file(MAKE_DIRECTORY ${${name}_installpath})
     # Configure subproject into <subproject-build-dir>
     include(ProcessorCount)
     ProcessorCount(N)
-    execute_process(COMMAND ${CMAKE_COMMAND}
-            -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
-            -DCHAMELEON_SCHED_STARPU=ON
-            -DCHAMELEON_USE_CUDA=${USE_CUDA}
-            ${${name}_srcpath}
-            WORKING_DIRECTORY
-            ${${name}_binpath})
+
+    message("$ENV{PWD}")
+    execute_process(COMMAND ./configure --prefix=${${name}_installpath}
+            WORKING_DIRECTORY ${${name}_srcpath}
+            COMMAND_ERROR_IS_FATAL ANY)
 
     execute_process(COMMAND make -j ${N}
-            WORKING_DIRECTORY ${${name}_binpath}
+            WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
 
     execute_process(COMMAND make install -j ${N}
-            WORKING_DIRECTORY ${${name}_binpath}
+            WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
     set(ENV{LD_LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LD_LIBRARY_PATH}")
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")

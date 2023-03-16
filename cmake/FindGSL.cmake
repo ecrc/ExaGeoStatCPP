@@ -59,7 +59,7 @@ help this module find the correct files::
 
 #]=======================================================================]
 
-include(FindPackageHandleStandardArgs.cmake)
+include(FindPackageHandleStandardArgs)
 
 #=============================================================================
 # If the user has provided ``GSL_ROOT_DIR``, use it!  Choose items found
