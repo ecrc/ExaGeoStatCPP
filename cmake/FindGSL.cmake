@@ -76,7 +76,6 @@ endif()
 # As a first try, use the PkgConfig module.  This will work on many
 # *NIX systems.  See :module:`findpkgconfig`
 # This will return ``GSL_INCLUDEDIR`` and ``GSL_LIBDIR`` used below.
-message("$ENV{PKG_CONFIG_PATH}")
 if( GSL_USE_PKGCONFIG )
     find_package(PkgConfig QUIET)
     pkg_check_modules( GSL QUIET gsl )

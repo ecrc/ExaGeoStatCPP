@@ -9,10 +9,12 @@
 # @author Sameh Abdulah
 # @date 2023-03-13
 
-macro(BuildChameleon raw_name url tag)
+macro(BuildChameleon raw_name url tag ${test_var})
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
+    message("I RECIVEEEEEEEEEEEEEEEED: ")
+    message(${test_var})
     include(FetchContent)
     set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/installdir/")
     FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
@@ -25,10 +27,7 @@ macro(BuildChameleon raw_name url tag)
     # Configure subproject into <subproject-build-dir>
     include(ProcessorCount)
     ProcessorCount(N)
-    execute_process(COMMAND ${CMAKE_COMMAND}
-            -DCMAKE_INSTALL_PREFIX=${${name}_installpath}
-            -DCHAMELEON_SCHED_STARPU=ON
-            -DCHAMELEON_USE_CUDA=${USE_CUDA}
+    execute_process(COMMAND ${CMAKE_COMMAND} ${test_var}
             ${${name}_srcpath}
             WORKING_DIRECTORY
             ${${name}_binpath})

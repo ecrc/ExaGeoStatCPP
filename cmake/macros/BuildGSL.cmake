@@ -35,7 +35,6 @@ macro(BuildGSL raw_name url tag)
     include(ProcessorCount)
     ProcessorCount(N)
 
-    message("$ENV{PWD}")
     execute_process(COMMAND ./configure --prefix=${${name}_installpath}
             WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
