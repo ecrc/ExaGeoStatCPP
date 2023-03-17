@@ -9,7 +9,6 @@
 # @author Sameh Abdulah
 # @date 2023-03-16
 
-
 message("")
 message("---------------------------------------- GSL")
 message(STATUS "Checking for GSL")
@@ -20,16 +19,16 @@ if (NOT TARGET GSL_FOUND)
     find_package(PkgConfig QUIET)
     find_package(GSL QUIET)
 
-#    if (GSL_FOUND)
-#        message("   Found GSL: ${GSL_LIBDIR}")
-#    else ()
+    if (GSL_FOUND)
+        message("   Found GSL: ${GSL_LIBDIR}")
+    else ()
         message("   Can't find GSL, Installing it instead ..")
         set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps)
         set(ISCMAKE OFF)
         set(ISGIT OFF)
-        BuildDependency(GSL "https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz" "" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        BuildDependency(GSL "https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz" "v2.6" ${FLAGS} ${ISCMAKE} ${ISGIT})
         find_package(GSL REQUIRED)
-#    endif ()
+    endif ()
 else()
     message("   GSL already included")
 endif()

@@ -14,7 +14,6 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
-
     # Fetch the dependency, depending on which it's a git repo or no.
     if (ISGIT)
         FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
