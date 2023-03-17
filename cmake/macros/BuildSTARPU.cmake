@@ -17,7 +17,7 @@ macro(BuildStarPU raw_name url tag)
     FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
     FetchContent_Populate(${name})
     set(${name}_srcpath ${CMAKE_BINARY_DIR}/_deps/${name}-src)
-    set(${name}_installpath ${CMAKE_BINARY_DIR}/_deps/${name}-install)
+    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps)
     file(MAKE_DIRECTORY ${${name}_installpath})
     # Configure subproject into <subproject-build-dir>
     include(ProcessorCount)

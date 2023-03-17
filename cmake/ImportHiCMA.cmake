@@ -27,7 +27,7 @@ if (NOT TARGET HICMA_FOUND)
         include(ImportHcore)
         message(STATUS "Add StarsH, Dependency needed for HiCMA")
         include(ImportStarsH)
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/ " " -DHICMA_USE_MPI=${USE_MPI})
+        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps " " -DHICMA_USE_MPI=${USE_MPI})
         set(ISCMAKE ON)
         set(ISGIT ON)
         # TODO: change master to v1.0.0, when nour fixes the tag.
