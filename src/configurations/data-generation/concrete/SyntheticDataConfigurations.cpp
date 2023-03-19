@@ -66,10 +66,11 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             } else if (argumentName == "--P" || argumentName == "--p") {
                 numericalValue = CheckNumericalValue(argumentValue);
                 SetPGrid(numericalValue);
-            }
-            else if (argumentName == "--TimeSlot" || argumentName == "--timeslot") {
+            } else if (argumentName == "--TimeSlot" || argumentName == "--timeslot") {
                 numericalValue = CheckNumericalValue(argumentValue);
                 SetTimeSlot(numericalValue);
+            } else if (argumentName == "--Computation" || argumentName == "--computation") {
+                SetComputation(CheckComputationValue(argumentValue));
             }
             else {
                 cout << "!! " << argumentName << " !!" << endl;
@@ -130,10 +131,9 @@ Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
         and aDimension != "st" and aDimension != "ST") {
         throw range_error("Invalid value for Dimension. Please use 2D, 3D or ST.");
     }
-    if (aDimension == "2D" or aDimension == "2d"){
+    if (aDimension == "2D" or aDimension == "2d") {
         return Dimension2D;
-    }
-    else if ( aDimension == "3D" or aDimension == "3d"){
+    } else if (aDimension == "3D" or aDimension == "3d") {
         return Dimension3D;
     }
     return DimensionST;

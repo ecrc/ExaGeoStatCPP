@@ -49,6 +49,11 @@ namespace exageostat {
             Dimension3D = 1,
             DimensionST = 2,
         };
+        enum Computation{
+            EXACT_DENSE = 0,
+            DIAGONAL_APPROX = 1,
+            TILE_LOW_RANK = 2,
+        };
 
     }//namespace dataunits
 }//namespace exageostat

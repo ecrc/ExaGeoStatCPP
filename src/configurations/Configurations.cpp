@@ -18,6 +18,7 @@
 #include <configurations/Configurations.hpp>
 
 using namespace exageostat::configurations;
+using namespace exageostat::dataunits;
 using namespace std;
 
 
@@ -51,4 +52,27 @@ void Configurations::SetTimeSlot(int aTimeSlot) {
 
 int Configurations::GetTimeSlot() {
     return this->mTimeSlot;
+}
+
+void Configurations::SetComputation(Computation aComputation) {
+    this->mComputation = aComputation;
+}
+
+Computation Configurations::GetComputation() {
+    return this->mComputation;
+}
+
+Computation Configurations::CheckComputationValue(std::string aValue) {
+
+    if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense"
+        and aValue != "diag_approx" and aValue != "diagonal_approx"
+        and aValue != "lr_approx" and aValue != "tlr" and aValue != "TLR") {
+        throw range_error("Invalid value for Computation. Please use Exact, diagonal_approx or TLR.");
+    }
+    if (aValue == "exact" or aValue == "Exact" or aValue == "Dense" or aValue == "dense") {
+        return EXACT_DENSE;
+    } else if (aValue == "diag_approx" or aValue == "diagonal_approx") {
+        return DIAGONAL_APPROX;
+    }
+    return TILE_LOW_RANK;
 }

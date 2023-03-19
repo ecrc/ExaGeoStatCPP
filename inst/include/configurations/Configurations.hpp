@@ -15,7 +15,7 @@
 
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
-
+#include <data-units/Helpers.hpp>
 
 namespace exageostat {
     namespace configurations {
@@ -49,12 +49,6 @@ namespace exageostat {
             PrintUsage() = 0;
 
             /**
-             * @brief Check Numerical value.
-             * @param aValue
-             */
-            int CheckNumericalValue(std::string aValue);
-
-            /**
              * @brief Problem size setter.
              * @param aProblemSize
              */
@@ -82,14 +76,56 @@ namespace exageostat {
             int
             GetTimeSlot();
 
+            /**
+            * @brief Computation setter.
+            * @param aComputation
+            */
+            void
+            SetComputation(dataunits::Computation aComputation);
 
+            /**
+             * @brief
+             * Computation getter.
+             *
+             * @return mComputation
+             *
+             */
+            dataunits::Computation
+            GetComputation();
+
+            /**
+             * @brief
+             * Check Numerical value.
+             *
+             * @param aValue
+             * The input from the user side
+             *
+             * @return aValue
+             * The int casted value.
+             *
+             */
+            int CheckNumericalValue(std::string aValue);
+
+            /**
+             * @brief
+             * Check input Computation value.
+             *
+             * @param aValue
+             * The input from the user side
+             *
+             * @return aComputation
+             * Enum with the selected computation, Error if not exist.
+             *
+             */
+            dataunits::Computation CheckComputationValue(std::string aValue);
 
         protected:
             /// Used Problem size.
             int mProblemSize;
             /// Used Time slot.
             int mTimeSlot = 1;
-
+            /// Used computation.
+            dataunits::Computation mComputation;
         };
 
     }//namespace configurations
