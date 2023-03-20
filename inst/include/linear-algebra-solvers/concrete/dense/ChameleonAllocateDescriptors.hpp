@@ -22,14 +22,14 @@ namespace exageostat {
         namespace dense {
             class ChameleonAllocateDescriptors : public AllocateDescriptors{
             public:
-                void InitiateDescriptors();
+                void InitiateDescriptors() override;
 
                 /**
                  * @brief
                  * Default constructor.
                  *
                  */
-                ChameleonAllocateDescriptors() = default;
+                ChameleonAllocateDescriptors();
 
                 /**
                  * @brief

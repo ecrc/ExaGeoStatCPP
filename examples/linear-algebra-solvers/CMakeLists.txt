@@ -7,8 +7,7 @@
 # @file CMakeLists.txt
 # @version 1.0.0
 # @author Sameh Abdulah
-# @date 2023-01-31
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/end-to-end)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/linear-algebra-solvers)
+# @date 2023-03-20
+
+add_executable(Example_Chameleon_Allocate_Descriptors ChameleonAllocateDescriptors_main.cpp)
+target_link_libraries(Example_Chameleon_Allocate_Descriptors ${PROJECT_NAME})

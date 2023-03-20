@@ -35,7 +35,7 @@ namespace exageostat {
              * Unique Pointer to the created type of Data Generators.
              */
             std::unique_ptr<LinearAlgebraFactory>
-            CreateLinearAlgebraSolver(configurations::Configurations *apConfigurations);
+            CreateLinearAlgebraSolver(dataunits::Computation aComputation);
 
         private:
         };

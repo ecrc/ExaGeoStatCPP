@@ -20,22 +20,20 @@ using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 using namespace exageostat::linearAlgebra::dense;
 
-std::unique_ptr<LinearAlgebraFactory> LinearAlgebraFactory::CreateLinearAlgebraSolver(
-        Configurations *apConfigurations) {
+std::unique_ptr<LinearAlgebraFactory> LinearAlgebraFactory::CreateLinearAlgebraSolver(Computation aComputation) {
 
     // Check the used Linear Algebra solver library, Whether it's HiCMA or Chameleon.
-    auto computation = apConfigurations->GetComputation();
 
     // Chameleon Used
-    if (computation == EXACT_DENSE) {
+    if (aComputation == EXACT_DENSE) {
         return std::make_unique<ChameleonAllocateDescriptors>();
     }
     // Hicma Used
-    else if (computation == TILE_LOW_RANK) {
+    else if (aComputation == TILE_LOW_RANK) {
 //        return std::make_unique<HiCMAAllocateDescriptors>();
     }
     //// TODO: which is Used?
-    else if (computation == DIAGONAL_APPROX) {
+    else if (aComputation == DIAGONAL_APPROX) {
 
     }
 

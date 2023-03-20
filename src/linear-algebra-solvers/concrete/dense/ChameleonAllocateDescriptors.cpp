@@ -13,3 +13,14 @@
 **/
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonAllocateDescriptors.hpp>
+#include <iostream>
+
+using namespace exageostat::linearAlgebra::dense;
+
+void ChameleonAllocateDescriptors::InitiateDescriptors() {
+    std::cout << "From Chameleon" << std::endl;
+}
+
+ChameleonAllocateDescriptors::ChameleonAllocateDescriptors() {
+    this->InitiateDescriptors();
+}
