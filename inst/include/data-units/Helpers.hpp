@@ -54,6 +54,11 @@ namespace exageostat {
             DIAGONAL_APPROX = 1,
             TILE_LOW_RANK = 2,
         };
+        enum Precision{
+            SINGLE = 0,
+            DOUBLE = 1,
+            MIXED = 2,
+        };
 
     }//namespace dataunits
 }//namespace exageostat

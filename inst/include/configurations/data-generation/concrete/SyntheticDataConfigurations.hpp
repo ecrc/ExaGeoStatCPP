@@ -98,7 +98,7 @@ namespace exageostat {
 
             private:
                 /// Used Dimension.
-                exageostat::dataunits::Dimension mDimension;
+                exageostat::dataunits::Dimension mDimension = dataunits::Dimension2D;
                 /// Used PGrid.
                 int mPGrid;
                 /// Used Location X.

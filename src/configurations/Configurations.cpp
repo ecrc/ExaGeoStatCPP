@@ -30,22 +30,6 @@ void Configurations::SetProblemSize(int aProblemSize) {
     this->mProblemSize = aProblemSize;
 }
 
-int Configurations::CheckNumericalValue(string aValue) {
-
-    int numericalValue = -1;
-    try {
-        numericalValue = stoi(aValue);
-    }
-    catch (...) {
-        throw range_error("Invalid value. Please use Numerical values only.");
-    }
-
-    if (numericalValue < 0) {
-        throw range_error("Invalid value. Please use positive values");
-    }
-    return numericalValue;
-}
-
 void Configurations::SetTimeSlot(int aTimeSlot) {
     this->mTimeSlot = aTimeSlot;
 }
@@ -62,6 +46,30 @@ Computation Configurations::GetComputation() {
     return this->mComputation;
 }
 
+Precision Configurations::GetPrecision() {
+    return this->mPrecision;
+}
+
+void Configurations::SetPrecision(Precision aPrecision) {
+    this->mPrecision = aPrecision;
+}
+
+int Configurations::CheckNumericalValue(string aValue) {
+
+    int numericalValue = -1;
+    try {
+        numericalValue = stoi(aValue);
+    }
+    catch (...) {
+        throw range_error("Invalid value. Please use Numerical values only.");
+    }
+
+    if (numericalValue < 0) {
+        throw range_error("Invalid value. Please use positive values");
+    }
+    return numericalValue;
+}
+
 Computation Configurations::CheckComputationValue(std::string aValue) {
 
     if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense"
@@ -75,4 +83,19 @@ Computation Configurations::CheckComputationValue(std::string aValue) {
         return DIAGONAL_APPROX;
     }
     return TILE_LOW_RANK;
+}
+
+Precision Configurations::CheckPrecisionValue(std::string aValue) {
+
+    if (aValue != "single" and aValue != "Single"
+        and aValue != "double" and aValue != "Double"
+        and aValue != "mix" and aValue != "Mix" and aValue != "Mixed" and aValue != "mixed") {
+        throw range_error("Invalid value for Computation. Please use Single, Double or Mixed.");
+    }
+    if (aValue == "single" or aValue == "Single") {
+        return SINGLE;
+    } else if (aValue == "double" or aValue == "Double") {
+        return DOUBLE;
+    }
+    return MIXED;
 }

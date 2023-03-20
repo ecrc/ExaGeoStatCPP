@@ -15,6 +15,7 @@
 
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
+
 #include <data-units/Helpers.hpp>
 
 namespace exageostat {
@@ -77,8 +78,11 @@ namespace exageostat {
             GetTimeSlot();
 
             /**
-            * @brief Computation setter.
+            * @brief
+            * Computation setter.
+            *
             * @param aComputation
+            *
             */
             void
             SetComputation(dataunits::Computation aComputation);
@@ -92,6 +96,26 @@ namespace exageostat {
              */
             dataunits::Computation
             GetComputation();
+
+            /**
+             * @brief
+             * Precision setter.
+             *
+             * @param aComputation
+             *
+             */
+            void
+            SetPrecision(dataunits::Precision aPrecision);
+
+            /**
+             * @brief
+             * Precision getter.
+             *
+             * @return mPrecision
+             *
+             */
+            dataunits::Precision
+            GetPrecision();
 
             /**
              * @brief
@@ -119,13 +143,29 @@ namespace exageostat {
              */
             dataunits::Computation CheckComputationValue(std::string aValue);
 
+            /**
+             * @brief
+             * Check input Precision value.
+             *
+             * @param aValue
+             * The input from the user side
+             *
+             * @return aComputation
+             * Enum with the selected Precision, Error if not exist.
+             *
+             */
+            dataunits::Precision CheckPrecisionValue(std::string aValue);
+
         protected:
             /// Used Problem size.
             int mProblemSize;
             /// Used Time slot.
             int mTimeSlot = 1;
-            /// Used computation.
-            dataunits::Computation mComputation;
+            /// Used Computation.
+            dataunits::Computation mComputation = dataunits::EXACT_DENSE;
+            /// Used Precision.
+            dataunits::Precision mPrecision = dataunits::SINGLE;
+
         };
 
     }//namespace configurations

@@ -60,7 +60,7 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             } else if (argumentName == "--Kernel" || argumentName == "--kernel") {
                 CheckKernelValue(argumentValue);
                 SetKernel(argumentValue);
-            } else if (argumentName == "--Dimensions" || argumentName == "--dimensions"
+            } else if (argumentName == "--Dimension" || argumentName == "--dimension"
                        || argumentName == "--dim" || argumentName == "--Dim") {
                 SetDimension(CheckDimensionValue(argumentValue));
             } else if (argumentName == "--P" || argumentName == "--p") {
@@ -71,6 +71,8 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetTimeSlot(numericalValue);
             } else if (argumentName == "--Computation" || argumentName == "--computation") {
                 SetComputation(CheckComputationValue(argumentValue));
+            } else if (argumentName == "--precision" || argumentName == "--Precision") {
+                SetPrecision(CheckPrecisionValue(argumentValue));
             }
             else {
                 cout << "!! " << argumentName << " !!" << endl;
@@ -97,10 +99,11 @@ void SyntheticDataConfigurations::PrintUsage() {
     cout << "\n\t*** Available Arguments For Synthetic Data Configurations***" << endl;
     cout << "\t\t --N=value : Problem size." << endl;
     cout << "\t\t --Kernel=value : Used Kernel." << endl;
-    cout << "\t\t --Dimensions=value : Used Dimension." << endl;
-    cout << "\t\t --P=value : Used P-Grid." << endl;
+    cout << "\t\t --Dimension=value : Used Dimension." << endl;
     cout << "\t\t --P=value : Used P-Grid." << endl;
     cout << "\t\t --TimeSlot=value : Time slot value for ST." << endl;
+    cout << "\t\t --Computation=value : Used computation" << endl;
+    cout << "\t\t --Precision=value : Used precision" << endl;
     cout << "\t\t --syntheticData : Used to enable generating synthetic data." << endl;
     cout << "\n\n";
 

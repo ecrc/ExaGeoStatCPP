@@ -47,8 +47,36 @@ int main(int argc, char **argv) {
 
     int PGrid = syntheticDataConfigurations->GetPGrid();
     if (PGrid != 0) {
-        cout << "You set N by: " << PGrid << endl;
+        cout << "You set P by: " << PGrid << endl;
     }
+
+    int timeSlot = syntheticDataConfigurations->GetTimeSlot();
+    if(timeSlot != 0){
+        cout << "You set time slot by: " << timeSlot << endl;
+    }
+
+    Computation computation = syntheticDataConfigurations->GetComputation();
+    if (computation == EXACT_DENSE) {
+        cout << "You set Computation to: EXACT" << endl;
+    }
+    else if (computation == DIAGONAL_APPROX) {
+        cout << "You set Computation to: DIAGONAL APPROX" << endl;
+    }
+    else if (computation == TILE_LOW_RANK) {
+        cout << "You set Computation to: TILE LOW RANK" << endl;
+    }
+
+    Precision precision = syntheticDataConfigurations->GetPrecision();
+    if (precision == SINGLE) {
+        cout << "You set precision to: SINGLE" << endl;
+    }
+    else if (precision == DOUBLE) {
+        cout << "You set precision to: DOUBLE" << endl;
+    }
+    else if (precision == MIXED) {
+        cout << "You set precision to: MIXED PRECISION" << endl;
+    }
+
 
     delete syntheticDataConfigurations;
     return 0;
