@@ -19,7 +19,6 @@
 
 #include <iostream>
 #include <configurations/data-generation/DataConfigurations.hpp>
-#include <data-units/Helpers.hpp>
 
 namespace exageostat {
     namespace configurations {

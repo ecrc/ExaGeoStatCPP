@@ -16,7 +16,7 @@
 #define EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP
 
 #include <memory>
-#include <configurations/Configurations.hpp>
+#include <data-units/Helpers.hpp>
 
 namespace exageostat {
     namespace linearAlgebra {
@@ -35,7 +35,8 @@ namespace exageostat {
              * Unique Pointer to the created type of Data Generators.
              */
             std::unique_ptr<LinearAlgebraFactory>
-            CreateLinearAlgebraSolver(dataunits::Computation aComputation);
+//            CreateLinearAlgebraSolver(dataunits::Computation aComputation);
+            CreateLinearAlgebraSolver();
 
         private:
         };

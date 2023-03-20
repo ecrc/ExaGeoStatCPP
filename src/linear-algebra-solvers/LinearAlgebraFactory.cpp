@@ -16,26 +16,26 @@
 #include <linear-algebra-solvers/concrete/dense/ChameleonAllocateDescriptors.hpp>
 
 using namespace exageostat::linearAlgebra;
-using namespace exageostat::configurations;
-using namespace exageostat::dataunits;
+//using namespace exageostat::dataunits;
 using namespace exageostat::linearAlgebra::dense;
 
-std::unique_ptr<LinearAlgebraFactory> LinearAlgebraFactory::CreateLinearAlgebraSolver(Computation aComputation) {
+//std::unique_ptr<LinearAlgebraFactory> LinearAlgebraFactory::CreateLinearAlgebraSolver(Computation aComputation) {
+std::unique_ptr<LinearAlgebraFactory> LinearAlgebraFactory::CreateLinearAlgebraSolver() {
 
     // Check the used Linear Algebra solver library, Whether it's HiCMA or Chameleon.
 
     // Chameleon Used
-    if (aComputation == EXACT_DENSE) {
-        return std::make_unique<ChameleonAllocateDescriptors>();
-    }
-    // Hicma Used
-    else if (aComputation == TILE_LOW_RANK) {
+//    if (aComputation == EXACT_DENSE) {
+//        return std::make_unique<ChameleonAllocateDescriptors>();
+//    }
+//     Hicma Used
+//    else if (aComputation == TILE_LOW_RANK) {
 //        return std::make_unique<HiCMAAllocateDescriptors>();
-    }
+//    }
     //// TODO: which is Used?
-    else if (aComputation == DIAGONAL_APPROX) {
-
-    }
+//    else if (aComputation == DIAGONAL_APPROX) {
+//
+//    }
 
     // Return DataGenerator unique pointer of real type
     return nullptr;

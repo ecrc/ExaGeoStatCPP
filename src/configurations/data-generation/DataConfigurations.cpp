@@ -15,7 +15,6 @@
 **/
 
 #include <configurations/data-generation/DataConfigurations.hpp>
-#include <data-units/Helpers.hpp>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
