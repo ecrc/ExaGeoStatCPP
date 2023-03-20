@@ -15,10 +15,12 @@
 #ifndef EXAGEOSTATCPP_ALLOCATEDESCRIPTORS_HPP
 #define EXAGEOSTATCPP_ALLOCATEDESCRIPTORS_HPP
 
+#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
+
 namespace exageostat {
     namespace linearAlgebra {
 
-        class AllocateDescriptors {
+        class AllocateDescriptors : public LinearAlgebraFactory{
         public:
             virtual void InitiateDescriptors() = 0;
 

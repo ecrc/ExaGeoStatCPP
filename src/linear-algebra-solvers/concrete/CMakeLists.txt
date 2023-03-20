@@ -8,8 +8,9 @@
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-20
+
 set(SOURCES
-#        ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonAllocateDescriptors.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

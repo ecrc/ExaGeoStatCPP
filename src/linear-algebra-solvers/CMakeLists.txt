@@ -13,6 +13,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
 
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/AllocateDescriptors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebraFactory.cpp
         ${SOURCES}
         PARENT_SCOPE
         )
