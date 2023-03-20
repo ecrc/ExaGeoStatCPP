@@ -15,12 +15,13 @@
 #ifndef EXAGEOSTAT_CPP_HELPERS_HPP
 #define EXAGEOSTAT_CPP_HELPERS_HPP
 
+#include <iostream>
 #include <set>
 
 namespace exageostat {
     namespace dataunits {
 
-        inline std::set<std::string> availableKernels = {"univariate_matern_stationary",
+        const std::set<std::string> availableKernels = {"univariate_matern_stationary",
                                                   "univariate_matern_non_stationary",
                                                   "bivariate_matern_flexible",
                                                   "bivariate_matern_parsimonious",

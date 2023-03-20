@@ -27,8 +27,7 @@ int main(int argc, char **argv) {
     // Object has automatic storage duration (usually is on the stack)
     auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
-//    chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
-    chameleon->CreateLinearAlgebraSolver();
+    chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
 
     return 0;
 }
