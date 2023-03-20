@@ -66,6 +66,7 @@ pipeline {
                             ####################################################
                             module load mkl/2020.0.166
                             set -x
+                            export PKG_CONFIG_PATH=$PWD/installdir/_deps/lib/pkgconfig:$PKG_CONFIG_PATH
                             ./config.sh -t -e -H
                             ./clean_build.sh
                         '''
@@ -139,6 +140,7 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
+                    export PKG_CONFIG_PATH=$PWD/installdir/_deps/lib/pkgconfig:$PKG_CONFIG_PATH
                     ./config.sh -t -e
                     ./clean_build.sh
                     cd bin
