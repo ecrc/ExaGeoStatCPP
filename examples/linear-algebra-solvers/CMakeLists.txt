@@ -9,5 +9,7 @@
 # @author Sameh Abdulah
 # @date 2023-03-20
 
-add_executable(Example_Chameleon_Allocate_Descriptors ChameleonAllocateDescriptors_main.cpp)
-target_link_libraries(Example_Chameleon_Allocate_Descriptors ${PROJECT_NAME})
+if (EXAGEOSTAT_USE_CHAMELEON)
+    add_executable(Example_Chameleon_Allocate_Descriptors ChameleonAllocateDescriptors_main.cpp)
+    target_link_libraries(Example_Chameleon_Allocate_Descriptors ${PROJECT_NAME})
+endif()

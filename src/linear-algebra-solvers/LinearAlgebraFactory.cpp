@@ -25,7 +25,12 @@ template<typename T> std::unique_ptr<LinearAlgebraFactory<T>> LinearAlgebraFacto
 
     // Chameleon Used
     if (aComputation == EXACT_DENSE) {
+#ifdef EXAGEOSTAT_USE_CHAMELEON
         return std::make_unique<ChameleonAllocateDescriptors<T>>();
+#else
+        throw std::runtime_error("Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
+        return nullptr;
+#endif
     }
     // Hicma Used
     else if (aComputation == TILE_LOW_RANK) {

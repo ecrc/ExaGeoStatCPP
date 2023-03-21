@@ -90,6 +90,7 @@ include_directories(${LAPACKE_INCLUDE_DIRS})
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
 if (EXAGEOSTAT_USE_CHAMELEON)
+    add_definitions(-DEXAGEOSTAT_USE_CHAMELEON=TRUE)
     include(ImportChameleon)
 endif ()
 
@@ -97,6 +98,7 @@ endif ()
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
 if (EXAGEOSTAT_USE_HiCMA)
+    add_definitions(-DEXAGEOSTAT_USE_HiCMA=TRUE)
     include(ImportGSL)
     include(ImportHiCMA)
 endif ()
