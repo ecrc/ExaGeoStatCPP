@@ -21,7 +21,8 @@
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
 
-template<typename T> void ChameleonImplementation<T>::InitiateDescriptors() {
+template<typename T>
+void ChameleonImplementation<T>::InitiateDescriptors() {
 
     //// TODO: what C & Z stands for?
     CHAM_desc_t *pDescriptorC = nullptr;
@@ -47,23 +48,21 @@ template<typename T> void ChameleonImplementation<T>::InitiateDescriptors() {
     CHAMELEON_Sequence_Create(&pSequence);
 
     FloatPoint floatPoint;
-    if (sizeof(T) == SIZE_OF_FLOAT){
+    if (sizeof(T) == SIZE_OF_FLOAT) {
         floatPoint = EXAGEOSTAT_REAL_FLOAT;
-    }
-    else {
+    } else {
         floatPoint = EXAGEOSTAT_REAL_DOUBLE;
     }
 
 
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid,
-                                    qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZ, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid,
-                                    qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZcpy, Zcpy, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid,
-                                    qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorProduct, &dotProductValue, ChamRealFloat, dts, dts, dts * dts, 1, 1, 0, 0, 1,
-                                    1, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorDeterminant, &dotProductValue, ChamRealFloat, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1,
-                                    pGrid, qGrid);
-
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0,
+                                    0, N, N, pGrid, qGrid)
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZ, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0,
+                                    0, N, 1, pGrid, qGrid)
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZcpy, Zcpy, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0,
+                                    0, N, 1, pGrid, qGrid)
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorProduct, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0,
+                                    0, 1, 1, pGrid, qGrid)
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorDeterminant, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1,
+                                    0, 0, 1, 1, pGrid, qGrid)
 }

@@ -40,7 +40,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
 
     SECTION("P-GRID setter/getter test")
     {
-        REQUIRE(syntheticDataConfigurations->GetPGrid() == 0);
+        REQUIRE(syntheticDataConfigurations->GetPGrid() == 1);
         syntheticDataConfigurations->SetPGrid(random_number);
         REQUIRE(syntheticDataConfigurations->GetPGrid() == random_number);
     }SECTION("P-GRID value checker test")

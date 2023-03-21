@@ -225,6 +225,8 @@ namespace exageostat {
             int mP = 1;
             //// Used Tile Size.
             int mTileSize;
+            //// Used C descriptor.
+            void *mpDescriptorC;
             /// Used Computation.
             common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.
