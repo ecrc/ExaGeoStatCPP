@@ -12,4 +12,12 @@
  * @date 2023-03-20
 **/
 
-#include <linear-algebra-solvers/AllocateDescriptors.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+
+using namespace exageostat::linearAlgebra;
+using namespace exageostat::configurations;
+
+template<typename T>
+void LinearAlgebraMethods<T>::SetConfigurations(Configurations *apConfigurations) {
+    this->mpConfigurations = apConfigurations;
+}

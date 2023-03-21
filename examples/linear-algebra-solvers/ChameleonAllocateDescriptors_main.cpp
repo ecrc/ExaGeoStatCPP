@@ -11,8 +11,10 @@
  * @author Sameh Abdulah
  * @date 2023-03-20
 **/
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
-#include <linear-algebra-solvers/concrete/dense/ChameleonAllocateDescriptors.hpp>
+#include <linear-algebra-solvers/concrete/dense/ChameleonImplementation.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 
 using namespace exageostat::linearAlgebra::dense;
@@ -25,17 +27,16 @@ int main(int argc, char **argv) {
 
 
     // Object has automatic storage duration (usually is on the stack)
-    auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
+    auto* syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
     if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
-        unique_ptr<LinearAlgebraFactory<float>> chameleon;
-        chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+        auto chameleon = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+        chameleon->SetConfigurations(syntheticDataConfigurations);
+        chameleon->InitiateDescriptors(Precision::SINGLE);
     } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
-        unique_ptr<LinearAlgebraFactory<double>> chameleon;
-        chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+
     } else if (syntheticDataConfigurations->GetPrecision() == MIXED) {
-//        unique_ptr<LinearAlgebraFactory<float>> chameleon;
-//        chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+
     }
 
 

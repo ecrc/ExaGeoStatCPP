@@ -13,25 +13,25 @@
 **/
 
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <linear-algebra-solvers/concrete/dense/ChameleonAllocateDescriptors.hpp>
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::linearAlgebra::dense;
+using namespace exageostat::configurations;
 
-template<typename T> std::unique_ptr<LinearAlgebraFactory<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
+template<typename T> std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
 
     // Check the used Linear Algebra solver library, Whether it's HiCMA or Chameleon.
 
     // Chameleon Used
     if (aComputation == EXACT_DENSE) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        return std::make_unique<ChameleonAllocateDescriptors<T>>();
+        return std::make_unique<dense::ChameleonImplementation<T>>();
 #else
         throw std::runtime_error("Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
         return nullptr;
 #endif
     }
+
     // Hicma Used
     else if (aComputation == TILE_LOW_RANK) {
 //        return std::make_unique<HiCMAAllocateDescriptors>();

@@ -11,7 +11,7 @@
 
 if(EXAGEOSTAT_USE_CHAMELEON)
     set(SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonAllocateDescriptors.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonImplementation.cpp
             ${SOURCES}
             PARENT_SCOPE
     )

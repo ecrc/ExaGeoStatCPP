@@ -12,46 +12,41 @@
  * @date 2023-03-20
 **/
 
-#ifndef EXAGEOSTATCPP_CHAMELEONALLOCATEDESCRIPTORS_HPP
-#define EXAGEOSTATCPP_CHAMELEONALLOCATEDESCRIPTORS_HPP
+#ifndef EXAGEOSTATCPP_CHAMELEONIMPLEMENTATION_HPP
+#define EXAGEOSTATCPP_CHAMELEONIMPLEMENTATION_HPP
 
-#include <linear-algebra-solvers/AllocateDescriptors.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
 namespace exageostat {
     namespace linearAlgebra {
         namespace dense {
 
             template<typename T>
-            class ChameleonAllocateDescriptors : public AllocateDescriptors<T>{
+            class ChameleonImplementation : public LinearAlgebraMethods<T>{
             public:
 
-                void InitiateDescriptors(common::Precision aPrecision) override;
+                void InitiateDescriptors(T aPrecision) override;
 
                 /**
                  * @brief
                  * Default constructor.
                  *
                  */
-                explicit ChameleonAllocateDescriptors();
+                explicit ChameleonImplementation() = default;
 
                 /**
                  * @brief
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  *
                  */
-                virtual ~ChameleonAllocateDescriptors() = default;
+                virtual ~ChameleonImplementation() = default;
 
-                void CreateDescriptors(T aPrecision);
-
-            private:
-                /// Used Precision.
-                common::Precision mPrecision;
             };
 
-            EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonAllocateDescriptors)
+            EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementation)
 
         }//namespace dense
     }//namespace linearAlgebra
 }//namespace exageostat
 
-#endif //EXAGEOSTATCPP_CHAMELEONALLOCATEDESCRIPTORS_HPP
+#endif //EXAGEOSTATCPP_CHAMELEONIMPLEMENTATION_HPP

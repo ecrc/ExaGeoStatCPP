@@ -15,8 +15,14 @@
 #ifndef EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP
 #define EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP
 
-#include <memory>
 #include <common/Definitions.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <memory>
+
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+#include <linear-algebra-solvers/concrete/dense/ChameleonImplementation.hpp>
+#endif
+
 
 namespace exageostat {
     namespace linearAlgebra {
@@ -35,7 +41,7 @@ namespace exageostat {
              * @return DataGenerator
              * Unique Pointer to the created type of Data Generators.
              */
-            static std::unique_ptr<LinearAlgebraFactory<T>>
+            static std::unique_ptr<LinearAlgebraMethods<T>>
             CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 

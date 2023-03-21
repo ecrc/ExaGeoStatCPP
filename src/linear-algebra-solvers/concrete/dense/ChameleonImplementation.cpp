@@ -12,25 +12,14 @@
  * @date 2023-03-20
 **/
 
-#include <linear-algebra-solvers/concrete/dense/ChameleonAllocateDescriptors.hpp>
+#include <linear-algebra-solvers/concrete/dense/ChameleonImplementation.hpp>
 #include <iostream>
 #include <chameleon/struct.h>
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
 
-template<typename T> void ChameleonAllocateDescriptors<T>::InitiateDescriptors(Precision aPrecision) {
-    std::cout << "From Chameleon" << std::endl;
-
-}
-
-template<typename T> ChameleonAllocateDescriptors<T>::ChameleonAllocateDescriptors() {
-    // Set the selected Precision
-    std::cout << "Hi mahmoud, You selected: " << typeid(T).name() << " ." << std::endl;
-
-}
-
-template<typename T> void ChameleonAllocateDescriptors<T>::CreateDescriptors(T aPrecision) {
+template<typename T> void ChameleonImplementation<T>::InitiateDescriptors(T aPrecision) {
 
     //// TODO: what C & Z stands for?
     CHAM_desc_t *pDescriptorC = nullptr;
@@ -43,7 +32,7 @@ template<typename T> void ChameleonAllocateDescriptors<T>::CreateDescriptors(T a
     RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
     // For ditributed system and should be removed
-//    T *Zcpy = (float *) malloc(N * sizeof(float));
-    T *Zcpy = (T *) malloc(1 * sizeof(T));
+//    T *Zcpy = (T *) malloc(aProblemSize * sizeof(T));
+
 
 }
