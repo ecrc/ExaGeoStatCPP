@@ -11,4 +11,7 @@
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/end-to-end)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/linear-algebra-solvers)
+
+if (EXAGEOSTAT_USE_HiCMA OR EXAGEOSTAT_USE_CHAMELEON)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/linear-algebra-solvers)
+endif ()

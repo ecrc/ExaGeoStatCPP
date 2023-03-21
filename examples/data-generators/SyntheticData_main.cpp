@@ -17,8 +17,9 @@
 
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
-using namespace std;
+using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+using namespace std;
 
 int main(int argc, char **argv) {
     unique_ptr<DataGenerator> syntheticGenerator;

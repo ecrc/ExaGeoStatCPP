@@ -20,6 +20,7 @@ using namespace std;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 void TEST_SPREAD_REVERSED_BITS() {
 

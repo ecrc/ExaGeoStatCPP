@@ -18,7 +18,7 @@
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 

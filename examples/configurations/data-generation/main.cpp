@@ -17,7 +17,7 @@
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 int main(int argc, char **argv) {
 

@@ -140,7 +140,7 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    export PKG_CONFIG_PATH=$PWD/installdir/_deps/lib/pkgconfig:$PKG_CONFIG_PATH
+                    module load starpu/1.3.9-gcc-10.2.0-mkl-openmpi-4.1.0
                     ./config.sh -t -e
                     ./clean_build.sh
                     cd bin

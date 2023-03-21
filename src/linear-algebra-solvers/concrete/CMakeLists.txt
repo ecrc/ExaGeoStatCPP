@@ -9,8 +9,10 @@
 # @author Sameh Abdulah
 # @date 2023-03-20
 
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonAllocateDescriptors.cpp
-        ${SOURCES}
-        PARENT_SCOPE
-        )
+if(EXAGEOSTAT_USE_CHAMELEON)
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonAllocateDescriptors.cpp
+            ${SOURCES}
+            PARENT_SCOPE
+    )
+endif()
