@@ -39,7 +39,7 @@ template<typename T> void ChameleonImplementation<T>::InitiateDescriptors() {
     T *Zcpy = (T *) malloc(problemSize * sizeof(T));
 
     //Identifies a set of routines sharing common exception handling.
-//    CHAMELEON_Sequence_Create(&pSequence);
+    CHAMELEON_Sequence_Create(&pSequence);
 
     FloatPoint floatPoint;
     if (sizeof(T) == SIZE_OF_FLOAT){
