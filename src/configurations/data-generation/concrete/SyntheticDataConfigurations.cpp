@@ -119,14 +119,6 @@ void SyntheticDataConfigurations::SetDimension(Dimension aDimension) {
     this->mDimension = aDimension;
 }
 
-void SyntheticDataConfigurations::SetPGrid(int aPGrid) {
-    this->mPGrid = aPGrid;
-}
-
-int SyntheticDataConfigurations::GetPGrid() {
-    return this->mPGrid;
-}
-
 Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
 
     if (aDimension != "2D" and aDimension != "2d"

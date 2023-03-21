@@ -118,6 +118,62 @@ namespace exageostat {
             GetPrecision();
 
             /**
+             * @brief PGrid setter.
+             * @param aPGrid
+             */
+            void
+            SetPGrid(int aPGrid);
+
+            /**
+             * @brief PGrid getter.
+             * @return mPGrid
+             */
+            int
+            GetPGrid();
+
+            /**
+             * @brief QGrid setter.
+             * @param aQGrid
+             */
+            void
+            SetQGrid(int aQGrid);
+
+            /**
+             * @brief QGrid getter.
+             * @return mQGrid
+             */
+            int
+            GetQGrid();
+
+            /**
+             * @brief P setter.
+             * @param aP
+             */
+            void
+            SetP(int aP);
+
+            /**
+             * @brief P getter.
+             * @return mP
+             */
+            int
+            GetP();
+
+            /**
+             * @brief Tile size setter.
+             * @param aTileSize
+             */
+            void
+            SetTileSize(int aTileSize);
+
+            /**
+             * @brief tile size getter.
+             * @return mTileSize
+             */
+            int
+            GetTileSize();
+
+            /**
              * @brief
              * Check Numerical value.
              *
@@ -161,6 +217,14 @@ namespace exageostat {
             int mProblemSize;
             /// Used Time slot.
             int mTimeSlot = 1;
+            /// Used PGrid.
+            int mPGrid = 1;
+            /// Used QGrid.
+            int mQGrid = 1;
+            /// Used P.
+            int mP = 1;
+            //// Used Tile Size.
+            int mTileSize;
             /// Used Computation.
             common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.

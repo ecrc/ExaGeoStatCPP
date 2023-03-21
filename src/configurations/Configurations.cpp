@@ -54,6 +54,30 @@ void Configurations::SetPrecision(Precision aPrecision) {
     this->mPrecision = aPrecision;
 }
 
+void Configurations::SetPGrid(int aPGrid) {
+    this->mPGrid = aPGrid;
+}
+
+int Configurations::GetPGrid() {
+    return this->mPGrid;
+}
+
+void Configurations::SetP(int aP) {
+    this->mP = aP;
+}
+
+int Configurations::GetP() {
+    return this->mP;
+}
+
+void Configurations::SetTileSize(int aTileSize) {
+    this->mTileSize = aTileSize;
+}
+
+int Configurations::GetTileSize() {
+    return this->mTileSize;
+}
+
 int Configurations::CheckNumericalValue(string aValue) {
 
     int numericalValue = -1;
@@ -98,4 +122,12 @@ Precision Configurations::CheckPrecisionValue(std::string aValue) {
         return DOUBLE;
     }
     return MIXED;
+}
+
+void Configurations::SetQGrid(int aQGrid) {
+    this->mQGrid = aQGrid;
+}
+
+int Configurations::GetQGrid() {
+    return this->mQGrid;
 }

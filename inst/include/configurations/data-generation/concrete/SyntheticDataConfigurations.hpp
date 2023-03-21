@@ -79,27 +79,11 @@ namespace exageostat {
                 exageostat::common::Dimension
                 GetDimension();
 
-                /**
-                 * @brief PGrid setter.
-                 * @param aPGrid
-                 */
-                void
-                SetPGrid(int aPGrid);
-
-                /**
-                 * @brief PGrid getter.
-                 * @return mPGrid
-                 */
-                int
-                GetPGrid();
-
                 exageostat::common::Dimension CheckDimensionValue(std::string aDimension);
 
             private:
                 /// Used Dimension.
                 exageostat::common::Dimension mDimension = common::Dimension2D;
-                /// Used PGrid.
-                int mPGrid;
                 /// Used Location X.
                 double *mpLocationX;
                 /// Used Location Y.

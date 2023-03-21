@@ -33,10 +33,15 @@ template<typename T> void ChameleonImplementation<T>::InitiateDescriptors() {
     RUNTIME_sequence_t *pSequence;
     RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
-    int problemSize = this->mpConfigurations->GetProblemSize();
+    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
+    int dts = this->mpConfigurations->GetTileSize();
+    int pGrid = this->mpConfigurations->GetPGrid();
+    int qGrid = this->mpConfigurations->GetQGrid();
 
     // For distributed system and should be removed
-    T *Zcpy = (T *) malloc(problemSize * sizeof(T));
+    T *Zcpy = (T *) malloc(N * sizeof(T));
+
+    T dotProductValue;
 
     //Identifies a set of routines sharing common exception handling.
     CHAMELEON_Sequence_Create(&pSequence);
@@ -49,16 +54,16 @@ template<typename T> void ChameleonImplementation<T>::InitiateDescriptors() {
         floatPoint = EXAGEOSTAT_REAL_DOUBLE;
     }
 
-//    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorC, nullptr, floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, p_grid,
-//                                    q_grid);
-//    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descZ, nullptr, floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, p_grid,
-//                                    q_grid);
-//    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descZcpy, Zcpy, floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, p_grid,
-//                                    q_grid);
-//    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descproduct, &data->sdotp, floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1,
-//                                    1, p_grid, q_grid);
-//    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descdet, &data->det, floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1,
-//                                    p_grid, q_grid);
 
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid,
+                                    qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZ, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid,
+                                    qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZcpy, Zcpy, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid,
+                                    qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorProduct, &dotProductValue, ChamRealFloat, dts, dts, dts * dts, 1, 1, 0, 0, 1,
+                                    1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorDeterminant, &dotProductValue, ChamRealFloat, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1,
+                                    pGrid, qGrid);
 
 }

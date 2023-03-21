@@ -62,7 +62,7 @@ namespace exageostat {
          * @brief
          * Enum denoting the Matrix floating point arithmetic.
          */
-        enum FloatPoint{
+        enum FloatPoint : int{
             EXAGEOSTAT_BYTE = 0,
             EXAGEOSTAT_INTEGER = 1,
             EXAGEOSTAT_REAL_FLOAT = 2,
