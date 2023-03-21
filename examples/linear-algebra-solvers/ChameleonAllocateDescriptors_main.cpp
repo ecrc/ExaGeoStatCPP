@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
     if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
         auto chameleon = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
         chameleon->SetConfigurations(syntheticDataConfigurations);
-        chameleon->InitiateDescriptors(Precision::SINGLE);
+        chameleon->InitiateDescriptors();
     } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
 
     } else if (syntheticDataConfigurations->GetPrecision() == MIXED) {

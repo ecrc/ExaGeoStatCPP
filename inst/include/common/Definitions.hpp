@@ -22,6 +22,9 @@
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
+// Variables sizes.
+#define SIZE_OF_FLOAT 4
+#define SIZE_OF_DOUBLE 8
 
 namespace exageostat {
     namespace common {
@@ -54,6 +57,20 @@ namespace exageostat {
             DOUBLE = 1,
             MIXED = 2,
         };
+
+        /**
+         * @brief
+         * Enum denoting the Matrix floating point arithmetic.
+         */
+        enum FloatPoint{
+            EXAGEOSTAT_BYTE = 0,
+            EXAGEOSTAT_INTEGER = 1,
+            EXAGEOSTAT_REAL_FLOAT = 2,
+            EXAGEOSTAT_REAL_DOUBLE = 3,
+            EXAGEOSTAT_COMPLEX_FLOAT = 4,
+            EXAGEOSTAT_COMPLEX_DOUBLE = 5,
+        };
+
 
         /**
          * @brief

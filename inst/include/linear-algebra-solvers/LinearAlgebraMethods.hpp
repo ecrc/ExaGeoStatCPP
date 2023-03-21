@@ -24,7 +24,7 @@ namespace exageostat {
         template<typename T>
         class LinearAlgebraMethods {
         public:
-            virtual void InitiateDescriptors(T aPrecision) = 0;
+            virtual void InitiateDescriptors() = 0;
 
             /**
              * @brief
