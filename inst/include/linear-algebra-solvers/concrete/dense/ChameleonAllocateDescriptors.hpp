@@ -20,16 +20,19 @@
 namespace exageostat {
     namespace linearAlgebra {
         namespace dense {
-            class ChameleonAllocateDescriptors : public AllocateDescriptors{
+
+            template<typename T>
+            class ChameleonAllocateDescriptors : public AllocateDescriptors<T>{
             public:
-                void InitiateDescriptors() override;
+
+                void InitiateDescriptors(dataunits::Precision aPrecision) override;
 
                 /**
                  * @brief
                  * Default constructor.
                  *
                  */
-                ChameleonAllocateDescriptors();
+                explicit ChameleonAllocateDescriptors();
 
                 /**
                  * @brief
@@ -38,8 +41,14 @@ namespace exageostat {
                  */
                 virtual ~ChameleonAllocateDescriptors() = default;
 
+                void CreateDescriptors(T aPrecision);
+
             private:
+                /// Used Precision.
+                dataunits::Precision mPrecision;
             };
+            template class ChameleonAllocateDescriptors<float>;
+            template class ChameleonAllocateDescriptors<double>;
         }//namespace dense
     }//namespace linearAlgebra
 }//namespace exageostat

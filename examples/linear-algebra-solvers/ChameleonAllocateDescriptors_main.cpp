@@ -18,16 +18,26 @@
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::dataunits;
 using namespace std;
 
 int main(int argc, char **argv) {
 
-    unique_ptr<LinearAlgebraFactory> chameleon;
 
     // Object has automatic storage duration (usually is on the stack)
     auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
-    chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+    if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
+        unique_ptr<LinearAlgebraFactory<float>> chameleon;
+        chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+    } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
+        unique_ptr<LinearAlgebraFactory<double>> chameleon;
+        chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+    } else if (syntheticDataConfigurations->GetPrecision() == MIXED) {
+//        unique_ptr<LinearAlgebraFactory<float>> chameleon;
+//        chameleon->CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+    }
+
 
     return 0;
 }

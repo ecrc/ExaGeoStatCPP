@@ -19,13 +19,13 @@ using namespace exageostat::linearAlgebra;
 using namespace exageostat::dataunits;
 using namespace exageostat::linearAlgebra::dense;
 
-std::unique_ptr<LinearAlgebraFactory> LinearAlgebraFactory::CreateLinearAlgebraSolver(Computation aComputation) {
+template<typename T> std::unique_ptr<LinearAlgebraFactory<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
 
     // Check the used Linear Algebra solver library, Whether it's HiCMA or Chameleon.
 
     // Chameleon Used
     if (aComputation == EXACT_DENSE) {
-        return std::make_unique<ChameleonAllocateDescriptors>();
+        return std::make_unique<ChameleonAllocateDescriptors<T>>();
     }
     // Hicma Used
     else if (aComputation == TILE_LOW_RANK) {

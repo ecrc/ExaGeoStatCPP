@@ -20,9 +20,10 @@
 namespace exageostat {
     namespace linearAlgebra {
 
-        class AllocateDescriptors : public LinearAlgebraFactory{
+        template<typename T>
+        class AllocateDescriptors : public LinearAlgebraFactory<T>{
         public:
-            virtual void InitiateDescriptors() = 0;
+            virtual void InitiateDescriptors(dataunits::Precision aPrecision) = 0;
 
         private:
         };
