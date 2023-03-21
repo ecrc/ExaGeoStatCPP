@@ -18,7 +18,7 @@
 #include <configurations/Configurations.hpp>
 
 using namespace exageostat::configurations;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 using namespace std;
 
 

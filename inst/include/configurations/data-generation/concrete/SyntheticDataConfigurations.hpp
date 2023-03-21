@@ -70,13 +70,13 @@ namespace exageostat {
                  * @param aDimension
                  */
                 void
-                SetDimension(exageostat::dataunits::Dimension aDimension);
+                SetDimension(exageostat::common::Dimension aDimension);
 
                 /**
                  * @brief Dimension getter.
                  * @return mDimension
                  */
-                exageostat::dataunits::Dimension
+                exageostat::common::Dimension
                 GetDimension();
 
                 /**
@@ -93,11 +93,11 @@ namespace exageostat {
                 int
                 GetPGrid();
 
-                exageostat::dataunits::Dimension CheckDimensionValue(std::string aDimension);
+                exageostat::common::Dimension CheckDimensionValue(std::string aDimension);
 
             private:
                 /// Used Dimension.
-                exageostat::dataunits::Dimension mDimension = dataunits::Dimension2D;
+                exageostat::common::Dimension mDimension = common::Dimension2D;
                 /// Used PGrid.
                 int mPGrid;
                 /// Used Location X.

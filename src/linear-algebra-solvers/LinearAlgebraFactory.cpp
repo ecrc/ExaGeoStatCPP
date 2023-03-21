@@ -16,7 +16,7 @@
 #include <linear-algebra-solvers/concrete/dense/ChameleonAllocateDescriptors.hpp>
 
 using namespace exageostat::linearAlgebra;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 using namespace exageostat::linearAlgebra::dense;
 
 template<typename T> std::unique_ptr<LinearAlgebraFactory<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {

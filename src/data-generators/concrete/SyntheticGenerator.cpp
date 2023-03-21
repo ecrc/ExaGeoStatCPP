@@ -13,6 +13,7 @@
 
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
+using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 
 SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {

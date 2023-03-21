@@ -16,7 +16,7 @@
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 
-#include <data-units/Helpers.hpp>
+#include <common/Definitions.hpp>
 
 namespace exageostat {
     namespace configurations {
@@ -85,7 +85,7 @@ namespace exageostat {
             *
             */
             void
-            SetComputation(dataunits::Computation aComputation);
+            SetComputation(common::Computation aComputation);
 
             /**
              * @brief
@@ -94,7 +94,7 @@ namespace exageostat {
              * @return mComputation
              *
              */
-            dataunits::Computation
+            common::Computation
             GetComputation();
 
             /**
@@ -105,7 +105,7 @@ namespace exageostat {
              *
              */
             void
-            SetPrecision(dataunits::Precision aPrecision);
+            SetPrecision(common::Precision aPrecision);
 
             /**
              * @brief
@@ -114,7 +114,7 @@ namespace exageostat {
              * @return mPrecision
              *
              */
-            dataunits::Precision
+            common::Precision
             GetPrecision();
 
             /**
@@ -141,7 +141,7 @@ namespace exageostat {
              * Enum with the selected computation, Error if not exist.
              *
              */
-            dataunits::Computation CheckComputationValue(std::string aValue);
+            common::Computation CheckComputationValue(std::string aValue);
 
             /**
              * @brief
@@ -154,7 +154,7 @@ namespace exageostat {
              * Enum with the selected Precision, Error if not exist.
              *
              */
-            dataunits::Precision CheckPrecisionValue(std::string aValue);
+            common::Precision CheckPrecisionValue(std::string aValue);
 
         protected:
             /// Used Problem size.
@@ -162,9 +162,9 @@ namespace exageostat {
             /// Used Time slot.
             int mTimeSlot = 1;
             /// Used Computation.
-            dataunits::Computation mComputation = dataunits::EXACT_DENSE;
+            common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.
-            dataunits::Precision mPrecision = dataunits::SINGLE;
+            common::Precision mPrecision = common::SINGLE;
 
         };
 

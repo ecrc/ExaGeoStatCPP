@@ -18,7 +18,7 @@
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::configurations::data_configurations;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 using namespace std;
 
 int main(int argc, char **argv) {

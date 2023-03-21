@@ -17,7 +17,7 @@
 #include <chameleon/struct.h>
 
 using namespace exageostat::linearAlgebra::dense;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 template<typename T> void ChameleonAllocateDescriptors<T>::InitiateDescriptors(Precision aPrecision) {
     std::cout << "From Chameleon" << std::endl;

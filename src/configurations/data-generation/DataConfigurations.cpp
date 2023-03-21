@@ -18,7 +18,7 @@
 
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
-using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 string DataConfigurations::GetKernel() {
     return this->mKernel;

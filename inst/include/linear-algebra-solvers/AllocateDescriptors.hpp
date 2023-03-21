@@ -23,7 +23,7 @@ namespace exageostat {
         template<typename T>
         class AllocateDescriptors : public LinearAlgebraFactory<T>{
         public:
-            virtual void InitiateDescriptors(dataunits::Precision aPrecision) = 0;
+            virtual void InitiateDescriptors(common::Precision aPrecision) = 0;
 
         private:
         };
