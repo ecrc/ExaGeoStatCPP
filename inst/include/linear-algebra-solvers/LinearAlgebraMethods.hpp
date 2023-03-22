@@ -26,6 +26,7 @@ namespace exageostat {
         public:
             virtual void InitiateDescriptors() = 0;
 
+
             /**
              * @brief
              * Configuration map setter.
@@ -47,6 +48,7 @@ namespace exageostat {
         protected:
             //// Used configurations map.
             configurations::Configurations *mpConfigurations = nullptr;
+
 
         };
 

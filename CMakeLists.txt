@@ -64,21 +64,23 @@ endif ()
 
 # Add all dependencies for Exageostat
 
+# EXAGEOSTAT depends on a Hwloc
+# -------------------------------
+include(ImportHwloc)
+set(STARPU_COMPONENT_LIST "HWLOC")
+
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
 if(USE_MPI)
     message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
-    message("FOUND MPI .....")
+    list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif()
-
-# EXAGEOSTAT depends on a Hwloc
-# -------------------------------
-include(ImportHwloc)
 
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
 include(ImportStarPu)
+
 
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------
@@ -113,7 +115,6 @@ if(EXAGEOSTAT_BUILD_DOCS)
         message(STATUS "Doxygen NOT found, skipping it")
     endif()
 endif()
-
 
 # Include directories for Exageostat-cpp
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
