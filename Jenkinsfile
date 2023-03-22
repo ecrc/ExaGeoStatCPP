@@ -100,7 +100,8 @@ pipeline {
                             ####################################################
                             module load mkl/2020.0.166
                             set -x
-                            export PKG_CONFIG_PATH=$PWD/installdir/_deps/lib/pkgconfig:$PKG_CONFIG_PATH
+                            export PKG_CONFIG_PATH=$PWD/installdir/_deps/STARPU/lib/pkgconfig:$PKG_CONFIG_PATH
+                            export PKG_CONFIG_PATH=$PWD/installdir/_deps/GSL/lib/pkgconfig:$PKG_CONFIG_PATH
                             ./config.sh -t -e -H
                             ./clean_build.sh
                         '''

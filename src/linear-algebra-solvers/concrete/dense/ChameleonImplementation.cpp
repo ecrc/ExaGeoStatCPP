@@ -17,15 +17,18 @@
 #include <iostream>
 #include <chameleon/struct.h>
 #include <chameleon.h>
-#include <vector>
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
+using namespace std;
 
 template<typename T>
-void ChameleonImplementation<T>::InitiateDescriptors() {
+void ChameleonImplementation<T>::InitiateDescriptors(vector<void *> apDescriptorC) {
 
     //// TODO: what C & Z stands for?
+//    CHAM_desc_t* x = ( CHAM_desc_t*)apDescriptorC[0];
+    
+
     std::vector<CHAM_desc_t *> pDescriptorC;
     std::vector<CHAM_desc_t *> pDescriptorZ;
     CHAM_desc_t  *pDescriptorZcpy = nullptr;

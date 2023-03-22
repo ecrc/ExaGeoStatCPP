@@ -17,6 +17,7 @@
 
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
+#include <vector>
 
 namespace exageostat {
     namespace linearAlgebra {
@@ -24,7 +25,7 @@ namespace exageostat {
         template<typename T>
         class LinearAlgebraMethods {
         public:
-            virtual void InitiateDescriptors() = 0;
+            virtual void InitiateDescriptors(std::vector<void *> apDescriptorC) = 0;
 
 
             /**

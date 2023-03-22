@@ -25,7 +25,7 @@ namespace exageostat {
             class ChameleonImplementation : public LinearAlgebraMethods<T>{
             public:
 
-                void InitiateDescriptors() override;
+                void InitiateDescriptors(std::vector<void *> apDescriptorC) override;
 
                 /**
                  * @brief
