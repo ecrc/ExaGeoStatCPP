@@ -17,25 +17,24 @@
 #include <iostream>
 #include <chameleon/struct.h>
 #include <chameleon.h>
+#include <gsl/gsl_errno.h>
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
 using namespace std;
 
 template<typename T>
-void ChameleonImplementation<T>::InitiateDescriptors(vector<void *> apDescriptorC) {
+void ChameleonImplementation<T>::InitiateDescriptors() {
 
     //// TODO: what C & Z stands for?
-//    CHAM_desc_t* x = ( CHAM_desc_t*)apDescriptorC[0];
-    
+    vector<void *> pDescriptorC =  this->mpConfigurations->GetDescriptorC();
+    vector<void *> pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
+    CHAM_desc_t * pDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
+    vector<void *> pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
+    CHAM_desc_t * pDescriptorDeterminant = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorDeterminant();
 
-    std::vector<CHAM_desc_t *> pDescriptorC;
-    std::vector<CHAM_desc_t *> pDescriptorZ;
-    CHAM_desc_t  *pDescriptorZcpy = nullptr;
-    std::vector<CHAM_desc_t *> pDescriptorProduct;
-    CHAM_desc_t *pDescriptorDeterminant = nullptr;
+
     int vectorSize = 0;
-    
     RUNTIME_sequence_t *pSequence;
     RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
@@ -67,27 +66,30 @@ void ChameleonImplementation<T>::InitiateDescriptors(vector<void *> apDescriptor
         pDescriptorProduct.push_back(nullptr);
     }
 
+    CHAM_desc_t* CHAM_descriptorC = (CHAM_desc_t*) pDescriptorC[0];
     if(vectorSize > 1){
         pDescriptorC.push_back(nullptr);
-//        pDescriptorC[1] = chameleon_desc_submatrix(pDescriptorC[0], 0, 0, pDescriptorC[0]->m / 2, pDescriptorC[0]->n / 2);
-//        pDescriptorC[2] = chameleon_desc_submatrix(pDescriptorC[0], pDescriptorC[0]->m / 2, 0, pDescriptorC[0]->m / 2, pDescriptorC[0]->n / 2);
-//        pDescriptorC[3] = chameleon_desc_submatrix(pDescriptorC[0], pDescriptorC[0]->m / 2, pDescriptorC[0]->n / 2, pDescriptorC[0]->m / 2, pDescriptorC[0]->n / 2);
-
+//        pDescriptorC[1] = chameleon_desc_submatrix(CHAM_descriptorC, 0, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
+//        pDescriptorC[2] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
+//        pDescriptorC[3] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
     }
 
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorC[0], nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZ[0], nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0,0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descriptorC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
+    CHAM_desc_t* CHAM_descriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descriptorZ, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0,0, N, 1, pGrid, qGrid);
     EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZcpy, Zcpy, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
     EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorDeterminant, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
-        EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorZ[idx], nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N / 2, 1, 0, 0, N / 2, 1, pGrid, qGrid);
+        CHAM_desc_t* CHAM_descriptorZ_ = (CHAM_desc_t*) pDescriptorZ[idx];
+        EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descriptorZ_, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N / 2, 1, 0, 0, N / 2, 1, pGrid, qGrid);
     }
 
     for (int idx = 0; idx < pDescriptorZ.size(); idx++) {
-        EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pDescriptorProduct[idx], &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid)
+        CHAM_desc_t* CHAM_descriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
+        EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descriptorProduct, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid)
     }
 
     //stop gsl error handler
-//    gsl_set_error_handler_off();
+    gsl_set_error_handler_off();
 }

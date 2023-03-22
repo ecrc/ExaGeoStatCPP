@@ -17,6 +17,7 @@
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 
 #include <common/Definitions.hpp>
+#include <vector>
 
 namespace exageostat {
     namespace configurations {
@@ -174,6 +175,41 @@ namespace exageostat {
             GetTileSize();
 
             /**
+             * @brief vector of C descriptors getter.
+             * @return mpDescriptorC
+             */
+            std::vector<void *>
+            GetDescriptorC();
+
+            /**
+             * @brief vector of Z descriptors getter.
+             * @return mpDescriptorZ
+             */
+            std::vector<void *>
+            GetDescriptorZ();
+
+            /**
+             * @brief Z copy descriptors getter.
+             * @return mpDescriptorZ
+             */
+            void *
+            GetDescriptorZcpy();
+
+            /**
+             * @brief vector of Product descriptors getter.
+             * @return mpDescriptorProduct
+             */
+            std::vector<void *>
+            GetDescriptorProduct();
+
+            /**
+             * @brief Determinant descriptors getter.
+             * @return mpDescriptorDeterminant
+             */
+            void *
+            GetDescriptorDeterminant();
+
+            /**
              * @brief
              * Check Numerical value.
              *
@@ -225,8 +261,16 @@ namespace exageostat {
             int mP = 1;
             //// Used Tile Size.
             int mTileSize;
-            //// Used C descriptor.
-            void *mpDescriptorC;
+            //// Used vectors of C descriptor.
+            std::vector<void *> mpDescriptorC;
+            //// Used vectors of Z descriptor.
+            std::vector<void *> mpDescriptorZ;
+            //// Used copy Z descriptor.
+            void * mpDescriptorZcpy;
+            //// Used vectors of product descriptor.
+            std::vector<void *> mpDescriptorProduct;
+            //// Used Determinant descriptor.
+            void * mpDescriptorDeterminant;
             /// Used Computation.
             common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.

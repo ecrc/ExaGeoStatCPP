@@ -78,6 +78,22 @@ int Configurations::GetTileSize() {
     return this->mTileSize;
 }
 
+std::vector<void *> Configurations::GetDescriptorC() {
+    return this->mpDescriptorC;
+}
+std::vector<void *> Configurations::GetDescriptorZ() {
+    return this->mpDescriptorZ;
+}
+void * Configurations::GetDescriptorZcpy() {
+    return this->mpDescriptorZcpy;
+}
+std::vector<void *> Configurations::GetDescriptorProduct() {
+    return this->mpDescriptorProduct;
+}
+void * Configurations::GetDescriptorDeterminant() {
+    return this->mpDescriptorDeterminant;
+}
+
 int Configurations::CheckNumericalValue(string aValue) {
 
     int numericalValue = -1;
