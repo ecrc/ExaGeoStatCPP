@@ -15,7 +15,7 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-INSTALL_PREFIX=$PWD/bin/installdir
+INSTALL_PREFIX=$PWD/installdir/exageostat
 PROJECT_SOURCE_DIR=$(dirname "$0")
 
 while getopts ":tevhHCi:dcm" opt; do
@@ -61,7 +61,7 @@ while getopts ":tevhHCi:dcm" opt; do
       BUILDING_EXAMPLES="OFF"
       USING_HiCMA="OFF"
       USING_CHAMELEON="OFF"
-      INSTALL_PREFIX=$PWD/bin/installdir
+      INSTALL_PREFIX=$PWD/installdir/exageostat
       VERBOSE=OFF
       BUILD_TYPE="RELEASE"
       USE_CUDA="OFF"
@@ -85,7 +85,7 @@ while getopts ":tevhHCi:dcm" opt; do
       printf "%20s %s\n" "-e :" "to enable building examples."
       echo ""
       printf "%20s %s\n" "-i [path] :" "specify installation path."
-      printf "%20s %s\n" "" "default = /exageostat-cpp/bin/installdir"
+      printf "%20s %s\n" "" "default = /exageostat-cpp/installdir/exageostat"
       echo ""
       printf "%20s %s\n" "-H :" "to enable using HiCMA."
       echo ""

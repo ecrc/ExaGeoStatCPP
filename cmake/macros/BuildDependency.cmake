@@ -14,6 +14,7 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     string(TOUPPER ${raw_name} capital_name)
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
+    set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
     # Fetch the dependency, depending on which it's a git repo or no.
     if (ISGIT)
         FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
@@ -22,13 +23,12 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     endif ()
     FetchContent_Populate(${name})
     # Installation of the source files will be in bin/_deps/${name}-src
-    set(${name}_srcpath ${CMAKE_BINARY_DIR}/_deps/${name}-src)
+    set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/${name}-src)
     # The bin directory where the code will get build is also in bin/_deps/${name}_srcpath/bin
-    set(${name}_binpath ${CMAKE_BINARY_DIR}/_deps/${name}-src/bin)
+    set(${name}_binpath ${${name}_srcpath}/bin)
     # The installation will be installdir/capital_name/ .To avoid deleting it when building software multiple time
-    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps)
+    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
     file(MAKE_DIRECTORY ${${name}_binpath})
-    file(MAKE_DIRECTORY ${${name}_installpath})
 
     # Configure subproject into <subproject-build-dir>
     if (ISCMAKE)

@@ -81,6 +81,9 @@ endif()
 # -------------------------------
 include(ImportStarPu)
 
+# EXAGEOSTAT depends on a GSL
+# -------------------------------
+include(ImportGSL)
 
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------
@@ -101,7 +104,6 @@ endif ()
 # -------------------------------
 if (EXAGEOSTAT_USE_HiCMA)
     add_definitions(-DEXAGEOSTAT_USE_HiCMA=TRUE)
-    include(ImportGSL)
     include(ImportHiCMA)
 endif ()
 
