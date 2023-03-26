@@ -25,7 +25,7 @@ namespace exageostat {
         class LinearAlgebraMethods {
         public:
             virtual void InitiateDescriptors() = 0;
-
+            void ExaGeoStatInitContext(int *apCoresNumber, int *apGPUs);
 
             /**
              * @brief
@@ -48,8 +48,6 @@ namespace exageostat {
         protected:
             //// Used configurations map.
             configurations::Configurations *mpConfigurations = nullptr;
-
-
         };
 
         EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraMethods)

@@ -147,6 +147,34 @@ namespace exageostat {
             GetQGrid();
 
             /**
+             * @brief Cores number setter.
+             * @param aCoresNumbers
+             */
+            void
+            SetCoresNumber(int aCoresNumbers);
+
+            /**
+             * @brief Cores numbers getter.
+             * @return mpCoresNumber
+             */
+            int *
+            GetCoresNumber();
+
+            /**
+             * @brief GPU number setter.
+             * @param aGPUs
+             */
+            void
+            SetGPUsNumber(int aGPUsNumber);
+
+            /**
+             * @brief GPU numbers getter.
+             * @return mpGPUsNumber
+             */
+            int *
+            GetGPUsNumber();
+
+            /**
              * @brief P setter.
              * @param aP
              */
@@ -271,6 +299,10 @@ namespace exageostat {
             int mPGrid = 1;
             /// Used QGrid.
             int mQGrid = 1;
+            /// Used Number of cores.
+            int mCoresNumber = 1;
+            /// Used Number of GPUs.
+            int mGPUsNumber = 0;
             /// Used P.
             int mP = 1;
             //// Used Dense Tile Size.

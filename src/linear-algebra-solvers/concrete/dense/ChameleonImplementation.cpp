@@ -18,6 +18,7 @@
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <gsl/gsl_errno.h>
+#include <control/descriptor.h>
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
@@ -71,9 +72,9 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
     if(vectorSize > 1){
         pDescriptorC.push_back(nullptr);
         //// TODO: can't find these
-//        pDescriptorC[1] = chameleon_desc_submatrix(CHAM_descriptorC, 0, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
-//        pDescriptorC[2] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
-//        pDescriptorC[3] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
+        pDescriptorC[1] = chameleon_desc_submatrix(CHAM_descriptorC, 0, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
+        pDescriptorC[2] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
+        pDescriptorC[3] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
     }
 
     //// TODO: change tile size one for hicma and one for chameleon

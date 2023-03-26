@@ -38,6 +38,8 @@ link_directories(${CHAMELEON_LIBRARY_DIRS_DEP})
 
 include_directories(AFTER ${CHAMELEON_INCLUDE_DIRS_DEP})
 include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
+include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src/)
+
 if (CHAMELEON_LINKER_FLAGS)
     list(APPEND CMAKE_EXE_LINKER_FLAGS "${CHAMELEON_LINKER_FLAGS}")
 endif ()

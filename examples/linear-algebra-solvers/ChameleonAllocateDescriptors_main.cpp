@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
     if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
         auto chameleon = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
         chameleon->SetConfigurations(syntheticDataConfigurations);
+        chameleon->ExaGeoStatInitContext(syntheticDataConfigurations->GetCoresNumber(), syntheticDataConfigurations->GetGPUsNumber());
         chameleon->InitiateDescriptors();
     } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
 

@@ -26,7 +26,6 @@ namespace exageostat {
             public:
 
                 void InitiateDescriptors() override;
-
                 /**
                  * @brief
                  * Default constructor.

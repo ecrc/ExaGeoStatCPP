@@ -13,6 +13,9 @@
 **/
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <chameleon/struct.h>
+#include <chameleon.h>
+#include <control/context.h>
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::configurations;
@@ -20,4 +23,17 @@ using namespace exageostat::configurations;
 template<typename T>
 void LinearAlgebraMethods<T>::SetConfigurations(Configurations *apConfigurations) {
     this->mpConfigurations = apConfigurations;
+}
+
+template<typename T>
+void LinearAlgebraMethods<T>::ExaGeoStatInitContext(int *apCoresNumber, int *apGPUs) {
+
+    CHAM_context_t *chamctxt;
+    chamctxt = chameleon_context_self();
+    if (chamctxt != NULL) {
+        printf("Another instance of Chameleon is already running...!");
+    } else {
+        CHAMELEON_user_tag_size(31, 26);
+        CHAMELEON_Init(*apCoresNumber, *apGPUs);
+    }
 }

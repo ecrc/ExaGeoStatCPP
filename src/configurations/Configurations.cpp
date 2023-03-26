@@ -110,6 +110,22 @@ void * Configurations::GetDescriptorDeterminant() {
     return this->mpDescriptorDeterminant;
 }
 
+void Configurations::SetCoresNumber(int aCoresNumbers) {
+    this->mCoresNumber = aCoresNumbers;
+}
+
+int *Configurations::GetCoresNumber() {
+    return &(this->mCoresNumber);
+}
+
+void Configurations::SetGPUsNumber(int aGPUsNumber) {
+    this->mGPUsNumber = aGPUsNumber;
+}
+
+int *Configurations::GetGPUsNumber() {
+    return &(this->mGPUsNumber);
+}
+
 int Configurations::CheckNumericalValue(string aValue) {
 
     int numericalValue = -1;
