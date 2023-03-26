@@ -63,12 +63,6 @@ endif ()
 
 
 # Add all dependencies for Exageostat
-
-# EXAGEOSTAT depends on a Hwloc
-# -------------------------------
-include(ImportHwloc)
-set(STARPU_COMPONENT_LIST "HWLOC")
-
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
 if(USE_MPI)
@@ -76,6 +70,11 @@ if(USE_MPI)
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif()
+
+# EXAGEOSTAT depends on a Hwloc
+# -------------------------------
+include(ImportHwloc)
+set(STARPU_COMPONENT_LIST "HWLOC")
 
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
@@ -85,12 +84,23 @@ include(ImportStarPu)
 # -------------------------------
 include(ImportGSL)
 
+# EXAGEOSTAT depends on a NLOPT
+# -------------------------------
+#include(ImportNLOPT)
+
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------
 find_package(LAPACKE)
 list(APPEND LIBS  ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
 include_directories(${LAPACKE_INCLUDE_DIRS})
+
+# EXAGEOSTAT depends on HiCMA
+# -------------------------------
+if (EXAGEOSTAT_USE_HiCMA)
+    add_definitions(-DEXAGEOSTAT_USE_HiCMA=TRUE)
+    include(ImportHiCMA)
+endif ()
 
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
@@ -99,13 +109,6 @@ if (EXAGEOSTAT_USE_CHAMELEON)
     include(ImportChameleon)
 endif ()
 
-
-# EXAGEOSTAT depends on HiCMA
-# -------------------------------
-if (EXAGEOSTAT_USE_HiCMA)
-    add_definitions(-DEXAGEOSTAT_USE_HiCMA=TRUE)
-    include(ImportHiCMA)
-endif ()
 
 # EXAGEOSTAT DOCUMENTATIONS
 if(EXAGEOSTAT_BUILD_DOCS)

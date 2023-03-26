@@ -27,6 +27,7 @@ template<typename T>
 void ChameleonImplementation<T>::InitiateDescriptors() {
 
     //// TODO: what C & Z stands for?
+    // log likelhood matrix(descriptorC) - vector Z
     vector<void *> pDescriptorC =  this->mpConfigurations->GetDescriptorC();
     vector<void *> pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     CHAM_desc_t * pDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
@@ -69,11 +70,13 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
     CHAM_desc_t* CHAM_descriptorC = (CHAM_desc_t*) pDescriptorC[0];
     if(vectorSize > 1){
         pDescriptorC.push_back(nullptr);
+        //// TODO: can't find these
 //        pDescriptorC[1] = chameleon_desc_submatrix(CHAM_descriptorC, 0, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
 //        pDescriptorC[2] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
 //        pDescriptorC[3] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
     }
 
+    //// TODO: change tile size one for hicma and one for chameleon
     EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descriptorC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
     CHAM_desc_t* CHAM_descriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
     EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&CHAM_descriptorZ, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0,0, N, 1, pGrid, qGrid);
