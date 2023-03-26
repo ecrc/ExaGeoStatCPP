@@ -12,7 +12,15 @@
 if(EXAGEOSTAT_USE_CHAMELEON)
     set(SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonImplementation.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/diagonal-super-tile/ChameleonImplementation.cpp
             ${SOURCES}
             PARENT_SCOPE
     )
+endif()
+if(EXAGEOSTAT_USE_HiCMA)
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/tile-low-rank/HicmaImplementation.cpp
+            ${SOURCES}
+            PARENT_SCOPE
+            )
 endif()

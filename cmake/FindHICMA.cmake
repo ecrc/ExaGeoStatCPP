@@ -135,11 +135,6 @@ if(PKG_CONFIG_EXECUTABLE AND NOT HICMA_GIVEN_BY_USER)
     if (NOT HICMA_FIND_QUIETLY)
         if (HICMA_FOUND AND HICMA_LIBRARIES)
             message(STATUS "Looking for HiCMA - found using PkgConfig")
-            #if(NOT HICMA_INCLUDE_DIRS)
-            # message("${Magenta}HICMA_INCLUDE_DIRS is empty using PkgConfig."
-            # "Perhaps the path to HiCMA headers is already present in your"
-            # "C(PLUS)_INCLUDE_PATH environment variable.${ColourReset}")
-            #endif()
         else()
             message(STATUS "${Magenta}Looking for HiCMA - not found using PkgConfig."
             "\n     Perhaps you should add the directory containing hicma.pc"
@@ -173,7 +168,6 @@ if(PKG_CONFIG_EXECUTABLE AND NOT HICMA_GIVEN_BY_USER)
     set(HICMA_LIBRARIES_DEP "${HICMA_LIBRARIES}")
 
 endif(PKG_CONFIG_EXECUTABLE AND NOT HICMA_GIVEN_BY_USER)
-
 if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HICMA_FOUND) OR (HICMA_GIVEN_BY_USER) )
 
     if (NOT HICMA_FIND_QUIETLY)
