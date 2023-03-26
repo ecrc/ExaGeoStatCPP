@@ -70,14 +70,30 @@ int Configurations::GetP() {
     return this->mP;
 }
 
-void Configurations::SetTileSize(int aTileSize) {
-    this->mTileSize = aTileSize;
+void Configurations::SetDenseTileSize(int aTileSize) {
+    this->mDenseTileSize = aTileSize;
 }
 
-int Configurations::GetTileSize() {
-    return this->mTileSize;
+int Configurations::GetDenseTileSize() {
+    return this->mDenseTileSize;
 }
 
+void Configurations::SetLowTileSize(int aTileSize) {
+    this->mLowTileSize = aTileSize;
+}
+
+int Configurations::GetLowTileSize() {
+    return this->mLowTileSize;
+}
+
+void Configurations::SetQGrid(int aQGrid) {
+    this->mQGrid = aQGrid;
+}
+
+int Configurations::GetQGrid() {
+    return this->mQGrid;
+
+}
 std::vector<void *> Configurations::GetDescriptorC() {
     return this->mpDescriptorC;
 }
@@ -138,12 +154,4 @@ Precision Configurations::CheckPrecisionValue(std::string aValue) {
         return DOUBLE;
     }
     return MIXED;
-}
-
-void Configurations::SetQGrid(int aQGrid) {
-    this->mQGrid = aQGrid;
-}
-
-int Configurations::GetQGrid() {
-    return this->mQGrid;
 }

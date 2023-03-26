@@ -40,7 +40,7 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
     RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
-    int dts = this->mpConfigurations->GetTileSize();
+    int dts = this->mpConfigurations->GetDenseTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
     int qGrid = this->mpConfigurations->GetQGrid();
 

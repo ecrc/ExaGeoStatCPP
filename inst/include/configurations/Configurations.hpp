@@ -161,18 +161,32 @@ namespace exageostat {
             GetP();
 
             /**
-             * @brief Tile size setter.
+             * @brief Dense Tile size setter.
              * @param aTileSize
              */
             void
-            SetTileSize(int aTileSize);
+            SetDenseTileSize(int aTileSize);
 
             /**
-             * @brief tile size getter.
+             * @brief Dense Tile size getter.
              * @return mTileSize
              */
             int
-            GetTileSize();
+            GetDenseTileSize();
+
+            /**
+             * @brief Low Tile size setter.
+             * @param aTileSize
+             */
+            void
+            SetLowTileSize(int aTileSize);
+
+            /**
+             * @brief Low tile size getter.
+             * @return mTileSize
+             */
+            int
+            GetLowTileSize();
 
             /**
              * @brief vector of C descriptors getter.
@@ -259,8 +273,10 @@ namespace exageostat {
             int mQGrid = 1;
             /// Used P.
             int mP = 1;
-            //// Used Tile Size.
-            int mTileSize;
+            //// Used Dense Tile Size.
+            int mDenseTileSize;
+            //// Used Low Tile Size.
+            int mLowTileSize;
             //// Used vectors of C descriptor.
             std::vector<void *> mpDescriptorC;
             //// Used vectors of Z descriptor.

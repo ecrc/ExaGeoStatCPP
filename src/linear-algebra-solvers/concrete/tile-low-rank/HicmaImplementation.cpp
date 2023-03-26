@@ -36,7 +36,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     HICMA_request_t request[2] = {HICMA_SUCCESS, HICMA_SUCCESS};
 
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
-    int dts = this->mpConfigurations->GetTileSize();
+    int dts = this->mpConfigurations->GetLowTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
     int qGrid = this->mpConfigurations->GetQGrid();
 

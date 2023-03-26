@@ -99,7 +99,6 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
-                            module load starpu/1.3.9-gcc-10.2.0-mkl-openmpi-4.1.0
                             set -x
                             ./config.sh -t -e -H
                             ./clean_build.sh
@@ -121,6 +120,7 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
+                            module load gsl/2.6-gcc-10.2.0
                             cd bin/
                             make test
                             '''
@@ -140,7 +140,6 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    module load starpu/1.3.9-gcc-10.2.0-mkl-openmpi-4.1.0
                     module load gsl/2.6-gcc-10.2.0
                     ./config.sh -t -e
                     ./clean_build.sh
