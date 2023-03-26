@@ -217,6 +217,20 @@ namespace exageostat {
             GetLowTileSize();
 
             /**
+             * @brief Out of Core technology setter.
+             * @param aIsOOC
+             */
+            void
+            SetIsOOC(int aIsOOC);
+
+            /**
+             * @brief Out of Core technology getter.
+             * @return mIsOOC
+             */
+            int
+            GetIsOOC();
+
+            /**
              * @brief vector of C descriptors getter.
              * @return mpDescriptorC
              */
@@ -306,9 +320,11 @@ namespace exageostat {
             /// Used P.
             int mP = 1;
             //// Used Dense Tile Size.
-            int mDenseTileSize;
+            int mDenseTileSize = 1;
             //// Used Low Tile Size.
-            int mLowTileSize;
+            int mLowTileSize = 1;
+            //// Used Out of core technology.
+            int mIsOOC = false;
             //// Used vectors of C descriptor.
             std::vector<void *> mpDescriptorC;
             //// Used vectors of Z descriptor.

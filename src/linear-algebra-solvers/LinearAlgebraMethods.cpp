@@ -13,9 +13,11 @@
 **/
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
-#include <chameleon/struct.h>
-#include <chameleon.h>
-#include <control/context.h>
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    #include <chameleon/struct.h>
+    #include <chameleon.h>
+    #include <control/context.h>
+#endif
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::configurations;
@@ -28,6 +30,7 @@ void LinearAlgebraMethods<T>::SetConfigurations(Configurations *apConfigurations
 template<typename T>
 void LinearAlgebraMethods<T>::ExaGeoStatInitContext(int *apCoresNumber, int *apGPUs) {
 
+#ifdef EXAGEOSTAT_USE_CHAMELEON
     CHAM_context_t *chamctxt;
     chamctxt = chameleon_context_self();
     if (chamctxt != NULL) {
@@ -36,4 +39,5 @@ void LinearAlgebraMethods<T>::ExaGeoStatInitContext(int *apCoresNumber, int *apG
         CHAMELEON_user_tag_size(31, 26);
         CHAMELEON_Init(*apCoresNumber, *apGPUs);
     }
+#endif
 }

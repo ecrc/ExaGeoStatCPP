@@ -53,6 +53,7 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
     int dts = this->mpConfigurations->GetDenseTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
     int qGrid = this->mpConfigurations->GetQGrid();
+    bool isOOC = this->mpConfigurations->GetIsOOC();
 
     // For distributed system and should be removed
     T *Zcpy = (T *) malloc(N * sizeof(T));
@@ -61,17 +62,17 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
     //Identifies a set of routines sharing common exception handling.
     CHAMELEON_Sequence_Create(&pSequence);
 
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorZ, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorZcpy, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorZcpy, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
 
     for(int idx =0; idx <vectorSize; idx++){
         pDescriptorProduct.push_back(nullptr);
         CHAM_desc_t* pChameleonDescriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
-        EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorProduct, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+        EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorProduct, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     }
-    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorDeterminant, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_MATRIX_TILE(&pChameleonDescriptorDeterminant, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     //stop gsl error handler
     gsl_set_error_handler_off();

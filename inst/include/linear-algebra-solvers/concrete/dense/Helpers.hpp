@@ -17,11 +17,8 @@
 
 #include <chameleon.h>
 
-//// TODO: What's data->ooc ????
-// out of core, --ooc
-
-#define EXAGEOSTAT_ALLOCATE_MATRIX_TILE(_desc_, _memspace_, _type2_, _mb_, _nb_, _mbXnb_, _lda_, _n_, _smb_, _snb_, _m_, _n2_, _p_, _q_) \
-    if (_memspace_ == nullptr && _mb_ != 1  && _nb_ !=1)                                                         \
+#define EXAGEOSTAT_ALLOCATE_MATRIX_TILE(_desc_, _isOOC_, _memspace_, _type2_, _mb_, _nb_, _mbXnb_, _lda_, _n_, _smb_, _snb_, _m_, _n2_, _p_, _q_) \
+    if (_isOOC_ && _memspace_ == nullptr && _mb_ != 1  && _nb_ !=1)                                                                               \
 CHAMELEON_Desc_Create_OOC(_desc_, _type2_, _mb_, _nb_, _mbXnb_, _lda_, _n_, _smb_, _snb_, _m_, _n2_, \
         _p_, _q_);             \
 else                                                            \

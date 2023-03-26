@@ -126,6 +126,14 @@ int *Configurations::GetGPUsNumber() {
     return &(this->mGPUsNumber);
 }
 
+void Configurations::SetIsOOC(int aIsOOC) {
+    this->mIsOOC = aIsOOC;
+}
+
+int Configurations::GetIsOOC() {
+    return this->mIsOOC;
+}
+
 int Configurations::CheckNumericalValue(string aValue) {
 
     int numericalValue = -1;
@@ -170,4 +178,5 @@ Precision Configurations::CheckPrecisionValue(std::string aValue) {
         return DOUBLE;
     }
     return MIXED;
+
 }
