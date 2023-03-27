@@ -16,6 +16,7 @@
 #define EXAGEOSTATCPP_HICMAIMPLEMENTATION_HPP
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
 
 namespace exageostat {
     namespace linearAlgebra {

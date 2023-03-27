@@ -134,4 +134,8 @@ Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
     return DimensionST;
 }
 
-
+//if (nZmiss >= N)
+//{
+//printf("please use nZmiss < N!!\n");
+//exit(0);
+//}

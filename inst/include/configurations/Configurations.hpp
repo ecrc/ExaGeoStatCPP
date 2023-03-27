@@ -221,14 +221,56 @@ namespace exageostat {
              * @param aIsOOC
              */
             void
-            SetIsOOC(int aIsOOC);
+            SetIsOOC(bool aIsOOC);
 
             /**
              * @brief Out of Core technology getter.
              * @return mIsOOC
              */
-            int
+            bool
             GetIsOOC();
+
+            /**
+             * @brief Max rank setter.
+             * @param aMaxRank
+             */
+            void
+            SetMaxRank(int aMaxRank);
+
+            /**
+             * @brief Max Rank getter.
+             * @return mMaxRank
+             */
+            int
+            GetMaxRank();
+
+            /**
+             * @brief Number of unknown observation to be predicted setter.
+             * @param aUnknownObservationsNumber
+             */
+            void
+            SetUnknownObservationsNb(int aUnknownObservationsNumber);
+
+            /**
+             * @brief Number of unknown observation to be predicted getter.
+             * @return mUnknownObservationsNumber
+             */
+            int
+            GetUnknownObservationsNb();
+
+            /**
+             * @brief Number of known observation values setter.
+             * @param aKnownObservationsValues
+             */
+            void
+            SetKnownObservationsValues(int aKnownObservationsValues);
+
+            /**
+             * @brief Number of known observation values getter.
+             * @return mKnownObservationsValues
+             */
+            int
+            GetKnownObservationsValues();
 
             /**
              * @brief vector of C descriptors getter.
@@ -264,6 +306,34 @@ namespace exageostat {
              */
             void *
             GetDescriptorDeterminant();
+
+            /**
+            * @brief vector of CD descriptors getter.
+            * @return mpDescriptorCD
+            */
+            std::vector<void *>
+            GetDescriptorCD();
+
+            /**
+             * @brief CUV descriptors getter.
+             * @return mpDescriptorCUV
+             */
+            std::vector<void *>
+            GetDescriptorCUV();
+
+            /**
+             * @brief Crk descriptors getter.
+             * @return mpDescriptorCrk
+             */
+            std::vector<void *>
+            GetDescriptorCrk();
+
+            /**
+             * @brief Unknown Observations Z descriptors getter.
+             * @return mpDescriptorZObservations
+             */
+            void *
+            GetDescriptorZObservations();
 
             /**
              * @brief
@@ -324,21 +394,35 @@ namespace exageostat {
             //// Used Low Tile Size.
             int mLowTileSize = 1;
             //// Used Out of core technology.
-            int mIsOOC = false;
+            bool mIsOOC = false;
+            //// Used max rank
+            int mMaxRank = 0;
+            //// Used number of unknown observation to be predicted
+            int mUnknownObservationsNumber = 0;
+            //// Used number of known observed values.
+            int mKnownObservationsValues = 0;
+            /// Used Computation.
+            common::Computation mComputation = common::EXACT_DENSE;
+            /// Used Precision.
+            common::Precision mPrecision = common::SINGLE;
             //// Used vectors of C descriptor.
             std::vector<void *> mpDescriptorC;
             //// Used vectors of Z descriptor.
             std::vector<void *> mpDescriptorZ;
             //// Used copy Z descriptor.
             void * mpDescriptorZcpy;
-            //// Used vectors of product descriptor.
-            std::vector<void *> mpDescriptorProduct;
             //// Used Determinant descriptor.
             void * mpDescriptorDeterminant;
-            /// Used Computation.
-            common::Computation mComputation = common::EXACT_DENSE;
-            /// Used Precision.
-            common::Precision mPrecision = common::SINGLE;
+            //// Used Z observations descriptor.
+            void * mpDescriptorZObservations;
+            //// Used vectors of product descriptor.
+            std::vector<void *> mpDescriptorProduct;
+            //// Used vectors of CD descriptor.
+            std::vector<void *> mpDescriptorCD = {nullptr, nullptr, nullptr};
+            //// Used vectors of CUV descriptor.
+            std::vector<void *> mpDescriptorCUV = {nullptr, nullptr, nullptr};
+            //// Used vectors of Crk descriptor.
+            std::vector<void *> mpDescriptorCrk = {nullptr, nullptr, nullptr};
 
         };
 

@@ -126,12 +126,48 @@ int *Configurations::GetGPUsNumber() {
     return &(this->mGPUsNumber);
 }
 
-void Configurations::SetIsOOC(int aIsOOC) {
+void Configurations::SetIsOOC(bool aIsOOC) {
     this->mIsOOC = aIsOOC;
 }
 
-int Configurations::GetIsOOC() {
+bool Configurations::GetIsOOC() {
     return this->mIsOOC;
+}
+
+void Configurations::SetMaxRank(int aMaxRank) {
+    this->mMaxRank = aMaxRank;
+}
+
+int Configurations::GetMaxRank() {
+    return this->mMaxRank;
+}
+
+void Configurations::SetUnknownObservationsNb(int aUnknownObservationsNumber) {
+    this->mUnknownObservationsNumber = aUnknownObservationsNumber;
+}
+
+int Configurations::GetUnknownObservationsNb() {
+    return this->mUnknownObservationsNumber;
+}
+
+void Configurations::SetKnownObservationsValues(int aKnownObservationsValues) {
+    this->mKnownObservationsValues = aKnownObservationsValues;
+}
+
+int Configurations::GetKnownObservationsValues() {
+    return this->mKnownObservationsValues;
+}
+
+std::vector<void *> Configurations::GetDescriptorCD() {
+    return this->mpDescriptorCD;
+}
+
+std::vector<void *> Configurations::GetDescriptorCUV() {
+    return this->mpDescriptorCUV;
+}
+
+std::vector<void *> Configurations::GetDescriptorCrk() {
+    return this->mpDescriptorCrk;
 }
 
 int Configurations::CheckNumericalValue(string aValue) {
@@ -179,4 +215,8 @@ Precision Configurations::CheckPrecisionValue(std::string aValue) {
     }
     return MIXED;
 
+}
+
+void *Configurations::GetDescriptorZObservations() {
+    return this->mpDescriptorZObservations;
 }
