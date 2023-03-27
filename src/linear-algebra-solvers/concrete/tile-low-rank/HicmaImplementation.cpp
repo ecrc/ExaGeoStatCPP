@@ -89,17 +89,17 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     }
 
     //CDense Descriptor
-    if (data->check == 1) {
-        MBC = lts;
-        NBC = lts;
-        MC = N;
-        NC = N;
-    } else {
+//    if (data->check == 1) {
+//        MBC = lts;
+//        NBC = lts;
+//        MC = N;
+//        NC = N;
+//    } else {
         MBC = 1;
         NBC = 1;
         MC = lts;
         NC = lts;
-    }
+//    }
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pHicmaDescriptorC, isOOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC, MBC * NBC, MC, NC, 0, 0, MC, NC, pGrid, qGrid);
 
     //CAD Descriptor
