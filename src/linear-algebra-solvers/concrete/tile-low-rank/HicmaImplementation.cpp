@@ -43,18 +43,12 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     int maxRank = this->mpConfigurations->GetMaxRank();
     int nZmiss = this->mpConfigurations->GetUnknownObservationsNb();
     int nZobs = this->mpConfigurations->GetKnownObservationsValues();
+    double meanSquareError =  this->mpConfigurations->GetMeanSquareError();
+    int approximationMode = this->mpConfigurations->GetApproximationMode();
+    string actualObservationsFilePath = this->mpConfigurations->GetActualObservationsFilePath();
 
     // For distributed system and should be removed
     T *Zcpy = (T *) malloc(N * sizeof(T));
-
-
-//    CHAM_desc_t *descZ = NULL;
-//    CHAM_desc_t *cham_descZcpy = NULL;
-
-//    CHAM_desc_t *CHAMELEON_descZmiss = NULL;
-//    CHAM_desc_t *CHAM_descmse = NULL;
-//    CHAM_desc_t *CHAMELEON_descZactual = NULL;
-//    CHAM_desc_t *CHAMELEON_descZobs = NULL;
 
     pDescriptorC.push_back(nullptr);
     auto* pHicmaDescriptorC = (HICMA_desc_t*) pDescriptorC[0];
@@ -75,6 +69,8 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     auto* pDescriptorC22rk = (HICMA_desc_t*) this->mpConfigurations->GetDescriptorCrk()[2];
 
     auto* pDescriptorZObservations = (HICMA_desc_t*) this->mpConfigurations->GetDescriptorZObservations();
+    auto* pDescriptorZactual = (HICMA_desc_t*) this->mpConfigurations->GetDescriptorZActual();
+    auto* pDescriptorMSE = (HICMA_desc_t*) this->mpConfigurations->GetDescriptorMSE();
 
     int MBC, NBC, MC, NC;
     int MBD, NBD, MD, ND;
@@ -89,17 +85,17 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     }
 
     //CDense Descriptor
-//    if (data->check == 1) {
-//        MBC = lts;
-//        NBC = lts;
-//        MC = N;
-//        NC = N;
-//    } else {
+    if (approximationMode == 1) {
+        MBC = lts;
+        NBC = lts;
+        MC = N;
+        NC = N;
+    } else {
         MBC = 1;
         NBC = 1;
         MC = lts;
         NC = lts;
-//    }
+    }
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pHicmaDescriptorC, isOOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC, MBC * NBC, MC, NC, 0, 0, MC, NC, pGrid, qGrid);
 
     //CAD Descriptor
@@ -135,22 +131,17 @@ void HicmaImplementation<T>::InitiateDescriptors() {
 
     HICMA_Sequence_Create(&pSequence);
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pHicmaDescriptorZ, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid);
-    //// I replaced this with Hicma desc create instead of Chameleon
-//    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&descZ, NULL, ChamRealDouble, lts, lts, lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
 
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZcpy, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid);
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorDeterminant, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
-    //// I replaced this with Hicma desc create instead of Chameleon
-//    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&cham_descZcpy, Zcpy, ChamRealDouble, lts, lts, lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
 
     if (nZmiss != 0) {
-//        if (strcmp(data->actualZFPath, "") == 0) {
-//            EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAMELEON_descZobs, &Zcpy[nZmiss], ChamRealDouble, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs, 1, p_grid, q_grid);
-//            EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAMELEON_descZactual, Zcpy, ChamRealDouble, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
-//        } else {
-//            CHAMELEON_descZobs = cham_descZcpy;
-//            EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAMELEON_descZactual, NULL, ChamRealDouble, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
-//        }
+        if (actualObservationsFilePath == "") {
+            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZObservations, isOOC, &pDescriptorZcpy[nZmiss], (HICMA_enum) floatPoint, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs, 1, pGrid, qGrid);
+            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZactual, isOOC, pDescriptorZcpy, (HICMA_enum) floatPoint, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
+        } else {
+            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZactual, isOOC, NULL, (HICMA_enum) floatPoint, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
+        }
 
         //C12AD Descriptor
         MBD = lts;
@@ -197,14 +188,8 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         //Other descriptors
         // I changed this chameleon to Hicma
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZObservations, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
-//        EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAM_descmse, &data->mserror, ChamRealDouble, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+        EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorMSE, isOOC, &meanSquareError, (HICMA_enum) floatPoint, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
     }
-
-
-//    data->descmse = CHAM_descmse;
-//    data->descZactual = CHAMELEON_descZactual;
-//    data->descZobs = CHAMELEON_descZobs;
-
 
     //stop gsl error handler
     gsl_set_error_handler_off();

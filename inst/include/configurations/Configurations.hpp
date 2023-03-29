@@ -259,6 +259,34 @@ namespace exageostat {
             GetUnknownObservationsNb();
 
             /**
+             * @brief Mean square error value setter.
+             * @param aMeanSquareError
+             */
+            void
+            SetMeanSquareError(int aMeanSquareError);
+
+            /**
+             * @brief Mean square error value getter.
+             * @return mMeanSquareError
+             */
+            int
+            GetMeanSquareError();
+
+            /**
+             * @brief Check indicator for approximation mode setter.
+             * @param aApproximationMode
+             */
+            void
+            SetApproximationMode(int aApproximationMode);
+
+            /**
+             * @brief Mean square error value getter.
+             * @return mApproximationMode
+             */
+            int
+            GetApproximationMode();
+
+            /**
              * @brief Number of known observation values setter.
              * @param aKnownObservationsValues
              */
@@ -271,6 +299,20 @@ namespace exageostat {
              */
             int
             GetKnownObservationsValues();
+
+            /**
+             * @brief Actual Observations File Path setter.
+             * @param aKnownObservationsValues
+             */
+            void
+            SetActualObservationsFilePath(std::string aKnownObservationsValues);
+
+            /**
+             * @brief Actual Observations File Path getter.
+             * @return mActualObservationsFilePath
+             */
+            std::string
+            GetActualObservationsFilePath();
 
             /**
              * @brief vector of C descriptors getter.
@@ -334,6 +376,20 @@ namespace exageostat {
              */
             void *
             GetDescriptorZObservations();
+
+            /**
+             * @brief Z Actual observations descriptors getter.
+             * @return mpDescriptorZActual
+             */
+            void *
+            GetDescriptorZActual();
+
+            /**
+             * @brief Mean Square Error descriptors getter.
+             * @return mpDescriptorMSE
+             */
+            void *
+            GetDescriptorMSE();
 
             /**
              * @brief
@@ -401,6 +457,12 @@ namespace exageostat {
             int mUnknownObservationsNumber = 0;
             //// Used number of known observed values.
             int mKnownObservationsValues = 0;
+            //// Used Approximation mode values.
+            int mApproximationMode = 0;
+            //// Used Mean Square Error values.
+            int mMeanSquareError = 0;
+            //// Used Actual observations file path in the case of prediction value.
+            std::string mActualObservationsFilePath = "";
             /// Used Computation.
             common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.
@@ -423,7 +485,10 @@ namespace exageostat {
             std::vector<void *> mpDescriptorCUV = {nullptr, nullptr, nullptr};
             //// Used vectors of Crk descriptor.
             std::vector<void *> mpDescriptorCrk = {nullptr, nullptr, nullptr};
-
+            //// Used MSE descriptor.
+            void * mpDescriptorMSE;
+            //// Used Z Actual observations descriptor.
+            void * mpDescriptorZActual;
         };
 
     }//namespace configurations

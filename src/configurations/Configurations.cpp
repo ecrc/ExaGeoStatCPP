@@ -158,6 +158,30 @@ int Configurations::GetKnownObservationsValues() {
     return this->mKnownObservationsValues;
 }
 
+int Configurations::GetApproximationMode() {
+    return this->mApproximationMode;
+}
+
+void Configurations::SetApproximationMode(int aApproximationMode) {
+    this->mApproximationMode = aApproximationMode;
+}
+
+int Configurations::GetMeanSquareError() {
+    return this->mMeanSquareError;
+}
+
+void Configurations::SetMeanSquareError(int aMeanSquareError) {
+    this->mMeanSquareError = aMeanSquareError;
+}
+
+void Configurations::SetActualObservationsFilePath(std::string aKnownObservationsValues) {
+    this->mActualObservationsFilePath = aKnownObservationsValues;
+}
+
+string Configurations::GetActualObservationsFilePath() {
+    return this->mActualObservationsFilePath;
+}
+
 std::vector<void *> Configurations::GetDescriptorCD() {
     return this->mpDescriptorCD;
 }
@@ -168,6 +192,18 @@ std::vector<void *> Configurations::GetDescriptorCUV() {
 
 std::vector<void *> Configurations::GetDescriptorCrk() {
     return this->mpDescriptorCrk;
+}
+
+void *Configurations::GetDescriptorZObservations() {
+    return this->mpDescriptorZObservations;
+}
+
+void *Configurations::GetDescriptorMSE() {
+    return this->mpDescriptorMSE;
+}
+
+void *Configurations::GetDescriptorZActual() {
+    return this->mpDescriptorZActual;
 }
 
 int Configurations::CheckNumericalValue(string aValue) {
@@ -215,8 +251,4 @@ Precision Configurations::CheckPrecisionValue(std::string aValue) {
     }
     return MIXED;
 
-}
-
-void *Configurations::GetDescriptorZObservations() {
-    return this->mpDescriptorZObservations;
 }
