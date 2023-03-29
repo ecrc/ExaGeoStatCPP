@@ -19,6 +19,7 @@
 #include <chameleon.h>
 #include <gsl/gsl_errno.h>
 #include <control/descriptor.h>
+#include <control/context.h>
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
@@ -27,15 +28,15 @@ using namespace std;
 template<typename T>
 void ChameleonImplementation<T>::InitiateDescriptors() {
 
-    //// TODO: what C & Z stands for?
-    // log likelhood matrix(descriptorC) - vector Z
+    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
+
     vector<void *> pDescriptorC =  this->mpConfigurations->GetDescriptorC();
     vector<void *> pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
-    CHAM_desc_t * pDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
+    auto* pDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
     vector<void *> pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
-    CHAM_desc_t * pDescriptorDeterminant = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorDeterminant();
+    auto* pDescriptorDeterminant = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorDeterminant();
 
-    int vectorSize = 0;
+    int vectorSize;
     RUNTIME_sequence_t *pSequence;
     RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
@@ -47,7 +48,6 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
 
     // For distributed system and should be removed
     T *Zcpy = (T *) malloc(N * sizeof(T));
-
     T dotProductValue;
 
     //Identifies a set of routines sharing common exception handling.
@@ -61,38 +61,48 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
         floatPoint = EXAGEOSTAT_REAL_DOUBLE;
         vectorSize = 3;
     }
-    // Depending on the passed Precession, A for loop with value 1 or 3 will initialize the vectors
-    //// TODO: use resize or reserve
-    for (int idx = 0; idx < vectorSize; idx++){
-        pDescriptorC.push_back(nullptr);
-        pDescriptorZ.push_back(nullptr);
-        pDescriptorProduct.push_back(nullptr);
-    }
 
-    CHAM_desc_t* CHAM_descriptorC = (CHAM_desc_t*) pDescriptorC[0];
+    // Depending on the passed Precession, the descriptor will resize for value 1 or 3.
+    pDescriptorC.resize(vectorSize, nullptr);
+    pDescriptorZ.resize(vectorSize, nullptr);
+    pDescriptorProduct.resize(vectorSize, nullptr);
+
+    auto* CHAM_descriptorC = (CHAM_desc_t*) pDescriptorC[0];
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAM_descriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
     if(vectorSize > 1){
         pDescriptorC.push_back(nullptr);
         pDescriptorC[1] = chameleon_desc_submatrix(CHAM_descriptorC, 0, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
         pDescriptorC[2] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, 0, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
         pDescriptorC[3] = chameleon_desc_submatrix(CHAM_descriptorC, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2, CHAM_descriptorC->m / 2, CHAM_descriptorC->n / 2);
     }
-
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAM_descriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
-    CHAM_desc_t* CHAM_descriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
+    auto* CHAM_descriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAM_descriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0,0, N, 1, pGrid, qGrid);
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pDescriptorZcpy, isOOC, Zcpy, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pDescriptorDeterminant, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
-        CHAM_desc_t* CHAM_descriptorZ_ = (CHAM_desc_t*) pDescriptorZ[idx];
+        auto* CHAM_descriptorZ_ = (CHAM_desc_t*) pDescriptorZ[idx];
         EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAM_descriptorZ_, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N / 2, 1, 0, 0, N / 2, 1, pGrid, qGrid);
     }
 
     for (int idx = 0; idx < pDescriptorZ.size(); idx++) {
-        CHAM_desc_t* CHAM_descriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
+        auto* CHAM_descriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
         EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&CHAM_descriptorProduct, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid)
     }
 
     //stop gsl error handler
     gsl_set_error_handler_off();
+}
+
+template<typename T>
+void ChameleonImplementation<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
+
+    CHAM_context_t *chameleonContext;
+    chameleonContext = chameleon_context_self();
+    if (chameleonContext != nullptr) {
+        printf("Another instance of Chameleon is already running...!");
+    } else {
+        CHAMELEON_user_tag_size(31, 26);
+        CHAMELEON_Init(apCoresNumber, apGPUs);
+    }
 }

@@ -25,7 +25,7 @@ namespace exageostat {
         class LinearAlgebraMethods {
         public:
             virtual void InitiateDescriptors() = 0;
-            void ExaGeoStatInitContext(int *apCoresNumber, int *apGPUs);
+            virtual void ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) = 0;
 
             /**
              * @brief

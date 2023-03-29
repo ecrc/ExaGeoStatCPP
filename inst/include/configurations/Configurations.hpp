@@ -157,7 +157,7 @@ namespace exageostat {
              * @brief Cores numbers getter.
              * @return mpCoresNumber
              */
-            int *
+            int
             GetCoresNumber();
 
             /**
@@ -171,7 +171,7 @@ namespace exageostat {
              * @brief GPU numbers getter.
              * @return mpGPUsNumber
              */
-            int *
+            int
             GetGPUsNumber();
 
             /**
@@ -299,6 +299,20 @@ namespace exageostat {
              */
             int
             GetKnownObservationsValues();
+
+            /**
+             * @brief Determinant values setter.
+             * @param aDeterminantValue
+             */
+            void
+            SetDeterminantValue(double aDeterminantValue);
+
+            /**
+             * @brief Determinant values getter.
+             * @return mDeterminantValue
+             */
+            double
+            GetDeterminantValue();
 
             /**
              * @brief Actual Observations File Path setter.
@@ -461,8 +475,10 @@ namespace exageostat {
             int mApproximationMode = 0;
             //// Used Mean Square Error values.
             int mMeanSquareError = 0;
+            //// Determinant value.
+            double mDeterminantValue = 0.0;
             //// Used Actual observations file path in the case of prediction value.
-            std::string mActualObservationsFilePath = "";
+            std::string mActualObservationsFilePath;
             /// Used Computation.
             common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.

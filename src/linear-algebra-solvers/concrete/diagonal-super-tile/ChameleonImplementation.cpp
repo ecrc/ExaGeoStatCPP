@@ -17,6 +17,7 @@
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <gsl/gsl_errno.h>
+#include <control/context.h>
 
 using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::common;
@@ -25,17 +26,20 @@ using namespace std;
 template<typename T>
 void ChameleonImplementation<T>::InitiateDescriptors() {
 
+    // Initialize Exageostat Hardware.
+    this->ExaGeoStatInitContext( this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
+
     vector<void *> pDescriptorC =  this->mpConfigurations->GetDescriptorC();
     vector<void *> pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
-    CHAM_desc_t * pChameleonDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
+    auto* pChameleonDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
     vector<void *> pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
-    CHAM_desc_t * pChameleonDescriptorDeterminant = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorDeterminant();
+    auto* pChameleonDescriptorDeterminant = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorDeterminant();
 
     pDescriptorC.push_back(nullptr);
-    CHAM_desc_t * pChameleonDescriptorC = (CHAM_desc_t*) pDescriptorC[0];
+    auto* pChameleonDescriptorC = (CHAM_desc_t*) pDescriptorC[0];
 
     pDescriptorZ.push_back(nullptr);
-    CHAM_desc_t * pChameleonDescriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
+    auto* pChameleonDescriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
 
     int vectorSize = 1;
     FloatPoint floatPoint = EXAGEOSTAT_REAL_FLOAT;
@@ -68,7 +72,7 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
 
     for(int idx =0; idx <vectorSize; idx++){
         pDescriptorProduct.push_back(nullptr);
-        CHAM_desc_t* pChameleonDescriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
+        auto* pChameleonDescriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
         EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pChameleonDescriptorProduct, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     }
@@ -76,4 +80,16 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
 
     //stop gsl error handler
     gsl_set_error_handler_off();
+}
+template<typename T>
+void ChameleonImplementation<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
+
+    CHAM_context_t *chameleonContext;
+    chameleonContext = chameleon_context_self();
+    if (chameleonContext != nullptr) {
+        printf("Another instance of Chameleon is already running...!");
+    } else {
+        CHAMELEON_user_tag_size(31, 26);
+        CHAMELEON_Init(apCoresNumber, apGPUs);
+    }
 }

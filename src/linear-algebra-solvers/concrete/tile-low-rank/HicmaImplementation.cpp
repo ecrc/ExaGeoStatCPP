@@ -17,6 +17,7 @@
 #include <hicma.h>
 #include <vector>
 #include <gsl/gsl_errno.h>
+#include <control/hicma_context.h>
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::common;
@@ -24,6 +25,8 @@ using namespace std;
 
 template<typename T>
 void HicmaImplementation<T>::InitiateDescriptors() {
+
+    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
 
     vector<void *> pDescriptorC =  this->mpConfigurations->GetDescriptorC();
     vector<void *> pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
@@ -46,6 +49,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     double meanSquareError =  this->mpConfigurations->GetMeanSquareError();
     int approximationMode = this->mpConfigurations->GetApproximationMode();
     string actualObservationsFilePath = this->mpConfigurations->GetActualObservationsFilePath();
+    double determinantValue = this->mpConfigurations->GetDeterminantValue();
 
     // For distributed system and should be removed
     T *Zcpy = (T *) malloc(N * sizeof(T));
@@ -132,15 +136,15 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     HICMA_Sequence_Create(&pSequence);
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pHicmaDescriptorZ, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid);
 
-    EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZcpy, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorDeterminant, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZcpy, isOOC, Zcpy, (HICMA_enum) floatPoint, lts, lts, lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorDeterminant, isOOC, &determinantValue , (HICMA_enum) floatPoint, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     if (nZmiss != 0) {
         if (actualObservationsFilePath == "") {
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZObservations, isOOC, &pDescriptorZcpy[nZmiss], (HICMA_enum) floatPoint, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs, 1, pGrid, qGrid);
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZactual, isOOC, pDescriptorZcpy, (HICMA_enum) floatPoint, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
         } else {
-            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZactual, isOOC, NULL, (HICMA_enum) floatPoint, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
+            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(&pDescriptorZactual, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
         }
 
         //C12AD Descriptor
@@ -193,4 +197,17 @@ void HicmaImplementation<T>::InitiateDescriptors() {
 
     //stop gsl error handler
     gsl_set_error_handler_off();
+}
+
+template<typename T>
+void HicmaImplementation<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
+
+    HICMA_context_t *hicmaContext;
+    hicmaContext = hicma_context_self();
+    if (hicmaContext != nullptr) {
+        printf("Another instance of HiCMA is already running...!");
+    } else {
+        HICMA_user_tag_size(31, 26);
+        HICMA_Init(apCoresNumber, apGPUs);
+    }
 }

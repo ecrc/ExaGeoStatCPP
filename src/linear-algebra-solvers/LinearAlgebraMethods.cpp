@@ -27,17 +27,17 @@ void LinearAlgebraMethods<T>::SetConfigurations(Configurations *apConfigurations
     this->mpConfigurations = apConfigurations;
 }
 
-template<typename T>
-void LinearAlgebraMethods<T>::ExaGeoStatInitContext(int *apCoresNumber, int *apGPUs) {
-
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-    CHAM_context_t *chamctxt;
-    chamctxt = chameleon_context_self();
-    if (chamctxt != NULL) {
-        printf("Another instance of Chameleon is already running...!");
-    } else {
-        CHAMELEON_user_tag_size(31, 26);
-        CHAMELEON_Init(*apCoresNumber, *apGPUs);
-    }
-#endif
-}
+//template<typename T>
+//void LinearAlgebraMethods<T>::ExaGeoStatInitContext(int *apCoresNumber, int *apGPUs) {
+//
+//#ifdef EXAGEOSTAT_USE_CHAMELEON
+//    CHAM_context_t *chamctxt;
+//    chamctxt = chameleon_context_self();
+//    if (chamctxt != NULL) {
+//        printf("Another instance of Chameleon is already running...!");
+//    } else {
+//        CHAMELEON_user_tag_size(31, 26);
+//        CHAMELEON_Init(*apCoresNumber, *apGPUs);
+//    }
+//#endif
+//}

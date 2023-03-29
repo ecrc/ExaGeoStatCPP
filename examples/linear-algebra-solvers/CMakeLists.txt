@@ -10,6 +10,14 @@
 # @date 2023-03-20
 
 if (EXAGEOSTAT_USE_CHAMELEON)
-    add_executable(Example_Chameleon_Allocate_Descriptors ChameleonAllocateDescriptors_main.cpp)
-    target_link_libraries(Example_Chameleon_Allocate_Descriptors ${PROJECT_NAME})
+    add_executable(Example_Chameleon_Allocate_Descriptors_dense dense/ChameleonAllocateDescriptors_main.cpp)
+    target_link_libraries(Example_Chameleon_Allocate_Descriptors_dense ${PROJECT_NAME})
+
+    add_executable(Example_Chameleon_Allocate_Descriptors_DST diagonal-super-tile/ChameleonAllocateDescriptors_main.cpp)
+    target_link_libraries(Example_Chameleon_Allocate_Descriptors_DST ${PROJECT_NAME})
 endif()
+
+if (EXAGEOSTAT_USE_HiCMA)
+    add_executable(Example_Chameleon_Allocate_Descriptors_TLR tile-low-rank/HicmaAllocateDescriptors_main.cpp)
+    target_link_libraries(Example_Chameleon_Allocate_Descriptors_TLR ${PROJECT_NAME})
+endif ()

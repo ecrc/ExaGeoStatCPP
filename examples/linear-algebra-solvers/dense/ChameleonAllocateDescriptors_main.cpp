@@ -11,11 +11,9 @@
  * @author Sameh Abdulah
  * @date 2023-03-20
 **/
-#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
-#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-
-#include <linear-algebra-solvers/concrete/dense/ChameleonImplementation.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include "linear-algebra-solvers/LinearAlgebraMethods.hpp"
+#include "linear-algebra-solvers/LinearAlgebraFactory.hpp"
+#include "configurations/data-generation/concrete/SyntheticDataConfigurations.hpp"
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::linearAlgebra;
@@ -28,18 +26,17 @@ int main(int argc, char **argv) {
 
     // Object has automatic storage duration (usually is on the stack)
     auto* syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
-
     if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
         auto chameleon = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
         chameleon->SetConfigurations(syntheticDataConfigurations);
-        chameleon->ExaGeoStatInitContext(syntheticDataConfigurations->GetCoresNumber(), syntheticDataConfigurations->GetGPUsNumber());
         chameleon->InitiateDescriptors();
     } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
+        auto chameleon = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+        chameleon->SetConfigurations(syntheticDataConfigurations);
+        chameleon->InitiateDescriptors();
 
     } else if (syntheticDataConfigurations->GetPrecision() == MIXED) {
 
     }
-
-
     return 0;
 }

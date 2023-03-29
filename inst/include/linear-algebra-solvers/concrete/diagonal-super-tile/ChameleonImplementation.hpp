@@ -27,6 +27,7 @@ namespace exageostat {
 
                 void InitiateDescriptors() override;
 
+                void ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) override;
                 /**
                  * @brief
                  * Default constructor.

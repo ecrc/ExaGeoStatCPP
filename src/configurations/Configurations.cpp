@@ -114,16 +114,16 @@ void Configurations::SetCoresNumber(int aCoresNumbers) {
     this->mCoresNumber = aCoresNumbers;
 }
 
-int *Configurations::GetCoresNumber() {
-    return &(this->mCoresNumber);
+int Configurations::GetCoresNumber() {
+    return this->mCoresNumber;
 }
 
 void Configurations::SetGPUsNumber(int aGPUsNumber) {
     this->mGPUsNumber = aGPUsNumber;
 }
 
-int *Configurations::GetGPUsNumber() {
-    return &(this->mGPUsNumber);
+int Configurations::GetGPUsNumber() {
+    return this->mGPUsNumber;
 }
 
 void Configurations::SetIsOOC(bool aIsOOC) {
@@ -180,6 +180,14 @@ void Configurations::SetActualObservationsFilePath(std::string aKnownObservation
 
 string Configurations::GetActualObservationsFilePath() {
     return this->mActualObservationsFilePath;
+}
+
+void Configurations::SetDeterminantValue(double aDeterminantValue) {
+    this->mDeterminantValue = aDeterminantValue;
+}
+
+double Configurations::GetDeterminantValue() {
+    return this->mDeterminantValue;
 }
 
 std::vector<void *> Configurations::GetDescriptorCD() {
