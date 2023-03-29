@@ -16,6 +16,7 @@
 #define EXAGEOSTATCPP_CHAMELEONIMPLEMENTATION_HPP
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+
 // SUPPORT ONLY DOUBLE FOR NOW.
 namespace exageostat {
     namespace linearAlgebra {

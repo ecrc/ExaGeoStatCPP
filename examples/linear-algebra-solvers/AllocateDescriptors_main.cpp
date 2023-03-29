@@ -15,7 +15,6 @@
 #include "linear-algebra-solvers/LinearAlgebraFactory.hpp"
 #include "configurations/data-generation/concrete/SyntheticDataConfigurations.hpp"
 
-using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
@@ -23,17 +22,16 @@ using namespace std;
 
 int main(int argc, char **argv) {
 
-
     // Object has automatic storage duration (usually is on the stack)
     auto* syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
     if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
-        auto chameleon = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
-        chameleon->SetConfigurations(syntheticDataConfigurations);
-        chameleon->InitiateDescriptors();
+        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        linearAlgebraSolver->InitiateDescriptors();
     } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
-        auto chameleon = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
-        chameleon->SetConfigurations(syntheticDataConfigurations);
-        chameleon->InitiateDescriptors();
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(syntheticDataConfigurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        linearAlgebraSolver->InitiateDescriptors();
 
     } else if (syntheticDataConfigurations->GetPrecision() == MIXED) {
 

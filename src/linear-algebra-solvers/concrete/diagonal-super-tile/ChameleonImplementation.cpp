@@ -13,10 +13,8 @@
 **/
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementation.hpp>
-#include <linear-algebra-solvers/concrete/dense/Helpers.hpp>
 #include <chameleon/struct.h>
 #include <chameleon.h>
-#include <gsl/gsl_errno.h>
 #include <control/context.h>
 
 using namespace exageostat::linearAlgebra::diagonalSuperTile;

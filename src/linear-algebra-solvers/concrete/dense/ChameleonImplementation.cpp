@@ -13,11 +13,8 @@
 **/
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementation.hpp>
-#include <linear-algebra-solvers/concrete/dense/Helpers.hpp>
-#include <iostream>
 #include <chameleon/struct.h>
 #include <chameleon.h>
-#include <gsl/gsl_errno.h>
 #include <control/descriptor.h>
 #include <control/context.h>
 

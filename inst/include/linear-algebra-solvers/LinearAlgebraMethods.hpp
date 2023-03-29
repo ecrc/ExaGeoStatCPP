@@ -17,6 +17,9 @@
 
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
+#include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
+#include <gsl/gsl_errno.h>
+#include <vector>
 
 namespace exageostat {
     namespace linearAlgebra {
@@ -36,7 +39,9 @@ namespace exageostat {
              *
              */
             void
-            SetConfigurations(configurations::Configurations *apConfigurations);
+            SetConfigurations(configurations::Configurations *apConfigurations){
+                this->mpConfigurations = apConfigurations;
+            }
 
             /**
              * @brief

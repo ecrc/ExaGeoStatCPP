@@ -15,8 +15,6 @@
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
 #include <hicma_struct.h>
 #include <hicma.h>
-#include <vector>
-#include <gsl/gsl_errno.h>
 #include <control/hicma_context.h>
 
 using namespace exageostat::linearAlgebra::tileLowRank;
