@@ -25,7 +25,9 @@ template<typename T> std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFacto
     // Chameleon Used
     if (aComputation == EXACT_DENSE) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        return std::make_unique<dense::ChameleonImplementation<T>>();
+    #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
+
+        return std::make_unique<dense::ChameleonImplementationDense<T>>();
 #else
         throw std::runtime_error("Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
         return nullptr;
@@ -34,13 +36,21 @@ template<typename T> std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFacto
 
     // Hicma Used
     else if (aComputation == TILE_LOW_RANK) {
-//        return std::make_unique<HiCMAAllocateDescriptors>();
+#ifdef EXAGEOSTAT_USE_HiCMA
+        return std::make_unique<tileLowRank::HicmaImplementation<T>>();
+#else
+        throw std::runtime_error("Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HiCMA=ON");
+        return nullptr;
+#endif
     }
-    //// TODO: which is Used?
     else if (aComputation == DIAGONAL_APPROX) {
-
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+        return std::make_unique<diagonalSuperTile::ChameleonImplementationDST<T>>();
+#else
+        throw std::runtime_error("diagonal Super Tile matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
+        return nullptr;
+#endif
     }
-
     // Return DataGenerator unique pointer of real type
     return nullptr;
 }

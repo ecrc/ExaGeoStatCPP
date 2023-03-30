@@ -99,6 +99,8 @@ include_directories(${LAPACKE_INCLUDE_DIRS})
 # -------------------------------
 if (EXAGEOSTAT_USE_HiCMA)
     add_definitions(-DEXAGEOSTAT_USE_HiCMA=TRUE)
+    include(ImportHcore)
+    include(ImportStarsH)
     include(ImportHiCMA)
 endif ()
 

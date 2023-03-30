@@ -12,7 +12,7 @@
  * @date 2023-03-20
 **/
 
-#include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementation.hpp>
+#include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <control/context.h>
@@ -22,7 +22,7 @@ using namespace exageostat::common;
 using namespace std;
 
 template<typename T>
-void ChameleonImplementation<T>::InitiateDescriptors() {
+void ChameleonImplementationDST<T>::InitiateDescriptors() {
 
     // Initialize Exageostat Hardware.
     this->ExaGeoStatInitContext( this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
@@ -80,7 +80,7 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
     gsl_set_error_handler_off();
 }
 template<typename T>
-void ChameleonImplementation<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
+void ChameleonImplementationDST<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
 
     CHAM_context_t *chameleonContext;
     chameleonContext = chameleon_context_self();

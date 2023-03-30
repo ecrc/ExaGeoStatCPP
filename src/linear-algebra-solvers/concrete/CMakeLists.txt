@@ -11,8 +11,8 @@
 
 if(EXAGEOSTAT_USE_CHAMELEON)
     set(SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonImplementation.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/diagonal-super-tile/ChameleonImplementation.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonImplementationDense.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/diagonal-super-tile/ChameleonImplementationDST.cpp
             ${SOURCES}
             PARENT_SCOPE
     )

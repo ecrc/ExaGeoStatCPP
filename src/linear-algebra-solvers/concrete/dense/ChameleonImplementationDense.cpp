@@ -12,7 +12,7 @@
  * @date 2023-03-20
 **/
 
-#include <linear-algebra-solvers/concrete/dense/ChameleonImplementation.hpp>
+#include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <control/descriptor.h>
@@ -23,7 +23,7 @@ using namespace exageostat::common;
 using namespace std;
 
 template<typename T>
-void ChameleonImplementation<T>::InitiateDescriptors() {
+void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
 
@@ -92,7 +92,7 @@ void ChameleonImplementation<T>::InitiateDescriptors() {
 }
 
 template<typename T>
-void ChameleonImplementation<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
+void ChameleonImplementationDense<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
 
     CHAM_context_t *chameleonContext;
     chameleonContext = chameleon_context_self();
