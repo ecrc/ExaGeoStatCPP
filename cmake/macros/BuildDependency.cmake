@@ -30,7 +30,6 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
     file(MAKE_DIRECTORY ${${name}_binpath})
 
-    message("FLAAAAAAAAAAAAAAAGS: ${FLAGS}")
     # Configure subproject into <subproject-build-dir>
     if (ISCMAKE)
         execute_process(COMMAND ${CMAKE_COMMAND} ${FLAGS}
