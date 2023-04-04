@@ -13,11 +13,12 @@
 **/
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
+extern "C"{
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <control/descriptor.h>
 #include <control/context.h>
-
+}
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
 using namespace std;

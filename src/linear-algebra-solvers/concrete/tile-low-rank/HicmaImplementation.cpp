@@ -13,9 +13,10 @@
 **/
 
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
-#include <hicma_struct.h>
+extern "C" {
 #include <hicma.h>
 #include <control/hicma_context.h>
+}
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::common;

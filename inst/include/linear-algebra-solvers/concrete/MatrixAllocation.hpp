@@ -16,11 +16,15 @@
 #define EXAGEOSTATCPP_MATRIXALLOCATION_HPP
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
+extern "C"{
 #include <chameleon.h>
+}
 #endif
 
 #ifdef EXAGEOSTAT_USE_HiCMA
+extern "C"{
 #include <hicma.h>
+}
 #endif
 
 

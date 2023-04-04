@@ -10,4 +10,4 @@
 # @date 2023-03-04
 
 add_executable(Example_Synthetic_Data_Generation SyntheticData_main.cpp)
-target_link_libraries(Example_Synthetic_Data_Generation ${PROJECT_NAME})
+target_link_libraries(Example_Synthetic_Data_Generation ${PROJECT_NAME} ${LIBS})

@@ -18,8 +18,8 @@ add_library(${LIB_NAME}
         STATIC
         ${SOURCES}
         )
-target_link_libraries(${LIB_NAME} ${LIBS})
 target_compile_definitions(${LIB_NAME} PUBLIC ${COMPILE_DEFINITIONS})
+target_link_libraries(${LIB_NAME} PUBLIC ${LIBS})
 
 ## Installation steps for headers and libraries.
 set_target_properties(${LIB_NAME}

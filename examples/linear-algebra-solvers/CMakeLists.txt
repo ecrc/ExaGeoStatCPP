@@ -10,4 +10,4 @@
 # @date 2023-03-20
 
 add_executable(Example_Allocate_Descriptors AllocateDescriptors_main.cpp)
-target_link_libraries(Example_Allocate_Descriptors ${PROJECT_NAME})
+target_link_libraries(Example_Allocate_Descriptors ${PROJECT_NAME} ${LIBS})

@@ -131,15 +131,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)
-
-target_link_libraries(exageostatcpp
-        ${LIBS}
-        )
+# Install headers
 install(TARGETS exageostatcpp
         DESTINATION lib/
         PUBLIC_HEADER DESTINATION include/
         )
-
 # Add tests if enabled
 if (${EXAGEOSTAT_BUILD_TESTS})
     message(STATUS "Building Tests is Enabled")

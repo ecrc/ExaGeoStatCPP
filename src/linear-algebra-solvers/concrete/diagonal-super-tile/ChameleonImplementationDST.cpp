@@ -13,10 +13,11 @@
 **/
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+extern "C"{
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <control/context.h>
-
+}
 using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::common;
 using namespace std;

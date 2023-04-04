@@ -18,8 +18,10 @@
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 #include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
-#include <gsl/gsl_errno.h>
 #include <vector>
+extern "C"{
+#include <gsl/gsl_errno.h>
+}
 
 namespace exageostat {
     namespace linearAlgebra {

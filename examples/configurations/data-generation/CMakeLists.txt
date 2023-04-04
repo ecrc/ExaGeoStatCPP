@@ -9,4 +9,4 @@
 # @author Sameh Abdulah
 # @date 2023-01-31
 add_executable(Example_Synthetic_Data_Configurations main.cpp)
-target_link_libraries(Example_Synthetic_Data_Configurations ${PROJECT_NAME})
+target_link_libraries(Example_Synthetic_Data_Configurations ${PROJECT_NAME} ${LIBS})
