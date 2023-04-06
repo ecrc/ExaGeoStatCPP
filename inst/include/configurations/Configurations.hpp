@@ -333,35 +333,35 @@ namespace exageostat {
              * @return mpDescriptorC
              */
             std::vector<void *>
-            GetDescriptorC();
+            &GetDescriptorC();
 
             /**
              * @brief vector of Z descriptors getter.
              * @return mpDescriptorZ
              */
             std::vector<void *>
-            GetDescriptorZ();
+            &GetDescriptorZ();
 
             /**
              * @brief Z copy descriptors getter.
              * @return mpDescriptorZ
              */
             void *
-            GetDescriptorZcpy();
+            &GetDescriptorZcpy();
 
             /**
              * @brief vector of Product descriptors getter.
              * @return mpDescriptorProduct
              */
             std::vector<void *>
-            GetDescriptorProduct();
+            &GetDescriptorProduct();
 
             /**
              * @brief Determinant descriptors getter.
              * @return mpDescriptorDeterminant
              */
             void *
-            GetDescriptorDeterminant();
+            &GetDescriptorDeterminant();
 
             /**
             * @brief vector of CD descriptors getter.
@@ -488,9 +488,9 @@ namespace exageostat {
             //// Used vectors of Z descriptor.
             std::vector<void *> mpDescriptorZ;
             //// Used copy Z descriptor.
-            void * mpDescriptorZcpy;
+            void * mpDescriptorZcpy = nullptr;
             //// Used Determinant descriptor.
-            void * mpDescriptorDeterminant;
+            void * mpDescriptorDeterminant = nullptr;
             //// Used Z observations descriptor.
             void * mpDescriptorZObservations;
             //// Used vectors of product descriptor.

@@ -11,9 +11,8 @@
  * @author Sameh Abdulah
  * @date 2023-03-20
 **/
-#include "linear-algebra-solvers/LinearAlgebraMethods.hpp"
-#include "linear-algebra-solvers/LinearAlgebraFactory.hpp"
-#include "configurations/data-generation/concrete/SyntheticDataConfigurations.hpp"
+#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::configurations::data_configurations;

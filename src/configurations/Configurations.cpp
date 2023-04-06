@@ -94,19 +94,19 @@ int Configurations::GetQGrid() {
     return this->mQGrid;
 
 }
-std::vector<void *> Configurations::GetDescriptorC() {
+std::vector<void *> &Configurations::GetDescriptorC() {
     return this->mpDescriptorC;
 }
-std::vector<void *> Configurations::GetDescriptorZ() {
+std::vector<void *> &Configurations::GetDescriptorZ() {
     return this->mpDescriptorZ;
 }
-void * Configurations::GetDescriptorZcpy() {
+void * &Configurations::GetDescriptorZcpy() {
     return this->mpDescriptorZcpy;
 }
-std::vector<void *> Configurations::GetDescriptorProduct() {
+std::vector<void *> &Configurations::GetDescriptorProduct() {
     return this->mpDescriptorProduct;
 }
-void * Configurations::GetDescriptorDeterminant() {
+void * &Configurations::GetDescriptorDeterminant() {
     return this->mpDescriptorDeterminant;
 }
 
