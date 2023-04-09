@@ -12,16 +12,17 @@
  * @date 2023-04-06
 **/
 #include <libraries/catch/catch.hpp>
-#include <iostream>
+#include <cmath>
+#include <vector>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include "control/context.h"
+#include <control/context.h>
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
-
+using namespace std;
 
 void INIT_HARDWARE(){
     ChameleonImplementationDense<double> chameleonImpl;
@@ -86,7 +87,7 @@ void TEST_INITIALIZETION(){
     }
 }
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
-void TEST_CHAMELEON_DESCRIPTORS_C() {
+void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
     auto* syntheticDataConfigurations = new SyntheticDataConfigurations();
 
     SECTION("SINGLE"){
@@ -95,172 +96,396 @@ void TEST_CHAMELEON_DESCRIPTORS_C() {
         syntheticDataConfigurations->SetProblemSize(6400);
         syntheticDataConfigurations->SetDenseTileSize(512);
         linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        
+        linearAlgebraSolver->InitiateDescriptors();
+        auto* CHAM_descriptorC = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorC()[0];
+        auto* CHAM_descriptorZ = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorZ()[0];
+        auto* CHAM_descriptorZcpy = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorZcpy();
+        auto* CHAM_descriptorDeterminant = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorDeterminant();
+        auto* CHAM_descriptorProduct = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorProduct()[0];
+
+        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
+        int dts = syntheticDataConfigurations->GetDenseTileSize();
+        int pGrid = syntheticDataConfigurations->GetPGrid();
+        int qGrid = syntheticDataConfigurations->GetQGrid();
+
+        REQUIRE(CHAM_descriptorC->m == N);
+        REQUIRE(CHAM_descriptorZ->m == N);
+        REQUIRE(CHAM_descriptorZcpy->m == N);
+        REQUIRE(CHAM_descriptorDeterminant->m == 1);
+        REQUIRE(CHAM_descriptorProduct->m == 1);
+
+        REQUIRE(CHAM_descriptorC->n == N);
+        REQUIRE(CHAM_descriptorZ->n == 1);
+        REQUIRE(CHAM_descriptorZcpy->n == 1);
+        REQUIRE(CHAM_descriptorDeterminant->n == 1);
+        REQUIRE(CHAM_descriptorProduct->n == 1);
+
+        REQUIRE(CHAM_descriptorC->mb == dts);
+        REQUIRE(CHAM_descriptorZ->mb == dts);
+        REQUIRE(CHAM_descriptorZcpy->mb == dts);
+        REQUIRE(CHAM_descriptorDeterminant->mb == dts);
+        REQUIRE(CHAM_descriptorProduct->mb == dts);
+
+        REQUIRE(CHAM_descriptorC->nb == dts);
+        REQUIRE(CHAM_descriptorZ->nb == dts);
+        REQUIRE(CHAM_descriptorZcpy->nb == dts);
+        REQUIRE(CHAM_descriptorDeterminant->nb == dts);
+        REQUIRE(CHAM_descriptorProduct->nb == dts);
+
+        REQUIRE(CHAM_descriptorC->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorZ->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorZcpy->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorDeterminant->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorProduct->bsiz == dts * dts);
+
+        REQUIRE(CHAM_descriptorC->i == 0);
+        REQUIRE(CHAM_descriptorZ->i == 0);
+        REQUIRE(CHAM_descriptorZcpy->i == 0);
+        REQUIRE(CHAM_descriptorDeterminant->i == 0);
+        REQUIRE(CHAM_descriptorProduct->i == 0);
+
+        REQUIRE(CHAM_descriptorC->j == 0);
+        REQUIRE(CHAM_descriptorZ->j == 0);
+        REQUIRE(CHAM_descriptorZcpy->j == 0);
+        REQUIRE(CHAM_descriptorDeterminant->j == 0);
+        REQUIRE(CHAM_descriptorProduct->j == 0);
+
+        REQUIRE(CHAM_descriptorC->mt ==  ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorDeterminant->mt == 1);
+        REQUIRE(CHAM_descriptorProduct->mt == 1);
+
+        REQUIRE(CHAM_descriptorC->nt == ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorZ->nt == 1);
+        REQUIRE(CHAM_descriptorZcpy->nt == 1);
+        REQUIRE(CHAM_descriptorDeterminant->nt == 1);
+        REQUIRE(CHAM_descriptorProduct->nt == 1);
+
+        REQUIRE(CHAM_descriptorC->lm == N);
+        REQUIRE(CHAM_descriptorZ->lm == N);
+        REQUIRE(CHAM_descriptorZcpy->lm == N);
+        REQUIRE(CHAM_descriptorDeterminant->lm == 1);
+        REQUIRE(CHAM_descriptorProduct->lm == 1);
+
+        REQUIRE(CHAM_descriptorC->ln == N);
+        REQUIRE(CHAM_descriptorZ->ln == 1);
+        REQUIRE(CHAM_descriptorZcpy->ln == 1);
+        REQUIRE(CHAM_descriptorDeterminant->ln == 1);
+        REQUIRE(CHAM_descriptorProduct->ln == 1);
+
+        REQUIRE(CHAM_descriptorC->p == pGrid);
+        REQUIRE(CHAM_descriptorZ->p == pGrid);
+        REQUIRE(CHAM_descriptorZcpy->p == pGrid);
+        REQUIRE(CHAM_descriptorDeterminant->p == pGrid);
+        REQUIRE(CHAM_descriptorProduct->p == pGrid);
+
+        REQUIRE(CHAM_descriptorC->q == qGrid);
+        REQUIRE(CHAM_descriptorZ->q == qGrid);
+        REQUIRE(CHAM_descriptorZcpy->q == qGrid);
+        REQUIRE(CHAM_descriptorDeterminant->q == qGrid);
+        REQUIRE(CHAM_descriptorProduct->q == qGrid);
+
+
+        auto* mat = (float*) CHAM_descriptorC->mat;
+        for (auto i = 0; i < (CHAM_descriptorC->mt-1) * (CHAM_descriptorC->nt-1) * (CHAM_descriptorC->bsiz-1); i++) {
+            REQUIRE(mat[i] == 0.0f);
+        }
+
+        mat = (float*) CHAM_descriptorZ->mat;
+        auto* matZcpy = (float*) CHAM_descriptorZcpy->mat;
+        for (auto i = 0; i < (CHAM_descriptorZ->mt - 1) * (CHAM_descriptorZ->nt - 1) * (CHAM_descriptorZ->bsiz - 1); i++) {
+            REQUIRE(mat[i] == 0.0f);
+            REQUIRE(matZcpy[i] == 0.0f);
+        }
+
+        mat = (float*) CHAM_descriptorDeterminant->mat;
+        auto* matProduct = (float*) CHAM_descriptorProduct->mat;
+        for (auto i = 0; i < (CHAM_descriptorDeterminant->mt-1) * (CHAM_descriptorDeterminant->nt-1) * (CHAM_descriptorDeterminant->bsiz-1); i++) {
+            REQUIRE(mat[i] == 0.0f);
+            REQUIRE(matProduct[i] == 0.0f);
+        }
+    }
+
+    SECTION("DOUBLE"){
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
+
+        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetDenseTileSize(512);
+        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+
+        linearAlgebraSolver->InitiateDescriptors();
+        auto* CHAM_descriptorC = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorC()[0];
+        auto* CHAM_descsubC11 = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorC()[1];
+        auto* CHAM_descsubC12 = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorC()[2];
+        auto* CHAM_descsubC22 = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorC()[3];
+        auto* CHAM_descriptorZ = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorZ()[0];
+        auto* CHAM_descriptorZcpy = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorZcpy();
+        auto* CHAM_descriptorDeterminant = (CHAM_desc_t*)  syntheticDataConfigurations->GetDescriptorDeterminant();
+        vector<void *> &pDescriptorProduct = syntheticDataConfigurations->GetDescriptorProduct();
+        vector<void *> &pDescriptorZ = syntheticDataConfigurations->GetDescriptorZ();
+
+
+        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
+        int dts = syntheticDataConfigurations->GetDenseTileSize();
+        int pGrid = syntheticDataConfigurations->GetPGrid();
+        int qGrid = syntheticDataConfigurations->GetQGrid();
+
+        REQUIRE(CHAM_descriptorC->m == N);
+        REQUIRE(CHAM_descriptorZ->m == N);
+        REQUIRE(CHAM_descriptorZcpy->m == N);
+        REQUIRE(CHAM_descriptorDeterminant->m == 1);
+        REQUIRE(CHAM_descsubC11->m == N / 2);
+        REQUIRE(CHAM_descsubC12->m == N / 2);
+        REQUIRE(CHAM_descsubC22->m == N / 2);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->m == 1);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->m == N / 2);
+        }
+
+        REQUIRE(CHAM_descriptorC->n == N);
+        REQUIRE(CHAM_descriptorZ->n == 1);
+        REQUIRE(CHAM_descriptorZcpy->n == 1);
+        REQUIRE(CHAM_descriptorDeterminant->n == 1);
+        REQUIRE(CHAM_descsubC11->n == N / 2);
+        REQUIRE(CHAM_descsubC12->n == N / 2);
+        REQUIRE(CHAM_descsubC22->n == N / 2);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->n == 1);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->n == 1);
+        }
+
+        REQUIRE(CHAM_descriptorC->mb == dts);
+        REQUIRE(CHAM_descriptorZ->mb == dts);
+        REQUIRE(CHAM_descriptorZcpy->mb == dts);
+        REQUIRE(CHAM_descriptorDeterminant->mb == dts);
+        REQUIRE(CHAM_descsubC11->mb == dts);
+        REQUIRE(CHAM_descsubC12->mb == dts);
+        REQUIRE(CHAM_descsubC22->mb == dts);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->mb == dts);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->mb == dts);
+        }
+
+        REQUIRE(CHAM_descriptorC->nb == dts);
+        REQUIRE(CHAM_descriptorZ->nb == dts);
+        REQUIRE(CHAM_descriptorZcpy->nb == dts);
+        REQUIRE(CHAM_descriptorDeterminant->nb == dts);
+        REQUIRE(CHAM_descsubC11->nb == dts);
+        REQUIRE(CHAM_descsubC12->nb == dts);
+        REQUIRE(CHAM_descsubC22->nb == dts);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->nb == dts);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->nb == dts);
+        }
+
+        REQUIRE(CHAM_descriptorC->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorZ->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorZcpy->bsiz == dts * dts);
+        REQUIRE(CHAM_descriptorDeterminant->bsiz == dts * dts);
+        REQUIRE(CHAM_descsubC11->bsiz == dts * dts);
+        REQUIRE(CHAM_descsubC12->bsiz == dts * dts);
+        REQUIRE(CHAM_descsubC22->bsiz == dts * dts);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->bsiz == dts * dts);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->bsiz == dts * dts);
+        }
+
+        REQUIRE(CHAM_descriptorC->i == 0);
+        REQUIRE(CHAM_descriptorZ->i == 0);
+        REQUIRE(CHAM_descriptorZcpy->i == 0);
+        REQUIRE(CHAM_descriptorDeterminant->i == 0);
+        REQUIRE(CHAM_descsubC11->i == 0);
+        REQUIRE(CHAM_descsubC12->i == N / 2);
+        REQUIRE(CHAM_descsubC22->i == N / 2);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->i == 0);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->i == 0);
+        }
+
+        REQUIRE(CHAM_descriptorC->j == 0);
+        REQUIRE(CHAM_descriptorZ->j == 0);
+        REQUIRE(CHAM_descriptorZcpy->j == 0);
+        REQUIRE(CHAM_descriptorDeterminant->j == 0);
+        REQUIRE(CHAM_descsubC11->j == 0);
+        REQUIRE(CHAM_descsubC12->j == 0);
+        REQUIRE(CHAM_descsubC22->j == N / 2);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->j == 0);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->j == 0);
+        }
+
+        REQUIRE(CHAM_descriptorC->mt ==  ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorDeterminant->mt == 1);
+        REQUIRE(CHAM_descsubC11->mt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descsubC12->mt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descsubC22->mt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->mt == 1);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->mt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        }
+
+        REQUIRE(CHAM_descriptorC->nt == ceil((N * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descriptorZ->nt == 1);
+        REQUIRE(CHAM_descriptorZcpy->nt == 1);
+        REQUIRE(CHAM_descriptorDeterminant->nt == 1);
+        REQUIRE(CHAM_descsubC11->nt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descsubC12->nt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        REQUIRE(CHAM_descsubC22->nt == ceil((N/2 * 1.0) / (dts * 1.0)));
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->nt == 1);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->nt == 1);
+        }
+
+        REQUIRE(CHAM_descriptorC->lm == N);
+        REQUIRE(CHAM_descriptorZ->lm == N);
+        REQUIRE(CHAM_descriptorZcpy->lm == N);
+        REQUIRE(CHAM_descriptorDeterminant->lm == 1);
+        REQUIRE(CHAM_descsubC11->lm == N);
+        REQUIRE(CHAM_descsubC12->lm == N);
+        REQUIRE(CHAM_descsubC22->lm == N);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->lm == 1);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->lm == N / 2);
+        }
+
+        REQUIRE(CHAM_descriptorC->ln == N);
+        REQUIRE(CHAM_descriptorZ->ln == 1);
+        REQUIRE(CHAM_descriptorZcpy->ln == 1);
+        REQUIRE(CHAM_descriptorDeterminant->ln == 1);
+        REQUIRE(CHAM_descsubC11->ln == N);
+        REQUIRE(CHAM_descsubC12->ln == N);
+        REQUIRE(CHAM_descsubC22->ln == N);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->ln == 1);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->ln == 1);
+        }
+
+        REQUIRE(CHAM_descriptorC->p == pGrid);
+        REQUIRE(CHAM_descriptorZ->p == pGrid);
+        REQUIRE(CHAM_descriptorZcpy->p == pGrid);
+        REQUIRE(CHAM_descriptorDeterminant->p == pGrid);
+        REQUIRE(CHAM_descsubC11->p == pGrid);
+        REQUIRE(CHAM_descsubC12->p == pGrid);
+        REQUIRE(CHAM_descsubC22->p == pGrid);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->p == pGrid);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->p == pGrid);
+        }
+
+        REQUIRE(CHAM_descriptorC->q == qGrid);
+        REQUIRE(CHAM_descriptorZ->q == qGrid);
+        REQUIRE(CHAM_descriptorZcpy->q == qGrid);
+        REQUIRE(CHAM_descriptorDeterminant->q == qGrid);
+        REQUIRE(CHAM_descsubC11->q == qGrid);
+        REQUIRE(CHAM_descsubC12->q == qGrid);
+        REQUIRE(CHAM_descsubC22->q == qGrid);
+        for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+            REQUIRE((*CHAM_descriptorProduct)->q == qGrid);
+        }
+        for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            REQUIRE((*CHAM_descriptorZ_)->q == qGrid);
+        }
+
+
+
+        auto* mat = (double*) CHAM_descriptorC->mat;
+        for (auto i = 0; i < (CHAM_descriptorC->mt-1) * (CHAM_descriptorC->nt-1) * (CHAM_descriptorC->bsiz-1); i++) {
+            REQUIRE(mat[i] == 0.0f);
+        }
+        auto *matC11 = (double*) CHAM_descsubC11->mat;
+        auto *matC12 = (double*) CHAM_descsubC12->mat;
+        auto *matC22 = (double*) CHAM_descsubC22->mat;
+        for (auto i = 0; i < (CHAM_descsubC11->mt-1) * (CHAM_descsubC11->nt-1) * (CHAM_descsubC11->bsiz-1); i++) {
+            REQUIRE(matC11[i] == 0.0f);
+            REQUIRE(matC12[i] == 0.0f);
+            REQUIRE(matC22[i] == 0.0f);
+        }
+
+        mat = (double*) CHAM_descriptorZ->mat;
+        auto* matZcpy = (double*) CHAM_descriptorZcpy->mat;
+        for (auto i = 0; i < (CHAM_descriptorZ->mt - 1) * (CHAM_descriptorZ->nt - 1) * (CHAM_descriptorZ->bsiz - 1); i++) {
+            REQUIRE(mat[i] == 0.0f);
+            REQUIRE(matZcpy[i] == 0.0f);
+        }
+        for (int idx = 0; idx < pDescriptorZ.size(); idx++) {
+            auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
+            mat = (double*) (*CHAM_descriptorZ_)->mat;
+            for (auto i = 0; i < ((*CHAM_descriptorZ_)->mt - 1) * ((*CHAM_descriptorZ_)->nt - 1) * ((*CHAM_descriptorZ_)->bsiz - 1); i++) {
+                REQUIRE(mat[i] == 0.0f);
+            }
+        }
+
+        mat = (double*) CHAM_descriptorDeterminant->mat;
+        for (auto i = 0; i < (CHAM_descriptorDeterminant->mt-1) * (CHAM_descriptorDeterminant->nt-1) * (CHAM_descriptorDeterminant->bsiz-1); i++) {
+            REQUIRE(mat[i] == 0.0f);
+            for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
+                auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+                auto* matProduct = (double*) (*CHAM_descriptorProduct)->mat;
+                REQUIRE(matProduct[i] == 0.0f);
+            }
+        }
 
     }
+
 }
 
 TEST_CASE("Chameleon Implementation Dense"){
     INIT_HARDWARE();
     TEST_INITIALIZETION();
-    TEST_CHAMELEON_DESCRIPTORS_C();
+    TEST_CHAMELEON_DESCRIPTORS_VALUES();
 }
-
-/*
-
-// Test case 2: Test that the function initializes the CHAM_descriptorC descriptor correctly.
-TEST_CASE("InitiateDescriptorsTest2", "[ChameleonImplementationDense]") {
-exageostat::linearAlgebra::dense::ChameleonImplementationDense<double> solver;
-solver.mpConfigurations->SetProblemSize(100);
-solver.mpConfigurations->SetDenseTileSize(10);
-solver.InitiateDescriptors();
-
-auto* CHAM_descriptorC = (CHAM_desc_t*) solver.mpConfigurations->GetDescriptorC()[0];
-int N = solver.mpConfigurations->GetProblemSize() * solver.mpConfigurations->GetP();
-int dts = solver.mpConfigurations->GetDenseTileSize();
-int pGrid = solver.mpConfigurations->GetPGrid();
-int qGrid = solver.mpConfigurations->GetQGrid();
-
-REQUIRE(CHAM_descriptorC->m == N);
-REQUIRE(CHAM_descriptorC->n == N);
-REQUIRE(CHAM_descriptorC->mb == dts);
-REQUIRE(CHAM_descriptorC->nb == dts);
-REQUIRE(CHAM_descriptorC->bsiz == dts * dts);
-REQUIRE(CHAM_descriptorC->i == 0);
-REQUIRE(CHAM_descriptorC->j == 0);
-REQUIRE(CHAM_descriptorC->mt == N / dts);
-REQUIRE(CHAM_descriptorC->nt == N / dts);
-REQUIRE(CHAM_descriptorC->m0 == 0);
-REQUIRE(CHAM_descriptorC->n0 == 0);
-REQUIRE(CHAM_descriptorC->lm == N);
-REQUIRE(CHAM_descriptorC->ln == N);
-REQUIRE(CHAM_descriptorC->p == pGrid);
-REQUIRE(CHAM_descriptorC->q == qGrid);
-
-for (int i = 0; i < CHAM_descriptorC->mt * CHAM_descriptorC->nt * CHAM_descriptorC->bsiz; i++) {
-REQUIRE(CHAM_descriptorC->mat[i] == 0);
-}
-}
-
-// Test case 3: Test that the function initializes the CHAM_descriptorZ descriptor correctly.
-TEST_CASE("InitiateDescriptorsTest3", "[ChameleonImplementationDense]") {
-exageostat::linearAlgebra::dense::ChameleonImplementationDense<double> solver;
-solver.mpConfigurations->SetProblemSize(100);
-solver.mpConfigurations->SetDenseTileSize(10);
-solver.InitiateDescriptors();
-
-auto* CHAM_descriptorZ = (CHAM_desc_t*) solver.mpConfigurations->GetDescriptorZ()[0];
-int N = solver.mpConfigurations->GetProblemSize() * solver.mpConfigurations->GetP();
-int dts = solver.mpConfigurations->GetDenseTileSize();
-int pGrid = solver.mpConfigurations->GetPGrid();
-int qGrid = solver.mpConfigurations->GetQGrid();
-
-REQUIRE(CHAM_descriptorZ->m == N);
-REQUIRE(CHAM_descriptorZ->n == 1);
-REQUIRE(CHAM_descriptorZ->mb == dts);
-REQUIRE(CHAM_descriptorZ->nb == dts);
-REQUIRE(CHAM_descriptorZ->bsiz == dts * dts);
-REQUIRE(CHAM_descriptorZ->i == 0);
-REQUIRE(CHAM_descriptorZ->j == 0);
-REQUIRE(CHAM_descriptorZ->mt == N / dts);
-REQUIRE(CHAM_descriptorZ->nt == 1);
-REQUIRE(CHAM_descriptorZ->m0 == 0);
-REQUIRE(CHAM_descriptorZ->n0 == 0);
-REQUIRE(CHAM_descriptorZ->lm == N);
-REQUIRE(CHAM_descriptorZ->ln == 1);
-REQUIRE(CHAM_descriptorZ->p == pGrid);
-REQUIRE(CHAM_descriptorZ->q == qGrid);
-
-
-
-
- // Test that the function initializes all the required descriptors without errors.
-void TEST_INITIALIZETION(){
-
-    auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
-    auto* syntheticDataConfigurations = new SyntheticDataConfigurations();
-    linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
-
-    SECTION("Single"){
-        syntheticDataConfigurations->SetProblemSize(1024);
-        syntheticDataConfigurations->SetDenseTileSize(64);
-        linearAlgebraSolver->InitiateDescriptors();
-
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorProduct()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
-
-        // Check the values set in the CHAM_desc_s struct for the C descriptor
-        auto* Cdesc = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorC()[0];
-        REQUIRE(Cdesc->m == 1024);
-        REQUIRE(Cdesc->n == 1024);
-        REQUIRE(Cdesc->mb == 64);
-        REQUIRE(Cdesc->nb == 64);
-        REQUIRE(Cdesc->bsiz == 4096);
-        REQUIRE(Cdesc->lmt*64 == 1024);
-        REQUIRE(Cdesc->lnt*64 == 1024);
-        REQUIRE(Cdesc->p == 1);
-        REQUIRE(Cdesc->q == 1);
-        REQUIRE(Cdesc->i == 1);
-        REQUIRE(Cdesc->j == 1);
-        REQUIRE(Cdesc->m0 == 0);
-        REQUIRE(Cdesc->n0 == 0);
-        REQUIRE(Cdesc->mt == 16);
-        REQUIRE(Cdesc->nt == 16);
-        REQUIRE(Cdesc->m1 == 1024);
-        REQUIRE(Cdesc->n1 == 1024);
-
-        // Check the values set in the CHAM_desc_s struct for the Z descriptor
-        auto* Zdesc = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorZ()[0];
-        REQUIRE(Zdesc->m == 1024);
-        REQUIRE(Zdesc->n == 1);
-        REQUIRE(Zdesc->mb == 64);
-        REQUIRE(Zdesc->nb == 1);
-        REQUIRE(Zdesc->bsiz == 64);
-        REQUIRE(Zdesc->lmt*64 == 1024);
-        REQUIRE(Zdesc->lnt == 1);
-        REQUIRE(Zdesc->p == 1);
-        REQUIRE(Zdesc->q == 1);
-        REQUIRE(Zdesc->i == 1);
-        REQUIRE(Zdesc->j == 1);
-        REQUIRE(Zdesc->m0 == 0);
-        REQUIRE(Zdesc->n0 == 0);
-        REQUIRE(Zdesc->mt == 16);
-        REQUIRE(Zdesc->nt == 1);
-        REQUIRE(Zdesc->m1 == 1024);
-        REQUIRE(Zdesc->n1 == 1);
-
-        // Check the values set in the CHAM_desc_s struct for the Product descriptor
-        auto* Pdesc = (CHAM_desc_t*) syntheticDataConfigurations->GetDescriptorProduct()[0];
-        REQUIRE(Pdesc->m == 1024);
-        REQUIRE(Pdesc->n == 1);
-        REQUIRE(Pdesc->mb == 64);
-        REQUIRE(Pdesc->nb == 1);
-        REQUIRE(Pdesc->bsiz == 64);
-        REQUIRE(Pdesc->lmt*64 == 1024);
-        REQUIRE(Pdesc->lnt == 1);
-        REQUIRE(Pdesc->p == 1);
-        REQUIRE(Pdesc->q == 1);
-        REQUIRE(Pdesc->i == 1);
-        REQUIRE(Pdesc->j == 1);
-        REQUIRE(Pdesc->m0 == 0);
-        REQUIRE(Pdesc->n0 == 0);
-        REQUIRE(Pdesc->mt == 16);
-        REQUIRE(Pdesc->nt == 1);
-        REQUIRE(Pdesc->m1 == 1024);
-        REQUIRE(Pdesc->n1 == 1);
-    }
-
-    SECTION("Multiple"){
-        syntheticDataConfigurations->SetProblemSize(2048);
-        syntheticDataConfigurations->SetDenseTileSize(128);
-        syntheticDataConfigurations->SetNumRHS(2);
-        linearAlgebraSolver->InitiateDescriptors();
-
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC()[1] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ()[0] != nullptr);
-        REQUIRE(syntheticDataConfig
- */
 
