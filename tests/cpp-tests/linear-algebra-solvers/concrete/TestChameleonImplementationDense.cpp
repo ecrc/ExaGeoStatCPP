@@ -15,21 +15,28 @@
 #include <iostream>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include "control/context.h"
 
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 
+
+void INIT_HARDWARE(){
+    ChameleonImplementationDense<double> chameleonImpl;
+    chameleonImpl.ExaGeoStatInitContext(4, 0);
+    CHAM_context_t *chameleonContext = chameleon_context_self();
+    REQUIRE(chameleonContext != nullptr);
+}
 // Test that the function initializes all the required descriptors without errors.
 void TEST_INITIALIZETION(){
-
     auto* syntheticDataConfigurations = new SyntheticDataConfigurations();
 
     SECTION("Single"){
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        syntheticDataConfigurations->SetProblemSize(1024);
+        syntheticDataConfigurations->SetProblemSize(1000);
         syntheticDataConfigurations->SetDenseTileSize(64);
         linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
 
@@ -38,7 +45,7 @@ void TEST_INITIALIZETION(){
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 2);
         REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
         REQUIRE(syntheticDataConfigurations->GetDescriptorProduct().size() == 1);
 
@@ -77,26 +84,28 @@ void TEST_INITIALIZETION(){
         REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
         REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
     }
-
 }
+//Test that the function initializes the CHAM_descriptorC descriptor correctly.
+void TEST_CHAMELEON_DESCRIPTORS_C() {
+    auto* syntheticDataConfigurations = new SyntheticDataConfigurations();
+
+    SECTION("SINGLE"){
+        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
+
+        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetDenseTileSize(512);
+        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+
+    }
+}
+
 TEST_CASE("Chameleon Implementation Dense"){
+    INIT_HARDWARE();
     TEST_INITIALIZETION();
+    TEST_CHAMELEON_DESCRIPTORS_C();
 }
 
 /*
-
-TEST_CASE("InitiateDescriptorsTest1", "[ChameleonImplementationDense]") {
-exageostat::linearAlgebra::dense::ChameleonImplementationDense<double> solver;
-solver.mpConfigurations->SetProblemSize(100);
-solver.mpConfigurations->SetDenseTileSize(10);
-solver.InitiateDescriptors();
-
-REQUIRE(solver.mpConfigurations->GetDescriptorC()[0] != nullptr);
-REQUIRE(solver.mpConfigurations->GetDescriptorZ()[0] != nullptr);
-REQUIRE(solver.mpConfigurations->GetDescriptorProduct()[0] != nullptr);
-REQUIRE(solver.mpConfigurations->GetDescriptorZcpy() != nullptr);
-REQUIRE(solver.mpConfigurations->GetDescriptorDeterminant() != nullptr);
-}
 
 // Test case 2: Test that the function initializes the CHAM_descriptorC descriptor correctly.
 TEST_CASE("InitiateDescriptorsTest2", "[ChameleonImplementationDense]") {

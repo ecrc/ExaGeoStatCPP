@@ -62,21 +62,20 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
     }
 
     // Depending on the passed Precession, the descriptor will resize for value 1 or 3.
-    pDescriptorC.resize(vectorSize, nullptr);
+    pDescriptorC.resize(vectorSize + 1, nullptr);
     pDescriptorZ.resize(vectorSize, nullptr);
     pDescriptorProduct.resize(vectorSize, nullptr);
 
     auto **CHAM_descriptorC = (CHAM_desc_t **) &pDescriptorC[0];
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(CHAM_descriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
                                           dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
+
     if (vectorSize > 1) {
-        pDescriptorC.push_back(nullptr);
+
         pDescriptorC[1] = chameleon_desc_submatrix(*CHAM_descriptorC, 0, 0, (*CHAM_descriptorC)->m / 2,
                                                    (*CHAM_descriptorC)->n / 2);
-        pDescriptorC[2] = chameleon_desc_submatrix(*CHAM_descriptorC, (*CHAM_descriptorC)->m / 2, 0,
-                                                   (*CHAM_descriptorC)->m / 2, (*CHAM_descriptorC)->n / 2);
-        pDescriptorC[3] = chameleon_desc_submatrix(*CHAM_descriptorC, (*CHAM_descriptorC)->m / 2,
-                                                   (*CHAM_descriptorC)->n / 2,
+        pDescriptorC[2] = chameleon_desc_submatrix(*CHAM_descriptorC, (*CHAM_descriptorC)->m / 2, 0,(*CHAM_descriptorC)->m / 2, (*CHAM_descriptorC)->n / 2);
+        pDescriptorC[3] = chameleon_desc_submatrix(*CHAM_descriptorC, (*CHAM_descriptorC)->m / 2,(*CHAM_descriptorC)->n / 2,
                                                    (*CHAM_descriptorC)->m / 2, (*CHAM_descriptorC)->n / 2);
     }
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(((CHAM_desc_t **) &pDescriptorZ[0]), isOOC, nullptr,
