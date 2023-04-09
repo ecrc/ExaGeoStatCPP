@@ -86,16 +86,17 @@ void TEST_INITIALIZETION() {
         REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
         REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
     }
+    free(syntheticDataConfigurations);
 }
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
 void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
 
     SECTION("SINGLE") {
+        auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetProblemSize(6656);
         syntheticDataConfigurations->SetDenseTileSize(512);
         linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
 
@@ -153,6 +154,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descriptorDeterminant->j == 0);
         REQUIRE(CHAM_descriptorProduct->j == 0);
 
+        cout <<"\n N: " << N << endl;
         REQUIRE(CHAM_descriptorC->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
@@ -193,7 +195,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto *mat = (float *) CHAM_descriptorC->mat;
         for (auto i = 0;
              i < (CHAM_descriptorC->mt - 1) * (CHAM_descriptorC->nt - 1) * (CHAM_descriptorC->bsiz - 1); i++) {
-            REQUIRE(mat[i] == 0.0f);
+                REQUIRE(mat[i] == 0.0f);
         }
 
         mat = (float *) CHAM_descriptorZ->mat;
@@ -211,9 +213,11 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
             REQUIRE(mat[i] == 0.0f);
             REQUIRE(matProduct[i] == 0.0f);
         }
+        free(syntheticDataConfigurations);
     }
 
     SECTION("DOUBLE") {
+        auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
         syntheticDataConfigurations->SetProblemSize(6400);
@@ -486,7 +490,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
                 REQUIRE(matProduct[i] == 0.0f);
             }
         }
-
+        free(syntheticDataConfigurations);
     }
 
 }
