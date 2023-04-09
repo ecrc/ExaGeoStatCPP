@@ -28,17 +28,17 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     // Initialize Exageostat Hardware.
     this->ExaGeoStatInitContext( this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
 
-    vector<void *> pDescriptorC =  this->mpConfigurations->GetDescriptorC();
-    vector<void *> pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
-    auto* pChameleonDescriptorZcpy = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorZcpy();
-    vector<void *> pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
-    auto* pChameleonDescriptorDeterminant = (CHAM_desc_t*) this->mpConfigurations->GetDescriptorDeterminant();
+    vector<void *> &pDescriptorC =  this->mpConfigurations->GetDescriptorC();
+    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
+    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
+    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
+    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
     pDescriptorC.push_back(nullptr);
-    auto* pChameleonDescriptorC = (CHAM_desc_t*) pDescriptorC[0];
+    auto **pChameleonDescriptorC = (CHAM_desc_t **) &pDescriptorC[0];
 
     pDescriptorZ.push_back(nullptr);
-    auto* pChameleonDescriptorZ = (CHAM_desc_t*) pDescriptorZ[0];
+    auto **pChameleonDescriptorZ = (CHAM_desc_t **) &pDescriptorZ[0];
 
     int vectorSize = 1;
     FloatPoint floatPoint = EXAGEOSTAT_REAL_FLOAT;
@@ -65,17 +65,17 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     //Identifies a set of routines sharing common exception handling.
     CHAMELEON_Sequence_Create(&pSequence);
 
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pChameleonDescriptorZcpy, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZcpy, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
 
     for(int idx =0; idx <vectorSize; idx++){
         pDescriptorProduct.push_back(nullptr);
-        auto* pChameleonDescriptorProduct = (CHAM_desc_t*) pDescriptorProduct[idx];
-        EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pChameleonDescriptorProduct, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+        auto **pChameleonDescriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+        EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorProduct, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     }
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(&pChameleonDescriptorDeterminant, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorDeterminant, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
     //stop gsl error handler
     gsl_set_error_handler_off();

@@ -492,7 +492,7 @@ namespace exageostat {
             //// Used Determinant descriptor.
             void * mpDescriptorDeterminant = nullptr;
             //// Used Z observations descriptor.
-            void * mpDescriptorZObservations;
+            void * mpDescriptorZObservations = nullptr;
             //// Used vectors of product descriptor.
             std::vector<void *> mpDescriptorProduct;
             //// Used vectors of CD descriptor.
@@ -502,9 +502,9 @@ namespace exageostat {
             //// Used vectors of Crk descriptor.
             std::vector<void *> mpDescriptorCrk = {nullptr, nullptr, nullptr};
             //// Used MSE descriptor.
-            void * mpDescriptorMSE;
+            void * mpDescriptorMSE = nullptr;
             //// Used Z Actual observations descriptor.
-            void * mpDescriptorZActual;
+            void * mpDescriptorZActual = nullptr;
         };
 
     }//namespace configurations
