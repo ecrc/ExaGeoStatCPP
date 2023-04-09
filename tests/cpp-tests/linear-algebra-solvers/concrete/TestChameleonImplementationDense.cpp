@@ -216,8 +216,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
     SECTION("DOUBLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        syntheticDataConfigurations->SetProblemSize(32);
-        syntheticDataConfigurations->SetDenseTileSize(16);
+        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetDenseTileSize(512);
         linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
 
         linearAlgebraSolver->InitiateDescriptors();
