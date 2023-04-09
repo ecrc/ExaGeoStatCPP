@@ -31,12 +31,11 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     auto pDescriptorZcpy = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
-    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pDescriptorDeterminant = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
     HICMA_sequence_t *pSequence;
-    HICMA_request_t request[2] = {HICMA_SUCCESS, HICMA_SUCCESS};
 
+    cout << "1" << endl;
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
     int lts = this->mpConfigurations->GetLowTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
@@ -50,6 +49,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     string actualObservationsFilePath = this->mpConfigurations->GetActualObservationsFilePath();
     double determinantValue = this->mpConfigurations->GetDeterminantValue();
 
+    cout << "2" << endl;
     // For distributed system and should be removed
     T *Zcpy = (T *) malloc(N * sizeof(T));
 
@@ -74,18 +74,20 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     auto **pDescriptorZObservations = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZObservations();
     auto **pDescriptorZactual = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZActual();
     auto **pDescriptorMSE = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorMSE();
+    cout << "1" << endl;
 
     int MBC, NBC, MC, NC;
     int MBD, NBD, MD, ND;
     int MBUV, NBUV, MUV, NUV;
     int MBrk, NBrk, Mrk, Nrk;
 
-    FloatPoint floatPoint = EXAGEOSTAT_REAL_FLOAT;
+    FloatPoint floatPoint;
     if (sizeof(T) == SIZE_OF_FLOAT) {
         floatPoint = EXAGEOSTAT_REAL_FLOAT;
     } else {
         floatPoint = EXAGEOSTAT_REAL_DOUBLE;
     }
+    cout << "2" << endl;
 
     //CDense Descriptor
     if (approximationMode == 1) {
@@ -102,6 +104,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pHicmaDescriptorC, isOOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC,
                                            MBC * NBC, MC, NC, 0, 0, MC, NC, pGrid, qGrid);
 
+    cout << "3" << endl;
     //CAD Descriptor
     MBD = lts;
     NBD = lts;
@@ -110,6 +113,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorCD, isOOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD, MBD * NBD,
                                            MD, ND, 0, 0, MD, ND, pGrid, qGrid);
 
+    cout << "CAD" << endl;
     //CAD Descriptor
     MBUV = lts;
     NBUV = 2 * maxRank;
@@ -123,10 +127,15 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         throw range_error("Invalid value. This case should not happen, Please make sure of N and lts values.");
     }
 
+    cout << "CUV" << endl;
     T expr = (T) MUV / (T) lts;
+    cout << "1" << endl;
     NUV = 2 * expr * maxRank;
+    cout << "2" << endl;
+    cout << "MBUV: " << MBUV << " NBUV: " << NBUV << " MBUV * NBUV: " << MBUV * NBUV << " MUV: " <<  MUV << " NUV: " << NUV << " pGrid: " << pGrid << " qGrid: " << qGrid << endl;
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorCUV, isOOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
                                            MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, pGrid, qGrid);
+    cout << "3" << endl;
 
     //CUV Descriptor
     MBrk = 1;
@@ -135,6 +144,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     Nrk = (*pDescriptorCUV)->mt;
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorCrk, isOOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
                                            MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid);
+    cout << "Crk" << endl;
 
     HICMA_Sequence_Create(&pSequence);
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pHicmaDescriptorZ, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts,
@@ -145,6 +155,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorDeterminant, isOOC, &determinantValue, (HICMA_enum) floatPoint,
                                            lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
 
+    cout << "1" << endl;
     if (nZmiss != 0) {
         if (actualObservationsFilePath == "") {
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZObservations, isOOC, &pDescriptorZcpy[nZmiss],
@@ -157,6 +168,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
                                                    lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
         }
 
+        cout << "if" << endl;
         //C12AD Descriptor
         MBD = lts;
         NBD = lts;
@@ -212,6 +224,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorMSE, isOOC, &meanSquareError, (HICMA_enum) floatPoint, lts,
                                                lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
     }
+    cout << "finish" << endl;
 
     //stop gsl error handler
     gsl_set_error_handler_off();

@@ -17,3 +17,11 @@ if (EXAGEOSTAT_USE_CHAMELEON)
             PARENT_SCOPE
             )
 endif()
+
+if (EXAGEOSTAT_USE_HiCMA)
+    set(EXAGEOSTAT_TESTFILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
+            ${EXAGEOSTAT_TESTFILES}
+            PARENT_SCOPE
+            )
+endif()
