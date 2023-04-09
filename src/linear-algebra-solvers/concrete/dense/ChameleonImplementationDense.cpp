@@ -37,7 +37,6 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     int vectorSize;
     RUNTIME_sequence_t *pSequence;
-    RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
     int dts = this->mpConfigurations->GetDenseTileSize();
@@ -68,7 +67,7 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     auto **CHAM_descriptorC = (CHAM_desc_t **) &pDescriptorC[0];
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(CHAM_descriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
-                                          dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
+                                          dts * dts, N, N, 0, 0, N, N, pGrid, qGrid)
 
     if (vectorSize > 1) {
 
@@ -86,20 +85,20 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
     }
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(((CHAM_desc_t **) &pDescriptorZ[0]), isOOC, nullptr,
                                           (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid,
-                                          qGrid);
+                                          qGrid)
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pDescriptorZcpy, isOOC, Zcpy, (cham_flttype_t) floatPoint, dts, dts,
-                                          dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+                                          dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid)
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pDescriptorDeterminant, isOOC, &dotProductValue, (cham_flttype_t) floatPoint,
-                                          dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+                                          dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid)
 
     for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
         auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
         EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(CHAM_descriptorZ_, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
-                                              dts * dts, N / 2, 1, 0, 0, N / 2, 1, pGrid, qGrid);
+                                              dts * dts, N / 2, 1, 0, 0, N / 2, 1, pGrid, qGrid)
     }
 
-    for (int idx = 0; idx < pDescriptorProduct.size(); idx++) {
-        auto **CHAM_descriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
+    for (auto & idx : pDescriptorProduct) {
+        auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
         EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(CHAM_descriptorProduct, isOOC, &dotProductValue,
                                               (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
                                               qGrid)
@@ -118,6 +117,6 @@ void ChameleonImplementationDense<T>::ExaGeoStatInitContext(const int &apCoresNu
         printf("Another instance of Chameleon is already running...!");
     } else {
         CHAMELEON_user_tag_size(31, 26);
-        CHAMELEON_Init(apCoresNumber, apGPUs);
+        CHAMELEON_Init(apCoresNumber, apGPUs)
     }
 }

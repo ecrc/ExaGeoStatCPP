@@ -110,6 +110,30 @@ void * &Configurations::GetDescriptorDeterminant() {
     return this->mpDescriptorDeterminant;
 }
 
+std::vector<void *> &Configurations::GetDescriptorCD() {
+    return this->mpDescriptorCD;
+}
+
+std::vector<void *> &Configurations::GetDescriptorCUV() {
+    return this->mpDescriptorCUV;
+}
+
+std::vector<void *> &Configurations::GetDescriptorCrk() {
+    return this->mpDescriptorCrk;
+}
+
+void * &Configurations::GetDescriptorZObservations() {
+    return this->mpDescriptorZObservations;
+}
+
+void * &Configurations::GetDescriptorMSE() {
+    return this->mpDescriptorMSE;
+}
+
+void * &Configurations::GetDescriptorZActual() {
+    return this->mpDescriptorZActual;
+}
+
 void Configurations::SetCoresNumber(int aCoresNumbers) {
     this->mCoresNumber = aCoresNumbers;
 }
@@ -188,30 +212,6 @@ void Configurations::SetDeterminantValue(double aDeterminantValue) {
 
 double Configurations::GetDeterminantValue() {
     return this->mDeterminantValue;
-}
-
-std::vector<void *> Configurations::GetDescriptorCD() {
-    return this->mpDescriptorCD;
-}
-
-std::vector<void *> Configurations::GetDescriptorCUV() {
-    return this->mpDescriptorCUV;
-}
-
-std::vector<void *> Configurations::GetDescriptorCrk() {
-    return this->mpDescriptorCrk;
-}
-
-void *Configurations::GetDescriptorZObservations() {
-    return this->mpDescriptorZObservations;
-}
-
-void *Configurations::GetDescriptorMSE() {
-    return this->mpDescriptorMSE;
-}
-
-void *Configurations::GetDescriptorZActual() {
-    return this->mpDescriptorZActual;
 }
 
 int Configurations::CheckNumericalValue(string aValue) {

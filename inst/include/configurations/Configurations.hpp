@@ -368,42 +368,42 @@ namespace exageostat {
             * @return mpDescriptorCD
             */
             std::vector<void *>
-            GetDescriptorCD();
+            &GetDescriptorCD();
 
             /**
              * @brief CUV descriptors getter.
              * @return mpDescriptorCUV
              */
             std::vector<void *>
-            GetDescriptorCUV();
+            &GetDescriptorCUV();
 
             /**
              * @brief Crk descriptors getter.
              * @return mpDescriptorCrk
              */
             std::vector<void *>
-            GetDescriptorCrk();
+            &GetDescriptorCrk();
 
             /**
              * @brief Unknown Observations Z descriptors getter.
              * @return mpDescriptorZObservations
              */
             void *
-            GetDescriptorZObservations();
+            &GetDescriptorZObservations();
 
             /**
              * @brief Z Actual observations descriptors getter.
              * @return mpDescriptorZActual
              */
             void *
-            GetDescriptorZActual();
+            &GetDescriptorZActual();
 
             /**
              * @brief Mean Square Error descriptors getter.
              * @return mpDescriptorMSE
              */
             void *
-            GetDescriptorMSE();
+            &GetDescriptorMSE();
 
             /**
              * @brief

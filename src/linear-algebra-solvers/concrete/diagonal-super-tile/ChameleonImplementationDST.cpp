@@ -13,7 +13,8 @@
 **/
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
-extern "C"{
+
+extern "C" {
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <control/context.h>
@@ -26,9 +27,9 @@ template<typename T>
 void ChameleonImplementationDST<T>::InitiateDescriptors() {
 
     // Initialize Exageostat Hardware.
-    this->ExaGeoStatInitContext( this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
+    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
 
-    vector<void *> &pDescriptorC =  this->mpConfigurations->GetDescriptorC();
+    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
@@ -41,7 +42,7 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     auto **pChameleonDescriptorZ = (CHAM_desc_t **) &pDescriptorZ[0];
 
     int vectorSize = 1;
-    FloatPoint floatPoint = EXAGEOSTAT_REAL_FLOAT;
+    FloatPoint floatPoint;
     if (sizeof(T) == SIZE_OF_FLOAT) {
         floatPoint = EXAGEOSTAT_REAL_FLOAT;
     } else {
@@ -50,7 +51,6 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     }
 
     RUNTIME_sequence_t *pSequence;
-    RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
 
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
     int dts = this->mpConfigurations->GetDenseTileSize();
@@ -65,21 +65,29 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     //Identifies a set of routines sharing common exception handling.
     CHAMELEON_Sequence_Create(&pSequence);
 
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZcpy, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
+                                          dts * dts, N, N, 0, 0, N, N, pGrid, qGrid)
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
+                                          dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid)
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZcpy, isOOC, Zcpy, (cham_flttype_t) floatPoint, dts,
+                                          dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid)
 
-    for(int idx =0; idx <vectorSize; idx++){
+    for (int idx = 0; idx < vectorSize; idx++) {
         pDescriptorProduct.push_back(nullptr);
         auto **pChameleonDescriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
-        EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorProduct, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+        EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorProduct, isOOC, &dotProductValue,
+                                              (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
+                                              qGrid)
 
     }
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorDeterminant, isOOC, &dotProductValue, (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorDeterminant, isOOC, &dotProductValue,
+                                          (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
+                                          qGrid)
 
     //stop gsl error handler
     gsl_set_error_handler_off();
 }
+
 template<typename T>
 void ChameleonImplementationDST<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
 
@@ -89,6 +97,6 @@ void ChameleonImplementationDST<T>::ExaGeoStatInitContext(const int &apCoresNumb
         printf("Another instance of Chameleon is already running...!");
     } else {
         CHAMELEON_user_tag_size(31, 26);
-        CHAMELEON_Init(apCoresNumber, apGPUs);
+        CHAMELEON_Init(apCoresNumber, apGPUs)
     }
 }
