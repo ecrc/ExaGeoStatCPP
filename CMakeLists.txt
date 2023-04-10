@@ -86,7 +86,7 @@ include(ImportGSL)
 
 # EXAGEOSTAT depends on a NLOPT
 # -------------------------------
-#include(ImportNLOPT)
+include(ImportNLOPT)
 
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------

@@ -37,8 +37,6 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
                 WORKING_DIRECTORY
                 ${${name}_binpath})
     else()
-        message("malak?")
-        message("${${name}_srcpath}")
         execute_process(COMMAND ./configure ${FLAGS}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
