@@ -182,4 +182,5 @@ int SyntheticDataConfigurations::CheckUnknownObservationsValue(string aValue) {
     if (value >= GetProblemSize()){
         throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
     }
+    return value;
 }
