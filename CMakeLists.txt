@@ -13,13 +13,6 @@
 # @author Sameh Abdulah
 # @date 2023-01-30
 
-                #############################################################################
-                #                       THIS IS A TOP-LEVEL CMAKELISTS.txt                    #
-                #                                                                             #
-                #        It is intended to find all dependencies (required or optional)       #
-                #                    and set up corresponding variables                       #
-                ###############################################################################
-
 # Set the minimum CMake version required to 3.20
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
@@ -42,6 +35,7 @@ option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
+    message("-- Build CUDA Support")
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
     enable_language(CUDA)
@@ -50,10 +44,15 @@ if (USE_CUDA)
     include(ImportCuSolver)
     unset(BLA_VENDOR)
     include(ImportLapack)
+    set(LIBS
+        LAPACK::LAPACK
+        ${LIBS}
+        )
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
 else ()
-    # Include GccToolchain for non-CUDA builds
+    message("-- Build x86 Support")
+    # Include GccToolchain for non-CUDA builds - Gcc
     include(toolchains/GccToolchain)
 endif ()
 

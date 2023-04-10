@@ -22,24 +22,146 @@ C++ coding style
 
 Changes to ExaGeoStat-CPP C/C++ code should conform to the
 [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) and
-the following HiCMA, HCore specific style details:
+the following specific style details:
 
-- Naming convention
-    - Global functions are snake_case.
-    - Member functions are UpperCamelCase.
-    - Classes, enums, enum values, structs are UpperCamelCase.
-    - Variables are snake_case.
-    - Constants are snake_case.
-    - Namespaces are lowercase.
-    - Member private variables have an m suffix; Note that using leading
-      underscores is illegal (they are reserved by C/C++).
+## Naming convention
+### File Names
+
+All file names should have a ```PascalCase```.
+
+```c++
+// Example
+TemplateClass.hpp
+TemplateClass.cpp
+```
+
+### Header Guards
+
+All header guards should have a ```SCREAMING_SNAKE_CASE```.
+
+```c++
+// Example
+#ifndef
+TEMPLATE_ARCHITECTURE_TEMPLATE_CLASS_HPP
+#define
+TEMPLATE_ARCHITECTURE_TEMPLATE_CLASS_HPP
+
+// Code
+
+#endif //TEMPLATE_ARCHITECTURE_TEMPLATE_CLASS_HPP
+```
+
+### Namespaces
+
+All namespaces should be all ```lowercase```.
+
+```c++
+// Example
+namespace librarynamespace {
+    
+}
+```
+
+### Classes & Structs
+
+All classes and structs should have a ```PascalCase```.
+
+```c++
+// Example
+
+class TemplateClasss {
+
+};
+```
+
+### Functions
+
+All functions should have a ```PascalCase```.
+
+```c++
+// Example
+
+void PublicFunction() {
+
+}
+```
+
+### Variables
+
+#### Public Variables
+
+All public variables should have s ```PascalCase```.
+
+```c++
+// Example
+int PublicVariable;
+```
+
+#### Members Variables
+
+All members variables should start with ```m```followed by ```PascalCase```.
+
+```c++
+// Example
+int mPrivateVariable;
+```
+
+#### Pointers Variables
+
+All pointers variables should start with ```p```followed by ```PascalCase```.
+
+```c++
+// Example
+int* pPointerVariable;
+```
+
+#### Combinations
+
+Private and pointer variables.
+
+```c++
+// Example
+int* mpPrivatePointerVariable;
+```
+
+#### Argument Variables
+
+All argument variables should start with ``a``followed by ```PascalCase```. <b>If and only if the variable is an object
+or pointer to object</b>
+
+```c++
+// Example
+
+void Function(TemplateClass aTemplateClass) {
+
+}
+
+// For pointer case
+
+void Function(TemplateClass apTemplateClass) {
+
+}
+```
+
+#### Scope Variables
+
+All scope variables should have a ```snake_case```.
+
+```c++
+// Example
+
+int number_count;
+```
+## ExaGeoStat NameSpaces
 - Default indentation is 4 spaces, and wrapped parameters have 4 spaces indent.
+
 - In ExaGeoStat-CPP, we have 4 namespaces, as follows:
-    - `exageostat::dataunits`: Namespace used for ExaGeoStat-CPP main memory unit used to contain some contiguous sub-matrix elements.
+    - `exageostat::common`: Namespace used for all ExaGeoStat-CPP common and helper functionalities that might provide useful facilities in the examples and testing.
+    - `exageostat::configurations`: Namespace used for ExaGeoStat-CPP configurations arguments and parsers.
     - `exageostat::kernels`: Namespace used for target backend implementations of the various kernels used internally to fulfill the targeted operations.
-    - `exageostat::cudakernels`: Namespace used for CUDA backend implementations of the various kernels used internally to fulfill the targeted operations.
-    - `exageostat::operators`: Namespace used for all ExaGeoStat-CPP base data structures that the user should utilize and interact with, including the base tiles.
-    - `exageostat::helpers`: Namespace used for all ExaGeoStat-CPP helper functionalities that might provide useful facilities in the examples and testing, but not critical for ExaGeoStat-CPP core operations.
+    - `exageostat::data-generators`: Namespace used for ExaGeoStat-CPP implementations of the various options for data-generation module.
+    - `exageostat::data-units`: Namespace used for all ExaGeoStat-CPP base data structures that the user should utilize and interact with, including the base tiles.
+    - `exageostat::linear-algebra-solvers`: Namespace used for all ExaGeoStat-CPP integrated linear algebra solvers libraries.
 
 Use `clang-format` to check your C/C++ changes.
 
@@ -52,7 +174,7 @@ You can check the format of a C/C++ file with the following:
     $ clang-format <path/to/file.cc> --style=google > path/to/file_marked.cc
     $ diff <path/to/file.cc> path/to/file_marked.cc
 
-Forking HExaGeoStat-CPP
+Forking ExaGeoStat-CPP
 --------------------------------------------------------------------------------
 
 If you aren't a HiCMA or HCore developer at KAUST, then you won't have permission to push
@@ -71,7 +193,7 @@ new feature, first ensure you have an up-to-date copy of the `main` branch:
 
 You can now create a new branch to develop your feature on:
 
-    $ git checkout -b feature/<name-of-feature>
+    $ git checkout -b FT-<name-of-feature>-<FIRST-THREE-LETTERS-OF-YOUR-NAME>
 
 Proceed to develop your feature on this branch, and add tests that will exercise
 your new code. If you are creating new methods or classes, please add Doxygen
@@ -95,7 +217,7 @@ of the `main` branch:
 
 Then create a new branch for your bugfix:
 
-    $ git checkout -b bugfix/<name-of-bug>
+    $ git checkout -b FIX-<name-of-bug>-<FIRST-THREE-LETTERS-OF-YOUR-NAME>
 
 First, add a test that reproduces the bug you have found. Then develop your
 bugfix as normal, and add tests to check your changes actually fix the bug.
