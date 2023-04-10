@@ -6,8 +6,7 @@
 
 /**
  * @file Kernels.hpp
- * Kernels Main functions.
- *
+ * @brief Header file for the Kernels class, which contains the main kernel functions.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-05
@@ -18,6 +17,11 @@
 
 namespace exageostat {
     namespace dataunits {
+
+        /**
+         * @class Kernels
+         * @brief A class containing the main kernel functions.
+         */
         class Kernels{
         public:
 

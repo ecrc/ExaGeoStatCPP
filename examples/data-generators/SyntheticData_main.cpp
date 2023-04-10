@@ -6,7 +6,7 @@
 
 /**
  * @file SyntheticGenerator.cpp
- *
+ * @brief This file contains the main function for generating synthetic data for ExaGeoStat.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-04
@@ -17,28 +17,45 @@
 
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
-using namespace std;
+using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+using namespace std;
 
+/**
+ * @brief The main function of the program.
+ *
+ * This function generates synthetic data for ExaGeoStat using the provided command line arguments.
+ *
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ * @return The status code of the program.
+ */
 int main(int argc, char **argv) {
+    // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator> syntheticGenerator;
 
-    // Object has automatic storage duration (usually is on the stack)
+    // Create a new SyntheticDataConfigurations object with the provided command line arguments
     auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
+    // Create the DataGenerator object
     syntheticGenerator = syntheticGenerator->CreateGenerator(syntheticDataConfigurations);
+
+    // Initialize the locations of the generated data
     syntheticGenerator->InitializeLocations();
 
+    // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
     struct DataPointers{
         double *x;
         double *y;
         double *z;
     }dataPointers;
 
+    // Set the pointers in the DataPointers struct to the location coordinates of the generated data
     dataPointers.x = syntheticGenerator->GetLocations()->GetLocationX();
     dataPointers.y = syntheticGenerator->GetLocations()->GetLocationY();
     dataPointers.z = syntheticGenerator->GetLocations()->GetLocationZ();
 
+    // Print the generated location coordinates
     cout << "Generated Locations are .. " << endl;
     int timeSlot;
     if (syntheticDataConfigurations->GetDimension() != DimensionST){
@@ -54,6 +71,7 @@ int main(int argc, char **argv) {
         }
         cout << endl;
     }
-
+    // Clean up memory
+    delete syntheticDataConfigurations;
     return 0;
 }

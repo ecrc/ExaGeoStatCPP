@@ -19,11 +19,14 @@
 
 #include <iostream>
 #include <configurations/data-generation/DataConfigurations.hpp>
-#include <data-units/Helpers.hpp>
 
 namespace exageostat {
     namespace configurations {
         namespace data_configurations {
+            /**
+             * @class SyntheticDataConfigurations
+             * @brief A class for configuring synthetic data generation.
+             */
             class SyntheticDataConfigurations : public DataConfigurations {
 
             public:
@@ -33,80 +36,70 @@ namespace exageostat {
                 SyntheticDataConfigurations() = default;
 
                 /**
-                * @brief Command line constructor.
+                * @brief Constructor that takes command line arguments.
+                * @param argc The number of arguments being passed into the program from the command line.
+                * @param argv The array of arguments.
                 */
                 SyntheticDataConfigurations(int argc, char **argv);
 
                 /**
-                * @brief JSON file constructor.
+                * @brief Constructor that takes a JSON file path.
+                * @param JSON_path The path to the JSON file.
                 */
-                SyntheticDataConfigurations(std::string JSON_path);
+                explicit SyntheticDataConfigurations(std::string JSON_path);
 
                 /**
                  * @brief Virtual destructor to allow calls to the correct concrete destructor.
                  */
-                virtual ~SyntheticDataConfigurations() = default;
+                ~SyntheticDataConfigurations() override = default;
 
                 /**
-                 * @brief
-                 * Set default values for input arguments
-                 *
-                 * @param[in] argc
-                 * The number of arguments being passed into your program from the command line.
-                 *
-                 * @param[in] argv
-                 * The array of arguments.
-                 *
+                 * @brief Set default values for input arguments.
+                 * @param[in] argc The number of arguments being passed into the program from the command line.
+                 * @param[in] argv The array of arguments.
                  */
                 void InitializeArguments(int argc, char **argv) override;
 
                 /**
-                 * @brief Print the usage and accepted Arguments.
+                 * @brief Print the usage and accepted arguments.
                  */
-                void
-                PrintUsage() override;
+                void PrintUsage() override;
 
                 /**
-                 * @brief Dimension setter.
-                 * @param aDimension
+                 * @brief Setter for the dimension.
+                 * @param aDimension The dimension to set.
                  */
-                void
-                SetDimension(exageostat::dataunits::Dimension aDimension);
+                void SetDimension(exageostat::common::Dimension aDimension);
 
                 /**
-                 * @brief Dimension getter.
-                 * @return mDimension
+                 * @brief Getter for the dimension.
+                 * @return The current dimension.
                  */
-                exageostat::dataunits::Dimension
-                GetDimension();
+                exageostat::common::Dimension GetDimension();
 
                 /**
-                 * @brief PGrid setter.
-                 * @param aPGrid
+                 * @brief Checks the value of the dimension parameter.
+                 * @param aDimension A string representing the dimension.
+                 * @return The corresponding dimension value.
                  */
-                void
-                SetPGrid(int aPGrid);
+                static exageostat::common::Dimension CheckDimensionValue(const std::string& aDimension);
 
                 /**
-                 * @brief PGrid getter.
-                 * @return mPGrid
+                 * @brief Checks the value of the unknown observations parameter.
+                 * @param aValue A string representing the number of unknown observations.
+                 * @return The corresponding integer value.
                  */
-                int
-                GetPGrid();
-
-                exageostat::dataunits::Dimension CheckDimensionValue(std::string aDimension);
+                int CheckUnknownObservationsValue(std::string aValue);
 
             private:
-                /// Used Dimension.
-                exageostat::dataunits::Dimension mDimension;
-                /// Used PGrid.
-                int mPGrid;
-                /// Used Location X.
-                double *mpLocationX;
-                /// Used Location Y.
-                double *mpLocationY;
-                /// Used Location Z.
-                double *mpLocationZ;
+                /// The dimension used for data generation.
+                exageostat::common::Dimension mDimension = common::Dimension2D;
+                /// The X coordinates of the locations.
+                double *mpLocationX{};
+                /// The Y coordinates of the locations.
+                double *mpLocationY{};
+                /// The Z coordinates of the locations.
+                double *mpLocationZ{};
 
             };
 

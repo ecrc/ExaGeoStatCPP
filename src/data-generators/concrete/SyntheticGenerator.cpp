@@ -1,7 +1,7 @@
 
 /**
  * @file SyntheticGenerator.cpp
- *
+ * @brief Implementation of the SyntheticGenerator class
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -13,6 +13,7 @@
 
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
+using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 
 SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {

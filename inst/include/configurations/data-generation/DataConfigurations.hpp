@@ -8,8 +8,8 @@
 
 /**
  * @file DataConfigurations.hpp
- *
  * @version 1.0.0
+ * @brief Contains the definition of the DataConfigurations class for configuring data settings in ExaGeoStat.
  * @author Sameh Abdulah
  * @date 2023-02-03
 **/
@@ -24,47 +24,53 @@ namespace exageostat {
     namespace configurations {
         namespace data_configurations {
 
+        /**
+         * @class DataConfigurations
+         *
+         * @brief A class for configuring data settings in ExaGeoStat.
+         */
             class DataConfigurations : public Configurations {
 
             public:
                 /**
-                 * @brief Kernel setter.
-                 * @param aKernel
+                 * @brief Setter for the kernel.
+                 *
+                 * @param aKernel The kernel to set.
                  */
-                void
-                SetKernel(std::string aKernel);
+                void SetKernel(std::string aKernel);
 
                 /**
-                 * @brief Kernel getter.
-                 * @return mKernel
+                 * @brief Getter for the kernel.
+                 *
+                 * @return The kernel.
                  */
-                std::string
-                GetKernel();
+                std::string GetKernel();
 
                 /**
-                 * @brief Check Kernel value.
-                 * @param aKernel
+                 * @brief Checks if the kernel value is valid.
+                 *
+                 * @param aKernel The kernel to check.
                  */
-                void CheckKernelValue(std::string aKernel);
+                static void CheckKernelValue(const std::string& aKernel);
 
                 /**
-                 * @brief Kernel setter.
-                 * @param aKernel
+                 * @brief Setter for the data type.
+                 *
+                 * @param aIsSynthetic The type of data to set.
                  */
-                void
-                SetIsSynthetic(bool aIsSynthetic);
+                void SetIsSynthetic(bool aIsSynthetic);
 
                 /**
-                 * @brief Kernel getter.
-                 * @return mKernel
+                 * @brief Getter for the data type.
+                 *
+                 * @return The data type.
                  */
-                bool
-                GetIsSynthetic();
+                bool GetIsSynthetic() const;
 
             protected:
-                /// Used Kernel.
+                /// The kernel to use.
                 std::string mKernel;
-                /// Used type of data.
+                /// The type of data to use.
                 bool mIsSynthetic = false;
             };
 

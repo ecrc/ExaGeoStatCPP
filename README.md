@@ -127,34 +127,17 @@ please follow these instructions:
 
         cd exageostat
 
-3.  Get submodules
+3.  Run help of config.sh to know the needed arguments to run with your specific options.
 
-        git submodule update --init --recursive
+        ./config.sh --help
 
-4.  Create build directory and go there
+4.  Run clean_build.sh
 
-        mkdir build && cd build
+        ./clean_build.sh
 
-5.  Use CMake to get all the dependencies
+10. Export the installations paths of the dependencies, Usually it will be
 
-        cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/  -DEXAGEOSTAT_SCHED_STARPU=ON   -DEXAGEOSTAT_USE_NETCDF=ON -DEXAGEOSTAT_USE_HICMA=ON
-
-
-6.  Build EXAGEOSTAT
-
-        make -j
-
-8.  Build local documentation (optional)
-
-        make docs
-
-9.  Install EXAGEOSTAT
-
-        make install
-
-10. Add line
-
-        export PKG_CONFIG_PATH=/path/to/install/lib/pkgconfig:$PKG_CONFIG_PATH
+        export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH
 
     to your .bashrc file.
 

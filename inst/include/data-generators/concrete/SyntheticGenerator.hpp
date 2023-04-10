@@ -1,7 +1,7 @@
 
 /**
  * @file SyntheticGenerator.hpp
- *
+ * @brief A class for generating synthetic data.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -16,6 +16,10 @@ namespace exageostat {
     namespace generators {
         namespace Synthetic {
 
+            /**
+             * @class SyntheticGenerator
+             * @brief A class for generating synthetic data.
+             */
             class SyntheticGenerator : public DataGenerator {
             public:
 
@@ -98,7 +102,6 @@ namespace exageostat {
                  *
                  */
                 uint64_t SpreadBits(uint64_t aInputByte);
-
                 /**
                  * @brief
                  * Reverse Spread bits operation.
@@ -128,12 +131,7 @@ namespace exageostat {
                  *
                  */
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
-
-            private:
-
-
             };
-
         }//namespace Synthetic
     }//namespace generators
 }//namespace exageostat
