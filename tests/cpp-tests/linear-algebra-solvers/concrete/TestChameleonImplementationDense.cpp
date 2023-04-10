@@ -30,6 +30,12 @@ void INIT_HARDWARE() {
     CHAM_context_t *chameleonContext = chameleon_context_self();
     REQUIRE(chameleonContext != nullptr);
 }
+void FINALIZE_HARDWARE() {
+    ChameleonImplementationDense<double> chameleonImpl;
+    chameleonImpl.ExaGeoStatInitContext(4, 0);
+    chameleonImpl.ExaGeoStatFinalizeContext();
+    REQUIRE(chameleon_context_self() == nullptr);
+}
 
 // Test that the function initializes all the required descriptors without errors.
 void TEST_INITIALIZETION() {
@@ -154,7 +160,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descriptorDeterminant->j == 0);
         REQUIRE(CHAM_descriptorProduct->j == 0);
 
-        cout <<"\n N: " << N << endl;
         REQUIRE(CHAM_descriptorC->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
@@ -497,6 +502,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
 
 TEST_CASE("Chameleon Implementation Dense") {
     INIT_HARDWARE();
+    FINALIZE_HARDWARE();
     TEST_INITIALIZETION();
     TEST_CHAMELEON_DESCRIPTORS_VALUES();
 }

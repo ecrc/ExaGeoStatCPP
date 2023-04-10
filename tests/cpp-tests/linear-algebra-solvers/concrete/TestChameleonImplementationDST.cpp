@@ -31,6 +31,12 @@ void INIT_HARDWARE_DST() {
     CHAM_context_t *chameleonContext = chameleon_context_self();
     REQUIRE(chameleonContext != nullptr);
 }
+void FINALIZE_HARDWARE_DST() {
+    ChameleonImplementationDST<double> chameleonImpl;
+    chameleonImpl.ExaGeoStatInitContext(4, 0);
+    chameleonImpl.ExaGeoStatFinalizeContext();
+    REQUIRE(chameleon_context_self() == nullptr);
+}
 
 // Test that the function initializes all the required descriptors without errors.
 void TEST_INITIALIZETION_DST() {
@@ -376,6 +382,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 
 TEST_CASE("Chameleon Implementation DST") {
     INIT_HARDWARE_DST();
+    FINALIZE_HARDWARE_DST();
     TEST_INITIALIZETION_DST();
     TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 }
