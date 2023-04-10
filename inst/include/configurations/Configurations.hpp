@@ -263,13 +263,13 @@ namespace exageostat {
              * @param aMeanSquareError
              */
             void
-            SetMeanSquareError(int aMeanSquareError);
+            SetMeanSquareError(double aMeanSquareError);
 
             /**
              * @brief Mean square error value getter.
              * @return mMeanSquareError
              */
-            int
+            double
             GetMeanSquareError();
 
             /**
@@ -446,7 +446,7 @@ namespace exageostat {
 
         protected:
             /// Used Problem size.
-            int mProblemSize;
+            int mProblemSize = 0;
             /// Used Time slot.
             int mTimeSlot = 1;
             /// Used PGrid.
@@ -460,21 +460,21 @@ namespace exageostat {
             /// Used P.
             int mP = 1;
             //// Used Dense Tile Size.
-            int mDenseTileSize = 1;
+            int mDenseTileSize = 0;
             //// Used Low Tile Size.
-            int mLowTileSize = 1;
+            int mLowTileSize = 0;
             //// Used Out of core technology.
             bool mIsOOC = false;
             //// Used max rank
             int mMaxRank = 1;
-            //// Used number of unknown observation to be predicted
+            //// Used number of unknown observation to be predicted - NZmiss
             int mUnknownObservationsNumber = 0;
-            //// Used number of known observed values.
+            //// Used number of known observed values. -nZobs
             int mKnownObservationsValues = 0;
             //// Used Approximation mode values.
             int mApproximationMode = 0;
             //// Used Mean Square Error values.
-            int mMeanSquareError = 0;
+            double mMeanSquareError = 0.0;
             //// Determinant value.
             double mDeterminantValue = 0.0;
             //// Used Actual observations file path in the case of prediction value.

@@ -190,11 +190,11 @@ void Configurations::SetApproximationMode(int aApproximationMode) {
     this->mApproximationMode = aApproximationMode;
 }
 
-int Configurations::GetMeanSquareError() {
+double Configurations::GetMeanSquareError() {
     return this->mMeanSquareError;
 }
 
-void Configurations::SetMeanSquareError(int aMeanSquareError) {
+void Configurations::SetMeanSquareError(double aMeanSquareError) {
     this->mMeanSquareError = aMeanSquareError;
 }
 

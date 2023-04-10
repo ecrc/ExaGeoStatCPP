@@ -5,6 +5,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ImportOpenMP.cmake
+# @brief Find and include OpenMP library as a dependency.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-13
@@ -14,13 +15,18 @@ option(USE_OPENMP "Use OpenMP, if available" true)
 if (NOT USE_OPENMP)
     message(STATUS "User has requested to NOT use OpenMP")
 else ()
+    # Try to find OpenMP.
     find_package(OpenMP QUIET)
-    IF (OPENMP_FOUND)
+
+    # If OpenMP is found, enable it for the project.
+    if (OPENMP_FOUND)
         SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        set(LIBS
-                OpenMP::OpenMP_CXX
-                ${LIBS}
-                )
-    ENDIF ()
+        set(LIBS OpenMP::OpenMP_CXX ${LIBS})
+        message("   Found OpenMP: ${OpenMP_CXX_FLAGS}")
+    else()
+        message("   OpenMP not found")
+    endif ()
 endif ()
+
+message(STATUS "OpenMP done")

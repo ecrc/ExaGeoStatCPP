@@ -41,7 +41,6 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     string argumentName;
     string argumentValue;
     int equalSignIdx;
-    int numericalValue;
 
     // Skipping first argument as it's the example name.
     for (int i = 1; i < argc; ++i) {
@@ -55,24 +54,37 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             argumentValue = argument.substr(equalSignIdx + 1);
 
             if (argumentName == "--N" || argumentName == "--n") {
-                numericalValue = CheckNumericalValue(argumentValue);
-                SetProblemSize(numericalValue);
+                SetProblemSize(CheckNumericalValue(argumentValue));
             } else if (argumentName == "--Kernel" || argumentName == "--kernel") {
                 CheckKernelValue(argumentValue);
                 SetKernel(argumentValue);
             } else if (argumentName == "--Dimension" || argumentName == "--dimension"
                        || argumentName == "--dim" || argumentName == "--Dim") {
                 SetDimension(CheckDimensionValue(argumentValue));
-            } else if (argumentName == "--P" || argumentName == "--p") {
-                numericalValue = CheckNumericalValue(argumentValue);
-                SetPGrid(numericalValue);
+            } else if (argumentName == "--PGrid" || argumentName == "--pGrid" || argumentName == "--pgrid") {
+                SetPGrid(CheckNumericalValue(argumentValue));
+            }else if (argumentName == "--QGrid" || argumentName == "--qGrid" || argumentName == "--qgrid") {
+                SetQGrid(CheckNumericalValue(argumentValue));
             } else if (argumentName == "--TimeSlot" || argumentName == "--timeslot") {
-                numericalValue = CheckNumericalValue(argumentValue);
-                SetTimeSlot(numericalValue);
+                SetTimeSlot( CheckNumericalValue(argumentValue));
             } else if (argumentName == "--Computation" || argumentName == "--computation") {
                 SetComputation(CheckComputationValue(argumentValue));
             } else if (argumentName == "--precision" || argumentName == "--Precision") {
                 SetPrecision(CheckPrecisionValue(argumentValue));
+            } else if (argumentName == "--cores" || argumentName == "--coresNumber") {
+                SetCoresNumber(CheckNumericalValue(argumentValue));
+            } else if (argumentName == "--Gpus" || argumentName == "--GPUsNumbers") {
+                SetGPUsNumber(CheckNumericalValue(argumentValue));
+            } else if (argumentName == "--DTS" || argumentName == "--dts" || argumentName == "--Dts") {
+                SetDenseTileSize(CheckNumericalValue(argumentValue));
+            } else if (argumentName == "--LTS" || argumentName == "--lts" || argumentName == "--Lts") {
+                SetLowTileSize(CheckNumericalValue(argumentValue));
+            } else if (argumentName == "--maxRank" || argumentName == "--maxrank") {
+                SetMaxRank(CheckNumericalValue(argumentValue));
+            } else if (argumentName == "--ZmissNumber" || argumentName == "--Zmiss") {
+                SetUnknownObservationsNb(CheckUnknownObservationsValue(argumentValue));
+            } else if (argumentName == "--ObservationsFile" || argumentName == "--observationsfile") {
+                SetActualObservationsFilePath(argumentValue);
             }
             else {
                 cout << "!! " << argumentName << " !!" << endl;
@@ -80,18 +92,39 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                         "This argument is undefined, Please use --help to print all available arguments");
             }
         }
-            // If none then, just set the argument to True.
+        // If none then, just set the argument to True.
         else {
             if (argumentName == "--help") {
                 PrintUsage();
             }
             if (argumentName == "--syntheticData") {
                 SetIsSynthetic(true);
+            } else if (argumentName == "--OOC") {
+                SetIsOOC(true);
+            } else if (argumentName == "--ApproximationMode" || argumentName == "--approximationmode") {
+                SetApproximationMode(true);
             } else {
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");
             }
         }
+    }
+    // Throw Errors if any of these arguments aren't given by the user.
+    if(GetProblemSize() == 0){
+        throw domain_error("You need to set the problem size, before starting");
+    }
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    if(GetDenseTileSize() == 0){
+        throw domain_error("You need to set the Dense tile size, before starting");
+    }
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+    if(GetLowTileSize() == 0){
+        throw domain_error("You need to set the Low tile size, before starting");
+    }
+#endif
+    if(GetKernel().empty()){
+        throw domain_error("You need to set the Kernel, before starting");
     }
 }
 
@@ -100,11 +133,21 @@ void SyntheticDataConfigurations::PrintUsage() {
     cout << "\t\t --N=value : Problem size." << endl;
     cout << "\t\t --Kernel=value : Used Kernel." << endl;
     cout << "\t\t --Dimension=value : Used Dimension." << endl;
-    cout << "\t\t --P=value : Used P-Grid." << endl;
+    cout << "\t\t --PGrid=value : Used P-Grid." << endl;
+    cout << "\t\t --QGrid=value : Used P-Grid." << endl;
     cout << "\t\t --TimeSlot=value : Time slot value for ST." << endl;
     cout << "\t\t --Computation=value : Used computation" << endl;
     cout << "\t\t --Precision=value : Used precision" << endl;
-    cout << "\t\t --syntheticData : Used to enable generating synthetic data." << endl;
+    cout << "\t\t --CoresNumber=value : Used to set the number of cores." << endl;
+    cout << "\t\t --GPUsNumber=value : Used to set the number of GPUs." << endl;
+    cout << "\t\t --Dts=value : Used to set the Dense Tile size." << endl;
+    cout << "\t\t --Lts=value : Used to set the Low Tile size." << endl;
+    cout << "\t\t --MaxRank=value : Used to the max rank value." << endl;
+    cout << "\t\t --ZmissNumber=value : Used to set number of unknown observation to be predicted." << endl;
+    cout << "\t\t --ObservationsFile=PATH/TO/File : Used to path the observations file path." << endl;
+    cout << "\t\t --SyntheticData : Used to enable generating synthetic data." << endl;
+    cout << "\t\t --OOC : Used to enable Out of core technology." << endl;
+    cout << "\t\t --ApproximationMode : Used to enable Approximation mode." << endl;
     cout << "\n\n";
 
     exit(0);
@@ -134,8 +177,9 @@ Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
     return DimensionST;
 }
 
-//if (nZmiss >= N)
-//{
-//printf("please use nZmiss < N!!\n");
-//exit(0);
-//}
+int SyntheticDataConfigurations::CheckUnknownObservationsValue(string aValue) {
+    int value = CheckNumericalValue(aValue);
+    if (value >= GetProblemSize()){
+        throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
+    }
+}

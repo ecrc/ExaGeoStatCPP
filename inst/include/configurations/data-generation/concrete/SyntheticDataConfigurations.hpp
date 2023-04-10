@@ -80,6 +80,7 @@ namespace exageostat {
                 GetDimension();
 
                 exageostat::common::Dimension CheckDimensionValue(std::string aDimension);
+                int CheckUnknownObservationsValue(std::string aValue);
 
             private:
                 /// Used Dimension.

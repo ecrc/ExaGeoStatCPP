@@ -63,7 +63,7 @@ namespace exageostat {
 
             protected:
                 /// Used Kernel.
-                std::string mKernel;
+                std::string mKernel = "";
                 /// Used type of data.
                 bool mIsSynthetic = false;
             };

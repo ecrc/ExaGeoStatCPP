@@ -5,6 +5,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ImportSTARPU.cmake
+# @brief Find and include STARPU library as a dependency.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-13
@@ -16,13 +17,15 @@ message(STATUS "Checking for StarPU")
 include(macros/BuildSTARPU)
 
 if (NOT TARGET STARPU)
+    # Try to find STARPU.
     include(FindPkgConfig)
     find_package(PkgConfig QUIET)
-
     find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_LIST})
 
+    # If STARPU is found, print its location.
     if (STARPU_FOUND)
         message("   Found StarPU: ${STARPU_LIBRARIES}")
+        # If not found, install it.
     else ()
         set(STARPU_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/)
         BuildStarPU(STARPU "https://gitlab.inria.fr/starpu/starpu.git" "starpu-1.3.9")
@@ -32,12 +35,14 @@ else ()
     message("   STARPU already included")
 endif ()
 
-list(APPEND LIBS  ${STARPU_LIBRARIES})
+# Include STARPU headers.
+list(APPEND LIBS ${STARPU_LIBRARIES})
 link_directories(${STARPU_LIBRARY_DIRS_DEP})
 include_directories(${STARPU_INCLUDE_DIRS})
 include_directories(${STARPU_INCLUDE_DIRS}/runtime/starpu)
-
 include_directories(${STARPU_INCLUDE_DIRS_DEP})
+
+# Set linker flags.
 if (STARPU_LINKER_FLAGS)
     list(APPEND CMAKE_EXE_LINKER_FLAGS "${STARPU_LINKER_FLAGS}")
 endif ()
