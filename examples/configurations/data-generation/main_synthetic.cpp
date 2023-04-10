@@ -24,6 +24,16 @@ using namespace std;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 
+/**
+ * @brief The main function of the program.
+ *
+ * This function demonstrates how to use the SyntheticDataConfigurations class from the ExaGeoStat software package
+ * to obtain user-defined configurations for generating synthetic data.
+ *
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ * @return The status code of the program.
+ */
 int main(int argc, char **argv) {
 
     // Create an instance of the SyntheticDataConfigurations class with user-defined configurations.
@@ -76,8 +86,7 @@ int main(int argc, char **argv) {
     } else if (precision == MIXED) {
         cout << "You set precision to: MIXED PRECISION" << endl;
     }
-
-    // Delete the instance of the SyntheticDataConfigurations class.
+    // Clean up memory
     delete syntheticDataConfigurations;
     return 0;
 }
