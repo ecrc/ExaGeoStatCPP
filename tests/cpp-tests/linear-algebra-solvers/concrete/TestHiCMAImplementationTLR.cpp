@@ -36,12 +36,13 @@ void INIT_HARDWARE_TLR() {
 void TEST_INITIALIZETION_TLR() {
     auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
 
-    SECTION("Double") {
+    SECTION("Double without NZmiss") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        syntheticDataConfigurations->SetProblemSize(1024);
-        syntheticDataConfigurations->SetLowTileSize(64);
+        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetLowTileSize(512);
         linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
 
         REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() == nullptr);
         REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() == nullptr);
@@ -49,325 +50,311 @@ void TEST_INITIALIZETION_TLR() {
         REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() == nullptr);
         REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() == nullptr);
 
-//        linearAlgebraSolver->InitiateDescriptors();
+        linearAlgebraSolver->InitiateDescriptors();
 
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
-//
-//        for (auto &descriptorC: syntheticDataConfigurations->GetDescriptorC()) {
-//            REQUIRE(descriptorC != nullptr);
-//        }
-//        for (auto &i: syntheticDataConfigurations->GetDescriptorZ()) {
-//            REQUIRE(i != nullptr);
-//        }
-//        for (auto &i: syntheticDataConfigurations->GetDescriptorCD()) {
-//            REQUIRE(i != nullptr);
-//        }
-//        for (auto &i: syntheticDataConfigurations->GetDescriptorCUV()) {
-//            REQUIRE(i != nullptr);
-//        }
-//        for (auto &i: syntheticDataConfigurations->GetDescriptorCrk()) {
-//            REQUIRE(i != nullptr);
-//        }
-         // Since HiCMA doesn't need product descriptor
-//        for (auto &i: syntheticDataConfigurations->GetDescriptorProduct()) {
-//            REQUIRE(i == nullptr);
-//        }
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() != nullptr);
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() != nullptr);
-//        REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() != nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
+
+        for (auto &descriptorC: syntheticDataConfigurations->GetDescriptorC()) {
+            REQUIRE(descriptorC != nullptr);
+        }
+        for (auto &i: syntheticDataConfigurations->GetDescriptorZ()) {
+            REQUIRE(i != nullptr);
+        }
+        if(nZmiss != 0){
+            for (auto &i: syntheticDataConfigurations->GetDescriptorCD()) {
+                REQUIRE(i != nullptr);
+            }
+            for (auto &i: syntheticDataConfigurations->GetDescriptorCUV()) {
+                REQUIRE(i != nullptr);
+            }
+            for (auto &i: syntheticDataConfigurations->GetDescriptorCrk()) {
+                REQUIRE(i != nullptr);
+            }
+            REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() != nullptr);
+            REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() != nullptr);
+            REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() != nullptr);
+        }
+        // Since HiCMA doesn't need product descriptor
+        for (auto &i: syntheticDataConfigurations->GetDescriptorProduct()) {
+            REQUIRE(i == nullptr);
+        }
+
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
+    }
+    SECTION("Double WITH NZmiss") {
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
+
+        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetLowTileSize(512);
+        syntheticDataConfigurations->SetUnknownObservationsNb(10);
+        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
+
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() == nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() == nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() == nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() == nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() == nullptr);
+
+        linearAlgebraSolver->InitiateDescriptors();
+
+        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
+
+        for (auto &descriptorC: syntheticDataConfigurations->GetDescriptorC()) {
+            REQUIRE(descriptorC != nullptr);
+        }
+        for (auto &i: syntheticDataConfigurations->GetDescriptorZ()) {
+            REQUIRE(i != nullptr);
+        }
+        if(nZmiss != 0){
+            for (auto &i: syntheticDataConfigurations->GetDescriptorCD()) {
+                REQUIRE(i != nullptr);
+            }
+            for (auto &i: syntheticDataConfigurations->GetDescriptorCUV()) {
+                REQUIRE(i != nullptr);
+            }
+            for (auto &i: syntheticDataConfigurations->GetDescriptorCrk()) {
+                REQUIRE(i != nullptr);
+            }
+            REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() != nullptr);
+            REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() != nullptr);
+            REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() != nullptr);
+        }
+        // Since HiCMA doesn't need product descriptor
+        for (auto &i: syntheticDataConfigurations->GetDescriptorProduct()) {
+            REQUIRE(i == nullptr);
+        }
+
+        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
+        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
     }
 }
 
-//Test that the function initializes the CHAM_descriptorC descriptor correctly.
-//void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
-//    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
-//
-//    SECTION("SINGLE") {
-//        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
-//
-//        syntheticDataConfigurations->SetProblemSize(6400);
-//        syntheticDataConfigurations->SetDenseTileSize(512);
-//        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
-//
-//        linearAlgebraSolver->InitiateDescriptors();
-//        auto *CHAM_descriptorC = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorC()[0];
-//        auto *CHAM_descriptorZ = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZ()[0];
-//        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZcpy();
-//        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorDeterminant();
-//        auto *CHAM_descriptorProduct = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorProduct()[0];
-//
-//        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
-//        int dts = syntheticDataConfigurations->GetDenseTileSize();
-//        int pGrid = syntheticDataConfigurations->GetPGrid();
-//        int qGrid = syntheticDataConfigurations->GetQGrid();
-//
-//        REQUIRE(CHAM_descriptorC->m == N);
-//        REQUIRE(CHAM_descriptorZ->m == N);
-//        REQUIRE(CHAM_descriptorZcpy->m == N);
-//        REQUIRE(CHAM_descriptorDeterminant->m == 1);
-//        REQUIRE(CHAM_descriptorProduct->m == 1);
-//
-//        REQUIRE(CHAM_descriptorC->n == N);
-//        REQUIRE(CHAM_descriptorZ->n == 1);
-//        REQUIRE(CHAM_descriptorZcpy->n == 1);
-//        REQUIRE(CHAM_descriptorDeterminant->n == 1);
-//        REQUIRE(CHAM_descriptorProduct->n == 1);
-//
-//        REQUIRE(CHAM_descriptorC->mb == dts);
-//        REQUIRE(CHAM_descriptorZ->mb == dts);
-//        REQUIRE(CHAM_descriptorZcpy->mb == dts);
-//        REQUIRE(CHAM_descriptorDeterminant->mb == dts);
-//        REQUIRE(CHAM_descriptorProduct->mb == dts);
-//
-//        REQUIRE(CHAM_descriptorC->nb == dts);
-//        REQUIRE(CHAM_descriptorZ->nb == dts);
-//        REQUIRE(CHAM_descriptorZcpy->nb == dts);
-//        REQUIRE(CHAM_descriptorDeterminant->nb == dts);
-//        REQUIRE(CHAM_descriptorProduct->nb == dts);
-//
-//        REQUIRE(CHAM_descriptorC->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorZ->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorZcpy->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorDeterminant->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorProduct->bsiz == dts * dts);
-//
-//        REQUIRE(CHAM_descriptorC->i == 0);
-//        REQUIRE(CHAM_descriptorZ->i == 0);
-//        REQUIRE(CHAM_descriptorZcpy->i == 0);
-//        REQUIRE(CHAM_descriptorDeterminant->i == 0);
-//        REQUIRE(CHAM_descriptorProduct->i == 0);
-//
-//        REQUIRE(CHAM_descriptorC->j == 0);
-//        REQUIRE(CHAM_descriptorZ->j == 0);
-//        REQUIRE(CHAM_descriptorZcpy->j == 0);
-//        REQUIRE(CHAM_descriptorDeterminant->j == 0);
-//        REQUIRE(CHAM_descriptorProduct->j == 0);
-//
-//        REQUIRE(CHAM_descriptorC->mt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorDeterminant->mt == 1);
-//        REQUIRE(CHAM_descriptorProduct->mt == 1);
-//
-//        REQUIRE(CHAM_descriptorC->nt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorZ->nt == 1);
-//        REQUIRE(CHAM_descriptorZcpy->nt == 1);
-//        REQUIRE(CHAM_descriptorDeterminant->nt == 1);
-//        REQUIRE(CHAM_descriptorProduct->nt == 1);
-//
-//        REQUIRE(CHAM_descriptorC->lm == N);
-//        REQUIRE(CHAM_descriptorZ->lm == N);
-//        REQUIRE(CHAM_descriptorZcpy->lm == N);
-//        REQUIRE(CHAM_descriptorDeterminant->lm == 1);
-//        REQUIRE(CHAM_descriptorProduct->lm == 1);
-//
-//        REQUIRE(CHAM_descriptorC->ln == N);
-//        REQUIRE(CHAM_descriptorZ->ln == 1);
-//        REQUIRE(CHAM_descriptorZcpy->ln == 1);
-//        REQUIRE(CHAM_descriptorDeterminant->ln == 1);
-//        REQUIRE(CHAM_descriptorProduct->ln == 1);
-//
-//        REQUIRE(CHAM_descriptorC->p == pGrid);
-//        REQUIRE(CHAM_descriptorZ->p == pGrid);
-//        REQUIRE(CHAM_descriptorZcpy->p == pGrid);
-//        REQUIRE(CHAM_descriptorDeterminant->p == pGrid);
-//        REQUIRE(CHAM_descriptorProduct->p == pGrid);
-//
-//        REQUIRE(CHAM_descriptorC->q == qGrid);
-//        REQUIRE(CHAM_descriptorZ->q == qGrid);
-//        REQUIRE(CHAM_descriptorZcpy->q == qGrid);
-//        REQUIRE(CHAM_descriptorDeterminant->q == qGrid);
-//        REQUIRE(CHAM_descriptorProduct->q == qGrid);
-//
-//
-//        auto *mat = (float *) CHAM_descriptorC->mat;
-//        for (auto i = 0;
-//             i < (CHAM_descriptorC->mt - 1) * (CHAM_descriptorC->nt - 1) * (CHAM_descriptorC->bsiz - 1); i++) {
-//            REQUIRE(mat[i] == 0.0f);
-//        }
-//
-//        mat = (float *) CHAM_descriptorZ->mat;
-//        auto *matZcpy = (float *) CHAM_descriptorZcpy->mat;
-//        for (auto i = 0;
-//             i < (CHAM_descriptorZ->mt - 1) * (CHAM_descriptorZ->nt - 1) * (CHAM_descriptorZ->bsiz - 1); i++) {
-//            REQUIRE(mat[i] == 0.0f);
-//            REQUIRE(matZcpy[i] == 0.0f);
-//        }
-//
-//        mat = (float *) CHAM_descriptorDeterminant->mat;
-//        auto *matProduct = (float *) CHAM_descriptorProduct->mat;
-//        for (auto i = 0; i < (CHAM_descriptorDeterminant->mt - 1) * (CHAM_descriptorDeterminant->nt - 1) *
-//                             (CHAM_descriptorDeterminant->bsiz - 1); i++) {
-//            REQUIRE(mat[i] == 0.0f);
-//            REQUIRE(matProduct[i] == 0.0f);
-//        }
-//    }
-//
-//    SECTION("DOUBLE") {
+//Test that the function initializes the (*HICMA_descriptorC) descriptor correctly.
+void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
+    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
+
+//    SECTION("DOUBLE without NZmiss") {
 //        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 //
 //        syntheticDataConfigurations->SetProblemSize(6400);
-//        syntheticDataConfigurations->SetDenseTileSize(512);
+//        syntheticDataConfigurations->SetLowTileSize(512);
+//        syntheticDataConfigurations->SetApproximationMode(1);
 //        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
 //
 //        linearAlgebraSolver->InitiateDescriptors();
-//        auto *CHAM_descriptorC = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorC()[0];
-//        auto *CHAM_descriptorZ = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZ()[0];
-//        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZcpy();
-//        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorDeterminant();
-//        vector<void *> &pDescriptorProduct = syntheticDataConfigurations->GetDescriptorProduct();
 //
+//        auto **HICMA_descriptorC = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorC()[0];
+//        auto **HICMA_descriptorZcpy = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZcpy();
+//        auto **HICMA_descriptorDeterminant = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorDeterminant();
+//        auto **HICMA_descriptorCD = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCD()[0];
+//        auto **HICMA_descriptorCUV = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCUV()[0];
+//        auto **HICMA_descriptorCrk = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCrk()[0];
+//        int approximationMode = syntheticDataConfigurations->GetApproximationMode();
 //        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
-//        int dts = syntheticDataConfigurations->GetDenseTileSize();
+//        int lts = syntheticDataConfigurations->GetLowTileSize();
 //        int pGrid = syntheticDataConfigurations->GetPGrid();
 //        int qGrid = syntheticDataConfigurations->GetQGrid();
+//        int maxRank = syntheticDataConfigurations->GetMaxRank();
+//        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
+//        double meanSquareError = syntheticDataConfigurations->GetMeanSquareError();
+//        string actualObservationsFilePath = syntheticDataConfigurations->GetActualObservationsFilePath();
+//        double determinantValue = syntheticDataConfigurations->GetDeterminantValue();
+//        int nZobs = syntheticDataConfigurations->GetKnownObservationsValues();
 //
-//        REQUIRE(CHAM_descriptorC->m == N);
-//        REQUIRE(CHAM_descriptorZ->m == N);
-//        REQUIRE(CHAM_descriptorZcpy->m == N);
-//        REQUIRE(CHAM_descriptorDeterminant->m == 1);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->m == 1);
+//        if(approximationMode == 1){
+//            // Descriptor C.
+//            REQUIRE((*HICMA_descriptorC)->m == N);
+//            REQUIRE((*HICMA_descriptorC)->n == N);
+//            REQUIRE((*HICMA_descriptorC)->mb == lts);
+//            REQUIRE((*HICMA_descriptorC)->nb == lts);
+//            REQUIRE((*HICMA_descriptorC)->bsiz == lts * lts);
+//            REQUIRE((*HICMA_descriptorC)->i == 0);
+//            REQUIRE((*HICMA_descriptorC)->j == 0);
+//            REQUIRE((*HICMA_descriptorC)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//            REQUIRE((*HICMA_descriptorC)->nt == ceil((N * 1.0) / (lts * 1.0)));
+//            REQUIRE((*HICMA_descriptorC)->lm == N);
+//            REQUIRE((*HICMA_descriptorC)->ln == N);
+//            REQUIRE((*HICMA_descriptorC)->p == pGrid);
+//            REQUIRE((*HICMA_descriptorC)->q == qGrid);
 //        }
+//        // Re-Run again but with approx mode OFF
+//        syntheticDataConfigurations->SetApproximationMode(0);
+//        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
 //
-//        REQUIRE(CHAM_descriptorC->n == N);
-//        REQUIRE(CHAM_descriptorZ->n == 1);
-//        REQUIRE(CHAM_descriptorZcpy->n == 1);
-//        REQUIRE(CHAM_descriptorDeterminant->n == 1);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->n == 1);
-//        }
+//        linearAlgebraSolver->InitiateDescriptors();
+//        approximationMode = syntheticDataConfigurations->GetApproximationMode();
+//        auto **HICMA_descriptorZ = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZ()[0];
 //
-//        REQUIRE(CHAM_descriptorC->mb == dts);
-//        REQUIRE(CHAM_descriptorZ->mb == dts);
-//        REQUIRE(CHAM_descriptorZcpy->mb == dts);
-//        REQUIRE(CHAM_descriptorDeterminant->mb == dts);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->mb == dts);
-//        }
 //
-//        REQUIRE(CHAM_descriptorC->nb == dts);
-//        REQUIRE(CHAM_descriptorZ->nb == dts);
-//        REQUIRE(CHAM_descriptorZcpy->nb == dts);
-//        REQUIRE(CHAM_descriptorDeterminant->nb == dts);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->nb == dts);
-//        }
-//
-//        REQUIRE(CHAM_descriptorC->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorZ->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorZcpy->bsiz == dts * dts);
-//        REQUIRE(CHAM_descriptorDeterminant->bsiz == dts * dts);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->bsiz == dts * dts);
-//        }
-//
-//        REQUIRE(CHAM_descriptorC->i == 0);
-//        REQUIRE(CHAM_descriptorZ->i == 0);
-//        REQUIRE(CHAM_descriptorZcpy->i == 0);
-//        REQUIRE(CHAM_descriptorDeterminant->i == 0);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->i == 0);
+//        if(approximationMode != 1){
+//            // Descriptor C.
+//            REQUIRE((*HICMA_descriptorC)->m == N);
+//            REQUIRE((*HICMA_descriptorC)->n == 1);
+//            REQUIRE((*HICMA_descriptorC)->mb == lts);
+//            REQUIRE((*HICMA_descriptorC)->nb == lts);
+//            REQUIRE((*HICMA_descriptorC)->bsiz == lts * lts);
+//            REQUIRE((*HICMA_descriptorC)->i == 0);
+//            REQUIRE((*HICMA_descriptorC)->j == 0);
+//            REQUIRE((*HICMA_descriptorC)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//            REQUIRE((*HICMA_descriptorC)->nt == 1);
+//            REQUIRE((*HICMA_descriptorC)->lm == N);
+//            REQUIRE((*HICMA_descriptorC)->ln == 1);
+//            REQUIRE((*HICMA_descriptorC)->p == pGrid);
+//            REQUIRE((*HICMA_descriptorC)->q == qGrid);
 //        }
 //
-//        REQUIRE(CHAM_descriptorC->j == 0);
-//        REQUIRE(CHAM_descriptorZ->j == 0);
-//        REQUIRE(CHAM_descriptorZcpy->j == 0);
-//        REQUIRE(CHAM_descriptorDeterminant->j == 0);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->j == 0);
-//        }
+//        // Descriptor CD.
+//        REQUIRE((*HICMA_descriptorCD)->m == N);
+//        REQUIRE((*HICMA_descriptorCD)->n == lts);
+//        REQUIRE((*HICMA_descriptorCD)->mb == lts);
+//        REQUIRE((*HICMA_descriptorCD)->nb == lts);
+//        REQUIRE((*HICMA_descriptorCD)->bsiz == lts * lts);
+//        REQUIRE((*HICMA_descriptorCD)->i == 0);
+//        REQUIRE((*HICMA_descriptorCD)->j == 0);
+//        REQUIRE((*HICMA_descriptorCD)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorCD)->nt == 1);
+//        REQUIRE((*HICMA_descriptorCD)->lm == N);
+//        REQUIRE((*HICMA_descriptorCD)->ln == lts);
+//        REQUIRE((*HICMA_descriptorCD)->p == pGrid);
+//        REQUIRE((*HICMA_descriptorCD)->q == qGrid);
 //
-//        REQUIRE(CHAM_descriptorC->mt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorDeterminant->mt == 1);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->mt == 1);
-//        }
+//        // Descriptor CUV.
+//        int MUV = N / lts * lts + lts;
+//        int expr = MUV / lts;
+//        int NUV = 2 * expr * maxRank;
+//        int NBUV = 2 * maxRank;
+//        REQUIRE((*HICMA_descriptorCUV)->m == MUV);
+//        REQUIRE((*HICMA_descriptorCUV)->n == NUV);
+//        REQUIRE((*HICMA_descriptorCUV)->mb == lts);
+//        REQUIRE((*HICMA_descriptorCUV)->nb == NBUV);
+//        REQUIRE((*HICMA_descriptorCUV)->bsiz == lts * NBUV);
+//        REQUIRE((*HICMA_descriptorCUV)->i == 0);
+//        REQUIRE((*HICMA_descriptorCUV)->j == 0);
+//        REQUIRE((*HICMA_descriptorCUV)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorCUV)->nt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorCUV)->lm == MUV);
+//        REQUIRE((*HICMA_descriptorCUV)->ln == NUV);
+//        REQUIRE((*HICMA_descriptorCUV)->p == pGrid);
+//        REQUIRE((*HICMA_descriptorCUV)->q == qGrid);
 //
-//        REQUIRE(CHAM_descriptorC->nt == ceil((N * 1.0) / (dts * 1.0)));
-//        REQUIRE(CHAM_descriptorZ->nt == 1);
-//        REQUIRE(CHAM_descriptorZcpy->nt == 1);
-//        REQUIRE(CHAM_descriptorDeterminant->nt == 1);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->nt == 1);
-//        }
+//        // Descriptor Crk.
+//        REQUIRE((*HICMA_descriptorCrk)->m == (*HICMA_descriptorCD)->mt);
+//        REQUIRE((*HICMA_descriptorCrk)->n == (*HICMA_descriptorCD)->mt);
+//        REQUIRE((*HICMA_descriptorCrk)->mb == 1);
+//        REQUIRE((*HICMA_descriptorCrk)->nb == 1);
+//        REQUIRE((*HICMA_descriptorCrk)->bsiz == 1);
+//        REQUIRE((*HICMA_descriptorCrk)->i == 0);
+//        REQUIRE((*HICMA_descriptorCrk)->j == 0);
+//        REQUIRE((*HICMA_descriptorCrk)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorCrk)->nt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorCrk)->lm == (*HICMA_descriptorCD)->mt);
+//        REQUIRE((*HICMA_descriptorCrk)->ln == (*HICMA_descriptorCD)->mt);
+//        REQUIRE((*HICMA_descriptorCrk)->p == pGrid);
+//        REQUIRE((*HICMA_descriptorCrk)->q == qGrid);
 //
-//        REQUIRE(CHAM_descriptorC->lm == N);
-//        REQUIRE(CHAM_descriptorZ->lm == N);
-//        REQUIRE(CHAM_descriptorZcpy->lm == N);
-//        REQUIRE(CHAM_descriptorDeterminant->lm == 1);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->lm == 1);
-//        }
+//        // Descriptor Z.
+//        REQUIRE((*HICMA_descriptorZ)->m == N);
+//        REQUIRE((*HICMA_descriptorZ)->n == 1);
+//        REQUIRE((*HICMA_descriptorZ)->mb == lts);
+//        REQUIRE((*HICMA_descriptorZ)->nb == lts);
+//        REQUIRE((*HICMA_descriptorZ)->bsiz == lts * lts);
+//        REQUIRE((*HICMA_descriptorZ)->i == 0);
+//        REQUIRE((*HICMA_descriptorZ)->j == 0);
+//        REQUIRE((*HICMA_descriptorZ)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorZ)->nt == 1);
+//        REQUIRE((*HICMA_descriptorZ)->lm == N);
+//        REQUIRE((*HICMA_descriptorZ)->ln == 1);
+//        REQUIRE((*HICMA_descriptorZ)->p == pGrid);
+//        REQUIRE((*HICMA_descriptorZ)->q == qGrid);
 //
-//        REQUIRE(CHAM_descriptorC->ln == N);
-//        REQUIRE(CHAM_descriptorZ->ln == 1);
-//        REQUIRE(CHAM_descriptorZcpy->ln == 1);
-//        REQUIRE(CHAM_descriptorDeterminant->ln == 1);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->ln == 1);
-//        }
+//        // Descriptor Zcpy.
+//        REQUIRE((*HICMA_descriptorZcpy)->m == N);
+//        REQUIRE((*HICMA_descriptorZcpy)->n == 1);
+//        REQUIRE((*HICMA_descriptorZcpy)->mb == lts);
+//        REQUIRE((*HICMA_descriptorZcpy)->nb == lts);
+//        REQUIRE((*HICMA_descriptorZcpy)->bsiz == lts * lts);
+//        REQUIRE((*HICMA_descriptorZcpy)->i == 0);
+//        REQUIRE((*HICMA_descriptorZcpy)->j == 0);
+//        REQUIRE((*HICMA_descriptorZcpy)->mt == ceil((N * 1.0) / (lts * 1.0)));
+//        REQUIRE((*HICMA_descriptorZcpy)->nt == 1);
+//        REQUIRE((*HICMA_descriptorZcpy)->lm == N);
+//        REQUIRE((*HICMA_descriptorZcpy)->ln == 1);
+//        REQUIRE((*HICMA_descriptorZcpy)->p == pGrid);
+//        REQUIRE((*HICMA_descriptorZcpy)->q == qGrid);
 //
-//        REQUIRE(CHAM_descriptorC->p == pGrid);
-//        REQUIRE(CHAM_descriptorZ->p == pGrid);
-//        REQUIRE(CHAM_descriptorZcpy->p == pGrid);
-//        REQUIRE(CHAM_descriptorDeterminant->p == pGrid);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->p == pGrid);
-//        }
-//
-//        REQUIRE(CHAM_descriptorC->q == qGrid);
-//        REQUIRE(CHAM_descriptorZ->q == qGrid);
-//        REQUIRE(CHAM_descriptorZcpy->q == qGrid);
-//        REQUIRE(CHAM_descriptorDeterminant->q == qGrid);
-//        for (auto & idx : pDescriptorProduct) {
-//            auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//            REQUIRE((*CHAM_descriptorProduct)->q == qGrid);
-//        }
-//        auto *mat = (double *) CHAM_descriptorC->mat;
-//        for (auto i = 0;
-//             i < (CHAM_descriptorC->mt - 1) * (CHAM_descriptorC->nt - 1) * (CHAM_descriptorC->bsiz - 1); i++) {
-//            REQUIRE(mat[i] == 0.0f);
-//        }
-//        mat = (double *) CHAM_descriptorZ->mat;
-//        auto *matZcpy = (double *) CHAM_descriptorZcpy->mat;
-//        for (auto i = 0;
-//             i < (CHAM_descriptorZ->mt - 1) * (CHAM_descriptorZ->nt - 1) * (CHAM_descriptorZ->bsiz - 1); i++) {
-//            REQUIRE(mat[i] == 0.0f);
-//            REQUIRE(matZcpy[i] == 0.0f);
-//        }
-//        mat = (double *) CHAM_descriptorDeterminant->mat;
-//        for (auto i = 0; i < (CHAM_descriptorDeterminant->mt - 1) * (CHAM_descriptorDeterminant->nt - 1) *
-//                             (CHAM_descriptorDeterminant->bsiz - 1); i++) {
-//            REQUIRE(mat[i] == 0.0f);
-//            for (auto & idx : pDescriptorProduct) {
-//                auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
-//                auto *matProduct = (double *) (*CHAM_descriptorProduct)->mat;
-//                REQUIRE(matProduct[i] == 0.0f);
-//            }
-//        }
+//        // Descriptor Determinant.
+//        REQUIRE((*HICMA_descriptorDeterminant)->m == 1);
+//        REQUIRE((*HICMA_descriptorDeterminant)->n == 1);
+//        REQUIRE((*HICMA_descriptorDeterminant)->mb == lts);
+//        REQUIRE((*HICMA_descriptorDeterminant)->nb == lts);
+//        REQUIRE((*HICMA_descriptorDeterminant)->bsiz == lts * lts);
+//        REQUIRE((*HICMA_descriptorDeterminant)->i == 0);
+//        REQUIRE((*HICMA_descriptorDeterminant)->j == 0);
+//        REQUIRE((*HICMA_descriptorDeterminant)->mt == 1);
+//        REQUIRE((*HICMA_descriptorDeterminant)->nt == 1);
+//        REQUIRE((*HICMA_descriptorDeterminant)->lm == 1);
+//        REQUIRE((*HICMA_descriptorDeterminant)->ln == 1);
+//        REQUIRE((*HICMA_descriptorDeterminant)->p == pGrid);
+//        REQUIRE((*HICMA_descriptorDeterminant)->q == qGrid);
 //    }
-//}
+
+    SECTION("DOUBLE WITH NZmiss") {
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
+
+        syntheticDataConfigurations->SetProblemSize(6400);
+        syntheticDataConfigurations->SetLowTileSize(512);
+        syntheticDataConfigurations->SetUnknownObservationsNb(10);
+        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+
+        linearAlgebraSolver->InitiateDescriptors();
+
+        auto **HICMA_descriptorC = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorC()[0];
+        auto **HICMA_descriptorZ = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZ()[0];
+        auto **HICMA_descriptorZcpy = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZcpy();
+        auto **HICMA_descriptorZObservations = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZObservations();
+        auto **HICMA_descriptorDeterminant = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorDeterminant();
+        auto **HICMA_descriptorCD = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCD()[0];
+        auto **HICMA_descriptorCUV = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCUV()[0];
+        auto **HICMA_descriptorCrk = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCrk()[0];
+        int approximationMode = syntheticDataConfigurations->GetApproximationMode();
+        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
+        int lts = syntheticDataConfigurations->GetLowTileSize();
+        int pGrid = syntheticDataConfigurations->GetPGrid();
+        int qGrid = syntheticDataConfigurations->GetQGrid();
+        int maxRank = syntheticDataConfigurations->GetMaxRank();
+        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
+        double meanSquareError = syntheticDataConfigurations->GetMeanSquareError();
+        string actualObservationsFilePath = syntheticDataConfigurations->GetActualObservationsFilePath();
+        double determinantValue = syntheticDataConfigurations->GetDeterminantValue();
+        int nZobs = syntheticDataConfigurations->GetKnownObservationsValues();
+
+        if (nZmiss != 0) {
+            if (actualObservationsFilePath.empty()) {
+                // Descriptor ZObservations.
+                REQUIRE((*HICMA_descriptorZObservations)->m == nZobs);
+                REQUIRE((*HICMA_descriptorZObservations)->n == 1);
+                REQUIRE((*HICMA_descriptorZObservations)->mb == lts);
+                REQUIRE((*HICMA_descriptorZObservations)->nb == lts);
+                REQUIRE((*HICMA_descriptorZObservations)->bsiz == lts * lts);
+                REQUIRE((*HICMA_descriptorZObservations)->i == 0);
+                REQUIRE((*HICMA_descriptorZObservations)->j == 0);
+                REQUIRE((*HICMA_descriptorZObservations)->mt == ceil((N * 1.0) / (lts * 1.0)));
+                REQUIRE((*HICMA_descriptorZObservations)->nt == 1);
+                REQUIRE((*HICMA_descriptorZObservations)->lm == nZobs);
+                REQUIRE((*HICMA_descriptorZObservations)->ln == 1);
+                REQUIRE((*HICMA_descriptorZObservations)->p == pGrid);
+                REQUIRE((*HICMA_descriptorZObservations)->q == qGrid);
+            }
+        }
+    }
+}
 
 TEST_CASE("HiCMA Implementation TLR") {
     INIT_HARDWARE_TLR();
+    TEST_HICMA_DESCRIPTORS_VALUES_TLR();
     TEST_INITIALIZETION_TLR();
-//    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 }

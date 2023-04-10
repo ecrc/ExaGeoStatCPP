@@ -83,7 +83,7 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorDeterminant, isOOC, &dotProductValue,
                                           (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
                                           qGrid)
-
+    this->ExaGeoStatFinalizeContext();
     //stop gsl error handler
     gsl_set_error_handler_off();
 }
@@ -99,4 +99,15 @@ void ChameleonImplementationDST<T>::ExaGeoStatInitContext(const int &apCoresNumb
         CHAMELEON_user_tag_size(31, 26);
         CHAMELEON_Init(apCoresNumber, apGPUs)
     }
+}
+
+template<typename T>
+void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
+
+    CHAM_context_t *chameleonContext;
+    chameleonContext = chameleon_context_self();
+    if (chameleonContext == nullptr) {
+        printf("No active instance oh Chameleon...please use ExaGeoStatInitContext() function to initiate a new instance!\n");
+    } else
+        CHAMELEON_Finalize();
 }

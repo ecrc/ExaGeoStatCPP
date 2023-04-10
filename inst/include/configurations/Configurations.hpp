@@ -466,7 +466,7 @@ namespace exageostat {
             //// Used Out of core technology.
             bool mIsOOC = false;
             //// Used max rank
-            int mMaxRank = 0;
+            int mMaxRank = 1;
             //// Used number of unknown observation to be predicted
             int mUnknownObservationsNumber = 0;
             //// Used number of known observed values.

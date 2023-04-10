@@ -31,6 +31,7 @@ namespace exageostat {
         public:
             virtual void InitiateDescriptors() = 0;
             virtual void ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) = 0;
+            virtual void ExaGeoStatFinalizeContext() = 0;
 
             /**
              * @brief
