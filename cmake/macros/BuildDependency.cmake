@@ -4,33 +4,46 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file BuildDependency.cmake
+# @brief Fetches, builds, and installs a dependency.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-12
 
+# @param raw_name The name of the dependency.
+# @param url The URL from which to fetch the dependency.
+# @param tag The version or tag of the dependency to fetch.
+# @param ${FLAGS} Additional flags to pass to the configure/make commands.
+# @param ${ISCMAKE} A boolean flag indicating whether the dependency uses CMake as its build system.
+# @param ${ISGIT} A boolean flag indicating whether the dependency is hosted on a git repository.
+
+# This macro fetches the dependency using CMake's FetchContent module, and then builds and installs it.
+# It also sets several environment variables (LD_LIBRARY_PATH, LIBRARY_PATH, CPATH, PKG_CONFIG_PATH,
+# and ${capital_name}_DIR) and includes and links to the installation directory of the dependency.
+
+# After building and installing the dependency, the macro installs the lib, include, and share directories  in the current directory.
 macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
-    # Set the a lower case and upper case name of the dependency.
+    # Set the name of the dependency.
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
+
+    # Fetch the dependency, depending on whether it's a git repo or not.
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
     set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
-    # Fetch the dependency, depending on which it's a git repo or no.
     if (ISGIT)
         FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
     else()
         FetchContent_Declare(${name} URL "${url}")
     endif ()
     FetchContent_Populate(${name})
-    # Installation of the source files will be in bin/_deps/${name}-src
+
+    # Set up build paths and create directory for build artifacts.
     set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/${name}-src)
-    # The bin directory where the code will get build is also in bin/_deps/${name}_srcpath/bin
     set(${name}_binpath ${${name}_srcpath}/bin)
-    # The installation will be installdir/capital_name/ .To avoid deleting it when building software multiple time
     set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
     file(MAKE_DIRECTORY ${${name}_binpath})
 
-    # Configure subproject into <subproject-build-dir>
+    # Configure subproject.
     if (ISCMAKE)
         execute_process(COMMAND ${CMAKE_COMMAND} ${FLAGS}
                 ${${name}_srcpath}
@@ -42,15 +55,13 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
                 COMMAND_ERROR_IS_FATAL ANY)
     endif ()
 
-    # Build and install subproject
+    # Build and install subproject.
     include(ProcessorCount)
     ProcessorCount(N)
-
     if (ISCMAKE)
         execute_process(COMMAND make -j ${N}
                 WORKING_DIRECTORY ${${name}_binpath}
                 COMMAND_ERROR_IS_FATAL ANY)
-
         execute_process(COMMAND make install -j ${N}
                 WORKING_DIRECTORY ${${name}_binpath}
                 COMMAND_ERROR_IS_FATAL ANY)
@@ -58,12 +69,12 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
         execute_process(COMMAND make -j ${N}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
-
         execute_process(COMMAND make install -j ${N}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
     endif ()
 
+    # Set environment variables and include/link to the installation directory of the dependency.
     set(ENV{LD_LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LD_LIBRARY_PATH}")
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
@@ -71,6 +82,8 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     set(${capital_name}_DIR "${${name}_installpath}/lib")
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
+
+    # Install the dependency's lib, include, and share directories in the current directory.
     install(
             DIRECTORY
             "${${name}_installpath}/lib"

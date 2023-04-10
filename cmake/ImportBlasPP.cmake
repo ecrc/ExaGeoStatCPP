@@ -5,6 +5,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ImportBlasPP.cmake
+# @brief This file searches for the BLAS++ library and includes it if not already included.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-12
@@ -18,11 +19,14 @@ if (NOT TARGET blaspp)
 
     include(ImportBlas)
 
+    # Find the BLAS++ library
     find_package(blaspp QUIET)
 
     message(${blaspp_FOUND})
+    # If BLAS++ is found, include it
     if (blaspp_FOUND)
         message("Found BLAS++: ${blaspp_DIR}")
+        # If BLAS++ is not found, but its CMakeLists.txt file exists, add it as a subdirectory and include it
     elseif (EXISTS "${CMAKE_SOURCE_DIR}/blaspp/CMakeLists.txt")
         set(build_tests_save "${build_tests}")
         set(build_tests "false")
@@ -30,6 +34,7 @@ if (NOT TARGET blaspp)
 
         set(build_tests "${build_tests_save}")
         set(blaspp_DIR "${CMAKE_BINARY_DIR}/blaspp")
+        # If BLAS++ is not found and its CMakeLists.txt file does not exist, fetch it from the specified URL and include it
     else ()
         set(build_tests_save "${build_tests}")
         set(build_tests "false")
@@ -46,8 +51,10 @@ else ()
     message("   BLAS++ already included")
 endif ()
 
+# Add BLAS++ to the list of libraries
 set(LIBS
         blaspp
         ${LIBS}
         )
+
 message(STATUS "BLAS++ done")

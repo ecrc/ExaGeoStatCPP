@@ -5,13 +5,21 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file BuildSTARPU.cmake
+# @brief Fetches, builds, and installs STARPU library.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-13
 
+# @param raw_name The name of the dependency.
+# @param url The URL from which to fetch the dependency.
+# @param tag The version or tag of the dependency to fetch.
+
 macro(BuildStarPU raw_name url tag)
+    # Convert the library name to lowercase and uppercase
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
+
+    # Fetch the library using FetchContent
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
     set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/)
@@ -20,7 +28,7 @@ macro(BuildStarPU raw_name url tag)
     set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/${name}-src)
     set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/)
 
-    # Configure subproject into <subproject-build-dir>
+    # Configure the library using autogen.sh and configure
     include(ProcessorCount)
     ProcessorCount(N)
     execute_process(COMMAND ./autogen.sh
@@ -45,6 +53,7 @@ macro(BuildStarPU raw_name url tag)
                 COMMAND_ERROR_IS_FATAL ANY)
     endif()
 
+    # Build and install the library
     execute_process(COMMAND make -j ${N}
             WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
@@ -53,6 +62,7 @@ macro(BuildStarPU raw_name url tag)
             WORKING_DIRECTORY ${${name}_srcpath}
             COMMAND_ERROR_IS_FATAL ANY)
 
+    # Set environment variables and include/link directories for the library
     set(ENV{LD_LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LD_LIBRARY_PATH}")
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
@@ -60,6 +70,8 @@ macro(BuildStarPU raw_name url tag)
     set(${capital_name}_DIR "${${name}_installpath}")
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
+
+    # Install the library's files
     install(
             DIRECTORY
             "${${name}_installpath}/lib"

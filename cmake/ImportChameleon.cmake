@@ -5,6 +5,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ImportChameleon.cmake
+# @brief This script checks for Chameleon and includes it in the project if it is not already a target.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-03-13
@@ -19,15 +20,20 @@ if (NOT TARGET CHAMELEON_FOUND)
     find_package(PkgConfig QUIET)
     find_package(CHAMELEON QUIET)
 
+    # If Chameleon is found, include it
     if (CHAMELEON_FOUND)
         message("   Found Chameleon: ${CHAMELEON_LIBDIR}")
+    # If Chameleon is not found, install it
     else ()
         message("   Can't find Chameleon, Installing it instead ..")
+        # Set installation flags
         set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/ \-DCHAMELEON_USE_CUDA=${USE_CUDA} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON)
         set(ISCMAKE ON)
         set(ISGIT ON)
+        # Install Chameleon
         set(CHAMELEON_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/)
         BuildDependency(CHAMELEON "https://gitlab.inria.fr/solverstack/chameleon.git" "v1.1.0" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        # Reset flags
         set(FLAGS "")
         find_package(CHAMELEON REQUIRED)
     endif ()
