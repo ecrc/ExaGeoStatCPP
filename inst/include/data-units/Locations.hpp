@@ -6,6 +6,7 @@
 
 /**
  * @file Locations.hpp
+ * @brief Header file for the Locations class, which contains methods to set and get location data.
  *
  * @version 1.0.0
  * @author Sameh Abdulah
@@ -14,9 +15,14 @@
 
 #ifndef EXAGEOSTAT_CPP_LOCATIONS_HPP
 #define EXAGEOSTAT_CPP_LOCATIONS_HPP
+
 namespace exageostat {
     namespace dataunits {
 
+        /**
+         * @class Locations
+         * @brief A class containing methods to set and get location data.
+         */
         class Locations {
         public:
             /**
@@ -30,78 +36,54 @@ namespace exageostat {
             virtual ~Locations() = default;
 
             /**
-             * @brief
-             * LocationX setter.
+             * @brief Setter for LocationX.
              *
-             * @param[in] apLocationX
-             * Pointer to X data.
-             *
+             * @param[in] apLocationX Pointer to X data.
              */
-            void
-            SetLocationX(double *apLocationX);
+            void SetLocationX(double *apLocationX);
 
             /**
-             * @brief
-             * LocationX getter.
+             * @brief Getter for LocationX.
              *
-             * @return mpLocationX
-             * Pointer to X data.
-             *
+             * @return mpLocationX Pointer to X data.
              */
-            double *
-            GetLocationX();
+            double * GetLocationX();
 
             /**
-             * @brief
-             * LocationY setter.
+             * @brief Setter for LocationY.
              *
-             * @param[in] apLocationY
-             * Pointer to Y data.
-             *
+             * @param[in] apLocationY Pointer to Y data.
              */
-            void
-            SetLocationY(double *apLocationY);
+            void SetLocationY(double *apLocationY);
 
             /**
-             * @brief
-             * LocationY getter.
+             * @brief Getter for LocationY.
              *
-             * @return mpLocationY
-             * Pointer to Y data.
-             *
+             * @return mpLocationY Pointer to Y data.
              */
-            double *
-            GetLocationY();
+            double * GetLocationY();
 
             /**
-             * @brief
-             * LocationZ setter.
+             * @brief Setter for LocationZ.
              *
-             * @param[in] apLocationZ
-             * Pointer to Z data.
-             *
+             * @param[in] apLocationZ Pointer to Z data.
              */
-            void
-            SetLocationZ(double *apLocationZ);
+            void SetLocationZ(double *apLocationZ);
 
             /**
-             * @brief
-             * LocationZ getter.
+             * @brief Getter for LocationZ.
              *
-             * @return mpLocationZ
-             * Pointer to Z data.
-             *
+             * @return mpLocationZ Pointer to Z data.
              */
-            double *
-            GetLocationZ();
+            double * GetLocationZ();
 
         private:
-            /// Used Location X.
-            double *mpLocationX;
-            /// Used Location Y.
-            double *mpLocationY;
-            /// Used Location Z.
-            double *mpLocationZ;
+            /// Pointer to X data.
+            double *mpLocationX{};
+            /// Pointer to Y data.
+            double *mpLocationY{};
+            /// Pointer to Z data.
+            double *mpLocationZ{};
         };
 
     }//namespace configurations

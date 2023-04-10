@@ -6,6 +6,7 @@
 
 /**
  * @file AllocateDescriptors.hpp
+ * @brief Header file for the LinearAlgebraMethods class, which defines the interface for linear algebra solvers.
  *
  * @version 1.0.0
  * @author Sameh Abdulah
@@ -26,30 +27,43 @@ extern "C"{
 namespace exageostat {
     namespace linearAlgebra {
 
+        /**
+         * @class LinearAlgebraMethods
+         * @brief A class that defines the interface for linear algebra solvers.
+         * @tparam T The data type of the linear algebra solver.
+         */
         template<typename T>
         class LinearAlgebraMethods {
         public:
+            /**
+             * @brief Initializes the descriptors necessary for the linear algebra solver.
+             */
             virtual void InitiateDescriptors() = 0;
+
+            /**
+             * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.
+             *
+             * @param[in] apCoresNumber The number of cores to use for the solver.
+             * @param[in] apGPUs The number of GPUs to use for the solver.
+             */
             virtual void ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) = 0;
+
+            /**
+             * @brief Finalizes the context for the linear algebra solver.
+             */
             virtual void ExaGeoStatFinalizeContext() = 0;
 
             /**
-             * @brief
-             * Configuration map setter.
+             * @brief Sets the configurations for the linear algebra solver.
              *
-             * @param apConfigurations
-             * Argument pointer to Synthetic Data generation configuration map
-             *
+             * @param[in] apConfigurations A pointer to the configurations for the solver.
              */
-            void
-            SetConfigurations(configurations::Configurations *apConfigurations){
+            void SetConfigurations(configurations::Configurations *apConfigurations){
                 this->mpConfigurations = apConfigurations;
             }
 
             /**
-             * @brief
-             * Virtual destructor to allow calls to the correct concrete destructor.
-             *
+             * @brief Virtual destructor to allow calls to the correct concrete destructor.
              */
             virtual ~LinearAlgebraMethods() = default;
 

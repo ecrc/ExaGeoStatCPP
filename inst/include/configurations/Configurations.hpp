@@ -9,6 +9,7 @@
 /**
 * @file Configurations.hpp
 * @version 1.0.0
+* @brief Contains the declaration of the Configurations class and its member functions.
 * @author Sameh Abdulah
 * @date 2023-01-31
 **/
@@ -21,7 +22,10 @@
 
 namespace exageostat {
     namespace configurations {
-
+        /**
+         * @class Configurations
+         * @brief Contains methods to set and get.
+         */
         class Configurations {
         public:
 

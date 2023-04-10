@@ -6,7 +6,7 @@
 
 /**
  * @file LinearAlgebraFactory.hpp
- *
+ * @brief Header file for the LinearAlgebraFactory class, which creates linear algebra solvers based on the input computation type.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-20
@@ -30,19 +30,21 @@
 namespace exageostat {
     namespace linearAlgebra {
 
+        /**
+         * @class LinearAlgebraFactory
+         * @brief A class that creates linear algebra solvers based on the input computation type.
+         * @tparam T The data type of the linear algebra solver.
+         */
         template<typename T>
         class LinearAlgebraFactory {
         public:
 
             /**
-             * @brief
-             * Factory creation, Whether it's Synthetic or Real data.
+             * @brief Creates a linear algebra solver based on the input computation type.
              *
-             * @param[in] apConfigurations
-             *  Pointer to Synthetic data Configurations.
+             * @param[in] aComputation The computation type to create the solver for.
              *
-             * @return DataGenerator
-             * Unique Pointer to the created type of Data Generators.
+             * @return A unique pointer to the created linear algebra solver.
              */
             static std::unique_ptr<LinearAlgebraMethods<T>>
             CreateLinearAlgebraSolver(common::Computation aComputation);
@@ -52,7 +54,5 @@ namespace exageostat {
 
     }//namespace linearAlgebra
 }//namespace exageostat
-
-
 
 #endif //EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP

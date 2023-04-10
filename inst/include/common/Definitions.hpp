@@ -6,11 +6,14 @@
 
 /**
  * @file Definitions.hpp
- *
  * @version 1.0.0
+ * @brief This file contains common definitions used in ExaGeoStat software package.
+ * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
+ * A macro for instantiating template classes with supported types; and a set of available kernels.
  * @author Sameh Abdulah
  * @date 2023-03-21
 **/
+
 
 #ifndef EXAGEOSTATCPP_DEFINITIONS_HPP
 #define EXAGEOSTATCPP_DEFINITIONS_HPP
@@ -18,7 +21,10 @@
 #include <iostream>
 #include <set>
 
-// Macro definition to instantiate the EXAGEOSTAT template classes with supported types.
+/**
+ * @def EXAGEOSTAT_INSTANTIATE_CLASS
+ * @brief Macro definition to instantiate the EXAGEOSTAT template classes with supported types.
+**/
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
@@ -29,40 +35,41 @@
 namespace exageostat {
     namespace common {
         /**
-         * @brief
-         * Enum denoting the dimension of generated data.
+         * @enum Dimension
+         * @brief Enum denoting the dimension of generated data.
          */
-        enum Dimension{
+        enum Dimension {
             Dimension2D = 0,
             Dimension3D = 1,
             DimensionST = 2,
         };
 
         /**
-         * @brief
-         * Enum denoting the types of computations that can be requested, To use the required Linear Algebra solver library.
+         * @enum Computation
+         * @brief Enum denoting the types of computations that can be requested,
+         * to use the required Linear Algebra solver library.
          */
-        enum Computation{
+        enum Computation {
             EXACT_DENSE = 0,
             DIAGONAL_APPROX = 1,
             TILE_LOW_RANK = 2,
         };
 
         /**
-         * @brief
-         * Enum denoting the precisions operations that are supported to be done on the matrix.
+         * @enum Precision
+         * @brief Enum denoting the precision of operations that are supported to be done on the matrix.
          */
-        enum Precision{
+        enum Precision {
             SINGLE = 0,
             DOUBLE = 1,
             MIXED = 2,
         };
 
         /**
-         * @brief
-         * Enum denoting the Matrix floating point arithmetic.
+         * @enum FloatPoint
+         * @brief Enum denoting the floating point arithmetic of the matrix.
          */
-        enum FloatPoint : int{
+        enum FloatPoint : int {
             EXAGEOSTAT_BYTE = 0,
             EXAGEOSTAT_INTEGER = 1,
             EXAGEOSTAT_REAL_FLOAT = 2,
@@ -72,10 +79,11 @@ namespace exageostat {
         };
 
 
+        /// TODO: Make it automatically generated from the kernels files names
         /**
-         * @brief
-         * TODO: Make it automatically generated from the kernels files names
-         * set denoting the available kernels supported in matrix generation.
+         * @var availableKernels
+         * @brief Set denoting the available kernels supported in matrix generation.
+         * @details This set should be updated manually to add new kernels.
          */
         const std::set<std::string> availableKernels = {"univariate_matern_stationary",
                                                         "univariate_matern_non_stationary",
@@ -101,8 +109,6 @@ namespace exageostat {
                                                         "trivariate_matern_parsimonious_profile",
                                                         "univariate_matern_non_stat"
         };
-
-
     }//namespace common
 }//namespace exageostat
 

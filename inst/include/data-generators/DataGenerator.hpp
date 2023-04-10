@@ -1,7 +1,7 @@
 
 /**
  * @file DataGenerator.hpp
- *
+ * @brief Contains the declaration of the SyntheticDataConfigurations class.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -17,6 +17,10 @@
 namespace exageostat {
     namespace generators {
 
+        /**
+         * @class DataGenerator
+         * @brief Contains methods to set and get.
+         */
         class DataGenerator {
         public:
 
@@ -78,9 +82,9 @@ namespace exageostat {
 
         protected:
             /// Used Synthetic Configuration.
-            configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{};
+            configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
             /// Used Locations
-            dataunits::Locations * mpLocations;
+            dataunits::Locations * mpLocations{}; // Pointer to Locations object
         };
     }//namespace generators
 }//namespace exageostat
