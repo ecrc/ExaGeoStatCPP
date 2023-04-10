@@ -5,6 +5,10 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
+# @brief This is a CMakeLists.txt file for a C++ project ExaGeoStat.
+# The project is a parallel high performance unified framework for geographical statistics on many core systems.
+# The file sets up variables and finds dependencies required for the project.
+# It also provides options to enable building tests, building examples, building documentation, and enabling a packaging system for distribution.
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-01-30
@@ -16,7 +20,7 @@
                 #                    and set up corresponding variables                       #
                 ###############################################################################
 
-# Set minimum cmake version
+# Set the minimum CMake version required to 3.20
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
 
@@ -24,10 +28,11 @@ cmake_policy(SET CMP0048 NEW)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
-# Show the current version of Cmake.
+
+# Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 
-# Project Options.
+# Set project options
 option(USE_CUDA "Use Cuda, if available" false)
 option(USE_MPI "Use MPI, if available" false)
 option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
@@ -35,17 +40,26 @@ option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
 option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
 option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
-# Toolchain selection
+# Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
+    # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
     enable_language(CUDA)
     include(toolchains/CudaToolchain)
+    # Import CuSolver and Lapack libraries
+    include(ImportCuSolver)
+    unset(BLA_VENDOR)
+    include(ImportLapack)
+    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
 else ()
+    # Include GccToolchain for non-CUDA builds
     include(toolchains/GccToolchain)
 endif ()
 
+# Enable C++ language
 enable_language(CXX)
+
 if (USE_CUDA)
     message("-- Build CUDA Support")
     include(ImportCuSolver)
@@ -59,8 +73,6 @@ else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
 endif ()
-
-
 
 # Add all dependencies for Exageostat
 # EXAGEOSTAT depends on a MPI

@@ -9,6 +9,7 @@
 # @author Sameh Abdulah
 # @date 2023-01-30
 
+# Set variables and default values
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -17,7 +18,16 @@ NC='\033[0m'
 
 INSTALL_PREFIX=$PWD/installdir/exageostat
 PROJECT_SOURCE_DIR=$(dirname "$0")
+BUILDING_TESTS="OFF"
+BUILDING_EXAMPLES="OFF"
+USING_HiCMA="OFF"
+USING_CHAMELEON="OFF"
+VERBOSE=OFF
+BUILD_TYPE="RELEASE"
+USE_CUDA="OFF"
+USE_MPI="OFF"
 
+# Parse command line options
 while getopts ":tevhHCi:dcm" opt; do
   case $opt in
     i) ##### Define installation path  #####

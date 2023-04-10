@@ -66,7 +66,7 @@ namespace exageostat {
              * @return mProblemSize
              */
             int
-            GetProblemSize();
+            GetProblemSize() const;
 
             /**
             * @brief Time slot setter.
@@ -80,7 +80,7 @@ namespace exageostat {
              * @return mTimeSlot
              */
             int
-            GetTimeSlot();
+            GetTimeSlot() const;
 
             /**
             * @brief
@@ -134,7 +134,7 @@ namespace exageostat {
              * @return mPGrid
              */
             int
-            GetPGrid();
+            GetPGrid() const;
 
             /**
              * @brief QGrid setter.
@@ -148,7 +148,7 @@ namespace exageostat {
              * @return mQGrid
              */
             int
-            GetQGrid();
+            GetQGrid() const;
 
             /**
              * @brief Cores number setter.
@@ -162,7 +162,7 @@ namespace exageostat {
              * @return mpCoresNumber
              */
             int
-            GetCoresNumber();
+            GetCoresNumber() const;
 
             /**
              * @brief GPU number setter.
@@ -176,7 +176,7 @@ namespace exageostat {
              * @return mpGPUsNumber
              */
             int
-            GetGPUsNumber();
+            GetGPUsNumber() const;
 
             /**
              * @brief P setter.
@@ -190,7 +190,7 @@ namespace exageostat {
              * @return mP
              */
             int
-            GetP();
+            GetP() const;
 
             /**
              * @brief Dense Tile size setter.
@@ -204,7 +204,7 @@ namespace exageostat {
              * @return mTileSize
              */
             int
-            GetDenseTileSize();
+            GetDenseTileSize() const;
 
             /**
              * @brief Low Tile size setter.
@@ -218,7 +218,7 @@ namespace exageostat {
              * @return mTileSize
              */
             int
-            GetLowTileSize();
+            GetLowTileSize() const;
 
             /**
              * @brief Out of Core technology setter.
@@ -232,7 +232,7 @@ namespace exageostat {
              * @return mIsOOC
              */
             bool
-            GetIsOOC();
+            GetIsOOC() const;
 
             /**
              * @brief Max rank setter.
@@ -260,7 +260,7 @@ namespace exageostat {
              * @return mUnknownObservationsNumber
              */
             int
-            GetUnknownObservationsNb();
+            GetUnknownObservationsNb() const;
 
             /**
              * @brief Mean square error value setter.
@@ -288,7 +288,7 @@ namespace exageostat {
              * @return mApproximationMode
              */
             int
-            GetApproximationMode();
+            GetApproximationMode() const;
 
             /**
              * @brief Number of known observation values setter.
@@ -420,7 +420,7 @@ namespace exageostat {
              * The int casted value.
              *
              */
-            int CheckNumericalValue(std::string aValue);
+            static int CheckNumericalValue(const std::string& aValue);
 
             /**
              * @brief
@@ -433,7 +433,7 @@ namespace exageostat {
              * Enum with the selected computation, Error if not exist.
              *
              */
-            common::Computation CheckComputationValue(std::string aValue);
+            static common::Computation CheckComputationValue(const std::string& aValue);
 
             /**
              * @brief
@@ -446,7 +446,7 @@ namespace exageostat {
              * Enum with the selected Precision, Error if not exist.
              *
              */
-            common::Precision CheckPrecisionValue(std::string aValue);
+            static common::Precision CheckPrecisionValue(const std::string& aValue);
 
         protected:
             /// Used Problem size.

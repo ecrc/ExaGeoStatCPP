@@ -51,7 +51,7 @@ namespace exageostat {
                  *
                  * @param aKernel The kernel to check.
                  */
-                void CheckKernelValue(std::string aKernel);
+                static void CheckKernelValue(const std::string& aKernel);
 
                 /**
                  * @brief Setter for the data type.
@@ -65,7 +65,7 @@ namespace exageostat {
                  *
                  * @return The data type.
                  */
-                bool GetIsSynthetic();
+                bool GetIsSynthetic() const;
 
             protected:
                 /// The kernel to use.

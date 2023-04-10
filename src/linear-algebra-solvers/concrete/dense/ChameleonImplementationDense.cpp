@@ -13,31 +13,35 @@
 **/
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
-
+// Include Chameleon libraries
 extern "C" {
 #include <chameleon/struct.h>
 #include <chameleon.h>
 #include <control/descriptor.h>
 #include <control/context.h>
 }
+
+// Use the following namespaces for convenience
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
 using namespace std;
 
+// Define a method to set up the Chameleon descriptors
 template<typename T>
 void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
+    // Initialize the Chameleon context
     this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
 
+    // Declare variables for Chameleon descriptors
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     auto pDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
+    // Get the problem size and other configuration parameters
     int vectorSize;
-    RUNTIME_sequence_t *pSequence;
-
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
     int dts = this->mpConfigurations->GetDenseTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
@@ -48,9 +52,11 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
     T *Zcpy = (T *) malloc(N * sizeof(T));
     T dotProductValue;
 
-    //Identifies a set of routines sharing common exception handling.
+    // Create a Chameleon sequence
+    RUNTIME_sequence_t *pSequence;
     CHAMELEON_Sequence_Create(&pSequence);
 
+    // Set the floating point precision based on the template type
     FloatPoint floatPoint;
     if (sizeof(T) == SIZE_OF_FLOAT) {
         floatPoint = EXAGEOSTAT_REAL_FLOAT;
@@ -60,6 +66,7 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
         vectorSize = 3;
     }
 
+    // Create the Chameleon descriptors based on the configuration parameters
     // Depending on the passed Precession, the descriptor will resize for value 1 or 3.
     pDescriptorC.resize(vectorSize + 1, nullptr);
     pDescriptorZ.resize(vectorSize, nullptr);

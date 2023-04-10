@@ -8,7 +8,7 @@
 
 /**
  * @file Configurations.cpp
- *
+ * @brief This file defines the Configurations class which stores the configuration parameters for ExaGeoStat.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-01-31
@@ -16,13 +16,14 @@
 
 #include <iostream>
 #include <configurations/Configurations.hpp>
+#include <utility>
 
 using namespace exageostat::configurations;
 using namespace exageostat::common;
 using namespace std;
 
 
-int Configurations::GetProblemSize() {
+int Configurations::GetProblemSize() const {
     return this->mProblemSize;
 }
 
@@ -34,7 +35,7 @@ void Configurations::SetTimeSlot(int aTimeSlot) {
     this->mTimeSlot = aTimeSlot;
 }
 
-int Configurations::GetTimeSlot() {
+int Configurations::GetTimeSlot() const {
     return this->mTimeSlot;
 }
 
@@ -58,7 +59,7 @@ void Configurations::SetPGrid(int aPGrid) {
     this->mPGrid = aPGrid;
 }
 
-int Configurations::GetPGrid() {
+int Configurations::GetPGrid() const {
     return this->mPGrid;
 }
 
@@ -66,7 +67,7 @@ void Configurations::SetP(int aP) {
     this->mP = aP;
 }
 
-int Configurations::GetP() {
+int Configurations::GetP() const {
     return this->mP;
 }
 
@@ -74,7 +75,7 @@ void Configurations::SetDenseTileSize(int aTileSize) {
     this->mDenseTileSize = aTileSize;
 }
 
-int Configurations::GetDenseTileSize() {
+int Configurations::GetDenseTileSize() const {
     return this->mDenseTileSize;
 }
 
@@ -82,7 +83,7 @@ void Configurations::SetLowTileSize(int aTileSize) {
     this->mLowTileSize = aTileSize;
 }
 
-int Configurations::GetLowTileSize() {
+int Configurations::GetLowTileSize() const {
     return this->mLowTileSize;
 }
 
@@ -90,7 +91,7 @@ void Configurations::SetQGrid(int aQGrid) {
     this->mQGrid = aQGrid;
 }
 
-int Configurations::GetQGrid() {
+int Configurations::GetQGrid() const {
     return this->mQGrid;
 
 }
@@ -138,7 +139,7 @@ void Configurations::SetCoresNumber(int aCoresNumbers) {
     this->mCoresNumber = aCoresNumbers;
 }
 
-int Configurations::GetCoresNumber() {
+int Configurations::GetCoresNumber() const {
     return this->mCoresNumber;
 }
 
@@ -146,7 +147,7 @@ void Configurations::SetGPUsNumber(int aGPUsNumber) {
     this->mGPUsNumber = aGPUsNumber;
 }
 
-int Configurations::GetGPUsNumber() {
+int Configurations::GetGPUsNumber() const {
     return this->mGPUsNumber;
 }
 
@@ -154,7 +155,7 @@ void Configurations::SetIsOOC(bool aIsOOC) {
     this->mIsOOC = aIsOOC;
 }
 
-bool Configurations::GetIsOOC() {
+bool Configurations::GetIsOOC() const {
     return this->mIsOOC;
 }
 
@@ -170,7 +171,7 @@ void Configurations::SetUnknownObservationsNb(int aUnknownObservationsNumber) {
     this->mUnknownObservationsNumber = aUnknownObservationsNumber;
 }
 
-int Configurations::GetUnknownObservationsNb() {
+int Configurations::GetUnknownObservationsNb() const {
     return this->mUnknownObservationsNumber;
 }
 
@@ -182,7 +183,7 @@ int Configurations::GetKnownObservationsValues() {
     return this->mKnownObservationsValues;
 }
 
-int Configurations::GetApproximationMode() {
+int Configurations::GetApproximationMode() const {
     return this->mApproximationMode;
 }
 
@@ -199,7 +200,7 @@ void Configurations::SetMeanSquareError(double aMeanSquareError) {
 }
 
 void Configurations::SetActualObservationsFilePath(std::string aKnownObservationsValues) {
-    this->mActualObservationsFilePath = aKnownObservationsValues;
+    this->mActualObservationsFilePath = std::move(aKnownObservationsValues);
 }
 
 string Configurations::GetActualObservationsFilePath() {
@@ -214,7 +215,7 @@ double Configurations::GetDeterminantValue() {
     return this->mDeterminantValue;
 }
 
-int Configurations::CheckNumericalValue(string aValue) {
+int Configurations::CheckNumericalValue(const string& aValue) {
 
     int numericalValue = -1;
     try {
@@ -230,7 +231,7 @@ int Configurations::CheckNumericalValue(string aValue) {
     return numericalValue;
 }
 
-Computation Configurations::CheckComputationValue(std::string aValue) {
+Computation Configurations::CheckComputationValue(const std::string& aValue) {
 
     if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense"
         and aValue != "diag_approx" and aValue != "diagonal_approx"
@@ -245,7 +246,7 @@ Computation Configurations::CheckComputationValue(std::string aValue) {
     return TILE_LOW_RANK;
 }
 
-Precision Configurations::CheckPrecisionValue(std::string aValue) {
+Precision Configurations::CheckPrecisionValue(const std::string& aValue) {
 
     if (aValue != "single" and aValue != "Single"
         and aValue != "double" and aValue != "Double"
@@ -258,5 +259,4 @@ Precision Configurations::CheckPrecisionValue(std::string aValue) {
         return DOUBLE;
     }
     return MIXED;
-
 }

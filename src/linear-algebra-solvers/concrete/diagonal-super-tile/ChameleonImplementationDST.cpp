@@ -6,7 +6,7 @@
 
 /**
  * @file ChameleonAllocateDescriptors.cpp
- *
+ * @brief Sets up the Chameleon descriptors needed for the diagonal super tile computations in ExaGeoStat.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-20

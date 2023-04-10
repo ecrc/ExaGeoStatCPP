@@ -8,7 +8,7 @@
 
 /**
  * @file SyntheticDataConfigurations.cpp
- * Implementation for Synthetic data Configurations.
+ * @brief Implementation for Synthetic data Configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-02-01
@@ -16,6 +16,7 @@
 
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <iostream>
+#include <utility>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
@@ -27,13 +28,13 @@ SyntheticDataConfigurations::SyntheticDataConfigurations(int argc, char **argv) 
 }
 
 SyntheticDataConfigurations::SyntheticDataConfigurations(string JSON_path) {
-
+    // Not implemented yet
 }
 
 void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
-
+    // Get the example name
     string example_name = argv[0];
-    // Removes the './'
+    // Remove the './'
     example_name.erase(0, 2);
     cout << "Running " << example_name << endl;
 
@@ -42,9 +43,8 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     string argumentValue;
     int equalSignIdx;
 
-    // Skipping first argument as it's the example name.
+    // Loop through the arguments
     for (int i = 1; i < argc; ++i) {
-
         argument = argv[i];
         equalSignIdx = argument.find('=');
         argumentName = argument.substr(0, equalSignIdx);
@@ -53,6 +53,7 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
         if (equalSignIdx != string::npos) {
             argumentValue = argument.substr(equalSignIdx + 1);
 
+            // Check the argument name and set the corresponding value
             if (argumentName == "--N" || argumentName == "--n") {
                 SetProblemSize(CheckNumericalValue(argumentValue));
             } else if (argumentName == "--Kernel" || argumentName == "--kernel") {
@@ -63,7 +64,7 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetDimension(CheckDimensionValue(argumentValue));
             } else if (argumentName == "--PGrid" || argumentName == "--pGrid" || argumentName == "--pgrid") {
                 SetPGrid(CheckNumericalValue(argumentValue));
-            }else if (argumentName == "--QGrid" || argumentName == "--qGrid" || argumentName == "--qgrid") {
+            } else if (argumentName == "--QGrid" || argumentName == "--qGrid" || argumentName == "--qgrid") {
                 SetQGrid(CheckNumericalValue(argumentValue));
             } else if (argumentName == "--TimeSlot" || argumentName == "--timeslot") {
                 SetTimeSlot( CheckNumericalValue(argumentValue));
@@ -162,7 +163,7 @@ void SyntheticDataConfigurations::SetDimension(Dimension aDimension) {
     this->mDimension = aDimension;
 }
 
-Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
+Dimension SyntheticDataConfigurations::CheckDimensionValue(const string& aDimension) {
 
     if (aDimension != "2D" and aDimension != "2d"
         and aDimension != "3D" and aDimension != "3d"
@@ -178,7 +179,7 @@ Dimension SyntheticDataConfigurations::CheckDimensionValue(string aDimension) {
 }
 
 int SyntheticDataConfigurations::CheckUnknownObservationsValue(string aValue) {
-    int value = CheckNumericalValue(aValue);
+    int value = CheckNumericalValue(std::move(aValue));
     if (value >= GetProblemSize()){
         throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
     }

@@ -82,7 +82,7 @@ namespace exageostat {
                  * @param aDimension A string representing the dimension.
                  * @return The corresponding dimension value.
                  */
-                exageostat::common::Dimension CheckDimensionValue(std::string aDimension);
+                static exageostat::common::Dimension CheckDimensionValue(const std::string& aDimension);
 
                 /**
                  * @brief Checks the value of the unknown observations parameter.

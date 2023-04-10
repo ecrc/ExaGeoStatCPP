@@ -6,13 +6,15 @@
 
 # @file CMakeLists.txt
 # @version 1.0.0
+# @brief CMake build script for the linear-algebra-solvers library, which includes the LinearAlgebraMethods base class and the LinearAlgebraFactory class for creating linear algebra solvers for different computations using HiCMA or Chameleon libraries.
 # @author Sameh Abdulah
 # @date 2023-03-20
 
+# Include the concrete implementations of the LinearAlgebraMethods class
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
 
+# Define the sources for the library
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebraMethods.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebraFactory.cpp
         ${SOURCES}
         PARENT_SCOPE
