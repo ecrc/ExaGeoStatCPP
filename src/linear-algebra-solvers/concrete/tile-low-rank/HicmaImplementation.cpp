@@ -177,8 +177,6 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         //C12UV Descriptor
         MBUV = lts;
         NBUV = 2 * maxRank;
-        MUV = nZmiss;
-        NUV = 2 * MUV / lts * maxRank;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC12UV, isOOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
                                                MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, pGrid, qGrid);
 
@@ -190,7 +188,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC12rk, isOOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
                                                MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid);
 
-        //C11AD Descriptor
+        //C22D Descriptor
         MBD = lts;
         NBD = lts;
         MD = nZobs;
@@ -198,15 +196,13 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC22D, isOOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
                                                MBD * NBD, MD, ND, 0, 0, MD, ND, pGrid, qGrid);
 
-        //C12UV Descriptor
+        //C22UV Descriptor
         MBUV = lts;
         NBUV = 2 * maxRank;
-        MUV = nZobs;
-        NUV = 2 * MUV / lts * maxRank;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC22UV, isOOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
                                                MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, pGrid, qGrid);
 
-        //C12Ark Descriptor
+        //C22Ark Descriptor
         MBrk = 1;
         NBrk = 1;
         Mrk = (*pDescriptorC22UV)->mt;
