@@ -5,13 +5,11 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file Kernels.cpp
- * Kernels Main functions.
+ * @file UnivariateMaternStationary.cpp
  *
  * @version 1.0.0
  * @author Sameh Abdulah
- * @date 2023-03-05
+ * @date 2023-04-11
 **/
 
-#include <data-units/Kernels.hpp>
-
+#include <kernels/Kernel.hpp>
