@@ -16,7 +16,6 @@
 
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <iostream>
-#include <utility>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
@@ -27,7 +26,7 @@ SyntheticDataConfigurations::SyntheticDataConfigurations(int argc, char **argv) 
     this->InitializeArguments(argc, argv);
 }
 
-SyntheticDataConfigurations::SyntheticDataConfigurations(string JSON_path) {
+SyntheticDataConfigurations::SyntheticDataConfigurations(const string& JSON_path) {
     // Not implemented yet
 }
 
@@ -39,70 +38,70 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     cout << "Running " << example_name << endl;
 
     string argument;
-    string argumentName;
-    string argumentValue;
-    int equalSignIdx;
+    string argument_name;
+    string argument_value;
+    int equal_sign_Idx;
 
     // Loop through the arguments
     for (int i = 1; i < argc; ++i) {
         argument = argv[i];
-        equalSignIdx = argument.find('=');
-        argumentName = argument.substr(0, equalSignIdx);
+        equal_sign_Idx = argument.find('=');
+        argument_name = argument.substr(0, equal_sign_Idx);
 
         // Check if argument has an equal sign.
-        if (equalSignIdx != string::npos) {
-            argumentValue = argument.substr(equalSignIdx + 1);
+        if (equal_sign_Idx != string::npos) {
+            argument_value = argument.substr(equal_sign_Idx + 1);
 
             // Check the argument name and set the corresponding value
-            if (argumentName == "--N" || argumentName == "--n") {
-                SetProblemSize(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--Kernel" || argumentName == "--kernel") {
-                CheckKernelValue(argumentValue);
-                SetKernel(argumentValue);
-            } else if (argumentName == "--Dimension" || argumentName == "--dimension"
-                       || argumentName == "--dim" || argumentName == "--Dim") {
-                SetDimension(CheckDimensionValue(argumentValue));
-            } else if (argumentName == "--PGrid" || argumentName == "--pGrid" || argumentName == "--pgrid") {
-                SetPGrid(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--QGrid" || argumentName == "--qGrid" || argumentName == "--qgrid") {
-                SetQGrid(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--TimeSlot" || argumentName == "--timeslot") {
-                SetTimeSlot( CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--Computation" || argumentName == "--computation") {
-                SetComputation(CheckComputationValue(argumentValue));
-            } else if (argumentName == "--precision" || argumentName == "--Precision") {
-                SetPrecision(CheckPrecisionValue(argumentValue));
-            } else if (argumentName == "--cores" || argumentName == "--coresNumber") {
-                SetCoresNumber(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--Gpus" || argumentName == "--GPUsNumbers") {
-                SetGPUsNumber(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--DTS" || argumentName == "--dts" || argumentName == "--Dts") {
-                SetDenseTileSize(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--LTS" || argumentName == "--lts" || argumentName == "--Lts") {
-                SetLowTileSize(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--maxRank" || argumentName == "--maxrank") {
-                SetMaxRank(CheckNumericalValue(argumentValue));
-            } else if (argumentName == "--ZmissNumber" || argumentName == "--Zmiss") {
-                SetUnknownObservationsNb(CheckUnknownObservationsValue(argumentValue));
-            } else if (argumentName == "--ObservationsFile" || argumentName == "--observationsfile") {
-                SetActualObservationsFilePath(argumentValue);
+            if (argument_name == "--N" || argument_name == "--n") {
+                SetProblemSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
+                CheckKernelValue(argument_value);
+                SetKernel(argument_value);
+            } else if (argument_name == "--Dimension" || argument_name == "--dimension"
+                       || argument_name == "--dim" || argument_name == "--Dim") {
+                SetDimension(CheckDimensionValue(argument_value));
+            } else if (argument_name == "--PGrid" || argument_name == "--pGrid" || argument_name == "--pgrid") {
+                SetPGrid(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid") {
+                SetQGrid(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot") {
+                SetTimeSlot( CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Computation" || argument_name == "--computation") {
+                SetComputation(CheckComputationValue(argument_value));
+            } else if (argument_name == "--precision" || argument_name == "--Precision") {
+                SetPrecision(CheckPrecisionValue(argument_value));
+            } else if (argument_name == "--cores" || argument_name == "--coresNumber") {
+                SetCoresNumber(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Gpus" || argument_name == "--GPUsNumbers") {
+                SetGPUsNumber(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
+                SetDenseTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
+                SetLowTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--maxRank" || argument_name == "--maxrank") {
+                SetMaxRank(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
+                SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
+            } else if (argument_name == "--ObservationsFile" || argument_name == "--observationsfile") {
+                SetActualObservationsFilePath(argument_value);
             }
             else {
-                cout << "!! " << argumentName << " !!" << endl;
+                cout << "!! " << argument_name << " !!" << endl;
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");
             }
         }
         // If none then, just set the argument to True.
         else {
-            if (argumentName == "--help") {
+            if (argument_name == "--help") {
                 PrintUsage();
             }
-            if (argumentName == "--syntheticData") {
+            if (argument_name == "--syntheticData") {
                 SetIsSynthetic(true);
-            } else if (argumentName == "--OOC") {
+            } else if (argument_name == "--OOC") {
                 SetIsOOC(true);
-            } else if (argumentName == "--ApproximationMode" || argumentName == "--approximationmode") {
+            } else if (argument_name == "--ApproximationMode" || argument_name == "--approximationmode") {
                 SetApproximationMode(true);
             } else {
                 throw invalid_argument(
@@ -178,8 +177,8 @@ Dimension SyntheticDataConfigurations::CheckDimensionValue(const string& aDimens
     return DimensionST;
 }
 
-int SyntheticDataConfigurations::CheckUnknownObservationsValue(string aValue) {
-    int value = CheckNumericalValue(std::move(aValue));
+int SyntheticDataConfigurations::CheckUnknownObservationsValue(const string& aValue) {
+    int value = CheckNumericalValue(aValue);
     if (value >= GetProblemSize()){
         throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
     }

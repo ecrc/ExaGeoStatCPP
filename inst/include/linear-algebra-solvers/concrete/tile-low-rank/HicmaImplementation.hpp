@@ -41,7 +41,7 @@ namespace exageostat {
                  * @brief
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  */
-                virtual ~HicmaImplementation() = default;
+                ~HicmaImplementation() override = default;
 
                 /**
                  * @brief

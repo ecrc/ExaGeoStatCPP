@@ -17,10 +17,10 @@ using namespace exageostat::dataunits;
 
 std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfigurations *apConfigurations) {
     // Check the used Data generation method, whether it's synthetic or real.
-    bool isSynthetic = apConfigurations->GetIsSynthetic();
+    bool is_synthetic = apConfigurations->GetIsSynthetic();
 
     // Return DataGenerator unique pointer of Synthetic type
-    if (isSynthetic) {
+    if (is_synthetic) {
         return std::make_unique<SyntheticGenerator>(apConfigurations);
     }
     // Return DataGenerator unique pointer of real type
