@@ -33,24 +33,24 @@ using namespace std;
  */
 int main(int argc, char **argv) {
 
-    // Create an instance of the SyntheticDataConfigurations class with user-defined configurations.
-    auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
+    // Create an instance of the synthetic_data_configurations class with user-defined configurations.
+    auto synthetic_data_configurations = new SyntheticDataConfigurations(argc, argv);
 
     // Create and initialize linear algebra solvers for different precision types.
-    if (syntheticDataConfigurations->GetPrecision() == SINGLE) {
+    if (synthetic_data_configurations->GetPrecision() == SINGLE) {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                syntheticDataConfigurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+                synthetic_data_configurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
         linearAlgebraSolver->InitiateDescriptors();
-    } else if (syntheticDataConfigurations->GetPrecision() == DOUBLE) {
+    } else if (synthetic_data_configurations->GetPrecision() == DOUBLE) {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                syntheticDataConfigurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+                synthetic_data_configurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
         linearAlgebraSolver->InitiateDescriptors();
-    } else if (syntheticDataConfigurations->GetPrecision() == MIXED) {
+    } else if (synthetic_data_configurations->GetPrecision() == MIXED) {
         // TODO: Add implementation for mixed-precision linear algebra solver.
     }
     // Clean up allocated memory
-    delete syntheticDataConfigurations;
+    delete synthetic_data_configurations;
     return 0;
 }

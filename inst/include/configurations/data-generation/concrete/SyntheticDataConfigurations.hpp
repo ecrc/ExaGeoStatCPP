@@ -46,7 +46,7 @@ namespace exageostat {
                 * @brief Constructor that takes a JSON file path.
                 * @param JSON_path The path to the JSON file.
                 */
-                explicit SyntheticDataConfigurations(std::string JSON_path);
+                explicit SyntheticDataConfigurations(const std::string& JSON_path);
 
                 /**
                  * @brief Virtual destructor to allow calls to the correct concrete destructor.
@@ -89,7 +89,7 @@ namespace exageostat {
                  * @param aValue A string representing the number of unknown observations.
                  * @return The corresponding integer value.
                  */
-                int CheckUnknownObservationsValue(std::string aValue);
+                int CheckUnknownObservationsValue(const std::string& aValue);
 
             private:
                 /// The dimension used for data generation.

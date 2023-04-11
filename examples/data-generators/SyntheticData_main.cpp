@@ -5,7 +5,7 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file SyntheticGenerator.cpp
+ * @file synthetic_generator.cpp
  * @brief This file contains the main function for generating synthetic data for ExaGeoStat.
  * @version 1.0.0
  * @author Sameh Abdulah
@@ -32,28 +32,28 @@ using namespace std;
  */
 int main(int argc, char **argv) {
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator> syntheticGenerator;
+    unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new SyntheticDataConfigurations object with the provided command line arguments
     auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
     // Create the DataGenerator object
-    syntheticGenerator = syntheticGenerator->CreateGenerator(syntheticDataConfigurations);
+    synthetic_generator = synthetic_generator->CreateGenerator(syntheticDataConfigurations);
 
     // Initialize the locations of the generated data
-    syntheticGenerator->InitializeLocations();
+    synthetic_generator->InitializeLocations();
 
     // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
     struct DataPointers{
         double *x;
         double *y;
         double *z;
-    }dataPointers;
+    }dataPointers{};
 
     // Set the pointers in the DataPointers struct to the location coordinates of the generated data
-    dataPointers.x = syntheticGenerator->GetLocations()->GetLocationX();
-    dataPointers.y = syntheticGenerator->GetLocations()->GetLocationY();
-    dataPointers.z = syntheticGenerator->GetLocations()->GetLocationZ();
+    dataPointers.x = synthetic_generator->GetLocations()->GetLocationX();
+    dataPointers.y = synthetic_generator->GetLocations()->GetLocationY();
+    dataPointers.z = synthetic_generator->GetLocations()->GetLocationZ();
 
     // Print the generated location coordinates
     cout << "Generated Locations are .. " << endl;

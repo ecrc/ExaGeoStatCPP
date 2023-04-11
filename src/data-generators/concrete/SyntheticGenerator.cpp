@@ -33,14 +33,14 @@ void SyntheticGenerator::GenerateLocations(int aN) {
 
     int index = 0;
     Dimension dimension = this->mpConfigurations->GetDimension();
-    int timeSlots = this->mpConfigurations->GetTimeSlot();
+    int time_slots = this->mpConfigurations->GetTimeSlot();
 
     //Allocate memory
-    this->mpLocations->SetLocationX((double *) malloc(aN * timeSlots * sizeof(double)));
-    this->mpLocations->SetLocationY((double *) malloc(aN * timeSlots * sizeof(double)));
+    this->mpLocations->SetLocationX((double *) malloc(aN * time_slots * sizeof(double)));
+    this->mpLocations->SetLocationY((double *) malloc(aN * time_slots * sizeof(double)));
 
     if (dimension != Dimension2D) {
-        this->mpLocations->SetLocationZ((double *) malloc(aN * timeSlots * sizeof(double)));
+        this->mpLocations->SetLocationZ((double *) malloc(aN * time_slots * sizeof(double)));
     }
 
     int rootN;
@@ -83,7 +83,7 @@ void SyntheticGenerator::GenerateLocations(int aN) {
         SortLocations(aN);
     }
     else{
-        for (auto j = 1; j < timeSlots; j++) {
+        for (auto j = 1; j < time_slots; j++) {
             for (auto i = 0; i < aN; i++) {
                 this->mpLocations->GetLocationX()[i + j * aN] = this->mpLocations->GetLocationX()[i];
                 this->mpLocations->GetLocationY()[i + j * aN] = this->mpLocations->GetLocationY()[i];

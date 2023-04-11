@@ -193,7 +193,7 @@ new feature, first ensure you have an up-to-date copy of the `main` branch:
 
 You can now create a new branch to develop your feature on:
 
-    $ git checkout -b FT-<name-of-feature>-<FIRST-THREE-LETTERS-OF-YOUR-NAME>
+    $ git checkout -b feature/<name-of-feature>
 
 Proceed to develop your feature on this branch, and add tests that will exercise
 your new code. If you are creating new methods or classes, please add Doxygen
@@ -217,7 +217,7 @@ of the `main` branch:
 
 Then create a new branch for your bugfix:
 
-    $ git checkout -b FIX-<name-of-bug>-<FIRST-THREE-LETTERS-OF-YOUR-NAME>
+    $ git checkout -b bugfix/<name-of-bug>
 
 First, add a test that reproduces the bug you have found. Then develop your
 bugfix as normal, and add tests to check your changes actually fix the bug.
