@@ -63,6 +63,7 @@ namespace exageostat {
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  */
                 virtual ~ChameleonImplementationDST() = default;
+                void testKernelfornow() override;
 
             };
 

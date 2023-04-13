@@ -52,6 +52,7 @@ namespace exageostat {
              * @brief Finalizes the context for the linear algebra solver.
              */
             virtual void ExaGeoStatFinalizeContext() = 0;
+            virtual void testKernelfornow() = 0;
 
             /**
              * @brief Sets the configurations for the linear algebra solver.

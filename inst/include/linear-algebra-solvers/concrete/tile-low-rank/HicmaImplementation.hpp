@@ -63,6 +63,7 @@ namespace exageostat {
                  * Finalizes the context needed for the HICMA solver.
                  */
                 void ExaGeoStatFinalizeContext() override;
+                void testKernelfornow() override;
 
             };
 

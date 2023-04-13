@@ -15,49 +15,69 @@
 #ifndef EXAGEOSTAT_CPP_KERNELS_HPP
 #define EXAGEOSTAT_CPP_KERNELS_HPP
 
+#include <data-units/Locations.hpp>
+#include <starpu.h>
+
+/** ****************************************************************************
+ * The radius of the  earth (used by Great Circle Distance (GCD)
+ **/
+#define EARTH_RADIUS 6371.0
+
+
 namespace exageostat {
-    namespace Kernels {
+    namespace kernels {
 
         /**
          * @class Kernels
          * @brief A class containing the main kernel functions.
          */
-        class Kernel{
+        class Kernel {
         public:
 
             /**
-             * @brief Generate covariance matrix A.
-             *
-             * @param[out]
-             *
-             * @param[in] m
-             *          The number of rows in the tile A.
-             *
-             * @param[in] n
-             *          The number of cols in the tile A.
-             *
-             * @param[in] m0
-             *          Global row index of the tile A.
-             *
-             * @param[in] n0
-             *          Global col index of the tile A.
-             *
-             * @param[in] l1
-             *          Location struct of the first input.
-             *
-             * @param[in] l2
-             *          Location struct of the second input.
-             *
-             * @param[in] localTheta
-             *          Parameter vector that is used to generate the output covariance matrix.
-             *
-             * @param[in] distance_metric
-             *          Distance metric "euclidean Distance (ED) ->0" or "Great Circle Distance (GCD) ->1"             *
-             * @return A
-             *          The m-by-n matrix on which to compute the covariance matrix.
+             * @brief Generates a covariance matrix using a set of locations and kernel parameters.
+             * @param[in] apMatrixA The output covariance matrix.
+             * @param[in] aRowsNumber The number of rows in the output matrix.
+             * @param[in] aColumnsNumber The number of columns in the output matrix.
+             * @param[in] aRowOffset The row offset for the input locations.
+             * @param[in] aColumnOffset The column offset for the input locations.
+             * @param[in] apLocation1 The set of input locations 1.
+             * @param[in] apLocation2 The set of input locations 2.
+             * @param[in] apLocalTheta An array of kernel parameters.
+             * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
-            virtual void GenerateCovarianceMatrix() = 0;
-            virtual void InitializeMatrixParameters() = 0;
+            virtual void
+            GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
+                                     int aColumnOffset, dataunits::Locations *apLocation1,
+                                     dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
+                                     double *apLocalTheta, int aDistanceMetric) = 0;
+
+//            virtual void InitializeMatrixParameters() = 0;
+
+            /**
+             * @brief Calculates the Euclidean distance between two points.
+             * @param apLocations1 Pointer to the first set of locations.
+             * @param apLocations2 Pointer to the second set of locations.
+             * @param aIdxLocation1 Index of the first location in the first set.
+             * @param aIdxLocation2 Index of the second location in the second set.
+             * @param aDistanceMetric Flag indicating the distance metric to use (1 for Manhattan distance, 2 for Euclidean distance).
+             * @param aFlagZ Flag indicating whether the points are in 2D or 3D space (0 for 2D, 1 for 3D).
+             * @return The Euclidean distance between the two points.
+             */
+            static double
+            CalculateDistance(dataunits::Locations *apLocations1, dataunits::Locations *apLocations2, int aIdxLocationX,
+                              int aIdxLocationY,
+                              int aDistanceMetric, int aFlagZ);
+
+            /**
+             * @brief Calculates the great-circle distance between two points on Earth using the Haversine formula.
+             * @param aLatitude1 Latitude of the first point in degrees.
+             * @param aLongitude1 Longitude of the first point in degrees.
+             * @param aLatitude2 Latitude of the second point in degrees.
+             * @param aLongitude2 Longitude of the second point in degrees.
+             * @return The distance between the two points in kilometers.
+             */
+            static double DistanceEarth(double aLatitude1, double aLongitude1, double aLatitude2, double aLongitude2);
 
         };
     }//namespace Kernels

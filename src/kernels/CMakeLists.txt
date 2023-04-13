@@ -12,7 +12,9 @@
 
 # Add the Configurations.cpp file to the list of source files.
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/UnivariateMaternStationary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Kernel.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternStationary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternNonStationary.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -111,3 +111,7 @@ void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
     } else
         CHAMELEON_Finalize();
 }
+template<typename T>
+void ChameleonImplementationDST<T>::testKernelfornow() {
+
+}
