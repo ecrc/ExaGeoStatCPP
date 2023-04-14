@@ -79,6 +79,41 @@ namespace exageostat {
              */
             static double DistanceEarth(double aLatitude1, double aLongitude1, double aLatitude2, double aLongitude2);
 
+            /**
+             * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu)
+             * with respect to its input, evaluated at input_value and order aOrder.
+             * @param aOrder The order of the Bessel function.
+             * @param input_value The input value at which to evaluate the derivative.
+             * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
+             */
+            static double CalculateDerivativeBesselInputNu(const double& aOrder, const double& aInputValue);
+
+            /**
+             * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its order,
+             * evaluated at input_value and order aOrder.
+             * @param aOrder The order of the Bessel function.
+             * @param input_value The input value at which to evaluate the derivative.
+             * @return The value of the derivative of K_nu with respect to its order, evaluated at input_value and order aOrder.
+             */
+            static double CalculateDerivativeBesselNu(const double& aOrder, const double& aInputValue);
+
+            /**
+             * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input,
+             * evaluated at input_value and order aOrder.
+             * @param aOrder The order of the Bessel function.
+             * @param input_value The input value at which to evaluate the second derivative.
+             * @return The value of the second derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
+             */
+            static double CalculateSecondDerivativeBesselNu(const double& aOrder, const double& aInputValue);
+
+            /**
+             * Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
+             * @param aOrder The order of the Bessel function.
+             * @param input_value The input value at which to evaluate the derivative.
+             * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
+             */
+            static double CalculateSecondDerivativeBesselNuInput(const double& aOrder, const double& aInputValue);
+
         };
     }//namespace Kernels
 }//namespace exageostat

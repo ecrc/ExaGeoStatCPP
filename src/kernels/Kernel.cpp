@@ -14,6 +14,7 @@
 #include <kernels/Kernel.hpp>
 #include <cmath>
 #include <iostream>
+#include <gsl/gsl_sf_bessel.h>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
@@ -59,4 +60,30 @@ double Kernel::DistanceEarth(double aLatitude1, double aLongitude1, double aLati
     return EARTH_RADIUS * c;
 }
 
+double Kernel::CalculateDerivativeBesselInputNu(const double& aOrder, const double& aInputValue) {
+    if (aOrder < 1) {
+        double nu_new = abs(aOrder - 1);
+        return (-0.5 * (-CalculateDerivativeBesselNu(nu_new, aInputValue) + CalculateDerivativeBesselNu(abs(aOrder + 1), aInputValue)));
+    } else {
+        return (-0.5 * (CalculateDerivativeBesselNu(aOrder - 1, aInputValue) + CalculateDerivativeBesselNu(abs(aOrder + 1), aInputValue)));
+    }
+}
 
+double Kernel::CalculateDerivativeBesselNu(const double& aOrder, const double& aInputValue) {
+    if (aOrder == 0){
+        return 0;
+    }
+    else {
+        // Use a small step size to calculate the derivative numerically
+        const double step_size = 0.000000001;
+        return (gsl_sf_bessel_Knu(aOrder + step_size, aInputValue) - gsl_sf_bessel_Knu(aOrder, aInputValue)) / step_size;
+    }
+}
+
+double Kernel::CalculateSecondDerivativeBesselNu(const double& aOrder, const double& aInputValue) {
+    return (-0.5 * (CalculateSecondDerivativeBesselNuInput(aOrder - 1, aInputValue) + CalculateSecondDerivativeBesselNuInput(aOrder + 1, aInputValue)));
+}
+
+double Kernel::CalculateSecondDerivativeBesselNuInput(const double& aOrder, const double& aInputValue) {
+    return (aOrder / aInputValue * gsl_sf_bessel_Knu(aOrder, aInputValue) - gsl_sf_bessel_Knu(aOrder + 1, aInputValue));
+}
