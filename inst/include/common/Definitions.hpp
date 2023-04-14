@@ -123,7 +123,7 @@ namespace exageostat {
                             if (i != 0) {
                                 lowercaseName += '_';
                             }
-                            lowercaseName += std::tolower(kernelName[i]);dd
+                            lowercaseName += std::tolower(kernelName[i]);
                         } else {
                             lowercaseName += kernelName[i];
                         }
