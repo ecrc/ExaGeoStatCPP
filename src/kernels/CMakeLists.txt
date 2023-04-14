@@ -15,6 +15,10 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Kernel.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternStationary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternNonStationary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/BivariateMaternFlexible.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/BivariateMaternParsimonious.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternNuggetsStationary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateSpacetimeMaternStationary.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

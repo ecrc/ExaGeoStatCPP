@@ -13,7 +13,6 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternNonStationary.hpp>
-#include <iostream>
 #include<cmath>
 #include <gsl/gsl_sf_bessel.h>
 
@@ -22,7 +21,7 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 
-void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
+void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                           Locations *apLocation2, Locations *apLocation3,
                                                           double *apLocalTheta, int aDistanceMetric) {

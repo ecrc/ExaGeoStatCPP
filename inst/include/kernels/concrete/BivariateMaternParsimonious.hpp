@@ -5,37 +5,35 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file UnivariateMaternNonStationary.hpp
+ * @file BivariateMaternParsimonious.hpp
  *
  * @version 1.0.0
  * @author Sameh Abdulah
- * @date 2023-04-13
+ * @date 2023-04-14
 **/
 
-#ifndef EXAGEOSTATCPP_UNIVARIATEMATERNNONSTATIONARY_HPP
-#define EXAGEOSTATCPP_UNIVARIATEMATERNNONSTATIONARY_HPP
-
+#ifndef EXAGEOSTATCPP_BIVARIATEMATERNPARSIMONIOUS_HPP
+#define EXAGEOSTATCPP_BIVARIATEMATERNPARSIMONIOUS_HPP
 #include <kernels/Kernel.hpp>
 
 namespace exageostat {
     namespace kernels {
 
         /**
-         * @class UnivariateMaternNonStationary
+         * @class BivariateMaternFlexible
          */
-        class UnivariateMaternNonStationary : public Kernel {
+        class BivariateMaternParsimonious : public Kernel {
         public:
 
             /**
-             * @brief Generates the covariance matrix for a given set of locations, based on the Matérn stationary covariance function.
+             * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @param[in] apMatrixA The output covariance matrix.
              * @param[in] aRowsNumber The number of rows in the output matrix.
              * @param[in] aColumnsNumber The number of columns in the output matrix.
              * @param[in] aRowOffset The row offset for the input locations.
              * @param[in] aColumnOffset The column offset for the input locations.
-             * @param [in] apLocation1 Pointer to the first set of locations.
-             * @param [in] apLocation2 Pointer to the second set of locations.
-             * @param [in] apLocation3 Pointer to the third set of locations.
+             * @param[in] apLocation1 The set of input locations 1.
+             * @param[in] apLocation2 The set of input locations 2.
              * @param[in] apLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
@@ -50,4 +48,4 @@ namespace exageostat {
     }//namespace Kernels
 }//namespace exageostat
 
-#endif //EXAGEOSTATCPP_UNIVARIATEMATERNNONSTATIONARY_HPP
+#endif //EXAGEOSTATCPP_BIVARIATEMATERNPARSIMONIOUS_HPP
