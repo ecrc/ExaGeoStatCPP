@@ -39,11 +39,8 @@ bool DataConfigurations::GetIsSynthetic() const {
 
 void DataConfigurations::CheckKernelValue(const std::string& aKernel) {
 
-    // Finding position of input kernel in the available kernels.
-    auto position = availableKernels.find(aKernel);
-
-    // If the element is not found, then the iterator points to the position just after the last element in the set.
-    if (position == availableKernels.end()) {
+    // Check if the kernel name exists in the availableKernels set.
+    if (availableKernels.count(aKernel) <= 0) {
         throw range_error("Invalid value for Kernel. Please check manual.");
     }
 }

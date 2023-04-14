@@ -19,6 +19,11 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/BivariateMaternParsimonious.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternNuggetsStationary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateSpacetimeMaternStationary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternDsigmaSquare.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternDnu.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternDbeta.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternDdsigmaSquare.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternDdsigmaSquareBeta.cpp
         ${SOURCES}
         PARENT_SCOPE
         )
