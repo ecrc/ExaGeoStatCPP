@@ -499,10 +499,21 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
     }
 
 }
+void blabla(){
+    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
+    auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
+    syntheticDataConfigurations->SetProblemSize(6400);
+    syntheticDataConfigurations->SetDenseTileSize(512);
+    linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+
+    linearAlgebraSolver->InitiateDescriptors();
+    linearAlgebraSolver->testKernelfornow();
+}
 TEST_CASE("Chameleon Implementation Dense") {
     INIT_HARDWARE();
     FINALIZE_HARDWARE();
     TEST_INITIALIZETION();
     TEST_CHAMELEON_DESCRIPTORS_VALUES();
+//blabla();
 }

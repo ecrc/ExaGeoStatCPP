@@ -55,9 +55,11 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
         i0++;
     }
 
+    cout << "locX[0]: " << apLocation1->GetLocationX()[0] << endl;
+    cout << "locY[0]: " << apLocation1->GetLocationY()[0] << endl;
     for (i = 0; i < aRowsNumber; i++) {
         for (j = 0; j < aColumnsNumber; j++) {
-            cout << apMatrixA[i + j * aRowsNumber];
+            cout << apMatrixA[i + j * aRowsNumber] << " ";
         }
         cout << endl;
     }

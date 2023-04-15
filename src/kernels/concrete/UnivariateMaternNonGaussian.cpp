@@ -27,5 +27,32 @@ void UnivariateMaternNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, in
                                                       int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                       Locations *apLocation2, Locations *apLocation3,
                                                       double *apLocalTheta, int aDistanceMetric) {
+    //localtheta[0] <- \phi
+    //localtheta[1] <- \nu
+    int i, j;
+    int i0 = aRowOffset;
+    int j0 = aColumnOffset;
+    double x0, y0, z0;
+    double expr = 0.0;
+    double con = 0.0;
+    double sigma_square = 1;
 
+    con = pow(2, (apLocalTheta[1] - 1)) * tgamma(apLocalTheta[1]);
+    con = 1.0 / con;
+    con = sigma_square * con;
+
+    for (i = 0; i < aRowsNumber; i++) {
+        j0 = aColumnOffset;
+        for (j = 0; j < aColumnsNumber; j++) {
+            expr = 4 * sqrt(2 * apLocalTheta[1]) *
+                   (CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / apLocalTheta[0]);
+            if (expr == 0)
+                apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
+            else
+                apMatrixA[i + j * aRowsNumber] = con * pow(expr, apLocalTheta[1])
+                                                 * gsl_sf_bessel_Knu(apLocalTheta[1], expr); // Matern Function
+            j0++;
+        }
+        i0++;
+    }
 }
