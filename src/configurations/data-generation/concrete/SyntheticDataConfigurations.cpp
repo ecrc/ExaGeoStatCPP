@@ -97,7 +97,7 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             if (argument_name == "--help") {
                 PrintUsage();
             }
-            if (argument_name == "--syntheticData") {
+            if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" || argument_name == "--synthetic") {
                 SetIsSynthetic(true);
             } else if (argument_name == "--OOC") {
                 SetIsOOC(true);
