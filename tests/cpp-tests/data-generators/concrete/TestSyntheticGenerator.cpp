@@ -256,6 +256,7 @@ void TEST_GENERATION(){
         syntheticDataConfigurations->SetProblemSize(2);
         SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
         syntheticGenerator.InitializeLocations();
+
         if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[0] - 0.386069) >= 1e-6) {
             REQUIRE(false);
         }
@@ -272,8 +273,11 @@ void TEST_GENERATION(){
 }
 
 
-TEST_CASE("Synthetic Data Generation") {
+TEST_CASE("Synthetic Data Generation values tests") {
     TEST_GENERATION();
+}
+
+TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();
