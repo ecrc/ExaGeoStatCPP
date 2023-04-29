@@ -22,11 +22,13 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 
-void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
+void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
+                                                          int aRowOffset,
                                                           int aColumnOffset, dataunits::Locations *apLocation1,
-                                                          dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
+                                                          dataunits::Locations *apLocation2,
+                                                          dataunits::Locations *apLocation3,
                                                           double *apLocalTheta, int aDistanceMetric) {
-    cout << "LEEEEEEEEEEEEEEEEEEEEEEEEH" << endl;
+
     int i = 0, j = 0;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -42,25 +44,16 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-
             expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / apLocalTheta[1];
-            if (expr == 0)
+            if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
-            else
+            } else {
                 apMatrixA[i + j * aRowsNumber] = con * pow(expr, apLocalTheta[2])
                                                  * gsl_sf_bessel_Knu(apLocalTheta[2], expr); // Matern Function
+            }
 
             j0++;
         }
         i0++;
-    }
-
-    cout << "locX[0]: " << apLocation1->GetLocationX()[0] << endl;
-    cout << "locY[0]: " << apLocation1->GetLocationY()[0] << endl;
-    for (i = 0; i < aRowsNumber; i++) {
-        for (j = 0; j < aColumnsNumber; j++) {
-            cout << apMatrixA[i + j * aRowsNumber] << " ";
-        }
-        cout << endl;
     }
 }

@@ -188,6 +188,7 @@ void *EXAGEOSTAT_data_getaddr(const CHAM_desc_t *A, int type, int m, int n) {
 //#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)RUNTIME_data_getaddr( desc, m, n ) )
 #define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)EXAGEOSTAT_data_getaddr( desc, type, m, n ) )
 
+
 template<typename T>
 void ChameleonImplementationDense<T>::testKernelfornow() {
     auto kernel = new exageostat::kernels::UnivariateMaternStationary();
@@ -249,6 +250,27 @@ void ChameleonImplementationDense<T>::testKernelfornow() {
     cout << "yaba ha: " << (double* ) STARPU_MATRIX_GET_PTR(EXAGEOSTAT_RTBLKADDR((*CHAM_descriptorC), ChamRealDouble, 0, 0)) << endl;
     cout << "A: " << A << endl;
     cout << "A[0]: " << A[0] << endl;
-    kernel->GenerateCovarianceMatrix(A, 8, 8, 0, 0, l1, l2, nullptr, initial_theta, 0);
+    kernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
+    /*
+     * 1.000000 0.108306 0.004480 0.012114 0.015264
+     * 0.108306 1.000000 0.030836 0.017798 0.062895
+     * 0.004480 0.030836 1.000000 0.001011 0.007046
+     * 0.012114 0.017798 0.001011 1.000000 0.123679
+     * 0.015264 0.062895 0.007046 0.123679 1.000000
+     */
+    kernel->GenerateCovarianceMatrix(A, 4, 5, 5, 0, l1, l1, nullptr, initial_theta, 0);
+    /*
+     * 0.002145 0.004299 0.000404 0.171258 0.055331
+     * 0.000468 0.001824 0.000498 0.021786 0.028073
+     * 0.000221 0.001990 0.009302 0.000805 0.005396
+     * 0.000061 0.000440 0.000713 0.000907 0.003317
+     */
+    kernel->GenerateCovarianceMatrix(A, 4, 4, 5, 5, l1, l1, nullptr, initial_theta, 0);
+    /*
+     * 1.000000 0.085375 0.000986 0.002264
+     * 0.085375 1.000000 0.005156 0.023215
+     * 0.000986 0.005156 1.000000 0.053542
+     * 0.002264 0.023215 0.053542 1.000000
+     */
     cout << "A[0]: " << A[0] << endl;
 }

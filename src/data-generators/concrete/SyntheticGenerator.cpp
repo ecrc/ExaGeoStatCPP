@@ -62,15 +62,15 @@ void SyntheticGenerator::GenerateLocations(int aN) {
         for (auto j = 0; j < rootN && index < aN; j++) {
             if (dimension == Dimension3D){
                 for (auto k = 0; k < rootN && index < aN; k++) {
-                    this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
-                    this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
-                    this->mpLocations->GetLocationZ()[index] = (grid[k] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
+                    this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
+                    this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
+                    this->mpLocations->GetLocationZ()[index] = (grid[k] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                     index++;
                 }
             }
             else{
-                this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
-                this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + this->UniformDistribution(-0.4, 0.4)) / rootN;
+                this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
+                this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                 if (dimension == DimensionST){
                     this->mpLocations->GetLocationZ()[index] = 1.0;
                 }
@@ -118,7 +118,7 @@ void SyntheticGenerator::SortLocations(int aN) {
         else{
             z = (uint16_t) 0.0;
         }
-        vectorZ[i] = (this->SpreadBits(z) << 2) + (this->SpreadBits(y) << 1) + this->SpreadBits(x);
+        vectorZ[i] = (SpreadBits(z) << 2) + (SpreadBits(y) << 1) + SpreadBits(x);
     }
     // Sort vector z
     std::sort(vectorZ, vectorZ + aN, CompareUint64);

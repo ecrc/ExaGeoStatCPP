@@ -250,23 +250,7 @@ void TEST_HELPERS_FUNCTIONS(){
 }
 
 void TEST_GENERATION(){
-    SECTION("N with 1"){
-        auto syntheticDataConfigurations = new SyntheticDataConfigurations();
-        syntheticDataConfigurations->SetDimension(Dimension2D);
-        syntheticDataConfigurations->SetProblemSize(1);
-        SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
-        syntheticGenerator.InitializeLocations();
-        if (fabs(*syntheticGenerator.GetLocations()->GetLocationX() - 0.772152) >= 1e-6) {
-            REQUIRE(false);
-        }
-        if (fabs(*syntheticGenerator.GetLocations()->GetLocationY() - 0.415503) >= 1e-6) {
-            REQUIRE(false);
-        }
-        free(syntheticDataConfigurations);
-    }
-}
-void TEST_GENERATION2(){
-    SECTION("N with 1"){
+
         auto syntheticDataConfigurations = new SyntheticDataConfigurations();
         syntheticDataConfigurations->SetDimension(Dimension2D);
         syntheticDataConfigurations->SetProblemSize(2);
@@ -285,12 +269,11 @@ void TEST_GENERATION2(){
             REQUIRE(false);
         }
         free(syntheticDataConfigurations);
-    }
 }
 
 
 TEST_CASE("Synthetic Data Generation") {
-    TEST_GENERATION2();
+    TEST_GENERATION();
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();

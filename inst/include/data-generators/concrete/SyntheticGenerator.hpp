@@ -78,7 +78,7 @@ namespace exageostat {
                  * The scaled uniform distribution between the two bounds .
                  *
                  */
-                double UniformDistribution(double aRangeLow, double aRangeHigh);
+                static double UniformDistribution(double aRangeLow, double aRangeHigh);
 
                 /**
                  * @brief
@@ -101,7 +101,7 @@ namespace exageostat {
                  * The byte after being spread.
                  *
                  */
-                uint64_t SpreadBits(uint64_t aInputByte);
+                static uint64_t SpreadBits(uint64_t aInputByte);
                 /**
                  * @brief
                  * Reverse Spread bits operation.
@@ -113,7 +113,7 @@ namespace exageostat {
                  * The byte after being compacted.
                  *
                  */
-                uint64_t ReverseSpreadBits(uint64_t aInputByte);
+                static uint64_t ReverseSpreadBits(uint64_t aInputByte);
 
                 /**
                  * @brief
