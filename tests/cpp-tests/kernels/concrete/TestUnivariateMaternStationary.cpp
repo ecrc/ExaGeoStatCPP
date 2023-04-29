@@ -18,7 +18,7 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 
-void TEST_GENERATION(){
+void TEST_KERNEL_GENERATION(){
 //    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
 //#ifdef EXAGEOSTAT_USE_CHAMELEON
 //    auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
@@ -38,5 +38,5 @@ void TEST_GENERATION(){
 }
 TEST_CASE("Univariate Matern Stationary kernel test") {
 
-    TEST_GENERATION();
+    TEST_KERNEL_GENERATION();
 }
