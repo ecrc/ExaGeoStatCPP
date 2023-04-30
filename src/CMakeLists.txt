@@ -15,6 +15,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-units)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/linear-algebra-solvers)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/kernels)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/operators)
 
 # Set the name of the library to be created.
 set(LIB_NAME ${PROJECT_NAME})

@@ -55,6 +55,13 @@ void Configurations::SetPrecision(Precision aPrecision) {
     this->mPrecision = aPrecision;
 }
 
+void Configurations::SetOperator(Operators aOperator) {
+    this->mOperator = aOperator;
+}
+
+Operators Configurations::GetOperator() {
+    return this->mOperator;
+}
 void Configurations::SetPGrid(int aPGrid) {
     this->mPGrid = aPGrid;
 }

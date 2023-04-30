@@ -114,6 +114,26 @@ namespace exageostat {
 
             /**
              * @brief
+             * Operator getter.
+             *
+             * @return mOperator
+             *
+             */
+            common::Operators
+            GetOperator();
+
+            /**
+             * @brief
+             * Operator setter.
+             *
+             * @param aOperator
+             *
+             */
+            void
+            SetOperator(common::Operators aOperator);
+
+            /**
+             * @brief
              * Precision getter.
              *
              * @return mPrecision
@@ -487,6 +507,8 @@ namespace exageostat {
             common::Computation mComputation = common::EXACT_DENSE;
             /// Used Precision.
             common::Precision mPrecision = common::SINGLE;
+            /// Used Operator.
+            common::Operators mOperator = common::MLE;
             //// Used vectors of C descriptor.
             std::vector<void *> mpDescriptorC;
             //// Used vectors of Z descriptor.

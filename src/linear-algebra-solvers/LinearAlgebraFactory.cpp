@@ -51,5 +51,5 @@ std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAl
 #endif
     }
     // Return nullptr if no computation is selected
-    return nullptr;
+    throw std::runtime_error("You need to enable whether HiCMA or Chameleon");
 }

@@ -24,7 +24,6 @@ namespace exageostat {
             /**
              * @brief
              * ChameleonImplementationDense is a concrete implementation of LinearAlgebraMethods class for dense matrices.
-             *
              * @tparam T Type of matrix elements.
              */
             template<typename T>

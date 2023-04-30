@@ -63,6 +63,14 @@ namespace exageostat {
         };
 
         /**
+         * @enum Operators
+         * @brief Enum denoting the types of Operators that can be requested
+         */
+        enum Operators {
+            MLE = 0,
+        };
+
+        /**
          * @enum Precision
          * @brief Enum denoting the precision of operations that are supported to be done on the matrix.
          */
