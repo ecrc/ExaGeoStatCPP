@@ -87,3 +87,7 @@ double Kernel::CalculateSecondDerivativeBesselNu(const double& aOrder, const dou
 double Kernel::CalculateSecondDerivativeBesselNuInput(const double& aOrder, const double& aInputValue) {
     return (aOrder / aInputValue * gsl_sf_bessel_Knu(aOrder, aInputValue) - gsl_sf_bessel_Knu(aOrder + 1, aInputValue));
 }
+
+int Kernel::GetPValue() const {
+    return this->mP;
+}

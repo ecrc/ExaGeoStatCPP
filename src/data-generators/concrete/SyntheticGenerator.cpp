@@ -17,40 +17,41 @@ using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 
 SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
-    // Set configuration map.
-    this->SetConfigurations(apConfigurations);
-    this->InitLocationsClass();
+    // Set configuration map and init locations.
+    this->mpConfigurations = apConfigurations;
+    this->mpLocations = new Locations();
 }
 
-void SyntheticGenerator::InitializeLocations() {
+void SyntheticGenerator::GenerateKernel(){
+    std::string kernel_name = this->mpConfigurations->GetKernel();
+
+}
+
+void SyntheticGenerator::GenerateLocations() {
 
     int p = 1;
     int N = this->mpConfigurations->GetProblemSize() / p;
-    this->GenerateLocations(N);
-}
-
-void SyntheticGenerator::GenerateLocations(int aN) {
 
     int index = 0;
     Dimension dimension = this->mpConfigurations->GetDimension();
     int time_slots = this->mpConfigurations->GetTimeSlot();
 
     //Allocate memory
-    this->mpLocations->SetLocationX((double *) malloc(aN * time_slots * sizeof(double)));
-    this->mpLocations->SetLocationY((double *) malloc(aN * time_slots * sizeof(double)));
+    this->mpLocations->SetLocationX((double *) malloc(N * time_slots * sizeof(double)));
+    this->mpLocations->SetLocationY((double *) malloc(N * time_slots * sizeof(double)));
 
     if (dimension != Dimension2D) {
-        this->mpLocations->SetLocationZ((double *) malloc(aN * time_slots * sizeof(double)));
+        this->mpLocations->SetLocationZ((double *) malloc(N * time_slots * sizeof(double)));
     }
 
     int rootN;
     if (dimension == Dimension3D){
         //Cubic root.
-        rootN = ceil(cbrt(aN));
+        rootN = ceil(cbrt(N));
     }
     else{
          //Square root.
-        rootN = ceil(sqrt(aN));
+        rootN = ceil(sqrt(N));
     }
 
     int *grid = (int *) calloc((int) rootN, sizeof(int));
@@ -58,10 +59,10 @@ void SyntheticGenerator::GenerateLocations(int aN) {
         grid[i] = i + 1;
     }
 
-    for (auto i = 0; i < rootN && index < aN; i++) {
-        for (auto j = 0; j < rootN && index < aN; j++) {
+    for (auto i = 0; i < rootN && index < N; i++) {
+        for (auto j = 0; j < rootN && index < N; j++) {
             if (dimension == Dimension3D){
-                for (auto k = 0; k < rootN && index < aN; k++) {
+                for (auto k = 0; k < rootN && index < N; k++) {
                     this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                     this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                     this->mpLocations->GetLocationZ()[index] = (grid[k] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
@@ -80,14 +81,14 @@ void SyntheticGenerator::GenerateLocations(int aN) {
     }
     free(grid);
     if (dimension != DimensionST){
-        SortLocations(aN);
+        SortLocations(N);
     }
     else{
         for (auto j = 1; j < time_slots; j++) {
-            for (auto i = 0; i < aN; i++) {
-                this->mpLocations->GetLocationX()[i + j * aN] = this->mpLocations->GetLocationX()[i];
-                this->mpLocations->GetLocationY()[i + j * aN] = this->mpLocations->GetLocationY()[i];
-                this->mpLocations->GetLocationZ()[i + j * aN] = (double) (j + 1);
+            for (auto i = 0; i < N; i++) {
+                this->mpLocations->GetLocationX()[i + j * N] = this->mpLocations->GetLocationX()[i];
+                this->mpLocations->GetLocationY()[i + j * N] = this->mpLocations->GetLocationY()[i];
+                this->mpLocations->GetLocationZ()[i + j * N] = (double) (j + 1);
             }
         }
     }

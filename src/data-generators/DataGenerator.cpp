@@ -23,16 +23,10 @@ std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfi
     if (is_synthetic) {
         return std::make_unique<SyntheticGenerator>(apConfigurations);
     }
-    // Return DataGenerator unique pointer of real type
-    return nullptr;
-}
-
-void DataGenerator::SetConfigurations(SyntheticDataConfigurations *apConfigurations) {
-    this->mpConfigurations = apConfigurations;
-}
-
-void DataGenerator::InitLocationsClass() {
-    this->mpLocations = new Locations();
+    else{
+        // Open saved files
+        throw std::domain_error("Unsupported for now, Please add --SyntheticData");
+    }
 }
 
 Locations* DataGenerator::GetLocations() {

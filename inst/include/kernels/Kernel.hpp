@@ -16,6 +16,7 @@
 #define EXAGEOSTAT_CPP_KERNELS_HPP
 
 #include <data-units/Locations.hpp>
+#include <common/PluginRegistry.hpp>
 #include <starpu.h>
 
 /** ****************************************************************************
@@ -51,8 +52,6 @@ namespace exageostat {
                                      int aColumnOffset, dataunits::Locations *apLocation1,
                                      dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
                                      double *apLocalTheta, int aDistanceMetric) = 0;
-
-//            virtual void InitializeMatrixParameters() = 0;
 
             /**
              * @brief Calculates the Euclidean distance between two points.
@@ -113,6 +112,12 @@ namespace exageostat {
              * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
              */
             static double CalculateSecondDerivativeBesselNuInput(const double& aOrder, const double& aInputValue);
+
+            int GetPValue() const;
+
+        protected:
+            //// Used P.
+            int mP;
 
         };
     }//namespace Kernels

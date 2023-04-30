@@ -30,6 +30,7 @@ using namespace std;
  * @param argv The command line arguments.
  * @return The status code of the program.
  */
+
 int main(int argc, char **argv) {
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator> synthetic_generator;
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
     synthetic_generator = synthetic_generator->CreateGenerator(syntheticDataConfigurations);
 
     // Initialize the locations of the generated data
-    synthetic_generator->InitializeLocations();
+    synthetic_generator->GenerateLocations();
 
     // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
     struct DataPointers{
@@ -74,4 +75,15 @@ int main(int argc, char **argv) {
     // Clean up memory
     delete syntheticDataConfigurations;
     return 0;
+
+    //#include <kernels/Kernel.hpp>
+    //#include <kernels/concrete/UnivariateMaternStationary.hpp>
+//    auto p = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::create("UnivariateMaternStationary");
+//    cout << "here?" << endl;
+//    if (p) {
+////        p->GenerateCovarianceMatrix();
+//    } else {
+//        std::cerr << "Failed to create plugin instance\n";
+//    }
+
 }

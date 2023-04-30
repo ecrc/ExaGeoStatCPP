@@ -52,8 +52,10 @@ namespace exageostat {
                  * The modified X, Y and Z variables.
                  */
                 void
-                InitializeLocations() override;
+                GenerateLocations() override;
 
+                void
+                GenerateKernel() override;
                 /**
                  * @brief
                  * Set default values for input arguments
@@ -62,7 +64,7 @@ namespace exageostat {
                  * The problem size divided by P-Grid.
                  *
                  */
-                void GenerateLocations(int aN);
+//                void GenerateLocations(int aN);
 
                 /**
                  * @brief

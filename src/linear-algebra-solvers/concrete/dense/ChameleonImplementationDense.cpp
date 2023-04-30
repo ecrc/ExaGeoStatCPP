@@ -140,8 +140,7 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 }
 
 
-#include <kernels/concrete/UnivariateMaternStationary.hpp>
-#include <kernels/Kernel.hpp>
+//#include <kernels/Kernel.hpp>
 #include <data-generators/DataGenerator.hpp>
 
 void *EXAGEOSTAT_data_getaddr(const CHAM_desc_t *A, int type, int m, int n) {
@@ -190,37 +189,37 @@ void *EXAGEOSTAT_data_getaddr(const CHAM_desc_t *A, int type, int m, int n) {
 
 template<typename T>
 void ChameleonImplementationDense<T>::testKernelfornow() {
-    auto kernel = new exageostat::kernels::UnivariateMaternStationary();
-
-    auto **CHAM_descriptorC = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorC()[0];
-
-    // Create a unique pointer to a DataGenerator object
-    unique_ptr<exageostat::generators::DataGenerator> d1;
-
-    // Create the DataGenerator object
-    d1 = d1->CreateGenerator(
-            dynamic_cast<configurations::data_configurations::SyntheticDataConfigurations *>(this->mpConfigurations));
-
-    // Initialize the locations of the generated data
-    d1->InitializeLocations();
-    dataunits::Locations * l1 = d1->GetLocations();
-
-    unique_ptr<exageostat::generators::DataGenerator> d2;
-    // Create the DataGenerator object
-    d2 = d2->CreateGenerator(
-            dynamic_cast<configurations::data_configurations::SyntheticDataConfigurations *>(this->mpConfigurations));
-
-    // Initialize the locations of the generated data
-    d2->InitializeLocations();
-    dataunits::Locations * l2 = d2->GetLocations();
-    double * initial_theta = (double* ) malloc(3 * sizeof(double));
-
-    initial_theta[0] = 1.0;
-    initial_theta[1] = 0.1;
-    initial_theta[2] = 0.5;
-
-    auto * A = (double* ) EXAGEOSTAT_RTBLKADDR((*CHAM_descriptorC), ChamRealDouble, 0, 0);
-    kernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
+//    auto kernel = new exageostat::kernels::UnivariateMaternStationary();
+//
+//    auto **CHAM_descriptorC = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorC()[0];
+//
+//    // Create a unique pointer to a DataGenerator object
+//    unique_ptr<exageostat::generators::DataGenerator> d1;
+//
+//    // Create the DataGenerator object
+//    d1 = d1->CreateGenerator(
+//            dynamic_cast<configurations::data_configurations::SyntheticDataConfigurations *>(this->mpConfigurations));
+//
+//    // Initialize the locations of the generated data
+//    d1->GenerateLocations();
+//    dataunits::Locations * l1 = d1->GetLocations();
+//
+//    unique_ptr<exageostat::generators::DataGenerator> d2;
+//    // Create the DataGenerator object
+//    d2 = d2->CreateGenerator(
+//            dynamic_cast<configurations::data_configurations::SyntheticDataConfigurations *>(this->mpConfigurations));
+//
+//    // Initialize the locations of the generated data
+//    d2->GenerateLocations();
+//    dataunits::Locations * l2 = d2->GetLocations();
+//    double * initial_theta = (double* ) malloc(3 * sizeof(double));
+//
+//    initial_theta[0] = 1.0;
+//    initial_theta[1] = 0.1;
+//    initial_theta[2] = 0.5;
+//
+//    auto * A = (double* ) EXAGEOSTAT_RTBLKADDR((*CHAM_descriptorC), ChamRealDouble, 0, 0);
+//    kernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
     /*
      * 1.000000 0.108306 0.004480 0.012114 0.015264
      * 0.108306 1.000000 0.030836 0.017798 0.062895
@@ -228,14 +227,14 @@ void ChameleonImplementationDense<T>::testKernelfornow() {
      * 0.012114 0.017798 0.001011 1.000000 0.123679
      * 0.015264 0.062895 0.007046 0.123679 1.000000
      */
-    kernel->GenerateCovarianceMatrix(A, 4, 5, 5, 0, l1, l1, nullptr, initial_theta, 0);
+//    kernel->GenerateCovarianceMatrix(A, 4, 5, 5, 0, l1, l1, nullptr, initial_theta, 0);
     /*
      * 0.002145 0.004299 0.000404 0.171258 0.055331
      * 0.000468 0.001824 0.000498 0.021786 0.028073
      * 0.000221 0.001990 0.009302 0.000805 0.005396
      * 0.000061 0.000440 0.000713 0.000907 0.003317
      */
-    kernel->GenerateCovarianceMatrix(A, 4, 4, 5, 5, l1, l1, nullptr, initial_theta, 0);
+//    kernel->GenerateCovarianceMatrix(A, 4, 4, 5, 5, l1, l1, nullptr, initial_theta, 0);
     /*
      * 1.000000 0.085375 0.000986 0.002264
      * 0.085375 1.000000 0.005156 0.023215

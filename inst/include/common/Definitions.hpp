@@ -19,28 +19,33 @@
 #define EXAGEOSTATCPP_DEFINITIONS_HPP
 
 #include <iostream>
+#include <string>
+#include <map>
 #include <set>
 #include <filesystem>
-#include <string>
 
+#include <kernels/Kernel.hpp>
 
 /**
  * @def EXAGEOSTAT_INSTANTIATE_CLASS
  * @brief Macro definition to instantiate the EXAGEOSTAT template classes with supported types.
 **/
+
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
 #ifndef PROJECT_SOURCE_DIR
 #   define PROJECT_SOURCE_DIR ""
-#endif
 
+#endif
 // Variables sizes.
 #define SIZE_OF_FLOAT 4
+
 #define SIZE_OF_DOUBLE 8
 
 namespace exageostat {
     namespace common {
+
         /**
          * @enum Dimension
          * @brief Enum denoting the dimension of generated data.
@@ -93,7 +98,6 @@ namespace exageostat {
             EXAGEOSTAT_COMPLEX_DOUBLE = 5,
         };
 
-
         /**
          * @var availableKernels
          * @brief Set denoting the available kernels supported in matrix generation.
@@ -123,7 +127,8 @@ namespace exageostat {
                     const std::string kernelName = filename.substr(0, filename.size() - extension.size());
                     // This adds the kernel name to the kernelNames set.
                     kernelNames.insert(kernelName);
-                    // This blo/ck of code converts the kernel name to lowercase and adds underscores before each capital letter.
+
+                    // This blo/ck of code converts the kernel name to lowercase     and adds underscores before each capital letter.
                     std::string lowercaseName;
                     for (std::size_t i = 0; i < kernelName.size(); ++i) {
                         if (std::isupper(kernelName[i])) {
@@ -140,6 +145,8 @@ namespace exageostat {
                     kernelNames.insert(lowercaseName);
                 }
             }
+            std::set<std::string> classNames = availableKernels;
+
             return kernelNames;
         }();
 

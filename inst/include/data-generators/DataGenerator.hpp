@@ -35,7 +35,13 @@ namespace exageostat {
              * The modified X, Y and Z variables.
              */
             virtual void
-            InitializeLocations() = 0;
+            GenerateLocations() = 0;
+
+            virtual void
+            GenerateKernel() = 0;
+
+//            virtual void
+//            GenerateDescriptors() = 0;
 
             /**
              * @brief
@@ -52,25 +58,6 @@ namespace exageostat {
 
             /**
              * @brief
-             * Configuration map setter.
-             *
-             * @param apConfigurations
-             * Argument pointer to Synthetic Data generation configuration map
-             *
-             */
-            void
-            SetConfigurations(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
-
-            /**
-             * @brief
-             * Initialize locations class.
-             *
-             */
-            void
-            InitLocationsClass();
-
-            /**
-             * @brief
              * Gets data locations class.
              *
              * @return mpLocations
@@ -78,6 +65,8 @@ namespace exageostat {
              */
             dataunits::Locations *
             GetLocations();
+
+            virtual ~DataGenerator() = default;
 
 
         protected:

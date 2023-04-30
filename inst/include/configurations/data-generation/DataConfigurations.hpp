@@ -51,7 +51,8 @@ namespace exageostat {
                  *
                  * @param aKernel The kernel to check.
                  */
-                static void CheckKernelValue(const std::string& aKernel);
+                void CheckKernelValue(const std::string& aKernel);
+                static bool IsCamelCase(std::string aString);
 
                 /**
                  * @brief Setter for the data type.

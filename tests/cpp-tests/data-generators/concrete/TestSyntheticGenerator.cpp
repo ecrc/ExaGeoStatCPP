@@ -184,7 +184,7 @@ void TEST_GENERATE_LOCATIONS(){
 
     SECTION("2D Generation"){
         syntheticDataConfigurations->SetDimension(Dimension2D);
-        syntheticGenerator.InitializeLocations();
+        syntheticGenerator.GenerateLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
@@ -198,7 +198,7 @@ void TEST_GENERATE_LOCATIONS(){
 
     SECTION("3D Generation"){
         syntheticDataConfigurations->SetDimension(Dimension3D);
-        syntheticGenerator.InitializeLocations();
+        syntheticGenerator.GenerateLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
@@ -213,7 +213,7 @@ void TEST_GENERATE_LOCATIONS(){
     SECTION("ST Generation"){
         syntheticDataConfigurations->SetDimension(DimensionST);
         syntheticDataConfigurations->SetTimeSlot(3);
-        syntheticGenerator.InitializeLocations();
+        syntheticGenerator.GenerateLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
@@ -255,7 +255,7 @@ void TEST_GENERATION(){
         syntheticDataConfigurations->SetDimension(Dimension2D);
         syntheticDataConfigurations->SetProblemSize(2);
         SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
-        syntheticGenerator.InitializeLocations();
+        syntheticGenerator.GenerateLocations();
 
         if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[0] - 0.386069) >= 1e-6) {
             REQUIRE(false);
