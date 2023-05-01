@@ -12,9 +12,10 @@
 #include <algorithm>
 #include <kernels/Kernel.hpp>
 #include <kernels/concrete/UnivariateMaternStationary.hpp>
-
 #include <common/PluginRegistry.hpp>
+#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
+using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
@@ -24,19 +25,35 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
     // Set configuration map and init locations.
     this->mpConfigurations = apConfigurations;
     this->mpLocations = new Locations();
-}
 
-void SyntheticGenerator::GenerateKernel(){
+    // Set selected Kernel
     std::string kernel_name = this->mpConfigurations->GetKernel();
-
+    this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(this->mpConfigurations->GetKernel());
 }
 
+void SyntheticGenerator::GenerateDescriptors() {
+    
+    // Create and initialize linear algebra solvers for different precision types.
+    if (this->mpConfigurations->GetPrecision() == SINGLE) {
+        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+                this->mpConfigurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
+        linearAlgebraSolver->InitiateDescriptors();
+    } else if (this->mpConfigurations->GetPrecision() == DOUBLE) {
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
+                this->mpConfigurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
+        linearAlgebraSolver->InitiateDescriptors();
+    } else if (this->mpConfigurations->GetPrecision() == MIXED) {
+        // TODO: Add implementation for mixed-precision linear algebra solver.
+    }
+
+}
 void SyntheticGenerator::GenerateLocations() {
 
-    auto kernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(this->mpConfigurations->GetKernel());
     int p;
-    if (kernel) {
-        p = kernel->GetPValue();
+    if (this->mpKernel) {
+        p = this->mpKernel->GetPValue();
     } else {
         throw std::runtime_error("Error in Allocating Kernel plugin");
     }
@@ -181,4 +198,9 @@ uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte)
 
 bool SyntheticGenerator::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
     return aFirstValue < aSecondValue;
+}
+
+void SyntheticGenerator::GenerateObservations() {
+
+//    this->mpKernel->GenerateCovarianceMatrix();
 }

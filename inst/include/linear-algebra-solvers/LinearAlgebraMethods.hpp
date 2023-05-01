@@ -40,6 +40,8 @@ namespace exageostat {
              */
             virtual void InitiateDescriptors() = 0;
 
+            virtual void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) = 0;
+
             /**
              * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.
              *
@@ -52,7 +54,6 @@ namespace exageostat {
              * @brief Finalizes the context for the linear algebra solver.
              */
             virtual void ExaGeoStatFinalizeContext() = 0;
-            virtual void testKernelfornow() = 0;
 
             /**
              * @brief Sets the configurations for the linear algebra solver.

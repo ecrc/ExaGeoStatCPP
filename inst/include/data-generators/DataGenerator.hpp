@@ -38,10 +38,10 @@ namespace exageostat {
             GenerateLocations() = 0;
 
             virtual void
-            GenerateKernel() = 0;
+            GenerateDescriptors() = 0;
 
-//            virtual void
-//            GenerateDescriptors() = 0;
+            virtual void
+            GenerateObservations() = 0;
 
             /**
              * @brief
@@ -66,6 +66,8 @@ namespace exageostat {
             dataunits::Locations *
             GetLocations();
 
+
+
             virtual ~DataGenerator() = default;
 
 
@@ -74,6 +76,8 @@ namespace exageostat {
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
             /// Used Locations
             dataunits::Locations * mpLocations{}; // Pointer to Locations object
+            /// Used Kernel
+            exageostat::kernels::Kernel * mpKernel;
         };
     }//namespace generators
 }//namespace exageostat

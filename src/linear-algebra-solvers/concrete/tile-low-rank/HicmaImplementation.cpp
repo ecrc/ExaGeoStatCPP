@@ -242,7 +242,7 @@ void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
     } else
         HICMA_Finalize();
 }
-
 template<typename T>
-void HicmaImplementation<T>::testKernelfornow() {
+void *HicmaImplementation<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) {
+    return nullptr;
 }

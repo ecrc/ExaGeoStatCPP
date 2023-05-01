@@ -37,6 +37,8 @@ namespace exageostat {
                  */
                 void InitiateDescriptors() override;
 
+                void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) override;
+
                 /**
                  * @brief
                  * Initializes the context needed for the Chameleon solver.
@@ -63,7 +65,6 @@ namespace exageostat {
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  */
                 virtual ~ChameleonImplementationDST() = default;
-                void testKernelfornow() override;
 
             };
 

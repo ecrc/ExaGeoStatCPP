@@ -112,6 +112,6 @@ void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
         CHAMELEON_Finalize();
 }
 template<typename T>
-void ChameleonImplementationDST<T>::testKernelfornow() {
-
+void *ChameleonImplementationDST<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) {
+    return nullptr;
 }

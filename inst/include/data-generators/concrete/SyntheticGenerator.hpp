@@ -54,17 +54,10 @@ namespace exageostat {
                 void
                 GenerateLocations() override;
 
-                void
-                GenerateKernel() override;
-                /**
-                 * @brief
-                 * Set default values for input arguments
-                 *
-                 * @param[in] aN
-                 * The problem size divided by P-Grid.
-                 *
-                 */
-//                void GenerateLocations(int aN);
+                void GenerateDescriptors() override;
+
+                void GenerateObservations() override;
+
 
                 /**
                  * @brief
@@ -104,6 +97,7 @@ namespace exageostat {
                  *
                  */
                 static uint64_t SpreadBits(uint64_t aInputByte);
+
                 /**
                  * @brief
                  * Reverse Spread bits operation.

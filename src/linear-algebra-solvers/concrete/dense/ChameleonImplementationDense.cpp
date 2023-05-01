@@ -104,7 +104,7 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
                                               dts * dts, N / 2, 1, 0, 0, N / 2, 1, pGrid, qGrid)
     }
 
-    for (auto & idx : pDescriptorProduct) {
+    for (auto &idx: pDescriptorProduct) {
         auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
         EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(CHAM_descriptorProduct, isOOC, &dotProductValue,
                                               (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
@@ -139,36 +139,33 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
         CHAMELEON_Finalize();
 }
 
+template<typename T>
+void *ChameleonImplementationDense<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) {
 
-//#include <kernels/Kernel.hpp>
-#include <data-generators/DataGenerator.hpp>
+    auto pA = (CHAM_desc_t *) &A;
+    int64_t mm = m + (pA->i / pA->mb);
+    int64_t nn = n + (pA->j / pA->nb);
 
-void *EXAGEOSTAT_data_getaddr(const CHAM_desc_t *A, int type, int m, int n) {
-    int64_t mm = m + (A->i / A->mb);
-    int64_t nn = n + (A->j / A->nb);
-
-    starpu_data_handle_t *ptrtile = static_cast<starpu_data_handle_t *>(A->schedopt);
-    ptrtile += ((int64_t) A->lmt) * nn + mm;
+    auto *ptrtile = static_cast<starpu_data_handle_t *>(pA->schedopt);
+    ptrtile += ((int64_t) pA->lmt) * nn + mm;
 
     if (*ptrtile == NULL) {
         int home_node = -1;
         void *user_ptr = NULL;
-        int myrank = A->myrank;
-        int owner = A->get_rankof(A, m, n);
+        int myrank = pA->myrank;
+        int owner = pA->get_rankof(pA, m, n);
         int64_t eltsze = CHAMELEON_Element_Size(type);
-        int tempmm = (mm == A->lmt - 1) ? (A->lm - mm * A->mb) : A->mb;
-        int tempnn = (nn == A->lnt - 1) ? (A->ln - nn * A->nb) : A->nb;
+        int tempmm = (mm == pA->lmt - 1) ? (pA->lm - mm * pA->mb) : pA->mb;
+        int tempnn = (nn == pA->lnt - 1) ? (pA->ln - nn * pA->nb) : pA->nb;
 
         if (myrank == owner) {
-            user_ptr = A->get_blkaddr(A, m, n);
+            user_ptr = pA->get_blkaddr(pA, m, n);
             if (user_ptr != NULL) {
                 home_node = STARPU_MAIN_RAM;
             }
         }
 
-        starpu_matrix_data_register(ptrtile, home_node, (uintptr_t) user_ptr,
-                                    BLKLDD(A, m),
-                                    tempmm, tempnn, eltsze);
+        starpu_matrix_data_register(ptrtile, home_node, (uintptr_t) user_ptr, BLKLDD(pA, m), tempmm, tempnn, eltsze);
 
 #ifdef HAVE_STARPU_DATA_SET_COORDINATES
         starpu_data_set_coordinates(*ptrtile, 2, m, n);
@@ -187,8 +184,8 @@ void *EXAGEOSTAT_data_getaddr(const CHAM_desc_t *A, int type, int m, int n) {
 #define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)EXAGEOSTAT_data_getaddr( desc, type, m, n ) )
 
 
-template<typename T>
-void ChameleonImplementationDense<T>::testKernelfornow() {
+//template<typename T>
+//void ChameleonImplementationDense<T>::testKernelfornow() {
 //    auto kernel = new exageostat::kernels::UnivariateMaternStationary();
 //
 //    auto **CHAM_descriptorC = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorC()[0];
@@ -220,25 +217,25 @@ void ChameleonImplementationDense<T>::testKernelfornow() {
 //
 //    auto * A = (double* ) EXAGEOSTAT_RTBLKADDR((*CHAM_descriptorC), ChamRealDouble, 0, 0);
 //    kernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
-    /*
-     * 1.000000 0.108306 0.004480 0.012114 0.015264
-     * 0.108306 1.000000 0.030836 0.017798 0.062895
-     * 0.004480 0.030836 1.000000 0.001011 0.007046
-     * 0.012114 0.017798 0.001011 1.000000 0.123679
-     * 0.015264 0.062895 0.007046 0.123679 1.000000
-     */
+/*
+ * 1.000000 0.108306 0.004480 0.012114 0.015264
+ * 0.108306 1.000000 0.030836 0.017798 0.062895
+ * 0.004480 0.030836 1.000000 0.001011 0.007046
+ * 0.012114 0.017798 0.001011 1.000000 0.123679
+ * 0.015264 0.062895 0.007046 0.123679 1.000000
+ */
 //    kernel->GenerateCovarianceMatrix(A, 4, 5, 5, 0, l1, l1, nullptr, initial_theta, 0);
-    /*
-     * 0.002145 0.004299 0.000404 0.171258 0.055331
-     * 0.000468 0.001824 0.000498 0.021786 0.028073
-     * 0.000221 0.001990 0.009302 0.000805 0.005396
-     * 0.000061 0.000440 0.000713 0.000907 0.003317
-     */
+/*
+ * 0.002145 0.004299 0.000404 0.171258 0.055331
+ * 0.000468 0.001824 0.000498 0.021786 0.028073
+ * 0.000221 0.001990 0.009302 0.000805 0.005396
+ * 0.000061 0.000440 0.000713 0.000907 0.003317
+ */
 //    kernel->GenerateCovarianceMatrix(A, 4, 4, 5, 5, l1, l1, nullptr, initial_theta, 0);
-    /*
-     * 1.000000 0.085375 0.000986 0.002264
-     * 0.085375 1.000000 0.005156 0.023215
-     * 0.000986 0.005156 1.000000 0.053542
-     * 0.002264 0.023215 0.053542 1.000000
-     */
-}
+/*
+ * 1.000000 0.085375 0.000986 0.002264
+ * 0.085375 1.000000 0.005156 0.023215
+ * 0.000986 0.005156 1.000000 0.053542
+ * 0.002264 0.023215 0.053542 1.000000
+ */
+//}
