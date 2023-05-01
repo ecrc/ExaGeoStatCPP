@@ -28,11 +28,12 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
 
     // Set selected Kernel
     std::string kernel_name = this->mpConfigurations->GetKernel();
-    this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(this->mpConfigurations->GetKernel());
+    this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(
+            this->mpConfigurations->GetKernel());
 }
 
 void SyntheticGenerator::GenerateDescriptors() {
-    
+
     // Create and initialize linear algebra solvers for different precision types.
 
     if (this->mpConfigurations->GetPrecision() == SINGLE) {
@@ -50,6 +51,7 @@ void SyntheticGenerator::GenerateDescriptors() {
     }
 
 }
+
 void SyntheticGenerator::GenerateLocations() {
 
     int p;
@@ -73,12 +75,11 @@ void SyntheticGenerator::GenerateLocations() {
     }
 
     int rootN;
-    if (dimension == Dimension3D){
+    if (dimension == Dimension3D) {
         //Cubic root.
         rootN = ceil(cbrt(N));
-    }
-    else{
-         //Square root.
+    } else {
+        //Square root.
         rootN = ceil(sqrt(N));
     }
 
@@ -89,18 +90,17 @@ void SyntheticGenerator::GenerateLocations() {
 
     for (auto i = 0; i < rootN && index < N; i++) {
         for (auto j = 0; j < rootN && index < N; j++) {
-            if (dimension == Dimension3D){
+            if (dimension == Dimension3D) {
                 for (auto k = 0; k < rootN && index < N; k++) {
                     this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                     this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                     this->mpLocations->GetLocationZ()[index] = (grid[k] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                     index++;
                 }
-            }
-            else{
+            } else {
                 this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
                 this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
-                if (dimension == DimensionST){
+                if (dimension == DimensionST) {
                     this->mpLocations->GetLocationZ()[index] = 1.0;
                 }
                 index++;
@@ -108,10 +108,9 @@ void SyntheticGenerator::GenerateLocations() {
         }
     }
     free(grid);
-    if (dimension != DimensionST){
+    if (dimension != DimensionST) {
         SortLocations(N);
-    }
-    else{
+    } else {
         for (auto j = 1; j < time_slots; j++) {
             for (auto i = 0; i < N; i++) {
                 this->mpLocations->GetLocationX()[i + j * N] = this->mpLocations->GetLocationX()[i];
@@ -141,10 +140,9 @@ void SyntheticGenerator::SortLocations(int aN) {
     for (auto i = 0; i < aN; i++) {
         x = (uint16_t) (this->mpLocations->GetLocationX()[i] * (double) UINT16_MAX + .5);
         y = (uint16_t) (this->mpLocations->GetLocationY()[i] * (double) UINT16_MAX + .5);
-        if (dimension != Dimension2D){
+        if (dimension != Dimension2D) {
             z = (uint16_t) (this->mpLocations->GetLocationZ()[i] * (double) UINT16_MAX + .5);
-        }
-        else{
+        } else {
             z = (uint16_t) 0.0;
         }
         vectorZ[i] = (SpreadBits(z) << 2) + (SpreadBits(y) << 1) + SpreadBits(x);
@@ -159,14 +157,13 @@ void SyntheticGenerator::SortLocations(int aN) {
         z = ReverseSpreadBits(vectorZ[i] >> 2);
         this->mpLocations->GetLocationX()[i] = (double) x / (double) UINT16_MAX;
         this->mpLocations->GetLocationY()[i] = (double) y / (double) UINT16_MAX;
-        if (dimension == Dimension3D){
+        if (dimension == Dimension3D) {
             this->mpLocations->GetLocationZ()[i] = (double) z / (double) UINT16_MAX;
         }
     }
 }
 
-uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte)
-{
+uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte) {
     aInputByte &= 0x000000000000ffff;
     // aInputByte = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
     aInputByte = (aInputByte ^ (aInputByte << 24)) & 0x000000ff000000ff;
@@ -180,8 +177,7 @@ uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte)
     return aInputByte;
 }
 
-uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte)
-{
+uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte) {
 
     aInputByte &= 0x1111111111111111;
     // aInputByte = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
@@ -200,34 +196,37 @@ uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte)
 bool SyntheticGenerator::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
     return aFirstValue < aSecondValue;
 }
+
 void SyntheticGenerator::GenerateObservations() {
 
+    const auto& configurations = this->mpConfigurations;
     auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
+    const auto& l1 = this->GetLocations();
 
-    dataunits::Locations * l1 = this->GetLocations();
-
-    auto * initial_theta = (double* ) malloc(3 * sizeof(double));
-
+    std::unique_ptr<double[]> initial_theta(new double[3]);
     initial_theta[0] = 1.0;
     initial_theta[1] = 0.1;
     initial_theta[2] = 0.5;
 
-    if (this->mpConfigurations->GetPrecision() == SINGLE) {
-        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                this->mpConfigurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
-        auto * A = (double* ) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), EXAGEOSTAT_REAL_FLOAT, 0, 0);
-        this->mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
-    }
-    else if (this->mpConfigurations->GetPrecision() == DOUBLE) {
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                this->mpConfigurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
-        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
-        auto * A = (double* ) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), EXAGEOSTAT_REAL_DOUBLE, 0, 0);
-        this->mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
-    } else if (this->mpConfigurations->GetPrecision() == MIXED) {
-        // TODO: Add implementation for mixed-precision linear algebra solver.
+    switch (configurations->GetPrecision()) {
+        case SINGLE: {
+            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(configurations->GetComputation());
+            linearAlgebraSolver->SetConfigurations(configurations);
+            auto* A = (double* ) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
+            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta.get(), 0);
+            break;
+        }
+        case DOUBLE: {
+            auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(configurations->GetComputation());
+            linearAlgebraSolver->SetConfigurations(configurations);
+            auto* A = (double* ) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
+            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta.get(), 0);
+            break;
+        }
+        case MIXED: {
+            // TODO: Add implementation for mixed-precision linear algebra solver.
+            break;
+        }
     }
 
 }

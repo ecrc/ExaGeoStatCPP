@@ -7,10 +7,14 @@
 /**
  * @file AllocateDescriptors.hpp
  * @brief Header file for the LinearAlgebraMethods class, which defines the interface for linear algebra solvers.
- *
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-20
+ *
+ *  This header file defines the abstract class LinearAlgebraMethods, which provides an interface for linear algebra solvers.
+ *  The purpose of this interface is to allow different concrete linear algebra solvers to be interchangeable,
+ *  so that they can be used interchangeably by other parts of the software system that rely on linear algebra.
+ *
 **/
 
 #ifndef EXAGEOSTATCPP_LINEARALGEBRAMETHODS_HPP
@@ -40,6 +44,15 @@ namespace exageostat {
              */
             virtual void InitiateDescriptors() = 0;
 
+            /**
+             * @brief Returns a pointer to the data stored in the linear algebra solver.
+             *
+             * @param[in] A A pointer to the data stored in the linear algebra solver.
+             * @param[in] m The number of rows in the data.
+             * @param[in] n The number of columns in the data.
+             *
+             * @return A pointer to the data stored in the linear algebra solver.
+             */
             virtual void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) = 0;
 
             /**

@@ -49,7 +49,7 @@ namespace exageostat {
                  */
                 void InitiateDescriptors() override;
 
-                void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) override;
+                void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) override;
 
                 /**
                  * @brief

@@ -65,8 +65,7 @@ void TEST_KERNEL_GENERATION() {
     auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
             synthetic_data_configurations->GetComputation());
     linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
-    auto *A = (double *) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC),
-                                                                                                 EXAGEOSTAT_REAL_DOUBLE, 0, 0);
+    auto *A = (double *) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), 0, 0);
     synthetic_generator->GetKernel()->GenerateCovarianceMatrix(A, m, n, 0, 0, l1, l1, nullptr, initial_theta, 0);
 
     // Define the expected output

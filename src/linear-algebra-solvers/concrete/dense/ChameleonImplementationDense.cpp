@@ -143,7 +143,7 @@ template<typename T>
 void *ChameleonImplementationDense<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) {
 
     auto **CHAM_descriptor = (CHAM_desc_t **) &A;
-    RUNTIME_data_getaddr((*CHAM_descriptor), m, n);
+    return RUNTIME_data_getaddr((*CHAM_descriptor), m, n);
 }
 
 //template<typename T>
