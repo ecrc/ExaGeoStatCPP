@@ -112,6 +112,8 @@ void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
         CHAMELEON_Finalize();
 }
 template<typename T>
-void *ChameleonImplementationDST<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) {
-    return nullptr;
+void *ChameleonImplementationDST<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) {
+
+    auto **CHAM_descriptor = (CHAM_desc_t **) &A;
+    RUNTIME_data_getaddr((*CHAM_descriptor), m, n);
 }

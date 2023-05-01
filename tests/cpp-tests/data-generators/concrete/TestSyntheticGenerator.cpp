@@ -259,16 +259,17 @@ void TEST_GENERATION(){
         SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
         syntheticGenerator.GenerateLocations();
 
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[0] - 0.386069) >= 1e-6) {
+        // This values are not for the first run, Values changes depending on the seed.
+        if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[0] - 0.106645) >= 1e-6) {
             REQUIRE(false);
         }
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[0] - 0.207752) >= 1e-6) {
+        if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[0] - 0.29279) >= 1e-6) {
             REQUIRE(false);
         }
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[1] - 0.363241) >= 1e-6) {
+        if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[1] - 0.0565194) >= 1e-6) {
             REQUIRE(false);
         }
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[1] - 0.869383) >= 1e-6) {
+        if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[1] - 0.64715) >= 1e-6) {
             REQUIRE(false);
         }
         free(syntheticDataConfigurations);

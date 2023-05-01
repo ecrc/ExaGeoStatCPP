@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
     }
 
     synthetic_generator->GenerateDescriptors();
+    synthetic_generator->GenerateObservations();
 
     // Clean up memory
     delete synthetic_data_configurations;

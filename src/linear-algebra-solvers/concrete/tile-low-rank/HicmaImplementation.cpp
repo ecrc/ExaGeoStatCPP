@@ -243,6 +243,8 @@ void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
         HICMA_Finalize();
 }
 template<typename T>
-void *HicmaImplementation<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) {
-    return nullptr;
+void *HicmaImplementation<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) {
+
+    auto **HiCMA_descriptor = (HICMA_desc_t **) &A;
+    HICMA_RUNTIME_data_getaddr((*HiCMA_descriptor), m, n);
 }

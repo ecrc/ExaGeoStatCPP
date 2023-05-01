@@ -11,9 +11,9 @@
 #include <cmath>
 #include <algorithm>
 #include <kernels/Kernel.hpp>
-#include <kernels/concrete/UnivariateMaternStationary.hpp>
 #include <common/PluginRegistry.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
+#include <kernels/concrete/UnivariateMaternStationary.hpp>
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators::Synthetic;
@@ -34,6 +34,7 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
 void SyntheticGenerator::GenerateDescriptors() {
     
     // Create and initialize linear algebra solvers for different precision types.
+
     if (this->mpConfigurations->GetPrecision() == SINGLE) {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
                 this->mpConfigurations->GetComputation());
@@ -199,8 +200,34 @@ uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte)
 bool SyntheticGenerator::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
     return aFirstValue < aSecondValue;
 }
-
 void SyntheticGenerator::GenerateObservations() {
 
-//    this->mpKernel->GenerateCovarianceMatrix();
+    auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
+
+    dataunits::Locations * l1 = this->GetLocations();
+
+    auto * initial_theta = (double* ) malloc(3 * sizeof(double));
+
+    initial_theta[0] = 1.0;
+    initial_theta[1] = 0.1;
+    initial_theta[2] = 0.5;
+
+    if (this->mpConfigurations->GetPrecision() == SINGLE) {
+        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+                this->mpConfigurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
+        auto * A = (double* ) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), EXAGEOSTAT_REAL_FLOAT, 0, 0);
+        this->mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
+    }
+    else if (this->mpConfigurations->GetPrecision() == DOUBLE) {
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
+                this->mpConfigurations->GetComputation());
+        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
+        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
+        auto * A = (double* ) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), EXAGEOSTAT_REAL_DOUBLE, 0, 0);
+        this->mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
+    } else if (this->mpConfigurations->GetPrecision() == MIXED) {
+        // TODO: Add implementation for mixed-precision linear algebra solver.
+    }
+
 }

@@ -43,21 +43,30 @@ namespace exageostat {
 
                 /**
                  * @brief
-                 * Initialize data locations.
+                 * Generates the data locations.
+                 * This method generates the X, Y, and Z variables used to define the locations of the data points.
                  *
-                 * @param[in] aLocations
-                 * X, Y and Z variables.
-                 *
-                 * @return aLocations
-                 * The modified X, Y and Z variables.
                  */
                 void
                 GenerateLocations() override;
 
+                /**
+                 * @brief
+                 * Generates the data descriptors.
+                 * This method generates the descriptors used to define the properties of the data points.
+                 *
+                 */
                 void GenerateDescriptors() override;
 
+                /**
+                 * @brief
+                 * Generates the data observations.
+                 *
+                 * This method generates the observations of the data points, which are used to train and test the model.
+                 *
+                 * @return void
+                 */
                 void GenerateObservations() override;
-
 
                 /**
                  * @brief
@@ -127,6 +136,7 @@ namespace exageostat {
                  *
                  */
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
+
             };
         }//namespace Synthetic
     }//namespace generators

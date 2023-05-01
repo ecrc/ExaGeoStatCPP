@@ -140,49 +140,11 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 }
 
 template<typename T>
-void *ChameleonImplementationDense<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) {
+void *ChameleonImplementationDense<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) {
 
-    auto pA = (CHAM_desc_t *) &A;
-    int64_t mm = m + (pA->i / pA->mb);
-    int64_t nn = n + (pA->j / pA->nb);
-
-    auto *ptrtile = static_cast<starpu_data_handle_t *>(pA->schedopt);
-    ptrtile += ((int64_t) pA->lmt) * nn + mm;
-
-    if (*ptrtile == NULL) {
-        int home_node = -1;
-        void *user_ptr = NULL;
-        int myrank = pA->myrank;
-        int owner = pA->get_rankof(pA, m, n);
-        int64_t eltsze = CHAMELEON_Element_Size(type);
-        int tempmm = (mm == pA->lmt - 1) ? (pA->lm - mm * pA->mb) : pA->mb;
-        int tempnn = (nn == pA->lnt - 1) ? (pA->ln - nn * pA->nb) : pA->nb;
-
-        if (myrank == owner) {
-            user_ptr = pA->get_blkaddr(pA, m, n);
-            if (user_ptr != NULL) {
-                home_node = STARPU_MAIN_RAM;
-            }
-        }
-
-        starpu_matrix_data_register(ptrtile, home_node, (uintptr_t) user_ptr, BLKLDD(pA, m), tempmm, tempnn, eltsze);
-
-#ifdef HAVE_STARPU_DATA_SET_COORDINATES
-        starpu_data_set_coordinates(*ptrtile, 2, m, n);
-#endif
-
-#if defined(CHAMELEON_USE_MPI)
-        {
-            int64_t block_ind = A->lmt * nn + mm;
-            starpu_mpi_data_register(*ptrtile, (A->id << tag_sep) | (block_ind), owner);
-        }
-#endif /* defined(CHAMELEON_USE_MPI) */
-    }
-    return *ptrtile;
+    auto **CHAM_descriptor = (CHAM_desc_t **) &A;
+    RUNTIME_data_getaddr((*CHAM_descriptor), m, n);
 }
-
-#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)EXAGEOSTAT_data_getaddr( desc, type, m, n ) )
-
 
 //template<typename T>
 //void ChameleonImplementationDense<T>::testKernelfornow() {

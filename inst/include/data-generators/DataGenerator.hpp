@@ -12,6 +12,8 @@
 
 #include <data-units/Locations.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <memory>
 
 namespace exageostat {
@@ -19,57 +21,82 @@ namespace exageostat {
 
         /**
          * @class DataGenerator
-         * @brief Contains methods to set and get.
+         * @brief Abstract base class for generating synthetic or real data.
          */
         class DataGenerator {
         public:
 
             /**
              * @brief
-             * Initialize data locations.
+             * Generates the data locations.
+             * This method generates the X, Y, and Z variables used to define the locations of the data points.
              *
-             * @param[in] aLocations
-             * X, Y and Z variables.
-             *
-             * @return aLocations
-             * The modified X, Y and Z variables.
              */
             virtual void
             GenerateLocations() = 0;
 
+            /**
+             * @brief
+             * Generates the data descriptors.
+             * This method generates the descriptors used to define the properties of the data points.
+             *
+             */
             virtual void
             GenerateDescriptors() = 0;
 
+            /**
+             * @brief
+             * Generates the data observations.
+             *
+             * This method generates the observations of the data points, which are used to train and test the model.
+             *
+             * @return void
+             */
             virtual void
             GenerateObservations() = 0;
 
             /**
              * @brief
-             * Factory creation, Whether it's Synthetic or Real data.
+             * Factory method for creating a data generator object.
+             * This method creates a data generator object based on the specified configurations.
              *
              * @param[in] apConfigurations
-             *  Pointer to Synthetic data Configurations.
+             * Pointer to the synthetic data configurations.
              *
-             * @return DataGenerator
-             * Unique Pointer to the created type of Data Generators.
+             * @return std::unique_ptr<DataGenerator>
+             * A unique pointer to the created data generator object.
+             *
              */
             static std::unique_ptr<DataGenerator>
             CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
             /**
-             * @brief
-             * Gets data locations class.
-             *
-             * @return mpLocations
-             * Pointer to locations object.
-             */
+              * @brief
+              * Gets the data locations object.
+              *
+              * @return Locations *
+              * A pointer to the locations object.
+              */
             dataunits::Locations *
             GetLocations();
 
+            /**
+             * @brief
+             * Gets the kernel object used to compute the covariance matrix.
+             *
+             * @return Kernel *
+             * A pointer to the kernel object.
+             */
+            exageostat::kernels::Kernel *
+            GetKernel();
 
-
+            /**
+             * @brief
+             * Destructor for the data generator object.
+             * This method frees the memory used by the data generator object.
+             *
+             */
             virtual ~DataGenerator() = default;
-
 
         protected:
             /// Used Synthetic Configuration.

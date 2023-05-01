@@ -40,7 +40,7 @@ namespace exageostat {
              */
             virtual void InitiateDescriptors() = 0;
 
-            virtual void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int type, int m, int n) = 0;
+            virtual void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) = 0;
 
             /**
              * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.

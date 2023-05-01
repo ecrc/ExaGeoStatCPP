@@ -32,3 +32,7 @@ std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfi
 Locations* DataGenerator::GetLocations() {
     return this->mpLocations;
 }
+
+exageostat::kernels::Kernel *DataGenerator::GetKernel() {
+    return this->mpKernel;
+}
