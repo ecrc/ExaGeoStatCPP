@@ -178,6 +178,7 @@ void TEST_GENERATE_LOCATIONS(){
     // Init using unique ptr as when unique_ptr is destroyed/get out of scope, the resource is automatically claimed.
     auto syntheticDataConfigurations = new SyntheticDataConfigurations();
     syntheticDataConfigurations->SetProblemSize(16);
+    syntheticDataConfigurations->SetKernel("UnivariateMaternStationary");
     SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
 
     Locations locations;
@@ -254,6 +255,7 @@ void TEST_GENERATION(){
         auto syntheticDataConfigurations = new SyntheticDataConfigurations();
         syntheticDataConfigurations->SetDimension(Dimension2D);
         syntheticDataConfigurations->SetProblemSize(2);
+        syntheticDataConfigurations->SetKernel("UnivariateMaternStationary");
         SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
         syntheticGenerator.GenerateLocations();
 

@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
     unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new SyntheticDataConfigurations object with the provided command line arguments
-    auto syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
+    auto *syntheticDataConfigurations = new SyntheticDataConfigurations(argc, argv);
 
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(syntheticDataConfigurations);
@@ -45,11 +45,11 @@ int main(int argc, char **argv) {
     synthetic_generator->GenerateLocations();
 
     // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
-    struct DataPointers{
+    struct DataPointers {
         double *x;
         double *y;
         double *z;
-    }dataPointers{};
+    } dataPointers{};
 
     // Set the pointers in the DataPointers struct to the location coordinates of the generated data
     dataPointers.x = synthetic_generator->GetLocations()->GetLocationX();
@@ -59,15 +59,14 @@ int main(int argc, char **argv) {
     // Print the generated location coordinates
     cout << "Generated Locations are .. " << endl;
     int timeSlot;
-    if (syntheticDataConfigurations->GetDimension() != DimensionST){
+    if (syntheticDataConfigurations->GetDimension() != DimensionST) {
         timeSlot = 1;
-    }
-    else {
+    } else {
         timeSlot = syntheticDataConfigurations->GetTimeSlot();
     }
-    for(auto i = 0; i < syntheticDataConfigurations->GetProblemSize() * timeSlot; i ++){
+    for (auto i = 0; i < syntheticDataConfigurations->GetProblemSize() * timeSlot; i++) {
         cout << "X: " << dataPointers.x[i] << " Y: " << dataPointers.y[i];
-        if (syntheticDataConfigurations->GetDimension() != Dimension2D){
+        if (syntheticDataConfigurations->GetDimension() != Dimension2D) {
             cout << " Z: " << dataPointers.z[i];
         }
         cout << endl;
@@ -75,15 +74,4 @@ int main(int argc, char **argv) {
     // Clean up memory
     delete syntheticDataConfigurations;
     return 0;
-
-    //#include <kernels/Kernel.hpp>
-    //#include <kernels/concrete/UnivariateMaternStationary.hpp>
-//    auto p = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::create("UnivariateMaternStationary");
-//    cout << "here?" << endl;
-//    if (p) {
-////        p->GenerateCovarianceMatrix();
-//    } else {
-//        std::cerr << "Failed to create plugin instance\n";
-//    }
-
 }

@@ -26,8 +26,8 @@ string DataConfigurations::GetKernel() {
     return this->mKernel;
 }
 
-void DataConfigurations::SetKernel(std::string aKernel) {
-    this->mKernel = std::move(aKernel);
+void DataConfigurations::SetKernel(const std::string &aKernel) {
+    this->mKernel = aKernel;
 }
 
 void DataConfigurations::SetIsSynthetic(bool aIsSynthetic) {
@@ -47,6 +47,7 @@ void DataConfigurations::CheckKernelValue(const string& aKernel) {
     else{
         // Check if the string is already in CamelCase format
         if (IsCamelCase(aKernel)) {
+            this->SetKernel(aKernel);
             return ;
         }
         string str = aKernel;

@@ -22,7 +22,7 @@
 #include <kernels/Kernel.hpp>
 
 #define EXAGEOSTAT_REGISTER_PLUGIN(plugin_name, create_func) \
-    bool plugin_name ## _entry = plugins::PluginRegistry<exageostat::kernels::Kernel>::add(#plugin_name, (create_func))
+    bool plugin_name ## _entry = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(#plugin_name, (create_func))
 
 
 namespace exageostat {
@@ -32,35 +32,28 @@ namespace exageostat {
         public:
 
             typedef std::function<T *()> FactoryFunction;
-            typedef std::unordered_map <std::string, FactoryFunction> FactoryMap;
+            typedef std::unordered_map<std::string, FactoryFunction> FactoryMap;
 
-            static bool add(const std::string &name, FactoryFunction fac) {
-                auto map = getFactoryMap();
-                std::cout << "bt add bs?" << std::endl;
-
+            static bool Add(const std::string &name, FactoryFunction fac) {
+                auto map = GetFactoryMap();
                 if (map.find(name) != map.end()) {
                     return false;
                 }
-
-                std::cout << "bt add bs?" << name << std::endl;
-                getFactoryMap()[name] = fac;
+                GetFactoryMap()[name] = fac;
                 return true;
             }
 
-            static T *create(const std::string &name) {
-                auto map = getFactoryMap();
-                std::cout << "malk bs?" << std::endl;
+            static T *Create(const std::string &name) {
+                auto map = GetFactoryMap();
                 if (map.find(name) == map.end()) {
-                    std::cout << "LEEEEEEEEEEEH" << std::endl;
                     return nullptr;
                 }
-
                 return map[name]();
             }
 
         private:
             // Use Meyer's singleton to prevent SIOF
-            static FactoryMap &getFactoryMap() {
+            static FactoryMap &GetFactoryMap() {
                 static FactoryMap map;
                 return map;
             }

@@ -10,6 +10,10 @@
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <cmath>
 #include <algorithm>
+#include <kernels/Kernel.hpp>
+#include <kernels/concrete/UnivariateMaternStationary.hpp>
+
+#include <common/PluginRegistry.hpp>
 
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
@@ -29,7 +33,13 @@ void SyntheticGenerator::GenerateKernel(){
 
 void SyntheticGenerator::GenerateLocations() {
 
-    int p = 1;
+    auto kernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(this->mpConfigurations->GetKernel());
+    int p;
+    if (kernel) {
+        p = kernel->GetPValue();
+    } else {
+        throw std::runtime_error("Error in Allocating Kernel plugin");
+    }
     int N = this->mpConfigurations->GetProblemSize() / p;
 
     int index = 0;

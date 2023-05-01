@@ -19,7 +19,7 @@
 #include <iostream>
 #include<cmath>
 #include <gsl/gsl_sf_bessel.h>
-
+#include <common/PluginRegistry.hpp>
 
 namespace exageostat {
     namespace kernels {
@@ -32,9 +32,10 @@ namespace exageostat {
 
         public:
 
-            UnivariateMaternStationary(){
+            UnivariateMaternStationary() {
                 this->mP = 1;
             }
+
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @param[in] apMatrixA The output covariance matrix.
@@ -66,12 +67,14 @@ namespace exageostat {
                 for (i = 0; i < aRowsNumber; i++) {
                     j0 = aColumnOffset;
                     for (j = 0; j < aColumnsNumber; j++) {
-                        expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / apLocalTheta[1];
+                        expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) /
+                               apLocalTheta[1];
                         if (expr == 0) {
                             apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
                         } else {
                             apMatrixA[i + j * aRowsNumber] = con * pow(expr, apLocalTheta[2])
-                                                             * gsl_sf_bessel_Knu(apLocalTheta[2], expr); // Matern Function
+                                                             * gsl_sf_bessel_Knu(apLocalTheta[2],
+                                                                                 expr); // Matern Function
                         }
 
                         j0++;
@@ -80,12 +83,11 @@ namespace exageostat {
                 }
             };
 
-            static Kernel* create() {
+            static Kernel *Create() {
                 return new UnivariateMaternStationary();
             }
-
         };
-        EXAGEOSTAT_REGISTER_PLUGIN(UnivariateMaternStationary, UnivariateMaternStationary::create);
+        EXAGEOSTAT_REGISTER_PLUGIN(UnivariateMaternStationary, UnivariateMaternStationary::Create);
     }//namespace Kernels
 }//namespace exageostat
 

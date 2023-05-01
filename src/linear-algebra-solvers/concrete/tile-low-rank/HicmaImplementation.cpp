@@ -243,10 +243,6 @@ void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
         HICMA_Finalize();
 }
 
-#include <kernels/concrete/UnivariateMaternStationary.hpp>
-
 template<typename T>
 void HicmaImplementation<T>::testKernelfornow() {
-    auto kernel = new exageostat::kernels::UnivariateMaternStationary();
-//    kernel->GenerateCovarianceMatrix();
 }

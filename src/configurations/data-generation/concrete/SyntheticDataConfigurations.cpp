@@ -57,7 +57,6 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetProblemSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
                 CheckKernelValue(argument_value);
-                SetKernel(argument_value);
             } else if (argument_name == "--Dimension" || argument_name == "--dimension"
                        || argument_name == "--dim" || argument_name == "--Dim") {
                 SetDimension(CheckDimensionValue(argument_value));

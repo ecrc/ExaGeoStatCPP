@@ -37,7 +37,7 @@ namespace exageostat {
                  *
                  * @param aKernel The kernel to set.
                  */
-                void SetKernel(std::string aKernel);
+                void SetKernel(const std::string &aKernel);
 
                 /**
                  * @brief Getter for the kernel.
