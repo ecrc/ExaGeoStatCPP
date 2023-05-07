@@ -6,10 +6,15 @@
 
 /**
  * @file UnivariateMaternStationary.hpp
- *
+ * @brief Defines the UnivariateMaternStationary class, a univariate stationary Matern kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-12
+ *
+ * This file provides the declaration of the UnivariateMaternStationary class, which is a subclass of the Kernel class
+ * and represents a univariate stationary Matern kernel. It provides a method for generating a covariance matrix
+ * using a set of input locations and kernel parameters.
+ *
 **/
 
 #ifndef EXAGEOSTATCPP_UNIVARIATEMATERNSTATIONARY_HPP
@@ -27,14 +32,20 @@ namespace exageostat {
         /**
          * @class UnivariateMaternStationary
          * @brief A class representing a univariate stationary Matern kernel.
+         *
+         * This class represents a univariate stationary Matern kernel, which is a subclass of the Kernel class. It provides
+         * a method for generating a covariance matrix using a set of input locations and kernel parameters.
          */
         class UnivariateMaternStationary : public Kernel {
 
         public:
 
-            UnivariateMaternStationary() {
-                this->mP = 1;
-            }
+            /**
+             * @brief Constructs a new UnivariateMaternStationary object.
+             *
+             * Initializes a new UnivariateMaternStationary object with default values.
+             */
+            UnivariateMaternStationary();
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
@@ -45,48 +56,23 @@ namespace exageostat {
              * @param[in] aColumnOffset The column offset for the input locations.
              * @param[in] apLocation1 The set of input locations 1.
              * @param[in] apLocation2 The set of input locations 2.
+             * @param[in] apLocation3 The set of input locations 3.
              * @param[in] apLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
             void GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
                                           int aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *apLocalTheta, int aDistanceMetric) override {
-                int i = 0, j = 0;
-                int i0 = aRowOffset;
-                int j0 = aColumnOffset;
-                double x0, y0, z0;
-                double expr = 0.0;
-                double con = 0.0;
-                double sigma_square = apLocalTheta[0];
-
-                con = pow(2, (apLocalTheta[2] - 1)) * tgamma(apLocalTheta[2]);
-                con = 1.0 / con;
-                con = sigma_square * con;
-
-                for (i = 0; i < aRowsNumber; i++) {
-                    j0 = aColumnOffset;
-                    for (j = 0; j < aColumnsNumber; j++) {
-                        expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) /
-                               apLocalTheta[1];
-                        if (expr == 0) {
-                            apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
-                        } else {
-                            apMatrixA[i + j * aRowsNumber] = con * pow(expr, apLocalTheta[2])
-                                                             * gsl_sf_bessel_Knu(apLocalTheta[2],
-                                                                                 expr); // Matern Function
-                        }
-
-                        j0++;
-                    }
-                    i0++;
-                }
-            };
-
-            static Kernel *Create() {
-                return new UnivariateMaternStationary();
-            }
+                                          double *apLocalTheta, int aDistanceMetric) override ;
+            /**
+             * @brief Creates a new UnivariateMaternStationary object.
+             * @return A pointer to the new UnivariateMaternStationary object.
+             *
+             * This method creates a new UnivariateMaternStationary object and returns a pointer to it.
+             */
+            static Kernel *Create();
         };
+
         EXAGEOSTAT_REGISTER_PLUGIN(UnivariateMaternStationary, UnivariateMaternStationary::Create);
     }//namespace Kernels
 }//namespace exageostat

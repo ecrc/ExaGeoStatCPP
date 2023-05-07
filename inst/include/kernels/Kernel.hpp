@@ -18,10 +18,13 @@
 #include <data-units/Locations.hpp>
 #include <starpu.h>
 
-/** ****************************************************************************
- * The radius of the  earth (used by Great Circle Distance (GCD)
- **/
-#define EARTH_RADIUS 6371.0
+/*
+* @def EARTH_RADIUS
+* @brief The radius of the Earth in kilometers.
+*
+* This macro defines the radius of the Earth in kilometers, which is used by the Great Circle Distance (GCD) function.
+*/
+ #define EARTH_RADIUS 6371.0
 
 
 namespace exageostat {
@@ -29,7 +32,11 @@ namespace exageostat {
 
         /**
          * @class Kernels
-         * @brief A class containing the main kernel functions.
+         * @brief A base class for kernel functions.
+         *
+         * This class provides a base class for kernel functions and contains several utility functions for computing
+         * distance metrics and Bessel functions.
+         *
          */
         class Kernel {
         public:
@@ -43,6 +50,7 @@ namespace exageostat {
              * @param[in] aColumnOffset The column offset for the input locations.
              * @param[in] apLocation1 The set of input locations 1.
              * @param[in] apLocation2 The set of input locations 2.
+             * @param[in] apLocation3 The set of input locations 3.
              * @param[in] apLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
@@ -112,6 +120,10 @@ namespace exageostat {
              */
             static double CalculateSecondDerivativeBesselNuInput(const double &aOrder, const double &aInputValue);
 
+            /**
+             * @brief Returns the value of the parameter P used by the kernel function.
+             * @return The value of P.
+             */
             int GetPValue() const;
 
         protected:
