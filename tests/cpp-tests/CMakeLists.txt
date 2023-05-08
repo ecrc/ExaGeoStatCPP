@@ -18,4 +18,4 @@ add_subdirectory(kernels)
 enable_testing()
 
 add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})
-target_link_libraries(exageostat-tests ${PROJECT_NAME} ${LIBS})
+target_link_libraries(exageostat-tests ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)

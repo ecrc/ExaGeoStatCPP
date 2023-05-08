@@ -71,9 +71,10 @@ namespace exageostat {
              * This method creates a new UnivariateMaternStationary object and returns a pointer to it.
              */
             static Kernel *Create();
-        };
 
-        EXAGEOSTAT_REGISTER_PLUGIN(UnivariateMaternStationary, UnivariateMaternStationary::Create);
+        private:
+            static bool plugin_name;
+        };
     }//namespace Kernels
 }//namespace exageostat
 

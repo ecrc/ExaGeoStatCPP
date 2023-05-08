@@ -19,21 +19,6 @@
 #include <map>
 #include <set>
 #include <functional>
-#include <kernels/Kernel.hpp>
-
-//#define EXAGEOSTAT_REGISTER_PLUGIN(plugin_name, create_func) \
-//    bool plugin_name ## _entry = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(#plugin_name, (create_func))
-
-#define EXAGEOSTAT_REGISTER_PLUGIN(plugin_name, create_func) \
-    namespace { \
-            struct PluginRegistrar { \
-                PluginRegistrar() { \
-                    plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(#plugin_name, (create_func)); \
-                } \
-            }; \
-            static PluginRegistrar plugin_registrar; \
-        }
-
 
 namespace exageostat {
     namespace plugins {
@@ -55,6 +40,7 @@ namespace exageostat {
 
             static T *Create(const std::string &name) {
                 auto map = GetFactoryMap();
+
                 if (map.find(name) == map.end()) {
                     return nullptr;
                 }

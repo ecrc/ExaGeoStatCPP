@@ -14,4 +14,4 @@
 add_executable(Example_Synthetic_Data_Generation SyntheticData_main.cpp)
 
 # Link the target executable with the project and any additional libraries
-target_link_libraries(Example_Synthetic_Data_Generation PRIVATE ${PROJECT_NAME} ${LIBS})
+target_link_libraries(Example_Synthetic_Data_Generation PRIVATE ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)

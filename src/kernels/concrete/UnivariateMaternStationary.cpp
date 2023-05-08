@@ -32,6 +32,7 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
                                                                  int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                                  Locations *apLocation2, Locations *apLocation3,
                                                                  double *apLocalTheta, int aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -72,4 +73,7 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
             i0++;
         }
     }
+}
+namespace exageostat::kernels{
+        bool UnivariateMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add("UnivariateMaternStationary", UnivariateMaternStationary::Create);
 }

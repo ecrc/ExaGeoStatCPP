@@ -142,6 +142,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)
+
+# Creates a new INTERFACE library target named ${PROJECT_NAME}_INTERFACE.
+# The INTERFACE keyword specifies that this library will not be built, but instead will only be used for its properties.
+add_library(${PROJECT_NAME}_INTERFACE INTERFACE)
+target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME})
+# Add linker options to the target
+target_link_options(${PROJECT_NAME}_INTERFACE INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:${PROJECT_NAME}> -Wl,--no-whole-archive")
+
 # Install headers
 install(TARGETS exageostatcpp
         DESTINATION lib/
@@ -164,7 +172,6 @@ endif ()
 
 # Print installation path of Exageostat.
 message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
-
 # Installation actions
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 ## Install cmake find package.

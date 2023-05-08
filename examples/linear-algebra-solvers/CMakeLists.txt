@@ -14,4 +14,4 @@
 add_executable(Example_Allocate_Descriptors AllocateDescriptors_main.cpp)
 
 # Link the executable target to the ExaGeoStat library and any required external libraries
-target_link_libraries(Example_Allocate_Descriptors ${PROJECT_NAME} ${LIBS})
+target_link_libraries(Example_Allocate_Descriptors ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)
