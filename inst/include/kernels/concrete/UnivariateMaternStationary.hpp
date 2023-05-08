@@ -21,10 +21,6 @@
 #define EXAGEOSTATCPP_UNIVARIATEMATERNSTATIONARY_HPP
 
 #include <kernels/Kernel.hpp>
-#include <iostream>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <common/PluginRegistry.hpp>
 
 namespace exageostat {
     namespace kernels {

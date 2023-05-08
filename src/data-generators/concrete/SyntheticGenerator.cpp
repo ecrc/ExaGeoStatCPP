@@ -8,12 +8,9 @@
 **/
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <cmath>
-#include <algorithm>
 #include <kernels/Kernel.hpp>
 #include <common/PluginRegistry.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <kernels/concrete/UnivariateMaternStationary.hpp>
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators::Synthetic;

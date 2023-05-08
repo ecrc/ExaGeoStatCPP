@@ -13,8 +13,6 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternStationary.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -29,51 +27,29 @@ Kernel *UnivariateMaternStationary::Create() {
 }
 
 void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                                 int aRowOffset, int aColumnOffset, Locations *apLocation1,
-                                                                 Locations *apLocation2, Locations *apLocation3,
-                                                                 double *apLocalTheta, int aDistanceMetric) {
-
-    int i, j;
+                                                          int aRowOffset, int aColumnOffset, Locations *apLocation1,
+                                                          Locations *apLocation2, Locations *apLocation3,
+                                                          double *apLocalTheta, int aDistanceMetric) {
+    const double sigma_square = apLocalTheta[0];
+    const double nu = apLocalTheta[2];
+    const double inv_con = 1.0 / (sigma_square * pow(2, nu - 1) * tgamma(nu));
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0, z0;
-    double expr = 0.0;
-    double con = 0.0;
-    double sigma_square = apLocalTheta[0];// * apLocalTheta[0];
 
-    con = pow(2, (apLocalTheta[2] - 1)) * tgamma(apLocalTheta[2]);
-    con = 1.0 / con;
-    con = sigma_square * con;
-    if (apLocation1->GetLocationZ() == nullptr || apLocation2->GetLocationZ() == nullptr) {
-        for (i = 0; i < aRowsNumber; i++) {
-            j0 = aColumnOffset;
-            for (j = 0; j < aColumnsNumber; j++) {
-                expr = CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, 0) / apLocalTheta[1];
-                if (expr == 0)
-                    apMatrixA[i + j * aRowsNumber] = sigma_square + apLocalTheta[3];
-                else
-                    apMatrixA[i + j * aRowsNumber] =
-                            con * pow(expr, apLocalTheta[2]) * gsl_sf_bessel_Knu(apLocalTheta[2], expr); // Matern Function
-                j0++;
-            }
-            i0++;
+    for (int i = 0; i < aRowsNumber; i++) {
+        int j0 = aColumnOffset;
+        for (int j = 0; j < aColumnsNumber; j++) {
+            const double dist =
+                    CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, 0) / apLocalTheta[1];
+            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
+                                                 ? sigma_square
+                                                 : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
+            j0++;
         }
-    } else {
-        for (i = 0; i < aRowsNumber; i++) {
-            j0 = aColumnOffset;
-            for (j = 0; j < aColumnsNumber; j++) {
-                expr = CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, 1);
-                if (expr == 0)
-                    apMatrixA[i + j * aRowsNumber] = sigma_square + apLocalTheta[3];
-                else
-                    apMatrixA[i + j * aRowsNumber] =
-                            con * pow(expr, apLocalTheta[2]) * gsl_sf_bessel_Knu(apLocalTheta[2], expr); // Matern Function
-                j0++;
-            }
-            i0++;
-        }
+        i0++;
     }
 }
-namespace exageostat::kernels{
-        bool UnivariateMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add("UnivariateMaternStationary", UnivariateMaternStationary::Create);
+
+namespace exageostat::kernels {
+    bool UnivariateMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternStationary", UnivariateMaternStationary::Create);
 }

@@ -13,24 +13,57 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternNonStationary.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternNonStationary::UnivariateMaternNonStationary() {
+    this->mP = 1;
+}
+
+Kernel *UnivariateMaternNonStationary::Create() {
+    return new UnivariateMaternNonStationary();
+}
 
 void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                          int aRowOffset, int aColumnOffset, Locations *apLocation1,
-                                                          Locations *apLocation2, Locations *apLocation3,
-                                                          double *apLocalTheta, int aDistanceMetric) {
+                                                             int aRowOffset, int aColumnOffset, Locations *apLocation1,
+                                                             Locations *apLocation2, Locations *apLocation3,
+                                                             double *apLocalTheta, int aDistanceMetric) {
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
     double dx, dy;
-    double expr = 0.0;
+    double dist = 0.0;
     double con, sigma_square, beta, nu;
     int i, j;
+
+    apLocation3 = apLocation1;
+    double x_max = apLocation1->GetLocationX()[0];
+    double x_min = apLocation1->GetLocationX()[0];
+    double y_max = apLocation1->GetLocationY()[0];
+    double y_min = apLocation1->GetLocationY()[0];
+    for (i = 1; i < 9; i++) {
+        if (x_max < apLocation1->GetLocationX()[i])
+            x_max = apLocation1->GetLocationX()[i];
+        if (x_min > apLocation1->GetLocationX()[i])
+            x_min = apLocation1->GetLocationX()[i];
+        if (y_max < apLocation1->GetLocationY()[i])
+            y_max = apLocation1->GetLocationY()[i];
+        if (y_max > apLocation1->GetLocationY()[i])
+            y_max = apLocation1->GetLocationY()[i];
+    }
+
+    apLocation3->GetLocationX()[0] = x_min + (x_max - x_min) / 2;
+    apLocation3->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
+    printf(" The central point is ( %f, %f)\n", apLocation3->GetLocationX()[0], apLocation3->GetLocationY()[0]);
+
+    std::cout << "Before: " << std::endl;
+    for (j = 0; j < aColumnsNumber; j++) {
+        for (i = 0; i < aRowsNumber; i++) {
+            std::cout << *(apMatrixA + i + j * aRowsNumber) << " ";
+        }
+        std::cout << std::endl;
+    }
 
     // Compute the covariance matrix elements
     for (j = 0; j < aColumnsNumber; j++) {
@@ -38,9 +71,9 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
         location1Y = apLocation1->GetLocationY()[aColumnOffset + j];
         location3X = apLocation3->GetLocationX()[j];
         location3Y = apLocation3->GetLocationY()[j];
-
         dx = abs(location1X - location3X);
         dy = abs(location1Y - location3Y);
+
         theta_0i = apLocalTheta[0] + (apLocalTheta[1] * dx) + (apLocalTheta[2] * dy);
         theta_1i = apLocalTheta[3] + (apLocalTheta[4] * dx) + (apLocalTheta[5] * dy);
         theta_2i = apLocalTheta[6] + (apLocalTheta[7] * dx) + (apLocalTheta[8] * dy);
@@ -50,9 +83,9 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
             location2Y = apLocation2->GetLocationY()[aRowOffset + i];
             location3X = apLocation3->GetLocationX()[i];
             location3Y = apLocation3->GetLocationY()[i];
-
             dx = abs(location2X - location3X);
             dy = abs(location2Y - location3Y);
+
             theta_0j = apLocalTheta[0] + (apLocalTheta[1] * dx) + (apLocalTheta[2] * dy);
             theta_1j = apLocalTheta[3] + (apLocalTheta[4] * dx) + (apLocalTheta[5] * dy);
             theta_2j = apLocalTheta[6] + (apLocalTheta[7] * dx) + (apLocalTheta[8] * dy);
@@ -66,30 +99,25 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
             con = 1.0 / con;
             con = sigma_square * con;
             //MLE calculation
-            expr = CalculateDistance(apLocation1, apLocation2, i, j, aDistanceMetric, 0) / beta;
-            if (expr == 0)
-                apMatrixA[i + j * aRowsNumber] = sigma_square; /* + 1e-4*/
-            else
-                apMatrixA[i + j * aRowsNumber] = con * pow(expr, nu) * gsl_sf_bessel_Knu(nu, expr); // Matern Function
+            dist = CalculateDistance(apLocation1, apLocation2, i, j, aDistanceMetric, 0) / beta;
 
-//// TODO: What do you think?
-//            dx = abs(location1X - location2X);
-//            dy = abs(location1Y - location2Y);
-//
-//            // Compute the covariance matrix element based on the distance metric
-//            switch (aDistanceMetric) {
-//                case 1: // Euclidean distance
-//                    expr = beta * dx;
-//                    break;
-//                case 2: // Manhattan distance
-//                    expr = beta * sqrt(pow(dx, 2) + pow(dy, 2));
-//                    break;
-//                case 3: // Minkowski distance
-//                    expr = beta * pow(pow(dx, nu) + pow(dy, nu), (1 / nu));
-//                    expr *= con;
-//                    break;
-//            }
-//            apMatrixA[i + j * aRowsNumber] = sigma_square * exp(-expr);
+            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
+                                                 ? sigma_square
+                                                 //                                                 : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
+                                                 : con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
         }
     }
+    std::cout << "after: " << std::endl;
+
+    for (j = 0; j < aColumnsNumber; j++) {
+        for (i = 0; i < aRowsNumber; i++) {
+            std::cout << *(apMatrixA + i + j * aRowsNumber) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternNonStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternNonStationary", UnivariateMaternNonStationary::Create);
 }

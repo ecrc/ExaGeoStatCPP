@@ -17,6 +17,9 @@
 
 #include <data-units/Locations.hpp>
 #include <starpu.h>
+#include <gsl/gsl_sf_bessel.h>
+#include <common/PluginRegistry.hpp>
+#include<cmath>
 
 /*
 * @def EARTH_RADIUS
