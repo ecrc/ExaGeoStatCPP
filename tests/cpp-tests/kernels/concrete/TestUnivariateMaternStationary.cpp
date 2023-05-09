@@ -19,7 +19,7 @@ using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::generators;
 
-void TEST_KERNEL_GENERATION() {
+void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
     // Create a unique pointer to a DataGenerator object
     std::unique_ptr<DataGenerator> synthetic_generator;
@@ -87,5 +87,5 @@ void TEST_KERNEL_GENERATION() {
 }
 
 TEST_CASE("Univariate Matern Stationary kernel test") {
-    TEST_KERNEL_GENERATION();
+    TEST_KERNEL_GENERATION_UnivariateMaternStationary();
 }

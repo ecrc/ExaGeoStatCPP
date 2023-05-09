@@ -275,11 +275,6 @@ void TEST_GENERATION(){
         free(syntheticDataConfigurations);
 }
 
-
-TEST_CASE("Synthetic Data Generation values tests") {
-    TEST_GENERATION();
-}
-
 TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();

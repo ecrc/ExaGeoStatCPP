@@ -57,14 +57,6 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
     apLocation3->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
     printf(" The central point is ( %f, %f)\n", apLocation3->GetLocationX()[0], apLocation3->GetLocationY()[0]);
 
-    std::cout << "Before: " << std::endl;
-    for (j = 0; j < aColumnsNumber; j++) {
-        for (i = 0; i < aRowsNumber; i++) {
-            std::cout << *(apMatrixA + i + j * aRowsNumber) << " ";
-        }
-        std::cout << std::endl;
-    }
-
     // Compute the covariance matrix elements
     for (j = 0; j < aColumnsNumber; j++) {
         location1X = apLocation1->GetLocationX()[aColumnOffset + j];
@@ -106,14 +98,6 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
                                                  //                                                 : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
                                                  : con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
         }
-    }
-    std::cout << "after: " << std::endl;
-
-    for (j = 0; j < aColumnsNumber; j++) {
-        for (i = 0; i < aRowsNumber; i++) {
-            std::cout << *(apMatrixA + i + j * aRowsNumber) << " ";
-        }
-        std::cout << std::endl;
     }
 }
 

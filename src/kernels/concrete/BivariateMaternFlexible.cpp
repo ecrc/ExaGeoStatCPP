@@ -13,13 +13,18 @@
 **/
 
 #include <kernels/concrete/BivariateMaternFlexible.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+BivariateMaternFlexible::BivariateMaternFlexible() {
+    this->mP = 1;
+}
+
+Kernel *BivariateMaternFlexible::Create() {
+    return new BivariateMaternFlexible();
+}
 
 void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
@@ -87,4 +92,9 @@ void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aR
         }
         i0++;
     }
+}
+
+namespace exageostat::kernels {
+    bool BivariateMaternFlexible::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "BivariateMaternFlexible", BivariateMaternFlexible::Create);
 }
