@@ -142,6 +142,12 @@ namespace exageostat {
              */
             void SetPValue(int aP);
 
+            /**
+             * @brief Returns the number of the parameters used by the kernel function.
+             * @return The value of ParametersNumber.
+             */
+            int GetParametersNumbers() const;
+
         protected:
             //// Used P.
             int mP = 1;

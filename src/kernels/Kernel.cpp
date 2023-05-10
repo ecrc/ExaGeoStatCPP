@@ -99,3 +99,7 @@ void Kernel::SetPValue(int aP) {
     this->mP = this->mP * aP;
 }
 
+int Kernel::GetParametersNumbers() const {
+    return this->mParametersNumber;
+}
+

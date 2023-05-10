@@ -201,7 +201,7 @@ void SyntheticGenerator::GenerateObservations() {
     auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
     const auto& l1 = this->GetLocations();
 
-    std::unique_ptr<double[]> initial_theta(new double[3]);
+    std::unique_ptr<double[]> initial_theta(new double[this->mpKernel->GetParametersNumbers()]);
     initial_theta[0] = 1.0;
     initial_theta[1] = 0.1;
     initial_theta[2] = 0.5;
