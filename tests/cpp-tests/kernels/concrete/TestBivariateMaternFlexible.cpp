@@ -79,7 +79,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         for (size_t j = 0; j < n; j++) {
             double diff = A[i * n + j] - expected_output_data[i * n + j];
             if (expected_output_data[i * n + j] == 0.000000){
-                if(isnan(A[i * n + j])){
+                if(std::isnan(A[i * n + j])){
                     REQUIRE(true);
                 }
             }
