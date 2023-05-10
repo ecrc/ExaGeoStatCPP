@@ -13,13 +13,25 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDsigmaSquare.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternDsigmaSquare::UnivariateMaternDsigmaSquare() {
+    /// TODO: FIX THEIR VALUES
+    this->mP = 1;
+    this->mParametersNumber = 3;
+}
+
+Kernel *UnivariateMaternDsigmaSquare::Create() {
+    return new UnivariateMaternDsigmaSquare();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternDsigmaSquare::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternDsigmaSquare", UnivariateMaternDsigmaSquare::Create);
+}
 
 void UnivariateMaternDsigmaSquare::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                            int aRowOffset, int aColumnOffset, Locations *apLocation1,

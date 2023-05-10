@@ -13,15 +13,24 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternNonGaussian.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternNonGaussian::UnivariateMaternNonGaussian() {
+    this->mP = 1;
+    this->mParametersNumber = 6;
+}
+
+Kernel *UnivariateMaternNonGaussian::Create() {
+    return new UnivariateMaternNonGaussian();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternNonGaussian::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternNonGaussian", UnivariateMaternNonGaussian::Create);
+}
 
 void UnivariateMaternNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                       int aRowOffset, int aColumnOffset, Locations *apLocation1,

@@ -19,6 +19,19 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateSpacetimeMaternStationary::UnivariateSpacetimeMaternStationary() {
+    this->mP = 1;
+    this->mParametersNumber = 7;
+}
+
+Kernel *UnivariateSpacetimeMaternStationary::Create() {
+    return new UnivariateSpacetimeMaternStationary();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateSpacetimeMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateSpacetimeMaternStationary", UnivariateSpacetimeMaternStationary::Create);
+}
 
 void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                                  int aRowOffset, int aColumnOffset, Locations *apLocation1,

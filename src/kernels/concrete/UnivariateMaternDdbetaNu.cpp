@@ -13,15 +13,25 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDdbetaNu.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternDdbetaNu::UnivariateMaternDdbetaNu() {
+    /// TODO: FIX THEIR VALUES
+    this->mP = 1;
+    this->mParametersNumber = 3;
+}
+
+Kernel *UnivariateMaternDdbetaNu::Create() {
+    return new UnivariateMaternDdbetaNu();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternDdbetaNu::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternDdbetaNu", UnivariateMaternDdbetaNu::Create);
+}
 
 void UnivariateMaternDdbetaNu::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,

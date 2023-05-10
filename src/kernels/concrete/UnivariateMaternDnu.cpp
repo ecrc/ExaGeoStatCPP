@@ -13,15 +13,25 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDnu.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternDnu::UnivariateMaternDnu() {
+    /// TODO: FIX THEIR VALUES
+    this->mP = 1;
+    this->mParametersNumber = 3;
+}
+
+Kernel *UnivariateMaternDnu::Create() {
+    return new UnivariateMaternDnu();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternDnu::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternDnu", UnivariateMaternDnu::Create);
+}
 
 void UnivariateMaternDnu::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                    int aRowOffset, int aColumnOffset, Locations *apLocation1,

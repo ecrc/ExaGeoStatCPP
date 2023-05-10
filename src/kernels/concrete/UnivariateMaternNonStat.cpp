@@ -13,15 +13,24 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternNonStat.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternNonStat::UnivariateMaternNonStat() {
+    this->mP = 1;
+    this->mParametersNumber = 8;
+}
+
+Kernel *UnivariateMaternNonStat::Create() {
+    return new UnivariateMaternNonStat();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternNonStat::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternNonStat", UnivariateMaternNonStat::Create);
+}
 
 void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                        int aRowOffset, int aColumnOffset, Locations *apLocation1,
@@ -87,16 +96,16 @@ void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int aR
 }
 
 double UnivariateMaternNonStat::Neu(double x, double y, double g, double h, double ti) {
-    return (g * pow(pow_e, h * (x + y)) + ti);
+    return (g * pow(POW_e, h * (x + y)) + ti);
 }
 
 double UnivariateMaternNonStat::Sigma(double x, double y, double d, double e, double f) {
-    return (d * pow(pow_e, e * (x + y)) + f);
+    return (d * pow(POW_e, e * (x + y)) + f);
 }
 
 double UnivariateMaternNonStat::Lambda(double x, double y, double a, double b) {
 
-    return (a * pow(pow_e, sin(b * x) + sin(b * y)));
+    return (a * pow(POW_e, sin(b * x) + sin(b * y)));
 }
 
 double UnivariateMaternNonStat::CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,

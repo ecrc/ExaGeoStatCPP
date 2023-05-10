@@ -20,6 +20,19 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternNuggetsStationary::UnivariateMaternNuggetsStationary() {
+    this->mP = 1;
+    this->mParametersNumber = 4;
+}
+
+Kernel *UnivariateMaternNuggetsStationary::Create() {
+    return new UnivariateMaternNuggetsStationary();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternNuggetsStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternNuggetsStationary", UnivariateMaternNuggetsStationary::Create);
+}
 
 void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                        int aRowOffset, int aColumnOffset, Locations *apLocation1,

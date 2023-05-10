@@ -6,7 +6,7 @@
 
 /**
  * @file UnivariateMaternNonStationary.hpp
- *
+ * @brief Defines the UnivariateMaternNonStationary class, a Univariate Matern Non Stationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-13
@@ -22,9 +22,13 @@ namespace exageostat {
 
         /**
          * @class UnivariateMaternNonStationary
-         * @brief A class representing a univariate Matern non stationary kernel.
+         * @brief A class representing a Univariate Matern Non Stationary kernel.
+         *
+         * This class represents a Univariate Matern Non Stationary kernel, which is a subclass of the Kernel class. It provides
+         * a method for generating a covariance matrix using a set of input locations and kernel parameters.
          */
         class UnivariateMaternNonStationary : public Kernel {
+
         public:
 
             /**
@@ -50,8 +54,7 @@ namespace exageostat {
             void GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
                                           int aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *apLocalTheta, int aDistanceMetric) override;
-
+                                          double *apLocalTheta, int aDistanceMetric) override ;
             /**
              * @brief Creates a new UnivariateMaternNonStationary object.
              * @return A pointer to the new UnivariateMaternNonStationary object.

@@ -18,6 +18,20 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateMaternDdsigmaSquare::UnivariateMaternDdsigmaSquare() {
+    /// TODO: FIX THEIR VALUES
+    this->mP = 1;
+    this->mParametersNumber = 3;
+}
+
+Kernel *UnivariateMaternDdsigmaSquare::Create() {
+    return new UnivariateMaternDdsigmaSquare();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternDdsigmaSquare::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternDdsigmaSquare", UnivariateMaternDdsigmaSquare::Create);
+}
 
 void UnivariateMaternDdsigmaSquare::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                              int aRowOffset, int aColumnOffset, Locations *apLocation1,

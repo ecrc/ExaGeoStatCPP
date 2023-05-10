@@ -13,15 +13,24 @@
 **/
 
 #include <kernels/concrete/BivariateSpacetimeMaternStationary.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+BivariateSpacetimeMaternStationary::BivariateSpacetimeMaternStationary() {
+    this->mP = 2;
+    this->mParametersNumber = 10;
+}
+
+Kernel *BivariateSpacetimeMaternStationary::Create() {
+    return new BivariateSpacetimeMaternStationary();
+}
+
+namespace exageostat::kernels {
+    bool BivariateSpacetimeMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "BivariateSpacetimeMaternStationary", BivariateSpacetimeMaternStationary::Create);
+}
 
 void BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                                int aRowOffset, int aColumnOffset, Locations *apLocation1,

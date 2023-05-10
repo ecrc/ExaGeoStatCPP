@@ -13,22 +13,29 @@
 **/
 
 #include <kernels/concrete/UnivariateExpNonGaussian.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+UnivariateExpNonGaussian::UnivariateExpNonGaussian() {
+    this->mP = 1;
+    this->mParametersNumber = 6;
+}
+
+Kernel *UnivariateExpNonGaussian::Create() {
+    return new UnivariateExpNonGaussian();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateExpNonGaussian::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateExpNonGaussian", UnivariateExpNonGaussian::Create);
+}
 
 void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                             int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                             Locations *apLocation2, Locations *apLocation3,
                                                             double *apLocalTheta, int aDistanceMetric) {
-//localtheta[0] <- \phi
-    //localtheta[1] <- \nu
 
     int i, j;
     int i0 = aRowOffset;

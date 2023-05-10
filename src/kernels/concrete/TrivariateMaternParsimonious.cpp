@@ -13,15 +13,24 @@
 **/
 
 #include <kernels/concrete/TrivariateMaternParsimonious.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_psi.h>
-
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+TrivariateMaternParsimonious::TrivariateMaternParsimonious() {
+    this->mP = 3;
+    this->mParametersNumber = 10;
+}
+
+Kernel *TrivariateMaternParsimonious::Create() {
+    return new TrivariateMaternParsimonious();
+}
+
+namespace exageostat::kernels {
+    bool TrivariateMaternParsimonious::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "TrivariateMaternParsimonious", TrivariateMaternParsimonious::Create);
+}
 
 void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                                   int aRowOffset, int aColumnOffset, Locations *apLocation1,

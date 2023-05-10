@@ -19,11 +19,17 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 BivariateMaternFlexible::BivariateMaternFlexible() {
-    this->mP = 1;
+    this->mP = 2;
+    this->mParametersNumber = 11;
 }
 
 Kernel *BivariateMaternFlexible::Create() {
     return new BivariateMaternFlexible();
+}
+
+namespace exageostat::kernels {
+    bool BivariateMaternFlexible::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "BivariateMaternFlexible", BivariateMaternFlexible::Create);
 }
 
 void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
@@ -92,9 +98,4 @@ void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aR
         }
         i0++;
     }
-}
-
-namespace exageostat::kernels {
-    bool BivariateMaternFlexible::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "BivariateMaternFlexible", BivariateMaternFlexible::Create);
 }

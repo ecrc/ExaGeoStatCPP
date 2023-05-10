@@ -6,7 +6,7 @@
 
 /**
  * @file BivariateMaternFlexible.hpp
- *
+ * @brief Defines the BivariateMaternFlexible class, a Bivariate Matern Flexible kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -21,12 +21,12 @@ namespace exageostat {
     namespace kernels {
 
         /**
-        * @class BivariateMaternFlexible
-        * @brief A class representing a Bivariate Matern flexible kernel.
-        *
-        * This class represents a univariate stationary Matern kernel, which is a subclass of the Kernel class. It provides
-        * a method for generating a covariance matrix using a set of input locations and kernel parameters.
-        */
+         * @class BivariateMaternFlexible
+         * @brief A class representing a Bivariate Matern Flexible kernel.
+         *
+         * This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class. It provides
+         * a method for generating a covariance matrix using a set of input locations and kernel parameters.
+         */
         class BivariateMaternFlexible : public Kernel {
 
         public:
@@ -54,13 +54,12 @@ namespace exageostat {
             void GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
                                           int aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *apLocalTheta, int aDistanceMetric) override;
-
+                                          double *apLocalTheta, int aDistanceMetric) override ;
             /**
-             * @brief Creates a new UnivariateMaternStationary object.
-             * @return A pointer to the new UnivariateMaternStationary object.
+             * @brief Creates a new BivariateMaternFlexible object.
+             * @return A pointer to the new BivariateMaternFlexible object.
              *
-             * This method creates a new UnivariateMaternStationary object and returns a pointer to it.
+             * This method creates a new BivariateMaternFlexible object and returns a pointer to it.
              */
             static Kernel *Create();
 
@@ -69,5 +68,4 @@ namespace exageostat {
         };
     }//namespace Kernels
 }//namespace exageostat
-
 #endif //EXAGEOSTATCPP_BIVARIATEMATERNFLEXIBLE_HPP

@@ -20,6 +20,19 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
+BivariateMaternParsimonious::BivariateMaternParsimonious() {
+    this->mP = 2;
+    this->mParametersNumber = 6;
+}
+
+Kernel *BivariateMaternParsimonious::Create() {
+    return new BivariateMaternParsimonious();
+}
+
+namespace exageostat::kernels {
+    bool BivariateMaternParsimonious::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "BivariateMaternParsimonious", BivariateMaternParsimonious::Create);
+}
 
 void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
@@ -52,6 +65,8 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
     con12 = 1.0 / con12;
     con12 = rho * sqrt(apLocalTheta[0] * apLocalTheta[1]) * con12;
 
+    printf("con1: %f con2: %f nu12: %f rho: %f con12: %f\n", con1, con2, nu12, rho, con12);
+
     i0 /= 2;
     for (i = 0; i < aRowsNumber - 1; i += 2) {
         j0 = aColumnOffset / 2;
@@ -74,5 +89,13 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
             j0++;
         }
         i0++;
+    }
+    std::cout << "after: " << std::endl;
+
+    for (j = 0; j < aColumnsNumber; j++) {
+        for (i = 0; i < aRowsNumber; i++) {
+            std::cout << *(apMatrixA + i + j * aRowsNumber) << " ";
+        }
+        std::cout << std::endl;
     }
 }

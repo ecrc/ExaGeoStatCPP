@@ -20,10 +20,16 @@ using namespace std;
 
 UnivariateMaternNonStationary::UnivariateMaternNonStationary() {
     this->mP = 1;
+    this->mParametersNumber = 9;
 }
 
 Kernel *UnivariateMaternNonStationary::Create() {
     return new UnivariateMaternNonStationary();
+}
+
+namespace exageostat::kernels {
+    bool UnivariateMaternNonStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+            "UnivariateMaternNonStationary", UnivariateMaternNonStationary::Create);
 }
 
 void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
@@ -99,9 +105,4 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
                                                  : con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
         }
     }
-}
-
-namespace exageostat::kernels {
-    bool UnivariateMaternNonStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternNonStationary", UnivariateMaternNonStationary::Create);
 }
