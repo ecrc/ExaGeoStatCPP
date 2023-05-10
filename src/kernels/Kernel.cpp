@@ -91,3 +91,11 @@ double Kernel::CalculateSecondDerivativeBesselNuInput(const double& aOrder, cons
 int Kernel::GetPValue() const {
     return this->mP;
 }
+
+void Kernel::SetPValue(int aP) {
+    // Each kernel has it's own initial P value, But in case of used spacetime kernels then aP won't be equal to 1.
+    // In case of univariate spacetime P = 1 * time slot
+    // In case of Bivariate spacetime P = 2 * time slot
+    this->mP = this->mP * aP;
+}
+

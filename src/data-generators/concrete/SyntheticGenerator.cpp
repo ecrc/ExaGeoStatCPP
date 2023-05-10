@@ -27,6 +27,7 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
     std::string kernel_name = this->mpConfigurations->GetKernel();
     this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(
             this->mpConfigurations->GetKernel());
+    this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
 }
 
 void SyntheticGenerator::GenerateDescriptors() {
@@ -57,7 +58,7 @@ void SyntheticGenerator::GenerateLocations() {
     } else {
         throw std::runtime_error("Error in Allocating Kernel plugin");
     }
-    int N = this->mpConfigurations->GetProblemSize() / p;
+    int N = this->mpConfigurations->GetProblemSize();
 
     int index = 0;
     Dimension dimension = this->mpConfigurations->GetDimension();

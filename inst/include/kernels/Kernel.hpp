@@ -137,6 +137,11 @@ namespace exageostat {
              */
             int GetPValue() const;
 
+            /**
+             * @brief Sets the value of the parameter P used by the kernel function.
+             */
+            void SetPValue(int aP);
+
         protected:
             //// Used P.
             int mP = 1;

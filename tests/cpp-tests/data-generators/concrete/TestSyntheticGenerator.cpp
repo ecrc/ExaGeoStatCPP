@@ -25,8 +25,10 @@ using namespace exageostat::common;
 void TEST_SPREAD_REVERSED_BITS() {
 
     // Init using unique ptr as when unique_ptr is destroyed/get out of scope, the resource is automatically claimed.
-    auto syntheticDataConfigurations = new SyntheticDataConfigurations();
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
+    SyntheticDataConfigurations syntheticDataConfigurations;
+    syntheticDataConfigurations.SetProblemSize(16);
+    syntheticDataConfigurations.SetKernel("UnivariateMaternStationary");
+    SyntheticGenerator syntheticGenerator = SyntheticGenerator(&syntheticDataConfigurations);
 
     SECTION("Spread Bytes")
     {
@@ -175,52 +177,51 @@ void TEST_SPREAD_REVERSED_BITS() {
 
 void TEST_GENERATE_LOCATIONS(){
 
-    // Init using unique ptr as when unique_ptr is destroyed/get out of scope, the resource is automatically claimed.
-    auto syntheticDataConfigurations = new SyntheticDataConfigurations();
-    syntheticDataConfigurations->SetProblemSize(16);
-    syntheticDataConfigurations->SetKernel("UnivariateMaternStationary");
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
+    SyntheticDataConfigurations syntheticDataConfigurations ;
+    syntheticDataConfigurations.SetProblemSize(16);
+    syntheticDataConfigurations.SetKernel("UnivariateMaternStationary");
+    SyntheticGenerator syntheticGenerator = SyntheticGenerator(&syntheticDataConfigurations);
 
     Locations locations;
 
     SECTION("2D Generation"){
-        syntheticDataConfigurations->SetDimension(Dimension2D);
+        syntheticDataConfigurations.SetDimension(Dimension2D);
         syntheticGenerator.GenerateLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
         REQUIRE(syntheticGenerator.GetLocations()->GetLocationZ() == nullptr);
 
-        for (auto i = 0; i < syntheticDataConfigurations->GetProblemSize(); i ++){
+        for (auto i = 0; i < syntheticDataConfigurations.GetProblemSize(); i ++){
             REQUIRE( x[i] != 0 );
             REQUIRE( y[i] != 0 );
         }
     }
 
     SECTION("3D Generation"){
-        syntheticDataConfigurations->SetDimension(Dimension3D);
+        syntheticDataConfigurations.SetDimension(Dimension3D);
         syntheticGenerator.GenerateLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
         double* z = syntheticGenerator.GetLocations()->GetLocationZ();
 
-        for (auto i = 0; i < syntheticDataConfigurations->GetProblemSize(); i ++){
+        for (auto i = 0; i < syntheticDataConfigurations.GetProblemSize(); i ++){
             REQUIRE( x[i] != 0 );
             REQUIRE( y[i] != 0 );
             REQUIRE( z[i] != 0 );
         }
     }
     SECTION("ST Generation"){
-        syntheticDataConfigurations->SetDimension(DimensionST);
-        syntheticDataConfigurations->SetTimeSlot(3);
+        syntheticDataConfigurations.SetDimension(DimensionST);
+        syntheticDataConfigurations.SetTimeSlot(3);
         syntheticGenerator.GenerateLocations();
 
         double* x = syntheticGenerator.GetLocations()->GetLocationX();
         double* y = syntheticGenerator.GetLocations()->GetLocationY();
         double* z = syntheticGenerator.GetLocations()->GetLocationZ();
 
-        for (auto i = 0; i < syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetTimeSlot(); i ++){
+        for (auto i = 0; i < syntheticDataConfigurations.GetProblemSize() * syntheticDataConfigurations.GetTimeSlot(); i ++){
             REQUIRE( x[i] != 0 );
             REQUIRE( y[i] != 0 );
             REQUIRE( z[i] != 0 );
@@ -229,8 +230,10 @@ void TEST_GENERATE_LOCATIONS(){
 }
 
 void TEST_HELPERS_FUNCTIONS(){
-    auto syntheticDataConfigurations = new SyntheticDataConfigurations();
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
+    SyntheticDataConfigurations syntheticDataConfigurations;
+    syntheticDataConfigurations.SetProblemSize(16);
+    syntheticDataConfigurations.SetKernel("UnivariateMaternStationary");
+    SyntheticGenerator syntheticGenerator = SyntheticGenerator(&syntheticDataConfigurations);
 
     SECTION("Uniform distribution"){
         double lowerRange = -0.4;
@@ -252,11 +255,11 @@ void TEST_HELPERS_FUNCTIONS(){
 
 void TEST_GENERATION(){
 
-        auto syntheticDataConfigurations = new SyntheticDataConfigurations();
-        syntheticDataConfigurations->SetDimension(Dimension2D);
-        syntheticDataConfigurations->SetProblemSize(2);
-        syntheticDataConfigurations->SetKernel("UnivariateMaternStationary");
-        SyntheticGenerator syntheticGenerator = SyntheticGenerator(syntheticDataConfigurations);
+        SyntheticDataConfigurations syntheticDataConfigurations;
+        syntheticDataConfigurations.SetDimension(Dimension2D);
+        syntheticDataConfigurations.SetProblemSize(2);
+        syntheticDataConfigurations.SetKernel("UnivariateMaternStationary");
+        SyntheticGenerator syntheticGenerator = SyntheticGenerator(&syntheticDataConfigurations);
         syntheticGenerator.GenerateLocations();
 
         // This values are not for the first run, Values changes depending on the seed.
@@ -272,7 +275,6 @@ void TEST_GENERATION(){
         if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[1] - 0.64715) >= 1e-6) {
             REQUIRE(false);
         }
-        free(syntheticDataConfigurations);
 }
 
 TEST_CASE("Synthetic Data Generation tests") {
