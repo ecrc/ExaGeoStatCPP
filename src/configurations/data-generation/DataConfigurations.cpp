@@ -38,6 +38,30 @@ bool DataConfigurations::GetIsSynthetic() const {
     return this->mIsSynthetic;
 }
 
+void DataConfigurations::SetParametersNumber(int aParameterNumbers) {
+    this->mParametersNumber = aParameterNumbers;
+}
+
+int DataConfigurations::GetParamtersNumber() {
+    return this->mParametersNumber;
+}
+
+void DataConfigurations::SetLowerBounds(int aSize) {
+    this->mLowerBounds =  (double *) std::malloc(aSize * sizeof(double ));
+}
+
+double *DataConfigurations::GetLowerBounds() {
+    return this->mLowerBounds;
+}
+
+void DataConfigurations::SetUpperBounds(int aSize) {
+    this->mUpperBounds =  (double *) std::malloc(aSize * sizeof(double ));
+}
+
+double *DataConfigurations::GetUpperBounds() {
+    return this->mUpperBounds;
+}
+
 void DataConfigurations::CheckKernelValue(const string& aKernel) {
 
     // Check if the kernel name exists in the availableKernels set.
@@ -74,4 +98,14 @@ bool DataConfigurations::IsCamelCase(std::string aString) {
     }
     // If none of the above conditions hold, the string is in CamelCase format
     return true;
+}
+
+int DataConfigurations::ParseTheta(std::string aTheta) {
+    if (aTheta.empty() || aTheta == ""){
+        cout << "Empty?: " << this->GetParamtersNumber() << endl;
+        for(int i = 0; i < this->GetParamtersNumber(); i++){
+            std::cout << i << endl;
+        }
+    }
+    return 0;
 }

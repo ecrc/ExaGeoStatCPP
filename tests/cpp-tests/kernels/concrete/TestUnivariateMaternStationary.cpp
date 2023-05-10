@@ -25,7 +25,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
     std::unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new synthetic_data_configurations object with the provided command line arguments
-    auto *synthetic_data_configurations = new SyntheticDataConfigurations();
+    SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
 
     synthetic_data_configurations->SetProblemSize(9);
     synthetic_data_configurations->SetKernel("UnivariateMaternStationary");
@@ -81,9 +81,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
     }
-
-    // Clean up memory
-    delete synthetic_data_configurations;
 }
 
 TEST_CASE("Univariate Matern Stationary kernel test") {

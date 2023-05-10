@@ -30,23 +30,10 @@ namespace exageostat {
             class SyntheticDataConfigurations : public DataConfigurations {
 
             public:
-                /**
-                 * @brief Default constructor.
-                 */
-                SyntheticDataConfigurations() = default;
-
-                /**
-                * @brief Constructor that takes command line arguments.
-                * @param argc The number of arguments being passed into the program from the command line.
-                * @param argv The array of arguments.
-                */
-                SyntheticDataConfigurations(int argc, char **argv);
-
-                /**
-                * @brief Constructor that takes a JSON file path.
-                * @param JSON_path The path to the JSON file.
-                */
-                explicit SyntheticDataConfigurations(const std::string& JSON_path);
+//                /**
+//                 * @brief Default constructor.
+//                 */
+//                SyntheticDataConfigurations() = default;
 
                 /**
                  * @brief Virtual destructor to allow calls to the correct concrete destructor.
@@ -91,6 +78,12 @@ namespace exageostat {
                  */
                 int CheckUnknownObservationsValue(const std::string& aValue);
 
+                /**
+                 * @brief Gets the singleton instance of the class.
+                 * @return The singleton instance.
+                 */
+                static SyntheticDataConfigurations* GetInstance();
+
             private:
                 /// The dimension used for data generation.
                 exageostat::common::Dimension mDimension = common::Dimension2D;
@@ -101,6 +94,13 @@ namespace exageostat {
                 /// The Z coordinates of the locations.
                 double *mpLocationZ{};
 
+                /// The singleton instance of the class.
+                static SyntheticDataConfigurations* mInstance;
+
+                /**
+                 * @brief Private default constructor to prevent direct instantiation.
+                 */
+                SyntheticDataConfigurations() = default;
             };
 
         }//namespace data_configurations

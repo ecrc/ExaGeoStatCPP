@@ -37,7 +37,8 @@ using namespace exageostat::common;
 int main(int argc, char **argv) {
 
     // Create an instance of the SyntheticDataConfigurations class with user-defined configurations.
-    auto synthetic_data_configurations = new SyntheticDataConfigurations(argc, argv);
+    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    synthetic_data_configurations->InitializeArguments(argc, argv);
 
     // Obtain user-defined configurations and print them to the console.
     int N = synthetic_data_configurations->GetProblemSize();
@@ -86,7 +87,6 @@ int main(int argc, char **argv) {
     } else if (precision == MIXED) {
         cout << "You set precision to: MIXED PRECISION" << endl;
     }
-    // Clean up memory
-    delete synthetic_data_configurations;
+
     return 0;
 }

@@ -27,13 +27,17 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
     std::string kernel_name = this->mpConfigurations->GetKernel();
     this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(
             this->mpConfigurations->GetKernel());
+    std::cout << "New Synthetic Generator!" << std::endl;
+    std::cout << "P: " << this->mpConfigurations->GetParamtersNumber() << std::endl;
     this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
+    this->mpConfigurations->SetParametersNumber(this->mpKernel->GetParametersNumbers());
+    std::cout << "New P!: " << this->mpConfigurations->GetParamtersNumber() << std::endl;
+    this->mpConfigurations->ParseTheta("");
 }
 
 void SyntheticGenerator::GenerateDescriptors() {
 
     // Create and initialize linear algebra solvers for different precision types.
-
     if (this->mpConfigurations->GetPrecision() == SINGLE) {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
                 this->mpConfigurations->GetComputation());

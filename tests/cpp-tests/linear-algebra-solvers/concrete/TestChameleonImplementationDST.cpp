@@ -40,83 +40,75 @@ void FINALIZE_HARDWARE_DST() {
 
 // Test that the function initializes all the required descriptors without errors.
 void TEST_INITIALIZETION_DST() {
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
+
+    SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
 
     SECTION("Single") {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        syntheticDataConfigurations->SetProblemSize(1000);
-        syntheticDataConfigurations->SetDenseTileSize(64);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
-
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() == nullptr);
+        synthetic_data_configurations->SetProblemSize(1000);
+        synthetic_data_configurations->SetDenseTileSize(64);
+        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorProduct().size() == 1);
-
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorProduct()[0] != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorC()[0] != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorZ()[0] != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorProduct()[0] != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorZcpy() != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorDeterminant() != nullptr);
     }
 
     SECTION("Double") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        syntheticDataConfigurations->SetProblemSize(1024);
-        syntheticDataConfigurations->SetDenseTileSize(64);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
-
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() == nullptr);
+        synthetic_data_configurations->SetProblemSize(1024);
+        synthetic_data_configurations->SetDenseTileSize(64);
+        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorProduct().size() == 3);
+        REQUIRE(synthetic_data_configurations->GetDescriptorC().size() == 1);
+        REQUIRE(synthetic_data_configurations->GetDescriptorZ().size() == 1);
+        REQUIRE(synthetic_data_configurations->GetDescriptorProduct().size() == 3);
 
-        for (auto &descriptorC: syntheticDataConfigurations->GetDescriptorC()) {
+        for (auto &descriptorC: synthetic_data_configurations->GetDescriptorC()) {
             REQUIRE(descriptorC != nullptr);
         }
-        for (auto &i: syntheticDataConfigurations->GetDescriptorZ()) {
+        for (auto &i: synthetic_data_configurations->GetDescriptorZ()) {
             REQUIRE(i != nullptr);
         }
-        for (auto &i: syntheticDataConfigurations->GetDescriptorProduct()) {
+        for (auto &i: synthetic_data_configurations->GetDescriptorProduct()) {
             REQUIRE(i != nullptr);
         }
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorZcpy() != nullptr);
+        REQUIRE(synthetic_data_configurations->GetDescriptorDeterminant() != nullptr);
     }
 }
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
 void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
+
+    SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
 
     SECTION("SINGLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
-        syntheticDataConfigurations->SetDenseTileSize(512);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        synthetic_data_configurations->SetProblemSize(6400);
+        synthetic_data_configurations->SetDenseTileSize(512);
+        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
-        auto *CHAM_descriptorC = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorC()[0];
-        auto *CHAM_descriptorZ = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZ()[0];
-        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZcpy();
-        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorDeterminant();
-        auto *CHAM_descriptorProduct = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorProduct()[0];
+        auto *CHAM_descriptorC = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[0];
+        auto *CHAM_descriptorZ = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZ()[0];
+        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZcpy();
+        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorDeterminant();
+        auto *CHAM_descriptorProduct = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorProduct()[0];
 
-        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
-        int dts = syntheticDataConfigurations->GetDenseTileSize();
-        int pGrid = syntheticDataConfigurations->GetPGrid();
-        int qGrid = syntheticDataConfigurations->GetQGrid();
+        int N = synthetic_data_configurations->GetProblemSize() * synthetic_data_configurations->GetP();
+        int dts = synthetic_data_configurations->GetDenseTileSize();
+        int pGrid = synthetic_data_configurations->GetPGrid();
+        int qGrid = synthetic_data_configurations->GetQGrid();
 
         REQUIRE(CHAM_descriptorC->m == N);
         REQUIRE(CHAM_descriptorZ->m == N);
@@ -223,21 +215,21 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     SECTION("DOUBLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
-        syntheticDataConfigurations->SetDenseTileSize(512);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        synthetic_data_configurations->SetProblemSize(6400);
+        synthetic_data_configurations->SetDenseTileSize(512);
+        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
-        auto *CHAM_descriptorC = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorC()[0];
-        auto *CHAM_descriptorZ = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZ()[0];
-        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorZcpy();
-        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) syntheticDataConfigurations->GetDescriptorDeterminant();
-        vector<void *> &pDescriptorProduct = syntheticDataConfigurations->GetDescriptorProduct();
+        auto *CHAM_descriptorC = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[0];
+        auto *CHAM_descriptorZ = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZ()[0];
+        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZcpy();
+        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorDeterminant();
+        vector<void *> &pDescriptorProduct = synthetic_data_configurations->GetDescriptorProduct();
 
-        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
-        int dts = syntheticDataConfigurations->GetDenseTileSize();
-        int pGrid = syntheticDataConfigurations->GetPGrid();
-        int qGrid = syntheticDataConfigurations->GetQGrid();
+        int N = synthetic_data_configurations->GetProblemSize() * synthetic_data_configurations->GetP();
+        int dts = synthetic_data_configurations->GetDenseTileSize();
+        int pGrid = synthetic_data_configurations->GetPGrid();
+        int qGrid = synthetic_data_configurations->GetQGrid();
 
         REQUIRE(CHAM_descriptorC->m == N);
         REQUIRE(CHAM_descriptorZ->m == N);

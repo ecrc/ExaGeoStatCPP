@@ -36,7 +36,8 @@ int main(int argc, char **argv) {
     unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new synthetic_data_configurations object with the provided command line arguments
-    auto *synthetic_data_configurations = new SyntheticDataConfigurations(argc, argv);
+    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    synthetic_data_configurations->InitializeArguments(argc, argv);
 
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(synthetic_data_configurations);
@@ -75,7 +76,5 @@ int main(int argc, char **argv) {
     synthetic_generator->GenerateDescriptors();
     synthetic_generator->GenerateObservations();
 
-    // Clean up memory
-    delete synthetic_data_configurations;
     return 0;
 }

@@ -34,7 +34,8 @@ using namespace std;
 int main(int argc, char **argv) {
 
     // Create an instance of the synthetic_data_configurations class with user-defined configurations.
-    auto synthetic_data_configurations = new SyntheticDataConfigurations(argc, argv);
+    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    synthetic_data_configurations->InitializeArguments(argc, argv);
 
     // Create and initialize linear algebra solvers for different precision types.
     if (synthetic_data_configurations->GetPrecision() == SINGLE) {
@@ -50,7 +51,5 @@ int main(int argc, char **argv) {
     } else if (synthetic_data_configurations->GetPrecision() == MIXED) {
         // TODO: Add implementation for mixed-precision linear algebra solver.
     }
-    // Clean up allocated memory
-    delete synthetic_data_configurations;
     return 0;
 }

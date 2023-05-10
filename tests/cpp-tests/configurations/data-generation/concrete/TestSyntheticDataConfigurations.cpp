@@ -22,79 +22,78 @@ using namespace exageostat::common;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
-    // Init using unique ptr as when unique_ptr is destroyed/get out of scope, the resource is automatically claimed.
-    unique_ptr<SyntheticDataConfigurations> syntheticDataConfigurations = make_unique<SyntheticDataConfigurations>();
+    SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
     int random_number = 512;
 
     SECTION("Dimensions setter/getter test")
     {
-        syntheticDataConfigurations->SetDimension(Dimension2D);
-        REQUIRE(syntheticDataConfigurations->GetDimension() == Dimension2D);
+        synthetic_data_configurations->SetDimension(Dimension2D);
+        REQUIRE(synthetic_data_configurations->GetDimension() == Dimension2D);
     }SECTION("Dimensions value checker test")
     {
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckDimensionValue("4D"),
+                synthetic_data_configurations->CheckDimensionValue("4D"),
                 "Invalid value for Dimension. Please use 2D, 3D or ST.");
-        syntheticDataConfigurations->CheckDimensionValue("2D");
+        synthetic_data_configurations->CheckDimensionValue("2D");
     }
 
     SECTION("P-GRID setter/getter test")
     {
-        REQUIRE(syntheticDataConfigurations->GetPGrid() == 1);
-        syntheticDataConfigurations->SetPGrid(random_number);
-        REQUIRE(syntheticDataConfigurations->GetPGrid() == random_number);
+        REQUIRE(synthetic_data_configurations->GetPGrid() == 1);
+        synthetic_data_configurations->SetPGrid(random_number);
+        REQUIRE(synthetic_data_configurations->GetPGrid() == random_number);
     }SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckNumericalValue("K"),
+                synthetic_data_configurations->CheckNumericalValue("K"),
                 "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckNumericalValue("-100"),
+                synthetic_data_configurations->CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = syntheticDataConfigurations->CheckNumericalValue("512");
-        syntheticDataConfigurations->SetPGrid(test_nb);
-        REQUIRE(syntheticDataConfigurations->GetPGrid() == 512);
+        int test_nb = synthetic_data_configurations->CheckNumericalValue("512");
+        synthetic_data_configurations->SetPGrid(test_nb);
+        REQUIRE(synthetic_data_configurations->GetPGrid() == 512);
     }
 }
 
 void TEST_DATA_CONFIGURATIONS() {
-    unique_ptr<SyntheticDataConfigurations> syntheticDataConfigurations = make_unique<SyntheticDataConfigurations>();
+    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
     SECTION("Kernel setter/getter test")
     {
-        REQUIRE(syntheticDataConfigurations->GetKernel() == "");
-        syntheticDataConfigurations->SetKernel("univariate_matern_stationary");
-        REQUIRE(syntheticDataConfigurations->GetKernel() == "univariate_matern_stationary");
+        REQUIRE(synthetic_data_configurations->GetKernel() == "");
+        synthetic_data_configurations->SetKernel("univariate_matern_stationary");
+        REQUIRE(synthetic_data_configurations->GetKernel() == "univariate_matern_stationary");
     }SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckKernelValue("100"),
+                synthetic_data_configurations->CheckKernelValue("100"),
                 "Invalid value for Kernel. Please check manual.");
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckKernelValue("univariate_matern_dnu%"),
+                synthetic_data_configurations->CheckKernelValue("univariate_matern_dnu%"),
                 "Invalid value for Kernel. Please check manual.");
-        syntheticDataConfigurations->CheckKernelValue("univariate_matern_dnu");
+        synthetic_data_configurations->CheckKernelValue("univariate_matern_dnu");
     }
 }
 
 void TEST_CONFIGURATIONS() {
-    unique_ptr<SyntheticDataConfigurations> syntheticDataConfigurations = make_unique<SyntheticDataConfigurations>();
+    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
     int random_number = 512;
     SECTION("Problem size setter/getter test")
     {
-        REQUIRE(syntheticDataConfigurations->GetProblemSize() == 0);
-        syntheticDataConfigurations->SetProblemSize(random_number);
-        REQUIRE(syntheticDataConfigurations->GetProblemSize() == random_number);
+        REQUIRE(synthetic_data_configurations->GetProblemSize() == 0);
+        synthetic_data_configurations->SetProblemSize(random_number);
+        REQUIRE(synthetic_data_configurations->GetProblemSize() == random_number);
     }SECTION("Problem size checker value test")
     {
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckNumericalValue("K"),
+                synthetic_data_configurations->CheckNumericalValue("K"),
                 "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
-                syntheticDataConfigurations->CheckNumericalValue("-100"),
+                synthetic_data_configurations->CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = syntheticDataConfigurations->CheckNumericalValue("512");
-        syntheticDataConfigurations->SetProblemSize(test_nb);
-        REQUIRE(syntheticDataConfigurations->GetProblemSize() == 512);
+        int test_nb = synthetic_data_configurations->CheckNumericalValue("512");
+        synthetic_data_configurations->SetProblemSize(test_nb);
+        REQUIRE(synthetic_data_configurations->GetProblemSize() == 512);
     }
 }
 

@@ -22,14 +22,6 @@ using namespace exageostat::common;
 using namespace std;
 
 
-SyntheticDataConfigurations::SyntheticDataConfigurations(int argc, char **argv) {
-    this->InitializeArguments(argc, argv);
-}
-
-SyntheticDataConfigurations::SyntheticDataConfigurations(const string& JSON_path) {
-    // Not implemented yet
-}
-
 void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     // Get the example name
     string example_name = argv[0];
@@ -84,6 +76,8 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
             } else if (argument_name == "--ObservationsFile" || argument_name == "--observationsfile") {
                 SetActualObservationsFilePath(argument_value);
+            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lowerBounds") {
+                SetLowerBounds(ParseTheta(argument_value));
             }
             else {
                 cout << "!! " << argument_name << " !!" << endl;
@@ -125,6 +119,10 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     if(GetKernel().empty()){
         throw domain_error("You need to set the Kernel, before starting");
     }
+    if(GetLowerBounds() == nullptr){
+        SetLowerBounds(ParseTheta(""));
+    }
+
 }
 
 void SyntheticDataConfigurations::PrintUsage() {
@@ -182,4 +180,12 @@ int SyntheticDataConfigurations::CheckUnknownObservationsValue(const string& aVa
         throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
     }
     return value;
+}
+
+SyntheticDataConfigurations *SyntheticDataConfigurations::GetInstance() {
+    // Declare a static local variable to hold the singleton instance.
+    static SyntheticDataConfigurations instance;
+
+    // Return a pointer to the singleton instance.
+    return &instance;
 }
