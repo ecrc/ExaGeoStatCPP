@@ -78,6 +78,12 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetActualObservationsFilePath(argument_value);
             } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lowerBounds") {
                 SetLowerBounds(ParseTheta(argument_value));
+            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upperBounds") {
+                SetUpperBounds(ParseTheta(argument_value));
+            } else if (argument_name == "--ikernel" || argument_name == "--initialTheta" || argument_name == "--itheta" || argument_name == "--iTheta") {
+                SetInitialTheta(ParseTheta(argument_value));
+            } else if (argument_name == "--tkernel" || argument_name == "--targetTheta" || argument_name == "--ttheta" || argument_name == "--tTheta") {
+                SetTargetTheta(ParseTheta(argument_value));
             }
             else {
                 cout << "!! " << argument_name << " !!" << endl;

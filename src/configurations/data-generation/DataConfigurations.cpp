@@ -54,12 +54,36 @@ double *DataConfigurations::GetLowerBounds() {
     return this->mLowerBounds;
 }
 
-void DataConfigurations::SetUpperBounds(int aSize) {
-    this->mUpperBounds = (double *) std::malloc(aSize * sizeof(double));
+void DataConfigurations::SetUpperBounds(double *apTheta) {
+    this->mUpperBounds = apTheta;
 }
 
 double *DataConfigurations::GetUpperBounds() {
     return this->mUpperBounds;
+}
+
+void DataConfigurations::SetStartingTheta(double *apTheta) {
+    this->mStartingTheta = apTheta;
+}
+
+double *DataConfigurations::GetStartingTheta() {
+    return this->mStartingTheta;
+}
+
+void DataConfigurations::SetInitialTheta(double *apTheta) {
+    this->mInitialTheta = apTheta;
+}
+
+double *DataConfigurations::GetInitialTheta() {
+    return this->mInitialTheta;
+}
+
+void DataConfigurations::SetTargetTheta(double *apTheta) {
+    this->mTargetTheta = apTheta;
+}
+
+double *DataConfigurations::GetTargetTheta() {
+    return this->mTargetTheta;
 }
 
 void DataConfigurations::CheckKernelValue(const string &aKernel) {

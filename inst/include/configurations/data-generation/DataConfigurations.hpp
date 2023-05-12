@@ -62,61 +62,88 @@ namespace exageostat {
 
                 /**
                  * @brief Setter for the number of parameters.
-                 * @param aParameterNumbers The number of parameters to get set.
                  *
+                 * @param aParameterNumbers The number of parameters to set.
                  */
                 void SetParametersNumber(int aParameterNumbers);
 
                 /**
                  * @brief Getter for the number of parameters.
-                 * @return The number of paramters.
                  *
+                 * @return The number of parameters.
                  */
                 int GetParametersNumber() const;
 
                 /**
                  * @brief Setter for the lower bounds.
-                 * @param aSize The size of data to set.
                  *
+                 * @param apTheta A pointer to an array of lower bounds to set.
                  */
                 void SetLowerBounds(double* apTheta);
 
                 /**
                  * @brief Getter for the lower bounds.
-                 * @return pointer to the lower bounds array.
                  *
+                 * @return A pointer to the array of lower bounds.
                  */
                 double *GetLowerBounds();
 
                 /**
                  * @brief Setter for the upper bounds.
-                 * @param aSize The size of data to set.
                  *
+                 * @param apTheta A pointer to an array of upper bounds to set.
                  */
-                void SetUpperBounds(int aSize);
+                void SetUpperBounds(double* apTheta);
 
                 /**
                  * @brief Getter for the upper bounds.
-                 * @return pointer to the upper bounds array.
                  *
+                 * @return A pointer to the array of upper bounds.
                  */
                 double *GetUpperBounds();
 
-//
-//                /**
-//                 * @brief Setter for the lower bounds.
-//                 * @param aSize The size of data to set.
-//                 *
-//                 */
-//                void SetLowerBounds(int aSize);
-//
-//                /**
-//                 * @brief Getter for the lower bounds.
-//                 * @return pointer to the lower bounds array.
-//                 *
-//                 */
-//                double *GetLowerBounds();
-//
+                /**
+                 * @brief Setter for the starting theta.
+                 *
+                 * @param apTheta A pointer to an array of starting theta values to set.
+                 */
+                void SetStartingTheta(double *apTheta);
+
+                /**
+                 * @brief Getter for the starting theta.
+                 *
+                 * @return A pointer to the array of starting theta values.
+                 */
+                double *GetStartingTheta();
+
+                /**
+                 * @brief Setter for the initial theta.
+                 *
+                 * @param apTheta A pointer to an array of initial theta values to set.
+                 */
+                void SetInitialTheta(double *apTheta);
+
+                /**
+                 * @brief Getter for the initial theta.
+                 *
+                 * @return A pointer to the array of initial theta values.
+                 */
+                double *GetInitialTheta();
+
+                /**
+                 * @brief Setter for the target theta.
+                 *
+                 * @param apTheta A pointer to an array of target theta values to set.
+                 */
+                void SetTargetTheta(double *apTheta);
+
+                /**
+                 * @brief Getter for the target theta.
+                 *
+                 * @return A pointer to the array of target theta values.
+                 */
+                double *GetTargetTheta();
+
                 /**
                  * @brief Checks if the kernel value is valid.
                  *
@@ -124,8 +151,20 @@ namespace exageostat {
                  */
                 void CheckKernelValue(const std::string &aKernel);
 
+                /**
+                 * @brief Checks if a given string is in camel case format.
+                 *
+                 * @param aString The string to check.
+                 * @return true if the string is in camel case format, false otherwise.
+                 */
                 static bool IsCamelCase(std::string aString);
 
+                /**
+                 * @brief Parses a string of theta values and returns an array of doubles.
+                 *
+                 * @param aInputValues The input string of theta values.
+                 * @return A pointer to an array of parsed theta values.
+                 */
                 static double* ParseTheta(const std::string& aInputValues);
 
             protected:
@@ -133,22 +172,21 @@ namespace exageostat {
                 std::string mKernel;
                 /// The type of data to use.
                 bool mIsSynthetic = false;
-                /// The used lower bounds
+                /// The lower bounds to use.
                 double *mLowerBounds = nullptr;
-                /// The used upper bounds
-                double *mUpperBounds;
-                /// The used staring theta
-                double *mStartingTheta;
-                /// The used target theta
-                double *mTargetTheta;
-                /// The used initial theta
-                double *mInitialTheta;
-                //// Used Parameters Numbers;
+                /// The upper bounds to use.
+                double *mUpperBounds = nullptr;
+                /// The starting theta values to use.
+                double *mStartingTheta = nullptr;
+                /// The target theta values to use.
+                double *mTargetTheta = nullptr;
+                /// The initial theta values to use.
+                double *mInitialTheta = nullptr;
+                //// The number of parameters to use.
                 int mParametersNumber = 0;
             };
 
         }//namespace data_configurations
     }//namespace configurations
 }//namespace exageostat
-
 #endif //EXAGEOSTAT_CPP_DATACONFIGURATIONS_HPP

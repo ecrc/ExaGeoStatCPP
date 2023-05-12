@@ -32,15 +32,30 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
     int parameters_number = this->mpKernel->GetParametersNumbers();
     this->mpConfigurations->SetParametersNumber(parameters_number);
 
+    // Check if any theta is not initialized, This means that the user didn't send it as an argument
     if(this->mpConfigurations->GetLowerBounds() == nullptr){
         this->mpConfigurations->SetLowerBounds(InitTheta(this->mpConfigurations->GetLowerBounds(), parameters_number));
     }
-
-    std::cout << "Lower bounds: " << std::endl;
-    for (int i = 0; i<parameters_number; i++){
-        std::cout << this->mpConfigurations->GetLowerBounds()[i] << " ";
+    if(this->mpConfigurations->GetUpperBounds() == nullptr){
+        this->mpConfigurations->SetUpperBounds(InitTheta(this->mpConfigurations->GetUpperBounds(), parameters_number));
     }
-    std::cout << "\nEnd" << std::endl;
+    if(this->mpConfigurations->GetInitialTheta() == nullptr){
+        this->mpConfigurations->SetInitialTheta(InitTheta(this->mpConfigurations->GetInitialTheta(), parameters_number));
+    }
+    if(this->mpConfigurations->GetTargetTheta() == nullptr){
+        this->mpConfigurations->SetTargetTheta(InitTheta(this->mpConfigurations->GetTargetTheta(), parameters_number));
+    }
+
+    // Set starting theta with the lower bounds values
+    this->mpConfigurations->SetStartingTheta(this->mpConfigurations->GetLowerBounds());
+
+    for (int i = 0; i < parameters_number; i++) {
+        if (this->mpConfigurations->GetTargetTheta()[i] != -1) {
+            this->mpConfigurations->GetLowerBounds()[i] = this->mpConfigurations->GetTargetTheta()[i];
+            this->mpConfigurations->GetUpperBounds()[i] = this->mpConfigurations->GetTargetTheta()[i];
+            this->mpConfigurations->GetStartingTheta()[i] = this->mpConfigurations->GetTargetTheta()[i];
+        }
+    }
 }
 
 void SyntheticGenerator::GenerateDescriptors() {
