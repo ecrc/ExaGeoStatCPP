@@ -119,10 +119,6 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     if(GetKernel().empty()){
         throw domain_error("You need to set the Kernel, before starting");
     }
-    if(GetLowerBounds() == nullptr){
-        SetLowerBounds(ParseTheta(""));
-    }
-
 }
 
 void SyntheticDataConfigurations::PrintUsage() {
@@ -182,10 +178,3 @@ int SyntheticDataConfigurations::CheckUnknownObservationsValue(const string& aVa
     return value;
 }
 
-SyntheticDataConfigurations *SyntheticDataConfigurations::GetInstance() {
-    // Declare a static local variable to hold the singleton instance.
-    static SyntheticDataConfigurations instance;
-
-    // Return a pointer to the singleton instance.
-    return &instance;
-}

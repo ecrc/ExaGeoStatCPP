@@ -34,21 +34,21 @@ using namespace std;
 int main(int argc, char **argv) {
 
     // Create an instance of the synthetic_data_configurations class with user-defined configurations.
-    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
-    synthetic_data_configurations->InitializeArguments(argc, argv);
+    SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.InitializeArguments(argc, argv);
 
     // Create and initialize linear algebra solvers for different precision types.
-    if (synthetic_data_configurations->GetPrecision() == SINGLE) {
+    if (synthetic_data_configurations.GetPrecision() == SINGLE) {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                synthetic_data_configurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
+                synthetic_data_configurations.GetComputation());
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
         linearAlgebraSolver->InitiateDescriptors();
-    } else if (synthetic_data_configurations->GetPrecision() == DOUBLE) {
+    } else if (synthetic_data_configurations.GetPrecision() == DOUBLE) {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                synthetic_data_configurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
+                synthetic_data_configurations.GetComputation());
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
         linearAlgebraSolver->InitiateDescriptors();
-    } else if (synthetic_data_configurations->GetPrecision() == MIXED) {
+    } else if (synthetic_data_configurations.GetPrecision() == MIXED) {
         // TODO: Add implementation for mixed-precision linear algebra solver.
     }
     return 0;

@@ -15,8 +15,8 @@
 **/
 
 #include <configurations/data-generation/DataConfigurations.hpp>
-#include <utility>
 #include <algorithm>
+#include <cstring>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
@@ -42,12 +42,12 @@ void DataConfigurations::SetParametersNumber(int aParameterNumbers) {
     this->mParametersNumber = aParameterNumbers;
 }
 
-int DataConfigurations::GetParamtersNumber() {
+int DataConfigurations::GetParametersNumber() const {
     return this->mParametersNumber;
 }
 
-void DataConfigurations::SetLowerBounds(int aSize) {
-    this->mLowerBounds =  (double *) std::malloc(aSize * sizeof(double ));
+void DataConfigurations::SetLowerBounds(double *apTheta) {
+    this->mLowerBounds = apTheta;
 }
 
 double *DataConfigurations::GetLowerBounds() {
@@ -55,24 +55,23 @@ double *DataConfigurations::GetLowerBounds() {
 }
 
 void DataConfigurations::SetUpperBounds(int aSize) {
-    this->mUpperBounds =  (double *) std::malloc(aSize * sizeof(double ));
+    this->mUpperBounds = (double *) std::malloc(aSize * sizeof(double));
 }
 
 double *DataConfigurations::GetUpperBounds() {
     return this->mUpperBounds;
 }
 
-void DataConfigurations::CheckKernelValue(const string& aKernel) {
+void DataConfigurations::CheckKernelValue(const string &aKernel) {
 
     // Check if the kernel name exists in the availableKernels set.
     if (availableKernels.count(aKernel) <= 0) {
         throw range_error("Invalid value for Kernel. Please check manual.");
-    }
-    else{
+    } else {
         // Check if the string is already in CamelCase format
         if (IsCamelCase(aKernel)) {
             this->SetKernel(aKernel);
-            return ;
+            return;
         }
         string str = aKernel;
         // Replace underscores with spaces and split the string into words
@@ -87,6 +86,7 @@ void DataConfigurations::CheckKernelValue(const string& aKernel) {
         this->SetKernel(result);
     }
 }
+
 bool DataConfigurations::IsCamelCase(std::string aString) {
     // If the string contains an underscore, it is not in CamelCase format
     if (aString.find('_') != std::string::npos) {
@@ -100,12 +100,49 @@ bool DataConfigurations::IsCamelCase(std::string aString) {
     return true;
 }
 
-int DataConfigurations::ParseTheta(std::string aTheta) {
-    if (aTheta.empty() || aTheta == ""){
-        cout << "Empty?: " << this->GetParamtersNumber() << endl;
-        for(int i = 0; i < this->GetParamtersNumber(); i++){
-            std::cout << i << endl;
+double *DataConfigurations::ParseTheta(const std::string& aInputValues) {
+    // Count the number of values in the string
+    int num_values = 1;
+    for (char aInputValue : aInputValues) {
+        if (aInputValue == ':') {
+            num_values++;
         }
     }
-    return 0;
+
+    // Allocate memory for the array of doubles
+    auto* theta = (double*) malloc(num_values * sizeof(double));
+
+    // Split the string into tokens using strtok()
+    const char* delim = ":";
+    char* token = strtok((char*)aInputValues.c_str(), delim);
+    int i = 0;
+    while (token != nullptr) {
+        // Check if the token is a valid double or "?"
+        if (!strcmp(token, "?")) {
+            theta[i] = -1;
+        }
+        else {
+            try {
+                theta[i] = stod(token);
+            }
+            catch (...) {
+                // If it's not a valid double or "?", throw an error
+                free(theta);
+                cout << "Error: " << token << " is not a valid double or '?' " << endl;
+                throw range_error("Invalid value. Please use Numerical values only.");
+            }
+        }
+
+        // Get the next token
+        token = strtok(nullptr, delim);
+        i++;
+    }
+
+    // Check if the number of values in the array is correct
+    if (i != num_values) {
+        free(theta);
+        throw range_error("Error: the number of values in the input string is invalid, please use this example format as a reference 1:?:0.1");
+    }
+
+    return theta;
 }

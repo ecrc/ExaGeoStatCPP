@@ -36,11 +36,11 @@ int main(int argc, char **argv) {
     unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new synthetic_data_configurations object with the provided command line arguments
-    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
-    synthetic_data_configurations->InitializeArguments(argc, argv);
+    SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.InitializeArguments(argc, argv);
 
     // Create the DataGenerator object
-    synthetic_generator = synthetic_generator->CreateGenerator(synthetic_data_configurations);
+    synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
 
     // Initialize the locations of the generated data
     synthetic_generator->GenerateLocations();
@@ -60,14 +60,14 @@ int main(int argc, char **argv) {
     // Print the generated location coordinates
     cout << "Generated Locations are .. " << endl;
     int timeSlot;
-    if (synthetic_data_configurations->GetDimension() != DimensionST) {
+    if (synthetic_data_configurations.GetDimension() != DimensionST) {
         timeSlot = 1;
     } else {
-        timeSlot = synthetic_data_configurations->GetTimeSlot();
+        timeSlot = synthetic_data_configurations.GetTimeSlot();
     }
-    for (auto i = 0; i < synthetic_data_configurations->GetProblemSize() * timeSlot; i++) {
+    for (auto i = 0; i < synthetic_data_configurations.GetProblemSize() * timeSlot; i++) {
         cout << "X: " << dataPointers.x[i] << " Y: " << dataPointers.y[i];
-        if (synthetic_data_configurations->GetDimension() != Dimension2D) {
+        if (synthetic_data_configurations.GetDimension() != Dimension2D) {
             cout << " Z: " << dataPointers.z[i];
         }
         cout << endl;

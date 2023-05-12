@@ -39,52 +39,52 @@ void FINALIZE_HARDWARE() {
 
 // Test that the function initializes all the required descriptors without errors.
 void TEST_INITIALIZETION() {
-    SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    SyntheticDataConfigurations synthetic_data_configurations;
 
     SECTION("Single") {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        synthetic_data_configurations->SetProblemSize(1000);
-        synthetic_data_configurations->SetDenseTileSize(64);
-        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
+        synthetic_data_configurations.SetProblemSize(1000);
+        synthetic_data_configurations.SetDenseTileSize(64);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(synthetic_data_configurations->GetDescriptorC().size() == 2);
-        REQUIRE(synthetic_data_configurations->GetDescriptorZ().size() == 1);
-        REQUIRE(synthetic_data_configurations->GetDescriptorProduct().size() == 1);
+        REQUIRE(synthetic_data_configurations.GetDescriptorC().size() == 2);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZ().size() == 1);
+        REQUIRE(synthetic_data_configurations.GetDescriptorProduct().size() == 1);
 
-        REQUIRE(synthetic_data_configurations->GetDescriptorC()[0] != nullptr);
-        REQUIRE(synthetic_data_configurations->GetDescriptorZ()[0] != nullptr);
-        REQUIRE(synthetic_data_configurations->GetDescriptorProduct()[0] != nullptr);
-        REQUIRE(synthetic_data_configurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(synthetic_data_configurations->GetDescriptorDeterminant() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorC()[0] != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZ()[0] != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorProduct()[0] != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
     }
 
     SECTION("Double") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        synthetic_data_configurations->SetProblemSize(1024);
-        synthetic_data_configurations->SetDenseTileSize(64);
-        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
+        synthetic_data_configurations.SetProblemSize(1024);
+        synthetic_data_configurations.SetDenseTileSize(64);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(synthetic_data_configurations->GetDescriptorC().size() == 4);
-        REQUIRE(synthetic_data_configurations->GetDescriptorZ().size() == 3);
-        REQUIRE(synthetic_data_configurations->GetDescriptorProduct().size() == 3);
+        REQUIRE(synthetic_data_configurations.GetDescriptorC().size() == 4);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZ().size() == 3);
+        REQUIRE(synthetic_data_configurations.GetDescriptorProduct().size() == 3);
 
-        for (auto &descriptorC: synthetic_data_configurations->GetDescriptorC()) {
+        for (auto &descriptorC: synthetic_data_configurations.GetDescriptorC()) {
             REQUIRE(descriptorC != nullptr);
         }
-        for (auto &i: synthetic_data_configurations->GetDescriptorZ()) {
+        for (auto &i: synthetic_data_configurations.GetDescriptorZ()) {
             REQUIRE(i != nullptr);
         }
-        for (auto &i: synthetic_data_configurations->GetDescriptorProduct()) {
+        for (auto &i: synthetic_data_configurations.GetDescriptorProduct()) {
             REQUIRE(i != nullptr);
         }
-        REQUIRE(synthetic_data_configurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(synthetic_data_configurations->GetDescriptorDeterminant() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
     }
 }
 
@@ -92,24 +92,24 @@ void TEST_INITIALIZETION() {
 void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
 
     SECTION("SINGLE") {
-        SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+        SyntheticDataConfigurations synthetic_data_configurations;
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        synthetic_data_configurations->SetProblemSize(6656);
-        synthetic_data_configurations->SetDenseTileSize(512);
-        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
+        synthetic_data_configurations.SetProblemSize(6656);
+        synthetic_data_configurations.SetDenseTileSize(512);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
-        auto *CHAM_descriptorC = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[0];
-        auto *CHAM_descriptorZ = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZ()[0];
-        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZcpy();
-        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorDeterminant();
-        auto *CHAM_descriptorProduct = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorProduct()[0];
+        auto *CHAM_descriptorC = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorC()[0];
+        auto *CHAM_descriptorZ = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorZ()[0];
+        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorZcpy();
+        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorDeterminant();
+        auto *CHAM_descriptorProduct = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorProduct()[0];
 
-        int N = synthetic_data_configurations->GetProblemSize() * synthetic_data_configurations->GetP();
-        int dts = synthetic_data_configurations->GetDenseTileSize();
-        int pGrid = synthetic_data_configurations->GetPGrid();
-        int qGrid = synthetic_data_configurations->GetQGrid();
+        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int dts = synthetic_data_configurations.GetDenseTileSize();
+        int pGrid = synthetic_data_configurations.GetPGrid();
+        int qGrid = synthetic_data_configurations.GetQGrid();
 
         REQUIRE(CHAM_descriptorC->m == N);
         REQUIRE(CHAM_descriptorZ->m == N);
@@ -214,29 +214,29 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
     }
 
     SECTION("DOUBLE") {
-        SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+        SyntheticDataConfigurations synthetic_data_configurations;
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
-        synthetic_data_configurations->SetProblemSize(6400);
-        synthetic_data_configurations->SetDenseTileSize(512);
-        linearAlgebraSolver->SetConfigurations(synthetic_data_configurations);
+        synthetic_data_configurations.SetProblemSize(6400);
+        synthetic_data_configurations.SetDenseTileSize(512);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
-        auto *CHAM_descriptorC = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[0];
-        auto *CHAM_descsubC11 = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[1];
-        auto *CHAM_descsubC12 = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[2];
-        auto *CHAM_descsubC22 = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorC()[3];
-        auto *CHAM_descriptorZ = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZ()[0];
-        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorZcpy();
-        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) synthetic_data_configurations->GetDescriptorDeterminant();
-        vector<void *> &pDescriptorProduct = synthetic_data_configurations->GetDescriptorProduct();
-        vector<void *> &pDescriptorZ = synthetic_data_configurations->GetDescriptorZ();
+        auto *CHAM_descriptorC = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorC()[0];
+        auto *CHAM_descsubC11 = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorC()[1];
+        auto *CHAM_descsubC12 = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorC()[2];
+        auto *CHAM_descsubC22 = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorC()[3];
+        auto *CHAM_descriptorZ = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorZ()[0];
+        auto *CHAM_descriptorZcpy = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorZcpy();
+        auto *CHAM_descriptorDeterminant = (CHAM_desc_t *) synthetic_data_configurations.GetDescriptorDeterminant();
+        vector<void *> &pDescriptorProduct = synthetic_data_configurations.GetDescriptorProduct();
+        vector<void *> &pDescriptorZ = synthetic_data_configurations.GetDescriptorZ();
 
 
-        int N = synthetic_data_configurations->GetProblemSize() * synthetic_data_configurations->GetP();
-        int dts = synthetic_data_configurations->GetDenseTileSize();
-        int pGrid = synthetic_data_configurations->GetPGrid();
-        int qGrid = synthetic_data_configurations->GetQGrid();
+        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int dts = synthetic_data_configurations.GetDenseTileSize();
+        int pGrid = synthetic_data_configurations.GetPGrid();
+        int qGrid = synthetic_data_configurations.GetQGrid();
 
         REQUIRE(CHAM_descriptorC->m == N);
         REQUIRE(CHAM_descriptorZ->m == N);

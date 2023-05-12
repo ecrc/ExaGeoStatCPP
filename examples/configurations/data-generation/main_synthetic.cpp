@@ -37,21 +37,21 @@ using namespace exageostat::common;
 int main(int argc, char **argv) {
 
     // Create an instance of the SyntheticDataConfigurations class with user-defined configurations.
-    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
-    synthetic_data_configurations->InitializeArguments(argc, argv);
+    SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.InitializeArguments(argc, argv);
 
     // Obtain user-defined configurations and print them to the console.
-    int N = synthetic_data_configurations->GetProblemSize();
+    int N = synthetic_data_configurations.GetProblemSize();
     if (N != 0) {
         cout << "You set N by: " << N << endl;
     }
 
-    string kernel = synthetic_data_configurations->GetKernel();
+    string kernel = synthetic_data_configurations.GetKernel();
     if (!kernel.empty()) {
         cout << "You set Kernel by: " << kernel << endl;
     }
 
-    Dimension dimension = synthetic_data_configurations->GetDimension();
+    Dimension dimension = synthetic_data_configurations.GetDimension();
     if (dimension == Dimension2D) {
         cout << "You set Dimension by: 2D" << endl;
     } else if (dimension == Dimension3D) {
@@ -60,17 +60,17 @@ int main(int argc, char **argv) {
         cout << "You set Dimension by: ST" << endl;
     }
 
-    int p_grid = synthetic_data_configurations->GetPGrid();
+    int p_grid = synthetic_data_configurations.GetPGrid();
     if (p_grid != 0) {
         cout << "You set P by: " << p_grid << endl;
     }
 
-    int time_slot = synthetic_data_configurations->GetTimeSlot();
+    int time_slot = synthetic_data_configurations.GetTimeSlot();
     if (time_slot != 0) {
         cout << "You set time slot by: " << time_slot << endl;
     }
 
-    Computation computation = synthetic_data_configurations->GetComputation();
+    Computation computation = synthetic_data_configurations.GetComputation();
     if (computation == EXACT_DENSE) {
         cout << "You set Computation to: EXACT" << endl;
     } else if (computation == DIAGONAL_APPROX) {
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
         cout << "You set Computation to: TILE LOW RANK" << endl;
     }
 
-    Precision precision = synthetic_data_configurations->GetPrecision();
+    Precision precision = synthetic_data_configurations.GetPrecision();
     if (precision == SINGLE) {
         cout << "You set precision to: SINGLE" << endl;
     } else if (precision == DOUBLE) {

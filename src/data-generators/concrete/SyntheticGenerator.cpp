@@ -27,12 +27,20 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
     std::string kernel_name = this->mpConfigurations->GetKernel();
     this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(
             this->mpConfigurations->GetKernel());
-    std::cout << "New Synthetic Generator!" << std::endl;
-    std::cout << "P: " << this->mpConfigurations->GetParamtersNumber() << std::endl;
     this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
-    this->mpConfigurations->SetParametersNumber(this->mpKernel->GetParametersNumbers());
-    std::cout << "New P!: " << this->mpConfigurations->GetParamtersNumber() << std::endl;
-    this->mpConfigurations->ParseTheta("");
+
+    int parameters_number = this->mpKernel->GetParametersNumbers();
+    this->mpConfigurations->SetParametersNumber(parameters_number);
+
+    if(this->mpConfigurations->GetLowerBounds() == nullptr){
+        this->mpConfigurations->SetLowerBounds(InitTheta(this->mpConfigurations->GetLowerBounds(), parameters_number));
+    }
+
+    std::cout << "Lower bounds: " << std::endl;
+    for (int i = 0; i<parameters_number; i++){
+        std::cout << this->mpConfigurations->GetLowerBounds()[i] << " ";
+    }
+    std::cout << "\nEnd" << std::endl;
 }
 
 void SyntheticGenerator::GenerateDescriptors() {
@@ -231,4 +239,12 @@ void SyntheticGenerator::GenerateObservations() {
         }
     }
 
+}
+
+double* SyntheticGenerator::InitTheta(double *apTheta, int size) {
+    apTheta = (double*) malloc(size * sizeof(double));
+    for (int i = 0; i < size; i++) {
+        apTheta[i] = -1;
+    }
+    return apTheta;
 }

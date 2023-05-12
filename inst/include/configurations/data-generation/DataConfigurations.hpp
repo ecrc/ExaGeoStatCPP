@@ -72,14 +72,14 @@ namespace exageostat {
                  * @return The number of paramters.
                  *
                  */
-                int GetParamtersNumber();
+                int GetParametersNumber() const;
 
                 /**
                  * @brief Setter for the lower bounds.
                  * @param aSize The size of data to set.
                  *
                  */
-                void SetLowerBounds(int aSize);
+                void SetLowerBounds(double* apTheta);
 
                 /**
                  * @brief Getter for the lower bounds.
@@ -126,7 +126,7 @@ namespace exageostat {
 
                 static bool IsCamelCase(std::string aString);
 
-                int ParseTheta(std::string aTheta);
+                static double* ParseTheta(const std::string& aInputValues);
 
             protected:
                 /// The kernel to use.

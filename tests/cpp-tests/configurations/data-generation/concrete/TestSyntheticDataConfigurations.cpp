@@ -22,78 +22,78 @@ using namespace exageostat::common;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
-    SyntheticDataConfigurations *synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    SyntheticDataConfigurations synthetic_data_configurations;
     int random_number = 512;
 
     SECTION("Dimensions setter/getter test")
     {
-        synthetic_data_configurations->SetDimension(Dimension2D);
-        REQUIRE(synthetic_data_configurations->GetDimension() == Dimension2D);
+        synthetic_data_configurations.SetDimension(Dimension2D);
+        REQUIRE(synthetic_data_configurations.GetDimension() == Dimension2D);
     }SECTION("Dimensions value checker test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckDimensionValue("4D"),
+                synthetic_data_configurations.CheckDimensionValue("4D"),
                 "Invalid value for Dimension. Please use 2D, 3D or ST.");
-        synthetic_data_configurations->CheckDimensionValue("2D");
+        synthetic_data_configurations.CheckDimensionValue("2D");
     }
 
     SECTION("P-GRID setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations->GetPGrid() == 1);
-        synthetic_data_configurations->SetPGrid(random_number);
-        REQUIRE(synthetic_data_configurations->GetPGrid() == random_number);
+        REQUIRE(synthetic_data_configurations.GetPGrid() == 1);
+        synthetic_data_configurations.SetPGrid(random_number);
+        REQUIRE(synthetic_data_configurations.GetPGrid() == random_number);
     }SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckNumericalValue("K"),
+                synthetic_data_configurations.CheckNumericalValue("K"),
                 "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckNumericalValue("-100"),
+                synthetic_data_configurations.CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = synthetic_data_configurations->CheckNumericalValue("512");
-        synthetic_data_configurations->SetPGrid(test_nb);
-        REQUIRE(synthetic_data_configurations->GetPGrid() == 512);
+        int test_nb = synthetic_data_configurations.CheckNumericalValue("512");
+        synthetic_data_configurations.SetPGrid(test_nb);
+        REQUIRE(synthetic_data_configurations.GetPGrid() == 512);
     }
 }
 
 void TEST_DATA_CONFIGURATIONS() {
-    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    SyntheticDataConfigurations synthetic_data_configurations;
     SECTION("Kernel setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations->GetKernel() == "");
-        synthetic_data_configurations->SetKernel("univariate_matern_stationary");
-        REQUIRE(synthetic_data_configurations->GetKernel() == "univariate_matern_stationary");
+        REQUIRE(synthetic_data_configurations.GetKernel() == "");
+        synthetic_data_configurations.SetKernel("univariate_matern_stationary");
+        REQUIRE(synthetic_data_configurations.GetKernel() == "univariate_matern_stationary");
     }SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckKernelValue("100"),
+                synthetic_data_configurations.CheckKernelValue("100"),
                 "Invalid value for Kernel. Please check manual.");
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckKernelValue("univariate_matern_dnu%"),
+                synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu%"),
                 "Invalid value for Kernel. Please check manual.");
-        synthetic_data_configurations->CheckKernelValue("univariate_matern_dnu");
+        synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu");
     }
 }
 
 void TEST_CONFIGURATIONS() {
-    SyntheticDataConfigurations* synthetic_data_configurations = SyntheticDataConfigurations::GetInstance();
+    SyntheticDataConfigurations synthetic_data_configurations;
     int random_number = 512;
     SECTION("Problem size setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations->GetProblemSize() == 0);
-        synthetic_data_configurations->SetProblemSize(random_number);
-        REQUIRE(synthetic_data_configurations->GetProblemSize() == random_number);
+        REQUIRE(synthetic_data_configurations.GetProblemSize() == 0);
+        synthetic_data_configurations.SetProblemSize(random_number);
+        REQUIRE(synthetic_data_configurations.GetProblemSize() == random_number);
     }SECTION("Problem size checker value test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckNumericalValue("K"),
+                synthetic_data_configurations.CheckNumericalValue("K"),
                 "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations->CheckNumericalValue("-100"),
+                synthetic_data_configurations.CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = synthetic_data_configurations->CheckNumericalValue("512");
-        synthetic_data_configurations->SetProblemSize(test_nb);
-        REQUIRE(synthetic_data_configurations->GetProblemSize() == 512);
+        int test_nb = synthetic_data_configurations.CheckNumericalValue("512");
+        synthetic_data_configurations.SetProblemSize(test_nb);
+        REQUIRE(synthetic_data_configurations.GetProblemSize() == 512);
     }
 }
 
