@@ -41,7 +41,7 @@ namespace exageostat {
                  */
                 virtual ~SyntheticGenerator() = default;
 
-                double* InitTheta(double *apTheta, int size);
+                static double* InitTheta(const double *apTheta, int size);
                 /**
                  * @brief
                  * Generates the data locations.

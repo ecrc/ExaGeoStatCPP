@@ -32,19 +32,11 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
     int parameters_number = this->mpKernel->GetParametersNumbers();
     this->mpConfigurations->SetParametersNumber(parameters_number);
 
-    // Check if any theta is not initialized, This means that the user didn't send it as an argument
-    if(this->mpConfigurations->GetLowerBounds() == nullptr){
-        this->mpConfigurations->SetLowerBounds(InitTheta(this->mpConfigurations->GetLowerBounds(), parameters_number));
-    }
-    if(this->mpConfigurations->GetUpperBounds() == nullptr){
-        this->mpConfigurations->SetUpperBounds(InitTheta(this->mpConfigurations->GetUpperBounds(), parameters_number));
-    }
-    if(this->mpConfigurations->GetInitialTheta() == nullptr){
-        this->mpConfigurations->SetInitialTheta(InitTheta(this->mpConfigurations->GetInitialTheta(), parameters_number));
-    }
-    if(this->mpConfigurations->GetTargetTheta() == nullptr){
-        this->mpConfigurations->SetTargetTheta(InitTheta(this->mpConfigurations->GetTargetTheta(), parameters_number));
-    }
+
+    this->mpConfigurations->SetLowerBounds(InitTheta(this->mpConfigurations->GetLowerBounds(), parameters_number));
+    this->mpConfigurations->SetUpperBounds(InitTheta(this->mpConfigurations->GetUpperBounds(), parameters_number));
+    this->mpConfigurations->SetInitialTheta(InitTheta(this->mpConfigurations->GetInitialTheta(), parameters_number));
+    this->mpConfigurations->SetTargetTheta(InitTheta(this->mpConfigurations->GetTargetTheta(), parameters_number));
 
     // Set starting theta with the lower bounds values
     this->mpConfigurations->SetStartingTheta(this->mpConfigurations->GetLowerBounds());
@@ -224,28 +216,26 @@ bool SyntheticGenerator::CompareUint64(const uint64_t &aFirstValue, const uint64
 
 void SyntheticGenerator::GenerateObservations() {
 
-    const auto& configurations = this->mpConfigurations;
+    const auto &configurations = this->mpConfigurations;
     auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
-    const auto& l1 = this->GetLocations();
+    const auto &l1 = this->GetLocations();
 
-    std::unique_ptr<double[]> initial_theta(new double[this->mpKernel->GetParametersNumbers()]);
-    initial_theta[0] = 1.0;
-    initial_theta[1] = 0.1;
-    initial_theta[2] = 0.5;
 
     switch (configurations->GetPrecision()) {
         case SINGLE: {
-            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(configurations->GetComputation());
+            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+                    configurations->GetComputation());
             linearAlgebraSolver->SetConfigurations(configurations);
-            auto* A = (double* ) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
-            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta.get(), 0);
+            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
+            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
             break;
         }
         case DOUBLE: {
-            auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(configurations->GetComputation());
+            auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
+                    configurations->GetComputation());
             linearAlgebraSolver->SetConfigurations(configurations);
-            auto* A = (double* ) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
-            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta.get(), 0);
+            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
+            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
             break;
         }
         case MIXED: {
@@ -256,10 +246,25 @@ void SyntheticGenerator::GenerateObservations() {
 
 }
 
-double* SyntheticGenerator::InitTheta(double *apTheta, int size) {
-    apTheta = (double*) malloc(size * sizeof(double));
-    for (int i = 0; i < size; i++) {
-        apTheta[i] = -1;
+double *SyntheticGenerator::InitTheta(const double *apTheta, int size) {
+
+    // Create new allocated array.
+    double *new_arr;
+
+    // If null, this mean user have not passed the values arguments, Make values equal -1
+    if (apTheta == nullptr) {
+        new_arr = (double *) calloc(size, sizeof(double));
+        for (int i = 0; i < size; i++) {
+            new_arr[i] = -1;
+        }
+    } else {
+        // Also allocate new memory as maybe they are not the same size.
+        new_arr = (double *) calloc(size, sizeof(double));
+
+        // Add the value to the new created array.
+        for (int i = 0; i < apTheta[0]; i++) {
+            new_arr[i] = apTheta[i + 1];
+        }
     }
-    return apTheta;
+    return new_arr;
 }

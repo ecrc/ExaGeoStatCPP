@@ -41,9 +41,8 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
-    double x0, y0;
     double expr = 0.0;
-    double con1 = 0.0, con2 = 0.0, con12 = 0.0, rho = 0.0, nu12 = 0.0;
+    double con1, con2, con12, rho, nu12;
 
     con1 = pow(2, (apLocalTheta[3] - 1)) * tgamma(apLocalTheta[3]);
     con1 = 1.0 / con1;

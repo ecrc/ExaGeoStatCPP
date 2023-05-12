@@ -134,12 +134,14 @@ double *DataConfigurations::ParseTheta(const std::string& aInputValues) {
     }
 
     // Allocate memory for the array of doubles
-    auto* theta = (double*) malloc(num_values * sizeof(double));
+    auto* theta = (double*) calloc(num_values + 1 , sizeof(double));
+    // Save the size as the first element in the array.
+    theta[0] = num_values;
 
     // Split the string into tokens using strtok()
     const char* delim = ":";
     char* token = strtok((char*)aInputValues.c_str(), delim);
-    int i = 0;
+    int i = 1;
     while (token != nullptr) {
         // Check if the token is a valid double or "?"
         if (!strcmp(token, "?")) {
@@ -163,7 +165,7 @@ double *DataConfigurations::ParseTheta(const std::string& aInputValues) {
     }
 
     // Check if the number of values in the array is correct
-    if (i != num_values) {
+    if (i != num_values + 1) {
         free(theta);
         throw range_error("Error: the number of values in the input string is invalid, please use this example format as a reference 1:?:0.1");
     }
