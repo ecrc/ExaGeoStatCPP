@@ -242,9 +242,54 @@ void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
     } else
         HICMA_Finalize();
 }
-template<typename T>
-void *HicmaImplementation<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) {
 
-    auto **HiCMA_descriptor = (HICMA_desc_t **) &A;
-    return HICMA_RUNTIME_data_getaddr((*HiCMA_descriptor), m, n);
+template<typename T>
+void
+HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
+                                                dataunits::Locations *apLocation2,
+                                                dataunits::Locations *apLocation3, double *apLocalTheta,
+                                                int aDistanceMetric,
+                                                exageostat::kernels::Kernel *apKernel) {
+
+    int tempmm, tempnn;
+    auto **A = (HICMA_desc_t **) &descA;
+//    struct starpu_codelet *cl = &cl_dcmg;
+    int m, n, m0, n0;
+
+    int size = (*A)->n;
+
+    std::cout << "nt: " << (*A)->nt << " mt: " << (*A)->mt << std::endl;
+    for (n = 0; n < (*A)->nt; n++) {
+        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
+        if (uplo == HicmaUpperLower)
+            m = 0;
+        else
+            m = (*A)->m == (*A)->n ? n : 0;
+        for (; m < (*A)->mt; m++) {
+
+            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
+            m0 = m * (*A)->mb;
+            n0 = n * (*A)->nb;
+            printf("m: %d n: %d uplo: %d\n", m, n, uplo);
+            printf("EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n): %p\n", HICMA_RUNTIME_data_getaddr((*A), m, n));
+            this->apMatrix = (double *) HICMA_RUNTIME_data_getaddr((*A), m, n);
+            apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
+                                               apLocation1, apLocation2, apLocation3, apLocalTheta, aDistanceMetric);
+
+
+//            starpu_insert_task(starpu_mpi_codelet(cl),
+//                               STARPU_VALUE, &tempmm, sizeof(int),
+//                               STARPU_VALUE, &tempnn, sizeof(int),
+//                               STARPU_VALUE, &m0, sizeof(int),
+//                               STARPU_VALUE, &n0, sizeof(int),
+//                               STARPU_W, EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n),
+//                               STARPU_VALUE, &l1, sizeof(location * ),
+//                               STARPU_VALUE, &l2, sizeof(location * ),
+//                               STARPU_VALUE, &lm, sizeof(location * ),
+//                               STARPU_VALUE, &theta, sizeof(double* ),
+//                               STARPU_VALUE, &distance_metric, sizeof(int),
+//                               STARPU_VALUE, &kernel, sizeof(int),
+//                               0);
+        }
+    }
 }

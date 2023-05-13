@@ -140,64 +140,51 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 }
 
 template<typename T>
-void *ChameleonImplementationDense<T>::EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) {
+void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
+                                                              dataunits::Locations *apLocation2,
+                                                              dataunits::Locations *apLocation3,
+                                                              double *apLocalTheta, int aDistanceMetric,
+                                                              exageostat::kernels::Kernel *apKernel) {
+    int tempmm, tempnn;
+    auto **A = (CHAM_desc_t **) &descA;
+//    struct starpu_codelet *cl = &cl_dcmg;
+    int m, n, m0, n0;
 
-    auto **CHAM_descriptor = (CHAM_desc_t **) &A;
-    return RUNTIME_data_getaddr((*CHAM_descriptor), m, n);
+    int size = (*A)->n;
+
+    std::cout << "nt: " << (*A)->nt << " mt: " << (*A)->mt << std::endl;
+    for (n = 0; n < (*A)->nt; n++) {
+        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
+        if (uplo == ChamUpperLower)
+            m = 0;
+        else
+            m = (*A)->m == (*A)->n ? n : 0;
+        for (; m < (*A)->mt; m++) {
+
+            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
+            m0 = m * (*A)->mb;
+            n0 = n * (*A)->nb;
+            printf("m: %d n: %d uplo: %d\n", m, n, uplo);
+            printf("EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n): %p\n", RUNTIME_data_getaddr((*A), m, n));
+            this->apMatrix = (double *) RUNTIME_data_getaddr((*A), m, n);
+            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
+                                               apLocation1, apLocation2, apLocation3, apLocalTheta, aDistanceMetric);
+
+
+//            starpu_insert_task(starpu_mpi_codelet(cl),
+//                               STARPU_VALUE, &tempmm, sizeof(int),
+//                               STARPU_VALUE, &tempnn, sizeof(int),
+//                               STARPU_VALUE, &m0, sizeof(int),
+//                               STARPU_VALUE, &n0, sizeof(int),
+//                               STARPU_W, EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n),
+//                               STARPU_VALUE, &l1, sizeof(location * ),
+//                               STARPU_VALUE, &l2, sizeof(location * ),
+//                               STARPU_VALUE, &lm, sizeof(location * ),
+//                               STARPU_VALUE, &theta, sizeof(double* ),
+//                               STARPU_VALUE, &distance_metric, sizeof(int),
+//                               STARPU_VALUE, &kernel, sizeof(int),
+//                               0);
+        }
+    }
 }
 
-//template<typename T>
-//void ChameleonImplementationDense<T>::testKernelfornow() {
-//    auto kernel = new exageostat::kernels::UnivariateMaternStationary();
-//
-//    auto **CHAM_descriptorC = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorC()[0];
-//
-//    // Create a unique pointer to a DataGenerator object
-//    unique_ptr<exageostat::generators::DataGenerator> d1;
-//
-//    // Create the DataGenerator object
-//    d1 = d1->CreateGenerator(
-//            dynamic_cast<configurations::data_configurations::SyntheticDataConfigurations *>(this->mpConfigurations));
-//
-//    // Initialize the locations of the generated data
-//    d1->GenerateLocations();
-//    dataunits::Locations * l1 = d1->GetLocations();
-//
-//    unique_ptr<exageostat::generators::DataGenerator> d2;
-//    // Create the DataGenerator object
-//    d2 = d2->CreateGenerator(
-//            dynamic_cast<configurations::data_configurations::SyntheticDataConfigurations *>(this->mpConfigurations));
-//
-//    // Initialize the locations of the generated data
-//    d2->GenerateLocations();
-//    dataunits::Locations * l2 = d2->GetLocations();
-//    double * initial_theta = (double* ) malloc(3 * sizeof(double));
-//
-//    initial_theta[0] = 1.0;
-//    initial_theta[1] = 0.1;
-//    initial_theta[2] = 0.5;
-//
-//    auto * A = (double* ) EXAGEOSTAT_RTBLKADDR((*CHAM_descriptorC), ChamRealDouble, 0, 0);
-//    kernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, initial_theta, 0);
-/*
- * 1.000000 0.108306 0.004480 0.012114 0.015264
- * 0.108306 1.000000 0.030836 0.017798 0.062895
- * 0.004480 0.030836 1.000000 0.001011 0.007046
- * 0.012114 0.017798 0.001011 1.000000 0.123679
- * 0.015264 0.062895 0.007046 0.123679 1.000000
- */
-//    kernel->GenerateCovarianceMatrix(A, 4, 5, 5, 0, l1, l1, nullptr, initial_theta, 0);
-/*
- * 0.002145 0.004299 0.000404 0.171258 0.055331
- * 0.000468 0.001824 0.000498 0.021786 0.028073
- * 0.000221 0.001990 0.009302 0.000805 0.005396
- * 0.000061 0.000440 0.000713 0.000907 0.003317
- */
-//    kernel->GenerateCovarianceMatrix(A, 4, 4, 5, 5, l1, l1, nullptr, initial_theta, 0);
-/*
- * 1.000000 0.085375 0.000986 0.002264
- * 0.085375 1.000000 0.005156 0.023215
- * 0.000986 0.005156 1.000000 0.053542
- * 0.002264 0.023215 0.053542 1.000000
- */
-//}

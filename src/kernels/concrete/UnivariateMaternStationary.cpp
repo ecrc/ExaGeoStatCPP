@@ -53,4 +53,12 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
         }
         i0++;
     }
+    std::cout << "after: " << std::endl;
+
+    for (int j = 0; j < aColumnsNumber; j++) {
+        for (int i = 0; i < aRowsNumber; i++) {
+            std::cout << *(apMatrixA + i + j * aRowsNumber) << " ";
+        }
+        std::cout << std::endl;
+    }
 }

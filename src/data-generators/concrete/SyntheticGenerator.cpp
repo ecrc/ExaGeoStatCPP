@@ -29,6 +29,8 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
             this->mpConfigurations->GetKernel());
     this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
 
+    this->mpConfigurations->SetProblemSize(this->mpConfigurations->GetProblemSize()  * this->mpKernel->GetPValue());
+
     int parameters_number = this->mpKernel->GetParametersNumbers();
     this->mpConfigurations->SetParametersNumber(parameters_number);
 
@@ -77,7 +79,7 @@ void SyntheticGenerator::GenerateLocations() {
     } else {
         throw std::runtime_error("Error in Allocating Kernel plugin");
     }
-    int N = this->mpConfigurations->GetProblemSize();
+    int N = this->mpConfigurations->GetProblemSize() / p;
 
     int index = 0;
     Dimension dimension = this->mpConfigurations->GetDimension();
@@ -219,30 +221,64 @@ void SyntheticGenerator::GenerateObservations() {
     const auto &configurations = this->mpConfigurations;
     auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
     const auto &l1 = this->GetLocations();
+    int N = this->mpConfigurations->GetProblemSize();
+    std::cout << "N: " << N << std::endl;
 
-
-    switch (configurations->GetPrecision()) {
-        case SINGLE: {
-            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                    configurations->GetComputation());
-            linearAlgebraSolver->SetConfigurations(configurations);
-            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
-            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
-            break;
-        }
-        case DOUBLE: {
+//    switch (configurations->GetPrecision()) {
+//        case SINGLE: {
+//            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+//                    configurations->GetComputation());
+//            linearAlgebraSolver->SetConfigurations(configurations);
+//            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
+//            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
+//            break;
+//        }
+//        case DOUBLE: {
             auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
                     configurations->GetComputation());
             linearAlgebraSolver->SetConfigurations(configurations);
-            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
-            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
-            break;
-        }
-        case MIXED: {
-            // TODO: Add implementation for mixed-precision linear algebra solver.
-            break;
-        }
-    }
+//            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
+//            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
+
+    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0, this->mpKernel);
+
+
+
+//
+//    int tempmm, tempnn;
+//    int size = A.n;
+//
+//    for (n = 0; n < A.nt; n++) {
+//        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+//        if (uplo == ChamUpperLower)
+//            m = 0;
+//        else
+//            m = A.m == A.n ? n : 0;
+//        for (; m < A.mt; m++) {
+//
+//            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
+//            m0 = m * A.mb;
+//            n0 = n * A.nb;
+//            printf("m: %d n: %d\n", m, n);
+
+
+
+
+
+
+
+
+
+
+
+
+            //            break;
+//        }
+//        case MIXED: {
+//             TODO: Add implementation for mixed-precision linear algebra solver.
+//            break;
+//        }
+//    }
 
 }
 

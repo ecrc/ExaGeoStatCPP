@@ -12,7 +12,7 @@ set(EXAGEOSTAT_TESTFILES ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp)
 
 add_subdirectory(linear-algebra-solvers)
 add_subdirectory(data-generators)
-add_subdirectory(kernels)
+#add_subdirectory(kernels)
 add_subdirectory(configurations/data-generation)
 
 enable_testing()

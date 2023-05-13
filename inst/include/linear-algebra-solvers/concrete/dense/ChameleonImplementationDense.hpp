@@ -27,7 +27,7 @@ namespace exageostat {
              * @tparam T Type of matrix elements.
              */
             template<typename T>
-            class ChameleonImplementationDense : public LinearAlgebraMethods<T>{
+            class ChameleonImplementationDense : public LinearAlgebraMethods<T> {
             public:
 
                 /**
@@ -36,7 +36,10 @@ namespace exageostat {
                  */
                 void InitiateDescriptors() override;
 
-                void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) override;
+                void
+                CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
+                                        dataunits::Locations *apLocation3, double *apLocalTheta, int aDistanceMetric,
+                                        exageostat::kernels::Kernel *apKernel) override;
 
                 /**
                  * @brief

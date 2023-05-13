@@ -99,6 +99,16 @@ namespace exageostat {
         };
 
         /**
+         * @enum UpperLower
+         * @brief Enum denoting the Upper/Lower part
+         */
+        enum UpperLower : int {
+            EXAGEOSTAT_UPPER       = 121, /**< Use lower triangle of A */
+            EXAGEOSTAT_LOWER       = 122, /**< Use upper triangle of A */
+            EXAGEOSTAT_UPPER_LOWER = 123  /**< Use the full A          */
+        };
+
+        /**
          * @var availableKernels
          * @brief Set denoting the available kernels supported in matrix generation.
          * @details This set is updated manually to add new kernels.

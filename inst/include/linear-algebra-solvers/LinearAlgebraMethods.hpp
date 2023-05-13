@@ -24,7 +24,8 @@
 #include <configurations/Configurations.hpp>
 #include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
 #include <vector>
-extern "C"{
+
+extern "C" {
 #include <gsl/gsl_errno.h>
 }
 
@@ -44,17 +45,13 @@ namespace exageostat {
              */
             virtual void InitiateDescriptors() = 0;
 
-            /**
-             * @brief Returns a pointer to the data stored in the linear algebra solver.
-             *
-             * @param[in] A A pointer to the data stored in the linear algebra solver.
-             * @param[in] m The number of rows in the data.
-             * @param[in] n The number of columns in the data.
-             *
-             * @return A pointer to the data stored in the linear algebra solver.
-             */
-            virtual void *EXAGEOSTAT_DATA_GET_ADDRESS(const void *A, int m, int n) = 0;
+            virtual void
+            CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
+                                    dataunits::Locations *apLocation3, double *apLocalTheta,int aDistanceMetric, exageostat::kernels::Kernel * apKernel) = 0;
 
+            double *GetMatrix() {
+                return this->apMatrix;
+            }
             /**
              * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.
              *
@@ -73,7 +70,7 @@ namespace exageostat {
              *
              * @param[in] apConfigurations A pointer to the configurations for the solver.
              */
-            void SetConfigurations(configurations::Configurations *apConfigurations){
+            void SetConfigurations(configurations::Configurations *apConfigurations) {
                 this->mpConfigurations = apConfigurations;
             }
 
@@ -85,7 +82,10 @@ namespace exageostat {
         protected:
             //// Used configurations map.
             configurations::Configurations *mpConfigurations = nullptr;
+            //// used Matrix
+            double *apMatrix;
         };
+
 
         EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraMethods)
 

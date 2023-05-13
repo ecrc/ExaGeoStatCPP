@@ -35,9 +35,9 @@ namespace exageostat::kernels {
 }
 
 void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                          int aRowOffset, int aColumnOffset, Locations *apLocation1,
-                                                          Locations *apLocation2, Locations *apLocation3,
-                                                          double *apLocalTheta, int aDistanceMetric) {
+                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
+                                                           Locations *apLocation2, Locations *apLocation3,
+                                                           double *apLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -71,7 +71,6 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber - 1; j += 2) {
             expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / apLocalTheta[2];
-
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = apLocalTheta[0];
                 apMatrixA[(i + 1) + j * aRowsNumber] = apMatrixA[i + (j + 1) * aRowsNumber] = rho
@@ -81,7 +80,8 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
                 apMatrixA[i + j * aRowsNumber] = con1 * pow(expr, apLocalTheta[3])
                                                  * gsl_sf_bessel_Knu(apLocalTheta[3], expr);
                 apMatrixA[(i + 1) + j * aRowsNumber] = apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12)
-                                                                                              * gsl_sf_bessel_Knu(nu12, expr);
+                                                                                              * gsl_sf_bessel_Knu(nu12,expr);
+
                 apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = con2 * pow(expr, apLocalTheta[4])
                                                              * gsl_sf_bessel_Knu(apLocalTheta[4], expr);
             }
