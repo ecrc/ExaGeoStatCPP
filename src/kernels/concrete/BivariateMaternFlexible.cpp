@@ -32,8 +32,8 @@ namespace exageostat::kernels {
             "BivariateMaternFlexible", BivariateMaternFlexible::Create);
 }
 
-void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                          int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aColumnsNumber, int aRowsNumber,
+                                                          int aColumnOffset, int aRowOffset, Locations *apLocation1,
                                                           Locations *apLocation2, Locations *apLocation3,
                                                           std::vector<double> aLocalTheta, int aDistanceMetric) {
     int i, j;

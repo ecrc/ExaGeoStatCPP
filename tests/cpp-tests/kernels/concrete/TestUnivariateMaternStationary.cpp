@@ -56,13 +56,14 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
     // Initialize the locations of the generated data
     synthetic_generator->GenerateLocations();
+
     synthetic_generator->GenerateDescriptors();
 
     auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
 
     exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-    auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+    auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
             synthetic_data_configurations.GetComputation());
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
     linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
@@ -75,12 +76,11 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
                                      0.000986, 0.00515605, 1, 0.0535425,
                                      0.002264, 0.023215, 0.053542, 1};
 
-    for (size_t i = 0; i < 4; i++) {
-        for (size_t j = 0; j < 4; j++) {
-            cout << A[i * 4 + j] << " ";
-            double diff = A[i * 4 + j] - expected_output_data[i * 4 + j];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
-        }
+    size_t m = 4;
+    size_t n = 4;
+    for (size_t i = 0; i < m * n; i++) {
+        double diff = A[i] - expected_output_data[i];
+        REQUIRE(diff == Approx(0.0).margin(1e-6));
     }
 }
 

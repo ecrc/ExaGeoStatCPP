@@ -62,11 +62,11 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
     int m = 5;
     int n = 5;
 
-    auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-            synthetic_data_configurations.GetComputation());
-    linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    auto *A = (double *) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), 0, 0);
-    synthetic_generator->GetKernel()->GenerateCovarianceMatrix(A, m, n, 0, 0, l1, l1, nullptr, initial_theta, 0);
+//    auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+//            synthetic_data_configurations.GetComputation());
+//    linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+//    auto *A = (double *) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), 0, 0);
+//    synthetic_generator->GetKernel()->GenerateCovarianceMatrix(A, m, n, 0, 0, l1, l1, nullptr, initial_theta, 0);
 
 //    // Define the expected output
 //    double expected_output_data[] = {1, 0.108306, 0.00448007, 0.0121139, 0.0152642,

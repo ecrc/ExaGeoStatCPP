@@ -14,11 +14,13 @@
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>
+#include <vector>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::generators;
+using namespace std;
 
 void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
@@ -42,51 +44,55 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
     synthetic_data_configurations.SetIsSynthetic(true);
     synthetic_data_configurations.SetPrecision(DOUBLE);
 
+    vector<double> target_theta{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+    synthetic_data_configurations.SetTargetTheta(target_theta);
+
+    vector<double> lb{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
+    synthetic_data_configurations.SetLowerBounds(lb);
+
+    vector<double> ub{50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50};
+    synthetic_data_configurations.SetUpperBounds(ub);
+
+    vector<double> initial_theta{0.3, 0.6, 0.01, 0.3, 0.9, 0.9, 0.05, 0.3, 1.5, 0.9, 0.99};
+    synthetic_data_configurations.SetInitialTheta(initial_theta);
+
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
 
     // Initialize the locations of the generated data
     synthetic_generator->GenerateLocations();
+
+    // Set the locations with these values.
+    vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
+    vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
+
+    for (auto i = 0; i < x.size(); i++) {
+        synthetic_generator->GetLocations()->GetLocationX()[i] = x[i];
+        synthetic_generator->GetLocations()->GetLocationY()[i] = y[i];
+    }
+
     synthetic_generator->GenerateDescriptors();
 
     auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
 
     exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-    auto *initial_theta = (double *) malloc(3 * sizeof(double));
-
-    initial_theta[0] = 1.0;
-    initial_theta[1] = 0.1;
-    initial_theta[2] = 0.5;
-
-    // Set the dimensions of the covariance matrix
-    int m = 5;
-    int n = 5;
-
-    auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+    auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
             synthetic_data_configurations.GetComputation());
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    auto *A = (double *) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), 0, 0);
-    synthetic_generator->GetKernel()->GenerateCovarianceMatrix(A, m, n, 0, 0, l1, l1, nullptr, initial_theta, 0);
+    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
+                                                 synthetic_data_configurations.GetInitialTheta(), 0,
+                                                 synthetic_generator->GetKernel());
+    auto *A = linearAlgebraSolver->GetMatrix();
 
     // Define the expected output
-    double expected_output_data[] = {1.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-                                     0.000000, 0.100000, 0.000000, 0.000000, 0.000000,
-                                     0.000000, 0.000000, 1.000000, 0.000000, 0.000000,
-                                     0.000000, 0.000000, 0.000000, 0.100000, 0.000000,
-                                     0.000000, 0.000000, 0.000000, 0.000000, 1.000000};
-    for (size_t i = 0; i < m; i++) {
-        for (size_t j = 0; j < n; j++) {
-            double diff = A[i * n + j] - expected_output_data[i * n + j];
-            if (expected_output_data[i * n + j] == 0.000000){
-                if(std::isnan(A[i * n + j])){
-                    REQUIRE(true);
-                }
-            }
-            else{
-                REQUIRE(diff == Approx(0.0).margin(1e-6));
-            }
-        }
+    double expected_output_data[] = {0.300000, 0.217899, 0.140362, 0.148157, 0.600000, 0.148157, 0.264357, 0.148157,
+                                     0.300000};
+    int m = 3;
+    int n = 3;
+    for (int i = 0; i < m * n; i++) {
+        double diff = A[i] - expected_output_data[i];
+        REQUIRE(diff == Approx(0.0).margin(1e-6));
     }
 }
 
