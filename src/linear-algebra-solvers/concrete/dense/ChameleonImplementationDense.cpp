@@ -143,7 +143,7 @@ template<typename T>
 void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                               dataunits::Locations *apLocation2,
                                                               dataunits::Locations *apLocation3,
-                                                              double *apLocalTheta, int aDistanceMetric,
+                                                              std::vector<double> aLocalTheta, int aDistanceMetric,
                                                               exageostat::kernels::Kernel *apKernel) {
     int tempmm, tempnn;
     auto **A = (CHAM_desc_t **) &descA;
@@ -168,7 +168,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
             printf("EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n): %p\n", RUNTIME_data_getaddr((*A), m, n));
             this->apMatrix = (double *) RUNTIME_data_getaddr((*A), m, n);
             apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, apLocalTheta, aDistanceMetric);
+                                               apLocation1, apLocation2, apLocation3, aLocalTheta, aDistanceMetric);
 
 
 //            starpu_insert_task(starpu_mpi_codelet(cl),

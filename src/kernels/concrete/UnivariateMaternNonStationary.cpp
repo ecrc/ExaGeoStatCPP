@@ -35,7 +35,7 @@ namespace exageostat::kernels {
 void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                              int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                              Locations *apLocation2, Locations *apLocation3,
-                                                             double *apLocalTheta, int aDistanceMetric) {
+                                                             std::vector<double> aLocalTheta, int aDistanceMetric) {
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
     double dx, dy;
@@ -72,9 +72,9 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
         dx = abs(location1X - location3X);
         dy = abs(location1Y - location3Y);
 
-        theta_0i = apLocalTheta[0] + (apLocalTheta[1] * dx) + (apLocalTheta[2] * dy);
-        theta_1i = apLocalTheta[3] + (apLocalTheta[4] * dx) + (apLocalTheta[5] * dy);
-        theta_2i = apLocalTheta[6] + (apLocalTheta[7] * dx) + (apLocalTheta[8] * dy);
+        theta_0i = aLocalTheta[0] + (aLocalTheta[1] * dx) + (aLocalTheta[2] * dy);
+        theta_1i = aLocalTheta[3] + (aLocalTheta[4] * dx) + (aLocalTheta[5] * dy);
+        theta_2i = aLocalTheta[6] + (aLocalTheta[7] * dx) + (aLocalTheta[8] * dy);
 
         for (i = 0; i < aRowsNumber; i++) {
             location2X = apLocation2->GetLocationX()[aRowOffset + i];
@@ -84,9 +84,9 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
             dx = abs(location2X - location3X);
             dy = abs(location2Y - location3Y);
 
-            theta_0j = apLocalTheta[0] + (apLocalTheta[1] * dx) + (apLocalTheta[2] * dy);
-            theta_1j = apLocalTheta[3] + (apLocalTheta[4] * dx) + (apLocalTheta[5] * dy);
-            theta_2j = apLocalTheta[6] + (apLocalTheta[7] * dx) + (apLocalTheta[8] * dy);
+            theta_0j = aLocalTheta[0] + (aLocalTheta[1] * dx) + (aLocalTheta[2] * dy);
+            theta_1j = aLocalTheta[3] + (aLocalTheta[4] * dx) + (aLocalTheta[5] * dy);
+            theta_2j = aLocalTheta[6] + (aLocalTheta[7] * dx) + (aLocalTheta[8] * dy);
 
             // Compute the Matérn parameters and distance metric
             sigma_square = (theta_0i + theta_0j) / 2;

@@ -36,7 +36,7 @@ namespace exageostat::kernels {
 void UnivariateMaternDdsigmaSquare::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                              int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                              Locations *apLocation2, Locations *apLocation3,
-                                                             double *apLocalTheta, int aDistanceMetric) {
+                                                             std::vector<double> aLocalTheta, int aDistanceMetric) {
     int i, j;
     //// TODO: Implementation is Empty in the old version!
     for (i = 0; i < aRowsNumber; i++) {

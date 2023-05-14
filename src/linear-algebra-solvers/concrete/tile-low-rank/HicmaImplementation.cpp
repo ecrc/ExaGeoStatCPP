@@ -110,6 +110,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
 
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pHicmaDescriptorC, isOOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC,
                                            MBC * NBC, MC, NC, 0, 0, MC, NC, pGrid, qGrid);
+
     //CAD Descriptor
     MBD = lts;
     NBD = lts;
@@ -247,7 +248,7 @@ template<typename T>
 void
 HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                 dataunits::Locations *apLocation2,
-                                                dataunits::Locations *apLocation3, double *apLocalTheta,
+                                                dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
                                                 int aDistanceMetric,
                                                 exageostat::kernels::Kernel *apKernel) {
 
@@ -271,10 +272,10 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
             m0 = m * (*A)->mb;
             n0 = n * (*A)->nb;
             printf("m: %d n: %d uplo: %d\n", m, n, uplo);
-            printf("EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n): %p\n", HICMA_RUNTIME_data_getaddr((*A), m, n));
+            printf("HICMA_RUNTIME_data_getaddr(descA, m, n): %p\n", HICMA_RUNTIME_data_getaddr((*A), m, n));
             this->apMatrix = (double *) HICMA_RUNTIME_data_getaddr((*A), m, n);
             apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, apLocalTheta, aDistanceMetric);
+                                               apLocation1, apLocation2, apLocation3, aLocalTheta, aDistanceMetric);
 
 
 //            starpu_insert_task(starpu_mpi_codelet(cl),

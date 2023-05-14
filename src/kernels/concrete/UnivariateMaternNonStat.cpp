@@ -35,21 +35,21 @@ namespace exageostat::kernels {
 void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                        int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                        Locations *apLocation2, Locations *apLocation3,
-                                                       double *apLocalTheta, int aDistanceMetric) {
+                                                       std::vector<double> aLocalTheta, int aDistanceMetric) {
     double l1x, l1y, l2x, l2y;
 
     double expr = 0.0;
     double con, sigma_square, beta, nu;
     double a, b, c, d, e, f, g, h, ti, tj;
 
-    a = apLocalTheta[0];
-    b = apLocalTheta[1];
-    d = apLocalTheta[2];
-    e = apLocalTheta[3];
-    f = apLocalTheta[4];
-    g = apLocalTheta[5];
-    h = apLocalTheta[6];
-    ti = apLocalTheta[7];
+    a = aLocalTheta[0];
+    b = aLocalTheta[1];
+    d = aLocalTheta[2];
+    e = aLocalTheta[3];
+    f = aLocalTheta[4];
+    g = aLocalTheta[5];
+    h = aLocalTheta[6];
+    ti = aLocalTheta[7];
     tj = 0;
 
     double nu_arr_1[aRowsNumber];

@@ -29,11 +29,10 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
             this->mpConfigurations->GetKernel());
     this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
 
-    this->mpConfigurations->SetProblemSize(this->mpConfigurations->GetProblemSize()  * this->mpKernel->GetPValue());
+    this->mpConfigurations->SetProblemSize(this->mpConfigurations->GetProblemSize() * this->mpKernel->GetPValue());
 
     int parameters_number = this->mpKernel->GetParametersNumbers();
     this->mpConfigurations->SetParametersNumber(parameters_number);
-
 
     this->mpConfigurations->SetLowerBounds(InitTheta(this->mpConfigurations->GetLowerBounds(), parameters_number));
     this->mpConfigurations->SetUpperBounds(InitTheta(this->mpConfigurations->GetUpperBounds(), parameters_number));
@@ -222,85 +221,45 @@ void SyntheticGenerator::GenerateObservations() {
     auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
     const auto &l1 = this->GetLocations();
     int N = this->mpConfigurations->GetProblemSize();
-    std::cout << "N: " << N << std::endl;
 
-//    switch (configurations->GetPrecision()) {
-//        case SINGLE: {
-//            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-//                    configurations->GetComputation());
-//            linearAlgebraSolver->SetConfigurations(configurations);
-//            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
-//            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
-//            break;
-//        }
-//        case DOUBLE: {
+    switch (configurations->GetPrecision()) {
+        case SINGLE: {
+            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+                    configurations->GetComputation());
+            linearAlgebraSolver->SetConfigurations(configurations);
+            linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
+                                                         this->mpConfigurations->GetInitialTheta(), 0, this->mpKernel);
+            break;
+        }
+        case DOUBLE: {
             auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
                     configurations->GetComputation());
             linearAlgebraSolver->SetConfigurations(configurations);
-//            auto *A = (double *) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS(descriptorC, 0, 0);
-//            mpKernel->GenerateCovarianceMatrix(A, 5, 5, 0, 0, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0);
-
-    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr, this->mpConfigurations->GetInitialTheta(), 0, this->mpKernel);
-
-
-
-//
-//    int tempmm, tempnn;
-//    int size = A.n;
-//
-//    for (n = 0; n < A.nt; n++) {
-//        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-//        if (uplo == ChamUpperLower)
-//            m = 0;
-//        else
-//            m = A.m == A.n ? n : 0;
-//        for (; m < A.mt; m++) {
-//
-//            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
-//            m0 = m * A.mb;
-//            n0 = n * A.nb;
-//            printf("m: %d n: %d\n", m, n);
-
-
-
-
-
-
-
-
-
-
-
-
-            //            break;
-//        }
-//        case MIXED: {
-//             TODO: Add implementation for mixed-precision linear algebra solver.
-//            break;
-//        }
-//    }
+            linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
+                                                         this->mpConfigurations->GetInitialTheta(), 0, this->mpKernel);
+            break;
+        }
+        case MIXED: {
+            /// TODO: Add implementation for mixed-precision linear algebra solver.
+            break;
+        }
+    }
 
 }
 
-double *SyntheticGenerator::InitTheta(const double *apTheta, int size) {
-
-    // Create new allocated array.
-    double *new_arr;
+std::vector<double> SyntheticGenerator::InitTheta(std::vector<double> apTheta, int size) {
 
     // If null, this mean user have not passed the values arguments, Make values equal -1
-    if (apTheta == nullptr) {
-        new_arr = (double *) calloc(size, sizeof(double));
+    if (apTheta.empty()) {
         for (int i = 0; i < size; i++) {
-            new_arr[i] = -1;
+            apTheta.push_back(-1);
         }
-    } else {
-        // Also allocate new memory as maybe they are not the same size.
-        new_arr = (double *) calloc(size, sizeof(double));
+    } else if (apTheta.size() < size) {
 
-        // Add the value to the new created array.
-        for (int i = 0; i < apTheta[0]; i++) {
-            new_arr[i] = apTheta[i + 1];
+        // Also allocate new memory as maybe they are not the same size.
+        for (size_t i = apTheta.size(); i < size; i++) {
+            apTheta.push_back(0);
         }
     }
-    return new_arr;
+    return apTheta;
 }

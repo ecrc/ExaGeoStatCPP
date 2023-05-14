@@ -48,13 +48,13 @@ namespace exageostat {
              * @param[in] apLocation1 The set of input locations 1.
              * @param[in] apLocation2 The set of input locations 2.
              * @param[in] apLocation3 The set of input locations 3.
-             * @param[in] apLocalTheta An array of kernel parameters.
+             * @param[in] aLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
             void GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
                                           int aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *apLocalTheta, int aDistanceMetric) override ;
+                                          std::vector<double> aLocalTheta, int aDistanceMetric) override ;
             /**
              * @brief Creates a new UnivariateMaternDsigmaSquare object.
              * @return A pointer to the new UnivariateMaternDsigmaSquare object.

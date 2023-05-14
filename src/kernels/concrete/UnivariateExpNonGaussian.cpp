@@ -35,7 +35,7 @@ namespace exageostat::kernels {
 void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                             int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                             Locations *apLocation2, Locations *apLocation3,
-                                                            double *apLocalTheta, int aDistanceMetric) {
+                                                            std::vector<double> aLocalTheta, int aDistanceMetric) {
 
     int i, j;
     int i0 = aRowOffset;
@@ -47,7 +47,7 @@ void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int a
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / apLocalTheta[0];
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[0];
 
             if (expr == 0)
                 apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;

@@ -496,7 +496,7 @@ namespace exageostat {
             //// Used number of known observed values. -nZobs
             int mKnownObservationsValues = 0;
             //// Used Approximation mode values.
-            int mApproximationMode = 0;
+            int mApproximationMode = 1;
             //// Used Mean Square Error values.
             double mMeanSquareError = 0.0;
             //// Determinant value.

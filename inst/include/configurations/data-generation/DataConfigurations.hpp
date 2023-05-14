@@ -79,70 +79,75 @@ namespace exageostat {
                  *
                  * @param apTheta A pointer to an array of lower bounds to set.
                  */
-                void SetLowerBounds(double* apTheta);
+                void SetLowerBounds(std::vector<double> apTheta);
 
                 /**
                  * @brief Getter for the lower bounds.
                  *
                  * @return A pointer to the array of lower bounds.
                  */
-                double *GetLowerBounds();
+                std::vector<double>
+                &GetLowerBounds();
 
                 /**
                  * @brief Setter for the upper bounds.
                  *
                  * @param apTheta A pointer to an array of upper bounds to set.
                  */
-                void SetUpperBounds(double* apTheta);
+                void SetUpperBounds(std::vector<double> apTheta);
 
                 /**
                  * @brief Getter for the upper bounds.
                  *
                  * @return A pointer to the array of upper bounds.
                  */
-                double *GetUpperBounds();
+                std::vector<double>
+                &GetUpperBounds();
 
                 /**
                  * @brief Setter for the starting theta.
                  *
                  * @param apTheta A pointer to an array of starting theta values to set.
                  */
-                void SetStartingTheta(double *apTheta);
+                void SetStartingTheta(std::vector<double> apTheta);
 
                 /**
                  * @brief Getter for the starting theta.
                  *
                  * @return A pointer to the array of starting theta values.
                  */
-                double *GetStartingTheta();
+                std::vector<double>
+                &GetStartingTheta();
 
                 /**
                  * @brief Setter for the initial theta.
                  *
                  * @param apTheta A pointer to an array of initial theta values to set.
                  */
-                void SetInitialTheta(double *apTheta);
+                void SetInitialTheta(std::vector<double> apTheta);
 
                 /**
                  * @brief Getter for the initial theta.
                  *
                  * @return A pointer to the array of initial theta values.
                  */
-                double *GetInitialTheta();
+                std::vector<double>
+                &GetInitialTheta();
 
                 /**
                  * @brief Setter for the target theta.
                  *
                  * @param apTheta A pointer to an array of target theta values to set.
                  */
-                void SetTargetTheta(double *apTheta);
+                void SetTargetTheta(std::vector<double> apTheta);
 
                 /**
                  * @brief Getter for the target theta.
                  *
                  * @return A pointer to the array of target theta values.
                  */
-                double *GetTargetTheta();
+                std::vector<double>
+                &GetTargetTheta();
 
                 /**
                  * @brief Checks if the kernel value is valid.
@@ -165,7 +170,7 @@ namespace exageostat {
                  * @param aInputValues The input string of theta values.
                  * @return A pointer to an array of parsed theta values.
                  */
-                static double* ParseTheta(const std::string& aInputValues);
+                static std::vector<double> ParseTheta(const std::string& aInputValues);
 
             protected:
                 /// The kernel to use.
@@ -173,15 +178,15 @@ namespace exageostat {
                 /// The type of data to use.
                 bool mIsSynthetic = false;
                 /// The lower bounds to use.
-                double *mLowerBounds = nullptr;
+                std::vector<double> mLowerBounds;
                 /// The upper bounds to use.
-                double *mUpperBounds = nullptr;
+                std::vector<double> mUpperBounds;
                 /// The starting theta values to use.
-                double *mStartingTheta = nullptr;
+                std::vector<double> mStartingTheta;
                 /// The target theta values to use.
-                double *mTargetTheta = nullptr;
+                std::vector<double> mTargetTheta;
                 /// The initial theta values to use.
-                double *mInitialTheta = nullptr;
+                std::vector<double> mInitialTheta;
                 //// The number of parameters to use.
                 int mParametersNumber = 0;
             };

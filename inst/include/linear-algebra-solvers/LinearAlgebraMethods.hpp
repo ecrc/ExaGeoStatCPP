@@ -47,7 +47,7 @@ namespace exageostat {
 
             virtual void
             CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
-                                    dataunits::Locations *apLocation3, double *apLocalTheta,int aDistanceMetric, exageostat::kernels::Kernel * apKernel) = 0;
+                                    dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) = 0;
 
             double *GetMatrix() {
                 return this->apMatrix;

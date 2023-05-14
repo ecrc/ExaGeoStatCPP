@@ -17,6 +17,8 @@
 #include <configurations/data-generation/DataConfigurations.hpp>
 #include <algorithm>
 #include <cstring>
+#include <utility>
+#include <vector>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
@@ -46,43 +48,43 @@ int DataConfigurations::GetParametersNumber() const {
     return this->mParametersNumber;
 }
 
-void DataConfigurations::SetLowerBounds(double *apTheta) {
-    this->mLowerBounds = apTheta;
+void DataConfigurations::SetLowerBounds(std::vector<double> apTheta) {
+    this->mLowerBounds = std::move(apTheta);
 }
 
-double *DataConfigurations::GetLowerBounds() {
+std::vector<double> &DataConfigurations::GetLowerBounds() {
     return this->mLowerBounds;
 }
 
-void DataConfigurations::SetUpperBounds(double *apTheta) {
-    this->mUpperBounds = apTheta;
+void DataConfigurations::SetUpperBounds(std::vector<double> apTheta) {
+    this->mUpperBounds = std::move(apTheta);
 }
 
-double *DataConfigurations::GetUpperBounds() {
+std::vector<double> &DataConfigurations::GetUpperBounds() {
     return this->mUpperBounds;
 }
 
-void DataConfigurations::SetStartingTheta(double *apTheta) {
-    this->mStartingTheta = apTheta;
+void DataConfigurations::SetStartingTheta(std::vector<double> apTheta) {
+    this->mStartingTheta = std::move(apTheta);
 }
 
-double *DataConfigurations::GetStartingTheta() {
+std::vector<double> &DataConfigurations::GetStartingTheta() {
     return this->mStartingTheta;
 }
 
-void DataConfigurations::SetInitialTheta(double *apTheta) {
-    this->mInitialTheta = apTheta;
+void DataConfigurations::SetInitialTheta(std::vector<double> apTheta) {
+    this->mInitialTheta = std::move(apTheta);
 }
 
-double *DataConfigurations::GetInitialTheta() {
+std::vector<double> &DataConfigurations::GetInitialTheta() {
     return this->mInitialTheta;
 }
 
-void DataConfigurations::SetTargetTheta(double *apTheta) {
-    this->mTargetTheta = apTheta;
+void DataConfigurations::SetTargetTheta(std::vector<double> apTheta) {
+    this->mTargetTheta = std::move(apTheta);
 }
 
-double *DataConfigurations::GetTargetTheta() {
+std::vector<double> &DataConfigurations::GetTargetTheta() {
     return this->mTargetTheta;
 }
 
@@ -124,7 +126,7 @@ bool DataConfigurations::IsCamelCase(std::string aString) {
     return true;
 }
 
-double *DataConfigurations::ParseTheta(const std::string& aInputValues) {
+std::vector<double> DataConfigurations::ParseTheta(const std::string& aInputValues) {
     // Count the number of values in the string
     int num_values = 1;
     for (char aInputValue : aInputValues) {
@@ -134,26 +136,23 @@ double *DataConfigurations::ParseTheta(const std::string& aInputValues) {
     }
 
     // Allocate memory for the array of doubles
-    auto* theta = (double*) calloc(num_values + 1 , sizeof(double));
-    // Save the size as the first element in the array.
-    theta[0] = num_values;
+    std::vector<double> theta;
 
     // Split the string into tokens using strtok()
     const char* delim = ":";
     char* token = strtok((char*)aInputValues.c_str(), delim);
-    int i = 1;
+//    int i = 1;
+    int i = 0;
     while (token != nullptr) {
         // Check if the token is a valid double or "?"
         if (!strcmp(token, "?")) {
-            theta[i] = -1;
+            theta.push_back(-1);
         }
         else {
             try {
-                theta[i] = stod(token);
+                theta.push_back( stod(token) );
             }
             catch (...) {
-                // If it's not a valid double or "?", throw an error
-                free(theta);
                 cout << "Error: " << token << " is not a valid double or '?' " << endl;
                 throw range_error("Invalid value. Please use Numerical values only.");
             }
@@ -165,8 +164,8 @@ double *DataConfigurations::ParseTheta(const std::string& aInputValues) {
     }
 
     // Check if the number of values in the array is correct
-    if (i != num_values + 1) {
-        free(theta);
+//    if (i != num_values + 1) {
+    if (i != num_values ) {
         throw range_error("Error: the number of values in the input string is invalid, please use this example format as a reference 1:?:0.1");
     }
 
