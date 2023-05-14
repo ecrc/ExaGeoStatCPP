@@ -41,9 +41,8 @@ void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatri
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
-    double x0, y0, z0;
-    double expr = 0.0;
-    double con = 0.0;
+    double expr;
+    double con;
     double sigma_square = aLocalTheta[0];// * aLocalTheta[0];
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);

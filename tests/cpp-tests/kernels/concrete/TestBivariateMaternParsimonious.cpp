@@ -18,6 +18,7 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::generators;
+using namespace std;
 
 void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
 
@@ -41,47 +42,52 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
     synthetic_data_configurations.SetIsSynthetic(true);
     synthetic_data_configurations.SetPrecision(DOUBLE);
 
+    vector<double> lb{0.1, 0.1, 0.1, 0.01};
+    synthetic_data_configurations.SetLowerBounds(lb);
+
+    vector<double> ub{5, 5, 5, 5};
+    synthetic_data_configurations.SetUpperBounds(ub);
+
+    vector<double> initial_theta{1, 0.1, 0.5, 0.1};
+    synthetic_data_configurations.SetInitialTheta(initial_theta);
+
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
 
     // Initialize the locations of the generated data
     synthetic_generator->GenerateLocations();
+
+    // Set the locations with these values.
+    vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
+    vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
+
+    for (auto i = 0; i < x.size(); i++) {
+        synthetic_generator->GetLocations()->GetLocationX()[i] = x[i];
+        synthetic_generator->GetLocations()->GetLocationY()[i] = y[i];
+    }
+
     synthetic_generator->GenerateDescriptors();
 
     auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
 
     exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-    auto *initial_theta = (double *) malloc(3 * sizeof(double));
+    auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
+            synthetic_data_configurations.GetComputation());
+    linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
+                                                 synthetic_data_configurations.GetInitialTheta(), 0,
+                                                 synthetic_generator->GetKernel());
+    auto *A = linearAlgebraSolver->GetMatrix();
+    // Define the expected output
+    double expected_output_data[] = {1, 0, 0, 0, 0.100000, 0, 0, 0, 0};
 
-    initial_theta[0] = 1.0;
-    initial_theta[1] = 0.1;
-    initial_theta[2] = 0.5;
-
-    // Set the dimensions of the covariance matrix
-    int m = 5;
-    int n = 5;
-
-//    auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-//            synthetic_data_configurations.GetComputation());
-//    linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-//    auto *A = (double *) (starpu_data_handle_t) linearAlgebraSolver->EXAGEOSTAT_DATA_GET_ADDRESS((descriptorC), 0, 0);
-//    synthetic_generator->GetKernel()->GenerateCovarianceMatrix(A, m, n, 0, 0, l1, l1, nullptr, initial_theta, 0);
-
-//    // Define the expected output
-//    double expected_output_data[] = {1, 0.108306, 0.00448007, 0.0121139, 0.0152642,
-//                                     0.108306, 1, 0.0308361, 0.0177982, 0.0628955,
-//                                     0.00448007, 0.0308361, 1, 0.00101069, 0.00704581,
-//                                     0.0121139, 0.0177982, 0.00101069, 1, 0.123679,
-//                                     0.0152642, 0.0628955, 0.00704581, 0.123679, 1};
-//
-//    for (size_t i = 0; i < m; i++) {
-//        for (size_t j = 0; j < n; j++) {
-//            double diff = A[i * n + j] - expected_output_data[i * n + j];
-//            REQUIRE(diff == Approx(0.0).margin(1e-6));
-//        }
-//    }
-
+    size_t m = 3;
+    size_t n = 3;
+    for (size_t i = 0; i < m * n; i++) {
+        double diff = A[i] - expected_output_data[i];
+        REQUIRE(diff == Approx(0.0).margin(1e-6));
+    }
 }
 
 TEST_CASE("Bivariate Matern Parsimonious kernel test") {

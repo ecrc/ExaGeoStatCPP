@@ -40,8 +40,8 @@ void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMat
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
-    double x0, y0, z0, z1;
-    double expr = 0.0, expr1 = 0.0, expr2 = 0.0, expr3 = 0.0, expr4 = 0.0;
+    double z0, z1;
+    double expr, expr1 = 0.0, expr2 = 0.0, expr3 = 0.0, expr4 = 0.0;
     double con = 0.0;
     double sigma_square = aLocalTheta[0];
 
