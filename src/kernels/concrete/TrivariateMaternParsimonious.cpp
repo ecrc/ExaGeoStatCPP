@@ -38,11 +38,9 @@ void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, i
                                                                   double *aLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0;
-    double expr = 0.0;
-    double con1 = 0.0, con2 = 0.0, con3 = 0.0, con12 = 0.0,
-            con13 = 0.0, con23 = 0.0, rho12 = 0.0, rho13 = 0.0, rho23 = 0.0, nu12 = 0.0, nu13 = 0.0, nu23 = 0.0;
+    int j0;
+    double expr;
+    double con1, con2, con3, con12, con13, con23, rho12, rho13, rho23, nu12, nu13, nu23;
 
     con1 = pow(2, (aLocalTheta[4] - 1)) * tgamma(aLocalTheta[4]);
     con1 = 1.0 / con1;

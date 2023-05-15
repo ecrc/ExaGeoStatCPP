@@ -38,9 +38,7 @@ void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int aR
                                                        double *aLocalTheta, int aDistanceMetric) {
     double l1x, l1y, l2x, l2y;
 
-    double expr = 0.0;
-    double con, sigma_square, beta, nu;
-    double a, b, c, d, e, f, g, h, ti, tj;
+    double a, b, c, d, e, f, g, h, ti;
 
     a = aLocalTheta[0];
     b = aLocalTheta[1];
@@ -50,7 +48,6 @@ void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int aR
     g = aLocalTheta[5];
     h = aLocalTheta[6];
     ti = aLocalTheta[7];
-    tj = 0;
 
     double nu_arr_1[aRowsNumber];
     double sigma_arr_1[aRowsNumber];
