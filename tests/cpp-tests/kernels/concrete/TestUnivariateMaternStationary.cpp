@@ -10,6 +10,7 @@
  * @author Sameh Abdulah
  * @date 2023-04-29
 **/
+
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>

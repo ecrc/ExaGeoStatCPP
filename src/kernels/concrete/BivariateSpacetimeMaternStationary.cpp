@@ -38,10 +38,10 @@ void BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatr
                                                                double *aLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0, z0, z1;
-    double expr = 0.0, expr1 = 0.0, expr2 = 0.0, expr3 = 0.0, expr4 = 0.0;
-    double con1 = 0.0, con2 = 0.0, con12 = 0.0, rho = 0.0, nu12 = 0.0;
+    int j0;
+    double z0, z1;
+    double expr, expr2, expr3, expr4;
+    double con1, con2, con12, rho, nu12;
 
     con1 = pow(2, (aLocalTheta[3] - 1)) * tgamma(aLocalTheta[3]);
     con1 = 1.0 / con1;
@@ -65,11 +65,14 @@ void BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatr
     i0 /= 2;
     for (i = 0; i < aRowsNumber - 1; i += 2) {
         j0 = aColumnOffset / 2;
-        z0 = apLocation1->GetLocationZ()[i0];
+        if(apLocation1->GetLocationZ() != nullptr){
+            z0 = apLocation1->GetLocationZ()[i0];
+        }
 
         for (j = 0; j < aColumnsNumber - 1; j += 2) {
-            z1 = apLocation2->GetLocationZ()[j0];
-
+            if(apLocation2->GetLocationZ() != nullptr) {
+                z1 = apLocation2->GetLocationZ()[j0];
+            }
             expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 1) / (aLocalTheta[2] * 1000);
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1, aLocalTheta[8] / 2);
             expr3 = expr / expr2;
@@ -92,9 +95,5 @@ void BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatr
             j0++;
         }
         i0++;
-    }
-
-    for(size_t i = 0; i < aRowsNumber * aColumnsNumber; i++){
-        cout << apMatrixA[i] << " ";
     }
 }
