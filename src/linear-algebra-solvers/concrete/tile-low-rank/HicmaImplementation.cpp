@@ -254,6 +254,12 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
 
     int tempmm, tempnn;
     auto **A = (HICMA_desc_t **) &descA;
+
+    auto *theta = new double[aLocalTheta.size()];
+    for(int i = 0; i< aLocalTheta.size(); i ++){
+        theta[i] = aLocalTheta[i];
+    }
+
 //    struct starpu_codelet *cl = &cl_dcmg;
     int m, n, m0, n0;
 
@@ -272,7 +278,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
             n0 = n * (*A)->nb;
             this->apMatrix = (double *) HICMA_RUNTIME_data_getaddr((*A), m, n);
             apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, aLocalTheta, aDistanceMetric);
+                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
 
 
 //            starpu_insert_task(starpu_mpi_codelet(cl),

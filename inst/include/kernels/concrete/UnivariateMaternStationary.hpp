@@ -59,7 +59,7 @@ namespace exageostat {
             void GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
                                           int aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          std::vector<double> aLocalTheta, int aDistanceMetric) override ;
+                                          double *aLocalTheta, int aDistanceMetric) override ;
             /**
              * @brief Creates a new UnivariateMaternStationary object.
              * @return A pointer to the new UnivariateMaternStationary object.

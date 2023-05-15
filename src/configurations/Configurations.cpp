@@ -267,3 +267,19 @@ Precision Configurations::CheckPrecisionValue(const std::string& aValue) {
     }
     return MIXED;
 }
+
+void Configurations::SetSequence(void *apSequence) {
+    this->mpSequence = apSequence;
+}
+
+void *Configurations::GetSequence() {
+    return this->mpSequence;
+}
+
+void Configurations::SetRequest(void *apRequest) {
+    this->mpRequest = apRequest;
+}
+
+void *Configurations::GetRequest() {
+    return this->mpRequest;
+}

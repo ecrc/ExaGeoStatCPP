@@ -19,7 +19,6 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 UnivariateMaternDsigmaSquare::UnivariateMaternDsigmaSquare() {
-    /// TODO: FIX THEIR VALUES
     this->mP = 1;
     this->mParametersNumber = 3;
 }
@@ -34,18 +33,18 @@ namespace exageostat::kernels {
 }
 
 void UnivariateMaternDsigmaSquare::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
-                                                           Locations *apLocation2, Locations *apLocation3,
-                                                           std::vector<double> aLocalTheta, int aDistanceMetric) {
+                                                            int aRowOffset, int aColumnOffset, Locations *apLocation1,
+                                                            Locations *apLocation2, Locations *apLocation3,
+                                                            double *aLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
-    double x0, y0, z0;
-    double expr = 0.0;
+    double expr;
     double con = 0.0;
-    double sigma_square = aLocalTheta[0];
+
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
+
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
@@ -54,9 +53,9 @@ void UnivariateMaternDsigmaSquare::GenerateCovarianceMatrix(double *apMatrixA, i
                 apMatrixA[i + j * aRowsNumber] = 1;
             } else {
                 apMatrixA[i + j * aRowsNumber] = con * pow(expr, aLocalTheta[2]) *
-                                                 gsl_sf_bessel_Knu(aLocalTheta[2], expr); // derivative with respect to sigma square
+                                                 gsl_sf_bessel_Knu(aLocalTheta[2],
+                                                                   expr); // derivative with respect to sigma square
             }
-
             j0++;
         }
         i0++;

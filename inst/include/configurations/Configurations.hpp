@@ -430,6 +430,34 @@ namespace exageostat {
             &GetDescriptorMSE();
 
             /**
+             * @brief Sequence setter.
+             * @param apSequence
+             */
+            void
+            SetSequence(void *apSequence);
+
+            /**
+             * @brief Sequence getter.
+             * @return mpSequence
+             */
+            void *
+            GetSequence();
+
+            /**
+             * @brief Request setter.
+             * @param apRequest
+             */
+            void
+            SetRequest(void *apRequest);
+
+            /**
+             * @brief Request getter.
+             * @return mpRequest
+             */
+            void *
+            GetRequest();
+
+            /**
              * @brief
              * Check Numerical value.
              *
@@ -440,7 +468,7 @@ namespace exageostat {
              * The int casted value.
              *
              */
-            static int CheckNumericalValue(const std::string& aValue);
+            static int CheckNumericalValue(const std::string &aValue);
 
             /**
              * @brief
@@ -453,7 +481,7 @@ namespace exageostat {
              * Enum with the selected computation, Error if not exist.
              *
              */
-            static common::Computation CheckComputationValue(const std::string& aValue);
+            static common::Computation CheckComputationValue(const std::string &aValue);
 
             /**
              * @brief
@@ -466,7 +494,7 @@ namespace exageostat {
              * Enum with the selected Precision, Error if not exist.
              *
              */
-            static common::Precision CheckPrecisionValue(const std::string& aValue);
+            static common::Precision CheckPrecisionValue(const std::string &aValue);
 
         protected:
             /// Used Problem size.
@@ -514,11 +542,11 @@ namespace exageostat {
             //// Used vectors of Z descriptor.
             std::vector<void *> mpDescriptorZ;
             //// Used copy Z descriptor.
-            void * mpDescriptorZcpy = nullptr;
+            void *mpDescriptorZcpy = nullptr;
             //// Used Determinant descriptor.
-            void * mpDescriptorDeterminant = nullptr;
+            void *mpDescriptorDeterminant = nullptr;
             //// Used Z observations descriptor.
-            void * mpDescriptorZObservations = nullptr;
+            void *mpDescriptorZObservations = nullptr;
             //// Used vectors of product descriptor.
             std::vector<void *> mpDescriptorProduct;
             //// Used vectors of CD descriptor.
@@ -528,9 +556,13 @@ namespace exageostat {
             //// Used vectors of Crk descriptor.
             std::vector<void *> mpDescriptorCrk = {nullptr, nullptr, nullptr};
             //// Used MSE descriptor.
-            void * mpDescriptorMSE = nullptr;
+            void *mpDescriptorMSE = nullptr;
             //// Used Z Actual observations descriptor.
-            void * mpDescriptorZActual = nullptr;
+            void *mpDescriptorZActual = nullptr;
+            ////  Used sequence
+            void *mpSequence;
+            //// Used request
+            void *mpRequest;
         };
 
     }//namespace configurations

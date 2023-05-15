@@ -35,7 +35,7 @@ namespace exageostat::kernels {
 void UnivariateMaternNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                       int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                       Locations *apLocation2, Locations *apLocation3,
-                                                      std::vector<double> aLocalTheta, int aDistanceMetric) {
+                                                      double *aLocalTheta, int aDistanceMetric) {
     //localtheta[0] <- \phi
     //localtheta[1] <- \nu
     int i, j;

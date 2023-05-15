@@ -35,7 +35,7 @@ namespace exageostat::kernels {
 void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                              int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                              Locations *apLocation2, Locations *apLocation3,
-                                                             std::vector<double> aLocalTheta, int aDistanceMetric) {
+                                                             double *aLocalTheta, int aDistanceMetric) {
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
     double dx, dy;

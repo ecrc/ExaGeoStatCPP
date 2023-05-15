@@ -127,6 +127,11 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
 
     int size = (*A)->n;
 
+    auto *theta = new double[aLocalTheta.size()];
+    for(int i = 0; i< aLocalTheta.size(); i ++){
+        theta[i] = aLocalTheta[i];
+    }
+
     for (n = 0; n < (*A)->nt; n++) {
         tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
         if (uplo == ChamUpperLower)
@@ -139,7 +144,7 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
             m0 = m * (*A)->mb;
             n0 = n * (*A)->nb;
             apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, aLocalTheta, aDistanceMetric);
+                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
 //            starpu_insert_task(starpu_mpi_codelet(cl),
 //                               STARPU_VALUE, &tempmm, sizeof(int),
 //                               STARPU_VALUE, &tempnn, sizeof(int),

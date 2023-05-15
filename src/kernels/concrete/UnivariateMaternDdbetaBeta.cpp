@@ -36,7 +36,7 @@ namespace exageostat::kernels {
 void UnivariateMaternDdbetaBeta::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                           Locations *apLocation2, Locations *apLocation3,
-                                                          std::vector<double> aLocalTheta, int aDistanceMetric) {
+                                                          double *aLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;

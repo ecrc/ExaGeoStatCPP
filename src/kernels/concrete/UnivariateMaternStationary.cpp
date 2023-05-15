@@ -35,7 +35,8 @@ namespace exageostat::kernels {
 void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
                                                           int aRowOffset, int aColumnOffset, Locations *apLocation1,
                                                           Locations *apLocation2, Locations *apLocation3,
-                                                          std::vector<double> aLocalTheta, int aDistanceMetric) {
+                                                          double *aLocalTheta, int aDistanceMetric) {
+
     const double sigma_square = aLocalTheta[0];
     const double nu = aLocalTheta[2];
     const double inv_con = 1.0 / (sigma_square * pow(2, nu - 1) * tgamma(nu));
