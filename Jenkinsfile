@@ -11,40 +11,40 @@ pipeline {
     }
 
     stages {
-//         stage('openblas') {
-//             agent { label 'jenkinsfile' }
-//             stages {
-//                 stage ('build with Chameleon') {
-//                     steps {
-//                         sh '''#!/bin/bash -le
-//                             ####################################################
-//                             # Configure and build
-//                             ####################################################
-//                             module purge
-//                             module load gcc/10.2.0
-//                             module load cmake/3.21.2
-//                             ./config.sh -t -e -C
-//                             ./clean_build.sh
-//                         '''
-//                     }
-//                 }
-//                 stage ('test with Chameleon') {
-//                     steps {
-//                         sh '''#!/bin/bash -le
-//                             ####################################################
-//                             # Run tester
-//                             ####################################################
-//                             echo "========================================"
-//                             module purge
-//                             module load gcc/10.2.0
-//                             module load cmake/3.21.2
-//                             cd bin/
-//                             make test
-//                             '''
-//                     }
-//                 }
-//             }
-//         }
+        stage('openblas') {
+            agent { label 'jenkinsfile' }
+            stages {
+                stage ('build with Chameleon') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Configure and build
+                            ####################################################
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ./config.sh -t -e -C
+                            ./clean_build.sh
+                        '''
+                    }
+                }
+                stage ('test with Chameleon') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Run tester
+                            ####################################################
+                            echo "========================================"
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            cd bin/
+                            make test
+                            '''
+                    }
+                }
+            }
+        }
         stage ('mkl') {
             stages {
                 stage ('build with Chameleon') {

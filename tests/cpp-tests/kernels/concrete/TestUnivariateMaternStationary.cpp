@@ -83,6 +83,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
     size_t m = 4;
     size_t n = 4;
+    cout << "Inside test, A adrress: " << A << endl;
+
     for (size_t i = 0; i < m * n; i++) {
         double diff = A[i] - expected_output_data[i];
         REQUIRE(diff == Approx(0.0).margin(1e-6));

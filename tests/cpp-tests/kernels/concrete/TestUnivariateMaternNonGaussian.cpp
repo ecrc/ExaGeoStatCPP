@@ -86,6 +86,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
     size_t m = 5;
     size_t n = 3;
+    cout << "Inside test, A address: " << A << endl;
     for (size_t i = 0; i < m * n; i++) {
         double diff = A[i] - expected_output_data[i];
         REQUIRE(diff == Approx(0.0).margin(1e-6));

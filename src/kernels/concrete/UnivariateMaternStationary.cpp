@@ -37,6 +37,8 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
                                                           Locations *apLocation2, Locations *apLocation3,
                                                           double *aLocalTheta, int aDistanceMetric) {
 
+    cout << "Inside kernel, A adrress: " << apMatrixA << endl;
+
     const double sigma_square = aLocalTheta[0];
     const double nu = aLocalTheta[2];
     const double inv_con = 1.0 / (sigma_square * pow(2, nu - 1) * tgamma(nu));
@@ -54,4 +56,11 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
         }
         i0++;
     }
+
+
+    cout << "Values: " << endl;
+    for (int i = 0; i<aRowsNumber * aColumnsNumber; i++){
+        cout << " " << apMatrixA[i];
+    }
+    cout << endl;
 }
