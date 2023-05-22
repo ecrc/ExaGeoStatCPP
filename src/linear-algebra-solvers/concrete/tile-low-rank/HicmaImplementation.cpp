@@ -21,6 +21,8 @@ extern "C" {
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::common;
+using namespace exageostat::dataunits;
+using namespace exageostat::kernels;
 using namespace std;
 
 template<typename T>
@@ -296,4 +298,11 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
 //                               0);
         }
     }
+    delete[] theta;
+}
+template<typename T>
+void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
+                                                               Locations *apLocation2, Locations *apLocation3,
+                                                               vector<double> aLocalTheta, int aDistanceMetric,
+                                                               Kernel *apKernel) {
 }

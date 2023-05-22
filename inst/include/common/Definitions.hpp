@@ -103,8 +103,8 @@ namespace exageostat {
          * @brief Enum denoting the Upper/Lower part
          */
         enum UpperLower : int {
-            EXAGEOSTAT_UPPER       = 121, /**< Use lower triangle of A */
-            EXAGEOSTAT_LOWER       = 122, /**< Use upper triangle of A */
+            EXAGEOSTAT_UPPER = 121, /**< Use lower triangle of A */
+            EXAGEOSTAT_LOWER = 122, /**< Use upper triangle of A */
             EXAGEOSTAT_UPPER_LOWER = 123  /**< Use the full A          */
         };
 

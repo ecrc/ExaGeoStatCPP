@@ -15,6 +15,7 @@ add_subdirectory(data-generators)
 add_subdirectory(kernels)
 add_subdirectory(configurations/data-generation)
 
+
 enable_testing()
 
 add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})

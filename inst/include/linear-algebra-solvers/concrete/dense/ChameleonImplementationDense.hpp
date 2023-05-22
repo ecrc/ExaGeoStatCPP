@@ -41,6 +41,8 @@ namespace exageostat {
                                         dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
 
+                void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
+                                                     dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) override;
                 /**
                  * @brief
                  * Initializes the context needed for the Chameleon solver.
@@ -67,7 +69,11 @@ namespace exageostat {
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  */
                 virtual ~ChameleonImplementationDense() = default;
+
+                void EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double* apDoubleVector, RUNTIME_sequence_t *apSequence, RUNTIME_request_t *apRequest);
             };
+
+
 
             EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementationDense)
 

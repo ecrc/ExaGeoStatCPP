@@ -44,7 +44,7 @@ if (NOT TARGET lapackpp)
         set(build_tests "false")
 
         # Fetch LAPACK++ source from the repository.
-        set(url "https://bitbucket.org/icl/lapackpp")
+        set(url "https://github.com/icl-utk-edu/lapackpp")
         set(tag "master")
         message(STATUS "Fetching LAPACK++ ${tag} from ${url}")
         include(FetchContent)

@@ -15,7 +15,7 @@ message("")
 message("---------------------------------------- LAPACK")
 message(STATUS "Checking for LAPACK")
 
-include(macros/BuildDependency)
+include(macros/BuildD)
 
 if (NOT TARGET LAPACK)
     # Try to find LAPACK.

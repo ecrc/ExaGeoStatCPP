@@ -13,6 +13,7 @@
 **/
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
+#include <lapacke.h>
 // Include Chameleon libraries
 extern "C" {
 #include <chameleon/struct.h>
@@ -24,6 +25,8 @@ extern "C" {
 // Use the following namespaces for convenience
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
+using namespace exageostat::dataunits;
+using namespace exageostat::kernels;
 using namespace std;
 
 // Define a method to set up the Chameleon descriptors
@@ -143,9 +146,9 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
     } else
         CHAMELEON_Finalize();
 }
-//
-//#define starpu_mpi_codelet(_codelet_) _codelet_
-//
+
+#define starpu_mpi_codelet(_codelet_) _codelet_
+
 //static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
 //
 //    std::cout << "Inside here!!" << endl;
@@ -194,10 +197,11 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     RUNTIME_option_t options;
     chamctxt = chameleon_context_self();
 
-    RUNTIME_options_init(&options, chamctxt, (RUNTIME_sequence_t *)this->mpConfigurations->GetSequence(), (RUNTIME_request_t *)this->mpConfigurations->GetRequest());
+    RUNTIME_options_init(&options, chamctxt, (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
+                         (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
 
     auto *theta = new double[aLocalTheta.size()];
-    for(int i = 0; i< aLocalTheta.size(); i ++){
+    for (int i = 0; i < aLocalTheta.size(); i++) {
         theta[i] = aLocalTheta[i];
     }
 
@@ -212,8 +216,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
         tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
         if (uplo == ChamUpperLower) {
             m = 0;
-        }
-        else {
+        } else {
             m = (*A)->m == (*A)->n ? n : 0;
         }
         for (; m < (*A)->mt; m++) {
@@ -249,6 +252,110 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
 //    RUNTIME_options_ws_free(&options);
 //    RUNTIME_options_finalize(&options, chamctxt);
 //
-//    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
     delete[] theta;
+}
+
+
+template<typename T>
+void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
+                                                                 Locations *apLocation2, Locations *apLocation3,
+                                                                 vector<double> aLocalTheta, int aDistanceMetric,
+                                                                 Kernel *apKernel) {
+
+    auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
+    auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
+    int N = this->mpConfigurations->GetProblemSize();
+
+    //// TODO: check these!
+    int iseed[4] = {0, 0, 0, 1};
+    //nomral random generation of e -- ei~N(0, 1) to generate Z
+    auto *Nrand = (double *) malloc(N * sizeof(double));
+//    LAPACKE_dlarnv(3, iseed, N, Nrand);
+
+    //Generate the co-variance matrix C
+//    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
+
+    this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, aLocalTheta,
+                                  aDistanceMetric, apKernel);
+
+    CHAMELEON_Sequence_Wait(sequence);
+//    VERBOSE(" Done.\n");
+
+    //Copy Nrand to Z
+//    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
+    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+    EXAGEOSTAT_Zcpy(*CHAM_descriptorZ, Nrand, sequence, request);
+//    VERBOSE(" Done.\n");
+
+    //Cholesky factorization for the Co-variance matrix C
+//    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
+//    int success = CHAMELEON_dpotrf_Tile(ChamLower, data->descC);
+    //printf(" success=%d \n", success);
+    //exit(0);
+//    SUCCESS(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n");
+//    VERBOSE(" Done.\n");
+
+    //Triangular matrix-matrix multiplication
+//    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....");
+//    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, data->descC, data->descZ);
+//    VERBOSE(" Done.\n");
+
+    //if log==1 write vector to disk
+//    if (log == 1) {
+//        double *z;
+//        CHAM_desc_t *CHAM_descZ = (CHAM_desc_t *) (data->descZ);
+//        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....");
+//#if defined(CHAMELEON_USE_MPI)
+//        z = (double*) malloc(n * sizeof(double));
+//        CHAMELEON_Tile_to_Lapack( CHAM_descZ, z, n);
+//        if ( CHAMELEON_My_Mpi_Rank() == 0 )
+//            write_vectors(z, data, n);
+//        free(z);
+//#else
+//        z = CHAM_descZ->mat;
+//        write_vectors(z, data, n);
+    //free(z);
+//#endif
+//        VERBOSE(" Done.\n");
+//    }
+//
+//    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, data->descC);
+//    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)\n");
+//    VERBOSE("************************************************************\n");
+}
+
+template<typename T>
+void
+ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *apDoubleVector, RUNTIME_sequence_t *apSequence,
+                                                 RUNTIME_request_t *apRequest) {
+    CHAM_context_t *chamctxt;
+    RUNTIME_option_t options;
+
+    chamctxt = chameleon_context_self();
+    if (apSequence->status != CHAMELEON_SUCCESS)
+        throw runtime_error("INVALID!");
+    RUNTIME_options_init(&options, chamctxt, apSequence, apRequest);
+
+    int m, m0;
+    int tempmm;
+    auto A = apDescA;
+//    struct starpu_codelet *cl = &cl_dzcpy;
+
+    for (m = 0; m < A->mt; m++) {
+        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
+        m0 = m * A->mb;
+
+//        starpu_insert_task(starpu_mpi_codelet(cl),
+//                           STARPU_VALUE, &tempmm, sizeof(int),
+//                           STARPU_VALUE, &m0, sizeof(int),
+//                           STARPU_VALUE, &apDoubleVector, sizeof(double),
+//                           STARPU_W, RUNTIME_data_getaddr(((void *)A), m, 0),
+//#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+//                STARPU_NAME, "dzcpy",
+//#endif
+//                           0);
+//        core_dzcpy(((double *) RUNTIME_data_getaddr((A), m, 0)), tempmm, m0, apRequest);
+        memcpy(((double *) RUNTIME_data_getaddr((A), m, 0)), &apRequest[m0], m * sizeof(double));
+    }
+    RUNTIME_options_ws_free(&options);
 }

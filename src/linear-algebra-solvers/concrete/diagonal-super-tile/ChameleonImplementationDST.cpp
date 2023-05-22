@@ -21,6 +21,8 @@ extern "C" {
 }
 using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::common;
+using namespace exageostat::kernels;
+using namespace exageostat::dataunits;
 using namespace std;
 
 template<typename T>
@@ -160,4 +162,10 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
 //                               0);
         }
     }
+}
+template<typename T>
+void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
+                                                                 Locations *apLocation2, Locations *apLocation3,
+                                                                 vector<double> aLocalTheta, int aDistanceMetric,
+                                                                 Kernel *apKernel) {
 }

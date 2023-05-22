@@ -12,18 +12,17 @@
 
 # search for BLAS library, if not already included
 # Search for BLAS library, if not already included
+# search for BLAS library, if not already included
 message("")
 message("---------------------------------------- BLAS")
 message(STATUS "Checking for BLAS")
 
-include(macros/BuildDependency)
+include(macros/BuildD)
 
 if (NOT TARGET BLAS)
 
-    # Find the BLAS library.
     find_package(BLAS QUIET)
 
-    # If BLAS is not found, build the dependency.
     if (BLAS_FOUND)
         message("   Found BLAS: ${BLAS_LIBRARIES}")
     else ()
@@ -32,7 +31,7 @@ if (NOT TARGET BLAS)
         BuildDependency(blas "https://github.com/xianyi/OpenBLAS" "v0.3.21")
         set(build_tests "${build_tests_save}")
     endif ()
-# If BLAS has already been included, print a message
+
 else ()
     message("   BLAS already included")
 endif ()

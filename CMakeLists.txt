@@ -19,11 +19,23 @@ cmake_policy(SET CMP0048 NEW)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+# Select toolchain based on whether CUDA is enabled or not
+if (USE_CUDA)
+    # Enable CUDA and include CudaToolchain
+    add_definitions(-DUSE_CUDA=TRUE)
+    enable_language(CUDA)
+    include(toolchains/CudaToolchain)
+    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
+    set(BLA_VENDOR NVHPC)
+else ()
+    message("-- Build x86 Support")
+    # Include GccToolchain for non-CUDA builds - Gcc
+    include(toolchains/GccToolchain)
+endif ()
+
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
-
-# Show the current version of CMake.
-message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 
 # Set project options
 option(USE_CUDA "Use Cuda, if available" false)
@@ -33,37 +45,22 @@ option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
 option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
 option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
-# Select toolchain based on whether CUDA is enabled or not
-if (USE_CUDA)
-    message("-- Build CUDA Support")
-    # Enable CUDA and include CudaToolchain
-    add_definitions(-DUSE_CUDA=TRUE)
-    enable_language(CUDA)
-    include(toolchains/CudaToolchain)
-    # Import CuSolver and Lapack libraries
-    include(ImportCuSolver)
-    unset(BLA_VENDOR)
-    include(ImportLapack)
-    set(LIBS
-        LAPACK::LAPACK
-        ${LIBS}
-        )
-    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
-    set(BLA_VENDOR NVHPC)
-else ()
-    message("-- Build x86 Support")
-    # Include GccToolchain for non-CUDA builds - Gcc
-    include(toolchains/GccToolchain)
-endif ()
-
+# Show the current version of CMake.
+message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
 
+# Add all dependencies for HCorePP
+include(ImportGFortran)
+include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
+    # Import CuSolver and Lapack libraries
     include(ImportCuSolver)
+    include(ImportBlasPP)
     unset(BLA_VENDOR)
     include(ImportLapack)
+
     set(LIBS
             LAPACK::LAPACK
             ${LIBS}
@@ -71,6 +68,8 @@ if (USE_CUDA)
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
+#    include(ImportBlasPP)
+#    include(ImportLapackPP)
 endif ()
 
 # Add all dependencies for Exageostat
@@ -81,6 +80,13 @@ if(USE_MPI)
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif()
+
+# EXAGEOSTAT depends on a LAPACKE
+# -------------------------------
+find_package(LAPACKE)
+list(APPEND LIBS  ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
 
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
@@ -98,13 +104,6 @@ include(ImportGSL)
 # EXAGEOSTAT depends on a NLOPT
 # -------------------------------
 include(ImportNLOPT)
-
-# EXAGEOSTAT depends on a LAPACKE
-# -------------------------------
-find_package(LAPACKE)
-list(APPEND LIBS  ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
 
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
