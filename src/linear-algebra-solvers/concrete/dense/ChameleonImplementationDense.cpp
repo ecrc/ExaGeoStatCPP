@@ -270,7 +270,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     int iseed[4] = {0, 0, 0, 1};
     //nomral random generation of e -- ei~N(0, 1) to generate Z
     auto *Nrand = (double *) malloc(N * sizeof(double));
-//    LAPACKE_dlarnv(3, iseed, N, Nrand);
+    LAPACKE_dlarnv(3, iseed, N, Nrand);
 
     //Generate the co-variance matrix C
 //    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");

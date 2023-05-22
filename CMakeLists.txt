@@ -68,8 +68,8 @@ if (USE_CUDA)
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
-#    include(ImportBlasPP)
-#    include(ImportLapackPP)
+    include(ImportBlasPP)
+    include(ImportLapackPP)
 endif ()
 
 # Add all dependencies for Exageostat
