@@ -289,18 +289,15 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 
     //Cholesky factorization for the Co-variance matrix C
 //    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
-//    int success = CHAMELEON_dpotrf_Tile(ChamLower, data->descC);
-    //printf(" success=%d \n", success);
-    //exit(0);
+    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
 //    SUCCESS(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n");
 //    VERBOSE(" Done.\n");
 
     //Triangular matrix-matrix multiplication
 //    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....");
-//    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, data->descC, data->descZ);
+    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
 //    VERBOSE(" Done.\n");
 
-    //if log==1 write vector to disk
 //    if (log == 1) {
 //        double *z;
 //        CHAM_desc_t *CHAM_descZ = (CHAM_desc_t *) (data->descZ);

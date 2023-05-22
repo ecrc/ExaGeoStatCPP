@@ -69,7 +69,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 //    linearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,synthetic_data_configurations.GetInitialTheta(), 0,
 //                                                 synthetic_generator->GetKernel());
-
+//
     linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
                                                  synthetic_data_configurations.GetInitialTheta(), 0,
                                                  synthetic_generator->GetKernel());
