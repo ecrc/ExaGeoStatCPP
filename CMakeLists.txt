@@ -51,7 +51,7 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 
 # Add all dependencies for ExaGeoStat PP
-include(ImportGFortran)
+#include(ImportGFortran)
 include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
