@@ -49,8 +49,11 @@ include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
 include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)
 
 if (CHAMELEON_LINKER_FLAGS)
-    list(APPEND CMAKE_EXE_LINKER_FLAGS "${CHAMELEON_LINKER_FLAGS}")
+    list(APPEND CMAKE_EXE_LINKER_FLAGS "${CHAMELEON_LINKER_FLAGS}  -lgfortran")
+else()
+    list(APPEND CMAKE_EXE_LINKER_FLAGS "-lgfortran")
 endif ()
+
 if (CHAMELEON_LIBRARY_DIRS)
     # the RPATH to be used when installing
     list(APPEND CMAKE_INSTALL_RPATH "${CHAMELEON_LIBRARY_DIRS}")
