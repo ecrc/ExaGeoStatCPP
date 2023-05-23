@@ -1,4 +1,3 @@
-
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 # Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
@@ -35,7 +34,7 @@ if (NOT TARGET blaspp)
         set(build_tests_save "${build_tests}")
         set(build_tests "false")
         set(url "https://github.com/icl-utk-edu/blaspp")
-        set(tag "master")
+        set(tag "v2023.01.00")
         message(STATUS "Fetching BLAS++ ${tag} from ${url}")
         include(FetchContent)
         FetchContent_Declare(

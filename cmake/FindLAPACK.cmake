@@ -145,6 +145,8 @@ function(_add_lapack_target)
     endif()
 endfunction()
 
+# TODO: move this stuff to a separate module
+
 function(CHECK_LAPACK_LIBRARIES LIBRARIES _prefix _name _flags _list _deps _addlibdir _subdirs _blas)
     # This function checks for the existence of the combination of libraries
     # given by _list.  If the combination is found, this checks whether can link

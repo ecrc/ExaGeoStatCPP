@@ -51,7 +51,7 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 
 # Add all dependencies for ExaGeoStat PP
-#include(ImportGFortran)
+include(ImportGFortran)
 include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
@@ -70,6 +70,7 @@ else ()
     set(gpu_backend CACHE "none" FORCE)
     include(ImportBlasPP)
     include(ImportLapackPP)
+
 endif ()
 
 # Add all dependencies for Exageostat
@@ -122,7 +123,6 @@ if (EXAGEOSTAT_USE_CHAMELEON)
     add_definitions(-DEXAGEOSTAT_USE_CHAMELEON=TRUE)
     include(ImportChameleon)
 endif ()
-
 
 # EXAGEOSTAT DOCUMENTATIONS
 if(EXAGEOSTAT_BUILD_DOCS)

@@ -1,4 +1,3 @@
-
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 # Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
@@ -10,8 +9,6 @@
 # @author Sameh Abdulah
 # @date 2023-03-12
 
-# search for BLAS library, if not already included
-# Search for BLAS library, if not already included
 # search for BLAS library, if not already included
 message("")
 message("---------------------------------------- BLAS")
