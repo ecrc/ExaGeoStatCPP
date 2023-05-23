@@ -27,7 +27,7 @@ if (NOT TARGET CHAMELEON_FOUND)
     else ()
         message("   Can't find Chameleon, Installing it instead ..")
         # Set installation flags
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/ \-DCHAMELEON_USE_CUDA=${USE_CUDA} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON)
+        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/ \-DCHAMELEON_USE_CUDA=${USE_CUDA} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON \-DCHAMELEON_ENABLE_TESTING=OFF)
         set(ISCMAKE ON)
         set(ISGIT ON)
         # Install Chameleon
