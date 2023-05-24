@@ -170,19 +170,19 @@ static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
     kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
                                      apLocation2, apLocation3, theta, distance_metric);
 };
-
-
-static struct starpu_codelet cl_dcmg =
-        {
-                .where        = STARPU_CPU /*| STARPU_CUDA*/,
-                .cpu_func     = cl_dcmg_cpu_func,
-#if defined(EXAGEOSTAT_USE_CUDA)
-                //    .cuda_func      = {cl_dcmg_cuda_func},
-#endif
-                .nbuffers     = 1,
-                .modes        = {STARPU_W},
-                .name         = "dcmg"
-        };
+//
+//
+//static struct starpu_codelet cl_dcmg =
+//        {
+//                .where        = STARPU_CPU /*| STARPU_CUDA*/,
+//                .cpu_func     = cl_dcmg_cpu_func,
+//#if defined(EXAGEOSTAT_USE_CUDA)
+//                //    .cuda_func      = {cl_dcmg_cuda_func},
+//#endif
+//                .nbuffers     = 1,
+//                .modes        = {STARPU_W},
+//                .name         = "dcmg"
+//        };
 
 template<typename T>
 void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
@@ -204,7 +204,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
 
     int tempmm, tempnn;
     auto **A = (CHAM_desc_t **) &descA;
-    struct starpu_codelet *cl = &cl_dcmg;
+//    struct starpu_codelet *cl = &cl_dcmg;
     int m, n, m0, n0;
 
     int size = (*A)->n;
@@ -223,32 +223,32 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
             n0 = n * (*A)->nb;
             this->apMatrix = (double *) RUNTIME_data_getaddr((*A), m, n);
 
-//            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-//                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
+                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
 
             // Init StarPU
             //            (void)starpu_init(nullptr);
-            cout << "theta: " << theta[0] << endl;
-            starpu_insert_task(starpu_mpi_codelet(cl),
-                               STARPU_VALUE, &tempmm, sizeof(int),
-                               STARPU_VALUE, &tempnn, sizeof(int),
-                               STARPU_VALUE, &m0, sizeof(int),
-                               STARPU_VALUE, &n0, sizeof(int),
-                               STARPU_W, RUNTIME_data_getaddr((*A), m, n),
-                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &theta, sizeof(double *),
-                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
-                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
-                               0);
-            cout << "Hi!! (2)\n";
+//            cout << "theta: " << theta[0] << endl;
+//            starpu_insert_task(starpu_mpi_codelet(cl),
+//                               STARPU_VALUE, &tempmm, sizeof(int),
+//                               STARPU_VALUE, &tempnn, sizeof(int),
+//                               STARPU_VALUE, &m0, sizeof(int),
+//                               STARPU_VALUE, &n0, sizeof(int),
+//                               STARPU_W, RUNTIME_data_getaddr((*A), m, n),
+//                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
+//                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
+//                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
+//                               STARPU_VALUE, &theta, sizeof(double *),
+//                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
+//                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
+//                               0);
+//            cout << "Hi!! (2)\n";
 
         }
     }
-//    RUNTIME_options_ws_free(&options);
-//    RUNTIME_options_finalize(&options, chamctxt);
-//
+    RUNTIME_options_ws_free(&options);
+    RUNTIME_options_finalize(&options, chamctxt);
+
     delete[] theta;
 }
 
@@ -275,24 +275,24 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, aLocalTheta,
                                   aDistanceMetric, apKernel);
 
-    CHAMELEON_Sequence_Wait(sequence);
+//    CHAMELEON_Sequence_Wait(sequence);
 //    VERBOSE(" Done.\n");
 
     //Copy Nrand to Z
 //    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
-    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
-    EXAGEOSTAT_Zcpy(*CHAM_descriptorZ, Nrand, sequence, request);
+//    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+//    EXAGEOSTAT_Zcpy(*CHAM_descriptorZ, Nrand, sequence, request);
 //    VERBOSE(" Done.\n");
 
     //Cholesky factorization for the Co-variance matrix C
 //    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
-    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
+//    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
 //    SUCCESS(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n");
 //    VERBOSE(" Done.\n");
 
     //Triangular matrix-matrix multiplication
 //    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....");
-    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
+//    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
 //    VERBOSE(" Done.\n");
 
     //// TODO: make verbose in modes, Add log with path
@@ -314,7 +314,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 //        VERBOSE(" Done.\n");
 //    }
 //
-    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
+//    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
 //    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)\n");
 //    VERBOSE("************************************************************\n");
 }

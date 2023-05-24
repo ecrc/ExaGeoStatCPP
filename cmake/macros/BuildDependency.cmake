@@ -43,6 +43,9 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
     file(MAKE_DIRECTORY ${${name}_binpath})
 
+    message("Inside build ..")
+    message(${FLAGS})
+
     # Configure subproject.
     if (ISCMAKE)
         execute_process(COMMAND ${CMAKE_COMMAND} ${FLAGS}

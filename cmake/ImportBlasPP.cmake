@@ -16,11 +16,12 @@ message(STATUS "Checking for BLAS++")
 
 if (NOT TARGET blaspp)
 
+    include(FindPkgConfig)
+    find_package(PkgConfig QUIET)
     include(ImportBlas)
 
     find_package(blaspp QUIET)
 
-    message(${blaspp_FOUND})
     if (blaspp_FOUND)
         message("Found BLAS++: ${blaspp_DIR}")
     elseif (EXISTS "${CMAKE_SOURCE_DIR}/blaspp/CMakeLists.txt")

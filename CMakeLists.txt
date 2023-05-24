@@ -68,6 +68,7 @@ if (USE_CUDA)
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
+    unset(BLA_VENDOR)
     include(ImportBlasPP)
     include(ImportLapackPP)
 
