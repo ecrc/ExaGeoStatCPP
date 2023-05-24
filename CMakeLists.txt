@@ -69,9 +69,6 @@ else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
     unset(BLA_VENDOR)
-    include(ImportBlasPP)
-    include(ImportLapackPP)
-
 endif ()
 
 # Add all dependencies for Exageostat
@@ -82,13 +79,6 @@ if(USE_MPI)
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif()
-
-# EXAGEOSTAT depends on a LAPACKE
-# -------------------------------
-find_package(LAPACKE)
-list(APPEND LIBS  ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
 
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
@@ -124,6 +114,17 @@ if (EXAGEOSTAT_USE_CHAMELEON)
     add_definitions(-DEXAGEOSTAT_USE_CHAMELEON=TRUE)
     include(ImportChameleon)
 endif ()
+
+# EXAGEOSTAT depends on a LAPACKE
+# -------------------------------
+include(ImportBlas)
+include(ImportLapack)
+
+find_package(LAPACKE)
+list(APPEND LIBS  ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
+
 
 # EXAGEOSTAT DOCUMENTATIONS
 if(EXAGEOSTAT_BUILD_DOCS)

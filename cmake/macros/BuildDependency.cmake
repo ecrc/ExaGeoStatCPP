@@ -40,11 +40,8 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     # Set up build paths and create directory for build artifacts.
     set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/${name}-src)
     set(${name}_binpath ${${name}_srcpath}/bin)
-    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
+    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name})
     file(MAKE_DIRECTORY ${${name}_binpath})
-
-    message("Inside build ..")
-    message(${FLAGS})
 
     # Configure subproject.
     if (ISCMAKE)

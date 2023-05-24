@@ -12,7 +12,7 @@ This module finds an installed Fortran library that implements the
 
 At least one of the ``C``, ``CXX``, or ``Fortran`` languages must be enabled.
 
-.. _`LAPACK linear-algebra interface`: http://www.netlib.org/lapack/
+.. _`LAPACK linear-algebra interface`: https://netlib.org/lapack/
 
 Input Variables
 ^^^^^^^^^^^^^^^
@@ -106,11 +106,11 @@ section on :ref:`Intel MKL` for details.
 # (distributed at http://ac-archive.sourceforge.net/ac-archive/acx_lapack.html).
 
 if(CMAKE_Fortran_COMPILER_LOADED)
-    include(CheckFortranFunctionExists)
+    include(${CMAKE_CURRENT_LIST_DIR}/CheckFortranFunctionExists.cmake)
 else()
-    include(CheckFunctionExists)
+    include(${CMAKE_CURRENT_LIST_DIR}/CheckFunctionExists.cmake)
 endif()
-include(FindPackageHandleStandardArgs)
+include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
 
 function(_add_lapack_target)
     if(LAPACK_FOUND AND NOT TARGET LAPACK::LAPACK)
@@ -174,11 +174,11 @@ function(CHECK_LAPACK_LIBRARIES LIBRARIES _prefix _name _flags _list _deps _addl
 
     set(_extaddlibdir "${_addlibdir}")
     if(WIN32)
-        list(APPEND _extaddlibdir $ENV{LIB})
+        list(APPEND _extaddlibdir ENV LIB)
     elseif(APPLE)
-        list(APPEND _extaddlibdir $ENV{DYLD_LIBRARY_PATH})
+        list(APPEND _extaddlibdir ENV DYLD_LIBRARY_PATH)
     else()
-        list(APPEND _extaddlibdir $ENV{LD_LIBRARY_PATH})
+        list(APPEND _extaddlibdir ENV LD_LIBRARY_PATH)
     endif()
     list(APPEND _extaddlibdir "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
 
@@ -260,7 +260,6 @@ set(LAPACK_LINKER_FLAGS)
 set(LAPACK_LIBRARIES)
 set(LAPACK95_LIBRARIES)
 set(_lapack_fphsa_req_var LAPACK_LIBRARIES)
-set(TARGET_SEARCH_SYMBOL clatms)
 
 # Check the language being used
 if(NOT (CMAKE_C_COMPILER_LOADED OR CMAKE_CXX_COMPILER_LOADED OR CMAKE_Fortran_COMPILER_LOADED))
@@ -305,10 +304,12 @@ endif()
 # Search for different LAPACK distributions if BLAS is found
 if(NOT LAPACK_NOT_FOUND_MESSAGE)
     set(LAPACK_LINKER_FLAGS ${BLAS_LINKER_FLAGS})
-    if(NOT $ENV{BLA_VENDOR} STREQUAL "")
-        set(BLA_VENDOR $ENV{BLA_VENDOR})
-    elseif(NOT BLA_VENDOR)
-        set(BLA_VENDOR "All")
+    if(NOT BLA_VENDOR)
+        if(NOT "$ENV{BLA_VENDOR}" STREQUAL "")
+            set(BLA_VENDOR "$ENV{BLA_VENDOR}")
+        else()
+            set(BLA_VENDOR "All")
+        endif()
     endif()
 
     # LAPACK in the Intel MKL 10+ library?
@@ -338,7 +339,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         set(LAPACK_SEARCH_LIBS "")
 
         if(BLA_F95)
-            set(LAPACK_mkl_SEARCH_SYMBOL "${TARGET_SEARCH_SYMBOL}_f95")
+            set(LAPACK_mkl_SEARCH_SYMBOL "cheev_f95")
             set(_LAPACK_LIBRARIES LAPACK95_LIBRARIES)
             set(_BLAS_LIBRARIES ${BLAS95_LIBRARIES})
 
@@ -351,7 +352,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
             list(APPEND LAPACK_SEARCH_LIBS
                     "mkl_lapack95_${LAPACK_mkl_ILP_MODE}")
         else()
-            set(LAPACK_mkl_SEARCH_SYMBOL "${TARGET_SEARCH_SYMBOL}")
+            set(LAPACK_mkl_SEARCH_SYMBOL "cheev")
             set(_LAPACK_LIBRARIES LAPACK_LIBRARIES)
             set(_BLAS_LIBRARIES ${BLAS_LIBRARIES})
 
@@ -446,7 +447,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "goto2"
                 ""
@@ -468,7 +469,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "${_lapack_flexiblas_lib}"
                 ""
@@ -488,10 +489,11 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         if(_lapack_sizeof_integer EQUAL 8)
             string(APPEND _lapack_openblas_lib "64")
         endif()
+
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "${_lapack_openblas_lib}"
                 ""
@@ -527,7 +529,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "${LAPACK_armpl_LIB}"
                 ""
@@ -548,7 +550,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
             check_lapack_libraries(
                     LAPACK_LIBRARIES
                     LAPACK
-                    ${TARGET_SEARCH_SYMBOL}
+                    cheev
                     ""
                     "flame"
                     ""
@@ -557,6 +559,29 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
                     "${BLAS_LIBRARIES}"
             )
         endif()
+    endif()
+
+    # AOCL? (https://developer.amd.com/amd-aocl/)
+    if(NOT LAPACK_LIBRARIES
+            AND (BLA_VENDOR MATCHES "AOCL" OR BLA_VENDOR STREQUAL "All"))
+        if(_lapack_sizeof_integer EQUAL 8)
+            set(_lapack_aocl_subdir "ILP64")
+        else()
+            set(_lapack_aocl_subdir "LP64")
+        endif()
+
+        check_lapack_libraries(
+                LAPACK_LIBRARIES
+                LAPACK
+                cheev
+                ""
+                "flame"
+                "-fopenmp"
+                ""
+                "${_lapack_aocl_subdir}"
+                "${BLAS_LIBRARIES}"
+        )
+        unset(_lapack_aocl_subdir)
     endif()
 
     # LAPACK in SCSL library? (SGI/Cray Scientific Library)
@@ -575,7 +600,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "${_lapack_scsl_lib}"
                 ""
@@ -604,7 +629,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
             check_lapack_libraries(
                     LAPACK_LIBRARIES
                     LAPACK
-                    ${TARGET_SEARCH_SYMBOL}
+                    cheev
                     ""
                     "Accelerate"
                     ""
@@ -626,7 +651,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
             check_lapack_libraries(
                     LAPACK_LIBRARIES
                     LAPACK
-                    ${TARGET_SEARCH_SYMBOL}
+                    cheev
                     ""
                     "vecLib"
                     ""
@@ -681,7 +706,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "${_lapack_nvhpc_lib}"
                 "${_lapack_nvhpc_flags}"
@@ -699,7 +724,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
             check_lapack_libraries(
                     LAPACK_LIBRARIES
                     LAPACK
-                    ${TARGET_SEARCH_SYMBOL}
+                    cheev
                     ""
                     "${_lapack_nvhpc_lib}"
                     "${_lapack_nvhpc_flags}"
@@ -707,7 +732,6 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
                     ""
                     "${BLAS_LIBRARIES}"
             )
-
         endif()
 
         unset(_lapack_nvhpc_lib)
@@ -735,7 +759,7 @@ if(NOT LAPACK_NOT_FOUND_MESSAGE)
         check_lapack_libraries(
                 LAPACK_LIBRARIES
                 LAPACK
-                ${TARGET_SEARCH_SYMBOL}
+                cheev
                 ""
                 "${_lapack_generic_lib}"
                 "${_lapack_generic_deps}"
