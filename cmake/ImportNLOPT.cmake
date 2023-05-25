@@ -31,10 +31,10 @@ if (NOT TARGET NLOPT_FOUND)
         set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/)
         set(ISCMAKE ON)
         set(ISGIT ON)
-
+        set(AUTO_GEN OFF)
         # Build NLOPT from source.
         set(NLOPT_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/)
-        BuildDependency(NLOPT "https://github.com/stevengj/nlopt" "v2.7.1" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        BuildDependency(NLOPT "https://github.com/stevengj/nlopt" "v2.7.1" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
 
         # Set the location of NLOPT.
         set(NLOPT_LIBRARY_DIRS= ${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/lib:$NLOPT_LIBRARY_DIRS)

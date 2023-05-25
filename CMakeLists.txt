@@ -91,7 +91,8 @@ include(ImportStarPu)
 
 # EXAGEOSTAT depends on a GSL
 # -------------------------------
-include(ImportGSL)
+include(Import
+        GSL)
 
 # EXAGEOSTAT depends on a NLOPT
 # -------------------------------

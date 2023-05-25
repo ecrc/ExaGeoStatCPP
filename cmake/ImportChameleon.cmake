@@ -30,9 +30,10 @@ if (NOT TARGET CHAMELEON_FOUND)
         set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/ \-DCHAMELEON_USE_CUDA=${USE_CUDA} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON \-DCHAMELEON_ENABLE_TESTING=OFF)
         set(ISCMAKE ON)
         set(ISGIT ON)
+        set(AUTO_GEN OFF)
         # Install Chameleon
         set(CHAMELEON_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/)
-        BuildDependency(CHAMELEON "https://gitlab.inria.fr/solverstack/chameleon.git" "v1.1.0" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        BuildDependency(CHAMELEON "https://gitlab.inria.fr/solverstack/chameleon.git" "v1.1.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         # Reset flags
         set(FLAGS "")
         find_package(CHAMELEON REQUIRED)

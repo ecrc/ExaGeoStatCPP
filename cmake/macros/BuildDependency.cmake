@@ -21,7 +21,7 @@
 # and ${capital_name}_DIR) and includes and links to the installation directory of the dependency.
 
 # After building and installing the dependency, the macro installs the lib, include, and share directories  in the current directory.
-macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
+macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     # Set the name of the dependency.
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
@@ -50,6 +50,11 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
                 WORKING_DIRECTORY
                 ${${name}_binpath})
     else()
+        if (AUTO_GEN)
+            execute_process(COMMAND ./autogen.sh
+                    WORKING_DIRECTORY ${${name}_srcpath}
+                    COMMAND_ERROR_IS_FATAL ANY)
+        endif()
         execute_process(COMMAND ./configure ${FLAGS}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
