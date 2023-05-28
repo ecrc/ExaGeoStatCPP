@@ -247,8 +247,6 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                                                  vector<double> aLocalTheta, int aDistanceMetric,
                                                                  Kernel *apKernel) {
 
-    ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(),this->mpConfigurations->GetGPUsNumber());
-
     auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
     auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();

@@ -290,7 +290,6 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                                 int aDistanceMetric,
                                                 exageostat::kernels::Kernel *apKernel) {
 
-    ExaGeoStatInitContext(1,0);
     HICMA_context_t *hicmaContext;
     HICMA_option_t options;
     hicmaContext = hicma_context_self();
@@ -351,6 +350,7 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
                                                                Locations *apLocation2, Locations *apLocation3,
                                                                vector<double> aLocalTheta, int aDistanceMetric,
                                                                Kernel *apKernel) {
+    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
     auto *sequence = (HICMA_sequence_t *) this->mpConfigurations->GetSequence();
     auto *request = (HICMA_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();

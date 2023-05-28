@@ -76,9 +76,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNuggetsStationary() {
     auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
             synthetic_data_configurations.GetComputation());
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                 synthetic_data_configurations.GetInitialTheta(), 0,
-                                                 synthetic_generator->GetKernel());
+    linearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr, synthetic_data_configurations.GetInitialTheta(), 0,
+                                                    synthetic_generator->GetKernel());
     auto *A = linearAlgebraSolver->GetMatrix();
     // Define the expected output
     double expected_output_data[] = {1.1, 0.0853748, 0.000986251, 0.00226389, 0.0853748, 1.1, 0.00515604, 0.0232153,
