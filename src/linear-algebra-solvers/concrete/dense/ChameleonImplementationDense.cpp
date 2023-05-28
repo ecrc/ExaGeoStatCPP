@@ -116,7 +116,6 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
                                               (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
                                               qGrid)
     }
-//    this->ExaGeoStatFinalizeContext();
 
     this->mpConfigurations->SetSequence(pSequence);
     this->mpConfigurations->SetRequest(request);
@@ -140,13 +139,13 @@ void ChameleonImplementationDense<T>::ExaGeoStatInitContext(const int &apCoresNu
 
 template<typename T>
 void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
-
     CHAM_context_t *chameleonContext;
     chameleonContext = chameleon_context_self();
     if (chameleonContext == nullptr) {
         printf("No active instance oh Chameleon...please use ExaGeoStatInitContext() function to initiate a new instance!\n");
-    } else
+    } else{
         CHAMELEON_Finalize();
+    }
 }
 
 #define starpu_mpi_codelet(_codelet_) _codelet_
@@ -187,7 +186,7 @@ template<typename T>
 void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                               dataunits::Locations *apLocation2,
                                                               dataunits::Locations *apLocation3,
-                                                              double *theta, int aDistanceMetric,
+                                                              double *aLocalTheta, int aDistanceMetric,
                                                               exageostat::kernels::Kernel *apKernel) {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -229,7 +228,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
                                STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &theta, sizeof(double *),
+                               STARPU_VALUE, &aLocalTheta, sizeof(double *),
                                STARPU_VALUE, &aDistanceMetric, sizeof(int),
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
@@ -269,7 +268,6 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                   aDistanceMetric, apKernel);
 
     CHAMELEON_Sequence_Wait(sequence);
-
     free(theta);
     //    VERBOSE(" Done.\n");
 

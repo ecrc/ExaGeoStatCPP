@@ -14,7 +14,6 @@
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>
-#include <vector>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
@@ -80,8 +79,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
     auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
             synthetic_data_configurations.GetComputation());
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                 synthetic_data_configurations.GetInitialTheta(), 0,
+    linearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,synthetic_data_configurations.GetInitialTheta(), 0,
                                                  synthetic_generator->GetKernel());
     auto *A = linearAlgebraSolver->GetMatrix();
 
