@@ -228,7 +228,7 @@ void SyntheticGenerator::GenerateObservations() {
                     configurations->GetComputation());
             linearAlgebraSolver->SetConfigurations(configurations);
             linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                         this->mpConfigurations->GetInitialTheta(), 0, this->mpKernel);
+                                                         this->mpConfigurations->GetInitialTheta().data(), 0, this->mpKernel);
             break;
         }
         case DOUBLE: {
@@ -236,7 +236,7 @@ void SyntheticGenerator::GenerateObservations() {
                     configurations->GetComputation());
             linearAlgebraSolver->SetConfigurations(configurations);
             linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                         this->mpConfigurations->GetInitialTheta(), 0, this->mpKernel);
+                                                         this->mpConfigurations->GetInitialTheta().data(), 0, this->mpKernel);
             break;
         }
         case MIXED: {

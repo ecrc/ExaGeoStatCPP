@@ -22,6 +22,8 @@ extern "C" {
 #include <control/context.h>
 }
 
+#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)RUNTIME_data_getaddr( desc, m, n ) )
+
 // Use the following namespaces for convenience
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
@@ -151,7 +153,6 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 
 static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
 
-    std::cout << "Inside here!!" << endl;
     int m, n, m0, n0;
     exageostat::dataunits::Locations *apLocation1;
     exageostat::dataunits::Locations *apLocation2;
@@ -160,35 +161,33 @@ static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
     double *A;
     int distance_metric;
     exageostat::kernels::Kernel *kernel;
+
     A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
-    printf("inside task A: %p \n", A);
-    printf("inside task buffers[0]: %p \n", buffers[0]);
 
     starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
                                &distance_metric, &kernel);
-
     kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
                                      apLocation2, apLocation3, theta, distance_metric);
 };
-//
-//
-//static struct starpu_codelet cl_dcmg =
-//        {
-//                .where        = STARPU_CPU /*| STARPU_CUDA*/,
-//                .cpu_func     = cl_dcmg_cpu_func,
-//#if defined(EXAGEOSTAT_USE_CUDA)
-//                //    .cuda_func      = {cl_dcmg_cuda_func},
-//#endif
-//                .nbuffers     = 1,
-//                .modes        = {STARPU_W},
-//                .name         = "dcmg"
-//        };
+
+
+static struct starpu_codelet cl_dcmg =
+        {
+                .where        = STARPU_CPU /*| STARPU_CUDA*/,
+                .cpu_func     = cl_dcmg_cpu_func,
+#if defined(EXAGEOSTAT_USE_CUDA)
+                //    .cuda_func      = {cl_dcmg_cuda_func},
+#endif
+                .nbuffers     = 1,
+                .modes        = {STARPU_W},
+                .name         = "dcmg"
+        };
 
 template<typename T>
 void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                               dataunits::Locations *apLocation2,
                                                               dataunits::Locations *apLocation3,
-                                                              std::vector<double> aLocalTheta, int aDistanceMetric,
+                                                              double *theta, int aDistanceMetric,
                                                               exageostat::kernels::Kernel *apKernel) {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;
@@ -197,59 +196,50 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     RUNTIME_options_init(&options, chamctxt, (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
                          (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
 
-    auto *theta = new double[aLocalTheta.size()];
-    for (int i = 0; i < aLocalTheta.size(); i++) {
-        theta[i] = aLocalTheta[i];
-    }
 
     int tempmm, tempnn;
-    auto **A = (CHAM_desc_t **) &descA;
-//    struct starpu_codelet *cl = &cl_dcmg;
+
+    auto *CHAM_descA = (CHAM_desc_t *) descA;
+    CHAM_desc_t A = *CHAM_descA;
+    struct starpu_codelet *cl = &cl_dcmg;
     int m, n, m0, n0;
 
-    int size = (*A)->n;
+    int size = A.n;
 
-    for (n = 0; n < (*A)->nt; n++) {
-        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
         if (uplo == ChamUpperLower) {
             m = 0;
         } else {
-            m = (*A)->m == (*A)->n ? n : 0;
+            m = A.m == A.n ? n : 0;
         }
-        for (; m < (*A)->mt; m++) {
+        for (; m < A.mt; m++) {
 
-            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
-            m0 = m * (*A)->mb;
-            n0 = n * (*A)->nb;
-            this->apMatrix = (double *) RUNTIME_data_getaddr((*A), m, n);
+            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
+            m0 = m * A.mb;
+            n0 = n * A.nb;
 
-            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+            // Register the data with StarPU
+            starpu_insert_task(starpu_mpi_codelet(cl),
+                               STARPU_VALUE, &tempmm, sizeof(int),
+                               STARPU_VALUE, &tempnn, sizeof(int),
+                               STARPU_VALUE, &m0, sizeof(int),
+                               STARPU_VALUE, &n0, sizeof(int),
+                               STARPU_W, EXAGEOSTAT_RTBLKADDR(CHAM_descA, ChamRealDouble, m, n),
+                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &theta, sizeof(double *),
+                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
+                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
+                               0);
 
-            // Init StarPU
-            //            (void)starpu_init(nullptr);
-//            cout << "theta: " << theta[0] << endl;
-//            starpu_insert_task(starpu_mpi_codelet(cl),
-//                               STARPU_VALUE, &tempmm, sizeof(int),
-//                               STARPU_VALUE, &tempnn, sizeof(int),
-//                               STARPU_VALUE, &m0, sizeof(int),
-//                               STARPU_VALUE, &n0, sizeof(int),
-//                               STARPU_W, RUNTIME_data_getaddr((*A), m, n),
-//                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
-//                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
-//                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
-//                               STARPU_VALUE, &theta, sizeof(double *),
-//                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
-//                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
-//                               0);
-//            cout << "Hi!! (2)\n";
-
+            auto handle = EXAGEOSTAT_RTBLKADDR(CHAM_descA, ChamRealDouble, m, n);
+            this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
     }
     RUNTIME_options_ws_free(&options);
     RUNTIME_options_finalize(&options, chamctxt);
-
-    delete[] theta;
 }
 
 
@@ -271,12 +261,17 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 
     //Generate the co-variance matrix C
 //    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
-
-    this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, aLocalTheta,
+    auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
+    for (int i = 0; i < aLocalTheta.size(); i++) {
+        theta[i] = aLocalTheta[i];
+    }
+    this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
 
-//    CHAMELEON_Sequence_Wait(sequence);
-//    VERBOSE(" Done.\n");
+    CHAMELEON_Sequence_Wait(sequence);
+
+    free(theta);
+    //    VERBOSE(" Done.\n");
 
     //Copy Nrand to Z
 //    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
@@ -317,11 +312,13 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 //    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
 //    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)\n");
 //    VERBOSE("************************************************************\n");
+
 }
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *apDoubleVector, RUNTIME_sequence_t *apSequence,
+ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *apDoubleVector,
+                                                 RUNTIME_sequence_t *apSequence,
                                                  RUNTIME_request_t *apRequest) {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;

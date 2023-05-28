@@ -38,7 +38,7 @@ namespace exageostat {
 
                 void
                 CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
-                                        dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric,
+                                        dataunits::Locations *apLocation3, double* aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
 
                 void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,

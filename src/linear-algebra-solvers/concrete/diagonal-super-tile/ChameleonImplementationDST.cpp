@@ -119,49 +119,49 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
                                                             dataunits::Locations *apLocation1,
                                                             dataunits::Locations *apLocation2,
                                                             dataunits::Locations *apLocation3,
-                                                            std::vector<double> aLocalTheta, int aDistanceMetric,
+                                                            double *aLocalTheta, int aDistanceMetric,
                                                             exageostat::kernels::Kernel *apKernel) {
-
-    int tempmm, tempnn;
-    auto **A = (CHAM_desc_t **) &descA;
-//    struct starpu_codelet *cl = &cl_dcmg;
-    int m, n, m0, n0;
-
-    int size = (*A)->n;
-
-    auto *theta = new double[aLocalTheta.size()];
-    for(int i = 0; i< aLocalTheta.size(); i ++){
-        theta[i] = aLocalTheta[i];
-    }
-
-    for (n = 0; n < (*A)->nt; n++) {
-        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
-        if (uplo == ChamUpperLower)
-            m = 0;
-        else
-            m = (*A)->m == (*A)->n ? n : 0;
-        for (; m < (*A)->mt; m++) {
-
-            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
-            m0 = m * (*A)->mb;
-            n0 = n * (*A)->nb;
-            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
-//            starpu_insert_task(starpu_mpi_codelet(cl),
-//                               STARPU_VALUE, &tempmm, sizeof(int),
-//                               STARPU_VALUE, &tempnn, sizeof(int),
-//                               STARPU_VALUE, &m0, sizeof(int),
-//                               STARPU_VALUE, &n0, sizeof(int),
-//                               STARPU_W, EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n),
-//                               STARPU_VALUE, &l1, sizeof(location * ),
-//                               STARPU_VALUE, &l2, sizeof(location * ),
-//                               STARPU_VALUE, &lm, sizeof(location * ),
-//                               STARPU_VALUE, &theta, sizeof(double* ),
-//                               STARPU_VALUE, &distance_metric, sizeof(int),
-//                               STARPU_VALUE, &kernel, sizeof(int),
-//                               0);
-        }
-    }
+//
+//    int tempmm, tempnn;
+//    auto **A = (CHAM_desc_t **) &descA;
+////    struct starpu_codelet *cl = &cl_dcmg;
+//    int m, n, m0, n0;
+//
+//    int size = (*A)->n;
+//
+//    auto *theta = new double[aLocalTheta.size()];
+//    for(int i = 0; i< aLocalTheta.size(); i ++){
+//        theta[i] = aLocalTheta[i];
+//    }
+//
+//    for (n = 0; n < (*A)->nt; n++) {
+//        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
+//        if (uplo == ChamUpperLower)
+//            m = 0;
+//        else
+//            m = (*A)->m == (*A)->n ? n : 0;
+//        for (; m < (*A)->mt; m++) {
+//
+//            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
+//            m0 = m * (*A)->mb;
+//            n0 = n * (*A)->nb;
+//            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
+//                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+////            starpu_insert_task(starpu_mpi_codelet(cl),
+////                               STARPU_VALUE, &tempmm, sizeof(int),
+////                               STARPU_VALUE, &tempnn, sizeof(int),
+////                               STARPU_VALUE, &m0, sizeof(int),
+////                               STARPU_VALUE, &n0, sizeof(int),
+////                               STARPU_W, EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n),
+////                               STARPU_VALUE, &l1, sizeof(location * ),
+////                               STARPU_VALUE, &l2, sizeof(location * ),
+////                               STARPU_VALUE, &lm, sizeof(location * ),
+////                               STARPU_VALUE, &theta, sizeof(double* ),
+////                               STARPU_VALUE, &distance_metric, sizeof(int),
+////                               STARPU_VALUE, &kernel, sizeof(int),
+////                               0);
+//        }
+//    }
 }
 template<typename T>
 void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
