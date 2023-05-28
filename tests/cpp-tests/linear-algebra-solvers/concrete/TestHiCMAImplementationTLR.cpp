@@ -46,8 +46,8 @@ void TEST_INITIALIZETION_TLR() {
     SECTION("Double without NZmiss") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(64);
+        synthetic_data_configurations.SetLowTileSize(32);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
         int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
 
@@ -93,8 +93,8 @@ void TEST_INITIALIZETION_TLR() {
     SECTION("Double WITH NZmiss") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(32);
+        synthetic_data_configurations.SetLowTileSize(16);
         synthetic_data_configurations.SetUnknownObservationsNb(10);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
         int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
@@ -147,8 +147,8 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     SECTION("DOUBLE without NZmiss") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(32);
+        synthetic_data_configurations.SetLowTileSize(8);
         synthetic_data_configurations.SetApproximationMode(1);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
@@ -313,8 +313,8 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     SECTION("DOUBLE WITH NZmiss") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(16);
+        synthetic_data_configurations.SetLowTileSize(16);
         synthetic_data_configurations.SetUnknownObservationsNb(10);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 

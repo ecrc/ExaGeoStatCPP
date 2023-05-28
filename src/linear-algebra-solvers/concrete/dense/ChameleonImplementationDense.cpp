@@ -188,9 +188,8 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
                                                               dataunits::Locations *apLocation3,
                                                               double *aLocalTheta, int aDistanceMetric,
                                                               exageostat::kernels::Kernel *apKernel) {
-    CHAM_context_t *chamctxt;
+    CHAM_context_t *chamctxt = chameleon_context_self();
     RUNTIME_option_t options;
-    chamctxt = chameleon_context_self();
 
     RUNTIME_options_init(&options, chamctxt, (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
                          (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
@@ -247,6 +246,8 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                                                  Locations *apLocation2, Locations *apLocation3,
                                                                  vector<double> aLocalTheta, int aDistanceMetric,
                                                                  Kernel *apKernel) {
+
+    ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(),this->mpConfigurations->GetGPUsNumber());
 
     auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
     auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();

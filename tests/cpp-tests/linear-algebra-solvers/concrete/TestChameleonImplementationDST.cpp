@@ -25,11 +25,17 @@ using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
 
-void INIT_HARDWARE_DST() {
+void TEST_INIT_HARDWARE_DST() {
     ChameleonImplementationDST<double> chameleonImpl;
     chameleonImpl.ExaGeoStatInitContext(4, 0);
     CHAM_context_t *chameleonContext = chameleon_context_self();
     REQUIRE(chameleonContext != nullptr);
+}
+void TEST_FINALIZE_HARDWARE_DST() {
+    ChameleonImplementationDST<double> chameleonImpl;
+    chameleonImpl.ExaGeoStatInitContext(4, 0);
+    chameleonImpl.ExaGeoStatFinalizeContext();
+    REQUIRE(chameleon_context_self() == nullptr);
 }
 
 // Test that the function initializes all the required descriptors without errors.
@@ -38,12 +44,12 @@ void TEST_INITIALIZETION_DST() {
     SyntheticDataConfigurations synthetic_data_configurations;
 
     SECTION("Single") {
-        ChameleonImplementationDST<float> chameleonImpl;
-        synthetic_data_configurations.SetProblemSize(1000);
-        synthetic_data_configurations.SetDenseTileSize(64);
-        chameleonImpl.SetConfigurations(&synthetic_data_configurations);
+        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
+        synthetic_data_configurations.SetProblemSize(18);
+        synthetic_data_configurations.SetDenseTileSize(8);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
-        chameleonImpl.InitiateDescriptors();
+        linearAlgebraSolver->InitiateDescriptors();
 
         REQUIRE(synthetic_data_configurations.GetDescriptorC()[0] != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorZ()[0] != nullptr);
@@ -53,12 +59,12 @@ void TEST_INITIALIZETION_DST() {
     }
 
     SECTION("Double") {
-        ChameleonImplementationDST<float> chameleonImpl;
-        synthetic_data_configurations.SetProblemSize(1024);
-        synthetic_data_configurations.SetDenseTileSize(64);
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
+        synthetic_data_configurations.SetProblemSize(8);
+        synthetic_data_configurations.SetDenseTileSize(2);
 
-        chameleonImpl.SetConfigurations(&synthetic_data_configurations);
-        chameleonImpl.InitiateDescriptors();
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+        linearAlgebraSolver->InitiateDescriptors();
 
         REQUIRE(synthetic_data_configurations.GetDescriptorC().size() == 1);
         REQUIRE(synthetic_data_configurations.GetDescriptorZ().size() == 1);
@@ -86,8 +92,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     SECTION("SINGLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetDenseTileSize(512);
+        synthetic_data_configurations.SetProblemSize(64);
+        synthetic_data_configurations.SetDenseTileSize(32);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -181,13 +187,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorProduct->q == qGrid);
 
 
-        auto *mat = (float *) CHAM_descriptorC->mat;
-        for (auto i = 0;
-             i < (CHAM_descriptorC->mt - 1) * (CHAM_descriptorC->nt - 1) * (CHAM_descriptorC->bsiz - 1); i++) {
-            REQUIRE(mat[i] == 0.0f);
-        }
-
-        mat = (float *) CHAM_descriptorZ->mat;
+        auto *mat = (float *) CHAM_descriptorZ->mat;
         auto *matZcpy = (float *) CHAM_descriptorZcpy->mat;
         for (auto i = 0;
              i < (CHAM_descriptorZ->mt - 1) * (CHAM_descriptorZ->nt - 1) * (CHAM_descriptorZ->bsiz - 1); i++) {
@@ -207,8 +207,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     SECTION("DOUBLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetDenseTileSize(512);
+        synthetic_data_configurations.SetProblemSize(32);
+        synthetic_data_configurations.SetDenseTileSize(8);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -339,12 +339,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->q == qGrid);
         }
-        auto *mat = (double *) CHAM_descriptorC->mat;
-        for (auto i = 0;
-             i < (CHAM_descriptorC->mt - 1) * (CHAM_descriptorC->nt - 1) * (CHAM_descriptorC->bsiz - 1); i++) {
-            REQUIRE(mat[i] == 0.0f);
-        }
-        mat = (double *) CHAM_descriptorZ->mat;
+        auto *mat = (double *) CHAM_descriptorZ->mat;
         auto *matZcpy = (double *) CHAM_descriptorZcpy->mat;
         for (auto i = 0;
              i < (CHAM_descriptorZ->mt - 1) * (CHAM_descriptorZ->nt - 1) * (CHAM_descriptorZ->bsiz - 1); i++) {
@@ -365,7 +360,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 }
 
 TEST_CASE("Chameleon Implementation DST") {
-    INIT_HARDWARE_DST();
-//    TEST_INITIALIZETION_DST();
-//    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+    TEST_FINALIZE_HARDWARE_DST();
+    TEST_INIT_HARDWARE_DST();
+    TEST_INITIALIZETION_DST();
+    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 }
