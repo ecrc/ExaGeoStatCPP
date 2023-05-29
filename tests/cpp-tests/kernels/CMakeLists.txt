@@ -10,7 +10,7 @@
 # @date 2023-04-29
 set(EXAGEOSTAT_TESTFILES
 
-#        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternStationary.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternStationary.cpp
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonStationary.cpp
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternFlexible.cpp
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternParsimonious.cpp
