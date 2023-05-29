@@ -13,6 +13,7 @@
 **/
 
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
+#include <lapacke.h>
 
 extern "C" {
 #include <hicma.h>
@@ -245,64 +246,131 @@ void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
     } else
         HICMA_Finalize();
 }
+#define starpu_mpi_codelet(_codelet_) _codelet_
+
+static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
+
+    int m, n, m0, n0;
+    exageostat::dataunits::Locations *apLocation1;
+    exageostat::dataunits::Locations *apLocation2;
+    exageostat::dataunits::Locations *apLocation3;
+    double *theta;
+    double *A;
+    int distance_metric;
+    exageostat::kernels::Kernel *kernel;
+
+    A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
+                               &distance_metric, &kernel);
+    kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
+                                     apLocation2, apLocation3, theta, distance_metric);
+};
+
+
+static struct starpu_codelet cl_dcmg =
+        {
+                .where        = STARPU_CPU /*| STARPU_CUDA*/,
+                .cpu_func     = cl_dcmg_cpu_func,
+#if defined(EXAGEOSTAT_USE_CUDA)
+                //    .cuda_func      = {cl_dcmg_cuda_func},
+#endif
+                .nbuffers     = 1,
+                .modes        = {STARPU_W},
+                .name         = "dcmg"
+        };
+
+#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)HICMA_RUNTIME_data_getaddr( desc, m, n ) )
 
 template<typename T>
 void
 HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                 dataunits::Locations *apLocation2,
-                                                dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
+                                                dataunits::Locations *apLocation3, double *apLocalTheta,
                                                 int aDistanceMetric,
                                                 exageostat::kernels::Kernel *apKernel) {
 
+    HICMA_context_t *hicmaContext;
+    HICMA_option_t options;
+    hicmaContext = hicma_context_self();
+
+    HICMA_RUNTIME_options_init(&options, hicmaContext, (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
+            (HICMA_request_t *) this->mpConfigurations->GetRequest());
+
     int tempmm, tempnn;
-    auto **A = (HICMA_desc_t **) &descA;
 
-    auto *theta = new double[aLocalTheta.size()];
-    for(int i = 0; i< aLocalTheta.size(); i ++){
-        theta[i] = aLocalTheta[i];
-    }
-
-//    struct starpu_codelet *cl = &cl_dcmg;
+    auto *HICMA_descA = (HICMA_desc_t *) descA;
+    HICMA_desc_t A = *HICMA_descA;
+    struct starpu_codelet *cl = &cl_dcmg;
     int m, n, m0, n0;
 
-    int size = (*A)->n;
+    int size = A.n;
 
-    for (n = 0; n < (*A)->nt; n++) {
-        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
-        if (uplo == HicmaUpperLower)
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+        if (uplo == HicmaUpperLower) {
             m = 0;
-        else
-            m = (*A)->m == (*A)->n ? n : 0;
-        for (; m < (*A)->mt; m++) {
+        } else {
+            m = A.m == A.n ? n : 0;
+        }
+        for (; m < A.mt; m++) {
 
-            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
-            m0 = m * (*A)->mb;
-            n0 = n * (*A)->nb;
-            this->apMatrix = (double *) HICMA_RUNTIME_data_getaddr((*A), m, n);
-            apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
+            m0 = m * A.mb;
+            n0 = n * A.nb;
 
+            // Register the data with StarPU
+            starpu_insert_task(starpu_mpi_codelet(cl),
+                               STARPU_VALUE, &tempmm, sizeof(int),
+                               STARPU_VALUE, &tempnn, sizeof(int),
+                               STARPU_VALUE, &m0, sizeof(int),
+                               STARPU_VALUE, &n0, sizeof(int),
+                               STARPU_W, EXAGEOSTAT_RTBLKADDR(HICMA_descA, HicmaRealDouble, m, n),
+                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocalTheta, sizeof(double *),
+                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
+                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
+                               0);
 
-//            starpu_insert_task(starpu_mpi_codelet(cl),
-//                               STARPU_VALUE, &tempmm, sizeof(int),
-//                               STARPU_VALUE, &tempnn, sizeof(int),
-//                               STARPU_VALUE, &m0, sizeof(int),
-//                               STARPU_VALUE, &n0, sizeof(int),
-//                               STARPU_W, EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n),
-//                               STARPU_VALUE, &l1, sizeof(location * ),
-//                               STARPU_VALUE, &l2, sizeof(location * ),
-//                               STARPU_VALUE, &lm, sizeof(location * ),
-//                               STARPU_VALUE, &theta, sizeof(double* ),
-//                               STARPU_VALUE, &distance_metric, sizeof(int),
-//                               STARPU_VALUE, &kernel, sizeof(int),
-//                               0);
+            auto handle = EXAGEOSTAT_RTBLKADDR(HICMA_descA, HicmaRealDouble, m, n);
+            this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
     }
-    delete[] theta;
+    HICMA_RUNTIME_options_ws_free(&options);
+    HICMA_RUNTIME_options_finalize(&options, hicmaContext);
+
+//            apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
+//                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+
 }
 template<typename T>
 void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
-                                                               Locations *apLocation2, Locations *apLocation3,
-                                                               vector<double> aLocalTheta, int aDistanceMetric,
-                                                               Kernel *apKernel) {
+                                                        Locations *apLocation2, Locations *apLocation3,
+                                                        vector<double> aLocalTheta, int aDistanceMetric,
+                                                        Kernel *apKernel) {
+    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
+    auto *sequence = (HICMA_sequence_t *) this->mpConfigurations->GetSequence();
+    auto *request = (HICMA_request_t *) this->mpConfigurations->GetRequest();
+    int N = this->mpConfigurations->GetProblemSize();
+
+    //// TODO: Make all zeros, Seed.
+    int iseed[4] = {0, 0, 0, 1};
+    //nomral random generation of e -- ei~N(0, 1) to generate Z
+    auto *Nrand = (double *) malloc(N * sizeof(double));
+    LAPACKE_dlarnv(3, iseed, N, Nrand);
+
+    //Generate the co-variance matrix C
+//    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
+    auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
+    for (int i = 0; i < aLocalTheta.size(); i++) {
+        theta[i] = aLocalTheta[i];
+    }
+    this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
+                                  aDistanceMetric, apKernel);
+
+    HICMA_Sequence_Wait(sequence);
+    free(theta);
+
 }
