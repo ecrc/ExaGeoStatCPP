@@ -118,7 +118,6 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
                                               (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
                                               qGrid)
     }
-//    this->ExaGeoStatFinalizeContext();
 
     this->mpConfigurations->SetSequence(pSequence);
     this->mpConfigurations->SetRequest(request);
@@ -141,7 +140,7 @@ template<typename T>
 void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 
     if (!this->apContext) {
-        cout << "No intalised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);'" << endl;
+        cout << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);'" << endl;
     } else{
         CHAMELEON_Finalize();
         this->apContext = nullptr;

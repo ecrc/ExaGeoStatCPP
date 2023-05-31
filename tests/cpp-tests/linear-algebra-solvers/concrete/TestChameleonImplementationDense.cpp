@@ -38,7 +38,8 @@ void INIT_FINALIZE_HARDWARE() {
     REQUIRE(chameleon_context_self() == nullptr);
 
     // Test using operations without initialise Hardware.
-    REQUIRE_THROWS_WITH( chameleonImpl.InitiateDescriptors(), "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+    REQUIRE_THROWS_WITH(chameleonImpl.InitiateDescriptors(),
+                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
 }
 
 // Test that the function initializes all the required descriptors without errors.
@@ -266,7 +267,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->m == N / 2);
         REQUIRE(CHAM_descsubC12->m == N / 2);
         REQUIRE(CHAM_descsubC22->m == N / 2);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->m == 1);
         }
@@ -282,7 +283,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->n == N / 2);
         REQUIRE(CHAM_descsubC12->n == N / 2);
         REQUIRE(CHAM_descsubC22->n == N / 2);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->n == 1);
         }
@@ -298,7 +299,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->mb == dts);
         REQUIRE(CHAM_descsubC12->mb == dts);
         REQUIRE(CHAM_descsubC22->mb == dts);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->mb == dts);
         }
@@ -314,7 +315,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->nb == dts);
         REQUIRE(CHAM_descsubC12->nb == dts);
         REQUIRE(CHAM_descsubC22->nb == dts);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->nb == dts);
         }
@@ -330,7 +331,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->bsiz == dts * dts);
         REQUIRE(CHAM_descsubC12->bsiz == dts * dts);
         REQUIRE(CHAM_descsubC22->bsiz == dts * dts);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->bsiz == dts * dts);
         }
@@ -346,7 +347,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->i == 0);
         REQUIRE(CHAM_descsubC12->i == N / 2);
         REQUIRE(CHAM_descsubC22->i == N / 2);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->i == 0);
         }
@@ -362,7 +363,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->j == 0);
         REQUIRE(CHAM_descsubC12->j == 0);
         REQUIRE(CHAM_descsubC22->j == N / 2);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->j == 0);
         }
@@ -375,26 +376,26 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorDeterminant->mt == 1);
-        REQUIRE(CHAM_descsubC11->mt == ceil((N / 2 * 1.0) / (dts * 1.0)));
-        REQUIRE(CHAM_descsubC12->mt == ceil((N / 2 * 1.0) / (dts * 1.0)));
-        REQUIRE(CHAM_descsubC22->mt == ceil((N / 2 * 1.0) / (dts * 1.0)));
-        for (auto & idx : pDescriptorProduct) {
+        REQUIRE(CHAM_descsubC11->mt == ((N / 2) / dts));
+        REQUIRE(CHAM_descsubC12->mt == ((N / 2) / dts));
+        REQUIRE(CHAM_descsubC22->mt == ((N / 2) / dts));
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->mt == 1);
         }
         for (int idx = 1; idx < pDescriptorZ.size(); idx++) {
             auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &pDescriptorZ[idx];
-            REQUIRE((*CHAM_descriptorZ_)->mt == ceil((N / 2 * 1.0) / (dts * 1.0)));
+            REQUIRE((*CHAM_descriptorZ_)->mt == ((N / 2) / dts));
         }
 
         REQUIRE(CHAM_descriptorC->nt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZ->nt == 1);
         REQUIRE(CHAM_descriptorZcpy->nt == 1);
         REQUIRE(CHAM_descriptorDeterminant->nt == 1);
-        REQUIRE(CHAM_descsubC11->nt == ceil((N / 2 * 1.0) / (dts * 1.0)));
-        REQUIRE(CHAM_descsubC12->nt == ceil((N / 2 * 1.0) / (dts * 1.0)));
-        REQUIRE(CHAM_descsubC22->nt == ceil((N / 2 * 1.0) / (dts * 1.0)));
-        for (auto & idx : pDescriptorProduct) {
+        REQUIRE(CHAM_descsubC11->nt == ((N / 2) / dts));
+        REQUIRE(CHAM_descsubC12->nt == ((N / 2) / dts));
+        REQUIRE(CHAM_descsubC22->nt == ((N / 2) / dts));
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->nt == 1);
         }
@@ -410,7 +411,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->lm == N);
         REQUIRE(CHAM_descsubC12->lm == N);
         REQUIRE(CHAM_descsubC22->lm == N);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->lm == 1);
         }
@@ -426,7 +427,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->ln == N);
         REQUIRE(CHAM_descsubC12->ln == N);
         REQUIRE(CHAM_descsubC22->ln == N);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->ln == 1);
         }
@@ -442,7 +443,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->p == pGrid);
         REQUIRE(CHAM_descsubC12->p == pGrid);
         REQUIRE(CHAM_descsubC22->p == pGrid);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->p == pGrid);
         }
@@ -458,7 +459,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         REQUIRE(CHAM_descsubC11->q == qGrid);
         REQUIRE(CHAM_descsubC12->q == qGrid);
         REQUIRE(CHAM_descsubC22->q == qGrid);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->q == qGrid);
         }
@@ -474,7 +475,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
             REQUIRE(mat[i] == 0.0f);
             REQUIRE(matZcpy[i] == 0.0f);
         }
-        for (auto & idx : pDescriptorZ) {
+        for (auto &idx: pDescriptorZ) {
             auto **CHAM_descriptorZ_ = (CHAM_desc_t **) &idx;
             mat = (double *) (*CHAM_descriptorZ_)->mat;
             for (auto i = 0; i < ((*CHAM_descriptorZ_)->mt - 1) * ((*CHAM_descriptorZ_)->nt - 1) *
@@ -487,7 +488,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         for (auto i = 0; i < (CHAM_descriptorDeterminant->mt - 1) * (CHAM_descriptorDeterminant->nt - 1) *
                              (CHAM_descriptorDeterminant->bsiz - 1); i++) {
             REQUIRE(mat[i] == 0.0f);
-            for (auto & idx : pDescriptorProduct) {
+            for (auto &idx: pDescriptorProduct) {
                 auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
                 auto *matProduct = (double *) (*CHAM_descriptorProduct)->mat;
                 REQUIRE(matProduct[i] == 0.0f);

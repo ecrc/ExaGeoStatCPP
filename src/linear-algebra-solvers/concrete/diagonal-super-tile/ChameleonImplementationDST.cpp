@@ -28,9 +28,10 @@ using namespace std;
 template<typename T>
 void ChameleonImplementationDST<T>::InitiateDescriptors() {
 
-    // Initialize Exageostat Hardware.
-    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
-
+    // Check for Initialise the Chameleon context.
+    if(!this->apContext){
+        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+    }
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
@@ -43,7 +44,23 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     pDescriptorZ.push_back(nullptr);
     auto **pChameleonDescriptorZ = (CHAM_desc_t **) &pDescriptorZ[0];
 
+    // Get the problem size and other configuration parameters
+    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
+    int dts = this->mpConfigurations->GetDenseTileSize();
+    int pGrid = this->mpConfigurations->GetPGrid();
+    int qGrid = this->mpConfigurations->GetQGrid();
+    bool isOOC = this->mpConfigurations->GetIsOOC();
     int vectorSize = 1;
+
+    // For distributed system and should be removed
+    T *Zcpy = (T *) malloc(N * sizeof(T));
+    T dotProductValue;
+
+    // Create a Chameleon sequence
+    RUNTIME_sequence_t *pSequence;
+    RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
+    CHAMELEON_Sequence_Create(&pSequence);
+
     FloatPoint floatPoint;
     if (sizeof(T) == SIZE_OF_FLOAT) {
         floatPoint = EXAGEOSTAT_REAL_FLOAT;
@@ -51,18 +68,6 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
         floatPoint = EXAGEOSTAT_REAL_DOUBLE;
         vectorSize = 3;
     }
-
-    RUNTIME_sequence_t *pSequence;
-
-    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
-    int dts = this->mpConfigurations->GetDenseTileSize();
-    int pGrid = this->mpConfigurations->GetPGrid();
-    int qGrid = this->mpConfigurations->GetQGrid();
-    bool isOOC = this->mpConfigurations->GetIsOOC();
-
-    // For distributed system and should be removed
-    T *Zcpy = (T *) malloc(N * sizeof(T));
-    T dotProductValue;
 
     //Identifies a set of routines sharing common exception handling.
     CHAMELEON_Sequence_Create(&pSequence);
@@ -85,7 +90,9 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorDeterminant, isOOC, &dotProductValue,
                                           (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
                                           qGrid)
-    this->ExaGeoStatFinalizeContext();
+
+    this->mpConfigurations->SetSequence(pSequence);
+    this->mpConfigurations->SetRequest(request);
     //stop gsl error handler
     gsl_set_error_handler_off();
 }
@@ -93,25 +100,22 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
 template<typename T>
 void ChameleonImplementationDST<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
 
-    CHAM_context_t *chameleonContext;
-    chameleonContext = chameleon_context_self();
-    if (chameleonContext != nullptr) {
-        printf("Another instance of Chameleon is already running...!");
-    } else {
+    if (!this->apContext) {
         CHAMELEON_user_tag_size(31, 26);
         CHAMELEON_Init(apCoresNumber, apGPUs)
+        this->apContext = chameleon_context_self();
     }
 }
 
 template<typename T>
 void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
 
-    CHAM_context_t *chameleonContext;
-    chameleonContext = chameleon_context_self();
-    if (chameleonContext == nullptr) {
-        printf("No active instance oh Chameleon...please use ExaGeoStatInitContext() function to initiate a new instance!\n");
-    } else
+    if (!this->apContext) {
+        cout << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);'" << endl;
+    } else{
         CHAMELEON_Finalize();
+        this->apContext = nullptr;
+    }
 }
 
 template<typename T>
@@ -168,4 +172,12 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
                                                                  Locations *apLocation2, Locations *apLocation3,
                                                                  vector<double> aLocalTheta, int aDistanceMetric,
                                                                  Kernel *apKernel) {
+    // Check for Initialise the Chameleon context.
+    if(!this->apContext){
+        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+    }
+}
+
+namespace exageostat::linearAlgebra::diagonalSuperTile{
+    template<typename T> void * ChameleonImplementationDST<T>::apContext = nullptr;
 }

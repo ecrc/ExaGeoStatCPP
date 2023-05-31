@@ -12,7 +12,7 @@
 if (EXAGEOSTAT_USE_CHAMELEON)
     set(EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDense.cpp
-#            ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDST.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDST.cpp
             ${EXAGEOSTAT_TESTFILES}
             PARENT_SCOPE
             )
