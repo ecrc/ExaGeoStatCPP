@@ -35,8 +35,10 @@ using namespace std;
 template<typename T>
 void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
-    // Initialize the Chameleon context
-    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
+    // Check for Initialise the Chameleon context.
+    if(!this->apContext){
+        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+    }
 
     // Declare variables for Chameleon descriptors
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
@@ -245,6 +247,11 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                                                  Locations *apLocation2, Locations *apLocation3,
                                                                  vector<double> aLocalTheta, int aDistanceMetric,
                                                                  Kernel *apKernel) {
+
+    // Check for Initialise the Chameleon context.
+    if(!this->apContext){
+        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+    }
 
     auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
     auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();

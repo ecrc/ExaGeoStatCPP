@@ -24,9 +24,6 @@ pipeline {
                             module load gcc/10.2.0
                             module load cmake/3.21.2
                             ####################################################
-                            # Export paths of the installed dependence, to avoid re-installing it with each stage.
-                            ####################################################
-                            export PKG_CONFIG_PATH=$PWD/installdir/_deps/CHAMELEON/lib/pkgconfig:$PWD/installdir/_deps/GSL/lib/pkgconfig:$PWD/installdir/_deps/HCORE/lib/pkgconfig:$PWD/installdir/_deps/HICMA/lib/pkgconfig:$PWD/installdir/_deps/HWLOC/lib/pkgconfig:$PWD/installdir/_deps/NLOPT/lib/pkgconfig:$PWD/installdir/_deps/STARPU/lib/pkgconfig:$PWD/installdir/_deps/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH
 
                             ./config.sh -t -e -C
                             ./clean_build.sh
@@ -104,6 +101,11 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
+                            ####################################################
+                            # Export paths of the installed dependence, to avoid re-installing it with each stage.
+                            ####################################################
+                            export PKG_CONFIG_PATH=$PWD/installdir/_deps/CHAMELEON/lib/pkgconfig:$PWD/installdir/_deps/GSL/lib/pkgconfig:$PWD/installdir/_deps/HCORE/lib/pkgconfig:$PWD/installdir/_deps/HICMA/lib/pkgconfig:$PWD/installdir/_deps/HWLOC/lib/pkgconfig:$PWD/installdir/_deps/NLOPT/lib/pkgconfig:$PWD/installdir/_deps/STARPU/lib/pkgconfig:$PWD/installdir/_deps/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH
+
                             set -x
                             ./config.sh -t -e -H
                             ./clean_build.sh

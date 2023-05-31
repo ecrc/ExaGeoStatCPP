@@ -39,7 +39,7 @@ void FINALIZE_HARDWARE_DST() {
 }
 
 // Test that the function initializes all the required descriptors without errors.
-void TEST_INITIALIZETION_DST() {
+void TEST_INITIALIZATION_DST() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
 
@@ -375,6 +375,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 TEST_CASE("Chameleon Implementation DST") {
     INIT_HARDWARE_DST();
     FINALIZE_HARDWARE_DST();
-    TEST_INITIALIZETION_DST();
+    TEST_INITIALIZATION_DST();
     TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 }

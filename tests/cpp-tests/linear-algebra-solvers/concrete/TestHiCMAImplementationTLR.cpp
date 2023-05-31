@@ -40,7 +40,7 @@ void FINALIZE_HARDWARE_TLR() {
 
 // Test that the function initializes all the required descriptors without errors.
 // ONLY DOUBLE IS AVAILABLE FOR NOW.
-void TEST_INITIALIZETION_TLR() {
+void TEST_INITIALIZATION_TLR() {
     SyntheticDataConfigurations synthetic_data_configurations;
 
     SECTION("Double without NZmiss") {
@@ -487,5 +487,5 @@ TEST_CASE("HiCMA Implementation TLR") {
     FINALIZE_HARDWARE_TLR();
     INIT_HARDWARE_TLR();
     TEST_HICMA_DESCRIPTORS_VALUES_TLR();
-    TEST_INITIALIZETION_TLR();
+    TEST_INITIALIZATION_TLR();
 }
