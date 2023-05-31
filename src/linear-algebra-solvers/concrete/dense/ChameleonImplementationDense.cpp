@@ -22,8 +22,6 @@ extern "C" {
 #include <control/context.h>
 }
 
-#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)RUNTIME_data_getaddr( desc, m, n ) )
-
 // Use the following namespaces for convenience
 using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
@@ -36,8 +34,9 @@ template<typename T>
 void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     // Check for Initialise the Chameleon context.
-    if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
 
     // Declare variables for Chameleon descriptors
@@ -140,9 +139,11 @@ template<typename T>
 void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 
     if (!this->apContext) {
-        cout << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'" << endl;
-    } else{
-        CHAMELEON_Finalize();
+        cout
+                << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'"
+                << endl;
+    } else {
+        CHAMELEON_Finalize()
         this->apContext = nullptr;
     }
 }
@@ -166,7 +167,7 @@ static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
                                &distance_metric, &kernel);
     kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
                                      apLocation2, apLocation3, theta, distance_metric);
-};
+}
 
 
 static struct starpu_codelet cl_dcmg =
@@ -185,13 +186,17 @@ template<typename T>
 void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                               dataunits::Locations *apLocation2,
                                                               dataunits::Locations *apLocation3,
-                                                              double *theta, int aDistanceMetric,
+                                                              double *aLocalTheta, int aDistanceMetric,
                                                               exageostat::kernels::Kernel *apKernel) {
-    CHAM_context_t *chamctxt;
-    RUNTIME_option_t options;
-    chamctxt = chameleon_context_self();
+    // Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
 
-    RUNTIME_options_init(&options, chamctxt, (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
+    RUNTIME_option_t options;
+    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
+                         (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
                          (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
 
 
@@ -201,8 +206,6 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     CHAM_desc_t A = *CHAM_descA;
     struct starpu_codelet *cl = &cl_dcmg;
     int m, n, m0, n0;
-
-    int size = A.n;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -223,21 +226,36 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
                                STARPU_VALUE, &tempnn, sizeof(int),
                                STARPU_VALUE, &m0, sizeof(int),
                                STARPU_VALUE, &n0, sizeof(int),
-                               STARPU_W, EXAGEOSTAT_RTBLKADDR(CHAM_descA, ChamRealDouble, m, n),
+                               STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n),
                                STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &theta, sizeof(double *),
+                               STARPU_VALUE, &aLocalTheta, sizeof(double *),
                                STARPU_VALUE, &aDistanceMetric, sizeof(int),
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
-            auto handle = EXAGEOSTAT_RTBLKADDR(CHAM_descA, ChamRealDouble, m, n);
+            auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, chamctxt);
+    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
+
+    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+
+    // Unregister Handles
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+        if (uplo == ChamUpperLower) {
+            m = 0;
+        } else {
+            m = A.m == A.n ? n : 0;
+        }
+        for (; m < A.mt; m++) {
+            starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
+        }
+    }
 }
 
 
@@ -248,8 +266,9 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                                                  Kernel *apKernel) {
 
     // Check for Initialise the Chameleon context.
-    if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
 
     auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
@@ -270,8 +289,6 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     }
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
-
-    CHAMELEON_Sequence_Wait(sequence);
 
     free(theta);
     //    VERBOSE(" Done.\n");
@@ -355,6 +372,6 @@ ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *a
     RUNTIME_options_ws_free(&options);
 }
 
-namespace exageostat::linearAlgebra::dense{
-    template<typename T> void * ChameleonImplementationDense<T>::apContext = nullptr;
+namespace exageostat::linearAlgebra::dense {
+    template<typename T> void *ChameleonImplementationDense<T>::apContext = nullptr;
 }

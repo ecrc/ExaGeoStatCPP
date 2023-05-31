@@ -13,6 +13,7 @@
 **/
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+#include <lapacke.h>
 
 extern "C" {
 #include <chameleon/struct.h>
@@ -29,8 +30,9 @@ template<typename T>
 void ChameleonImplementationDST<T>::InitiateDescriptors() {
 
     // Check for Initialise the Chameleon context.
-    if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
@@ -111,12 +113,49 @@ template<typename T>
 void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
 
     if (!this->apContext) {
-        cout << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'" << endl;
-    } else{
-        CHAMELEON_Finalize();
+        cout
+                << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'"
+                << endl;
+    } else {
+        CHAMELEON_Finalize()
         this->apContext = nullptr;
     }
 }
+
+#define starpu_mpi_codelet(_codelet_) _codelet_
+
+static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
+
+    int m, n, m0, n0;
+    exageostat::dataunits::Locations *apLocation1;
+    exageostat::dataunits::Locations *apLocation2;
+    exageostat::dataunits::Locations *apLocation3;
+    double *theta;
+    double *A;
+    int distance_metric;
+    exageostat::kernels::Kernel *kernel;
+
+    A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+
+    starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
+                               &distance_metric, &kernel);
+    kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
+                                     apLocation2, apLocation3, theta, distance_metric);
+}
+
+
+static struct starpu_codelet cl_dcmg =
+        {
+                .where        = STARPU_CPU /*| STARPU_CUDA*/,
+                .cpu_func     = cl_dcmg_cpu_func,
+#if defined(EXAGEOSTAT_USE_CUDA)
+                //    .cuda_func      = {cl_dcmg_cuda_func},
+#endif
+                .nbuffers     = 1,
+                .modes        = {STARPU_W},
+                .name         = "dcmg"
+        };
+
 
 template<typename T>
 void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int uplo,
@@ -125,59 +164,110 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
                                                             dataunits::Locations *apLocation3,
                                                             double *aLocalTheta, int aDistanceMetric,
                                                             exageostat::kernels::Kernel *apKernel) {
-//
-//    int tempmm, tempnn;
-//    auto **A = (CHAM_desc_t **) &descA;
-////    struct starpu_codelet *cl = &cl_dcmg;
-//    int m, n, m0, n0;
-//
-//    int size = (*A)->n;
-//
-//    auto *theta = new double[aLocalTheta.size()];
-//    for(int i = 0; i< aLocalTheta.size(); i ++){
-//        theta[i] = aLocalTheta[i];
-//    }
-//
-//    for (n = 0; n < (*A)->nt; n++) {
-//        tempnn = n == (*A)->nt - 1 ? (*A)->n - n * (*A)->nb : (*A)->nb;
-//        if (uplo == ChamUpperLower)
-//            m = 0;
-//        else
-//            m = (*A)->m == (*A)->n ? n : 0;
-//        for (; m < (*A)->mt; m++) {
-//
-//            tempmm = m == (*A)->mt - 1 ? (*A)->m - m * (*A)->mb : (*A)->mb;
-//            m0 = m * (*A)->mb;
-//            n0 = n * (*A)->nb;
-//            apKernel->GenerateCovarianceMatrix(((double *) RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-//                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
-////            starpu_insert_task(starpu_mpi_codelet(cl),
-////                               STARPU_VALUE, &tempmm, sizeof(int),
-////                               STARPU_VALUE, &tempnn, sizeof(int),
-////                               STARPU_VALUE, &m0, sizeof(int),
-////                               STARPU_VALUE, &n0, sizeof(int),
-////                               STARPU_W, EXAGEOSTAT_RTBLKADDR(descA, ChamRealDouble, m, n),
-////                               STARPU_VALUE, &l1, sizeof(location * ),
-////                               STARPU_VALUE, &l2, sizeof(location * ),
-////                               STARPU_VALUE, &lm, sizeof(location * ),
-////                               STARPU_VALUE, &theta, sizeof(double* ),
-////                               STARPU_VALUE, &distance_metric, sizeof(int),
-////                               STARPU_VALUE, &kernel, sizeof(int),
-////                               0);
-//        }
-//    }
-}
-template<typename T>
-void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
-                                                                 Locations *apLocation2, Locations *apLocation3,
-                                                                 vector<double> aLocalTheta, int aDistanceMetric,
-                                                                 Kernel *apKernel) {
-    // Check for Initialise the Chameleon context.
-    if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+// Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
+
+    RUNTIME_option_t options;
+    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
+                         (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
+                         (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
+
+
+    int tempmm, tempnn;
+
+    auto *CHAM_descA = (CHAM_desc_t *) descA;
+    CHAM_desc_t A = *CHAM_descA;
+    struct starpu_codelet *cl = &cl_dcmg;
+    int m, n, m0, n0;
+
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+        if (uplo == ChamUpperLower) {
+            m = 0;
+        } else {
+            m = A.m == A.n ? n : 0;
+        }
+        for (; m < A.mt; m++) {
+
+            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
+            m0 = m * A.mb;
+            n0 = n * A.nb;
+
+            // Register the data with StarPU
+            starpu_insert_task(starpu_mpi_codelet(cl),
+                               STARPU_VALUE, &tempmm, sizeof(int),
+                               STARPU_VALUE, &tempnn, sizeof(int),
+                               STARPU_VALUE, &m0, sizeof(int),
+                               STARPU_VALUE, &n0, sizeof(int),
+                               STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n),
+                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
+                               STARPU_VALUE, &aLocalTheta, sizeof(double *),
+                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
+                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
+                               0);
+
+            auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n);
+            this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
+        }
+    }
+    RUNTIME_options_ws_free(&options);
+    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
+
+    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+
+    // Unregister Handles
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+        if (uplo == ChamUpperLower) {
+            m = 0;
+        } else {
+            m = A.m == A.n ? n : 0;
+        }
+        for (; m < A.mt; m++) {
+            starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
+        }
     }
 }
 
-namespace exageostat::linearAlgebra::diagonalSuperTile{
-    template<typename T> void * ChameleonImplementationDST<T>::apContext = nullptr;
+template<typename T>
+void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
+                                                               Locations *apLocation2, Locations *apLocation3,
+                                                               vector<double> aLocalTheta, int aDistanceMetric,
+                                                               Kernel *apKernel) {
+    // Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
+
+    auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
+    auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
+    int N = this->mpConfigurations->GetProblemSize();
+
+    //// TODO: Make all zeros, Seed.
+    int iseed[4] = {0, 0, 0, 1};
+    //nomral random generation of e -- ei~N(0, 1) to generate Z
+    auto *Nrand = (double *) malloc(N * sizeof(double));
+    LAPACKE_dlarnv(3, iseed, N, Nrand);
+
+    //Generate the co-variance matrix C
+//    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
+    auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
+    for (int i = 0; i < aLocalTheta.size(); i++) {
+        theta[i] = aLocalTheta[i];
+    }
+    this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
+                                  aDistanceMetric, apKernel);
+
+    free(theta);
+
+}
+
+namespace exageostat::linearAlgebra::diagonalSuperTile {
+    template<typename T> void *ChameleonImplementationDST<T>::apContext = nullptr;
 }

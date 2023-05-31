@@ -30,8 +30,9 @@ template<typename T>
 void HicmaImplementation<T>::InitiateDescriptors() {
 
     // Check for Initialise the Chameleon context.
-    if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
@@ -56,10 +57,9 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     double determinantValue = this->mpConfigurations->GetDeterminantValue();
 
     int nZobsValue;
-    if (actualObservationsFilePath.empty()){
+    if (actualObservationsFilePath.empty()) {
         nZobsValue = N - nZmiss;
-    }
-    else{
+    } else {
         nZobsValue = N;
     }
 
@@ -170,7 +170,8 @@ void HicmaImplementation<T>::InitiateDescriptors() {
                                                    lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid)
         } else {
 
-            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZObservations, isOOC, nullptr, (HICMA_enum) floatPoint, lts,
+            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZObservations, isOOC, nullptr, (HICMA_enum) floatPoint,
+                                                   lts,
                                                    lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid)
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZactual, isOOC, nullptr, (HICMA_enum) floatPoint, lts,
                                                    lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid)
@@ -245,12 +246,15 @@ template<typename T>
 void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
 
     if (!this->apContext) {
-        cout << "No initialised context of HiCMA, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'" << endl;
-    } else{
+        cout
+                << "No initialised context of HiCMA, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'"
+                << endl;
+    } else {
         HICMA_Finalize();
         this->apContext = nullptr;
     }
 }
+
 #define starpu_mpi_codelet(_codelet_) _codelet_
 
 static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
@@ -285,8 +289,6 @@ static struct starpu_codelet cl_dcmg =
                 .name         = "dcmg"
         };
 
-#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)HICMA_RUNTIME_data_getaddr( desc, m, n ) )
-
 template<typename T>
 void
 HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
@@ -295,12 +297,16 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                                 int aDistanceMetric,
                                                 exageostat::kernels::Kernel *apKernel) {
 
-    HICMA_context_t *hicmaContext;
-    HICMA_option_t options;
-    hicmaContext = hicma_context_self();
+    // Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
 
-    HICMA_RUNTIME_options_init(&options, hicmaContext, (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
-            (HICMA_request_t *) this->mpConfigurations->GetRequest());
+    HICMA_option_t options;
+    HICMA_RUNTIME_options_init(&options, (HICMA_context_t *) this->apContext,
+                               (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
+                               (HICMA_request_t *) this->mpConfigurations->GetRequest());
 
     int tempmm, tempnn;
 
@@ -328,7 +334,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                STARPU_VALUE, &tempnn, sizeof(int),
                                STARPU_VALUE, &m0, sizeof(int),
                                STARPU_VALUE, &n0, sizeof(int),
-                               STARPU_W, EXAGEOSTAT_RTBLKADDR(HICMA_descA, HicmaRealDouble, m, n),
+                               STARPU_W, (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n),
                                STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
@@ -337,17 +343,29 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
-            auto handle = EXAGEOSTAT_RTBLKADDR(HICMA_descA, HicmaRealDouble, m, n);
+            auto handle = (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
     }
     HICMA_RUNTIME_options_ws_free(&options);
-    HICMA_RUNTIME_options_finalize(&options, hicmaContext);
+    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t *) this->apContext);
 
-//            apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-//                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+    HICMA_Sequence_Wait((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
 
+    // Unregister Handles
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+        if (uplo == HicmaUpperLower) {
+            m = 0;
+        } else {
+            m = A.m == A.n ? n : 0;
+        }
+        for (; m < A.mt; m++) {
+            starpu_data_unregister((starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n));
+        }
+    }
 }
+
 template<typename T>
 void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
                                                         Locations *apLocation2, Locations *apLocation3,
@@ -355,8 +373,9 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
                                                         Kernel *apKernel) {
 
     // Check for Initialise the Chameleon context.
-    if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
 
     auto *sequence = (HICMA_sequence_t *) this->mpConfigurations->GetSequence();
@@ -377,12 +396,10 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
     }
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
-
-    HICMA_Sequence_Wait(sequence);
     free(theta);
 
 }
 
-namespace exageostat::linearAlgebra::tileLowRank{
-    template<typename T> void * HicmaImplementation<T>::apContext = nullptr;
+namespace exageostat::linearAlgebra::tileLowRank {
+    template<typename T> void *HicmaImplementation<T>::apContext = nullptr;
 }
