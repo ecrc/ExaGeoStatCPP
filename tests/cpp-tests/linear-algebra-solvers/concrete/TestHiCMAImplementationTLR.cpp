@@ -17,6 +17,7 @@
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <control/hicma_context.h>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::linearAlgebra;
@@ -24,30 +25,38 @@ using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
 
-void INIT_HARDWARE_TLR() {
+void INIT_FINALIZE_HARDWARE_TLR() {
+
+
     HicmaImplementation<double> hicmaImpl;
+    // Initialise the context
     hicmaImpl.ExaGeoStatInitContext(4, 0);
     HICMA_context_t *hicmaContext = hicma_context_self();
     REQUIRE(hicmaContext != nullptr);
-}
 
-void FINALIZE_HARDWARE_TLR() {
-    HicmaImplementation<double> hicmaImpl;
-    hicmaImpl.ExaGeoStatInitContext(4, 0);
+    // Finalize the context.
     hicmaImpl.ExaGeoStatFinalizeContext();
     REQUIRE(hicma_context_self() == nullptr);
+
+    // Test using operations without initialise Hardware.
+    REQUIRE_THROWS_WITH(hicmaImpl.InitiateDescriptors(),
+                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+
 }
 
 // Test that the function initializes all the required descriptors without errors.
-// ONLY DOUBLE IS AVAILABLE FOR NOW.
-void TEST_INITIALIZATION_TLR() {
+void TEST_DESCRIPTORS_INITIALIZATION_TLR() {
     SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 
     SECTION("Double without NZmiss") {
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(64);
+        synthetic_data_configurations.SetLowTileSize(16);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
         int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
 
@@ -89,12 +98,19 @@ void TEST_INITIALIZATION_TLR() {
 
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
     SECTION("Double WITH NZmiss") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(32);
+        synthetic_data_configurations.SetLowTileSize(16);
         synthetic_data_configurations.SetUnknownObservationsNb(10);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
         int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
@@ -137,18 +153,26 @@ void TEST_INITIALIZATION_TLR() {
 
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 
 //Test that the function initializes the (*HICMA_descriptorC) descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 
     SECTION("DOUBLE without NZmiss") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
+        synthetic_data_configurations.SetProblemSize(20);
+        synthetic_data_configurations.SetLowTileSize(12);
         synthetic_data_configurations.SetApproximationMode(1);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
@@ -308,14 +332,21 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE((*HICMA_descriptorDeterminant)->ln == 1);
         REQUIRE((*HICMA_descriptorDeterminant)->p == pGrid);
         REQUIRE((*HICMA_descriptorDeterminant)->q == qGrid);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 
     SECTION("DOUBLE WITH NZmiss") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetLowTileSize(512);
-        synthetic_data_configurations.SetUnknownObservationsNb(10);
+        synthetic_data_configurations.SetProblemSize(8);
+        synthetic_data_configurations.SetLowTileSize(4);
+        synthetic_data_configurations.SetUnknownObservationsNb(3);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -480,12 +511,13 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE((*HICMA_descriptorMSE)->p == pGrid);
             REQUIRE((*HICMA_descriptorMSE)->q == qGrid);
         }
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 
 TEST_CASE("HiCMA Implementation TLR") {
-    FINALIZE_HARDWARE_TLR();
-    INIT_HARDWARE_TLR();
+    INIT_FINALIZE_HARDWARE_TLR();
+    TEST_DESCRIPTORS_INITIALIZATION_TLR();
     TEST_HICMA_DESCRIPTORS_VALUES_TLR();
-    TEST_INITIALIZATION_TLR();
 }

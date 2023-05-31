@@ -68,6 +68,7 @@ pipeline {
                             export PKG_CONFIG_PATH=$PWD/installdir/_deps/GSL/lib/pkgconfig:$PWD/installdir/_deps/HWLOC/lib/pkgconfig:$PWD/installdir/_deps/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH
 
                             set -x
+                            ls
                             ./config.sh -t -e -C
                             ./clean_build.sh
                         '''

@@ -40,7 +40,7 @@ void INIT_FINALIZE_HARDWARE_DST() {
 
     // Test using operations without initialise Hardware.
     REQUIRE_THROWS_WITH(chameleonImpl.InitiateDescriptors(),
-                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
 
 }
 

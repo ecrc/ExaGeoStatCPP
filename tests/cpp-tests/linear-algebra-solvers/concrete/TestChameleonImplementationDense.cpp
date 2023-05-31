@@ -39,7 +39,7 @@ void INIT_FINALIZE_HARDWARE() {
 
     // Test using operations without initialise Hardware.
     REQUIRE_THROWS_WITH(chameleonImpl.InitiateDescriptors(),
-                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
 }
 
 // Test that the function initializes all the required descriptors without errors.

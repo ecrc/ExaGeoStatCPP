@@ -32,6 +32,12 @@ namespace exageostat {
 
                 /**
                  * @brief
+                 * Default constructor.
+                 */
+                explicit ChameleonImplementationDense() = default;
+
+                /**
+                 * @brief
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  */
                 virtual ~ChameleonImplementationDense() = default;
@@ -86,12 +92,6 @@ namespace exageostat {
                  * Finalizes the context needed for the Chameleon solver.
                  */
                 void ExaGeoStatFinalizeContext() override;
-
-                /**
-                 * @brief
-                 * Default constructor.
-                 */
-                explicit ChameleonImplementationDense() = default;
 
                 void EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double* apDoubleVector, RUNTIME_sequence_t *apSequence, RUNTIME_request_t *apRequest);
 

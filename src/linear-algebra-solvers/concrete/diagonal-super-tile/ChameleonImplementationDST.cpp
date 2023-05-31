@@ -30,7 +30,7 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
 
     // Check for Initialise the Chameleon context.
     if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
@@ -111,7 +111,7 @@ template<typename T>
 void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
 
     if (!this->apContext) {
-        cout << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);'" << endl;
+        cout << "No initialised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'" << endl;
     } else{
         CHAMELEON_Finalize();
         this->apContext = nullptr;
@@ -174,7 +174,7 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
                                                                  Kernel *apKernel) {
     // Check for Initialise the Chameleon context.
     if(!this->apContext){
-        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations)'.");
+        throw std::runtime_error("ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
 }
 
