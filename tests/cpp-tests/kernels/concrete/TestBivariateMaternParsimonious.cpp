@@ -13,6 +13,7 @@
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
@@ -21,9 +22,6 @@ using namespace exageostat::generators;
 using namespace std;
 
 void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
-
-    // Create a unique pointer to a DataGenerator object
-    std::unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new synthetic_data_configurations object with the provided command line arguments
     SyntheticDataConfigurations synthetic_data_configurations;
@@ -42,6 +40,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
     synthetic_data_configurations.SetIsSynthetic(true);
     synthetic_data_configurations.SetPrecision(DOUBLE);
 
+    // Create a unique pointer to a DataGenerator object
+    std::unique_ptr<DataGenerator<double>> synthetic_generator;
+
     vector<double> lb{0.1, 0.1, 0.1, 0.01};
     synthetic_data_configurations.SetLowerBounds(lb);
 
@@ -51,34 +52,30 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
     vector<double> initial_theta{1, 0.1, 0.5, 0.1};
     synthetic_data_configurations.SetInitialTheta(initial_theta);
 
+    // Initialise ExaGeoStat Hardware.
+    exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
 
-    // Initialize the locations of the generated data
+    // Initialize the seed manually with zero, to get the first generated seeded numbers.
+    srand(0);
+    // Generated locations data
     synthetic_generator->GenerateLocations();
-
-    // Set the locations with these values.
-    vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
-    vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
-
-    for (auto i = 0; i < x.size(); i++) {
-        synthetic_generator->GetLocations()->GetLocationX()[i] = x[i];
-        synthetic_generator->GetLocations()->GetLocationY()[i] = y[i];
-    }
-
     synthetic_generator->GenerateDescriptors();
 
     auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
-
     exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
     auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
             synthetic_data_configurations.GetComputation());
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    linearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
-                                                 synthetic_data_configurations.GetInitialTheta(), 0,
+    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
+                                                 synthetic_data_configurations.GetInitialTheta().data(), 0,
                                                  synthetic_generator->GetKernel());
+
     auto *A = linearAlgebraSolver->GetMatrix();
+
     // Define the expected output
     double expected_output_data[] = {1, 0, 0, 0, 0.100000, 0, 0, 0, 0};
 
@@ -88,6 +85,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
         double diff = A[i] - expected_output_data[i];
         REQUIRE(diff == Approx(0.0).margin(1e-6));
     }
+
+    // Finalize ExaGeoStat Hardware.
+    exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
 }
 
 TEST_CASE("Bivariate Matern Parsimonious kernel test") {

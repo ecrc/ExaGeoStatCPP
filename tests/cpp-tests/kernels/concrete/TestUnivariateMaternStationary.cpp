@@ -24,7 +24,6 @@ using namespace std;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
-
     // Create a new synthetic_data_configurations object with the provided command line arguments
     SyntheticDataConfigurations synthetic_data_configurations;
 

@@ -13,6 +13,7 @@
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
@@ -21,9 +22,6 @@ using namespace exageostat::generators;
 using namespace std;
 
 void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
-
-    // Create a unique pointer to a DataGenerator object
-    std::unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new synthetic_data_configurations object with the provided command line arguments
     SyntheticDataConfigurations synthetic_data_configurations;
@@ -43,6 +41,9 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
     synthetic_data_configurations.SetPrecision(DOUBLE);
     synthetic_data_configurations.SetTimeSlot(5);
 
+    // Create a unique pointer to a DataGenerator object
+    std::unique_ptr<DataGenerator<double>> synthetic_generator;
+
     vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0};
     synthetic_data_configurations.SetLowerBounds(lb);
 
@@ -55,35 +56,46 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
     vector<double> target_theta{-1, -1, -1, -1, -1, -1, 0};
     synthetic_data_configurations.SetTargetTheta(target_theta);
 
+    // Initialise ExaGeoStat Hardware.
+    exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
 
-    // Initialize the locations of the generated data
+    // Initialize the seed manually with zero, to get the first generated seeded numbers.
+    srand(0);
+    // Generated locations data
     synthetic_generator->GenerateLocations();
     synthetic_generator->GenerateDescriptors();
 
     auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
-
     exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
     auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
             synthetic_data_configurations.GetComputation());
     linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    linearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
-                                                 synthetic_data_configurations.GetInitialTheta(), 0,
+    linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
+                                                 synthetic_data_configurations.GetInitialTheta().data(), 0,
                                                  synthetic_generator->GetKernel());
+
     auto *A = linearAlgebraSolver->GetMatrix();
-    // Define the expected output, Note: This is not the result of the first run, We tested on first run and it was correct.
-    // Since seed changes on every run.
-    double expected_output_data[] = {1, 0.162844, 0.178497, 0.247045, 0.162004, 0.162844, 1, 0.0918897, 0.190681,
-                                     0.234577, 0.178497, 0.0918897, 1, 0.167715, 0.113251, 0.247045, 0.190681, 0.167715,
-                                     1, 0.250201, 0.162004, 0.234577, 0.113251, 0.250201};
+
+    // Define the expected output.
+    double expected_output_data[] = {1.000000, 0.216541, 0.171440, 0.164316, 0.152318,
+                                     0.216541,1.000000, 0.115157, 0.163143,0.209362,
+                                     0.171440,0.115157,1.000000, 0.179330, 0.121224,
+                                     0.164316, 0.163143,0.179330,1.000000,0.244122,
+                                     0.152318, 0.209362, 0.121224, 0.244122, 1.000000};
     size_t m = 4;
     size_t n = 6;
     for (size_t i = 0; i < m * n; i++) {
         double diff = A[i] - expected_output_data[i];
         REQUIRE(diff == Approx(0.0).margin(1e-6));
     }
+
+    // Finalize ExaGeoStat Hardware.
+    exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+
 }
 
 TEST_CASE("UnivariateSpacetimeMaternStationary kernel test") {
