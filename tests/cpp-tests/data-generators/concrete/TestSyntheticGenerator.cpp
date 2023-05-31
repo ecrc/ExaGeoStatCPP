@@ -285,6 +285,12 @@ void TEST_GENERATION() {
         int N = 9;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+        synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+        synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+#endif
         SyntheticGenerator syntheticGenerator = SyntheticGenerator<double>(&synthetic_data_configurations);
 
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
