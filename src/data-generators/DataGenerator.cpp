@@ -15,13 +15,14 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 
-std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfigurations *apConfigurations) {
+template<typename T>
+std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(SyntheticDataConfigurations *apConfigurations) {
     // Check the used Data generation method, whether it's synthetic or real.
     bool is_synthetic = apConfigurations->GetIsSynthetic();
 
     // Return DataGenerator unique pointer of Synthetic type
     if (is_synthetic) {
-        return std::make_unique<SyntheticGenerator>(apConfigurations);
+        return std::make_unique<SyntheticGenerator<T>>(apConfigurations);
     }
     else{
         // Open saved files
@@ -29,10 +30,12 @@ std::unique_ptr<DataGenerator> DataGenerator::CreateGenerator(SyntheticDataConfi
     }
 }
 
-Locations* DataGenerator::GetLocations() {
+template<typename T>
+Locations* DataGenerator<T>::GetLocations() {
     return this->mpLocations;
 }
 
-exageostat::kernels::Kernel *DataGenerator::GetKernel() {
+template<typename T>
+exageostat::kernels::Kernel *DataGenerator<T>::GetKernel() {
     return this->mpKernel;
 }

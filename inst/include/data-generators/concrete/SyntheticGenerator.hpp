@@ -20,7 +20,9 @@ namespace exageostat {
              * @class SyntheticGenerator
              * @brief A class for generating synthetic data.
              */
-            class SyntheticGenerator : public DataGenerator {
+            template<typename T>
+            class SyntheticGenerator : public DataGenerator<T> {
+
             public:
 
                 /**
@@ -39,7 +41,7 @@ namespace exageostat {
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  *
                  */
-                virtual ~SyntheticGenerator() = default;
+                ~SyntheticGenerator() override = default;
 
                 static std::vector<double> InitTheta(std::vector<double> apTheta, int size);
                 /**
@@ -139,6 +141,11 @@ namespace exageostat {
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
 
             };
+
+            /**
+             * @brief Instantiates the LinearAlgebraMethods class for float and double types.
+             */
+            EXAGEOSTAT_INSTANTIATE_CLASS(SyntheticGenerator)
         }//namespace Synthetic
     }//namespace generators
 }//namespace exageostat

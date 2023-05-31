@@ -18,7 +18,9 @@ using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 
-SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
+template<typename T>
+SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
+
     // Set configuration map and init locations.
     this->mpConfigurations = apConfigurations;
     this->mpLocations = new Locations();
@@ -49,28 +51,22 @@ SyntheticGenerator::SyntheticGenerator(SyntheticDataConfigurations *apConfigurat
             this->mpConfigurations->GetStartingTheta()[i] = this->mpConfigurations->GetTargetTheta()[i];
         }
     }
-}
 
-void SyntheticGenerator::GenerateDescriptors() {
-
-    // Create and initialize linear algebra solvers for different precision types.
-    if (this->mpConfigurations->GetPrecision() == SINGLE) {
-        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                this->mpConfigurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
-        linearAlgebraSolver->InitiateDescriptors();
-    } else if (this->mpConfigurations->GetPrecision() == DOUBLE) {
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                this->mpConfigurations->GetComputation());
-        linearAlgebraSolver->SetConfigurations(this->mpConfigurations);
-        linearAlgebraSolver->InitiateDescriptors();
-    } else if (this->mpConfigurations->GetPrecision() == MIXED) {
-        // TODO: Add implementation for mixed-precision linear algebra solver.
-    }
+    // Set linear Algebra solver
+    this->mpLinearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
+            this->mpConfigurations->GetComputation());
+    this->mpLinearAlgebraSolver->SetConfigurations(this->mpConfigurations);
 
 }
 
-void SyntheticGenerator::GenerateLocations() {
+template<typename T>
+void SyntheticGenerator<T>::GenerateDescriptors() {
+
+    this->mpLinearAlgebraSolver->InitiateDescriptors();
+}
+
+template<typename T>
+void SyntheticGenerator<T>::GenerateLocations() {
 
     int p;
     if (this->mpKernel) {
@@ -139,15 +135,16 @@ void SyntheticGenerator::GenerateLocations() {
     }
 }
 
-double SyntheticGenerator::UniformDistribution(double aRangeLow, double aRangeHigh) {
+template<typename T>
+double SyntheticGenerator<T>::UniformDistribution(double aRangeLow, double aRangeHigh) {
 
     double myRand = (double) rand() / (double) (1.0 + RAND_MAX);
     double range = aRangeHigh - aRangeLow;
     return (myRand * range) + aRangeLow;
 }
 
-
-void SyntheticGenerator::SortLocations(int aN) {
+template<typename T>
+void SyntheticGenerator<T>::SortLocations(int aN) {
 
     // Some sorting, required by spatial statistics code
     uint16_t x, y, z;
@@ -181,7 +178,8 @@ void SyntheticGenerator::SortLocations(int aN) {
     }
 }
 
-uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte) {
+template<typename T>
+uint64_t SyntheticGenerator<T>::SpreadBits(uint64_t aInputByte) {
     aInputByte &= 0x000000000000ffff;
     // aInputByte = ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- fedc ba98 7654 3210
     aInputByte = (aInputByte ^ (aInputByte << 24)) & 0x000000ff000000ff;
@@ -195,7 +193,8 @@ uint64_t SyntheticGenerator::SpreadBits(uint64_t aInputByte) {
     return aInputByte;
 }
 
-uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte) {
+template<typename T>
+uint64_t SyntheticGenerator<T>::ReverseSpreadBits(uint64_t aInputByte) {
 
     aInputByte &= 0x1111111111111111;
     // aInputByte = ---f ---e ---d ---c ---b ---a ---9 ---8 ---7 ---6 ---5 ---4 ---3 ---2 ---1 ---0
@@ -211,44 +210,25 @@ uint64_t SyntheticGenerator::ReverseSpreadBits(uint64_t aInputByte) {
 
 }
 
-bool SyntheticGenerator::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
+template<typename T>
+bool SyntheticGenerator<T>::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
     return aFirstValue < aSecondValue;
 }
 
-void SyntheticGenerator::GenerateObservations() {
+template<typename T>
+void SyntheticGenerator<T>::GenerateObservations() {
 
-    const auto &configurations = this->mpConfigurations;
     auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
     const auto &l1 = this->GetLocations();
-    int N = this->mpConfigurations->GetProblemSize();
 
-    //// TODO: Get the linear algebra solver one time!
-    switch (configurations->GetPrecision()) {
-        case SINGLE: {
-            auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                    configurations->GetComputation());
-            linearAlgebraSolver->SetConfigurations(configurations);
-            linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                         this->mpConfigurations->GetInitialTheta().data(), 0, this->mpKernel);
-            break;
-        }
-        case DOUBLE: {
-            auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                    configurations->GetComputation());
-            linearAlgebraSolver->SetConfigurations(configurations);
-            linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                         this->mpConfigurations->GetInitialTheta().data(), 0, this->mpKernel);
-            break;
-        }
-        case MIXED: {
-            /// TODO: Add implementation for mixed-precision linear algebra solver.
-            break;
-        }
-    }
+    this->mpLinearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
+                                                            this->mpConfigurations->GetInitialTheta(), 0,
+                                                            this->mpKernel);
 
 }
 
-std::vector<double> SyntheticGenerator::InitTheta(std::vector<double> apTheta, int size) {
+template<typename T>
+std::vector<double> SyntheticGenerator<T>::InitTheta(std::vector<double> apTheta, int size) {
 
     // If null, this mean user have not passed the values arguments, Make values equal -1
     if (apTheta.empty()) {

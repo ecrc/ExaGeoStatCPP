@@ -176,7 +176,7 @@ namespace exageostat {
                 /// The kernel to use.
                 std::string mKernel;
                 /// The type of data to use.
-                bool mIsSynthetic = false;
+                bool mIsSynthetic = true;
                 /// The lower bounds to use.
                 std::vector<double> mLowerBounds;
                 /// The upper bounds to use.

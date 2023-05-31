@@ -46,7 +46,7 @@ namespace exageostat {
              *
              * @return A unique pointer to the created linear algebra solver.
              */
-            static std::unique_ptr<LinearAlgebraMethods<T>>
+            static LinearAlgebraMethods<T> *
             CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 

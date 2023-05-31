@@ -32,12 +32,13 @@ using namespace std;
  */
 
 int main(int argc, char **argv) {
-    // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator> synthetic_generator;
 
     // Create a new synthetic_data_configurations object with the provided command line arguments
     SyntheticDataConfigurations synthetic_data_configurations;
     synthetic_data_configurations.InitializeArguments(argc, argv);
+
+    // Create a unique pointer to a DataGenerator object
+    unique_ptr<DataGenerator<double>> synthetic_generator;
 
     // Create the DataGenerator object
     synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);

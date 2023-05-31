@@ -22,8 +22,11 @@ namespace exageostat {
         /**
          * @class DataGenerator
          * @brief Abstract base class for generating synthetic or real data.
+         * @tparam T The data type of the data generator.
          */
+        template<typename T>
         class DataGenerator {
+
         public:
 
             /**
@@ -104,8 +107,15 @@ namespace exageostat {
             /// Used Locations
             dataunits::Locations * mpLocations{}; // Pointer to Locations object
             /// Used Kernel
-            exageostat::kernels::Kernel * mpKernel;
+            exageostat::kernels::Kernel * mpKernel = nullptr;
+            /// Used linear Algebra solver
+            linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver = nullptr;
         };
+
+        /**
+         * @brief Instantiates the LinearAlgebraMethods class for float and double types.
+         */
+        EXAGEOSTAT_INSTANTIATE_CLASS(DataGenerator)
     }//namespace generators
 }//namespace exageostat
 
