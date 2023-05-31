@@ -44,6 +44,7 @@ namespace exageostat {
                 ~SyntheticGenerator() override = default;
 
                 static std::vector<double> InitTheta(std::vector<double> apTheta, int size);
+
                 /**
                  * @brief
                  * Generates the data locations.

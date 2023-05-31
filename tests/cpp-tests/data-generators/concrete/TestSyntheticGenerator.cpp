@@ -273,31 +273,47 @@ void TEST_HELPERS_FUNCTIONS() {
         REQUIRE(syntheticGenerator.CompareUint64(num1, num1) == false);
         REQUIRE(syntheticGenerator.CompareUint64(num1, num1 + num1) == true);
         REQUIRE(syntheticGenerator.CompareUint64(num1 + num1, num1) == false);
-
     }
 }
 
 void TEST_GENERATION() {
 
-    SyntheticDataConfigurations synthetic_data_configurations;
-    synthetic_data_configurations.SetDimension(Dimension2D);
-    synthetic_data_configurations.SetProblemSize(2);
-    synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator<double>(&synthetic_data_configurations);
-    syntheticGenerator.GenerateLocations();
+    SECTION("test Generated location") {
 
-    // These values are not for the first run, Values changes depending on the seed.
-    if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[0] - 0.106645) >= 1e-6) {
-        REQUIRE(false);
-    }
-    if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[0] - 0.29279) >= 1e-6) {
-        REQUIRE(false);
-    }
-    if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[1] - 0.0565194) >= 1e-6) {
-        REQUIRE(false);
-    }
-    if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[1] - 0.64715) >= 1e-6) {
-        REQUIRE(false);
+        SyntheticDataConfigurations synthetic_data_configurations;
+        synthetic_data_configurations.SetDimension(Dimension2D);
+        int N = 9;
+        synthetic_data_configurations.SetProblemSize(N);
+        synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+        SyntheticGenerator syntheticGenerator = SyntheticGenerator<double>(&synthetic_data_configurations);
+
+        // Initialize the seed manually with zero, to get the first generated seeded numbers.
+        srand(0);
+        syntheticGenerator.GenerateLocations();
+
+        // The expected output of the locations.
+        vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
+        vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
+
+        for (int i = 0; i < N; i++) {
+            REQUIRE((syntheticGenerator.GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((syntheticGenerator.GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+        }
+
+        // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
+        syntheticGenerator.GenerateLocations();
+        for (int i = 0; i < N; i++) {
+            REQUIRE((syntheticGenerator.GetLocations()->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((syntheticGenerator.GetLocations()->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
+        }
+
+        // Now if we modified seed again, we will get the first generated locations again.
+        srand(0);
+        syntheticGenerator.GenerateLocations();
+        for (int i = 0; i < N; i++) {
+            REQUIRE((syntheticGenerator.GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((syntheticGenerator.GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+        }
     }
 }
 
@@ -305,4 +321,5 @@ TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();
+    TEST_GENERATION();
 }

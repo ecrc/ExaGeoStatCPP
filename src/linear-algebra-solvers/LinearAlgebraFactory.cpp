@@ -28,7 +28,9 @@ LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Comp
     // Chameleon Used
     if (aComputation == EXACT_DENSE) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
+
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
+
         return new dense::ChameleonImplementationDense<T>();
 #else
         throw std::runtime_error("Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
@@ -40,10 +42,10 @@ LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Comp
 #ifdef EXAGEOSTAT_USE_HiCMA
         return new tileLowRank::HicmaImplementation<T>();
 #else
-        throw std::runtime_error("Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HiCMA=ON");
+        throw std::runtime_error(
+                "Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HiCMA=ON");
 #endif
-    }
-    else if (aComputation == DIAGONAL_APPROX) {
+    } else if (aComputation == DIAGONAL_APPROX) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         return new diagonalSuperTile::ChameleonImplementationDST<T>();
 #else

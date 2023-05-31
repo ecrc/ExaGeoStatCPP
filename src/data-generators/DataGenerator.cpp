@@ -23,15 +23,14 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(SyntheticDat
     // Return DataGenerator unique pointer of Synthetic type
     if (is_synthetic) {
         return std::make_unique<SyntheticGenerator<T>>(apConfigurations);
-    }
-    else{
+    } else {
         // Open saved files
         throw std::domain_error("Unsupported for now, Please add --SyntheticData");
     }
 }
 
 template<typename T>
-Locations* DataGenerator<T>::GetLocations() {
+Locations *DataGenerator<T>::GetLocations() {
     return this->mpLocations;
 }
 
