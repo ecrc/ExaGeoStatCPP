@@ -128,25 +128,22 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
 template<typename T>
 void ChameleonImplementationDense<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
 
-    CHAM_context_t *chameleonContext;
-    chameleonContext = chameleon_context_self();
-    if (chameleonContext != nullptr) {
-        printf("Another instance of Chameleon is already running...!");
-    } else {
+    if (!this->apContext) {
         CHAMELEON_user_tag_size(31, 26);
         CHAMELEON_Init(apCoresNumber, apGPUs)
+        this->apContext = chameleon_context_self();
     }
 }
 
 template<typename T>
 void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
 
-    CHAM_context_t *chameleonContext;
-    chameleonContext = chameleon_context_self();
-    if (chameleonContext == nullptr) {
-        printf("No active instance oh Chameleon...please use ExaGeoStatInitContext() function to initiate a new instance!\n");
-    } else
+    if (!this->apContext) {
+        cout << "No intalised context of Chameleon, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);'" << endl;
+    } else{
         CHAMELEON_Finalize();
+        this->apContext = nullptr;
+    }
 }
 
 #define starpu_mpi_codelet(_codelet_) _codelet_
@@ -350,4 +347,8 @@ ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *a
         memcpy(((double *) RUNTIME_data_getaddr((A), m, 0)), &apRequest[m0], m * sizeof(double));
     }
     RUNTIME_options_ws_free(&options);
+}
+
+namespace exageostat::linearAlgebra::dense{
+    template<typename T> void * ChameleonImplementationDense<T>::apContext = nullptr;
 }

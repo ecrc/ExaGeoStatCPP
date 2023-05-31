@@ -35,7 +35,7 @@ std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAl
 #endif
     }
 
-        // HiCMA Used
+    // HiCMA Used
     else if (aComputation == TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HiCMA
         return std::make_unique<tileLowRank::HicmaImplementation<T>>();

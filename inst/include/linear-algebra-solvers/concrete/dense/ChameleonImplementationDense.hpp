@@ -36,11 +36,34 @@ namespace exageostat {
                  */
                 void InitiateDescriptors() override;
 
+                /**
+                 * @brief Computes the covariance matrix.
+                 *
+                 * @param[in] descA Pointer to the descriptor for the covariance matrix.
+                 * @param[in] uplo Specifies whether the upper or lower triangular part of the covariance matrix is stored.
+                 * @param[in] apLocation1 Pointer to the first set of locations.
+                 * @param[in] apLocation2 Pointer to the second set of locations.
+                 * @param[in] apLocation3 Pointer to the third set of locations.
+                 * @param[in] aLocalTheta Pointer to the local theta values.
+                 * @param[in] aDistanceMetric Specifies the distance metric to use.
+                 * @param[in] apKernel Pointer to the kernel function to use.
+                 */
                 void
                 CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
                                         dataunits::Locations *apLocation3, double* aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
 
+                /**
+                 * @brief Generates the observations vector.
+                 *
+                 * @param[in] descA Pointer to the descriptor for the observations vector.
+                 * @param[in] apLocation1 Pointer to the first set of locations.
+                 * @param[in] apLocation2 Pointer to the second set of locations.
+                 * @param[in] apLocation3 Pointer to the third set of locations.
+                 * @param[in] aLocalTheta Pointer to the local theta values.
+                 * @param[in] aDistanceMetric Specifies the distance metric to use.
+                 * @param[in] apKernel Pointer to the kernel function to use.
+                 */
                 void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
                                                      dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) override;
                 /**
@@ -71,12 +94,16 @@ namespace exageostat {
                 virtual ~ChameleonImplementationDense() = default;
 
                 void EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double* apDoubleVector, RUNTIME_sequence_t *apSequence, RUNTIME_request_t *apRequest);
+
+            private:
+                //// Used context
+                static void *apContext;
             };
 
-
-
+            /**
+             * @brief Instantiates the LinearAlgebraMethods class for float and double types.
+             */
             EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementationDense)
-
         }//namespace dense
     }//namespace linearAlgebra
 }//namespace exageostat

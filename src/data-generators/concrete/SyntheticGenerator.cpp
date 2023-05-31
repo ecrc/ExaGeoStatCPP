@@ -222,6 +222,7 @@ void SyntheticGenerator::GenerateObservations() {
     const auto &l1 = this->GetLocations();
     int N = this->mpConfigurations->GetProblemSize();
 
+    //// TODO: Get the linear algebra solver one time!
     switch (configurations->GetPrecision()) {
         case SINGLE: {
             auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(

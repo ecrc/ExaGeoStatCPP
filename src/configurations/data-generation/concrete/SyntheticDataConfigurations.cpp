@@ -21,7 +21,7 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 using namespace std;
 
-
+//// TODO: Change arguments name
 void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     // Get the example name
     string example_name = argv[0];

@@ -9,5 +9,8 @@
 # @author Sameh Abdulah
 # @date 2023-01-31
 
-#add_executable(Example_Synthetic_Data_Generation ${CMAKE_CURRENT_SOURCE_DIR}/data-generation/synthetic_data.cpp)
-#target_link_libraries(Example_Synthetic_Data_Generation EXAGEOSTAT-LIB)
+# Define the target executable
+add_executable(Example_Data_Generation ${CMAKE_CURRENT_SOURCE_DIR}/DataGeneration.cpp)
+
+# Link the target executable with the project and any additional libraries
+target_link_libraries(Example_Data_Generation PRIVATE ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)

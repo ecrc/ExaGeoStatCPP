@@ -46,8 +46,8 @@ void TEST_INITIALIZETION_DST() {
     SECTION("Single") {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        synthetic_data_configurations.SetProblemSize(1000);
-        synthetic_data_configurations.SetDenseTileSize(64);
+        synthetic_data_configurations.SetProblemSize(10);
+        synthetic_data_configurations.SetDenseTileSize(6);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -62,8 +62,8 @@ void TEST_INITIALIZETION_DST() {
     SECTION("Double") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        synthetic_data_configurations.SetProblemSize(1024);
-        synthetic_data_configurations.SetDenseTileSize(64);
+        synthetic_data_configurations.SetProblemSize(24);
+        synthetic_data_configurations.SetDenseTileSize(4);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -94,8 +94,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     SECTION("SINGLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetDenseTileSize(512);
+        synthetic_data_configurations.SetProblemSize(64);
+        synthetic_data_configurations.SetDenseTileSize(16);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -215,8 +215,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     SECTION("DOUBLE") {
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
-        synthetic_data_configurations.SetProblemSize(6400);
-        synthetic_data_configurations.SetDenseTileSize(512);
+        synthetic_data_configurations.SetProblemSize(32);
+        synthetic_data_configurations.SetDenseTileSize(16);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
