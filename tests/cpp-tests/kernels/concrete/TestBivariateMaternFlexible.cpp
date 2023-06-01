@@ -27,7 +27,6 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
     SECTION("BivariateMaternFlexible")
     {
-        cout << "Tracing" << endl;
         // Create a new synthetic_data_configurations object with the provided command line arguments
         SyntheticDataConfigurations synthetic_data_configurations;
 

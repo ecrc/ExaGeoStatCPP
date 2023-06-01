@@ -244,36 +244,14 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
 
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
 
-    // Unregister Handles
-    for (auto & starpu_handle : starpu_handles){
-        starpu_data_unregister(starpu_handle);
-    }
-//    for (n = 0; n < A.nt; n++) {
-//        cout << "Coverince Matrix (9) this->apMatrix : " << this->apMatrix  << endl;
-//        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-//        cout << "Coverince Matrix (10) this->apMatrix : " << this->apMatrix  << endl;
-//        if (uplo == ChamUpperLower) {
-//            cout << "Coverince Matrix (11) this->apMatrix : " << this->apMatrix  << endl;
-//            m = 0;
-//        } else {
-//            cout << "Coverince Matrix (11??) this->apMatrix : " << this->apMatrix  << endl;
-//            m = A.m == A.n ? n : 0;
-//            cout << m << endl;
-//        }
-//        for (; m < A.mt; m++) {
-//            cout << "Coverince Matrix (" << m << ") this->apMatrix : " << this->apMatrix  << endl;
-//            if ((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n) != 0){
-//
-//                starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
-//            }
-//            else{
-//                cout << "3yz 23yat\n";
-//            }
-//        }
+//    // Unregister Handles
+//    for (auto & starpu_handle : starpu_handles){
+//        starpu_data_unregister(starpu_handle);
 //    }
+
+//    RUNTIME_desc_destroy(CHAM_descA);
     RUNTIME_options_ws_free(&options);
     RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
-
 }
 
 
