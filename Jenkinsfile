@@ -41,7 +41,7 @@ pipeline {
                             module load gcc/10.2.0
                             module load cmake/3.21.2
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
@@ -86,7 +86,7 @@ pipeline {
                             ####################################################
                             module load mkl/2020.0.166
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
@@ -128,7 +128,7 @@ pipeline {
                             module load mkl/2020.0.166
                             module load gsl/2.6-gcc-10.2.0
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
