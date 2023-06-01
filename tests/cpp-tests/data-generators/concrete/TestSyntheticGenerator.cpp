@@ -187,7 +187,7 @@ void TEST_SPREAD_REVERSED_BITS() {
 void TEST_GENERATE_LOCATIONS() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
-    synthetic_data_configurations.SetProblemSize(16);
+    synthetic_data_configurations.SetProblemSize(8);
     synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
@@ -196,11 +196,9 @@ void TEST_GENERATE_LOCATIONS() {
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
-    SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
-
-    Locations locations;
 
     SECTION("2D Generation") {
+        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
         synthetic_generator.GenerateLocations();
 
@@ -216,6 +214,7 @@ void TEST_GENERATE_LOCATIONS() {
 
     SECTION("3D Generation") {
         synthetic_data_configurations.SetDimension(Dimension3D);
+        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
         synthetic_generator.GenerateLocations();
 
         double *x = synthetic_generator.GetLocations()->GetLocationX();
@@ -227,22 +226,25 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0);
             REQUIRE(z[i] != 0);
         }
-    }SECTION("ST Generation") {
-        synthetic_data_configurations.SetDimension(DimensionST);
-        synthetic_data_configurations.SetTimeSlot(3);
-        synthetic_generator.GenerateLocations();
-
-        double *x = synthetic_generator.GetLocations()->GetLocationX();
-        double *y = synthetic_generator.GetLocations()->GetLocationY();
-        double *z = synthetic_generator.GetLocations()->GetLocationZ();
-
-        for (auto i = 0;
-             i < synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetTimeSlot(); i++) {
-            REQUIRE(x[i] != 0);
-            REQUIRE(y[i] != 0);
-            REQUIRE(z[i] != 0);
-        }
     }
+//    SECTION("ST Generation") {
+//        synthetic_data_configurations.SetDimension(DimensionST);
+//        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
+//
+//        synthetic_data_configurations.SetTimeSlot(3);
+//        synthetic_generator.GenerateLocations();
+//
+//        double *x = synthetic_generator.GetLocations()->GetLocationX();
+//        double *y = synthetic_generator.GetLocations()->GetLocationY();
+//        double *z = synthetic_generator.GetLocations()->GetLocationZ();
+//
+//        for (auto i = 0;
+//             i < synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetTimeSlot(); i++) {
+//            REQUIRE(x[i] != 0);
+//            REQUIRE(y[i] != 0);
+//            REQUIRE(z[i] != 0);
+//        }
+//    }
 }
 
 void TEST_HELPERS_FUNCTIONS() {

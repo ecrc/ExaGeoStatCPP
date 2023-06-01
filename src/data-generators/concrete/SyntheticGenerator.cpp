@@ -23,7 +23,8 @@ SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigu
 
     // Set configuration map and init locations.
     this->mpConfigurations = apConfigurations;
-    this->mpLocations = new Locations();
+
+    this->mpLocations = new Locations((apConfigurations->GetProblemSize() * apConfigurations->GetTimeSlot()), apConfigurations->GetDimension());
 
     // Set selected Kernel
     std::string kernel_name = this->mpConfigurations->GetKernel();
@@ -80,13 +81,6 @@ void SyntheticGenerator<T>::GenerateLocations() {
     Dimension dimension = this->mpConfigurations->GetDimension();
     int time_slots = this->mpConfigurations->GetTimeSlot();
 
-    //Allocate memory
-    this->mpLocations->SetLocationX((double *) malloc(N * time_slots * sizeof(double)));
-    this->mpLocations->SetLocationY((double *) malloc(N * time_slots * sizeof(double)));
-
-    if (dimension != Dimension2D) {
-        this->mpLocations->SetLocationZ((double *) malloc(N * time_slots * sizeof(double)));
-    }
 
     int rootN;
     if (dimension == Dimension3D) {
@@ -243,4 +237,11 @@ std::vector<double> SyntheticGenerator<T>::InitTheta(std::vector<double> apTheta
         }
     }
     return apTheta;
+}
+
+template<typename T>
+SyntheticGenerator<T>::~SyntheticGenerator() {
+    delete this->mpLinearAlgebraSolver;
+    delete this->mpKernel;
+    delete this->mpLocations;
 }

@@ -123,6 +123,8 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     //stop gsl error handler
     gsl_set_error_handler_off();
+
+    free(Zcpy);
 }
 
 template<typename T>
@@ -301,6 +303,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                   aDistanceMetric, apKernel);
 
     free(theta);
+    free(Nrand);
     //    VERBOSE(" Done.\n");
 
     //Copy Nrand to Z

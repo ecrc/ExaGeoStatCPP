@@ -21,6 +21,7 @@
 #define EXAGEOSTATCPP_LINEARALGEBRAMETHODS_HPP
 
 #include <common/Definitions.hpp>
+#include <kernels/Kernel.hpp>
 #include <configurations/Configurations.hpp>
 #include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
 #include <vector>

@@ -25,6 +25,7 @@ template<typename T> void ExaGeoStat<T>::ExaGeoStatInitializeHardware(Configurat
     linearAlgebraSolver->SetConfigurations(apConfigurations);
 
     linearAlgebraSolver->ExaGeoStatInitContext(apConfigurations->GetCoresNumber(), apConfigurations->GetGPUsNumber());
+    delete linearAlgebraSolver;
 }
 
 template<typename T>
@@ -34,4 +35,5 @@ void ExaGeoStat<T>::ExaGeoStatFinalizeHardware(Configurations *apConfigurations)
     linearAlgebraSolver->SetConfigurations(apConfigurations);
 
     linearAlgebraSolver->ExaGeoStatFinalizeContext();
+    delete linearAlgebraSolver;
 }

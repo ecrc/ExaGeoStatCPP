@@ -14,6 +14,7 @@
 #include <data-units/Locations.hpp>
 
 using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 void Locations::SetLocationX(double *apLocationX) {
     this->mpLocationX = apLocationX;
@@ -37,4 +38,26 @@ void Locations::SetLocationZ(double *apLocationZ) {
 
 double *Locations::GetLocationZ() {
     return this->mpLocationZ;
+}
+
+Locations::Locations(int aSize, Dimension aDimension) {
+
+    this->mpLocationX = (double *) malloc(aSize * sizeof(double));
+    this->mpLocationY = (double *) malloc(aSize * sizeof(double));
+    if (aDimension != common::Dimension2D){
+        this->mpLocationZ = (double *) malloc(aSize * sizeof(double));
+    }
+}
+
+Locations::~Locations() {
+
+    if (this->mpLocationX != nullptr){
+        free(this->mpLocationX);
+    }
+    if (this->mpLocationY != nullptr){
+        free(this->mpLocationY);
+    }
+    if (this->mpLocationZ != nullptr){
+        free(this->mpLocationZ);
+    }
 }

@@ -43,6 +43,8 @@ namespace exageostat {
              */
             UnivariateMaternStationary();
 
+            ~UnivariateMaternStationary() = default;
+
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @param[in] apMatrixA The output covariance matrix.

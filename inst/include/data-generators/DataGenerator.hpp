@@ -105,7 +105,7 @@ namespace exageostat {
             /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
             /// Used Locations
-            dataunits::Locations * mpLocations{}; // Pointer to Locations object
+            dataunits::Locations * mpLocations = nullptr; // Pointer to Locations object
             /// Used Kernel
             exageostat::kernels::Kernel * mpKernel = nullptr;
             /// Used linear Algebra solver

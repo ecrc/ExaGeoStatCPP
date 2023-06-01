@@ -41,7 +41,7 @@ namespace exageostat {
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  *
                  */
-                ~SyntheticGenerator() override = default;
+                ~SyntheticGenerator();
 
                 static std::vector<double> InitTheta(std::vector<double> apTheta, int size);
 

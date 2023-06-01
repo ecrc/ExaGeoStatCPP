@@ -16,6 +16,8 @@
 #ifndef EXAGEOSTAT_CPP_LOCATIONS_HPP
 #define EXAGEOSTAT_CPP_LOCATIONS_HPP
 
+#include <common/Definitions.hpp>
+
 namespace exageostat {
     namespace dataunits {
 
@@ -28,12 +30,12 @@ namespace exageostat {
             /**
              * @brief Default constructor.
              */
-            Locations() = default;
+            Locations(int aSize, exageostat::common::Dimension aDimension);
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              */
-            virtual ~Locations() = default;
+            virtual ~Locations();
 
             /**
              * @brief Setter for LocationX.
@@ -79,11 +81,11 @@ namespace exageostat {
 
         private:
             /// Pointer to X data.
-            double *mpLocationX{};
+            double *mpLocationX = nullptr;
             /// Pointer to Y data.
-            double *mpLocationY{};
+            double *mpLocationY = nullptr;
             /// Pointer to Z data.
-            double *mpLocationZ{};
+            double *mpLocationZ = nullptr;
         };
 
     }//namespace configurations
