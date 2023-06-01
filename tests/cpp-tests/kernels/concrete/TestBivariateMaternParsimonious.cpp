@@ -90,6 +90,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
 
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+        delete linearAlgebraSolver;
     }
 }
 TEST_CASE("Bivariate Matern Parsimonious kernel test") {

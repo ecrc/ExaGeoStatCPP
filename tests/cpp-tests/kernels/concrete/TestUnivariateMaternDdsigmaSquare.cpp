@@ -89,6 +89,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
         }
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+        delete linearAlgebraSolver;
+
     }
 }
 TEST_CASE("UnivariateMaternDdsigmaSquare kernel test") {

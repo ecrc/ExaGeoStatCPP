@@ -91,6 +91,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         }
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+        delete linearAlgebraSolver;
+
     }
 }
 TEST_CASE("UnivariateMaternNonGaussian kernel test") {
