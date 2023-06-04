@@ -71,14 +71,12 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta() {
         auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                synthetic_data_configurations.GetComputation());
-        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-        linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                     synthetic_data_configurations.GetInitialTheta().data(), 0,
-                                                     synthetic_generator->GetKernel());
+        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
+                                                                               nullptr,
+                                                                               synthetic_data_configurations.GetInitialTheta().data(),
+                                                                               0, synthetic_generator->GetKernel());
 
-        auto *A = linearAlgebraSolver->GetMatrix();
+        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
 
         // Define the expected output
         double expected_output_data[] = {0, 0.39671, 0.00803892, 0.0171723,
@@ -95,8 +93,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta() {
 
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
-        delete linearAlgebraSolver;
-
     }
 }
 TEST_CASE("UnivariateMaternDdsigmaSquareBeta kernel test") {

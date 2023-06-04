@@ -74,14 +74,12 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                synthetic_data_configurations.GetComputation());
-        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-        linearAlgebraSolver->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1, nullptr,
-                                                     synthetic_data_configurations.GetInitialTheta().data(), 0,
-                                                     synthetic_generator->GetKernel());
+        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
+                                                                               nullptr,
+                                                                               synthetic_data_configurations.GetInitialTheta().data(),
+                                                                               0, synthetic_generator->GetKernel());
 
-        auto *A = linearAlgebraSolver->GetMatrix();
+        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
 
         // Define the expected output
         double expected_output_data[] = {1.000000, 0.745356, 0.788999,
@@ -97,7 +95,6 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         synthetic_generator->DestoryDescriptors();
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
-        delete linearAlgebraSolver;
     }
 }
 TEST_CASE("BivariateSpacetimeMaternStationary kernel test") {
