@@ -17,6 +17,7 @@ using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+using namespace std;
 
 template<typename T>
 SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
@@ -33,6 +34,7 @@ SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigu
     this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
 
     this->mpConfigurations->SetProblemSize(this->mpConfigurations->GetProblemSize() * this->mpKernel->GetPValue());
+    this->mpConfigurations->SetP( this->mpKernel->GetPValue());
 
     int parameters_number = this->mpKernel->GetParametersNumbers();
     this->mpConfigurations->SetParametersNumber(parameters_number);

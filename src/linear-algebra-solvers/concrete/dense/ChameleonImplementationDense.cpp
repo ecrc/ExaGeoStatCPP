@@ -48,7 +48,7 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     // Get the problem size and other configuration parameters
     int vectorSize;
-    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
+    int N = this->mpConfigurations->GetProblemSize();
     int dts = this->mpConfigurations->GetDenseTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
     int qGrid = this->mpConfigurations->GetQGrid();
@@ -208,7 +208,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     auto *CHAM_descA = (CHAM_desc_t *) descA;
     CHAM_desc_t A = *CHAM_descA;
     struct starpu_codelet *cl = &cl_dcmg;
-    int m, n, m0, n0;
+    int m = 0, n = 0, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -414,7 +414,9 @@ void ChameleonImplementationDense<T>::DestoryDescriptors() {
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 
-    CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+    if(!(RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()){
+        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+    }
 }
 
 

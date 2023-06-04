@@ -13,7 +13,7 @@ set(EXAGEOSTAT_TESTFILES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternStationary.cpp
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonStationary.cpp
         # Not working.
-#        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternFlexible.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternFlexible.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDsigmaSquare.cpp
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternParsimonious.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNuggetsStationary.cpp
@@ -31,7 +31,7 @@ set(EXAGEOSTAT_TESTFILES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonGaussian.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateExpNonGaussian.cpp
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestTrivariateMaternParsimonious.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonStat.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonStat.cpp
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
         )

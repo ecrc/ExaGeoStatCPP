@@ -29,7 +29,7 @@ using namespace std;
 template<typename T>
 void HicmaImplementation<T>::InitiateDescriptors() {
 
-    // Check for Initialise the Chameleon context.
+    // Check for Initialise the Hicma context.
     if (!this->apContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
@@ -44,7 +44,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     HICMA_request_t request[2] = {HICMA_SUCCESS, HICMA_SUCCESS};
     HICMA_Sequence_Create(&pSequence);
 
-    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
+    int N = this->mpConfigurations->GetProblemSize();
     int lts = this->mpConfigurations->GetLowTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
     int qGrid = this->mpConfigurations->GetQGrid();
@@ -297,7 +297,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                                 int aDistanceMetric,
                                                 exageostat::kernels::Kernel *apKernel) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for Initialise the Hicma context.
     if (!this->apContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
@@ -372,7 +372,7 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
                                                         vector<double> aLocalTheta, int aDistanceMetric,
                                                         Kernel *apKernel) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for Initialise the Hicma context.
     if (!this->apContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
@@ -397,11 +397,42 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
     free(theta);
-
+    free(Nrand);
 }
 template<typename T>
 void HicmaImplementation<T>::DestoryDescriptors() {
 
+    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
+    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
+    auto pHicmaDescriptorZcpy = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
+    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
+    auto pHicmaDescriptorDeterminant = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
+
+    for(auto & descC : pDescriptorC){
+        if(!descC){
+            HICMA_Desc_Destroy((HICMA_desc_t **) &descC);
+        }
+    }
+    for(auto & descZ : pDescriptorZ){
+        if(!descZ){
+            HICMA_Desc_Destroy((HICMA_desc_t **) &descZ);
+        }
+    }
+    for(auto & descProduct : pDescriptorProduct){
+        if(!descProduct){
+            HICMA_Desc_Destroy((HICMA_desc_t **) &descProduct);
+        }
+    }
+    if(!pHicmaDescriptorZcpy){
+        HICMA_Desc_Destroy(pHicmaDescriptorZcpy);
+    }
+    if(!pHicmaDescriptorDeterminant){
+        HICMA_Desc_Destroy(pHicmaDescriptorDeterminant);
+    }
+
+    if(!(HICMA_sequence_t *) this->mpConfigurations->GetSequence()){
+        HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
+    }
 }
 namespace exageostat::linearAlgebra::tileLowRank {
     template<typename T> void *HicmaImplementation<T>::apContext = nullptr;

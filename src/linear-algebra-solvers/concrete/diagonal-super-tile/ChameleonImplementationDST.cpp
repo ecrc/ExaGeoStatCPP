@@ -270,6 +270,37 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
 template<typename T>
 void ChameleonImplementationDST<T>::DestoryDescriptors() {
 
+    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
+    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
+    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
+    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
+    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
+
+    for(auto & descC : pDescriptorC){
+        if(!descC){
+            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descC);
+        }
+    }
+    for(auto & descZ : pDescriptorZ){
+        if(!descZ){
+            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descZ);
+        }
+    }
+    for(auto & descProduct : pDescriptorProduct){
+        if(!descProduct){
+            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descProduct);
+        }
+    }
+    if(!pChameleonDescriptorZcpy){
+        CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
+    }
+    if(!pChameleonDescriptorDeterminant){
+        CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
+    }
+
+    if(!(RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()){
+        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+    }
 }
 namespace exageostat::linearAlgebra::diagonalSuperTile {
     template<typename T> void *ChameleonImplementationDST<T>::apContext = nullptr;

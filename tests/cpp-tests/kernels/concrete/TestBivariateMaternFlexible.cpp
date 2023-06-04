@@ -74,6 +74,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
+        //// TODO: Get the linear algebra solver from the synthetic generator.
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
                 synthetic_data_configurations.GetComputation());
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
@@ -84,14 +85,16 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {0.300000, 0.217899, 0.140362, 0.148157, 0.600000, 0.148157, 0.264357, 0.148157,
-                                         0.300000};
+        double expected_output_data[] = {0.300000, 0.217899, 0.140362,
+                                         0.148157, 0.600000, 0.148157,
+                                         0.264357, 0.148157,0.300000};
         int m = 3;
         int n = 3;
         for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
+        synthetic_generator->DestoryDescriptors();
 
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
