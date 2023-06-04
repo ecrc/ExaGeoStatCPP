@@ -45,13 +45,13 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
         // Create a unique pointer to a DataGenerator object
         std::unique_ptr<DataGenerator<double>> synthetic_generator;
 
-        vector<double> lb{0.1, 0.1, 0.1, 0.01};
+        vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
 
-        vector<double> ub{5, 5, 5, 5};
+        vector<double> ub{5, 5, 5, 5, 5, 5};
         synthetic_data_configurations.SetUpperBounds(ub);
 
-        vector<double> initial_theta{1, 0.1, 0.5, 0.1};
+        vector<double> initial_theta{1, 1, 0.1, 0.5, 0.5, 0.1};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
         // Initialise ExaGeoStat Hardware.
@@ -79,7 +79,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {1, 0, 0, 0, 0.100000, 0, 0, 0, 0};
+        double expected_output_data[] = {1.000000, 0.100000, 0.000000,
+                                         0.100000, 1.000000, 0.000000,
+                                         0.000000, 0.000000, 0.000000};
 
         size_t m = 3;
         size_t n = 3;
@@ -87,7 +89,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
-
+        synthetic_generator->DestoryDescriptors();
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
         delete linearAlgebraSolver;

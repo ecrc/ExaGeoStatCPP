@@ -71,17 +71,30 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
             expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[2];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
-                apMatrixA[(i + 1) + j * aRowsNumber] = apMatrixA[i + (j + 1) * aRowsNumber] = rho
-                                                                                              * sqrt(aLocalTheta[0] * aLocalTheta[1]);
-                apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1];
+
+                if(((i + 1) + j * aRowsNumber ) < aRowsNumber * aColumnsNumber){
+                    apMatrixA[(i + 1) + j * aRowsNumber] = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]);
+                }
+                if((i + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
+                    apMatrixA[i + (j + 1) * aRowsNumber] = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]);
+                }
+                if(((i + 1) + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
+                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1];
+                }
+
             } else {
                 apMatrixA[i + j * aRowsNumber] = con1 * pow(expr, aLocalTheta[3])
                                                  * gsl_sf_bessel_Knu(aLocalTheta[3], expr);
-                apMatrixA[(i + 1) + j * aRowsNumber] = apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12)
-                                                                                              * gsl_sf_bessel_Knu(nu12,expr);
 
-                apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = con2 * pow(expr, aLocalTheta[4])
-                                                             * gsl_sf_bessel_Knu(aLocalTheta[4], expr);
+                if(((i + 1) + j * aRowsNumber ) < aRowsNumber * aColumnsNumber){
+                    apMatrixA[(i + 1) + j * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12,expr);
+                }
+                if((i + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
+                    apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12,expr);
+                }
+                if(((i + 1) + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
+                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = con2 * pow(expr, aLocalTheta[4]) * gsl_sf_bessel_Knu(aLocalTheta[4], expr);
+                }
             }
             j0++;
         }

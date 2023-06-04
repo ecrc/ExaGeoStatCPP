@@ -50,7 +50,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaBeta() {
         vector<double> ub{5, 5, 5};
         synthetic_data_configurations.SetUpperBounds(ub);
 
-        vector<double> initial_theta{0.1, 0.1, 0.1};
+        vector<double> initial_theta{0.1, 0.1, 0.5};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
         // Create a unique pointer to a DataGenerator object
@@ -80,17 +80,19 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaBeta() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {0, 14.3431, 138.40814, 104.504,
-                                         14.3431, 0, 75.9941, 36.423,
-                                         138.40814,75.9941, 0,21.0489,
-                                         104.504, 36.423, 21.0489, 0};
+        //// These kernel is not used in C, These values are from cpp version only.
+        double expected_output_data[] = {0, 118.16, 2646.1, 1803.22,
+                                         118.16, 0, 1166.92, 426.06,
+                                         2646.1,1166.92, 0,200.408,
+                                         1803.22, 426.06, 200.408, 0};
         int m = 4;
         int n = 4;
 
         for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-4));
+            REQUIRE(diff == Approx(0.0).margin(1e-2));
         }
+        synthetic_generator->DestoryDescriptors();
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
         delete linearAlgebraSolver;

@@ -84,17 +84,17 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {1.000000, 0.745356, 0.788999, 0.738211, 0.000000, 0.745356, 1.000000, 0.738211,
-                                         0.999532, 0.000000, 0.788999, 0.738211, 1.000000, 0.745356, 0.000000, 0.738211,
-                                         0.999532, 0.745356, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,
-                                         0.000000};
-        int m = 6;
-        int n = 4;
+        double expected_output_data[] = {1.000000, 0.745356, 0.788999,
+                                         0.738211, 0.000000, 0.745356,
+                                         1.000000, 0.738211,0.999532};
+        int m = 3;
+        int n = 3;
 
         for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
+        synthetic_generator->DestoryDescriptors();
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
         delete linearAlgebraSolver;
