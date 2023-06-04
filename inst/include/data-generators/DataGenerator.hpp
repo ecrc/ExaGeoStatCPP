@@ -102,6 +102,8 @@ namespace exageostat {
              */
             virtual ~DataGenerator() = default;
 
+            static linearAlgebra::LinearAlgebraMethods<T> * GetLinearAlgberaSolver();
+
         protected:
             /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
@@ -110,7 +112,7 @@ namespace exageostat {
             /// Used Kernel
             exageostat::kernels::Kernel * mpKernel = nullptr;
             /// Used linear Algebra solver
-            linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver = nullptr;
+            static linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver;
         };
 
         /**

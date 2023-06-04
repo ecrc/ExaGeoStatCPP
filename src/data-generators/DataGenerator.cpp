@@ -38,3 +38,14 @@ template<typename T>
 exageostat::kernels::Kernel *DataGenerator<T>::GetKernel() {
     return this->mpKernel;
 }
+
+template<typename T>
+exageostat::linearAlgebra::LinearAlgebraMethods<T> * DataGenerator<T>::GetLinearAlgberaSolver() {
+    return mpLinearAlgebraSolver;
+}
+
+namespace exageostat{
+    namespace generators{
+        template<typename T> linearAlgebra::LinearAlgebraMethods<T> *DataGenerator<T>::mpLinearAlgebraSolver = nullptr;
+    }
+}
