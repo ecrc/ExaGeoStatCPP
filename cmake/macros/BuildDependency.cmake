@@ -84,7 +84,7 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
     set(ENV{PKG_CONFIG_PATH} "${${name}_installpath}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-    set(${capital_name}_DIR "${${name}_installpath}/lib")
+    set(${capital_name}_DIR "${${name}_installpath}")
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
 
