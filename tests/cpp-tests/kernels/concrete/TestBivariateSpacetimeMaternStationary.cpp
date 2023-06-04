@@ -47,16 +47,16 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         // Create a unique pointer to a DataGenerator object
         std::unique_ptr<DataGenerator<double>> synthetic_generator;
 
-        vector<double> target_theta{-1, -1, -1, -1, -1, -1, -1, -1, -1};
+        vector<double> target_theta{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         synthetic_data_configurations.SetTargetTheta(target_theta);
 
-        vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
+        vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
 
-        vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5, 5};
+        vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
         synthetic_data_configurations.SetUpperBounds(ub);
 
-        vector<double> initial_theta{1, 1, 1, 0.1, 0.5, 1, 1.5, 0.1, 0.1};
+        vector<double> initial_theta{1, 1, 1, 0.1, 0.5, 1, 1.5, 0.1, 0.1, 0.1};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
         // Initialise ExaGeoStat Hardware.
@@ -83,8 +83,9 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
 
         // Define the expected output
         double expected_output_data[] = {1.000000, 0.745356, 0.788999,
-                                         0.738211, 0.000000, 0.745356,
-                                         1.000000, 0.738211,0.999532};
+                                         0.738211, 0.769694, 0.736064,
+                                         1.000000, 0.738211, 0.999532};
+
         int m = 3;
         int n = 3;
 

@@ -40,7 +40,7 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
                                                            double *aLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
+    int j0;
     double expr;
     double con1, con2, con12, rho, nu12;
 
