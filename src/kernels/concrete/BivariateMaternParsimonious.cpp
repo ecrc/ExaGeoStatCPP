@@ -56,7 +56,7 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
     nu12 = 0.5 * (aLocalTheta[3] + aLocalTheta[4]);
 
     rho = aLocalTheta[5] * sqrt((tgamma(aLocalTheta[3] + 1) * tgamma(aLocalTheta[4] + 1)) /
-                                 (tgamma(aLocalTheta[3]) * tgamma(aLocalTheta[4]))) *
+                                (tgamma(aLocalTheta[3]) * tgamma(aLocalTheta[4]))) *
           tgamma(nu12) / tgamma(nu12 + 1);
 
 
@@ -65,9 +65,9 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
     con12 = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]) * con12;
 
     i0 /= 2;
-    for (i = 0; i < aRowsNumber - 1; i += 2) {
+    for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
-        for (j = 0; j < aColumnsNumber - 1; j += 2) {
+        for (j = 0; j < aColumnsNumber; j += 2) {
             expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[2];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
@@ -100,4 +100,5 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
         }
         i0++;
     }
+
 }

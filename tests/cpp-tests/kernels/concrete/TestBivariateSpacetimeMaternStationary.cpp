@@ -53,7 +53,7 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
 
-        vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5};
+        vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5, 5};
         synthetic_data_configurations.SetUpperBounds(ub);
 
         vector<double> initial_theta{1, 1, 1, 0.1, 0.5, 1, 1.5, 0.1, 0.1};

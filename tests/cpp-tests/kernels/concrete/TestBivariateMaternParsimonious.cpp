@@ -45,6 +45,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
         // Create a unique pointer to a DataGenerator object
         std::unique_ptr<DataGenerator<double>> synthetic_generator;
 
+        vector<double> target_theta{-1, -1, -1, -1, -1, -1};
+        synthetic_data_configurations.SetTargetTheta(target_theta);
+
         vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
 
@@ -77,9 +80,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
         auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {1.000000, 0.100000, 0.000000,
-                                         0.100000, 1.000000, 0.000000,
-                                         0.000000, 0.000000, 0.000000};
+        double expected_output_data[] = {1.000000, 0.100000, 0.053542,
+                                         0.005354, 1.000000, 0.005354,
+                                         0.053542, 0.005354, 1.000000};
 
         int m = 3;
         int n = 3;
