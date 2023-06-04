@@ -33,9 +33,9 @@ namespace exageostat::kernels {
 }
 
 void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                                  int aRowOffset, int aColumnOffset, Locations *apLocation1,
-                                                                  Locations *apLocation2, Locations *apLocation3,
-                                                                  double *aLocalTheta, int aDistanceMetric) {
+                                                            int aRowOffset, int aColumnOffset, Locations *apLocation1,
+                                                            Locations *apLocation2, Locations *apLocation3,
+                                                            double *aLocalTheta, int aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -60,15 +60,15 @@ void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, i
     nu23 = 0.5 * (aLocalTheta[5] + aLocalTheta[6]);
 
     rho12 = aLocalTheta[7] * sqrt((tgamma(aLocalTheta[4] + 1) * tgamma(aLocalTheta[5] + 1)) /
-                                   (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[5]))) *
+                                  (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[5]))) *
             tgamma(nu12) / tgamma(nu12 + 1);
 
     rho13 = aLocalTheta[8] * sqrt((tgamma(aLocalTheta[4] + 1) * tgamma(aLocalTheta[6] + 1)) /
-                                   (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[6]))) *
+                                  (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[6]))) *
             tgamma(nu13) / tgamma(nu13 + 1);
 
     rho23 = aLocalTheta[9] * sqrt((tgamma(aLocalTheta[5] + 1) * tgamma(aLocalTheta[6] + 1)) /
-                                   (tgamma(aLocalTheta[5]) * tgamma(aLocalTheta[6]))) *
+                                  (tgamma(aLocalTheta[5]) * tgamma(aLocalTheta[6]))) *
             tgamma(nu23) / tgamma(nu23 + 1);
 
     con12 = pow(2, (nu12 - 1)) * tgamma(nu12);
@@ -84,33 +84,92 @@ void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, i
     con23 = rho23 * sqrt(aLocalTheta[1] * aLocalTheta[2]) * con23;
 
     i0 /= 3;
+    int matrix_size = aRowsNumber * aColumnsNumber;
+    int index = 0;
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
             expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[3];
 
             if (expr == 0) {
+
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
+                index = (i + 1) + j * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 1) + j * aRowsNumber] = rho12 * sqrt(aLocalTheta[0] * aLocalTheta[1]);
+                }
+                index = i + (j + 1) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[i + (j + 1) * aRowsNumber] = rho12 * sqrt(aLocalTheta[0] * aLocalTheta[1]);
+                }
+                index = (i + 2) + j * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 2) + j * aRowsNumber] = rho13 * sqrt(aLocalTheta[0] * aLocalTheta[2]);
+                }
+                index = i + (j + 2) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[i + (j + 2) * aRowsNumber] = rho13 * sqrt(aLocalTheta[0] * aLocalTheta[2]);
+                }
 
-                apMatrixA[(i + 1) + j * aRowsNumber] = apMatrixA[i + (j + 1) * aRowsNumber] = rho12 * sqrt(aLocalTheta[0] * aLocalTheta[1]);
-                apMatrixA[(i + 2) + j * aRowsNumber] = apMatrixA[i + (j + 2) * aRowsNumber] = rho13 * sqrt(aLocalTheta[0] * aLocalTheta[2]);
+                index = (i + 1) + (j + 1) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1];
+                }
 
-                apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1];
-
-                apMatrixA[(i + 1) + (j + 2) * aRowsNumber] = apMatrixA[(i + 2) + (j + 1) * aRowsNumber] = rho23 * sqrt(aLocalTheta[1] * aLocalTheta[2]);
-
-                apMatrixA[(i + 2) + (j + 2) * aRowsNumber] = aLocalTheta[2];
+                index = (i + 1) + (j + 2) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 1) + (j + 2) * aRowsNumber] = rho23 * sqrt(aLocalTheta[1] * aLocalTheta[2]);
+                }
+                index = (i + 2) + (j + 1) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 2) + (j + 1) * aRowsNumber] = rho23 * sqrt(aLocalTheta[1] * aLocalTheta[2]);
+                }
+                index = (i + 2) + (j + 2) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 2) + (j + 2) * aRowsNumber] = aLocalTheta[2];
+                }
             } else {
-                apMatrixA[i + j * aRowsNumber] = con1 * pow(expr, aLocalTheta[4]) * gsl_sf_bessel_Knu(aLocalTheta[4], expr);
+                apMatrixA[i + j * aRowsNumber] =
+                        con1 * pow(expr, aLocalTheta[4]) * gsl_sf_bessel_Knu(aLocalTheta[4], expr);
 
-                apMatrixA[(i + 1) + j * aRowsNumber] = apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
-                apMatrixA[(i + 2) + j * aRowsNumber] = apMatrixA[i + (j + 2) * aRowsNumber] = con13 * pow(expr, nu13) * gsl_sf_bessel_Knu(nu13, expr);
+                index = (i + 1) + j * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 1) + j * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
+                }
+                index = i + (j + 1) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[i + (j + 1) * aRowsNumber] =
+                            con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
+                }
+                index = (i + 2) + j * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 2) + j * aRowsNumber] = con13 * pow(expr, nu13) * gsl_sf_bessel_Knu(nu13, expr);
+                }
+                index = i + (j + 2) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[i + (j + 2) * aRowsNumber] = con13 * pow(expr, nu13) * gsl_sf_bessel_Knu(nu13, expr);
+                }
+                index = (i + 1) + (j + 1) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] =
+                            con2 * pow(expr, aLocalTheta[5]) * gsl_sf_bessel_Knu(aLocalTheta[5], expr);
+                }
 
-                apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = con2 * pow(expr, aLocalTheta[5]) * gsl_sf_bessel_Knu(aLocalTheta[5], expr);
-
-                apMatrixA[(i + 1) + (j + 2) * aRowsNumber] = apMatrixA[(i + 2) + (j + 1) * aRowsNumber] = con23 * pow(expr, nu23) * gsl_sf_bessel_Knu(nu23, expr);
-
-                apMatrixA[(i + 2) + (j + 2) * aRowsNumber] = con3 * pow(expr, aLocalTheta[6]) * gsl_sf_bessel_Knu(aLocalTheta[6], expr);
+                index = (i + 1) + (j + 2) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 1) + (j + 2) * aRowsNumber] =
+                            con23 * pow(expr, nu23) * gsl_sf_bessel_Knu(nu23, expr);
+                }
+                index = (i + 2) + (j + 1) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 2) + (j + 1) * aRowsNumber] =
+                            con23 * pow(expr, nu23) * gsl_sf_bessel_Knu(nu23, expr);
+                }
+                index = (i + 2) + (j + 2) * aRowsNumber;
+                if (index < matrix_size) {
+                    apMatrixA[(i + 2) + (j + 2) * aRowsNumber] =
+                            con3 * pow(expr, aLocalTheta[6]) * gsl_sf_bessel_Knu(aLocalTheta[6], expr);
+                }
             }
             j0++;
         }

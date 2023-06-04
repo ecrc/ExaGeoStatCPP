@@ -83,9 +83,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
                                          0.100000, 1.000000, 0.000000,
                                          0.000000, 0.000000, 0.000000};
 
-        size_t m = 3;
-        size_t n = 3;
-        for (size_t i = 0; i < m * n; i++) {
+        int m = 3;
+        int n = 3;
+        for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }

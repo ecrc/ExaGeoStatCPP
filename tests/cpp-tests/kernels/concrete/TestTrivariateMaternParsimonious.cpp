@@ -87,7 +87,7 @@ void TEST_KERNEL_GENERATION_TrivariateMaternParsimonious() {
         size_t n = 1;
         for (size_t i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
-//            REQUIRE(diff == Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
         synthetic_generator->DestoryDescriptors();
         // Finalize ExaGeoStat Hardware.
