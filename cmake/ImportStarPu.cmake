@@ -14,7 +14,7 @@ message("")
 message("---------------------------------------- StarPU")
 message(STATUS "Checking for StarPU")
 
-include(macros/BuildSTARPU)
+include(macros/BuildDependency)
 
 if (NOT TARGET STARPU)
     # Try to find STARPU.
@@ -28,8 +28,27 @@ if (NOT TARGET STARPU)
         # If not found, install it.
     else ()
         set(STARPU_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/)
-        BuildStarPU(STARPU "https://gitlab.inria.fr/starpu/starpu.git" "starpu-1.3.9")
-        find_package(STARPU 1.3.9 REQUIRED COMPONENTS ${STARPU_COMPONENT_LIST})
+        # Set the flags to be passed to the build command.
+        set(ISCMAKE OFF)
+        set(ISGIT ON)
+        set(AUTO_GEN ON)
+
+        if (USE_CUDA AND USE_MPI)
+            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
+        elseif(USE_CUDA)
+            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
+        elseif(USE_MPI)
+            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
+        else()
+            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--disable-cuda  \--disable-opencl  \--disable-starpu-top \--disable-build-doc \--disable-starpufft \-disable-starpufft-examples \--disable-fortran \--disable-glpk \--with-perf-model-dir=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/ \--disable-fstack-protector-all \--disable-gcc-extensions)
+        endif()
+
+        BuildDependency(STARPU "https://gitlab.inria.fr/starpu/starpu.git" "starpu-1.3.9"  ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
+
+        # Clear the flags.
+        set(FLAGS "")
+        # Find StarPU after installation.
+        find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_LIST})
     endif ()
 else ()
     message("   STARPU already included")
