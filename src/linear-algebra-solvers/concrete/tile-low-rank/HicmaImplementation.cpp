@@ -399,7 +399,10 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
     free(theta);
 
 }
+template<typename T>
+void HicmaImplementation<T>::DestoryDescriptors() {
 
+}
 namespace exageostat::linearAlgebra::tileLowRank {
     template<typename T> void *HicmaImplementation<T>::apContext = nullptr;
 }

@@ -164,7 +164,7 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
                                                             dataunits::Locations *apLocation3,
                                                             double *aLocalTheta, int aDistanceMetric,
                                                             exageostat::kernels::Kernel *apKernel) {
-// Check for Initialise the Chameleon context.
+    // Check for Initialise the Chameleon context.
     if (!this->apContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
@@ -267,7 +267,10 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
     free(theta);
 
 }
+template<typename T>
+void ChameleonImplementationDST<T>::DestoryDescriptors() {
 
+}
 namespace exageostat::linearAlgebra::diagonalSuperTile {
     template<typename T> void *ChameleonImplementationDST<T>::apContext = nullptr;
 }

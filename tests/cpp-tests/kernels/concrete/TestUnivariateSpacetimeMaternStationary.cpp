@@ -94,6 +94,7 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
+        synthetic_generator->DestoryDescriptors();
 
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);

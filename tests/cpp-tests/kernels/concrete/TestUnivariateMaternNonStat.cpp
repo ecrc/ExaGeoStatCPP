@@ -81,11 +81,13 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
 
 
         // Define the expected output
-        double expected_output_data[] = {0.842571, 0.368249, 0.087037, 0.120736, 0.368249, 0.782441, 0.165305, 0.265572,
-                                         0.087037, 0.165305, 0.755169, 0.341821, 0.120736, 0.265572, 0.341821, 0.733985};
+        double expected_output_data[] = {0.842571, 0.368249, 0.087037, 0.120736,
+                                         0.368249, 0.782441, 0.165305, 0.265572,
+                                         0.087037, 0.165305, 0.755169, 0.341821,
+                                         0.120736, 0.265572, 0.341821, 0.733985};
 
-        size_t m = 5;
-        size_t n = 3;
+        size_t m = 4;
+        size_t n = 4;
         for (size_t i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));

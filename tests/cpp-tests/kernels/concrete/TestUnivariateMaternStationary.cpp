@@ -91,6 +91,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
 
+        synthetic_generator->DestoryDescriptors();
+
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
 

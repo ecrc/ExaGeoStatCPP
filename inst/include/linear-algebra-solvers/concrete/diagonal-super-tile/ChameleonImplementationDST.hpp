@@ -43,6 +43,8 @@ namespace exageostat {
                  * Initializes the descriptors needed for the Chameleon solver.
                  */
                 void InitiateDescriptors() override;
+                void DestoryDescriptors() override;
+
 
                 /**
                  * @brief Computes the covariance matrix.

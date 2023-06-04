@@ -79,12 +79,13 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {1.000000, 0.956293, 0.803279, 0.834105, 0.956293, 1.000000, 0.864147, 0.916372,
-                                         0.803279, 0.864147, 1.000000, 0.942775, 0.834105, 0.916372, 0.942775,
-                                         1.000000};
+        double expected_output_data[] = {1.000000, 0.956293, 0.803279, 0.834105,
+                                         0.956293, 1.000000, 0.864147, 0.916372,
+                                         0.803279, 0.864147, 1.000000, 0.942775,
+                                         0.834105, 0.916372, 0.942775,1.000000};
 
-        size_t m = 5;
-        size_t n = 3;
+        size_t m = 4;
+        size_t n = 4;
         for (size_t i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));

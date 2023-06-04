@@ -62,6 +62,7 @@ namespace exageostat {
                  */
                 void GenerateDescriptors() override;
 
+                void DestoryDescriptors() override;
                 /**
                  * @brief
                  * Generates the data observations.

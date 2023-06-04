@@ -62,7 +62,6 @@ SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigu
 
 template<typename T>
 void SyntheticGenerator<T>::GenerateDescriptors() {
-
     this->mpLinearAlgebraSolver->InitiateDescriptors();
 }
 
@@ -237,6 +236,11 @@ std::vector<double> SyntheticGenerator<T>::InitTheta(std::vector<double> apTheta
         }
     }
     return apTheta;
+}
+
+template<typename T>
+void SyntheticGenerator<T>::DestoryDescriptors() {
+    this->mpLinearAlgebraSolver->DestoryDescriptors();
 }
 
 template<typename T>

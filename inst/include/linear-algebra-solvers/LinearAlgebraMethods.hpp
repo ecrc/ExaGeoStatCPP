@@ -52,6 +52,7 @@ namespace exageostat {
              */
             virtual void InitiateDescriptors() = 0;
 
+            virtual void DestoryDescriptors() = 0;
             /**
              * @brief Computes the covariance matrix.
              *

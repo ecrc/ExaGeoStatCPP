@@ -80,11 +80,12 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaBeta() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {0, 14.3431, 138.40814, 104.504, 14.3431, 0, 75.9941, 36.423, 138.40814,
-                                         75.9941, 0,
-                                         21.0489, 104.504, 36.423, 21.0489, 0, 0, 0, 0, 0};
+        double expected_output_data[] = {0, 14.3431, 138.40814, 104.504,
+                                         14.3431, 0, 75.9941, 36.423,
+                                         138.40814,75.9941, 0,21.0489,
+                                         104.504, 36.423, 21.0489, 0};
         int m = 4;
-        int n = 5;
+        int n = 4;
 
         for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];

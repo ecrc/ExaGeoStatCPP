@@ -123,7 +123,6 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
 
     //stop gsl error handler
     gsl_set_error_handler_off();
-
     free(Zcpy);
 }
 
@@ -249,25 +248,24 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
 
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
 
-//    // Unregister Handles
-//    for (n = 0; n < A.nt; n++) {
-//        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-//        if (uplo == ChamUpperLower) {
-//            m = 0;
-//        } else {
-//            m = A.m == A.n ? n : 0;
-//        }
-//        for (; m < A.mt; m++) {
-//            starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
-//        }
-//    }
+    // Unregister Handles
+    for (n = 0; n < A.nt; n++) {
+        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+        if (uplo == ChamUpperLower) {
+            m = 0;
+        } else {
+            m = A.m == A.n ? n : 0;
+        }
+        for (; m < A.mt; m++) {
+            starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
+        }
+    }
 
 //    // Unregister Handles
 //    for (auto & starpu_handle : starpu_handles){
 //        starpu_data_unregister(starpu_handle);
 //    }
 
-//    RUNTIME_desc_destroy(CHAM_descA);
     }
 
 
@@ -384,6 +382,41 @@ ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *a
     }
     RUNTIME_options_ws_free(&options);
 }
+
+template<typename T>
+void ChameleonImplementationDense<T>::DestoryDescriptors() {
+
+    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
+    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
+    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
+    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
+    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
+
+    for(auto & descC : pDescriptorC){
+        if(!descC){
+            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descC);
+        }
+    }
+    for(auto & descZ : pDescriptorZ){
+        if(!descZ){
+            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descZ);
+        }
+    }
+    for(auto & descProduct : pDescriptorProduct){
+        if(!descProduct){
+            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descProduct);
+        }
+    }
+    if(!pChameleonDescriptorZcpy){
+        CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
+    }
+    if(!pChameleonDescriptorDeterminant){
+        CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
+    }
+
+    CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+}
+
 
 namespace exageostat::linearAlgebra::dense {
     template<typename T> void *ChameleonImplementationDense<T>::apContext = nullptr;

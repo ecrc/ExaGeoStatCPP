@@ -81,15 +81,19 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDsigmaSquare() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {1, 0.0306587, 0.0133114, 0.0152227, 0.0306587, 1, 0.0174979, 0.0231104,
-                                         0.0133114,
-                                         0.0174979, 1, 0.0275274, 0.0152227, 0.0231104, 0.0275274, 1, 0, 0, 0, 0};
+        double expected_output_data[] = {1, 0.0306587, 0.0133114, 0.0152227,
+                                         0.0306587, 1, 0.0174979, 0.0231104,
+                                         0.0133114,0.0174979, 1, 0.0275274,
+                                         0.0152227, 0.0231104, 0.0275274, 1};
         int m = 4;
-        int n = 5;
+        int n = 4;
         for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
+
+        synthetic_generator->DestoryDescriptors();
+
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
         delete linearAlgebraSolver;

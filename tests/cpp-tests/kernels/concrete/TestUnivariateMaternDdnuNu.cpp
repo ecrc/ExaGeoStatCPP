@@ -81,11 +81,12 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdnuNu() {
 
 
         // Define the expected output
-        double expected_output_data[] = {0, nan(""), nan(""), nan(""), nan(""), 0, nan(""), nan(""), nan(""), nan(""),
-                                         0, nan(""), nan(""), nan(""), nan(""), 0,
-                                         0, 0, 0, 0};
+        double expected_output_data[] = {0, nan(""), nan(""), nan(""),
+                                         nan(""),0, nan(""), nan(""),
+                                         nan(""), nan(""),0, nan(""),
+                                         nan(""), nan(""), nan(""), 0};
         int m = 4;
-        int n = 5;
+        int n = 4;
         for (int i = 0; i < m * n; i++) {
             if (!isnan(expected_output_data[i])) {
                 double diff = A[i] - expected_output_data[i];

@@ -81,12 +81,12 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareNu() {
         auto *A = linearAlgebraSolver->GetMatrix();
 
         // Define the expected output
-        double expected_output_data[] = {0, 0.165852, 0.00141076, 0.00336779, 0.165852, 0, 0.00801601, 0.0399025,
-                                         0.00141076, 0.00801601, 0, 0.0990001, 0.00336779, 0.0399025, 0.0990001, 0, 0,
-                                         0, 0,
-                                         0};
+        double expected_output_data[] = {0, 0.165852, 0.00141076, 0.00336779,
+                                         0.165852, 0, 0.00801601, 0.0399025,
+                                         0.00141076, 0.00801601, 0, 0.0990001,
+                                         0.00336779, 0.0399025, 0.0990001, 0};
         int m = 4;
-        int n = 5;
+        int n = 4;
         for (int i = 0; i < m * n; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));

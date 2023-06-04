@@ -48,6 +48,7 @@ namespace exageostat {
                  * Initializes the descriptors needed for the HICMA solver.
                  */
                 void InitiateDescriptors() override;
+                void DestoryDescriptors() override;
 
                 /**
                  * @brief Computes the covariance matrix.

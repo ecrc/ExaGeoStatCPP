@@ -47,6 +47,7 @@ namespace exageostat {
             virtual void
             GenerateDescriptors() = 0;
 
+            virtual void DestoryDescriptors() = 0;
             /**
              * @brief
              * Generates the data observations.
