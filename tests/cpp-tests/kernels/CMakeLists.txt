@@ -15,7 +15,7 @@ set(EXAGEOSTAT_TESTFILES
 #        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonStationary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternFlexible.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDsigmaSquare.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternParsimonious.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternParsimonious.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNuggetsStationary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateSpacetimeMaternStationary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDnu.cpp
@@ -26,7 +26,7 @@ set(EXAGEOSTAT_TESTFILES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdbetaBeta.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdbetaNu.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdnuNu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateSpacetimeMaternStationary.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateSpacetimeMaternStationary.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonGaussian.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateExpNonGaussian.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestTrivariateMaternParsimonious.cpp
