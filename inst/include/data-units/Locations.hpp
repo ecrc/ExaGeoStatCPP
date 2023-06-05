@@ -28,7 +28,9 @@ namespace exageostat {
         class Locations {
         public:
             /**
-             * @brief Default constructor.
+             * @brief Constructor.
+             * @param[in] aSize The number of data points.
+             * @param[in] aDimension The dimensionality of the data points.
              */
             Locations(int aSize, exageostat::common::Dimension aDimension);
 

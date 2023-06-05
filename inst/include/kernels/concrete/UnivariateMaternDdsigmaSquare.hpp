@@ -38,6 +38,11 @@ namespace exageostat {
             UnivariateMaternDdsigmaSquare();
 
             /**
+             * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             */
+            ~UnivariateMaternDdsigmaSquare() = default;
+
+            /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @param[in] apMatrixA The output covariance matrix.
              * @param[in] aRowsNumber The number of rows in the output matrix.
@@ -63,6 +68,7 @@ namespace exageostat {
             static Kernel *Create();
 
         private:
+            //// Used plugin name for static registration
             static bool plugin_name;
         };
     }//namespace Kernels

@@ -18,7 +18,6 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 UnivariateMaternDbeta::UnivariateMaternDbeta() {
-    /// TODO: FIX THEIR VALUES
     this->mP = 1;
     this->mParametersNumber = 3;
 }

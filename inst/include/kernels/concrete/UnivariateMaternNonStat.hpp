@@ -39,6 +39,11 @@ namespace exageostat {
             UnivariateMaternNonStat();
 
             /**
+             * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             */
+            ~UnivariateMaternNonStat() = default;
+
+            /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @param[in] apMatrixA The output covariance matrix.
              * @param[in] aRowsNumber The number of rows in the output matrix.
@@ -122,6 +127,7 @@ namespace exageostat {
             static double MaternUtil(double range, double smoothness, double distance);
 
         private:
+            //// Used plugin name for static registration
             static bool plugin_name;
         };
     }//namespace Kernels

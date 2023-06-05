@@ -19,7 +19,6 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 UnivariateMaternDdbetaNu::UnivariateMaternDdbetaNu() {
-    /// TODO: FIX THEIR VALUES
     this->mP = 1;
     this->mParametersNumber = 3;
 }
@@ -55,7 +54,6 @@ void UnivariateMaternDdbetaNu::GenerateCovarianceMatrix(double *apMatrixA, int a
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
-                //// TODO: Make sure gsl_sf_bessel_Kn have the same effect as psi in C
                 nu_expr = (1 - aLocalTheta[2]) * 1 / pow(2, aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2])
                           * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                           pow(2, 1 - aLocalTheta[2])

@@ -47,6 +47,10 @@ namespace exageostat {
             virtual void
             GenerateDescriptors() = 0;
 
+            /**
+             * @brief Destroys the data descriptors.
+             * @details This method frees the memory used by the data descriptors.
+             */
             virtual void DestoryDescriptors() = 0;
             /**
              * @brief
@@ -102,6 +106,10 @@ namespace exageostat {
              */
             virtual ~DataGenerator() = default;
 
+            /**
+             * @brief Gets the linear algebra solver object.
+             * @return A pointer to the linear algebra solver object.
+             */
             static linearAlgebra::LinearAlgebraMethods<T> * GetLinearAlgberaSolver();
 
         protected:

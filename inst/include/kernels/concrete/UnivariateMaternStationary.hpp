@@ -43,6 +43,9 @@ namespace exageostat {
              */
             UnivariateMaternStationary();
 
+            /**
+             * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             */
             ~UnivariateMaternStationary() = default;
 
             /**
@@ -71,6 +74,7 @@ namespace exageostat {
             static Kernel *Create();
 
         private:
+            //// Used plugin name for static registration
             static bool plugin_name;
         };
     }//namespace Kernels
