@@ -97,6 +97,7 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     this->mpConfigurations->SetRequest(request);
     //stop gsl error handler
     gsl_set_error_handler_off();
+    free(Zcpy);
 }
 
 template<typename T>
@@ -178,10 +179,12 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
 
     int tempmm, tempnn;
 
+    // vector of starpu handles
+    vector<starpu_data_handle_t> starpu_handles;
     auto *CHAM_descA = (CHAM_desc_t *) descA;
     CHAM_desc_t A = *CHAM_descA;
     struct starpu_codelet *cl = &cl_dcmg;
-    int m, n, m0, n0;
+    int m = 0, n = 0, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -211,6 +214,7 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
+            starpu_handles.push_back((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
             auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
@@ -221,16 +225,8 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
 
     // Unregister Handles
-    for (n = 0; n < A.nt; n++) {
-        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-        if (uplo == ChamUpperLower) {
-            m = 0;
-        } else {
-            m = A.m == A.n ? n : 0;
-        }
-        for (; m < A.mt; m++) {
-            starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
-        }
+    for (auto &starpu_handle: starpu_handles) {
+        starpu_data_unregister(starpu_handle);
     }
 }
 
@@ -265,7 +261,7 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
                                   aDistanceMetric, apKernel);
 
     free(theta);
-
+    free(Nrand);
 }
 template<typename T>
 void ChameleonImplementationDST<T>::DestoryDescriptors() {

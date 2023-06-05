@@ -49,10 +49,18 @@ namespace exageostat {
 
             /**
              * @brief Initializes the descriptors necessary for the linear algebra solver.
+             *
+             * This method initializes the descriptors necessary for the linear algebra solver.
              */
             virtual void InitiateDescriptors() = 0;
 
+            /**
+             * @brief Destroys the descriptors used by the linear algebra solver.
+             *
+             * This method destroys the descriptors used by the linear algebra solver.
+             */
             virtual void DestoryDescriptors() = 0;
+
             /**
              * @brief Computes the covariance matrix.
              *

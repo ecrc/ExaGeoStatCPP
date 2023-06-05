@@ -39,10 +39,17 @@ namespace exageostat {
                 virtual ~ChameleonImplementationDST() = default;
 
                 /**
-                 * @brief
-                 * Initializes the descriptors needed for the Chameleon solver.
+                 * @brief Initializes the descriptors necessary for the linear algebra solver.
+                 *
+                 * This method initializes the descriptors necessary for the linear algebra solver.
                  */
                 void InitiateDescriptors() override;
+
+                /**
+                 * @brief Destroys the descriptors used by the linear algebra solver.
+                 *
+                 * This method destroys the descriptors used by the linear algebra solver.
+                 */
                 void DestoryDescriptors() override;
 
 

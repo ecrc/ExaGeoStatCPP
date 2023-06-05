@@ -230,6 +230,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
 
     //stop gsl error handler
     gsl_set_error_handler_off();
+    free(Zcpy);
 }
 
 template<typename T>
@@ -310,10 +311,12 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
 
     int tempmm, tempnn;
 
+    // vector of starpu handles
+    vector<starpu_data_handle_t> starpu_handles;
     auto *HICMA_descA = (HICMA_desc_t *) descA;
     HICMA_desc_t A = *HICMA_descA;
     struct starpu_codelet *cl = &cl_dcmg;
-    int m, n, m0, n0;
+    int m = 0, n = 0, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -343,6 +346,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
+            starpu_handles.push_back((starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n));
             auto handle = (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
@@ -353,16 +357,8 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
     HICMA_Sequence_Wait((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
 
     // Unregister Handles
-    for (n = 0; n < A.nt; n++) {
-        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-        if (uplo == HicmaUpperLower) {
-            m = 0;
-        } else {
-            m = A.m == A.n ? n : 0;
-        }
-        for (; m < A.mt; m++) {
-            starpu_data_unregister((starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n));
-        }
+    for (auto &starpu_handle: starpu_handles) {
+        starpu_data_unregister(starpu_handle);
     }
 }
 

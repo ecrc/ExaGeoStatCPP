@@ -204,7 +204,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     int tempmm, tempnn;
 
     // vector of starpu handles
-//    vector<starpu_data_handle_t> starpu_handles;
+    vector<starpu_data_handle_t> starpu_handles;
     auto *CHAM_descA = (CHAM_desc_t *) descA;
     CHAM_desc_t A = *CHAM_descA;
     struct starpu_codelet *cl = &cl_dcmg;
@@ -238,7 +238,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
-//            starpu_handles.push_back( (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
+            starpu_handles.push_back((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
             auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
@@ -249,24 +249,10 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
 
     // Unregister Handles
-    for (n = 0; n < A.nt; n++) {
-        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-        if (uplo == ChamUpperLower) {
-            m = 0;
-        } else {
-            m = A.m == A.n ? n : 0;
-        }
-        for (; m < A.mt; m++) {
-            starpu_data_unregister((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
-        }
+    for (auto &starpu_handle: starpu_handles) {
+        starpu_data_unregister(starpu_handle);
     }
-
-//    // Unregister Handles
-//    for (auto & starpu_handle : starpu_handles){
-//        starpu_data_unregister(starpu_handle);
-//    }
-
-    }
+}
 
 
 template<typename T>
@@ -392,29 +378,29 @@ void ChameleonImplementationDense<T>::DestoryDescriptors() {
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
-    for(auto & descC : pDescriptorC){
-        if(!descC){
+    for (auto &descC: pDescriptorC) {
+        if (!descC) {
             CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descC);
         }
     }
-    for(auto & descZ : pDescriptorZ){
-        if(!descZ){
+    for (auto &descZ: pDescriptorZ) {
+        if (!descZ) {
             CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descZ);
         }
     }
-    for(auto & descProduct : pDescriptorProduct){
-        if(!descProduct){
+    for (auto &descProduct: pDescriptorProduct) {
+        if (!descProduct) {
             CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descProduct);
         }
     }
-    if(!pChameleonDescriptorZcpy){
+    if (!pChameleonDescriptorZcpy) {
         CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
     }
-    if(!pChameleonDescriptorDeterminant){
+    if (!pChameleonDescriptorDeterminant) {
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 
-    if(!(RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()){
+    if (!(RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()) {
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
     }
 }

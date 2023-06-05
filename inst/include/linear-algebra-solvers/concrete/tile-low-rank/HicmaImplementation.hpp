@@ -44,10 +44,17 @@ namespace exageostat {
                 ~HicmaImplementation() override = default;
 
                 /**
-                 * @brief
-                 * Initializes the descriptors needed for the HICMA solver.
+                 * @brief Initializes the descriptors necessary for the linear algebra solver.
+                 *
+                 * This method initializes the descriptors necessary for the linear algebra solver.
                  */
                 void InitiateDescriptors() override;
+
+                /**
+                 * @brief Destroys the descriptors used by the linear algebra solver.
+                 *
+                 * This method destroys the descriptors used by the linear algebra solver.
+                 */
                 void DestoryDescriptors() override;
 
                 /**
