@@ -287,24 +287,24 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                                   aDistanceMetric, apKernel);
 
     free(theta);
-    free(Nrand);
     //    VERBOSE(" Done.\n");
 
     //Copy Nrand to Z
 //    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
-//    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
-//    EXAGEOSTAT_Zcpy(*CHAM_descriptorZ, Nrand, sequence, request);
+    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+    EXAGEOSTAT_Zcpy(*CHAM_descriptorZ, Nrand, sequence, request);
+    free(Nrand);
 //    VERBOSE(" Done.\n");
 
     //Cholesky factorization for the Co-variance matrix C
 //    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
-//    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
+    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
 //    SUCCESS(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n");
 //    VERBOSE(" Done.\n");
 
     //Triangular matrix-matrix multiplication
 //    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....");
-//    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
+    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
 //    VERBOSE(" Done.\n");
 
     //// TODO: make verbose in modes, Add log with path
@@ -326,11 +326,33 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 //        VERBOSE(" Done.\n");
 //    }
 //
-//    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
+    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
 //    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)\n");
 //    VERBOSE("************************************************************\n");
 
 }
+
+static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
+    int m;
+    double* A;
+    int m0;
+    double* r;
+
+    A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
+    starpu_codelet_unpack_args(cl_arg, &m, &m0, &r);
+
+    memcpy(A, &r[m0], m * sizeof(double));
+}
+
+static struct starpu_codelet cl_dzcpy =
+        {
+                .where        = STARPU_CPU,
+                .cpu_funcs    = {CORE_dzcpy_starpu},
+                .nbuffers    = 1,
+                .modes        = {STARPU_W},
+                .name        = "dzcpy"
+        };
+
 
 template<typename T>
 void
@@ -348,23 +370,21 @@ ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *a
     int m, m0;
     int tempmm;
     auto A = apDescA;
-//    struct starpu_codelet *cl = &cl_dzcpy;
+    struct starpu_codelet *cl = &cl_dzcpy;
 
     for (m = 0; m < A->mt; m++) {
         tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
         m0 = m * A->mb;
 
-//        starpu_insert_task(starpu_mpi_codelet(cl),
-//                           STARPU_VALUE, &tempmm, sizeof(int),
-//                           STARPU_VALUE, &m0, sizeof(int),
-//                           STARPU_VALUE, &apDoubleVector, sizeof(double),
-//                           STARPU_W, RUNTIME_data_getaddr(((void *)A), m, 0),
-//#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-//                STARPU_NAME, "dzcpy",
-//#endif
-//                           0);
-//        core_dzcpy(((double *) RUNTIME_data_getaddr((A), m, 0)), tempmm, m0, apRequest);
-        memcpy(((double *) RUNTIME_data_getaddr((A), m, 0)), &apRequest[m0], m * sizeof(double));
+        starpu_insert_task(starpu_mpi_codelet(cl),
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_VALUE, &apDoubleVector, sizeof(double),
+                           STARPU_W, RUNTIME_data_getaddr((A), m, 0),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "dzcpy",
+#endif
+                           0);
     }
     RUNTIME_options_ws_free(&options);
 }
