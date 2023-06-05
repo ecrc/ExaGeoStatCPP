@@ -34,6 +34,9 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     string argument_value;
     int equal_sign_Idx;
 
+    //Set verbosity level with default value = standard
+    SetRunMode(exageostat::common::RunMode::STANDARD_MODE);
+
     // Loop through the arguments
     for (int i = 1; i < argc; ++i) {
         argument = argv[i];
@@ -57,7 +60,7 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid") {
                 SetQGrid(CheckNumericalValue(argument_value));
             } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot") {
-                SetTimeSlot( CheckNumericalValue(argument_value));
+                SetTimeSlot(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Computation" || argument_name == "--computation") {
                 SetComputation(CheckComputationValue(argument_value));
             } else if (argument_name == "--precision" || argument_name == "--Precision") {
@@ -80,23 +83,27 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetLowerBounds(ParseTheta(argument_value));
             } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upperBounds") {
                 SetUpperBounds(ParseTheta(argument_value));
-            } else if (argument_name == "--ikernel" || argument_name == "--initialTheta" || argument_name == "--itheta" || argument_name == "--iTheta") {
+            } else if (argument_name == "--ikernel" || argument_name == "--initialTheta" ||
+                       argument_name == "--itheta" || argument_name == "--iTheta") {
                 SetInitialTheta(ParseTheta(argument_value));
-            } else if (argument_name == "--tkernel" || argument_name == "--targetTheta" || argument_name == "--ttheta" || argument_name == "--tTheta") {
+            } else if (argument_name == "--tkernel" || argument_name == "--targetTheta" ||
+                       argument_name == "--ttheta" || argument_name == "--tTheta") {
                 SetTargetTheta(ParseTheta(argument_value));
-            }
-            else {
+            } else if (argument_name == "--runmode" || argument_name == "--runMode") {
+                ParseRunMode(argument_value);
+            } else {
                 cout << "!! " << argument_name << " !!" << endl;
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");
             }
         }
-        // If none then, just set the argument to True.
+            // If none then, just set the argument to True.
         else {
             if (argument_name == "--help") {
                 PrintUsage();
             }
-            if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" || argument_name == "--synthetic") {
+            if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
+                argument_name == "--synthetic") {
                 SetIsSynthetic(true);
             } else if (argument_name == "--OOC") {
                 SetIsOOC(true);
@@ -108,23 +115,41 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             }
         }
     }
-    // Throw Errors if any of these arguments aren't given by the user.
-    if(GetProblemSize() == 0){
-        throw domain_error("You need to set the problem size, before starting");
-    }
+}
+
+// Throw Errors if any of these arguments aren't given by the user.
+if(
+
+GetProblemSize()
+
+== 0){
+throw domain_error("You need to set the problem size, before starting");
+}
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-    if(GetDenseTileSize() == 0){
-        throw domain_error("You need to set the Dense tile size, before starting");
-    }
+if(GetDenseTileSize() == 0){
+    throw domain_error("You need to set the Dense tile size, before starting");
+}
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
-    if(GetLowTileSize() == 0){
-        throw domain_error("You need to set the Low tile size, before starting");
-    }
+if(
+
+GetLowTileSize()
+
+== 0){
+throw domain_error("You need to set the Low tile size, before starting");
+}
 #endif
-    if(GetKernel().empty()){
-        throw domain_error("You need to set the Kernel, before starting");
-    }
+if(
+
+GetKernel()
+
+.
+
+empty()
+
+){
+throw domain_error("You need to set the Kernel, before starting");
+}
 }
 
 void SyntheticDataConfigurations::PrintUsage() {
@@ -161,7 +186,7 @@ void SyntheticDataConfigurations::SetDimension(Dimension aDimension) {
     this->mDimension = aDimension;
 }
 
-Dimension SyntheticDataConfigurations::CheckDimensionValue(const string& aDimension) {
+Dimension SyntheticDataConfigurations::CheckDimensionValue(const string &aDimension) {
 
     if (aDimension != "2D" and aDimension != "2d"
         and aDimension != "3D" and aDimension != "3d"
@@ -176,11 +201,10 @@ Dimension SyntheticDataConfigurations::CheckDimensionValue(const string& aDimens
     return DimensionST;
 }
 
-int SyntheticDataConfigurations::CheckUnknownObservationsValue(const string& aValue) {
+int SyntheticDataConfigurations::CheckUnknownObservationsValue(const string &aValue) {
     int value = CheckNumericalValue(aValue);
-    if (value >= GetProblemSize()){
+    if (value >= GetProblemSize()) {
         throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
     }
     return value;
 }
-

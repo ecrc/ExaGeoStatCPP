@@ -165,6 +165,16 @@ namespace exageostat {
                 static bool IsCamelCase(std::string aString);
 
                 /**
+                 * @brief Checks the run mode and set the verboisty level.
+                 *
+                 * @param aRunMode
+                 * aRunMode A string representing the desired run mode ("verbose" or "standard").
+                 *
+                 * @throws std::range_error if the input string is not "verbose" or "standard".
+                 */
+                static void ParseRunMode(const std::string& aRunMode);
+
+                /**
                  * @brief Parses a string of theta values and returns an array of doubles.
                  *
                  * @param aInputValues The input string of theta values.

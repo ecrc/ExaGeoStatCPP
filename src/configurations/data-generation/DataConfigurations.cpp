@@ -126,6 +126,19 @@ bool DataConfigurations::IsCamelCase(std::string aString) {
     return true;
 }
 
+void DataConfigurations::ParseRunMode(const std::string& aRunMode){
+    if(aRunMode == "verbose" || aRunMode == "Verbose"){
+        mRunMode = RunMode::VERBOSE_MODE;
+    }
+    else if(aRunMode == "standard" || aRunMode == "Standard"){
+        mRunMode = RunMode::STANDARD_MODE;
+    }
+    else{
+        cout << "Error: " << aRunMode << " is not valid " << endl;
+        throw range_error("Invalid value. Please use verbose or standard values only.");
+    }
+}
+
 std::vector<double> DataConfigurations::ParseTheta(const std::string& aInputValues) {
     // Count the number of values in the string
     int num_values = 1;

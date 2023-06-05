@@ -18,11 +18,15 @@
 **/
 
 #include <iostream>
+
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include <common/Utils.hpp>
+#include <configurations/Configurations.hpp>
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
+using namespace exageostat::configurations;
 
 /**
  * @brief The main function of the program.
@@ -87,6 +91,16 @@ int main(int argc, char **argv) {
     } else if (precision == MIXED) {
         cout << "You set precision to: MIXED PRECISION" << endl;
     }
+
+    int run_mode = Configurations::GetRunMode();
+    if(run_mode == RunMode::VERBOSE_MODE){
+        cout << " You set run mode to VERBOSE." << endl;
+    }
+    else{
+        cout << "You set run mode to STANDARD." << endl;
+    }
+
+    VERBOSE("VERBOSE ACTIVATED");
 
     return 0;
 }

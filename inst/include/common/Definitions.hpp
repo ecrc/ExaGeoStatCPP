@@ -45,6 +45,15 @@ namespace exageostat {
     namespace common {
 
         /**
+         * @enum VerbosityLevel
+         * @brief Enum denoting the run mode
+         */
+        enum RunMode {
+            VERBOSE_MODE = 0,
+            STANDARD_MODE = 1
+        };
+
+        /**
          * @enum Dimension
          * @brief Enum denoting the dimension of generated data.
          */

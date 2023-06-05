@@ -496,6 +496,18 @@ namespace exageostat {
              */
             static common::Precision CheckPrecisionValue(const std::string &aValue);
 
+            /**
+             * @brief RunMode getter.
+             * @return mRunMode
+             */
+            static exageostat::common::RunMode GetRunMode();
+
+          /**
+            * @brief RunMode setter.
+            * @param aRunMode
+            */
+            static void SetRunMode(exageostat::common::RunMode aRunMode);
+
         protected:
             /// Used Problem size.
             int mProblemSize = 0;
@@ -563,6 +575,8 @@ namespace exageostat {
             void *mpSequence;
             //// Used request
             void *mpRequest;
+            //// Used run mode
+            static exageostat::common::RunMode mRunMode;
         };
 
     }//namespace configurations

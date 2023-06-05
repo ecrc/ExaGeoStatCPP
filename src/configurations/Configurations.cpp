@@ -283,3 +283,13 @@ void Configurations::SetRequest(void *apRequest) {
 void *Configurations::GetRequest() {
     return this->mpRequest;
 }
+
+RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
+
+RunMode Configurations::GetRunMode(){
+    return Configurations::mRunMode;
+}
+
+void Configurations::SetRunMode(RunMode aRunMode){
+    Configurations::mRunMode = aRunMode;
+}
