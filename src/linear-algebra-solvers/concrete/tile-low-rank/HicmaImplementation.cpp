@@ -29,16 +29,22 @@ using namespace std;
 template<typename T>
 void HicmaImplementation<T>::InitiateDescriptors() {
 
-    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
-
+    // Check for Initialise the Hicma context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     auto pDescriptorZcpy = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
     auto pDescriptorDeterminant = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
+    // Create a Hicma sequence
     HICMA_sequence_t *pSequence;
+    HICMA_request_t request[2] = {HICMA_SUCCESS, HICMA_SUCCESS};
+    HICMA_Sequence_Create(&pSequence);
 
-    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
+    int N = this->mpConfigurations->GetProblemSize();
     int lts = this->mpConfigurations->GetLowTileSize();
     int pGrid = this->mpConfigurations->GetPGrid();
     int qGrid = this->mpConfigurations->GetQGrid();
@@ -51,10 +57,9 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     double determinantValue = this->mpConfigurations->GetDeterminantValue();
 
     int nZobsValue;
-    if (actualObservationsFilePath.empty()){
+    if (actualObservationsFilePath.empty()) {
         nZobsValue = N - nZmiss;
-    }
-    else{
+    } else {
         nZobsValue = N;
     }
 
@@ -112,7 +117,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     }
 
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pHicmaDescriptorC, isOOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC,
-                                           MBC * NBC, MC, NC, 0, 0, MC, NC, pGrid, qGrid);
+                                           MBC * NBC, MC, NC, 0, 0, MC, NC, pGrid, qGrid)
 
     //CAD Descriptor
     MBD = lts;
@@ -120,7 +125,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     MD = N;
     ND = MBD;
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorCD, isOOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD, MBD * NBD,
-                                           MD, ND, 0, 0, MD, ND, pGrid, qGrid);
+                                           MD, ND, 0, 0, MD, ND, pGrid, qGrid)
 
     //CUV Descriptor
     MBUV = lts;
@@ -137,7 +142,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     T expr = (T) MUV / (T) lts;
     NUV = 2 * expr * maxRank;
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorCUV, isOOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
-                                           MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, pGrid, qGrid);
+                                           MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, pGrid, qGrid)
 
     //Crk Descriptor
     MBrk = 1;
@@ -145,30 +150,31 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     Mrk = (*pDescriptorCUV)->mt;
     Nrk = (*pDescriptorCUV)->mt;
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorCrk, isOOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
-                                           MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid);
+                                           MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid)
 
     HICMA_Sequence_Create(&pSequence);
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pHicmaDescriptorZ, isOOC, nullptr, (HICMA_enum) floatPoint, lts, lts,
-                                           lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+                                           lts * lts, N, 1, 0, 0, N, 1, pGrid, qGrid)
 
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZcpy, isOOC, Zcpy, (HICMA_enum) floatPoint, lts, lts, lts * lts,
-                                           N, 1, 0, 0, N, 1, pGrid, qGrid);
+                                           N, 1, 0, 0, N, 1, pGrid, qGrid)
     EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorDeterminant, isOOC, &determinantValue, (HICMA_enum) floatPoint,
-                                           lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+                                           lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid)
 
     if (nZmiss != 0) {
         if (actualObservationsFilePath.empty()) {
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZObservations, isOOC, &pDescriptorZcpy[nZmiss],
                                                    (HICMA_enum) floatPoint, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs,
-                                                   1, pGrid, qGrid);
+                                                   1, pGrid, qGrid)
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZactual, isOOC, pDescriptorZcpy, (HICMA_enum) floatPoint,
-                                                   lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
+                                                   lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid)
         } else {
 
-            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZObservations, isOOC, nullptr, (HICMA_enum) floatPoint, lts,
-                                                   lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
+            EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZObservations, isOOC, nullptr, (HICMA_enum) floatPoint,
+                                                   lts,
+                                                   lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid)
             EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorZactual, isOOC, nullptr, (HICMA_enum) floatPoint, lts,
-                                                   lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid);
+                                                   lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, pGrid, qGrid)
         }
         //C12AD Descriptor
         MBD = lts;
@@ -176,13 +182,13 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         MD = nZmiss;
         ND = MBD;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC12D, isOOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
-                                               MBD * NBD, MD, ND, 0, 0, MD, ND, pGrid, qGrid);
+                                               MBD * NBD, MD, ND, 0, 0, MD, ND, pGrid, qGrid)
 
         //C12UV Descriptor
         MBUV = lts;
         NBUV = 2 * maxRank;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC12UV, isOOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
-                                               MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, pGrid, qGrid);
+                                               MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, pGrid, qGrid)
 
         //C12Ark Descriptor
         MBrk = 1;
@@ -190,7 +196,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         Mrk = (*pDescriptorC12UV)->mt;
         Nrk = (*pDescriptorC12UV)->mt;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC12rk, isOOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
-                                               MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid);
+                                               MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid)
 
         //C22D Descriptor
         MBD = lts;
@@ -198,13 +204,13 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         MD = nZobs;
         ND = MBD;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC22D, isOOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
-                                               MBD * NBD, MD, ND, 0, 0, MD, ND, pGrid, qGrid);
+                                               MBD * NBD, MD, ND, 0, 0, MD, ND, pGrid, qGrid)
 
         //C22UV Descriptor
         MBUV = lts;
         NBUV = 2 * maxRank;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC22UV, isOOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
-                                               MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, pGrid, qGrid);
+                                               MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, pGrid, qGrid)
 
         //C22Ark Descriptor
         MBrk = 1;
@@ -212,40 +218,44 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         Mrk = (*pDescriptorC22UV)->mt;
         Nrk = (*pDescriptorC22UV)->mt;
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorC22rk, isOOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
-                                               MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid);
+                                               MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, pGrid, qGrid)
 
         //Other descriptors
         EXAGEOSTAT_ALLOCATE_APPROX_MATRIX_TILE(pDescriptorMSE, isOOC, &meanSquareError, (HICMA_enum) floatPoint, lts,
-                                               lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid);
+                                               lts, lts * lts, 1, 1, 0, 0, 1, 1, pGrid, qGrid)
     }
-    this->ExaGeoStatFinalizeContext();
+
+    this->mpConfigurations->SetSequence(pSequence);
+    this->mpConfigurations->SetRequest(request);
+
     //stop gsl error handler
     gsl_set_error_handler_off();
+    free(Zcpy);
 }
 
 template<typename T>
 void HicmaImplementation<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
 
-    HICMA_context_t *hicmaContext;
-    hicmaContext = hicma_context_self();
-    if (hicmaContext != nullptr) {
-        printf("Another instance of HiCMA is already running...!");
-    } else {
+    if (!this->apContext) {
         HICMA_user_tag_size(31, 26);
         HICMA_Init(apCoresNumber, apGPUs);
+        this->apContext = hicma_context_self();
     }
 }
 
 template<typename T>
 void HicmaImplementation<T>::ExaGeoStatFinalizeContext() {
 
-    HICMA_context_t *hicmaContext;
-    hicmaContext = hicma_context_self();
-    if (hicmaContext == nullptr) {
-        printf("No active instance of HICMA...please use ExaGeoStatInitContext() function to initiate a new instance!\n");
-    } else
+    if (!this->apContext) {
+        cout
+                << "No initialised context of HiCMA, Please use 'ExaGeoStat<double/or/float>::ExaGeoStatInitializeHardware(configurations);'"
+                << endl;
+    } else {
         HICMA_Finalize();
+        this->apContext = nullptr;
+    }
 }
+
 #define starpu_mpi_codelet(_codelet_) _codelet_
 
 static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
@@ -265,7 +275,7 @@ static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
                                &distance_metric, &kernel);
     kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
                                      apLocation2, apLocation3, theta, distance_metric);
-};
+}
 
 
 static struct starpu_codelet cl_dcmg =
@@ -280,8 +290,6 @@ static struct starpu_codelet cl_dcmg =
                 .name         = "dcmg"
         };
 
-#define EXAGEOSTAT_RTBLKADDR(desc, type, m, n) ( (starpu_data_handle_t)HICMA_RUNTIME_data_getaddr( desc, m, n ) )
-
 template<typename T>
 void
 HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
@@ -290,21 +298,25 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                                 int aDistanceMetric,
                                                 exageostat::kernels::Kernel *apKernel) {
 
-    HICMA_context_t *hicmaContext;
-    HICMA_option_t options;
-    hicmaContext = hicma_context_self();
+    // Check for Initialise the Hicma context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
 
-    HICMA_RUNTIME_options_init(&options, hicmaContext, (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
-            (HICMA_request_t *) this->mpConfigurations->GetRequest());
+    HICMA_option_t options;
+    HICMA_RUNTIME_options_init(&options, (HICMA_context_t *) this->apContext,
+                               (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
+                               (HICMA_request_t *) this->mpConfigurations->GetRequest());
 
     int tempmm, tempnn;
 
+    // vector of starpu handles
+    vector<starpu_data_handle_t> starpu_handles;
     auto *HICMA_descA = (HICMA_desc_t *) descA;
     HICMA_desc_t A = *HICMA_descA;
     struct starpu_codelet *cl = &cl_dcmg;
-    int m, n, m0, n0;
-
-    int size = A.n;
+    int m = 0, n = 0, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -325,7 +337,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                STARPU_VALUE, &tempnn, sizeof(int),
                                STARPU_VALUE, &m0, sizeof(int),
                                STARPU_VALUE, &n0, sizeof(int),
-                               STARPU_W, EXAGEOSTAT_RTBLKADDR(HICMA_descA, HicmaRealDouble, m, n),
+                               STARPU_W, (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n),
                                STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
                                STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
@@ -334,23 +346,34 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
-            auto handle = EXAGEOSTAT_RTBLKADDR(HICMA_descA, HicmaRealDouble, m, n);
+            starpu_handles.push_back((starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n));
+            auto handle = (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
     }
     HICMA_RUNTIME_options_ws_free(&options);
-    HICMA_RUNTIME_options_finalize(&options, hicmaContext);
+    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t *) this->apContext);
 
-//            apKernel->GenerateCovarianceMatrix(((double *) HICMA_RUNTIME_data_getaddr((*A), m, n)), tempmm, tempnn, m0, n0,
-//                                               apLocation1, apLocation2, apLocation3, theta, aDistanceMetric);
+    HICMA_Sequence_Wait((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
 
+    // Unregister Handles
+    for (auto &starpu_handle: starpu_handles) {
+        starpu_data_unregister(starpu_handle);
+    }
 }
+
 template<typename T>
 void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
-                                                               Locations *apLocation2, Locations *apLocation3,
-                                                               vector<double> aLocalTheta, int aDistanceMetric,
-                                                               Kernel *apKernel) {
-    this->ExaGeoStatInitContext(this->mpConfigurations->GetCoresNumber(), this->mpConfigurations->GetGPUsNumber());
+                                                        Locations *apLocation2, Locations *apLocation3,
+                                                        vector<double> aLocalTheta, int aDistanceMetric,
+                                                        Kernel *apKernel) {
+
+    // Check for Initialise the Hicma context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
+
     auto *sequence = (HICMA_sequence_t *) this->mpConfigurations->GetSequence();
     auto *request = (HICMA_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();
@@ -369,8 +392,44 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
     }
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
-
-    HICMA_Sequence_Wait(sequence);
     free(theta);
+    free(Nrand);
+}
+template<typename T>
+void HicmaImplementation<T>::DestoryDescriptors() {
 
+    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
+    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
+    auto pHicmaDescriptorZcpy = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
+    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
+    auto pHicmaDescriptorDeterminant = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
+
+    for(auto & descC : pDescriptorC){
+        if(!descC){
+            HICMA_Desc_Destroy((HICMA_desc_t **) &descC);
+        }
+    }
+    for(auto & descZ : pDescriptorZ){
+        if(!descZ){
+            HICMA_Desc_Destroy((HICMA_desc_t **) &descZ);
+        }
+    }
+    for(auto & descProduct : pDescriptorProduct){
+        if(!descProduct){
+            HICMA_Desc_Destroy((HICMA_desc_t **) &descProduct);
+        }
+    }
+    if(!pHicmaDescriptorZcpy){
+        HICMA_Desc_Destroy(pHicmaDescriptorZcpy);
+    }
+    if(!pHicmaDescriptorDeterminant){
+        HICMA_Desc_Destroy(pHicmaDescriptorDeterminant);
+    }
+
+    if(!(HICMA_sequence_t *) this->mpConfigurations->GetSequence()){
+        HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
+    }
+}
+namespace exageostat::linearAlgebra::tileLowRank {
+    template<typename T> void *HicmaImplementation<T>::apContext = nullptr;
 }

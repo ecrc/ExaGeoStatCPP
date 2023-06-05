@@ -44,12 +44,14 @@ namespace exageostat {
              *
              * @param[in] aComputation The computation type to create the solver for.
              *
-             * @return A unique pointer to the created linear algebra solver.
+             * @return Pointer to the created linear algebra solver.
              */
-            static std::unique_ptr<LinearAlgebraMethods<T>>
+            static LinearAlgebraMethods<T> *
             CreateLinearAlgebraSolver(common::Computation aComputation);
         };
-
+        /**
+         * @brief Instantiates the LinearAlgebraFactory class for float and double types.
+         */
         EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraFactory)
 
     }//namespace linearAlgebra

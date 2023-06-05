@@ -74,11 +74,11 @@ endif ()
 # Add all dependencies for Exageostat
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
-if(USE_MPI)
+if (USE_MPI)
     message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
-endif()
+endif ()
 
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
@@ -121,21 +121,21 @@ include(ImportBlas)
 include(ImportLapack)
 
 find_package(LAPACKE)
-list(APPEND LIBS  ${LAPACKE_LIBRARIES})
+list(APPEND LIBS ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 
 
 # EXAGEOSTAT DOCUMENTATIONS
-if(EXAGEOSTAT_BUILD_DOCS)
+if (EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
 
-    if(DOXYGEN_FOUND)
+    if (DOXYGEN_FOUND)
         add_subdirectory("docs")
-    else()
+    else ()
         message(STATUS "Doxygen NOT found, skipping it")
-    endif()
-endif()
+    endif ()
+endif ()
 
 # Include directories for Exageostat-cpp
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
@@ -225,4 +225,14 @@ if (EXAGEOSTAT_PACKAGE)
     set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
     set(CPACK_SOURCE_IGNORE_FILES "bin;.git;.gitmodules;Jenkinsfile")
     include(CPack)
-endif()
+endif ()
+
+message(" \n \t ** Configurations of ExaGeoStat and installation of dependence is done successfully ** ")
+message("\t Export the following line to avoid re-install dependencies each time, This line assume that you haven't changed the installation path. ")
+message("\t If not, Please change the following paths with your installation path. \n")
+message("\t ------------------------------------------------------------------------------------------------------------------------------- ")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/CHAMELEON/lib/pkgconfig:$PWD/installdir/_deps/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/HCORE/lib/pkgconfig:$PWD/installdir/_deps/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/HWLOC/lib/pkgconfig:$PWD/installdir/_deps/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/STARPU/lib/pkgconfig:$PWD/installdir/_deps/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")

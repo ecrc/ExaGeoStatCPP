@@ -19,7 +19,6 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 UnivariateMaternDnu::UnivariateMaternDnu() {
-    /// TODO: FIX THEIR VALUES
     this->mP = 1;
     this->mParametersNumber = 3;
 }
@@ -52,7 +51,6 @@ void UnivariateMaternDnu::GenerateCovarianceMatrix(double *apMatrixA, int aRowsN
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
 
-                //// TODO: Make sure gsl_sf_bessel_Kn have the same effect
                 nu_expr = -2 * log(2.0) * pow(2, -aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2])
                           * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                           pow(2, 1 - aLocalTheta[2])

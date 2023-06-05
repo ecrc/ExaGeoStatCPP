@@ -15,11 +15,11 @@
 #ifndef EXAGEOSTAT_CPP_KERNELS_HPP
 #define EXAGEOSTAT_CPP_KERNELS_HPP
 
-#include <data-units/Locations.hpp>
 #include <starpu.h>
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_sf_psi.h>
 #include <common/PluginRegistry.hpp>
+#include <data-units/Locations.hpp>
 #include<cmath>
 
 /*

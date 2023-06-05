@@ -25,30 +25,35 @@ using namespace exageostat::common;
 void TEST_SPREAD_REVERSED_BITS() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
-    
+
     synthetic_data_configurations.SetProblemSize(16);
     synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator(&synthetic_data_configurations);
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+#endif
+
+    SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
 
     SECTION("Spread Bytes")
     {
         uint16_t randomByte = INT16_MAX;
         REQUIRE(randomByte == 0x7FFF);
-        uint64_t returnedByte = syntheticGenerator.SpreadBits(randomByte);
+        uint64_t returnedByte = SyntheticGenerator<double>::SpreadBits(randomByte);
         // This because 7FFF will first be 16 hex = 64 bits
         // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 7FFF
         // 7FFF to bits is 0111111111111111
         // So, at the end it will be
         // ---- ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1
         REQUIRE(returnedByte == 0x0111111111111111);
-    }
-    SECTION("Reverse Spread Bytes")
+    }SECTION("Reverse Spread Bytes")
     {
         uint64_t randomByte = 0x0111111111111111;
-        uint16_t returnedByte = syntheticGenerator.ReverseSpreadBits(randomByte);
+        uint16_t returnedByte = SyntheticGenerator<double>::ReverseSpreadBits(randomByte);
         REQUIRE(returnedByte == 0x7FFF);
-    }
-    SECTION("Spread & reverse 3D")
+    }SECTION("Spread & reverse 3D")
     {
         // Test spreading and shifting 3D and getting back values correctly.
         uint16_t x = INT16_MAX;
@@ -56,7 +61,7 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z = INT16_MAX;
         uint64_t vectorZ;
 
-        vectorZ = (syntheticGenerator.SpreadBits(z) << 2);
+        vectorZ = (SyntheticGenerator<double>::SpreadBits(z) << 2);
         // vector Z will be
         // ---- ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1
         // After shifting by 2
@@ -65,7 +70,7 @@ void TEST_SPREAD_REVERSED_BITS() {
         REQUIRE(vectorZ == 0x0444444444444444);
 
         // Do the same for Y
-        vectorZ += (syntheticGenerator.SpreadBits(y) << 1);
+        vectorZ += (SyntheticGenerator<double>::SpreadBits(y) << 1);
         // If vector Z was empty it will be
         // ---- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1-
         // But sine vectorZ is already contains Z. then by adding both we get
@@ -74,16 +79,16 @@ void TEST_SPREAD_REVERSED_BITS() {
         REQUIRE(vectorZ == 0x0666666666666666);
 
         // Lastly, Adding X
-        vectorZ += syntheticGenerator.SpreadBits(x);
+        vectorZ += SyntheticGenerator<double>::SpreadBits(x);
         // Adding X without shifting will result in
         // ---- -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111
         // Since 0111 is equal to 7 in hex then expected to be 0x0777777777777777
         REQUIRE(vectorZ == 0x0777777777777777);
 
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
 
         // What we reversed is what we send.
         REQUIRE(reversed_x == INT16_MAX);
@@ -102,12 +107,14 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z_random = 22222;
 
         //Spreading
-        vectorZ = (syntheticGenerator.SpreadBits(z_random) << 2) + (syntheticGenerator.SpreadBits(y_random) << 1) + syntheticGenerator.SpreadBits(x_random);
+        vectorZ = (SyntheticGenerator<double>::SpreadBits(z_random) << 2) +
+                  (SyntheticGenerator<double>::SpreadBits(y_random) << 1) +
+                  SyntheticGenerator<double>::SpreadBits(x_random);
 
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x_random =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y_random =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z_random =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
 
         REQUIRE(x_random == reversed_x_random);
         REQUIRE(y_random == reversed_y_random);
@@ -122,28 +129,28 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z = 0;
         uint64_t vectorZ;
 
-        vectorZ = (syntheticGenerator.SpreadBits(z) << 2);
+        vectorZ = (SyntheticGenerator<double>::SpreadBits(z) << 2);
         // vector Z will be zeros
         REQUIRE(vectorZ == 0x0000000000000000);
 
         // Do the same for Y
-        vectorZ += (syntheticGenerator.SpreadBits(y) << 1);
+        vectorZ += (SyntheticGenerator<double>::SpreadBits(y) << 1);
         // vector Z after shift by one will be
         // ---- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1-
         // Since 0010 is equal to 2 in hex then expected to be 0x022222222222222
         REQUIRE(vectorZ == 0x0222222222222222);
 
         // Lastly, Adding X
-        vectorZ += syntheticGenerator.SpreadBits(x);
+        vectorZ += SyntheticGenerator<double>::SpreadBits(x);
         // Adding X without shifting will result in
         // ---- --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11
         // Since 0011 is equal to 3 in hex then expected to be 0x0333333333333333
         REQUIRE(vectorZ == 0x0333333333333333);
 
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
 
         // What we reversed is what we send.
         REQUIRE(reversed_x == INT16_MAX);
@@ -162,12 +169,14 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z_random = 0;
 
         //Spreading
-        vectorZ = (syntheticGenerator.SpreadBits(z_random) << 2) + (syntheticGenerator.SpreadBits(y_random) << 1) + syntheticGenerator.SpreadBits(x_random);
+        vectorZ = (SyntheticGenerator<double>::SpreadBits(z_random) << 2) +
+                  (SyntheticGenerator<double>::SpreadBits(y_random) << 1) +
+                  SyntheticGenerator<double>::SpreadBits(x_random);
 
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x_random =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y_random =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z_random =  syntheticGenerator.ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
 
         REQUIRE(x_random == reversed_x_random);
         REQUIRE(y_random == reversed_y_random);
@@ -175,111 +184,152 @@ void TEST_SPREAD_REVERSED_BITS() {
     }
 }
 
-void TEST_GENERATE_LOCATIONS(){
+void TEST_GENERATE_LOCATIONS() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
-    synthetic_data_configurations.SetProblemSize(16);
+    synthetic_data_configurations.SetProblemSize(8);
     synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator(&synthetic_data_configurations);
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+#endif
 
-    Locations locations;
 
-    SECTION("2D Generation"){
+    SECTION("2D Generation") {
+        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
-        syntheticGenerator.GenerateLocations();
+        synthetic_generator.GenerateLocations();
 
-        double* x = syntheticGenerator.GetLocations()->GetLocationX();
-        double* y = syntheticGenerator.GetLocations()->GetLocationY();
-        REQUIRE(syntheticGenerator.GetLocations()->GetLocationZ() == nullptr);
+        double *x = synthetic_generator.GetLocations()->GetLocationX();
+        double *y = synthetic_generator.GetLocations()->GetLocationY();
+        REQUIRE(synthetic_generator.GetLocations()->GetLocationZ() == nullptr);
 
-        for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i ++){
-            REQUIRE( x[i] != 0 );
-            REQUIRE( y[i] != 0 );
+        for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
+            REQUIRE(x[i] != 0);
+            REQUIRE(y[i] != 0);
         }
     }
 
-    SECTION("3D Generation"){
+    SECTION("3D Generation") {
         synthetic_data_configurations.SetDimension(Dimension3D);
-        syntheticGenerator.GenerateLocations();
+        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
+        synthetic_generator.GenerateLocations();
 
-        double* x = syntheticGenerator.GetLocations()->GetLocationX();
-        double* y = syntheticGenerator.GetLocations()->GetLocationY();
-        double* z = syntheticGenerator.GetLocations()->GetLocationZ();
+        double *x = synthetic_generator.GetLocations()->GetLocationX();
+        double *y = synthetic_generator.GetLocations()->GetLocationY();
+        double *z = synthetic_generator.GetLocations()->GetLocationZ();
 
-        for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i ++){
-            REQUIRE( x[i] != 0 );
-            REQUIRE( y[i] != 0 );
-            REQUIRE( z[i] != 0 );
+        for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
+            REQUIRE(x[i] != 0);
+            REQUIRE(y[i] != 0);
+            REQUIRE(z[i] != 0);
         }
     }
-    SECTION("ST Generation"){
+    SECTION("ST Generation") {
+
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
-        syntheticGenerator.GenerateLocations();
 
-        double* x = syntheticGenerator.GetLocations()->GetLocationX();
-        double* y = syntheticGenerator.GetLocations()->GetLocationY();
-        double* z = syntheticGenerator.GetLocations()->GetLocationZ();
+        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
+        synthetic_generator.GenerateLocations();
 
-        for (auto i = 0; i < synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetTimeSlot(); i ++){
-            REQUIRE( x[i] != 0 );
-            REQUIRE( y[i] != 0 );
-            REQUIRE( z[i] != 0 );
+        double *x = synthetic_generator.GetLocations()->GetLocationX();
+        double *y = synthetic_generator.GetLocations()->GetLocationY();
+        double *z = synthetic_generator.GetLocations()->GetLocationZ();
+
+        for (auto i = 0;
+             i < synthetic_data_configurations.GetProblemSize(); i++) {
+            REQUIRE(x[i] != 0.0);
+            REQUIRE(y[i] != 0.0);
+            REQUIRE(z[i] != 0.0);
         }
     }
 }
 
-void TEST_HELPERS_FUNCTIONS(){
+void TEST_HELPERS_FUNCTIONS() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(16);
     synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
-    SyntheticGenerator syntheticGenerator = SyntheticGenerator(&synthetic_data_configurations);
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+#endif
 
-    SECTION("Uniform distribution"){
+    SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
+
+    SECTION("Uniform distribution") {
         double lowerRange = -0.4;
         double higherRange = 0.4;
-        double uniformed_num = syntheticGenerator.UniformDistribution(lowerRange, higherRange);
+        double uniformed_num = SyntheticGenerator<double>::UniformDistribution(lowerRange, higherRange);
         REQUIRE(uniformed_num > lowerRange);
         REQUIRE(uniformed_num < 1);
     }
 
-    SECTION("Compare Uint32"){
+    SECTION("Compare Uint32") {
 
         uint32_t num1 = 16;
-        REQUIRE(syntheticGenerator.CompareUint64( num1, num1) == false);
-        REQUIRE(syntheticGenerator.CompareUint64( num1, num1 + num1) == true);
-        REQUIRE(syntheticGenerator.CompareUint64( num1 + num1, num1) == false);
-
+        REQUIRE(synthetic_generator.CompareUint64(num1, num1) == false);
+        REQUIRE(synthetic_generator.CompareUint64(num1, num1 + num1) == true);
+        REQUIRE(synthetic_generator.CompareUint64(num1 + num1, num1) == false);
     }
 }
 
-void TEST_GENERATION(){
+void TEST_GENERATION() {
 
-    SyntheticDataConfigurations synthetic_data_configurations;
+    SECTION("test Generated location") {
+
+        SyntheticDataConfigurations synthetic_data_configurations;
         synthetic_data_configurations.SetDimension(Dimension2D);
-        synthetic_data_configurations.SetProblemSize(2);
+        int N = 9;
+        synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
-        SyntheticGenerator syntheticGenerator = SyntheticGenerator(&synthetic_data_configurations);
-        syntheticGenerator.GenerateLocations();
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+        synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+        synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+#endif
+        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
 
-        // This values are not for the first run, Values changes depending on the seed.
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[0] - 0.106645) >= 1e-6) {
-            REQUIRE(false);
+        // Initialize the seed manually with zero, to get the first generated seeded numbers.
+        srand(0);
+
+        synthetic_generator.GenerateLocations();
+
+        // The expected output of the locations.
+        vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
+        vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
+
+        for (int i = 0; i < N; i++) {
+            REQUIRE((synthetic_generator.GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator.GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
         }
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[0] - 0.29279) >= 1e-6) {
-            REQUIRE(false);
+
+        // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
+        synthetic_generator.GenerateLocations();
+        for (int i = 0; i < N; i++) {
+            REQUIRE((synthetic_generator.GetLocations()->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator.GetLocations()->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
         }
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationX()[1] - 0.0565194) >= 1e-6) {
-            REQUIRE(false);
+
+        // Now if we modified seed again, we will get the first generated locations again.
+        srand(0);
+        synthetic_generator.GenerateLocations();
+        for (int i = 0; i < N; i++) {
+            REQUIRE((synthetic_generator.GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator.GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
         }
-        if (fabs(syntheticGenerator.GetLocations()->GetLocationY()[1] - 0.64715) >= 1e-6) {
-            REQUIRE(false);
-        }
+    }
 }
 
 TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();
+    TEST_GENERATION();
 }

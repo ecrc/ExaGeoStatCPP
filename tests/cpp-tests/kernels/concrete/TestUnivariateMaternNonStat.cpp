@@ -14,6 +14,7 @@
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
@@ -23,72 +24,76 @@ using namespace std;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
 
-    // Create a unique pointer to a DataGenerator object
-    std::unique_ptr<DataGenerator> synthetic_generator;
+    SECTION("UnivariateMaternNonStat"){
 
-    // Create a new synthetic_data_configurations object with the provided command line arguments
-    SyntheticDataConfigurations synthetic_data_configurations;
+        // Create a new synthetic_data_configurations object with the provided command line arguments
+        SyntheticDataConfigurations synthetic_data_configurations;
 
-    synthetic_data_configurations.SetProblemSize(9);
-    synthetic_data_configurations.SetKernel("UnivariateMaternNonStat");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-    synthetic_data_configurations.SetDenseTileSize(5);
-    synthetic_data_configurations.SetComputation(EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HiCMA
-    synthetic_data_configurations.SetLowTileSize(5);
-    synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
-#endif
-    synthetic_data_configurations.SetDimension(Dimension2D);
-    synthetic_data_configurations.SetIsSynthetic(true);
-    synthetic_data_configurations.SetPrecision(DOUBLE);
+        synthetic_data_configurations.SetProblemSize(9);
+        synthetic_data_configurations.SetKernel("UnivariateMaternNonStat");
+    #ifdef EXAGEOSTAT_USE_CHAMELEON
+        synthetic_data_configurations.SetDenseTileSize(5);
+        synthetic_data_configurations.SetComputation(EXACT_DENSE);
+    #endif
+    #ifdef EXAGEOSTAT_USE_HiCMA
+        synthetic_data_configurations.SetLowTileSize(5);
+        synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
+    #endif
+        synthetic_data_configurations.SetDimension(Dimension2D);
+        synthetic_data_configurations.SetIsSynthetic(true);
+        synthetic_data_configurations.SetPrecision(DOUBLE);
 
-    vector<double> lb{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
-    synthetic_data_configurations.SetLowerBounds(lb);
+        vector<double> lb{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
+        synthetic_data_configurations.SetLowerBounds(lb);
 
-    vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5};
-    synthetic_data_configurations.SetUpperBounds(ub);
+        vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5};
+        synthetic_data_configurations.SetUpperBounds(ub);
 
-    vector<double> initial_theta{0.04, 1.57, 0.33, -1, 0.8, 0.1, -0.5, 0.5};
-    synthetic_data_configurations.SetInitialTheta(initial_theta);
+        vector<double> initial_theta{0.04, 1.57, 0.33, -1, 0.8, 0.1, -0.5, 0.5};
+        synthetic_data_configurations.SetInitialTheta(initial_theta);
 
-    // Create the DataGenerator object
-    synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
+        // Create a unique pointer to a DataGenerator object
+        std::unique_ptr<DataGenerator<double>> synthetic_generator;
 
-    // Initialize the locations of the generated data
-    synthetic_generator->GenerateLocations();
+        // Initialise ExaGeoStat Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
 
-    // Set the locations with these values.
-    vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
-    vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
+        // Create the DataGenerator object
+        synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
 
-    for (auto i = 0; i < x.size(); i++) {
-        synthetic_generator->GetLocations()->GetLocationX()[i] = x[i];
-        synthetic_generator->GetLocations()->GetLocationY()[i] = y[i];
-    }
+        // Initialize the seed manually with zero, to get the first generated seeded numbers.
+        srand(0);
+        // Generated locations data
+        synthetic_generator->GenerateLocations();
+        synthetic_generator->GenerateDescriptors();
 
-    synthetic_generator->GenerateDescriptors();
+        auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
+        exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-    auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
+        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
+                                                                               nullptr,
+                                                                               synthetic_data_configurations.GetInitialTheta().data(),
+                                                                               0, synthetic_generator->GetKernel());
 
-    exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
+        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
 
-    auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-            synthetic_data_configurations.GetComputation());
-    linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-    linearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr, synthetic_data_configurations.GetInitialTheta(), 0,
-                                                    synthetic_generator->GetKernel());
-    auto *A = linearAlgebraSolver->GetMatrix();
 
-    // Define the expected output
-    double expected_output_data[] = {0.842571, 0.368249, 0.087037, 0.120736, 0.368249, 0.782441, 0.165305, 0.265572,
-                                     0.087037, 0.165305, 0.755169, 0.341821, 0.120736, 0.265572, 0.341821, 0.733985};
 
-    size_t m = 5;
-    size_t n = 3;
-    for (size_t i = 0; i < m * n; i++) {
-        double diff = A[i] - expected_output_data[i];
-        REQUIRE(diff == Approx(0.0).margin(1e-6));
+        // Define the expected output
+        double expected_output_data[] = {0.842571, 0.368249, 0.087037, 0.120736,
+                                         0.368249, 0.782441, 0.165305, 0.265572,
+                                         0.087037, 0.165305, 0.755169, 0.341821,
+                                         0.120736, 0.265572, 0.341821, 0.733985};
+
+        size_t m = 4;
+        size_t n = 4;
+        for (size_t i = 0; i < m * n; i++) {
+            double diff = A[i] - expected_output_data[i];
+            REQUIRE(diff == Approx(0.0).margin(1e-6));
+        }
+        synthetic_generator->DestoryDescriptors();
+        // Finalize ExaGeoStat Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 

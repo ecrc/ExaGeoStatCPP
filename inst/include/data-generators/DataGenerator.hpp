@@ -22,8 +22,11 @@ namespace exageostat {
         /**
          * @class DataGenerator
          * @brief Abstract base class for generating synthetic or real data.
+         * @tparam T The data type of the data generator.
          */
+        template<typename T>
         class DataGenerator {
+
         public:
 
             /**
@@ -44,6 +47,11 @@ namespace exageostat {
             virtual void
             GenerateDescriptors() = 0;
 
+            /**
+             * @brief Destroys the data descriptors.
+             * @details This method frees the memory used by the data descriptors.
+             */
+            virtual void DestoryDescriptors() = 0;
             /**
              * @brief
              * Generates the data observations.
@@ -98,14 +106,27 @@ namespace exageostat {
              */
             virtual ~DataGenerator() = default;
 
+            /**
+             * @brief Gets the linear algebra solver object.
+             * @return A pointer to the linear algebra solver object.
+             */
+            static linearAlgebra::LinearAlgebraMethods<T> * GetLinearAlgberaSolver();
+
         protected:
             /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
             /// Used Locations
-            dataunits::Locations * mpLocations{}; // Pointer to Locations object
+            dataunits::Locations * mpLocations = nullptr; // Pointer to Locations object
             /// Used Kernel
-            exageostat::kernels::Kernel * mpKernel;
+            exageostat::kernels::Kernel * mpKernel = nullptr;
+            /// Used linear Algebra solver
+            static linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver;
         };
+
+        /**
+         * @brief Instantiates the LinearAlgebraMethods class for float and double types.
+         */
+        EXAGEOSTAT_INSTANTIATE_CLASS(DataGenerator)
     }//namespace generators
 }//namespace exageostat
 

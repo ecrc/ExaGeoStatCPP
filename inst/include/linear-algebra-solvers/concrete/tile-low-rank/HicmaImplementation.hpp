@@ -35,7 +35,7 @@ namespace exageostat {
                  * @brief
                  * Default constructor.
                  */
-                HicmaImplementation() = default;
+                explicit HicmaImplementation() = default;
 
                 /**
                  * @brief
@@ -44,15 +44,46 @@ namespace exageostat {
                 ~HicmaImplementation() override = default;
 
                 /**
-                 * @brief
-                 * Initializes the descriptors needed for the HICMA solver.
+                 * @brief Initializes the descriptors necessary for the linear algebra solver.
+                 *
+                 * This method initializes the descriptors necessary for the linear algebra solver.
                  */
                 void InitiateDescriptors() override;
 
+                /**
+                 * @brief Destroys the descriptors used by the linear algebra solver.
+                 *
+                 * This method destroys the descriptors used by the linear algebra solver.
+                 */
+                void DestoryDescriptors() override;
+
+                /**
+                 * @brief Computes the covariance matrix.
+                 *
+                 * @param[in] descA Pointer to the descriptor for the covariance matrix.
+                 * @param[in] uplo Specifies whether the upper or lower triangular part of the covariance matrix is stored.
+                 * @param[in] apLocation1 Pointer to the first set of locations.
+                 * @param[in] apLocation2 Pointer to the second set of locations.
+                 * @param[in] apLocation3 Pointer to the third set of locations.
+                 * @param[in] aLocalTheta Pointer to the local theta values.
+                 * @param[in] aDistanceMetric Specifies the distance metric to use.
+                 * @param[in] apKernel Pointer to the kernel function to use.
+                 */
                 void
                 CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
                                         dataunits::Locations *apLocation3, double* apLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
+                /**
+                 * @brief Generates the observations vector.
+                 *
+                 * @param[in] descA Pointer to the descriptor for the observations vector.
+                 * @param[in] apLocation1 Pointer to the first set of locations.
+                 * @param[in] apLocation2 Pointer to the second set of locations.
+                 * @param[in] apLocation3 Pointer to the third set of locations.
+                 * @param[in] aLocalTheta Pointer to the local theta values.
+                 * @param[in] aDistanceMetric Specifies the distance metric to use.
+                 * @param[in] apKernel Pointer to the kernel function to use.
+                 */
                 void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
                                                 dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) override;
 
@@ -70,8 +101,15 @@ namespace exageostat {
                  * Finalizes the context needed for the HICMA solver.
                  */
                 void ExaGeoStatFinalizeContext() override;
-            };
 
+            private:
+                //// Used context
+                static void *apContext;
+
+            };
+            /**
+             * @brief Instantiates the LinearAlgebraMethods class for float and double types.
+             */
             EXAGEOSTAT_INSTANTIATE_CLASS(HicmaImplementation);
 
         }//namespace tileLowRank

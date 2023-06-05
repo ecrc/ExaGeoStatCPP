@@ -18,6 +18,7 @@
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <control/context.h>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::linearAlgebra;
@@ -25,28 +26,39 @@ using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
 
-void TEST_INIT_HARDWARE_DST() {
+void INIT_FINALIZE_HARDWARE_DST() {
+
     ChameleonImplementationDST<double> chameleonImpl;
+    // Initialise the context
     chameleonImpl.ExaGeoStatInitContext(4, 0);
-    CHAM_context_t *chameleonContext = chameleon_context_self();
-    REQUIRE(chameleonContext != nullptr);
-}
-void TEST_FINALIZE_HARDWARE_DST() {
-    ChameleonImplementationDST<double> chameleonImpl;
-    chameleonImpl.ExaGeoStatInitContext(4, 0);
+    CHAM_context_t *chameleonContext1 = chameleon_context_self();
+    REQUIRE(chameleonContext1 != nullptr);
+
+    // Finalize the context.
     chameleonImpl.ExaGeoStatFinalizeContext();
     REQUIRE(chameleon_context_self() == nullptr);
+
+    // Test using operations without initialise Hardware.
+    REQUIRE_THROWS_WITH(chameleonImpl.InitiateDescriptors(),
+                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+
 }
 
 // Test that the function initializes all the required descriptors without errors.
-void TEST_INITIALIZETION_DST() {
+void TEST_DESCRIPTORS_INITIALIZATION_DST() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.SetComputation(exageostat::common::DIAGONAL_APPROX);
 
     SECTION("Single") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-        synthetic_data_configurations.SetProblemSize(18);
-        synthetic_data_configurations.SetDenseTileSize(8);
+
+        synthetic_data_configurations.SetProblemSize(10);
+        synthetic_data_configurations.SetDenseTileSize(6);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -56,14 +68,21 @@ void TEST_INITIALIZETION_DST() {
         REQUIRE(synthetic_data_configurations.GetDescriptorProduct()[0] != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<float>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 
     SECTION("Double") {
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-        synthetic_data_configurations.SetProblemSize(8);
-        synthetic_data_configurations.SetDenseTileSize(2);
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
 
+        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
+
+        synthetic_data_configurations.SetProblemSize(24);
+        synthetic_data_configurations.SetDenseTileSize(4);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+
         linearAlgebraSolver->InitiateDescriptors();
 
         REQUIRE(synthetic_data_configurations.GetDescriptorC().size() == 1);
@@ -81,6 +100,9 @@ void TEST_INITIALIZETION_DST() {
         }
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 
@@ -88,12 +110,16 @@ void TEST_INITIALIZETION_DST() {
 void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 
     SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.SetComputation(exageostat::common::DIAGONAL_APPROX);
 
     SECTION("SINGLE") {
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<float>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
         synthetic_data_configurations.SetProblemSize(64);
-        synthetic_data_configurations.SetDenseTileSize(32);
+        synthetic_data_configurations.SetDenseTileSize(16);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -202,13 +228,20 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
             REQUIRE(mat[i] == 0.0f);
             REQUIRE(matProduct[i] == 0.0f);
         }
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<float>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+
     }
 
     SECTION("DOUBLE") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
 
         synthetic_data_configurations.SetProblemSize(32);
-        synthetic_data_configurations.SetDenseTileSize(8);
+        synthetic_data_configurations.SetDenseTileSize(16);
         linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
@@ -227,7 +260,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->m == N);
         REQUIRE(CHAM_descriptorZcpy->m == N);
         REQUIRE(CHAM_descriptorDeterminant->m == 1);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->m == 1);
         }
@@ -236,7 +269,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->n == 1);
         REQUIRE(CHAM_descriptorZcpy->n == 1);
         REQUIRE(CHAM_descriptorDeterminant->n == 1);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->n == 1);
         }
@@ -245,7 +278,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->mb == dts);
         REQUIRE(CHAM_descriptorZcpy->mb == dts);
         REQUIRE(CHAM_descriptorDeterminant->mb == dts);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->mb == dts);
         }
@@ -254,7 +287,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->nb == dts);
         REQUIRE(CHAM_descriptorZcpy->nb == dts);
         REQUIRE(CHAM_descriptorDeterminant->nb == dts);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->nb == dts);
         }
@@ -263,7 +296,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->bsiz == dts * dts);
         REQUIRE(CHAM_descriptorZcpy->bsiz == dts * dts);
         REQUIRE(CHAM_descriptorDeterminant->bsiz == dts * dts);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->bsiz == dts * dts);
         }
@@ -272,7 +305,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->i == 0);
         REQUIRE(CHAM_descriptorZcpy->i == 0);
         REQUIRE(CHAM_descriptorDeterminant->i == 0);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->i == 0);
         }
@@ -281,7 +314,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->j == 0);
         REQUIRE(CHAM_descriptorZcpy->j == 0);
         REQUIRE(CHAM_descriptorDeterminant->j == 0);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->j == 0);
         }
@@ -290,7 +323,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorZcpy->mt == ceil((N * 1.0) / (dts * 1.0)));
         REQUIRE(CHAM_descriptorDeterminant->mt == 1);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->mt == 1);
         }
@@ -299,7 +332,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->nt == 1);
         REQUIRE(CHAM_descriptorZcpy->nt == 1);
         REQUIRE(CHAM_descriptorDeterminant->nt == 1);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->nt == 1);
         }
@@ -308,7 +341,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->lm == N);
         REQUIRE(CHAM_descriptorZcpy->lm == N);
         REQUIRE(CHAM_descriptorDeterminant->lm == 1);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->lm == 1);
         }
@@ -317,7 +350,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->ln == 1);
         REQUIRE(CHAM_descriptorZcpy->ln == 1);
         REQUIRE(CHAM_descriptorDeterminant->ln == 1);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->ln == 1);
         }
@@ -326,7 +359,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->p == pGrid);
         REQUIRE(CHAM_descriptorZcpy->p == pGrid);
         REQUIRE(CHAM_descriptorDeterminant->p == pGrid);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->p == pGrid);
         }
@@ -335,7 +368,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         REQUIRE(CHAM_descriptorZ->q == qGrid);
         REQUIRE(CHAM_descriptorZcpy->q == qGrid);
         REQUIRE(CHAM_descriptorDeterminant->q == qGrid);
-        for (auto & idx : pDescriptorProduct) {
+        for (auto &idx: pDescriptorProduct) {
             auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
             REQUIRE((*CHAM_descriptorProduct)->q == qGrid);
         }
@@ -350,18 +383,19 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         for (auto i = 0; i < (CHAM_descriptorDeterminant->mt - 1) * (CHAM_descriptorDeterminant->nt - 1) *
                              (CHAM_descriptorDeterminant->bsiz - 1); i++) {
             REQUIRE(mat[i] == 0.0f);
-            for (auto & idx : pDescriptorProduct) {
+            for (auto &idx: pDescriptorProduct) {
                 auto **CHAM_descriptorProduct = (CHAM_desc_t **) &idx;
                 auto *matProduct = (double *) (*CHAM_descriptorProduct)->mat;
                 REQUIRE(matProduct[i] == 0.0f);
             }
         }
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 
 TEST_CASE("Chameleon Implementation DST") {
-    TEST_FINALIZE_HARDWARE_DST();
-    TEST_INIT_HARDWARE_DST();
-    TEST_INITIALIZETION_DST();
+    INIT_FINALIZE_HARDWARE_DST();
+    TEST_DESCRIPTORS_INITIALIZATION_DST();
     TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 }

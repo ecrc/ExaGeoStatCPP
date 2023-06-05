@@ -19,7 +19,6 @@ using namespace exageostat::dataunits;
 using namespace std;
 
 UnivariateMaternDdsigmaSquareBeta::UnivariateMaternDdsigmaSquareBeta() {
-    /// TODO: FIX THEIR VALUES
     this->mP = 1;
     this->mParametersNumber = 3;
 }

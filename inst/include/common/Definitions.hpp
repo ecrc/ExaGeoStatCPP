@@ -24,8 +24,6 @@
 #include <set>
 #include <filesystem>
 
-#include <kernels/Kernel.hpp>
-
 /**
  * @def EXAGEOSTAT_INSTANTIATE_CLASS
  * @brief Macro definition to instantiate the EXAGEOSTAT template classes with supported types.
