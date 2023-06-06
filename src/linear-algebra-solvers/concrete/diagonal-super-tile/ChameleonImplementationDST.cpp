@@ -179,8 +179,6 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
 
     int tempmm, tempnn;
 
-    // vector of starpu handles
-    vector<starpu_data_handle_t> starpu_handles;
     auto *CHAM_descA = (CHAM_desc_t *) descA;
     CHAM_desc_t A = *CHAM_descA;
     struct starpu_codelet *cl = &cl_dcmg;
@@ -214,7 +212,6 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
-            starpu_handles.push_back((starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n));
             auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
@@ -223,11 +220,6 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
     RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
 
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
-
-    // Unregister Handles
-    for (auto &starpu_handle: starpu_handles) {
-        starpu_data_unregister(starpu_handle);
-    }
 }
 
 template<typename T>
