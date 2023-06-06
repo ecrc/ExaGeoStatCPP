@@ -115,41 +115,24 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             }
         }
     }
-}
 
 // Throw Errors if any of these arguments aren't given by the user.
-if(
-
-GetProblemSize()
-
-== 0){
-throw domain_error("You need to set the problem size, before starting");
-}
+    if (GetProblemSize() == 0) {
+        throw domain_error("You need to set the problem size, before starting");
+    }
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-if(GetDenseTileSize() == 0){
-    throw domain_error("You need to set the Dense tile size, before starting");
-}
+    if (GetDenseTileSize() == 0) {
+        throw domain_error("You need to set the Dense tile size, before starting");
+    }
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
-if(
-
-GetLowTileSize()
-
-== 0){
-throw domain_error("You need to set the Low tile size, before starting");
-}
+    if (GetLowTileSize() == 0) {
+        throw domain_error("You need to set the Low tile size, before starting");
+    }
 #endif
-if(
-
-GetKernel()
-
-.
-
-empty()
-
-){
-throw domain_error("You need to set the Kernel, before starting");
-}
+    if (GetKernel().empty()) {
+        throw domain_error("You need to set the Kernel, before starting");
+    }
 }
 
 void SyntheticDataConfigurations::PrintUsage() {
