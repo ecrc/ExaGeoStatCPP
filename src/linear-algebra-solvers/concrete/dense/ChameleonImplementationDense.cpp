@@ -13,8 +13,8 @@
 **/
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
-#include <common/Utils.hpp>
 #include <lapacke.h>
+
 // Include Chameleon libraries
 extern "C" {
 #include <chameleon/struct.h>
@@ -403,10 +403,10 @@ void ChameleonImplementationDense<T>::DestoryDescriptors() {
     if(pDescriptorProduct[0]){
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
     }
-    if(pChameleonDescriptorZcpy){
+    if(*pChameleonDescriptorZcpy){
         CHAMELEON_Desc_Destroy( pChameleonDescriptorZcpy);
     }
-    if(pChameleonDescriptorDeterminant){
+    if(*pChameleonDescriptorDeterminant){
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 

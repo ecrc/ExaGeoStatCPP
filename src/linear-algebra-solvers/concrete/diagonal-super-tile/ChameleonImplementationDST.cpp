@@ -13,7 +13,6 @@
 **/
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
-#include <common/Utils.hpp>
 #include <lapacke.h>
 
 extern "C" {
@@ -377,10 +376,10 @@ void ChameleonImplementationDST<T>::DestoryDescriptors() {
     if(pDescriptorProduct[0]){
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
     }
-    if(pChameleonDescriptorZcpy){
+    if(*pChameleonDescriptorZcpy){
         CHAMELEON_Desc_Destroy( pChameleonDescriptorZcpy);
     }
-    if(pChameleonDescriptorDeterminant){
+    if(*pChameleonDescriptorDeterminant){
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 

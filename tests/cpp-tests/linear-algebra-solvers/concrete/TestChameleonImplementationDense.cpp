@@ -70,6 +70,7 @@ void TEST_DESCRIPTORS_INITIALIZATION() {
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
 
+        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<float>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
 
@@ -103,6 +104,7 @@ void TEST_DESCRIPTORS_INITIALIZATION() {
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
 
+        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
@@ -229,6 +231,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
             REQUIRE(mat[i] == 0.0f);
             REQUIRE(matProduct[i] == 0.0f);
         }
+        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<float>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
@@ -495,7 +498,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
                 REQUIRE(matProduct[i] == 0.0f);
             }
         }
-
+        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }

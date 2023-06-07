@@ -290,6 +290,26 @@ static struct starpu_codelet cl_dcmg =
                 .name         = "dcmg"
         };
 
+static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
+    int m;
+    double* A;
+    int m0;
+    double* r;
+
+    A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
+    starpu_codelet_unpack_args(cl_arg, &m, &m0, &r);
+    memcpy(A, &r[m0], m * sizeof(double));
+
+}
+static struct starpu_codelet cl_dzcpy =
+        {
+                .where        = STARPU_CPU,
+                .cpu_funcs    = {CORE_dzcpy_starpu},
+                .nbuffers    = 1,
+                .modes        = {STARPU_W},
+                .name        = "dzcpy"
+        };
+
 template<typename T>
 void
 HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
@@ -311,8 +331,6 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
 
     int tempmm, tempnn;
 
-    // vector of starpu handles
-    vector<starpu_data_handle_t> starpu_handles;
     auto *HICMA_descA = (HICMA_desc_t *) descA;
     HICMA_desc_t A = *HICMA_descA;
     struct starpu_codelet *cl = &cl_dcmg;
@@ -346,7 +364,6 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
                                STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
                                0);
 
-            starpu_handles.push_back((starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n));
             auto handle = (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_descA, m, n);
             this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
         }
@@ -356,10 +373,6 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
 
     HICMA_Sequence_Wait((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
 
-    // Unregister Handles
-    for (auto &starpu_handle: starpu_handles) {
-        starpu_data_unregister(starpu_handle);
-    }
 }
 
 template<typename T>
@@ -378,63 +391,127 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
     auto *request = (HICMA_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();
 
-    //// TODO: Make all zeros, Seed.
-    int iseed[4] = {0, 0, 0, 1};
+    int seed = this->mpConfigurations->GetSeed();
+    int iseed[4] = {seed, seed, seed, 1};
+
     //nomral random generation of e -- ei~N(0, 1) to generate Z
     auto *Nrand = (double *) malloc(N * sizeof(double));
     LAPACKE_dlarnv(3, iseed, N, Nrand);
 
     //Generate the co-variance matrix C
-//    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
     auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
     for (int i = 0; i < aLocalTheta.size(); i++) {
         theta[i] = aLocalTheta[i];
     }
+
+    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
+
     free(theta);
-    free(Nrand);
+    VERBOSE("Done.\n");
+
+    //Copy Nrand to Z
+    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
+    auto **HICMA_descriptorZ = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+    CopyDescriptorZ(*HICMA_descriptorZ, Nrand);
+    VERBOSE("Done.\n");
+    
+    //// RESET OF THE IMPLEMENTATION WILL BE ADDED AFTER FINALIZING ALL MODULES WITH EXACT.
 }
+
+template<typename T>
+void
+HicmaImplementation<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
+
+    // Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
+
+    HICMA_option_t options;
+    HICMA_RUNTIME_options_init(&options, (HICMA_context_t *) this->apContext,
+            (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
+            (HICMA_request_t *) this->mpConfigurations->GetRequest());
+
+    int m, m0;
+    int tempmm;
+    auto A = (HICMA_desc_t *) apDescA;
+    struct starpu_codelet *cl = &cl_dzcpy;
+
+    for (m = 0; m < A->mt; m++) {
+        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
+        m0 = m * A->mb;
+
+        starpu_insert_task(starpu_mpi_codelet(cl),
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_VALUE, &apDoubleVector, sizeof(double),
+                           STARPU_W, HICMA_RUNTIME_data_getaddr(A, m, 0),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "dzcpy",
+#endif
+                           0);
+    }
+    HICMA_RUNTIME_options_ws_free(&options);
+
+}
+
+
 template<typename T>
 void HicmaImplementation<T>::DestoryDescriptors() {
 
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
     auto pHicmaDescriptorZcpy = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
-    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pHicmaDescriptorDeterminant = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
-    for(auto & descC : pDescriptorC){
-        if(!descC){
-            HICMA_Desc_Destroy((HICMA_desc_t **) &descC);
-        }
+    auto **pDescriptorCD = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorCD()[0];
+    auto **pDescriptorCUV = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorCUV()[0];
+    auto **pDescriptorCrk = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorCrk()[0];
+    auto **pDescriptorZObservations = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZObservations();
+    auto **pDescriptorZactual = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZActual();
+    auto **pDescriptorMSE = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorMSE();
+
+
+    if(pDescriptorC[0]){
+        HICMA_Desc_Destroy((HICMA_desc_t **) &pDescriptorC[0]);
     }
-    for(auto & descZ : pDescriptorZ){
-        if(!descZ){
-            HICMA_Desc_Destroy((HICMA_desc_t **) &descZ);
-        }
+    if(pDescriptorZ[0]){
+        HICMA_Desc_Destroy((HICMA_desc_t **) &pDescriptorZ[0]);
     }
-    for(auto & descProduct : pDescriptorProduct){
-        if(!descProduct){
-            HICMA_Desc_Destroy((HICMA_desc_t **) &descProduct);
-        }
-    }
-    if(!pHicmaDescriptorZcpy){
+
+    if(*pHicmaDescriptorZcpy){
         HICMA_Desc_Destroy(pHicmaDescriptorZcpy);
     }
-    if(!pHicmaDescriptorDeterminant){
+    if(*pHicmaDescriptorDeterminant){
         HICMA_Desc_Destroy(pHicmaDescriptorDeterminant);
     }
 
-    if(!(HICMA_sequence_t *) this->mpConfigurations->GetSequence()){
+    if(*pDescriptorCD){
+        HICMA_Desc_Destroy(pDescriptorCD);
+    }
+    if(*pDescriptorCUV){
+        HICMA_Desc_Destroy(pDescriptorCUV);
+    }
+    if(*pDescriptorCrk){
+        HICMA_Desc_Destroy(pDescriptorCrk);
+    }
+    if(*pDescriptorZObservations){
+        HICMA_Desc_Destroy(pDescriptorZObservations);
+    }
+    if(*pDescriptorZactual){
+        HICMA_Desc_Destroy(pDescriptorZactual);
+    }
+    if(*pDescriptorMSE){
+        HICMA_Desc_Destroy(pDescriptorMSE);
+    }
+
+    if((HICMA_sequence_t *) this->mpConfigurations->GetSequence()){
         HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
     }
 }
 namespace exageostat::linearAlgebra::tileLowRank {
     template<typename T> void *HicmaImplementation<T>::apContext = nullptr;
-}
-template<typename T>
-void
-HicmaImplementation<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
-
 }
