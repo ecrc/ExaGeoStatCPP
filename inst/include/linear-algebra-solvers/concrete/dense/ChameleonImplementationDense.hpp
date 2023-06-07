@@ -101,7 +101,7 @@ namespace exageostat {
                  */
                 void ExaGeoStatFinalizeContext() override;
 
-                void EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double* apDoubleVector, RUNTIME_sequence_t *apSequence, RUNTIME_request_t *apRequest);
+                void CopyDescriptorZ(void *apDescA, double *apDoubleVector) override;
 
             private:
                 //// Used context

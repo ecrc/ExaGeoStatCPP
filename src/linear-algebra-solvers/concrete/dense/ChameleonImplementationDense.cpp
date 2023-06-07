@@ -312,7 +312,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     //Copy Nrand to Z
     VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
     auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
-    EXAGEOSTAT_Zcpy(*CHAM_descriptorZ, Nrand, sequence, request);
+    CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
     VERBOSE("Done.\n");
 
     //Cholesky factorization for the Co-variance matrix C
@@ -353,20 +353,22 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::EXAGEOSTAT_Zcpy(CHAM_desc_t *apDescA, double *apDoubleVector,
-                                                 RUNTIME_sequence_t *apSequence,
-                                                 RUNTIME_request_t *apRequest) {
-    CHAM_context_t *chamctxt;
-    RUNTIME_option_t options;
+ChameleonImplementationDense<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
 
-    chamctxt = chameleon_context_self();
-    if (apSequence->status != CHAMELEON_SUCCESS)
-        throw runtime_error("INVALID!");
-    RUNTIME_options_init(&options, chamctxt, apSequence, apRequest);
+    // Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
+
+    RUNTIME_option_t options;
+    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
+                         (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
+                         (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
 
     int m, m0;
     int tempmm;
-    auto A = apDescA;
+    auto A = (CHAM_desc_t *) apDescA;
     struct starpu_codelet *cl = &cl_dzcpy;
 
     for (m = 0; m < A->mt; m++) {

@@ -293,3 +293,9 @@ void ChameleonImplementationDST<T>::DestoryDescriptors() {
 namespace exageostat::linearAlgebra::diagonalSuperTile {
     template<typename T> void *ChameleonImplementationDST<T>::apContext = nullptr;
 }
+
+template<typename T>
+void
+ChameleonImplementationDST<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
+
+}

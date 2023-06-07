@@ -433,3 +433,8 @@ void HicmaImplementation<T>::DestoryDescriptors() {
 namespace exageostat::linearAlgebra::tileLowRank {
     template<typename T> void *HicmaImplementation<T>::apContext = nullptr;
 }
+template<typename T>
+void
+HicmaImplementation<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
+
+}

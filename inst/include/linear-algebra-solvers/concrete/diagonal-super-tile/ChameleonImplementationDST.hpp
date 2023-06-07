@@ -70,6 +70,8 @@ namespace exageostat {
                                         dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
 
+                void CopyDescriptorZ(void *apDescA, double *apDoubleVector) override;
+
                 /**
                  * @brief Generates the observations vector.
                  *

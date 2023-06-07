@@ -73,6 +73,8 @@ namespace exageostat {
                 CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
                                         dataunits::Locations *apLocation3, double* apLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
+
+                void CopyDescriptorZ(void *apDescA, double *apDoubleVector) override;
                 /**
                  * @brief Generates the observations vector.
                  *
