@@ -458,6 +458,18 @@ namespace exageostat {
             GetRequest();
 
             /**
+             * @brief Getter for the seed.
+             * @return mSeed
+             */
+            int GetSeed();
+
+            /**
+             * @brief Getter for the seed.
+             * @param aSeed The seed to set.
+             */
+            void SetSeed(int aSeed);
+
+            /**
              * @brief
              * Check Numerical value.
              *
@@ -575,6 +587,8 @@ namespace exageostat {
             void *mpSequence;
             //// Used request
             void *mpRequest;
+            /// The Seed variable, with default value = 0.
+            int mSeed = 0;
             //// Used run mode
             static exageostat::common::RunMode mRunMode;
         };

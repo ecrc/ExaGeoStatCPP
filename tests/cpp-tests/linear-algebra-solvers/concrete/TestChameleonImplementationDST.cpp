@@ -19,6 +19,7 @@
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <control/context.h>
 #include <api/ExaGeoStat.hpp>
+#include <data-generators/DataGenerator.hpp>
 
 using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::linearAlgebra;
@@ -394,8 +395,71 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     }
 }
 
+void TEST_CHAMELEON_GENERATE_OBSERVATIONS_DST() {
+
+    SECTION("Data generation - Observations") {
+        // Create a new synthetic_data_configurations object with the provided command line arguments
+        SyntheticDataConfigurations synthetic_data_configurations;
+        synthetic_data_configurations.SetProblemSize(9);
+        synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+        synthetic_data_configurations.SetDenseTileSize(5);
+        synthetic_data_configurations.SetComputation(exageostat::common::DIAGONAL_APPROX);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+        synthetic_data_configurations.SetLowTileSize(5);
+        synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
+#endif
+        synthetic_data_configurations.SetDimension(Dimension2D);
+        synthetic_data_configurations.SetIsSynthetic(true);
+        synthetic_data_configurations.SetPrecision(DOUBLE);
+        SyntheticDataConfigurations::SetRunMode(exageostat::common::VERBOSE_MODE);
+
+        // Create a unique pointer to a DataGenerator object
+        std::unique_ptr<exageostat::generators::DataGenerator<double>> synthetic_generator;
+
+        vector<double> lb{0.1, 0.1, 0.1};
+        synthetic_data_configurations.SetLowerBounds(lb);
+
+        vector<double> ub{5, 5, 5};
+        synthetic_data_configurations.SetUpperBounds(ub);
+
+        vector<double> initial_theta{1, 0.1, 0.5};
+        synthetic_data_configurations.SetInitialTheta(initial_theta);
+
+        // Initialise ExaGeoStat Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
+        // Create the DataGenerator object
+        synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
+
+        // Initialize the seed manually with zero, to get the first generated seeded numbers.
+        srand(0);
+        // Generated locations data
+        synthetic_generator->GenerateLocations();
+        synthetic_generator->GenerateDescriptors();
+
+        auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
+        exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
+
+        synthetic_generator->GetLinearAlgberaSolver()->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
+                                                                                  synthetic_data_configurations.GetInitialTheta(),
+                                                                                  0, synthetic_generator->GetKernel());
+
+//        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
+
+        synthetic_generator->DestoryDescriptors();
+
+        // Finalize ExaGeoStat Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+
+    }
+}
+
 TEST_CASE("Chameleon Implementation DST") {
     INIT_FINALIZE_HARDWARE_DST();
     TEST_DESCRIPTORS_INITIALIZATION_DST();
     TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+    TEST_CHAMELEON_GENERATE_OBSERVATIONS_DST();
+
 }

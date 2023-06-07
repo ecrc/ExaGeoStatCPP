@@ -550,22 +550,8 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS() {
         synthetic_generator->GetLinearAlgberaSolver()->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
                                                                                   synthetic_data_configurations.GetInitialTheta(),
                                                                                   0, synthetic_generator->GetKernel());
-//
+
 //        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
-//
-//        // Define the expected output
-//        double expected_output_data[] = {1, 0.085375, 0.000986, 0.002264,
-//                                         0.085375, 1, 0.005156, 0.023215,
-//                                         0.000986, 0.00515605, 1, 0.0535425,
-//                                         0.002264, 0.023215, 0.053542, 1};
-//
-//        size_t m = 4;
-//        size_t n = 4;
-//
-//        for (size_t i = 0; i < m * n; i++) {
-//            double diff = A[i] - expected_output_data[i];
-//            REQUIRE(diff == Approx(0.0).margin(1e-6));
-//        }
 
         synthetic_generator->DestoryDescriptors();
 

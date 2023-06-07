@@ -13,6 +13,7 @@
 **/
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+#include <common/Utils.hpp>
 #include <lapacke.h>
 
 extern "C" {
@@ -158,13 +159,33 @@ static struct starpu_codelet cl_dcmg =
         };
 
 
+static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
+    int m;
+    double* A;
+    int m0;
+    double* r;
+
+    A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
+    starpu_codelet_unpack_args(cl_arg, &m, &m0, &r);
+    memcpy(A, &r[m0], m * sizeof(double));
+
+}
+static struct starpu_codelet cl_dzcpy =
+        {
+                .where        = STARPU_CPU,
+                .cpu_funcs    = {CORE_dzcpy_starpu},
+                .nbuffers    = 1,
+                .modes        = {STARPU_W},
+                .name        = "dzcpy"
+        };
+
 template<typename T>
-void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int uplo,
-                                                            dataunits::Locations *apLocation1,
-                                                            dataunits::Locations *apLocation2,
-                                                            dataunits::Locations *apLocation3,
-                                                            double *aLocalTheta, int aDistanceMetric,
-                                                            exageostat::kernels::Kernel *apKernel) {
+void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
+                                                              dataunits::Locations *apLocation2,
+                                                              dataunits::Locations *apLocation3,
+                                                              double *aLocalTheta, int aDistanceMetric,
+                                                              exageostat::kernels::Kernel *apKernel) {
+
     // Check for Initialise the Chameleon context.
     if (!this->apContext) {
         throw std::runtime_error(
@@ -176,11 +197,10 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
                          (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
                          (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
 
-
     int tempmm, tempnn;
-
     auto *CHAM_descA = (CHAM_desc_t *) descA;
     CHAM_desc_t A = *CHAM_descA;
+
     struct starpu_codelet *cl = &cl_dcmg;
     int m = 0, n = 0, m0 = 0, n0 = 0;
 
@@ -220,13 +240,15 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int upl
     RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
 
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+
 }
 
 template<typename T>
 void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
-                                                               Locations *apLocation2, Locations *apLocation3,
-                                                               vector<double> aLocalTheta, int aDistanceMetric,
-                                                               Kernel *apKernel) {
+                                                                 Locations *apLocation2, Locations *apLocation3,
+                                                                 vector<double> aLocalTheta, int aDistanceMetric,
+                                                                 Kernel *apKernel) {
+
     // Check for Initialise the Chameleon context.
     if (!this->apContext) {
         throw std::runtime_error(
@@ -237,24 +259,106 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
     auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();
 
-    //// TODO: Make all zeros, Seed.
-    int iseed[4] = {0, 0, 0, 1};
+    int seed = this->mpConfigurations->GetSeed();
+    int iseed[4] = {seed, seed, seed, 1};
+
     //nomral random generation of e -- ei~N(0, 1) to generate Z
     auto *Nrand = (double *) malloc(N * sizeof(double));
     LAPACKE_dlarnv(3, iseed, N, Nrand);
 
     //Generate the co-variance matrix C
-//    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
     auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
     for (int i = 0; i < aLocalTheta.size(); i++) {
         theta[i] = aLocalTheta[i];
     }
+
+    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
 
     free(theta);
+    VERBOSE("Done.\n");
+
+    //Copy Nrand to Z
+    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
+    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+    CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
+    VERBOSE("Done.\n");
+
+    //Cholesky factorization for the Co-variance matrix C
+    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
+    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
+//    SUCCESS(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n");
+    VERBOSE("Done.\n");
+
+    //Triangular matrix-matrix multiplication
+    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....");
+    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
+    VERBOSE("Done.\n");
+
+    //// TODO: make verbose in modes, Add log with path
+//    if (log == 1) {
+//        double *z;
+//        CHAM_desc_t *CHAM_descZ = (CHAM_desc_t *) (data->descZ);
+//        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....");
+//#if defined(CHAMELEON_USE_MPI)
+//        z = (double*) malloc(n * sizeof(double));
+//        CHAMELEON_Tile_to_Lapack( CHAM_descZ, z, n);
+//        if ( CHAMELEON_My_Mpi_Rank() == 0 )
+//            write_vectors(z, data, n);
+//        free(z);
+//#else
+//        z = CHAM_descZ->mat;
+//        write_vectors(z, data, n);
+    //free(z);
+//#endif
+//        VERBOSE(" Done.\n");
+//    }
+
+    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
     free(Nrand);
+    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)");
+
 }
+
+template<typename T>
+void
+ChameleonImplementationDST<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
+
+    // Check for Initialise the Chameleon context.
+    if (!this->apContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+    }
+
+    RUNTIME_option_t options;
+    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
+                         (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
+                         (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
+
+    int m, m0;
+    int tempmm;
+    auto A = (CHAM_desc_t *) apDescA;
+    struct starpu_codelet *cl = &cl_dzcpy;
+
+    for (m = 0; m < A->mt; m++) {
+        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
+        m0 = m * A->mb;
+
+        starpu_insert_task(starpu_mpi_codelet(cl),
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_VALUE, &apDoubleVector, sizeof(double),
+                           STARPU_W, RUNTIME_data_getaddr(A, m, 0),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "dzcpy",
+#endif
+                           0);
+    }
+    RUNTIME_options_ws_free(&options);
+
+}
+
 template<typename T>
 void ChameleonImplementationDST<T>::DestoryDescriptors() {
 
@@ -264,38 +368,27 @@ void ChameleonImplementationDST<T>::DestoryDescriptors() {
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
-    for(auto & descC : pDescriptorC){
-        if(!descC){
-            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descC);
-        }
+    if(pDescriptorC[0]){
+        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorC[0]);
     }
-    for(auto & descZ : pDescriptorZ){
-        if(!descZ){
-            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descZ);
-        }
+    if(pDescriptorZ[0]){
+        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorZ[0]);
     }
-    for(auto & descProduct : pDescriptorProduct){
-        if(!descProduct){
-            CHAMELEON_Desc_Destroy((CHAM_desc_t **) &descProduct);
-        }
+    if(pDescriptorProduct[0]){
+        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
     }
-    if(!pChameleonDescriptorZcpy){
-        CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
+    if(pChameleonDescriptorZcpy){
+        CHAMELEON_Desc_Destroy( pChameleonDescriptorZcpy);
     }
-    if(!pChameleonDescriptorDeterminant){
+    if(pChameleonDescriptorDeterminant){
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 
-    if(!(RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()){
+    if ((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()) {
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
     }
 }
+
 namespace exageostat::linearAlgebra::diagonalSuperTile {
     template<typename T> void *ChameleonImplementationDST<T>::apContext = nullptr;
-}
-
-template<typename T>
-void
-ChameleonImplementationDST<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
-
 }

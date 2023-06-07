@@ -92,6 +92,9 @@ int main(int argc, char **argv) {
         cout << "You set precision to: MIXED PRECISION" << endl;
     }
 
+    int seed = synthetic_data_configurations.GetSeed();
+    cout << "You set seed to: " << seed << endl;
+
     int run_mode = Configurations::GetRunMode();
     if(run_mode == RunMode::VERBOSE_MODE){
         cout << " You set run mode to VERBOSE." << endl;

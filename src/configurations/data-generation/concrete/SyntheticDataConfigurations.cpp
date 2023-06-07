@@ -89,6 +89,8 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
             } else if (argument_name == "--tkernel" || argument_name == "--targetTheta" ||
                        argument_name == "--ttheta" || argument_name == "--tTheta") {
                 SetTargetTheta(ParseTheta(argument_value));
+            } else if(argument_name == "--Seed" || argument_name == "--seed"){
+                SetSeed(CheckNumericalValue(argument_value));
             } else if (argument_name == "--runmode" || argument_name == "--runMode") {
                 ParseRunMode(argument_value);
             } else {

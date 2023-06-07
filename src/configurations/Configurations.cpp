@@ -222,6 +222,14 @@ double Configurations::GetDeterminantValue() {
     return this->mDeterminantValue;
 }
 
+int Configurations::GetSeed(){
+    return this->mSeed;
+}
+
+void Configurations::SetSeed(int aSeed){
+    this->mSeed = aSeed;
+}
+
 int Configurations::CheckNumericalValue(const string& aValue) {
 
     int numericalValue = -1;

@@ -269,11 +269,6 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
 
 }
 
-void FinalizeStarpuHandles(std::vector<starpu_data_handle_t> &aStarpu_handles){
-    for (auto &starpu_handle: aStarpu_handles) {
-        starpu_data_unregister(starpu_handle);
-    }
-}
 template<typename T>
 void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Locations *apLocation1,
                                                                  Locations *apLocation2, Locations *apLocation3,
@@ -290,8 +285,9 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();
 
-    //// TODO: Make all zeros, Seed.
-    int iseed[4] = {0, 0, 0, 1};
+    int seed = this->mpConfigurations->GetSeed();
+    int iseed[4] = {seed, seed, seed, 1};
+
     //nomral random generation of e -- ei~N(0, 1) to generate Z
     auto *Nrand = (double *) malloc(N * sizeof(double));
     LAPACKE_dlarnv(3, iseed, N, Nrand);
