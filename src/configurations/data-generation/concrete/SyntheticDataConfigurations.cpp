@@ -21,7 +21,10 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 using namespace std;
 
-//// TODO: Change arguments name
+//// TODO: Change arguments name to small cases with _ in between.
+//// TODO: Add all arguments in Help.
+//// TODO: Add all arguments info in README.
+//// TODO: Add all supported kernels in README.
 void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     // Get the example name
     string example_name = argv[0];

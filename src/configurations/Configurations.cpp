@@ -301,3 +301,19 @@ RunMode Configurations::GetRunMode(){
 void Configurations::SetRunMode(RunMode aRunMode){
     Configurations::mRunMode = aRunMode;
 }
+
+void Configurations::SetLogger(bool aLogger) {
+    this->mLogger = aLogger;
+}
+
+bool Configurations::GetLogger() {
+    return this->mLogger;
+}
+
+std::string *Configurations::GetLoggerPath() {
+    return &this->mLoggerPath;
+}
+
+void Configurations::SetLoggerPath(const string &aLoggerPath) {
+    this->mLoggerPath = aLoggerPath;
+}

@@ -28,6 +28,7 @@ using namespace exageostat::linearAlgebra::dense;
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
+using namespace exageostat::helpers;
 using namespace std;
 
 // Define a method to set up the Chameleon descriptors
@@ -267,24 +268,24 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
     VERBOSE("Done.\n");
 
-    //// TODO: make verbose in modes, Add log with path
-//    if (log == 1) {
-//        double *z;
-//        CHAM_desc_t *CHAM_descZ = (CHAM_desc_t *) (data->descZ);
-//        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....");
-//#if defined(CHAMELEON_USE_MPI)
-//        z = (double*) malloc(n * sizeof(double));
-//        CHAMELEON_Tile_to_Lapack( CHAM_descZ, z, n);
-//        if ( CHAMELEON_My_Mpi_Rank() == 0 )
-//            write_vectors(z, data, n);
-//        free(z);
-//#else
-//        z = CHAM_descZ->mat;
-//        write_vectors(z, data, n);
-    //free(z);
-//#endif
-//        VERBOSE(" Done.\n");
-//    }
+    //// TODO: Add log with path
+    if (this->mpConfigurations->GetLogger()) {
+        T *pMatrix;
+        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
+#ifdef CHAMELEON_USE_MPI
+        pMatrix = (T*) malloc(N * sizeof(T));
+        CHAMELEON_Tile_to_Lapack( *CHAM_descriptorZ, pMatrix, N);
+        if ( CHAMELEON_My_Mpi_Rank() == 0 ){
+            DiskWriter<T>::WriteVectorsToDisk(pMatrix, N, this->mpConfigurations->GetLoggerPath());
+        }
+        free(pMatrix);
+#else
+        pMatrix = (T *) (*CHAM_descriptorZ)->mat;
+        DiskWriter<T>::WriteVectorsToDisk(pMatrix, N, this->mpConfigurations->GetLoggerPath());
+    free(pMatrix);
+#endif
+        VERBOSE(" Done.\n");
+    }
 
     CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
     free(Nrand);

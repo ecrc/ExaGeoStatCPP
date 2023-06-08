@@ -26,6 +26,7 @@
 #include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
 #include <vector>
 #include <common/Utils.hpp>
+#include <helpers/DiskWriter.hpp>
 
 extern "C" {
 #include <gsl/gsl_errno.h>

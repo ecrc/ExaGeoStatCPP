@@ -514,11 +514,36 @@ namespace exageostat {
              */
             static exageostat::common::RunMode GetRunMode();
 
-          /**
+           /**
             * @brief RunMode setter.
             * @param aRunMode
             */
             static void SetRunMode(exageostat::common::RunMode aRunMode);
+
+            /**
+             * @brief Logger getter.
+             * @return mLogger
+             */
+            bool GetLogger();
+
+            /**
+             * @brief Logger setter.
+             * @param aLogger
+             */
+            void SetLogger(bool aLogger);
+
+            /**
+             * @brief Logger path getter.
+             * @return mLoggerPath
+             */
+            std::string* GetLoggerPath();
+
+            /**
+             * @brief Logger path setter.
+             * @param aLoggerPath
+             */
+            void SetLoggerPath(const std::string &aLoggerPath);
+
 
         protected:
             /// Used Problem size.
@@ -591,6 +616,10 @@ namespace exageostat {
             int mSeed = 0;
             //// Used run mode
             static exageostat::common::RunMode mRunMode;
+            //// Used logger
+            bool mLogger = false;
+            //// Used logger
+            std::string mLoggerPath;
         };
 
     }//namespace configurations
