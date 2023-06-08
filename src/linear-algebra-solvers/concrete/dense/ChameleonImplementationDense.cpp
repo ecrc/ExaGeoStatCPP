@@ -150,61 +150,6 @@ void ChameleonImplementationDense<T>::ExaGeoStatFinalizeContext() {
     }
 }
 
-#define starpu_mpi_codelet(_codelet_) _codelet_
-
-static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
-
-    int m, n, m0, n0;
-    exageostat::dataunits::Locations *apLocation1;
-    exageostat::dataunits::Locations *apLocation2;
-    exageostat::dataunits::Locations *apLocation3;
-    double *theta;
-    double *A;
-    int distance_metric;
-    exageostat::kernels::Kernel *kernel;
-
-    A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
-
-    starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
-                               &distance_metric, &kernel);
-    kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
-                                     apLocation2, apLocation3, theta, distance_metric);
-}
-
-
-static struct starpu_codelet cl_dcmg =
-        {
-                .where        = STARPU_CPU /*| STARPU_CUDA*/,
-                .cpu_func     = cl_dcmg_cpu_func,
-#if defined(EXAGEOSTAT_USE_CUDA)
-                //    .cuda_func      = {cl_dcmg_cuda_func},
-#endif
-                .nbuffers     = 1,
-                .modes        = {STARPU_W},
-                .name         = "dcmg"
-        };
-
-
-static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
-    int m;
-    double* A;
-    int m0;
-    double* r;
-
-    A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
-    starpu_codelet_unpack_args(cl_arg, &m, &m0, &r);
-    memcpy(A, &r[m0], m * sizeof(double));
-
-}
-static struct starpu_codelet cl_dzcpy =
-        {
-                .where        = STARPU_CPU,
-                .cpu_funcs    = {CORE_dzcpy_starpu},
-                .nbuffers    = 1,
-                .modes        = {STARPU_W},
-                .name        = "dzcpy"
-        };
-
 template<typename T>
 void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
                                                               dataunits::Locations *apLocation2,
@@ -227,7 +172,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     auto *CHAM_descA = (CHAM_desc_t *) descA;
     CHAM_desc_t A = *CHAM_descA;
 
-    struct starpu_codelet *cl = &cl_dcmg;
+    struct starpu_codelet *cl = &this->cl_dcmg;
     int m = 0, n = 0, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
@@ -313,8 +258,8 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 
     //Cholesky factorization for the Co-variance matrix C
     VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
-    int success = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
-//    SUCCESS(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n");
+    int potential_failure = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
+    FAILURE_LOGGER(potential_failure, "Factorization cannot be performed..\nThe matrix is not positive definite");
     VERBOSE("Done.\n");
 
     //Triangular matrix-matrix multiplication
@@ -365,7 +310,7 @@ ChameleonImplementationDense<T>::CopyDescriptorZ(void *apDescA, double *apDouble
     int m, m0;
     int tempmm;
     auto A = (CHAM_desc_t *) apDescA;
-    struct starpu_codelet *cl = &cl_dzcpy;
+    struct starpu_codelet *cl = &this->cl_dzcpy;
 
     for (m = 0; m < A->mt; m++) {
         tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;

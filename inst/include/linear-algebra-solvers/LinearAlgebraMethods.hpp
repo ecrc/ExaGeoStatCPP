@@ -31,6 +31,9 @@ extern "C" {
 #include <gsl/gsl_errno.h>
 }
 
+#define starpu_mpi_codelet(_codelet_) _codelet_
+
+
 namespace exageostat {
     namespace linearAlgebra {
 
@@ -75,10 +78,13 @@ namespace exageostat {
              * @param[in] apKernel Pointer to the kernel function to use.
              */
             virtual void
-            CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
-                                    dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) = 0;
+            CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
+                                    dataunits::Locations *apLocation2,
+                                    dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
+                                    exageostat::kernels::Kernel *apKernel) = 0;
 
             virtual void CopyDescriptorZ(void *apDescA, double *apDoubleVector) = 0;
+
             /**
              * @brief Generates the observations vector.
              *
@@ -90,8 +96,11 @@ namespace exageostat {
              * @param[in] aDistanceMetric Specifies the distance metric to use.
              * @param[in] apKernel Pointer to the kernel function to use.
              */
-            virtual void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
-                                                    dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) = 0;
+            virtual void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1,
+                                                    dataunits::Locations *apLocation2,
+                                                    dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
+                                                    int aDistanceMetric, exageostat::kernels::Kernel *apKernel) = 0;
+
             /**
              * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.
              *
@@ -123,6 +132,58 @@ namespace exageostat {
                 return this->apMatrix;
             }
 
+            static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
+
+                int m, n, m0, n0;
+                exageostat::dataunits::Locations *apLocation1;
+                exageostat::dataunits::Locations *apLocation2;
+                exageostat::dataunits::Locations *apLocation3;
+                double *theta;
+                double *A;
+                int distance_metric;
+                exageostat::kernels::Kernel *kernel;
+
+                A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+
+                starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
+                                           &distance_metric, &kernel);
+                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
+                                                 apLocation2, apLocation3, theta, distance_metric);
+            }
+
+            //// These codlets and structs will be added to another level of abstraction and interface of runtime system. This is a quick fix for now.
+            //// TODO: Create a Factory for Runtime system.
+            struct starpu_codelet cl_dcmg =
+                    {
+                            .where        = STARPU_CPU,
+                            .cpu_func     = cl_dcmg_cpu_func,
+#if defined(EXAGEOSTAT_USE_CUDA)
+                            //    .cuda_func      = {cl_dcmg_cuda_func},
+#endif
+                            .nbuffers     = 1,
+                            .modes        = {STARPU_W},
+                            .name         = "dcmg"
+                    };
+
+            static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
+                int m;
+                double *A;
+                int m0;
+                double *r;
+
+                A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+                starpu_codelet_unpack_args(cl_arg, &m, &m0, &r);
+                memcpy(A, &r[m0], m * sizeof(double));
+            }
+
+            struct starpu_codelet cl_dzcpy =
+                    {
+                            .where        = STARPU_CPU,
+                            .cpu_funcs    = {CORE_dzcpy_starpu},
+                            .nbuffers    = 1,
+                            .modes        = {STARPU_W},
+                            .name        = "dzcpy"
+                    };
 
         protected:
             //// Used configurations map.

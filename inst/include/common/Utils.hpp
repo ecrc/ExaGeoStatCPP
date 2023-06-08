@@ -28,4 +28,13 @@
  */
 #define VERBOSE(msg) { if(exageostat::configurations::Configurations::GetRunMode() == exageostat::common::RunMode::VERBOSE_MODE) std::cout << msg << std::endl; }
 
+/**
+ * Verbose macro for logging any failure operation.
+ */
+#define FAILURE_LOGGER(failed, msg) \
+    if (failed){ \
+        std::cout << msg << std::endl; \
+        exit(EXIT_FAILURE);\
+    }
+
 #endif //EXAGEOSTATCPP_UTILS_HPP

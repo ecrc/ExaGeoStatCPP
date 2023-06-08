@@ -521,7 +521,6 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS() {
         synthetic_data_configurations.SetDimension(Dimension2D);
         synthetic_data_configurations.SetIsSynthetic(true);
         synthetic_data_configurations.SetPrecision(DOUBLE);
-        SyntheticDataConfigurations::SetRunMode(exageostat::common::VERBOSE_MODE);
 
         // Create a unique pointer to a DataGenerator object
         std::unique_ptr<exageostat::generators::DataGenerator<double>> synthetic_generator;
