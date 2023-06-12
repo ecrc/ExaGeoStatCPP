@@ -15,6 +15,7 @@
 
 #include <iostream>
 #include <common/Definitions.hpp>
+#include <data-units/Locations.hpp>
 
 namespace exageostat {
     namespace helpers {
@@ -27,7 +28,7 @@ namespace exageostat {
         template<typename T>
         class DiskWriter {
         public:
-            void static WriteVectorsToDisk(T *apMatrixPointer, int aProblemSize, std::string *apLoggerPath);
+            void static WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath, exageostat::dataunits::Locations *apLocations);
         };
 
         /**

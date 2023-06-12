@@ -140,6 +140,8 @@ endif ()
 # Include directories for Exageostat-cpp
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
+set(MY_LOGGER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+add_definitions(-DMY_LOGGER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)

@@ -229,7 +229,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 
     auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
     auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
-    int N = this->mpConfigurations->GetProblemSize();
+    const int N = this->mpConfigurations->GetProblemSize();
 
     int seed = this->mpConfigurations->GetSeed();
     int iseed[4] = {seed, seed, seed, 1};
@@ -268,7 +268,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
     VERBOSE("Done.\n");
 
-    //// TODO: Add log with path
+    const int P = this->mpConfigurations->GetP();
     if (this->mpConfigurations->GetLogger()) {
         T *pMatrix;
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
@@ -281,7 +281,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
         free(pMatrix);
 #else
         pMatrix = (T *) (*CHAM_descriptorZ)->mat;
-        DiskWriter<T>::WriteVectorsToDisk(pMatrix, N, this->mpConfigurations->GetLoggerPath());
+        DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, this->mpConfigurations->GetLoggerPath(), apLocation1);
     free(pMatrix);
 #endif
         VERBOSE(" Done.\n");
