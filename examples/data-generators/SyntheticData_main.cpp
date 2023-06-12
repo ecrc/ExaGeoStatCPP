@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <data-generators/DataGenerator.hpp>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
@@ -36,6 +37,10 @@ int main(int argc, char **argv) {
     // Create a new synthetic_data_configurations object with the provided command line arguments
     SyntheticDataConfigurations synthetic_data_configurations;
     synthetic_data_configurations.InitializeArguments(argc, argv);
+
+    // Initialise ExaGeoStat Hardware.
+    exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
 
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<double>> synthetic_generator;
@@ -73,9 +78,13 @@ int main(int argc, char **argv) {
         }
         cout << endl;
     }
-
+    cout << "Generate Descriptors \n";
     synthetic_generator->GenerateDescriptors();
+    cout << "Generate Observations \n";
     synthetic_generator->GenerateObservations();
+    synthetic_generator->DestoryDescriptors();
+    // Finalize ExaGeoStat Hardware.
+    exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
 
     return 0;
 }

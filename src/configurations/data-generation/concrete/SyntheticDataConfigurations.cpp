@@ -96,6 +96,8 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetSeed(CheckNumericalValue(argument_value));
             } else if (argument_name == "--runmode" || argument_name == "--runMode") {
                 ParseRunMode(argument_value);
+            } else if (argument_name == "--logpath" || argument_name == "--log_path" || argument_name == "--logPath") {
+                SetLoggerPath(argument_value);
             } else {
                 cout << "!! " << argument_name << " !!" << endl;
                 throw invalid_argument(
@@ -114,6 +116,8 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                 SetIsOOC(true);
             } else if (argument_name == "--ApproximationMode" || argument_name == "--approximationmode") {
                 SetApproximationMode(true);
+            } else if (argument_name == "--log" || argument_name == "--Log") {
+                SetLogger(true);
             } else {
                 throw invalid_argument(
                         "This argument is undefined, Please use --help to print all available arguments");

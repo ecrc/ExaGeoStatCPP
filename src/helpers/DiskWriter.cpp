@@ -11,107 +11,87 @@
  * @date 2023-06-08
 **/
 #include <helpers/DiskWriter.hpp>
-#include <sys/stat.h>
-#include <fstream>
 #include <cstring>
-#include <vector>
-#include <unistd.h>
+#include <string>
+#include <fstream>
 
 using namespace exageostat::helpers;
 using namespace std;
 using namespace exageostat::dataunits;
-//template<typename T>
-//void DiskWriter<T>::CreateDirectory(const std::string& path) {
-//    struct stat st = { 0 };
-//    if (stat(path.c_str(), &st) == -1)
-//        mkdir(path.c_str(), 0700);
-//}
-//
-//
-//template<typename T>
-//int DiskWriter<T>::DoesFileExist(const char* filename) {
-//    ifstream infile(filename);
-//    return infile.good();
-//}
 
 template<typename T>
 void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath, Locations *apLocations) {
 
-    int i = 1;
-    FILE* pFileZ = nullptr;
-    FILE* pFileZ2 = nullptr;
-    FILE* pFileZ3 = nullptr;
-    FILE* pFileXY = nullptr;
-    struct stat st = {0};
+    std::size_t i = 1;
+    string& user_path = *apLoggerPath;
 
-    char nFileZ[100];
-    char nFileZ2[100];
-    char nFileZ3[100];
-    char temp[100];
-    char nFileXY[100];
-    char nFileLog[100];
-    int p = 1;
+    if(user_path.empty()){
+        user_path = "./synthetic_ds";
+    } else{
+        if(user_path.back() == '/'){
+            user_path += "synthetic_ds";
+        }
+        else{
+            user_path += "/synthetic_ds";
+        }
+    }
+
+    std::ofstream p_file_z, p_file_z2, p_file_z3, p_file_xy, p_file_log;
+    std::string n_file_z = user_path + "/Z1_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_z2 = user_path + "/Z2_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_z3 = user_path + "/Z3_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_xy = user_path + "/LOC_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_log = user_path + "/log_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string temp = n_file_log + std::to_string(i);
 
     // Create new directory if not exist
-    if (stat("./synthetic_ds", &st) == -1) {
-        mkdir("./synthetic_ds", 0700);
-    }
-    
-    snprintf(nFileZ, 100, "%s%d%s%s%s", "./synthetic_ds/Z1_", *apProblemSize / *apP, "_");
-    snprintf(nFileZ2, 100, "%s%d%s%s%s", "./synthetic_ds/Z2_", *apProblemSize / *apP, "_");
-    snprintf(nFileZ3, 100, "%s%d%s%s%s", "./synthetic_ds/Z3_", *apProblemSize / *apP, "_");
-    snprintf(nFileXY, 100, "%s%d%s%s%s", "./synthetic_ds/LOC_", *apProblemSize / *apP, "_");
-    snprintf(nFileLog, 100, "%s%d%s%s%s", "./synthetic_ds/log_", *apProblemSize / *apP, "_");
-
-    snprintf(temp, 100, "%s%d", nFileLog, i);
+    std::filesystem::create_directory(user_path);
 
     // Check if log file exists
-    while (access(temp, F_OK) != -1) {
+    while (std::filesystem::exists(temp)) {
         i++;
-        snprintf(temp, 100, "%s%d", nFileLog, i);
+        temp = n_file_log + std::to_string(i);
     }
 
-    sprintf(temp, "%d", i);
-    strcat(nFileZ, temp);
-    strcat(nFileXY, temp);
-    strcat(nFileZ2, temp);
-    strcat(nFileZ3, temp);
-    strcat(nFileLog, temp);
+    n_file_z += std::to_string(i);
+    n_file_xy += std::to_string(i);
+    n_file_z2 += std::to_string(i);
+    n_file_z3 += std::to_string(i);
 
-    pFileZ = fopen(nFileZ, "w+");
-    pFileXY = fopen(nFileXY, "w+");
+    p_file_z.open(n_file_z);
+    p_file_xy.open(n_file_xy);
 
-    if (p == 1) {
+    if (*apP == 1) {
         for (i = 0; i < *apProblemSize; i++) {
-            fprintf(pFileZ, "%f\n", apMatrixPointer[i]);
+            p_file_z << std::setprecision(15) << apMatrixPointer[i] << '\n';
         }
-    } else if (p == 2) {
-        pFileZ2 = fopen(nFileZ2, "w+");
+    } else if (*apP == 2) {
+        p_file_z2.open(n_file_z2);
         for (i = 0; i < *apProblemSize; i += 2) {
-            fprintf(pFileZ, "%f\n", apMatrixPointer[i]);
-            fprintf(pFileZ2, "%f\n", apMatrixPointer[i + 1]);
+            p_file_z << std::setprecision(15) << apMatrixPointer[i] << '\n';
+            p_file_z2 << std::setprecision(15) << apMatrixPointer[i + 1] << '\n';
         }
-        fclose(pFileZ2);
-    } else if (p == 3) {
-        pFileZ2 = fopen(nFileZ2, "w+");
-        pFileZ3 = fopen(nFileZ3, "w+");
+        p_file_z2.close();
+    } else if (*apP == 3) {
+        p_file_z2.open(n_file_z2);
+        p_file_z3.open(n_file_z3);
         for (i = 0; i < *apProblemSize; i += 3) {
-            fprintf(pFileZ, "%f\n", apMatrixPointer[i]);
-            fprintf(pFileZ2, "%f\n", apMatrixPointer[i + 1]);
-            fprintf(pFileZ3, "%f\n", apMatrixPointer[i+ 2]);
+            p_file_z << std::setprecision(15) << apMatrixPointer[i] << '\n';
+            p_file_z2 << std::setprecision(15) << apMatrixPointer[i + 1] << '\n';
+            p_file_z3 << std::setprecision(15) << apMatrixPointer[i + 2] << '\n';
         }
-        fclose(pFileZ2);
-        fclose(pFileZ3);
+        p_file_z2.close();
+        p_file_z3.close();
     }
 
-    for (i = 0; i < *apProblemSize / p; i++) {
+    for (i = 0; i < *apProblemSize / *apP; i++) {
         if (apLocations->GetLocationZ() == nullptr) {
-            fprintf(pFileXY, "%f,%f\n", apLocations->GetLocationX(), apLocations->GetLocationY());
+            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ',' << apLocations->GetLocationY()[i] << '\n';
         } else {
-            fprintf(pFileXY, "%f,%f,%f\n", apLocations->GetLocationX(), apLocations->GetLocationY(), apLocations->GetLocationZ());
+            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ',' << apLocations->GetLocationY()[i] << ',' << apLocations->GetLocationZ()[i] << '\n';
         }
     }
 
-    fclose(pFileZ);
-    fclose(pFileXY);
+    p_file_z.close();
+    p_file_xy.close();
 }

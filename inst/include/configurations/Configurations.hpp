@@ -619,7 +619,7 @@ namespace exageostat {
             //// Used logger
             bool mLogger = false;
             //// Used logger
-            std::string mLoggerPath = MY_LOGGER_PATH;
+            std::string mLoggerPath;
         };
 
     }//namespace configurations

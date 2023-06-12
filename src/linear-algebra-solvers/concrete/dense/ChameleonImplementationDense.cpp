@@ -276,7 +276,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
         pMatrix = (T*) malloc(N * sizeof(T));
         CHAMELEON_Tile_to_Lapack( *CHAM_descriptorZ, pMatrix, N);
         if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(pMatrix, N, this->mpConfigurations->GetLoggerPath());
+            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, this->mpConfigurations->GetLoggerPath(), apLocation1);
         }
         free(pMatrix);
 #else
