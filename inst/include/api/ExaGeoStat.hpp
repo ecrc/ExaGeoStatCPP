@@ -17,7 +17,7 @@
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 
-namespace exageostat{
+namespace exageostat {
     namespace api {
         /**
          * @brief
@@ -27,7 +27,7 @@ namespace exageostat{
          * Data type: float or double
          */
         template<typename T>
-        class ExaGeoStat{
+        class ExaGeoStat {
         public:
             /**
             * @brief Initializes the ExaGeoStat hardware.
@@ -35,12 +35,21 @@ namespace exageostat{
             * @param apConfigurations Pointer to the configurations object.
             */
             static void ExaGeoStatInitializeHardware(configurations::Configurations *apConfigurations);
+
             /**
              * @brief Finalizes the ExaGeoStat hardware.
              *
              * @param apConfigurations Pointer to the configurations object.
              */
-                static void ExaGeoStatFinalizeHardware(configurations::Configurations *apConfigurations);
+            static void ExaGeoStatFinalizeHardware(configurations::Configurations *apConfigurations);
+
+            /**
+             * @brief Generates Data whether it's synthetic data or real.
+             *
+             * @param apConfigurations Pointer to the configurations object.
+             */
+            static void ExaGeoStatGenerateData(configurations::Configurations *apConfigurations);
+
         private:
             /**
             * @brief

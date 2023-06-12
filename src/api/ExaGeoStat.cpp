@@ -13,10 +13,13 @@
 #include <api/ExaGeoStat.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <data-generators/DataGenerator.hpp>
 
 using namespace exageostat::api;
 using namespace exageostat::configurations;
 using namespace exageostat::linearAlgebra;
+using namespace exageostat::generators;
+using namespace std;
 
 template<typename T> void ExaGeoStat<T>::ExaGeoStatInitializeHardware(Configurations *apConfigurations) {
 
@@ -36,4 +39,19 @@ void ExaGeoStat<T>::ExaGeoStatFinalizeHardware(Configurations *apConfigurations)
 
     linearAlgebraSolver->ExaGeoStatFinalizeContext();
     delete linearAlgebraSolver;
+}
+
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatGenerateData(configurations::Configurations *apConfigurations) {
+
+    // Create a unique pointer to a DataGenerator object
+    unique_ptr<DataGenerator<double>> synthetic_generator;
+    // Create the DataGenerator object
+    synthetic_generator = synthetic_generator->CreateGenerator((data_configurations::SyntheticDataConfigurations *) apConfigurations);
+
+    synthetic_generator->GenerateLocations();
+    synthetic_generator->GenerateDescriptors();
+    synthetic_generator->GenerateObservations();
+
+    synthetic_generator->DestoryDescriptors();
 }
