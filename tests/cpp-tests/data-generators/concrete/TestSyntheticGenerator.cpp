@@ -19,7 +19,7 @@
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
-using namespace exageostat::generators::Synthetic;
+using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::api;
@@ -36,8 +36,6 @@ void TEST_SPREAD_REVERSED_BITS() {
 #ifdef EXAGEOSTAT_USE_HiCMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
-
-    SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
 
     SECTION("Spread Bytes")
     {
@@ -197,48 +195,52 @@ void TEST_GENERATE_LOCATIONS() {
 #ifdef EXAGEOSTAT_USE_HiCMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
-
+//    SyntheticGenerator<double>::ReleaseInstance();
 
     SECTION("2D Generation") {
-        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
-        synthetic_data_configurations.SetDimension(Dimension2D);
-        synthetic_generator.GenerateLocations();
 
-        double *x = synthetic_generator.GetLocations()->GetLocationX();
-        double *y = synthetic_generator.GetLocations()->GetLocationY();
-        REQUIRE(synthetic_generator.GetLocations()->GetLocationZ() == nullptr);
+        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        synthetic_data_configurations.SetDimension(Dimension2D);
+        synthetic_generator->GenerateLocations();
+
+        double *x = synthetic_generator->GetLocations()->GetLocationX();
+        double *y = synthetic_generator->GetLocations()->GetLocationY();
+        REQUIRE(synthetic_generator->GetLocations()->GetLocationZ() == nullptr);
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
         }
+        SyntheticGenerator<double>::ReleaseInstance();
     }
 
     SECTION("3D Generation") {
         synthetic_data_configurations.SetDimension(Dimension3D);
-        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
-        synthetic_generator.GenerateLocations();
+        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
 
-        double *x = synthetic_generator.GetLocations()->GetLocationX();
-        double *y = synthetic_generator.GetLocations()->GetLocationY();
-        double *z = synthetic_generator.GetLocations()->GetLocationZ();
+        synthetic_generator->GenerateLocations();
+
+        double *x = synthetic_generator->GetLocations()->GetLocationX();
+        double *y = synthetic_generator->GetLocations()->GetLocationY();
+        double *z = synthetic_generator->GetLocations()->GetLocationZ();
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
             REQUIRE(z[i] != 0);
         }
+        SyntheticGenerator<double>::ReleaseInstance();
     }SECTION("ST Generation") {
 
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
 
-        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
-        synthetic_generator.GenerateLocations();
+        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        synthetic_generator->GenerateLocations();
 
-        double *x = synthetic_generator.GetLocations()->GetLocationX();
-        double *y = synthetic_generator.GetLocations()->GetLocationY();
-        double *z = synthetic_generator.GetLocations()->GetLocationZ();
+        double *x = synthetic_generator->GetLocations()->GetLocationX();
+        double *y = synthetic_generator->GetLocations()->GetLocationY();
+        double *z = synthetic_generator->GetLocations()->GetLocationZ();
 
         for (auto i = 0;
              i < synthetic_data_configurations.GetProblemSize(); i++) {
@@ -246,6 +248,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0.0);
             REQUIRE(z[i] != 0.0);
         }
+        SyntheticGenerator<double>::ReleaseInstance();
     }
 }
 
@@ -261,7 +264,6 @@ void TEST_HELPERS_FUNCTIONS() {
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
-    SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
 
     SECTION("Uniform distribution") {
         double lowerRange = -0.4;
@@ -273,10 +275,12 @@ void TEST_HELPERS_FUNCTIONS() {
 
     SECTION("Compare Uint32") {
 
+        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
         uint32_t num1 = 16;
-        REQUIRE(synthetic_generator.CompareUint64(num1, num1) == false);
-        REQUIRE(synthetic_generator.CompareUint64(num1, num1 + num1) == true);
-        REQUIRE(synthetic_generator.CompareUint64(num1 + num1, num1) == false);
+        REQUIRE(synthetic_generator->CompareUint64(num1, num1) == false);
+        REQUIRE(synthetic_generator->CompareUint64(num1, num1 + num1) == true);
+        REQUIRE(synthetic_generator->CompareUint64(num1 + num1, num1) == false);
+        SyntheticGenerator<double>::ReleaseInstance();
     }
 }
 
@@ -295,36 +299,37 @@ void TEST_GENERATION() {
 #ifdef EXAGEOSTAT_USE_HiCMA
         synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
-        SyntheticGenerator synthetic_generator = SyntheticGenerator<double>(&synthetic_data_configurations);
+        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
 
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         srand(0);
 
-        synthetic_generator.GenerateLocations();
+        synthetic_generator->GenerateLocations();
 
         // The expected output of the locations.
         vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
         vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
 
         for (int i = 0; i < N; i++) {
-            REQUIRE((synthetic_generator.GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
-            REQUIRE((synthetic_generator.GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator->GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator->GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
         }
 
         // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
-        synthetic_generator.GenerateLocations();
+        synthetic_generator->GenerateLocations();
         for (int i = 0; i < N; i++) {
-            REQUIRE((synthetic_generator.GetLocations()->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
-            REQUIRE((synthetic_generator.GetLocations()->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator->GetLocations()->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator->GetLocations()->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
         }
 
         // Now if we modified seed again, we will get the first generated locations again.
         srand(0);
-        synthetic_generator.GenerateLocations();
+        synthetic_generator->GenerateLocations();
         for (int i = 0; i < N; i++) {
-            REQUIRE((synthetic_generator.GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
-            REQUIRE((synthetic_generator.GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator->GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((synthetic_generator->GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
         }
+        SyntheticGenerator<double>::ReleaseInstance();
     }
 }
 

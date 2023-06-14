@@ -14,7 +14,7 @@
 
 namespace exageostat {
     namespace generators {
-        namespace Synthetic {
+        namespace synthetic {
 
             /**
              * @class SyntheticGenerator
@@ -25,23 +25,7 @@ namespace exageostat {
 
             public:
 
-                /**
-                *  @brief
-                *  Class constructor.
-                *
-                *  @param[in] apConfigurations
-                *  Pointer to Synthetic data Configurations.
-                 *
-                */
-                explicit SyntheticGenerator(
-                        configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
-
-                /**
-                 * @brief
-                 * Virtual destructor to allow calls to the correct concrete destructor.
-                 *
-                 */
-                ~SyntheticGenerator();
+                static SyntheticGenerator<T>* GetInstance(configurations::data_configurations::SyntheticDataConfigurations* apConfigurations);
 
                 static std::vector<double> InitTheta(std::vector<double> apTheta, int size);
 
@@ -141,9 +125,22 @@ namespace exageostat {
                  *
                  */
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
+                static void ReleaseInstance();
+
+            private:
+                explicit SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations* apConfigurations);
+                static SyntheticGenerator<T>* mpInstance;
+                /**
+                 * @brief
+                 * Virtual destructor to allow calls to the correct concrete destructor.
+                 *
+                 */
+                ~SyntheticGenerator();
 
             };
 
+            template<typename T>
+            SyntheticGenerator<T>* SyntheticGenerator<T>::mpInstance = nullptr;
             /**
              * @brief Instantiates the LinearAlgebraMethods class for float and double types.
              */

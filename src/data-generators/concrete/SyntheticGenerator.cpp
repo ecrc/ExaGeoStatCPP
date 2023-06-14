@@ -13,11 +13,20 @@
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
 using namespace exageostat::linearAlgebra;
-using namespace exageostat::generators::Synthetic;
+using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 using namespace std;
+
+template<typename T>
+SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
+
+    if (mpInstance == nullptr) {
+        mpInstance = new SyntheticGenerator<T>(apConfigurations);
+    }
+    return mpInstance;
+}
 
 template<typename T>
 SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
@@ -250,4 +259,11 @@ SyntheticGenerator<T>::~SyntheticGenerator() {
     delete this->mpLinearAlgebraSolver;
     delete this->mpKernel;
     delete this->mpLocations;
+}
+
+template<typename T>
+void SyntheticGenerator<T>::ReleaseInstance() {
+    if (mpInstance != nullptr) {
+        mpInstance = nullptr;
+    }
 }

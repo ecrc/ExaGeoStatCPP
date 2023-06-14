@@ -104,7 +104,7 @@ namespace exageostat {
              * This method frees the memory used by the data generator object.
              *
              */
-            virtual ~DataGenerator() = default;
+            virtual ~DataGenerator();
 
             /**
              * @brief Gets the linear algebra solver object.

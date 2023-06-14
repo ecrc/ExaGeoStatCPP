@@ -154,7 +154,6 @@ void TEST_DESCRIPTORS_INITIALIZATION_TLR() {
         REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
         REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
 
-        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
@@ -337,7 +336,6 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE((*HICMA_descriptorDeterminant)->p == pGrid);
         REQUIRE((*HICMA_descriptorDeterminant)->q == qGrid);
 
-        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
@@ -517,7 +515,6 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE((*HICMA_descriptorMSE)->q == qGrid);
         }
 
-        linearAlgebraSolver->DestoryDescriptors();
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }

@@ -37,6 +37,7 @@ void ExaGeoStat<T>::ExaGeoStatFinalizeHardware(Configurations *apConfigurations)
     auto linearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(apConfigurations->GetComputation());
     linearAlgebraSolver->SetConfigurations(apConfigurations);
 
+    linearAlgebraSolver->DestoryDescriptors();
     linearAlgebraSolver->ExaGeoStatFinalizeContext();
     delete linearAlgebraSolver;
 }
@@ -45,14 +46,12 @@ template<typename T>
 void ExaGeoStat<T>::ExaGeoStatGenerateData(configurations::Configurations *apConfigurations) {
 
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<double>> synthetic_generator;
+    unique_ptr<DataGenerator<double>> data_generator;
     // Create the DataGenerator object
-    synthetic_generator = synthetic_generator->CreateGenerator((data_configurations::SyntheticDataConfigurations *) apConfigurations);
+    data_generator = data_generator->CreateGenerator((data_configurations::SyntheticDataConfigurations *) apConfigurations);
 
-    synthetic_generator->GenerateLocations();
-    synthetic_generator->GenerateDescriptors();
-    synthetic_generator->GenerateObservations();
-
-//    synthetic_generator->DestoryDescriptors();
+    data_generator->GenerateLocations();
+    data_generator->GenerateDescriptors();
+    data_generator->GenerateObservations();
 }
 

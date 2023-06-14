@@ -65,6 +65,7 @@ void ChameleonImplementationDense<T>::InitiateDescriptors() {
     RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
     CHAMELEON_Sequence_Create(&pSequence);
 
+
     // Set the floating point precision based on the template type
     FloatPoint floatPoint;
     if (sizeof(T) == SIZE_OF_FLOAT) {
@@ -340,13 +341,13 @@ void ChameleonImplementationDense<T>::DestoryDescriptors() {
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
-    if(pDescriptorC[0]){
+    if(!pDescriptorC.empty() && pDescriptorC[0]){
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorC[0]);
     }
-    if(pDescriptorZ[0]){
+    if(!pDescriptorZ.empty() && pDescriptorZ[0]){
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorZ[0]);
     }
-    if(pDescriptorProduct[0]){
+    if(!pDescriptorProduct.empty() && pDescriptorProduct[0]){
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
     }
     if(*pChameleonDescriptorZcpy){

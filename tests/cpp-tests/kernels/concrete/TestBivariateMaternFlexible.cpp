@@ -44,9 +44,6 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         synthetic_data_configurations.SetIsSynthetic(true);
         synthetic_data_configurations.SetPrecision(DOUBLE);
 
-        // Create a unique pointer to a DataGenerator object
-        std::unique_ptr<DataGenerator<double>> synthetic_generator;
-
         vector<double> target_theta{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         synthetic_data_configurations.SetTargetTheta(target_theta);
 
@@ -63,7 +60,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
 
         // Create the DataGenerator object
-        synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
+        auto synthetic_generator = DataGenerator<double>::CreateGenerator(&synthetic_data_configurations);
 
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         srand(0);
@@ -91,7 +88,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
-        synthetic_generator->DestoryDescriptors();
+
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }

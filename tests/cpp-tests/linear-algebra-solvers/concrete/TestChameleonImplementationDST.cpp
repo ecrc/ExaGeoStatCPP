@@ -400,10 +400,11 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS_DST() {
     SECTION("Data generation - Observations") {
         // Create a new synthetic_data_configurations object with the provided command line arguments
         SyntheticDataConfigurations synthetic_data_configurations;
-        synthetic_data_configurations.SetProblemSize(9);
+        int N = 16;
+        synthetic_data_configurations.SetProblemSize(16);
         synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        synthetic_data_configurations.SetDenseTileSize(5);
+        synthetic_data_configurations.SetDenseTileSize(9);
         synthetic_data_configurations.SetComputation(exageostat::common::DIAGONAL_APPROX);
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
@@ -444,10 +445,18 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS_DST() {
         synthetic_generator->GetLinearAlgberaSolver()->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
                                                                                   synthetic_data_configurations.GetInitialTheta(),
                                                                                   0, synthetic_generator->GetKernel());
+        // Define the expected output for desk Z
+        double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
+                                         0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
+                                         -0.752828, 0.290822};
+        auto **CHAM_descriptorZ = (CHAM_desc_t **) &synthetic_data_configurations.GetDescriptorZ()[0];
+        auto *A = (double *) (*CHAM_descriptorZ)->mat;
+        double diff;
 
-//        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
-
-        synthetic_generator->DestoryDescriptors();
+        for(int i = 0; i < N; i++){
+            diff = A[i] - expected_output_data[i];
+            REQUIRE(diff == Approx(0.0).margin(1e-6));
+        }
 
         // Finalize ExaGeoStat Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
@@ -460,5 +469,4 @@ TEST_CASE("Chameleon Implementation DST") {
     TEST_DESCRIPTORS_INITIALIZATION_DST();
     TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
     TEST_CHAMELEON_GENERATE_OBSERVATIONS_DST();
-
 }

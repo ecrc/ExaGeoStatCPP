@@ -609,9 +609,9 @@ namespace exageostat {
             //// Used Z Actual observations descriptor.
             void *mpDescriptorZActual = nullptr;
             ////  Used sequence
-            void *mpSequence;
+            void *mpSequence = nullptr;
             //// Used request
-            void *mpRequest;
+            void *mpRequest = nullptr;
             /// The Seed variable, with default value = 0.
             int mSeed = 0;
             //// Used run mode
