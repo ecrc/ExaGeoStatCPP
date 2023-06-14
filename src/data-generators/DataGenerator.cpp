@@ -40,7 +40,7 @@ exageostat::kernels::Kernel *DataGenerator<T>::GetKernel() {
 }
 
 template<typename T>
-exageostat::linearAlgebra::LinearAlgebraMethods<T> * DataGenerator<T>::GetLinearAlgberaSolver() {
+exageostat::linearAlgebra::LinearAlgebraMethods<T> *DataGenerator<T>::GetLinearAlgberaSolver() {
     return mpLinearAlgebraSolver;
 }
 
@@ -60,8 +60,8 @@ DataGenerator<T>::~DataGenerator() {
     }
 }
 
-namespace exageostat{
-    namespace generators{
+namespace exageostat {
+    namespace generators {
         template<typename T> linearAlgebra::LinearAlgebraMethods<T> *DataGenerator<T>::mpLinearAlgebraSolver = nullptr;
     }
 }

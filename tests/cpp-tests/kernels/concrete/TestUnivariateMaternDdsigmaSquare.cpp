@@ -89,6 +89,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternDdsigmaSquare kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare();
 }

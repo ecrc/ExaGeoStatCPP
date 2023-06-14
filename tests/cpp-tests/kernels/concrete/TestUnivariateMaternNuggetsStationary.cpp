@@ -93,6 +93,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNuggetsStationary() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternNuggetsStationary kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternNuggetsStationary();
 }

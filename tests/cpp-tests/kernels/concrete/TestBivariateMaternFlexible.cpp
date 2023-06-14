@@ -81,7 +81,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         // Define the expected output
         double expected_output_data[] = {0.300000, 0.217899, 0.140362,
                                          0.148157, 0.600000, 0.148157,
-                                         0.264357, 0.148157,0.300000};
+                                         0.264357, 0.148157, 0.300000};
         int m = 3;
         int n = 3;
         for (int i = 0; i < m * n; i++) {

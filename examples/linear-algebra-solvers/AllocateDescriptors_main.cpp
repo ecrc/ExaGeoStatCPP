@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
         linearAlgebraSolver->InitiateDescriptors();
     } else if (synthetic_data_configurations.GetPrecision() == MIXED) {
         // TODO: Add implementation for mixed-precision linear algebra solver.
+        throw domain_error("Mix precision is not supported for now.");
     }
     return 0;
 }

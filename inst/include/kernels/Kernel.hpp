@@ -28,7 +28,7 @@
 *
 * This macro defines the radius of the Earth in kilometers, which is used by the Great Circle Distance (GCD) function.
 */
- #define EARTH_RADIUS 6371.0
+#define EARTH_RADIUS 6371.0
 /**
  * @def POW_e
  * @brief The value of e to the power of 1.

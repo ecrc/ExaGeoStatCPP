@@ -69,9 +69,9 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
         synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
-                                                                              nullptr,
-                                                                              synthetic_data_configurations.GetInitialTheta().data(),
-                                                                              0, synthetic_generator->GetKernel());
+                                                                               nullptr,
+                                                                               synthetic_data_configurations.GetInitialTheta().data(),
+                                                                               0, synthetic_generator->GetKernel());
 
         auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
 

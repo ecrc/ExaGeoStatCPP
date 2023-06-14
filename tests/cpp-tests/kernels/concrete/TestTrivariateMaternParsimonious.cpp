@@ -91,6 +91,7 @@ void TEST_KERNEL_GENERATION_TrivariateMaternParsimonious() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("TrivariateMaternParsimonious kernel test") {
     TEST_KERNEL_GENERATION_TrivariateMaternParsimonious();
 }

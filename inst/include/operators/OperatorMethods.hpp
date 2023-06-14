@@ -20,7 +20,7 @@
 #include <common/Definitions.hpp>
 
 namespace exageostat {
-    namespace operators{
+    namespace operators {
         /**
          * @class OperatorMethods
          * @brief A class that defines the interface for operators.

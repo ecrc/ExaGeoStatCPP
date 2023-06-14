@@ -81,7 +81,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaBeta() {
         //// These kernel is not used in C, These values are from cpp version only.
         double expected_output_data[] = {0, 118.16, 2646.1, 1803.22,
                                          118.16, 0, 1166.92, 426.06,
-                                         2646.1,1166.92, 0,200.408,
+                                         2646.1, 1166.92, 0, 200.408,
                                          1803.22, 426.06, 200.408, 0};
         int m = 4;
         int n = 4;
@@ -94,6 +94,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaBeta() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternDdbetaBeta kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternDdbetaBeta();
 }

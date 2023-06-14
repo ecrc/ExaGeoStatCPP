@@ -280,7 +280,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits
     auto *HICMA_descA = (HICMA_desc_t *) descA;
     HICMA_desc_t A = *HICMA_descA;
     struct starpu_codelet *cl = &this->cl_dcmg;
-    int m = 0, n = 0, m0 = 0, n0 = 0;
+    int m, n, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -332,9 +332,6 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
-
-    auto *sequence = (HICMA_sequence_t *) this->mpConfigurations->GetSequence();
-    auto *request = (HICMA_request_t *) this->mpConfigurations->GetRequest();
     int N = this->mpConfigurations->GetProblemSize();
 
     int seed = this->mpConfigurations->GetSeed();
@@ -350,19 +347,19 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *descA, Locations *
         theta[i] = aLocalTheta[i];
     }
 
-    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
+    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
 
     free(theta);
-    VERBOSE("Done.\n");
+    VERBOSE("Done.\n")
 
     //Copy Nrand to Z
-    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
+    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....")
     auto **HICMA_descriptorZ = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
     CopyDescriptorZ(*HICMA_descriptorZ, Nrand);
-    VERBOSE("Done.\n");
-    
+    VERBOSE("Done.\n")
+
     //// RESET OF THE IMPLEMENTATION WILL BE ADDED AFTER FINALIZING ALL MODULES WITH EXACT.
 }
 
@@ -378,8 +375,8 @@ HicmaImplementation<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
 
     HICMA_option_t options;
     HICMA_RUNTIME_options_init(&options, (HICMA_context_t *) this->apContext,
-            (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
-            (HICMA_request_t *) this->mpConfigurations->GetRequest());
+                               (HICMA_sequence_t *) this->mpConfigurations->GetSequence(),
+                               (HICMA_request_t *) this->mpConfigurations->GetRequest());
 
     int m, m0;
     int tempmm;
@@ -421,43 +418,44 @@ void HicmaImplementation<T>::DestoryDescriptors() {
     auto **pDescriptorMSE = (HICMA_desc_t **) &this->mpConfigurations->GetDescriptorMSE();
 
 
-    if(pDescriptorC[0]){
+    if (!pDescriptorC.empty() && pDescriptorC[0]) {
         HICMA_Desc_Destroy((HICMA_desc_t **) &pDescriptorC[0]);
     }
-    if(pDescriptorZ[0]){
+    if (!pDescriptorZ.empty() && pDescriptorZ[0]) {
         HICMA_Desc_Destroy((HICMA_desc_t **) &pDescriptorZ[0]);
     }
 
-    if(*pHicmaDescriptorZcpy){
+    if (*pHicmaDescriptorZcpy) {
         HICMA_Desc_Destroy(pHicmaDescriptorZcpy);
     }
-    if(*pHicmaDescriptorDeterminant){
+    if (*pHicmaDescriptorDeterminant) {
         HICMA_Desc_Destroy(pHicmaDescriptorDeterminant);
     }
 
-    if(*pDescriptorCD){
+    if (*pDescriptorCD) {
         HICMA_Desc_Destroy(pDescriptorCD);
     }
-    if(*pDescriptorCUV){
+    if (*pDescriptorCUV) {
         HICMA_Desc_Destroy(pDescriptorCUV);
     }
-    if(*pDescriptorCrk){
+    if (*pDescriptorCrk) {
         HICMA_Desc_Destroy(pDescriptorCrk);
     }
-    if(*pDescriptorZObservations){
+    if (*pDescriptorZObservations) {
         HICMA_Desc_Destroy(pDescriptorZObservations);
     }
-    if(*pDescriptorZactual){
+    if (*pDescriptorZactual) {
         HICMA_Desc_Destroy(pDescriptorZactual);
     }
-    if(*pDescriptorMSE){
+    if (*pDescriptorMSE) {
         HICMA_Desc_Destroy(pDescriptorMSE);
     }
 
-    if((HICMA_sequence_t *) this->mpConfigurations->GetSequence()){
+    if ((HICMA_sequence_t *) this->mpConfigurations->GetSequence()) {
         HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpConfigurations->GetSequence());
     }
 }
+
 namespace exageostat::linearAlgebra::tileLowRank {
     template<typename T> void *HicmaImplementation<T>::apContext = nullptr;
 }

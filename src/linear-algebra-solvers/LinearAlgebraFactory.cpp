@@ -37,7 +37,7 @@ LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Comp
 #endif
     }
 
-    // HiCMA Used
+        // HiCMA Used
     else if (aComputation == TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HiCMA
         return new tileLowRank::HicmaImplementation<T>();

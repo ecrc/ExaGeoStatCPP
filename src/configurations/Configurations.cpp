@@ -62,6 +62,7 @@ void Configurations::SetOperator(Operators aOperator) {
 Operators Configurations::GetOperator() {
     return this->mOperator;
 }
+
 void Configurations::SetPGrid(int aPGrid) {
     this->mPGrid = aPGrid;
 }
@@ -102,19 +103,24 @@ int Configurations::GetQGrid() const {
     return this->mQGrid;
 
 }
+
 std::vector<void *> &Configurations::GetDescriptorC() {
     return this->mpDescriptorC;
 }
+
 std::vector<void *> &Configurations::GetDescriptorZ() {
     return this->mpDescriptorZ;
 }
-void * &Configurations::GetDescriptorZcpy() {
+
+void *&Configurations::GetDescriptorZcpy() {
     return this->mpDescriptorZcpy;
 }
+
 std::vector<void *> &Configurations::GetDescriptorProduct() {
     return this->mpDescriptorProduct;
 }
-void * &Configurations::GetDescriptorDeterminant() {
+
+void *&Configurations::GetDescriptorDeterminant() {
     return this->mpDescriptorDeterminant;
 }
 
@@ -130,15 +136,15 @@ std::vector<void *> &Configurations::GetDescriptorCrk() {
     return this->mpDescriptorCrk;
 }
 
-void * &Configurations::GetDescriptorZObservations() {
+void *&Configurations::GetDescriptorZObservations() {
     return this->mpDescriptorZObservations;
 }
 
-void * &Configurations::GetDescriptorMSE() {
+void *&Configurations::GetDescriptorMSE() {
     return this->mpDescriptorMSE;
 }
 
-void * &Configurations::GetDescriptorZActual() {
+void *&Configurations::GetDescriptorZActual() {
     return this->mpDescriptorZActual;
 }
 
@@ -222,15 +228,15 @@ double Configurations::GetDeterminantValue() {
     return this->mDeterminantValue;
 }
 
-int Configurations::GetSeed(){
+int Configurations::GetSeed() {
     return this->mSeed;
 }
 
-void Configurations::SetSeed(int aSeed){
+void Configurations::SetSeed(int aSeed) {
     this->mSeed = aSeed;
 }
 
-int Configurations::CheckNumericalValue(const string& aValue) {
+int Configurations::CheckNumericalValue(const string &aValue) {
 
     int numericalValue = -1;
     try {
@@ -246,7 +252,7 @@ int Configurations::CheckNumericalValue(const string& aValue) {
     return numericalValue;
 }
 
-Computation Configurations::CheckComputationValue(const std::string& aValue) {
+Computation Configurations::CheckComputationValue(const std::string &aValue) {
 
     if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense"
         and aValue != "diag_approx" and aValue != "diagonal_approx"
@@ -261,7 +267,7 @@ Computation Configurations::CheckComputationValue(const std::string& aValue) {
     return TILE_LOW_RANK;
 }
 
-Precision Configurations::CheckPrecisionValue(const std::string& aValue) {
+Precision Configurations::CheckPrecisionValue(const std::string &aValue) {
 
     if (aValue != "single" and aValue != "Single"
         and aValue != "double" and aValue != "Double"
@@ -294,11 +300,11 @@ void *Configurations::GetRequest() {
 
 RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
 
-RunMode Configurations::GetRunMode(){
+RunMode Configurations::GetRunMode() {
     return Configurations::mRunMode;
 }
 
-void Configurations::SetRunMode(RunMode aRunMode){
+void Configurations::SetRunMode(RunMode aRunMode) {
     Configurations::mRunMode = aRunMode;
 }
 

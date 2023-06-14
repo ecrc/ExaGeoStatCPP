@@ -79,8 +79,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdnuNu() {
 
         // Define the expected output
         double expected_output_data[] = {0, nan(""), nan(""), nan(""),
-                                         nan(""),0, nan(""), nan(""),
-                                         nan(""), nan(""),0, nan(""),
+                                         nan(""), 0, nan(""), nan(""),
+                                         nan(""), nan(""), 0, nan(""),
                                          nan(""), nan(""), nan(""), 0};
         int m = 4;
         int n = 4;

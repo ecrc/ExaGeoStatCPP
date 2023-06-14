@@ -126,23 +126,21 @@ bool DataConfigurations::IsCamelCase(std::string aString) {
     return true;
 }
 
-void DataConfigurations::ParseRunMode(const std::string& aRunMode){
-    if(aRunMode == "verbose" || aRunMode == "Verbose"){
+void DataConfigurations::ParseRunMode(const std::string &aRunMode) {
+    if (aRunMode == "verbose" || aRunMode == "Verbose") {
         mRunMode = RunMode::VERBOSE_MODE;
-    }
-    else if(aRunMode == "standard" || aRunMode == "Standard"){
+    } else if (aRunMode == "standard" || aRunMode == "Standard") {
         mRunMode = RunMode::STANDARD_MODE;
-    }
-    else{
+    } else {
         cout << "Error: " << aRunMode << " is not valid " << endl;
         throw range_error("Invalid value. Please use verbose or standard values only.");
     }
 }
 
-std::vector<double> DataConfigurations::ParseTheta(const std::string& aInputValues) {
+std::vector<double> DataConfigurations::ParseTheta(const std::string &aInputValues) {
     // Count the number of values in the string
     int num_values = 1;
-    for (char aInputValue : aInputValues) {
+    for (char aInputValue: aInputValues) {
         if (aInputValue == ':') {
             num_values++;
         }
@@ -152,18 +150,17 @@ std::vector<double> DataConfigurations::ParseTheta(const std::string& aInputValu
     std::vector<double> theta;
 
     // Split the string into tokens using strtok()
-    const char* delim = ":";
-    char* token = strtok((char*)aInputValues.c_str(), delim);
+    const char *delim = ":";
+    char *token = strtok((char *) aInputValues.c_str(), delim);
 //    int i = 1;
     int i = 0;
     while (token != nullptr) {
         // Check if the token is a valid double or "?"
         if (!strcmp(token, "?")) {
             theta.push_back(-1);
-        }
-        else {
+        } else {
             try {
-                theta.push_back( stod(token) );
+                theta.push_back(stod(token));
             }
             catch (...) {
                 cout << "Error: " << token << " is not a valid double or '?' " << endl;
@@ -178,8 +175,9 @@ std::vector<double> DataConfigurations::ParseTheta(const std::string& aInputValu
 
     // Check if the number of values in the array is correct
 //    if (i != num_values + 1) {
-    if (i != num_values ) {
-        throw range_error("Error: the number of values in the input string is invalid, please use this example format as a reference 1:?:0.1");
+    if (i != num_values) {
+        throw range_error(
+                "Error: the number of values in the input string is invalid, please use this example format as a reference 1:?:0.1");
     }
 
     return theta;

@@ -92,6 +92,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDbeta() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternDbeta kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternDbeta();
 }

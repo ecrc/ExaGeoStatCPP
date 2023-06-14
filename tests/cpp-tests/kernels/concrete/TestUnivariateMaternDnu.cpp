@@ -81,7 +81,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDnu() {
         double expected_output_data[] = {0, 0.0163331, 0.000139344, 0.000332556,
                                          0.0163331, 0, 0.000791289, 0.00393537,
                                          0.000139344, 0.000791289, 0, 0.00975586,
-                                         0.000332556, 0.00393537, 0.00975586,0};
+                                         0.000332556, 0.00393537, 0.00975586, 0};
         int m = 4;
         int n = 4;
         for (int i = 0; i < m * n; i++) {
@@ -92,6 +92,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDnu() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternDnu kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternDnu();
 }

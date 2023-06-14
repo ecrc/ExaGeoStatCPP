@@ -20,7 +20,8 @@ using namespace exageostat::configurations::data_configurations;
 using namespace std;
 
 template<typename T>
-SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
+SyntheticGenerator<T> *
+SyntheticGenerator<T>::GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
 
     if (mpInstance == nullptr) {
         mpInstance = new SyntheticGenerator<T>(apConfigurations);
@@ -34,7 +35,8 @@ SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigu
     // Set configuration map and init locations.
     this->mpConfigurations = apConfigurations;
 
-    this->mpLocations = new Locations((apConfigurations->GetProblemSize() * apConfigurations->GetTimeSlot()), apConfigurations->GetDimension());
+    this->mpLocations = new Locations((apConfigurations->GetProblemSize() * apConfigurations->GetTimeSlot()),
+                                      apConfigurations->GetDimension());
 
     // Set selected Kernel
     std::string kernel_name = this->mpConfigurations->GetKernel();
@@ -43,7 +45,7 @@ SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigu
     this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
 
     this->mpConfigurations->SetProblemSize(this->mpConfigurations->GetProblemSize() * this->mpKernel->GetPValue());
-    this->mpConfigurations->SetP( this->mpKernel->GetPValue());
+    this->mpConfigurations->SetP(this->mpKernel->GetPValue());
 
     int parameters_number = this->mpKernel->GetParametersNumbers();
     this->mpConfigurations->SetParametersNumber(parameters_number);

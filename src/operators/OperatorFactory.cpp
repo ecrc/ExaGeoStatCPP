@@ -26,7 +26,7 @@ using namespace exageostat::common;
 template<typename T>
 std::unique_ptr<OperatorMethods<T>> OperatorFactory<T>::CreateOperator(Operators aOperators) {
 
-    if (aOperators == MLE){
+    if (aOperators == MLE) {
         std::make_unique<MaximumLikelihoodEstimation<T>>();
     }
     throw std::runtime_error("You need to select operator");

@@ -41,12 +41,8 @@ int main(int argc, char **argv) {
     // Initialise ExaGeoStat Hardware.
     exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
 
-
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<double>> synthetic_generator;
-
-    // Create the DataGenerator object
-    synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
+    unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(&synthetic_data_configurations);
 
     // Initialize the locations of the generated data
     synthetic_generator->GenerateLocations();
@@ -82,7 +78,17 @@ int main(int argc, char **argv) {
     synthetic_generator->GenerateDescriptors();
     cout << "Generate Observations \n";
     synthetic_generator->GenerateObservations();
-    synthetic_generator->DestoryDescriptors();
+
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    cout << "Z vector values: " << endl;
+    auto **CHAM_descriptorZ = (CHAM_desc_t **) &synthetic_data_configurations.GetDescriptorZ()[0];
+    auto *A = (double *) (*CHAM_descriptorZ)->mat;
+    for(int i = 0; i < synthetic_data_configurations.GetProblemSize(); i++){
+        cout << A[i] << " ";
+    }
+    cout << endl;
+#endif
+
     // Finalize ExaGeoStat Hardware.
     exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
 

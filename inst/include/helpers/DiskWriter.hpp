@@ -4,7 +4,7 @@
 
 /**
  * @file DiskWriter.hpp
- * @brief 
+ * @brief Contains the definition of the DiskWriter class for writing data to disk.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -28,7 +28,18 @@ namespace exageostat {
         template<typename T>
         class DiskWriter {
         public:
-            void static WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath, exageostat::dataunits::Locations *apLocations);
+
+            /**
+             * @brief Writes a matrix of vectors to disk.
+             * @param apMatrixPointer A pointer to the matrix data.
+             * @param apProblemSize The size of the problem.
+             * @param apP The number of processes.
+             * @param apLoggerPath The path to the logger file.
+             * @param apLocations A pointer to the Locations object.
+             */
+            void static
+            WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath,
+                               exageostat::dataunits::Locations *apLocations);
         };
 
         /**

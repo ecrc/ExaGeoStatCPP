@@ -175,7 +175,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int u
     CHAM_desc_t A = *CHAM_descA;
 
     struct starpu_codelet *cl = &this->cl_dcmg;
-    int m = 0, n = 0, m0 = 0, n0 = 0;
+    int m, n, m0 = 0, n0 = 0;
 
     for (n = 0; n < A.nt; n++) {
         tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
@@ -228,10 +228,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
 
-    auto *sequence = (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence();
-    auto *request = (RUNTIME_request_t *) this->mpConfigurations->GetRequest();
     const int N = this->mpConfigurations->GetProblemSize();
-
     int seed = this->mpConfigurations->GetSeed();
     int iseed[4] = {seed, seed, seed, 1};
 
@@ -245,30 +242,29 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
         theta[i] = aLocalTheta[i];
     }
 
-    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....");
+    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
     this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
 
     free(theta);
-    VERBOSE("Done.\n");
+    VERBOSE("Done.\n")
 
     //Copy Nrand to Z
-    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
+    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....")
     auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
-
     CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
-    VERBOSE("Done.\n");
+    VERBOSE("Done.\n")
 
     //Cholesky factorization for the Co-variance matrix C
-    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....");
-    int potential_failure = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *)descA);
-    FAILURE_LOGGER(potential_failure, "Factorization cannot be performed..\nThe matrix is not positive definite");
-    VERBOSE("Done.\n");
+    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....")
+    int potential_failure = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *) descA);
+    FAILURE_LOGGER(potential_failure, "Factorization cannot be performed..\nThe matrix is not positive definite")
+    VERBOSE("Done.\n")
 
     //Triangular matrix-matrix multiplication
-    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....");
+    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....")
     CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) descA, *CHAM_descriptorZ);
-    VERBOSE("Done.\n");
+    VERBOSE("Done.\n")
 
     const int P = this->mpConfigurations->GetP();
     if (this->mpConfigurations->GetLogger()) {
@@ -284,14 +280,14 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
 #else
         pMatrix = (T *) (*CHAM_descriptorZ)->mat;
         DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, this->mpConfigurations->GetLoggerPath(), apLocation1);
-    free(pMatrix);
+        free(pMatrix);
 #endif
-        VERBOSE(" Done.\n");
+        VERBOSE(" Done.\n")
     }
 
     CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
     free(Nrand);
-    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)");
+    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)")
 }
 
 template<typename T>
@@ -341,19 +337,19 @@ void ChameleonImplementationDense<T>::DestoryDescriptors() {
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
     auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
 
-    if(!pDescriptorC.empty() && pDescriptorC[0]){
+    if (!pDescriptorC.empty() && pDescriptorC[0]) {
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorC[0]);
     }
-    if(!pDescriptorZ.empty() && pDescriptorZ[0]){
+    if (!pDescriptorZ.empty() && pDescriptorZ[0]) {
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorZ[0]);
     }
-    if(!pDescriptorProduct.empty() && pDescriptorProduct[0]){
+    if (!pDescriptorProduct.empty() && pDescriptorProduct[0]) {
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
     }
-    if(*pChameleonDescriptorZcpy){
-        CHAMELEON_Desc_Destroy( pChameleonDescriptorZcpy);
+    if (*pChameleonDescriptorZcpy) {
+        CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
     }
-    if(*pChameleonDescriptorDeterminant){
+    if (*pChameleonDescriptorDeterminant) {
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 

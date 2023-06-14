@@ -36,9 +36,9 @@
 #   define PROJECT_SOURCE_DIR ""
 
 #endif
+
 // Variables sizes.
 #define SIZE_OF_FLOAT 4
-
 #define SIZE_OF_DOUBLE 8
 
 namespace exageostat {
@@ -162,8 +162,6 @@ namespace exageostat {
                     kernelNames.insert(lowercaseName);
                 }
             }
-            std::set<std::string> classNames = availableKernels;
-
             return kernelNames;
         }();
 

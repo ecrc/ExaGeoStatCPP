@@ -514,10 +514,10 @@ namespace exageostat {
              */
             static exageostat::common::RunMode GetRunMode();
 
-           /**
-            * @brief RunMode setter.
-            * @param aRunMode
-            */
+            /**
+             * @brief RunMode setter.
+             * @param aRunMode
+             */
             static void SetRunMode(exageostat::common::RunMode aRunMode);
 
             /**
@@ -536,7 +536,7 @@ namespace exageostat {
              * @brief Logger path getter.
              * @return mLoggerPath
              */
-            std::string* GetLoggerPath();
+            std::string *GetLoggerPath();
 
             /**
              * @brief Logger path setter.

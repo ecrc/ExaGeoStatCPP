@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
         cout << "You set run mode to STANDARD." << endl;
     }
 
-    VERBOSE("VERBOSE ACTIVATED");
+    VERBOSE("VERBOSE ACTIVATED")
 
     return 0;
 }

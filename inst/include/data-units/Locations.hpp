@@ -51,7 +51,7 @@ namespace exageostat {
              *
              * @return mpLocationX Pointer to X data.
              */
-            double * GetLocationX();
+            double *GetLocationX();
 
             /**
              * @brief Setter for LocationY.
@@ -65,7 +65,7 @@ namespace exageostat {
              *
              * @return mpLocationY Pointer to Y data.
              */
-            double * GetLocationY();
+            double *GetLocationY();
 
             /**
              * @brief Setter for LocationZ.
@@ -79,7 +79,7 @@ namespace exageostat {
              *
              * @return mpLocationZ Pointer to Z data.
              */
-            double * GetLocationZ();
+            double *GetLocationZ();
 
         private:
             /// Pointer to X data.

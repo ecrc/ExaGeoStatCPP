@@ -44,20 +44,20 @@ Locations::Locations(int aSize, Dimension aDimension) {
 
     this->mpLocationX = (double *) malloc(aSize * sizeof(double));
     this->mpLocationY = (double *) malloc(aSize * sizeof(double));
-    if (aDimension != common::Dimension2D){
+    if (aDimension != common::Dimension2D) {
         this->mpLocationZ = (double *) malloc(aSize * sizeof(double));
     }
 }
 
 Locations::~Locations() {
 
-    if (this->mpLocationX != nullptr){
+    if (this->mpLocationX != nullptr) {
         free(this->mpLocationX);
     }
-    if (this->mpLocationY != nullptr){
+    if (this->mpLocationY != nullptr) {
         free(this->mpLocationY);
     }
-    if (this->mpLocationZ != nullptr){
+    if (this->mpLocationZ != nullptr) {
         free(this->mpLocationZ);
     }
 }

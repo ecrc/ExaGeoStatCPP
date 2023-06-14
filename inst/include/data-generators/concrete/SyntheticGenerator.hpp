@@ -25,7 +25,8 @@ namespace exageostat {
 
             public:
 
-                static SyntheticGenerator<T>* GetInstance(configurations::data_configurations::SyntheticDataConfigurations* apConfigurations);
+                static SyntheticGenerator<T> *
+                GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
                 static std::vector<double> InitTheta(std::vector<double> apTheta, int size);
 
@@ -47,6 +48,7 @@ namespace exageostat {
                 void GenerateDescriptors() override;
 
                 void DestoryDescriptors() override;
+
                 /**
                  * @brief
                  * Generates the data observations.
@@ -125,22 +127,26 @@ namespace exageostat {
                  *
                  */
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
+
                 static void ReleaseInstance();
 
             private:
-                explicit SyntheticGenerator(configurations::data_configurations::SyntheticDataConfigurations* apConfigurations);
-                static SyntheticGenerator<T>* mpInstance;
+                explicit SyntheticGenerator(
+                        configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+
+                static SyntheticGenerator<T> *mpInstance;
+
                 /**
                  * @brief
                  * Virtual destructor to allow calls to the correct concrete destructor.
                  *
                  */
-                ~SyntheticGenerator();
+                ~SyntheticGenerator() override;
 
             };
 
-            template<typename T>
-            SyntheticGenerator<T>* SyntheticGenerator<T>::mpInstance = nullptr;
+            template<typename T> SyntheticGenerator<T> *SyntheticGenerator<T>::mpInstance = nullptr;
+
             /**
              * @brief Instantiates the LinearAlgebraMethods class for float and double types.
              */

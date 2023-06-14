@@ -52,6 +52,7 @@ namespace exageostat {
              * @details This method frees the memory used by the data descriptors.
              */
             virtual void DestoryDescriptors() = 0;
+
             /**
              * @brief
              * Generates the data observations.
@@ -110,15 +111,15 @@ namespace exageostat {
              * @brief Gets the linear algebra solver object.
              * @return A pointer to the linear algebra solver object.
              */
-            static linearAlgebra::LinearAlgebraMethods<T> * GetLinearAlgberaSolver();
+            static linearAlgebra::LinearAlgebraMethods<T> *GetLinearAlgberaSolver();
 
         protected:
             /// Used Synthetic Configuration.
             configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
             /// Used Locations
-            dataunits::Locations * mpLocations = nullptr; // Pointer to Locations object
+            dataunits::Locations *mpLocations = nullptr; // Pointer to Locations object
             /// Used Kernel
-            exageostat::kernels::Kernel * mpKernel = nullptr;
+            exageostat::kernels::Kernel *mpKernel = nullptr;
             /// Used linear Algebra solver
             static linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver;
         };

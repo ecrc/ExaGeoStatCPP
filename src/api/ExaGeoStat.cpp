@@ -12,7 +12,6 @@
 **/
 #include <api/ExaGeoStat.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <data-generators/DataGenerator.hpp>
 
 using namespace exageostat::api;
@@ -21,7 +20,8 @@ using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators;
 using namespace std;
 
-template<typename T> void ExaGeoStat<T>::ExaGeoStatInitializeHardware(Configurations *apConfigurations) {
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatInitializeHardware(Configurations *apConfigurations) {
 
     auto linearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(apConfigurations->GetComputation());
     //// TODO: Is there a better way to avoid this?
@@ -48,7 +48,8 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(configurations::Configurations *apCon
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<double>> data_generator;
     // Create the DataGenerator object
-    data_generator = data_generator->CreateGenerator((data_configurations::SyntheticDataConfigurations *) apConfigurations);
+    data_generator = data_generator->CreateGenerator(
+            (data_configurations::SyntheticDataConfigurations *) apConfigurations);
 
     data_generator->GenerateLocations();
     data_generator->GenerateDescriptors();

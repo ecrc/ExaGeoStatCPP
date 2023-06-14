@@ -97,6 +97,7 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("BivariateSpacetimeMaternStationary kernel test") {
     TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary();
 }

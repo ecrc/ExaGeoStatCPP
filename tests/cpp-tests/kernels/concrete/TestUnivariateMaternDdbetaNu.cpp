@@ -82,7 +82,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaNu() {
         // Define the expected output
         double expected_output_data[] = {0, 0.494077, 0.0110013, 0.0232535,
                                          0.494077, 0, 0.048244, 0.175324,
-                                         0.0110013,0.048244, 0, 0.345247,
+                                         0.0110013, 0.048244, 0, 0.345247,
                                          0.0232535, 0.175324, 0.345247, 0};
         int m = 4;
         int n = 4;
@@ -94,6 +94,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdbetaNu() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternDdbetaNu kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternDdbetaNu();
 }

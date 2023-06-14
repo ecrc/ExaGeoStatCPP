@@ -199,7 +199,8 @@ void TEST_GENERATE_LOCATIONS() {
 
     SECTION("2D Generation") {
 
-        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
+                &synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
         synthetic_generator->GenerateLocations();
 
@@ -216,7 +217,8 @@ void TEST_GENERATE_LOCATIONS() {
 
     SECTION("3D Generation") {
         synthetic_data_configurations.SetDimension(Dimension3D);
-        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
+                &synthetic_data_configurations);
 
         synthetic_generator->GenerateLocations();
 
@@ -235,7 +237,8 @@ void TEST_GENERATE_LOCATIONS() {
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
 
-        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
+                &synthetic_data_configurations);
         synthetic_generator->GenerateLocations();
 
         double *x = synthetic_generator->GetLocations()->GetLocationX();
@@ -275,7 +278,8 @@ void TEST_HELPERS_FUNCTIONS() {
 
     SECTION("Compare Uint32") {
 
-        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
+                &synthetic_data_configurations);
         uint32_t num1 = 16;
         REQUIRE(synthetic_generator->CompareUint64(num1, num1) == false);
         REQUIRE(synthetic_generator->CompareUint64(num1, num1 + num1) == true);
@@ -299,7 +303,8 @@ void TEST_GENERATION() {
 #ifdef EXAGEOSTAT_USE_HiCMA
         synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
-        SyntheticGenerator<double>* synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
+                &synthetic_data_configurations);
 
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         srand(0);
@@ -366,7 +371,7 @@ void TEST_ALL_GENERATIONS() {
         auto *A = (double *) (*CHAM_descriptorZ)->mat;
         double diff;
 
-        for(int i = 0; i < N; i++){
+        for (int i = 0; i < N; i++) {
             diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }

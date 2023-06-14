@@ -15,6 +15,7 @@
 #define EXAGEOSTATCPP_MAXIMUMLIKELIHOODESTIMATION_HPP
 
 #include <operators/OperatorMethods.hpp>
+
 namespace exageostat {
     namespace operators {
         /**
@@ -23,7 +24,7 @@ namespace exageostat {
          * @tparam T Type of matrix elements.
          */
         template<typename T>
-        class MaximumLikelihoodEstimation : public OperatorMethods<T>{
+        class MaximumLikelihoodEstimation : public OperatorMethods<T> {
 
         public:
 

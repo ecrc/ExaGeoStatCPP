@@ -20,8 +20,10 @@
 #include <memory>
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
+
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>

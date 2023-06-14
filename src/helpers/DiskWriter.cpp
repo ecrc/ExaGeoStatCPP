@@ -20,18 +20,18 @@ using namespace std;
 using namespace exageostat::dataunits;
 
 template<typename T>
-void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath, Locations *apLocations) {
+void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP,
+                                       std::string *apLoggerPath, Locations *apLocations) {
 
     std::size_t i = 1;
-    string& user_path = *apLoggerPath;
+    string &user_path = *apLoggerPath;
 
-    if(user_path.empty()){
+    if (user_path.empty()) {
         user_path = "./synthetic_ds";
-    } else{
-        if(user_path.back() == '/'){
+    } else {
+        if (user_path.back() == '/') {
             user_path += "synthetic_ds";
-        }
-        else{
+        } else {
             user_path += "/synthetic_ds";
         }
     }
@@ -86,9 +86,11 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
 
     for (i = 0; i < *apProblemSize / *apP; i++) {
         if (apLocations->GetLocationZ() == nullptr) {
-            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ',' << apLocations->GetLocationY()[i] << '\n';
+            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ','
+                      << apLocations->GetLocationY()[i] << '\n';
         } else {
-            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ',' << apLocations->GetLocationY()[i] << ',' << apLocations->GetLocationZ()[i] << '\n';
+            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ','
+                      << apLocations->GetLocationY()[i] << ',' << apLocations->GetLocationZ()[i] << '\n';
         }
     }
 

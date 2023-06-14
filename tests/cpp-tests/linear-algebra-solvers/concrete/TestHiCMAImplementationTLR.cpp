@@ -77,7 +77,7 @@ void TEST_DESCRIPTORS_INITIALIZATION_TLR() {
         for (auto &i: synthetic_data_configurations.GetDescriptorZ()) {
             REQUIRE(i != nullptr);
         }
-        if(nZmiss != 0){
+        if (nZmiss != 0) {
             for (auto &i: synthetic_data_configurations.GetDescriptorCD()) {
                 REQUIRE(i != nullptr);
             }
@@ -101,8 +101,7 @@ void TEST_DESCRIPTORS_INITIALIZATION_TLR() {
 
         // Finalise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
-    }
-    SECTION("Double WITH NZmiss") {
+    }SECTION("Double WITH NZmiss") {
 
         // Initialise Hardware.
         exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
@@ -132,7 +131,7 @@ void TEST_DESCRIPTORS_INITIALIZATION_TLR() {
         for (auto &i: synthetic_data_configurations.GetDescriptorZ()) {
             REQUIRE(i != nullptr);
         }
-        if(nZmiss != 0){
+        if (nZmiss != 0) {
             for (auto &i: synthetic_data_configurations.GetDescriptorCD()) {
                 REQUIRE(i != nullptr);
             }
@@ -185,7 +184,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();
 
-        if(approximationMode == 1){
+        if (approximationMode == 1) {
             // Descriptor C.
             REQUIRE((*HICMA_descriptorC)->m == N);
             REQUIRE((*HICMA_descriptorC)->n == N);
@@ -225,7 +224,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         auto **HICMA_descriptorCUV = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCUV()[0];
         auto **HICMA_descriptorCrk = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCrk()[0];
 
-        if(approximationMode != 1){
+        if (approximationMode != 1) {
             // Descriptor C.
             REQUIRE((*HICMA_descriptorC)->m == lts);
             REQUIRE((*HICMA_descriptorC)->n == lts);

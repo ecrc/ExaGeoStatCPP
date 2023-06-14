@@ -34,7 +34,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckDimensionValue("4D"),
                 "Invalid value for Dimension. Please use 2D, 3D or ST.");
-        synthetic_data_configurations.CheckDimensionValue("2D");
+        SyntheticDataConfigurations::CheckDimensionValue("2D");
     }
 
     SECTION("P-GRID setter/getter test")
@@ -50,7 +50,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = synthetic_data_configurations.CheckNumericalValue("512");
+        int test_nb = SyntheticDataConfigurations::CheckNumericalValue("512");
         synthetic_data_configurations.SetPGrid(test_nb);
         REQUIRE(synthetic_data_configurations.GetPGrid() == 512);
     }
@@ -60,7 +60,7 @@ void TEST_DATA_CONFIGURATIONS() {
     SyntheticDataConfigurations synthetic_data_configurations;
     SECTION("Kernel setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations.GetKernel() == "");
+        REQUIRE(synthetic_data_configurations.GetKernel().empty());
         synthetic_data_configurations.SetKernel("univariate_matern_stationary");
         REQUIRE(synthetic_data_configurations.GetKernel() == "univariate_matern_stationary");
     }SECTION("Kernel checker value test")
@@ -91,7 +91,7 @@ void TEST_CONFIGURATIONS() {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = synthetic_data_configurations.CheckNumericalValue("512");
+        int test_nb = SyntheticDataConfigurations::CheckNumericalValue("512");
         synthetic_data_configurations.SetProblemSize(test_nb);
         REQUIRE(synthetic_data_configurations.GetProblemSize() == 512);
     }
