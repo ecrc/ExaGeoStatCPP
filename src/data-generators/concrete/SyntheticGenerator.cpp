@@ -213,7 +213,7 @@ bool SyntheticGenerator<T>::CompareUint64(const uint64_t &aFirstValue, const uin
 template<typename T>
 void SyntheticGenerator<T>::GenerateObservations() {
 
-    auto descriptorC = this->mpConfigurations->GetDescriptorC()[0];
+    void *descriptorC = this->mpConfigurations->GetDescriptorC()[0];
     const auto &l1 = this->GetLocations();
 
     this->mpLinearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,

@@ -254,6 +254,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     //Copy Nrand to Z
     VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....");
     auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+
     CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
     VERBOSE("Done.\n");
 
@@ -290,7 +291,6 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(void *descA, Lo
     CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) descA);
     free(Nrand);
     VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)");
-
 }
 
 template<typename T>

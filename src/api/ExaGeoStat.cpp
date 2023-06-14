@@ -53,5 +53,6 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(configurations::Configurations *apCon
     synthetic_generator->GenerateDescriptors();
     synthetic_generator->GenerateObservations();
 
-    synthetic_generator->DestoryDescriptors();
+//    synthetic_generator->DestoryDescriptors();
 }
+

@@ -15,12 +15,14 @@
 #include <libraries/catch/catch.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <iostream>
+#include <api/ExaGeoStat.hpp>
 
 using namespace std;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::Synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
+using namespace exageostat::api;
 
 void TEST_SPREAD_REVERSED_BITS() {
 
@@ -226,8 +228,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0);
             REQUIRE(z[i] != 0);
         }
-    }
-    SECTION("ST Generation") {
+    }SECTION("ST Generation") {
 
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
@@ -327,9 +328,53 @@ void TEST_GENERATION() {
     }
 }
 
+void TEST_ALL_GENERATIONS() {
+    SECTION("synthetic data generation") {
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+
+        SyntheticDataConfigurations synthetic_data_configurations;
+        int N = 16;
+        synthetic_data_configurations.SetProblemSize(N);
+        synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+        synthetic_data_configurations.SetDenseTileSize(9);
+
+        vector<double> lb{0.1, 0.1, 0.1};
+        synthetic_data_configurations.SetLowerBounds(lb);
+
+        vector<double> ub{5, 5, 5};
+        synthetic_data_configurations.SetUpperBounds(ub);
+
+        vector<double> initial_theta{1, 0.1, 0.5};
+        synthetic_data_configurations.SetInitialTheta(initial_theta);
+
+        // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
+        ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
+        srand(0);
+        ExaGeoStat<double>::ExaGeoStatGenerateData(&synthetic_data_configurations);
+
+        // Define the expected output for desk Z
+        double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
+                                         0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
+                                         -0.752828, 0.290822};
+        auto **CHAM_descriptorZ = (CHAM_desc_t **) &synthetic_data_configurations.GetDescriptorZ()[0];
+        auto *A = (double *) (*CHAM_descriptorZ)->mat;
+        double diff;
+
+        for(int i = 0; i < N; i++){
+            diff = A[i] - expected_output_data[i];
+            REQUIRE(diff == Approx(0.0).margin(1e-6));
+        }
+        // Finalise ExaGeoStat context.
+        ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+#endif
+    }
+}
+
 TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();
     TEST_GENERATION();
+    TEST_ALL_GENERATIONS();
 }
