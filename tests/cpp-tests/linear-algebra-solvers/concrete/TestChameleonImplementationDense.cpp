@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -11,12 +10,14 @@
  * @author Sameh Abdulah
  * @date 2023-04-06
 **/
+
+extern "C" {
+#include <control/context.h>
+}
+
 #include <libraries/catch/catch.hpp>
-#include <cmath>
-#include <vector>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <control/context.h>
 #include <api/ExaGeoStat.hpp>
 #include <data-generators/DataGenerator.hpp>
 
@@ -25,6 +26,7 @@ using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators;
+
 using namespace std;
 
 void INIT_FINALIZE_HARDWARE() {
@@ -534,7 +536,8 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
 
         // Create a unique pointer to a DataGenerator object
-        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(&synthetic_data_configurations);
+        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+                &synthetic_data_configurations);
 
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         srand(0);
@@ -557,7 +560,7 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS() {
         auto *A = (double *) (*CHAM_descriptorZ)->mat;
         double diff;
 
-        for(int i = 0; i < N; i++){
+        for (int i = 0; i < N; i++) {
             diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }

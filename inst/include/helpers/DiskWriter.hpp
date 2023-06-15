@@ -14,6 +14,7 @@
 #define EXAGEOSTATCPP_DISKWRITER_HPP
 
 #include <iostream>
+
 #include <common/Definitions.hpp>
 #include <data-units/Locations.hpp>
 
@@ -22,8 +23,8 @@ namespace exageostat {
 
         /**
          * @class DiskWriter
-         * @brief
-         * @tparam T The data type of the disk writter.
+         * @brief A class for writting data to disk.
+         * @tparam T The data type of the disk writer.
          */
         template<typename T>
         class DiskWriter {

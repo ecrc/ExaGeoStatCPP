@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -11,18 +10,21 @@
  * @author Sameh Abdulah
  * @date 2023-04-09
 **/
+
+extern "C" {
+#include <control/hicma_context.h>
+}
+
 #include <libraries/catch/catch.hpp>
-#include <cmath>
-#include <vector>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <control/hicma_context.h>
 #include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+
 using namespace std;
 
 void INIT_FINALIZE_HARDWARE_TLR() {
@@ -177,7 +179,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        auto **HICMA_descriptorC = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorC()[0];
+        auto **HICMA_descriptorC = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorC()[0];
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
         int lts = synthetic_data_configurations.GetLowTileSize();
@@ -216,13 +218,14 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         double determinantValue = synthetic_data_configurations.GetDeterminantValue();
         int nZobs = synthetic_data_configurations.GetKnownObservationsValues();
 
-        auto **HICMA_descriptorZ = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorZ()[0];
-        HICMA_descriptorC = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorC()[0];
-        auto **HICMA_descriptorZcpy = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorZcpy();
-        auto **HICMA_descriptorDeterminant = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorDeterminant();
-        auto **HICMA_descriptorCD = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCD()[0];
-        auto **HICMA_descriptorCUV = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCUV()[0];
-        auto **HICMA_descriptorCrk = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCrk()[0];
+        auto **HICMA_descriptorZ = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZ()[0];
+        HICMA_descriptorC = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorC()[0];
+        auto **HICMA_descriptorZcpy = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZcpy();
+        auto **HICMA_descriptorDeterminant =
+                (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorDeterminant();
+        auto **HICMA_descriptorCD = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCD()[0];
+        auto **HICMA_descriptorCUV = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCUV()[0];
+        auto **HICMA_descriptorCrk = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCrk()[0];
 
         if (approximationMode != 1) {
             // Descriptor C.
@@ -353,18 +356,19 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        auto **HICMA_descriptorZObservations = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorZObservations();
-        auto **HICMA_descriptorZactual = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorZActual();
-        auto **HICMA_descriptorMSE = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorMSE();
+        auto **HICMA_descriptorZObservations =
+                (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZObservations();
+        auto **HICMA_descriptorZactual = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZActual();
+        auto **HICMA_descriptorMSE = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorMSE();
 
-        auto **HICMA_descriptorC12D = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCD()[1];
-        auto **HICMA_descriptorC22D = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCD()[2];
+        auto **HICMA_descriptorC12D = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCD()[1];
+        auto **HICMA_descriptorC22D = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCD()[2];
 
-        auto **HICMA_descriptorC12UV = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCUV()[1];
-        auto **HICMA_descriptorC22UV = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCUV()[2];
+        auto **HICMA_descriptorC12UV = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCUV()[1];
+        auto **HICMA_descriptorC22UV = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCUV()[2];
 
-        auto **HICMA_descriptorC12rk = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCrk()[1];
-        auto **HICMA_descriptorC22rk = (HICMA_desc_t **) &synthetic_data_configurations.GetDescriptorCrk()[2];
+        auto **HICMA_descriptorC12rk = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCrk()[1];
+        auto **HICMA_descriptorC22rk = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCrk()[2];
 
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
         int lts = synthetic_data_configurations.GetLowTileSize();

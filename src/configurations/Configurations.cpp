@@ -1,7 +1,6 @@
 
 /*
  * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * Copyright (C) 2023 by Brightskies inc,
  * All rights reserved.
  * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
  */
@@ -15,11 +14,12 @@
 **/
 
 #include <iostream>
+
 #include <configurations/Configurations.hpp>
-#include <utility>
 
 using namespace exageostat::configurations;
 using namespace exageostat::common;
+
 using namespace std;
 
 
@@ -121,6 +121,7 @@ std::vector<void *> &Configurations::GetDescriptorProduct() {
 }
 
 void *&Configurations::GetDescriptorDeterminant() {
+
     return this->mpDescriptorDeterminant;
 }
 
@@ -212,8 +213,8 @@ void Configurations::SetMeanSquareError(double aMeanSquareError) {
     this->mMeanSquareError = aMeanSquareError;
 }
 
-void Configurations::SetActualObservationsFilePath(std::string aKnownObservationsValues) {
-    this->mActualObservationsFilePath = std::move(aKnownObservationsValues);
+void Configurations::SetActualObservationsFilePath(const std::string &aKnownObservationsValues) {
+    this->mActualObservationsFilePath = aKnownObservationsValues;
 }
 
 string Configurations::GetActualObservationsFilePath() {

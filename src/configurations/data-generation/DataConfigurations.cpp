@@ -1,7 +1,6 @@
 
 /*
  * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * Copyright (C) 2023 by Brightskies inc,
  * All rights reserved.
  * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
  */
@@ -14,14 +13,16 @@
  * @date 2023-02-03
 **/
 
-#include <configurations/data-generation/DataConfigurations.hpp>
 #include <algorithm>
 #include <cstring>
 #include <utility>
 #include <vector>
 
-using namespace exageostat::configurations::data_configurations;
+#include <configurations/data-generation/DataConfigurations.hpp>
+
 using namespace std;
+
+using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 
 string DataConfigurations::GetKernel() {
@@ -48,40 +49,40 @@ int DataConfigurations::GetParametersNumber() const {
     return this->mParametersNumber;
 }
 
-void DataConfigurations::SetLowerBounds(std::vector<double> apTheta) {
-    this->mLowerBounds = std::move(apTheta);
+void DataConfigurations::SetLowerBounds(std::vector<double> &apTheta) {
+    this->mLowerBounds = apTheta;
 }
 
 std::vector<double> &DataConfigurations::GetLowerBounds() {
     return this->mLowerBounds;
 }
 
-void DataConfigurations::SetUpperBounds(std::vector<double> apTheta) {
-    this->mUpperBounds = std::move(apTheta);
+void DataConfigurations::SetUpperBounds(std::vector<double> &apTheta) {
+    this->mUpperBounds = apTheta;
 }
 
 std::vector<double> &DataConfigurations::GetUpperBounds() {
     return this->mUpperBounds;
 }
 
-void DataConfigurations::SetStartingTheta(std::vector<double> apTheta) {
-    this->mStartingTheta = std::move(apTheta);
+void DataConfigurations::SetStartingTheta(std::vector<double> &apTheta) {
+    this->mStartingTheta = apTheta;
 }
 
 std::vector<double> &DataConfigurations::GetStartingTheta() {
     return this->mStartingTheta;
 }
 
-void DataConfigurations::SetInitialTheta(std::vector<double> apTheta) {
-    this->mInitialTheta = std::move(apTheta);
+void DataConfigurations::SetInitialTheta(std::vector<double> &apTheta) {
+    this->mInitialTheta = apTheta;
 }
 
 std::vector<double> &DataConfigurations::GetInitialTheta() {
     return this->mInitialTheta;
 }
 
-void DataConfigurations::SetTargetTheta(std::vector<double> apTheta) {
-    this->mTargetTheta = std::move(apTheta);
+void DataConfigurations::SetTargetTheta(std::vector<double> &apTheta) {
+    this->mTargetTheta = apTheta;
 }
 
 std::vector<double> &DataConfigurations::GetTargetTheta() {
@@ -113,7 +114,7 @@ void DataConfigurations::CheckKernelValue(const string &aKernel) {
     }
 }
 
-bool DataConfigurations::IsCamelCase(std::string aString) {
+bool DataConfigurations::IsCamelCase(const std::string &aString) {
     // If the string contains an underscore, it is not in CamelCase format
     if (aString.find('_') != std::string::npos) {
         return false;

@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -56,10 +55,11 @@ namespace exageostat {
              * @param[in] aLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
-            void GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
-                                          int aColumnOffset, dataunits::Locations *apLocation1,
+            void GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
+                                          int &aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *aLocalTheta, int aDistanceMetric) override ;
+                                          double *aLocalTheta, int &aDistanceMetric) override;
+
             /**
              * @brief Creates a new UnivariateMaternNonStat object.
              * @return A pointer to the new UnivariateMaternNonStat object.
@@ -113,8 +113,8 @@ namespace exageostat {
              * @return The Mahalanobis Distance
              */
             static double CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,
-                                                       double y2, double a11, double a12,
-                                                       double a21, double a22);
+                                                              double y2, double a11, double a12,
+                                                              double a21, double a22);
 
             /**
              * Utility function that evaluates the matern. Similiar to

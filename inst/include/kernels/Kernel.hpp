@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -15,12 +14,16 @@
 #ifndef EXAGEOSTAT_CPP_KERNELS_HPP
 #define EXAGEOSTAT_CPP_KERNELS_HPP
 
+#include<cmath>
+
+extern "C" {
 #include <starpu.h>
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_sf_psi.h>
+}
+
 #include <common/PluginRegistry.hpp>
 #include <data-units/Locations.hpp>
-#include<cmath>
 
 /*
 * @def EARTH_RADIUS
@@ -66,10 +69,10 @@ namespace exageostat {
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              */
             virtual void
-            GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber, int aRowOffset,
-                                     int aColumnOffset, dataunits::Locations *apLocation1,
+            GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
+                                     int &aColumnOffset, dataunits::Locations *apLocation1,
                                      dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                     double *aLocalTheta, int aDistanceMetric) = 0;
+                                     double *aLocalTheta, int &aDistanceMetric) = 0;
 
             /**
              * @brief Calculates the Euclidean distance between two points.
@@ -82,9 +85,10 @@ namespace exageostat {
              * @return The Euclidean distance between the two points.
              */
             static double
-            CalculateDistance(dataunits::Locations *apLocations1, dataunits::Locations *apLocations2, int aIdxLocationX,
-                              int aIdxLocationY,
-                              int aDistanceMetric, int aFlagZ);
+            CalculateDistance(dataunits::Locations *apLocations1, dataunits::Locations *apLocations2,
+                              int &aIdxLocationX,
+                              int &aIdxLocationY,
+                              int &aDistanceMetric, int &aFlagZ);
 
             /**
              * @brief Calculates the great-circle distance between two points on Earth using the Haversine formula.
@@ -94,7 +98,8 @@ namespace exageostat {
              * @param aLongitude2 Longitude of the second point in degrees.
              * @return The distance between the two points in kilometers.
              */
-            static double DistanceEarth(double aLatitude1, double aLongitude1, double aLatitude2, double aLongitude2);
+            static double
+            DistanceEarth(double &aLatitude1, double &aLongitude1, double &aLatitude2, double &aLongitude2);
 
             /**
              * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu)

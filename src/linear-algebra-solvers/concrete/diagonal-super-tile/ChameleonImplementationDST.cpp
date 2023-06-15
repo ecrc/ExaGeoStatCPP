@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -12,8 +11,6 @@
  * @date 2023-03-20
 **/
 
-#include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
-#include <helpers/DiskWriter.hpp>
 #include <lapacke.h>
 
 extern "C" {
@@ -21,11 +18,16 @@ extern "C" {
 #include <chameleon.h>
 #include <control/context.h>
 }
+
+#include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+#include <helpers/DiskWriter.hpp>
+
 using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::common;
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace exageostat::helpers;
+
 using namespace std;
 
 template<typename T>
@@ -38,15 +40,15 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     }
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
-    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
+    auto pChameleonDescriptorZcpy = &this->mpConfigurations->GetDescriptorZcpy();
     vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
-    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
+    auto pChameleonDescriptorDeterminant = &this->mpConfigurations->GetDescriptorDeterminant();
 
     pDescriptorC.push_back(nullptr);
-    auto **pChameleonDescriptorC = (CHAM_desc_t **) &pDescriptorC[0];
+    auto **pChameleonDescriptorC = &pDescriptorC[0];
 
     pDescriptorZ.push_back(nullptr);
-    auto **pChameleonDescriptorZ = (CHAM_desc_t **) &pDescriptorZ[0];
+    auto **pChameleonDescriptorZ = &pDescriptorZ[0];
 
     // Get the problem size and other configuration parameters
     int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
@@ -76,24 +78,24 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
     //Identifies a set of routines sharing common exception handling.
     CHAMELEON_Sequence_Create(&pSequence);
 
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
-                                          dts * dts, N, N, 0, 0, N, N, pGrid, qGrid)
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
-                                          dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid)
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorZcpy, isOOC, Zcpy, (cham_flttype_t) floatPoint, dts,
-                                          dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid)
+    ExageostatAllocateMatrixTile(pChameleonDescriptorC, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
+                                 dts * dts, N, N, 0, 0, N, N, pGrid, qGrid);
+    ExageostatAllocateMatrixTile(pChameleonDescriptorZ, isOOC, nullptr, (cham_flttype_t) floatPoint, dts, dts,
+                                 dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
+    ExageostatAllocateMatrixTile(pChameleonDescriptorZcpy, isOOC, Zcpy, (cham_flttype_t) floatPoint, dts,
+                                 dts, dts * dts, N, 1, 0, 0, N, 1, pGrid, qGrid);
 
     for (int idx = 0; idx < vectorSize; idx++) {
         pDescriptorProduct.push_back(nullptr);
-        auto **pChameleonDescriptorProduct = (CHAM_desc_t **) &pDescriptorProduct[idx];
-        EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorProduct, isOOC, &dotProductValue,
-                                              (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
-                                              qGrid)
+        auto **pChameleonDescriptorProduct = &pDescriptorProduct[idx];
+        ExageostatAllocateMatrixTile(pChameleonDescriptorProduct, isOOC, &dotProductValue,
+                                     (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
+                                     qGrid);
 
     }
-    EXAGEOSTAT_ALLOCATE_DENSE_MATRIX_TILE(pChameleonDescriptorDeterminant, isOOC, &dotProductValue,
-                                          (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
-                                          qGrid)
+    ExageostatAllocateMatrixTile(pChameleonDescriptorDeterminant, isOOC, &dotProductValue,
+                                 (cham_flttype_t) floatPoint, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, pGrid,
+                                 qGrid);
 
     this->mpConfigurations->SetSequence(pSequence);
     this->mpConfigurations->SetRequest(request);
@@ -126,7 +128,7 @@ void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
+void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *descA, int &uplo, dataunits::Locations *apLocation1,
                                                             dataunits::Locations *apLocation2,
                                                             dataunits::Locations *apLocation3,
                                                             double *aLocalTheta, int aDistanceMetric,
@@ -215,7 +217,8 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *descA, Loca
     }
 
     VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
-    this->CovarianceMatrixCodelet(descA, EXAGEOSTAT_LOWER, apLocation1, apLocation2, apLocation3, theta,
+    int lower_upper = EXAGEOSTAT_LOWER;
+    this->CovarianceMatrixCodelet(descA, lower_upper, apLocation1, apLocation2, apLocation3, theta,
                                   aDistanceMetric, apKernel);
 
     free(theta);
@@ -327,6 +330,21 @@ void ChameleonImplementationDST<T>::DestoryDescriptors() {
 
     if ((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()) {
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+    }
+}
+
+template<typename T>
+void
+ChameleonImplementationDST<T>::ExageostatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2,
+                                                            int aMB,
+                                                            int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB,
+                                                            int aM, int aN2, int aP, int aQ) {
+    if (aIsOOC && apMemSpace == nullptr && aMB != 1 && aNB != 1) {
+        CHAMELEON_Desc_Create_OOC((CHAM_desc_t **) apDescriptor, (cham_flttype_t) aType2, aMB, aNB, aMBxNB, aLda, aN,
+                                  aSMB, aSNB, aM, aN2, aP, aQ);
+    } else {
+        CHAMELEON_Desc_Create((CHAM_desc_t **) apDescriptor, apMemSpace, (cham_flttype_t) aType2, aMB, aNB, aMBxNB,
+                              aLda, aN, aSMB, aSNB, aM, aN2, aP, aQ);
     }
 }
 

@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -20,11 +19,11 @@
 #ifndef EXAGEOSTATCPP_LINEARALGEBRAMETHODS_HPP
 #define EXAGEOSTATCPP_LINEARALGEBRAMETHODS_HPP
 
+#include <vector>
+
 #include <common/Definitions.hpp>
 #include <kernels/Kernel.hpp>
 #include <configurations/Configurations.hpp>
-#include <linear-algebra-solvers/concrete/MatrixAllocation.hpp>
-#include <vector>
 #include <common/Utils.hpp>
 #include <helpers/DiskWriter.hpp>
 
@@ -79,7 +78,7 @@ namespace exageostat {
              * @param[in] apKernel Pointer to the kernel function to use.
              */
             virtual void
-            CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1,
+            CovarianceMatrixCodelet(void *descA, int &uplo, dataunits::Locations *apLocation1,
                                     dataunits::Locations *apLocation2,
                                     dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
                                     exageostat::kernels::Kernel *apKernel) = 0;
@@ -130,8 +129,35 @@ namespace exageostat {
              * @return Pointer to the matrix.
              */
             double *GetMatrix() {
+                if (this->apMatrix == nullptr) {
+                    throw std::runtime_error("Matrix is null");
+                }
                 return this->apMatrix;
             }
+
+            /**
+             * @brief allocates matrix tile.
+             *
+             * @param[in,out] apDescriptor The descriptor for the tile.
+             * @param[in] aIsOOC Whether the matrix is out-of-core.
+             * @param[in] apMemSpace The memory space to use for the tile.
+             * @param[in] aType2 The data type of the tile.
+             * @param[in] aMB The row block size of the tile.
+             * @param[in] aNB The column block size of the tile.
+             * @param[in] aMBxNB The product of row and column block sizes.
+             * @param[in] aLda The leading dimension of the tile.
+             * @param[in] aN The total number of columns of the matrix.
+             * @param[in] aSMB The row block size for the matrix distribution.
+             * @param[in] aSNB The column block size for the matrix distribution.
+             * @param[in] aM The total number of rows of the matrix.
+             * @param[in] aN2 The total number of columns of the matrix after padding.
+             * @param[in] aP The row coordinate of the tile.
+             * @param[in] aQ The column coordinate of the tile.
+             */
+            virtual void
+            ExageostatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
+                                         int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM, int aN2,
+                                         int aP, int aQ) = 0;
 
             static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
 

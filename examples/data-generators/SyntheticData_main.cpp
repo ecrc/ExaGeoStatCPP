@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -13,14 +12,22 @@
 **/
 
 #include <iostream>
+
 #include <data-generators/DataGenerator.hpp>
 #include <api/ExaGeoStat.hpp>
+
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+
+#include <chameleon/struct.h>
+
+#endif
+
+using namespace std;
 
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
-using namespace std;
 
 /**
  * @brief The main function of the program.
@@ -42,7 +49,8 @@ int main(int argc, char **argv) {
     exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
 
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(&synthetic_data_configurations);
+    unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+            &synthetic_data_configurations);
 
     // Initialize the locations of the generated data
     synthetic_generator->GenerateLocations();
@@ -83,7 +91,7 @@ int main(int argc, char **argv) {
     cout << "Z vector values: " << endl;
     auto **CHAM_descriptorZ = (CHAM_desc_t **) &synthetic_data_configurations.GetDescriptorZ()[0];
     auto *A = (double *) (*CHAM_descriptorZ)->mat;
-    for(int i = 0; i < synthetic_data_configurations.GetProblemSize(); i++){
+    for (int i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
         cout << A[i] << " ";
     }
     cout << endl;

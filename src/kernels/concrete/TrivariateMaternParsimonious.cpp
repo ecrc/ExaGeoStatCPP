@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -32,10 +31,10 @@ namespace exageostat::kernels {
             "TrivariateMaternParsimonious", TrivariateMaternParsimonious::Create);
 }
 
-void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                            int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                            int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
                                                             Locations *apLocation2, Locations *apLocation3,
-                                                            double *aLocalTheta, int aDistanceMetric) {
+                                                            double *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -86,10 +85,12 @@ void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, i
     i0 /= 3;
     int matrix_size = aRowsNumber * aColumnsNumber;
     int index = 0;
+    int flag = 0;
+
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[3];
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
 
             if (expr == 0) {
 

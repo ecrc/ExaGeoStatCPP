@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -12,12 +11,20 @@
  * @date 2023-03-08
 **/
 
+#include <iostream>
+
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+
+#include <chameleon/struct.h>
+
+#endif
+
 #include <libraries/catch/catch.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <iostream>
 #include <api/ExaGeoStat.hpp>
 
 using namespace std;
+
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;

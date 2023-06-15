@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -12,12 +11,13 @@
  * @date 2023-04-09
 **/
 
+extern "C" {
+#include <control/context.h>
+}
+
 #include <libraries/catch/catch.hpp>
-#include <cmath>
-#include <vector>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <control/context.h>
 #include <api/ExaGeoStat.hpp>
 #include <data-generators/DataGenerator.hpp>
 
@@ -25,6 +25,7 @@ using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+
 using namespace std;
 
 void INIT_FINALIZE_HARDWARE_DST() {
@@ -453,7 +454,7 @@ void TEST_CHAMELEON_GENERATE_OBSERVATIONS_DST() {
         auto *A = (double *) (*CHAM_descriptorZ)->mat;
         double diff;
 
-        for(int i = 0; i < N; i++){
+        for (int i = 0; i < N; i++) {
             diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }

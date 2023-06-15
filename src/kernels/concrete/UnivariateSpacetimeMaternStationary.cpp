@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -33,10 +32,10 @@ namespace exageostat::kernels {
             "UnivariateSpacetimeMaternStationary", UnivariateSpacetimeMaternStationary::Create);
 }
 
-void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                                 int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                 int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
                                                                  Locations *apLocation2, Locations *apLocation3,
-                                                                 double *aLocalTheta, int aDistanceMetric) {
+                                                                 double *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -48,6 +47,7 @@ void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMat
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
     con = sigma_square * con;
+    int flag = 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
@@ -55,7 +55,7 @@ void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMat
         for (j = 0; j < aColumnsNumber; j++) {
             z1 = apLocation2->GetLocationZ()[j0];
 
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 1) / aLocalTheta[1];
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[4]) / aLocalTheta[3] + 1.0, aLocalTheta[5] / 2.0);
             expr3 = expr / expr2;
             expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[4]) / aLocalTheta[3] + 1.0,

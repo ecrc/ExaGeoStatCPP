@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -112,7 +111,7 @@ namespace exageostat {
         enum UpperLower : int {
             EXAGEOSTAT_UPPER = 121, /**< Use lower triangle of A */
             EXAGEOSTAT_LOWER = 122, /**< Use upper triangle of A */
-            EXAGEOSTAT_UPPER_LOWER = 123  /**< Use the full A          */
+            EXAGEOSTAT_UPPER_LOWER = 123  /**< Use the full A */
         };
 
         /**

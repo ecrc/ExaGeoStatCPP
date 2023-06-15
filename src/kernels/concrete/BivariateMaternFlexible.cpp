@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -32,10 +31,10 @@ namespace exageostat::kernels {
             "BivariateMaternFlexible", BivariateMaternFlexible::Create);
 }
 
-void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                       int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                       int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
                                                        Locations *apLocation2, Locations *apLocation3,
-                                                       double *aLocalTheta, int aDistanceMetric) {
+                                                       double *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -75,12 +74,14 @@ void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int aR
     con12 = rho * con12;
 
     i0 /= 2;
+    int flag = 0;
+
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
-            expr1 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / scale1;
-            expr2 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / scale2;
-            expr12 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / scale12;
+            expr1 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale1;
+            expr2 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale2;
+            expr12 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale12;
             if (expr1 == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
                 if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {

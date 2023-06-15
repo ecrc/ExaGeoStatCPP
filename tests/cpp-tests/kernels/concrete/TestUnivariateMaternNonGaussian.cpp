@@ -1,5 +1,4 @@
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -20,6 +19,7 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::generators;
+
 using namespace std;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
@@ -69,7 +69,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
+        int upper_lower = EXAGEOSTAT_LOWER;
+        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, upper_lower, l1, l1,
                                                                                nullptr,
                                                                                synthetic_data_configurations.GetInitialTheta().data(),
                                                                                0, synthetic_generator->GetKernel());
@@ -81,7 +82,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         double expected_output_data[] = {1.000000, 0.956293, 0.803279, 0.834105,
                                          0.956293, 1.000000, 0.864147, 0.916372,
                                          0.803279, 0.864147, 1.000000, 0.942775,
-                                         0.834105, 0.916372, 0.942775,1.000000};
+                                         0.834105, 0.916372, 0.942775, 1.000000};
 
         size_t m = 4;
         size_t n = 4;
@@ -93,6 +94,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
+
 TEST_CASE("UnivariateMaternNonGaussian kernel test") {
     TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian();
 }

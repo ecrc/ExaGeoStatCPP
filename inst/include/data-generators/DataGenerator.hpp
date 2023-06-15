@@ -10,11 +10,12 @@
 #ifndef EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 #define EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 
+#include <memory>
+
 #include <data-units/Locations.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <memory>
 
 namespace exageostat {
     namespace generators {

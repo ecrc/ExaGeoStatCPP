@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -28,7 +27,7 @@ namespace exageostat {
              * @tparam T Type of matrix elements.
              */
             template<typename T>
-            class ChameleonImplementationDST : public LinearAlgebraMethods<T>{
+            class ChameleonImplementationDST : public LinearAlgebraMethods<T> {
 
             public:
 
@@ -66,7 +65,8 @@ namespace exageostat {
                  * @param[in] apKernel Pointer to the kernel function to use.
                  */
                 void
-                CovarianceMatrixCodelet(void *descA, int uplo, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
+                CovarianceMatrixCodelet(void *descA, int &uplo, dataunits::Locations *apLocation1,
+                                        dataunits::Locations *apLocation2,
                                         dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel *apKernel) override;
 
@@ -83,8 +83,11 @@ namespace exageostat {
                  * @param[in] aDistanceMetric Specifies the distance metric to use.
                  * @param[in] apKernel Pointer to the kernel function to use.
                  */
-                void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1, dataunits::Locations *apLocation2,
-                                                     dataunits::Locations *apLocation3, std::vector<double> aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel * apKernel) override;
+                void GenerateObservationsVector(void *descA, dataunits::Locations *apLocation1,
+                                                dataunits::Locations *apLocation2,
+                                                dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
+                                                int aDistanceMetric, exageostat::kernels::Kernel *apKernel) override;
+
                 /**
                  * @brief
                  * Initializes the context needed for the Chameleon solver.
@@ -105,6 +108,29 @@ namespace exageostat {
                  * Default constructor.
                  */
                 explicit ChameleonImplementationDST() = default;
+
+                /**
+                 * @brief allocates dense matrix tile.
+                 *
+                 * @param[in,out] apDescriptor The descriptor for the tile.
+                 * @param[in] aIsOOC Whether the matrix is out-of-core.
+                 * @param[in] apMemSpace The memory space to use for the tile.
+                 * @param[in] aType2 The data type of the tile.
+                 * @param[in] aMB The row block size of the tile.
+                 * @param[in] aNB The column block size of the tile.
+                 * @param[in] aMBxNB The product of row and column block sizes.
+                 * @param[in] aLda The leading dimension of the tile.
+                 * @param[in] aN The total number of columns of the matrix.
+                 * @param[in] aSMB The row block size for the matrix distribution.
+                 * @param[in] aSNB The column block size for the matrix distribution.
+                 * @param[in] aM The total number of rows of the matrix.
+                 * @param[in] aN2 The total number of columns of the matrix after padding.
+                 * @param[in] aP The row coordinate of the tile.
+                 * @param[in] aQ The column coordinate of the tile.
+                 */
+                void ExageostatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
+                                                  int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM,
+                                                  int aN2, int aP, int aQ) override;
 
             private:
                 //// Used context

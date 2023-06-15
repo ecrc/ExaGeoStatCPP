@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -32,10 +31,10 @@ namespace exageostat::kernels {
             "UnivariateExpNonGaussian", UnivariateExpNonGaussian::Create);
 }
 
-void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                            int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                            int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
                                                             Locations *apLocation2, Locations *apLocation3,
-                                                            double *aLocalTheta, int aDistanceMetric) {
+                                                            double *aLocalTheta, int &aDistanceMetric) {
 
     int i, j;
     int i0 = aRowOffset;
@@ -43,11 +42,12 @@ void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int a
     double x0, y0, z0;
     double expr = 0.0;
     double sigma_square = 1;
+    int flag = 0;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[0];
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0];
 
             if (expr == 0)
                 apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;

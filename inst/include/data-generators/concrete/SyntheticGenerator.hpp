@@ -19,16 +19,33 @@ namespace exageostat {
             /**
              * @class SyntheticGenerator
              * @brief A class for generating synthetic data.
+             *
+             * This class generates synthetic data for use in testing machine learning models.
              */
             template<typename T>
             class SyntheticGenerator : public DataGenerator<T> {
 
             public:
 
+                /**
+                 * @brief Get a pointer to the singleton instance of the SyntheticGenerator class.
+                 *
+                 * @param[in] apConfigurations A pointer to the configurations for the synthetic data.
+                 *
+                 * @return A pointer to the instance of the SyntheticGenerator class.
+                 */
                 static SyntheticGenerator<T> *
                 GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
-                static std::vector<double> InitTheta(std::vector<double> apTheta, int size);
+                /**
+                 * @brief Initialize a vector with a given size to contain zeros.
+                 *
+                 * @param[in] apTheta A reference to the vector to initialize.
+                 * @param[in] aSize The size of the vector to initialize.
+                 *
+                 * @return A reference to the initialized vector.
+                 */
+                static std::vector<double>& InitTheta(std::vector<double> &apTheta, int &aSize);
 
                 /**
                  * @brief
@@ -47,6 +64,11 @@ namespace exageostat {
                  */
                 void GenerateDescriptors() override;
 
+                /**
+                 * @brief Destroy the data descriptors.
+                 *
+                 * This method destroys the descriptors used to define the properties of the data points.
+                 */
                 void DestoryDescriptors() override;
 
                 /**
@@ -73,7 +95,7 @@ namespace exageostat {
                  * The scaled uniform distribution between the two bounds .
                  *
                  */
-                static double UniformDistribution(double aRangeLow, double aRangeHigh);
+                static double UniformDistribution(const double &aRangeLow, const double &aRangeHigh);
 
                 /**
                  * @brief
@@ -83,7 +105,7 @@ namespace exageostat {
                  * The problem size divided by P-Grid.
                  *
                  */
-                void SortLocations(int aN);
+                void SortLocations(int &aN);
 
                 /**
                  * @brief
@@ -128,18 +150,24 @@ namespace exageostat {
                  */
                 static bool CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue);
 
+                /**
+                 * @brief Release the singleton instance of the SyntheticGenerator class.
+                 */
                 static void ReleaseInstance();
 
             private:
                 explicit SyntheticGenerator(
                         configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
+                /**
+                * @brief Constructor for the SyntheticGenerator class.
+                *
+                * @param[in] apConfigurations A pointer to the configurations for the synthetic data.
+                */
                 static SyntheticGenerator<T> *mpInstance;
 
                 /**
-                 * @brief
-                 * Virtual destructor to allow calls to the correct concrete destructor.
-                 *
+                 * @brief Virtual destructor to allow calls to the correct concrete destructor.
                  */
                 ~SyntheticGenerator() override;
 

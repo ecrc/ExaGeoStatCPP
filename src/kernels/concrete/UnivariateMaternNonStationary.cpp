@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -32,10 +31,10 @@ namespace exageostat::kernels {
             "UnivariateMaternNonStationary", UnivariateMaternNonStationary::Create);
 }
 
-void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                             int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                             int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
                                                              Locations *apLocation2, Locations *apLocation3,
-                                                             double *aLocalTheta, int aDistanceMetric) {
+                                                             double *aLocalTheta, int &aDistanceMetric) {
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
     double dx, dy;
@@ -96,8 +95,10 @@ void UnivariateMaternNonStationary::GenerateCovarianceMatrix(double *apMatrixA, 
 
             con = 1.0 / con;
             con = sigma_square * con;
+            int flag = 0;
+
             //MLE calculation
-            dist = CalculateDistance(apLocation1, apLocation2, i, j, aDistanceMetric, 0) / beta;
+            dist = CalculateDistance(apLocation1, apLocation2, i, j, aDistanceMetric, flag) / beta;
 
             *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
                                                  ? sigma_square

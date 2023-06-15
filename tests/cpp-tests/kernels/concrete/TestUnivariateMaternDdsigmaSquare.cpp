@@ -1,5 +1,4 @@
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -14,13 +13,13 @@
 #include <libraries/catch/catch.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <data-generators/DataGenerator.hpp>
-#include <vector>
 #include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::generators;
+
 using namespace std;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
@@ -72,7 +71,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
         auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
+        int upper_lower = EXAGEOSTAT_LOWER;
+        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, upper_lower, l1, l1,
                                                                                nullptr,
                                                                                synthetic_data_configurations.GetInitialTheta().data(),
                                                                                0, synthetic_generator->GetKernel());

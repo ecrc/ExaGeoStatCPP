@@ -1,5 +1,4 @@
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -20,25 +19,26 @@ using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::generators;
+
 using namespace std;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
 
-    SECTION("UnivariateMaternNonStat"){
+    SECTION("UnivariateMaternNonStat") {
 
         // Create a new synthetic_data_configurations object with the provided command line arguments
         SyntheticDataConfigurations synthetic_data_configurations;
 
         synthetic_data_configurations.SetProblemSize(9);
         synthetic_data_configurations.SetKernel("UnivariateMaternNonStat");
-    #ifdef EXAGEOSTAT_USE_CHAMELEON
+#ifdef EXAGEOSTAT_USE_CHAMELEON
         synthetic_data_configurations.SetDenseTileSize(5);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
-    #endif
-    #ifdef EXAGEOSTAT_USE_HiCMA
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
         synthetic_data_configurations.SetLowTileSize(5);
         synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
-    #endif
+#endif
         synthetic_data_configurations.SetDimension(Dimension2D);
         synthetic_data_configurations.SetIsSynthetic(true);
         synthetic_data_configurations.SetPrecision(DOUBLE);
@@ -70,7 +70,8 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
         auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
         exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
 
-        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, EXAGEOSTAT_LOWER, l1, l1,
+        int upper_lower = EXAGEOSTAT_LOWER;
+        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, upper_lower, l1, l1,
                                                                                nullptr,
                                                                                synthetic_data_configurations.GetInitialTheta().data(),
                                                                                0, synthetic_generator->GetKernel());

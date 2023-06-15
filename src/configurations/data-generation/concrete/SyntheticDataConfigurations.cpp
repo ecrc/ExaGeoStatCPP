@@ -1,7 +1,6 @@
 
 /*
  * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * Copyright (C) 2023 by Brightskies inc,
  * All rights reserved.
  * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
  */
@@ -14,12 +13,14 @@
  * @date 2023-02-01
 **/
 
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <iostream>
+
+#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+
+using namespace std;
 
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
-using namespace std;
 
 //// TODO: Add all arguments info in README.
 //// TODO: Add all supported kernels in README.
@@ -87,14 +88,18 @@ void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
                        argument_name == "--observations_file") {
                 SetActualObservationsFilePath(argument_value);
             } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lowerBounds") {
-                SetLowerBounds(ParseTheta(argument_value));
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetLowerBounds(theta);
             } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upperBounds") {
-                SetUpperBounds(ParseTheta(argument_value));
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetUpperBounds(theta);
             } else if (argument_name == "--initialTheta" || argument_name == "--itheta" ||
                        argument_name == "--iTheta") {
-                SetInitialTheta(ParseTheta(argument_value));
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetInitialTheta(theta);
             } else if (argument_name == "--targetTheta" || argument_name == "--ttheta" || argument_name == "--tTheta") {
-                SetTargetTheta(ParseTheta(argument_value));
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetTargetTheta(theta);
             } else if (argument_name == "--Seed" || argument_name == "--seed") {
                 SetSeed(CheckNumericalValue(argument_value));
             } else if (argument_name == "--runmode" || argument_name == "--runMode" || argument_name == "--run_mode") {

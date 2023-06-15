@@ -1,7 +1,6 @@
 
 /*
  * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * Copyright (C) 2023 by Brightskies inc,
  * All rights reserved.
  * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
  */
@@ -18,6 +17,7 @@
 #define EXAGEOSTAT_CPP_SYNTHETICDATACONFIGURATIONS_HPP
 
 #include <iostream>
+
 #include <configurations/data-generation/DataConfigurations.hpp>
 
 namespace exageostat {
@@ -69,14 +69,14 @@ namespace exageostat {
                  * @param aDimension A string representing the dimension.
                  * @return The corresponding dimension value.
                  */
-                static exageostat::common::Dimension CheckDimensionValue(const std::string& aDimension);
+                static exageostat::common::Dimension CheckDimensionValue(const std::string &aDimension);
 
                 /**
                  * @brief Checks the value of the unknown observations parameter.
                  * @param aValue A string representing the number of unknown observations.
                  * @return The corresponding integer value.
                  */
-                int CheckUnknownObservationsValue(const std::string& aValue);
+                int CheckUnknownObservationsValue(const std::string &aValue);
 
             private:
                 /// The dimension used for data generation.

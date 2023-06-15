@@ -10,22 +10,24 @@
  * @author Sameh Abdulah
  * @date 2023-06-08
 **/
-#include <helpers/DiskWriter.hpp>
+
 #include <cstring>
 #include <string>
 #include <fstream>
 
+#include <helpers/DiskWriter.hpp>
+
 using namespace exageostat::helpers;
-using namespace std;
 using namespace exageostat::dataunits;
+
+using namespace std;
 
 template<typename T>
 void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP,
                                        std::string *apLoggerPath, Locations *apLocations) {
 
-    std::size_t i = 1;
+    // Determine the path for storing the output files
     string &user_path = *apLoggerPath;
-
     if (user_path.empty()) {
         user_path = "./synthetic_ds";
     } else {
@@ -36,6 +38,26 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
         }
     }
 
+    // Create a new directory if it does not already exist
+    bool created = false;
+    if (!filesystem::exists(user_path)) {
+        try {
+            created = filesystem::create_directory(user_path);
+        } catch (const filesystem::filesystem_error &e) {
+            cerr << "Error creating directory: " << e.what() << endl;
+        }
+    } else {
+        created = true;
+    }
+
+    // Check if the directory was created successfully
+    if (!created) {
+        cerr << "Error creating directory: " << user_path << endl;
+        return;
+    }
+
+    // Determine the names of the output files
+    size_t i = 1;
     std::ofstream p_file_z, p_file_z2, p_file_z3, p_file_xy, p_file_log;
     std::string n_file_z = user_path + "/Z1_" + std::to_string(*apProblemSize / *apP) + "_";
     std::string n_file_z2 = user_path + "/Z2_" + std::to_string(*apProblemSize / *apP) + "_";
@@ -43,9 +65,6 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
     std::string n_file_xy = user_path + "/LOC_" + std::to_string(*apProblemSize / *apP) + "_";
     std::string n_file_log = user_path + "/log_" + std::to_string(*apProblemSize / *apP) + "_";
     std::string temp = n_file_log + std::to_string(i);
-
-    // Create new directory if not exist
-    std::filesystem::create_directory(user_path);
 
     // Check if log file exists
     while (std::filesystem::exists(temp)) {
@@ -94,6 +113,9 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
         }
     }
 
+    // Close the output files
     p_file_z.close();
+    p_file_z2.close();
+    p_file_z3.close();
     p_file_xy.close();
 }

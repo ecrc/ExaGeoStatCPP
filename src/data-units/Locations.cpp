@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -21,6 +20,9 @@ void Locations::SetLocationX(double *apLocationX) {
 }
 
 double *Locations::GetLocationX() {
+    if (this->mpLocationX == nullptr) {
+        throw std::runtime_error("LocationX is null");
+    }
     return this->mpLocationX;
 }
 
@@ -29,6 +31,9 @@ void Locations::SetLocationY(double *apLocationY) {
 }
 
 double *Locations::GetLocationY() {
+    if (this->mpLocationY == nullptr) {
+        throw std::runtime_error("LocationY is null");
+    }
     return this->mpLocationY;
 }
 

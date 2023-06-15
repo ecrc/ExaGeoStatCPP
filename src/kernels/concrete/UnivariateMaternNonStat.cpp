@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -32,10 +31,10 @@ namespace exageostat::kernels {
             "UnivariateMaternNonStat", UnivariateMaternNonStat::Create);
 }
 
-void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                       int aRowOffset, int aColumnOffset, Locations *apLocation1,
+void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                       int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
                                                        Locations *apLocation2, Locations *apLocation3,
-                                                       double *aLocalTheta, int aDistanceMetric) {
+                                                       double *aLocalTheta, int &aDistanceMetric) {
     double l1x, l1y, l2x, l2y;
 
     double a, b, c, d, e, f, g, h, ti;

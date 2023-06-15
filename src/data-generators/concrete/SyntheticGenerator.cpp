@@ -17,6 +17,7 @@ using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+
 using namespace std;
 
 template<typename T>
@@ -108,18 +109,25 @@ void SyntheticGenerator<T>::GenerateLocations() {
         grid[i] = i + 1;
     }
 
+    double range_low = -0.4, range_high = 0.4;
+
     for (auto i = 0; i < rootN && index < N; i++) {
         for (auto j = 0; j < rootN && index < N; j++) {
             if (dimension == Dimension3D) {
                 for (auto k = 0; k < rootN && index < N; k++) {
-                    this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
-                    this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
-                    this->mpLocations->GetLocationZ()[index] = (grid[k] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
+                    this->mpLocations->GetLocationX()[index] =
+                            (grid[i] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
+                    this->mpLocations->GetLocationY()[index] =
+                            (grid[j] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
+                    this->mpLocations->GetLocationZ()[index] =
+                            (grid[k] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
                     index++;
                 }
             } else {
-                this->mpLocations->GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
-                this->mpLocations->GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(-0.4, 0.4)) / rootN;
+                this->mpLocations->GetLocationX()[index] =
+                        (grid[i] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
+                this->mpLocations->GetLocationY()[index] =
+                        (grid[j] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
                 if (dimension == DimensionST) {
                     this->mpLocations->GetLocationZ()[index] = 1.0;
                 }
@@ -142,15 +150,14 @@ void SyntheticGenerator<T>::GenerateLocations() {
 }
 
 template<typename T>
-double SyntheticGenerator<T>::UniformDistribution(double aRangeLow, double aRangeHigh) {
-
+double SyntheticGenerator<T>::UniformDistribution(const double &aRangeLow, const double &aRangeHigh) {
     double myRand = (double) rand() / (double) (1.0 + RAND_MAX);
     double range = aRangeHigh - aRangeLow;
     return (myRand * range) + aRangeLow;
 }
 
 template<typename T>
-void SyntheticGenerator<T>::SortLocations(int aN) {
+void SyntheticGenerator<T>::SortLocations(int &aN) {
 
     // Some sorting, required by spatial statistics code
     uint16_t x, y, z;
@@ -234,7 +241,7 @@ void SyntheticGenerator<T>::GenerateObservations() {
 }
 
 template<typename T>
-std::vector<double> SyntheticGenerator<T>::InitTheta(std::vector<double> apTheta, int size) {
+std::vector<double> &SyntheticGenerator<T>::InitTheta(std::vector<double> &apTheta, int &size) {
 
     // If null, this mean user have not passed the values arguments, Make values equal -1
     if (apTheta.empty()) {

@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -32,11 +31,11 @@ namespace exageostat::kernels {
             "UnivariateMaternDdsigmaSquareBeta", UnivariateMaternDdsigmaSquareBeta::Create);
 }
 
-void UnivariateMaternDdsigmaSquareBeta::GenerateCovarianceMatrix(double *apMatrixA, int aRowsNumber, int aColumnsNumber,
-                                                                 int aRowOffset, int aColumnOffset,
+void UnivariateMaternDdsigmaSquareBeta::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                 int &aRowOffset, int &aColumnOffset,
                                                                  Locations *apLocation1,
                                                                  Locations *apLocation2, Locations *apLocation3,
-                                                                 double *aLocalTheta, int aDistanceMetric) {
+                                                                 double *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -47,10 +46,12 @@ void UnivariateMaternDdsigmaSquareBeta::GenerateCovarianceMatrix(double *apMatri
     double sigma_square = aLocalTheta[0];
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
+    int flag = 0;
+
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0) / aLocalTheta[1];
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             if (expr == 0) {
 
                 apMatrixA[i + j * aRowsNumber] = 0.0;

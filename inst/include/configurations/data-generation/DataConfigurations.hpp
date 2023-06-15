@@ -1,7 +1,6 @@
 
 /*
  * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * Copyright (C) 2023 by Brightskies inc,
  * All rights reserved.
  * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
  */
@@ -18,6 +17,7 @@
 #define EXAGEOSTAT_CPP_DATACONFIGURATIONS_HPP
 
 #include <iostream>
+
 #include <configurations/Configurations.hpp>
 
 namespace exageostat {
@@ -79,7 +79,7 @@ namespace exageostat {
                  *
                  * @param apTheta A pointer to an array of lower bounds to set.
                  */
-                void SetLowerBounds(std::vector<double> apTheta);
+                void SetLowerBounds(std::vector<double> &apTheta);
 
                 /**
                  * @brief Getter for the lower bounds.
@@ -94,7 +94,7 @@ namespace exageostat {
                  *
                  * @param apTheta A pointer to an array of upper bounds to set.
                  */
-                void SetUpperBounds(std::vector<double> apTheta);
+                void SetUpperBounds(std::vector<double> &apTheta);
 
                 /**
                  * @brief Getter for the upper bounds.
@@ -109,7 +109,7 @@ namespace exageostat {
                  *
                  * @param apTheta A pointer to an array of starting theta values to set.
                  */
-                void SetStartingTheta(std::vector<double> apTheta);
+                void SetStartingTheta(std::vector<double> &apTheta);
 
                 /**
                  * @brief Getter for the starting theta.
@@ -124,7 +124,7 @@ namespace exageostat {
                  *
                  * @param apTheta A pointer to an array of initial theta values to set.
                  */
-                void SetInitialTheta(std::vector<double> apTheta);
+                void SetInitialTheta(std::vector<double> &apTheta);
 
                 /**
                  * @brief Getter for the initial theta.
@@ -139,7 +139,7 @@ namespace exageostat {
                  *
                  * @param apTheta A pointer to an array of target theta values to set.
                  */
-                void SetTargetTheta(std::vector<double> apTheta);
+                void SetTargetTheta(std::vector<double> &apTheta);
 
                 /**
                  * @brief Getter for the target theta.
@@ -162,7 +162,7 @@ namespace exageostat {
                  * @param aString The string to check.
                  * @return true if the string is in camel case format, false otherwise.
                  */
-                static bool IsCamelCase(std::string aString);
+                static bool IsCamelCase(const std::string &aString);
 
                 /**
                  * @brief Checks the run mode and set the verboisty level.
@@ -172,7 +172,7 @@ namespace exageostat {
                  *
                  * @throws std::range_error if the input string is not "verbose" or "standard".
                  */
-                static void ParseRunMode(const std::string& aRunMode);
+                static void ParseRunMode(const std::string &aRunMode);
 
                 /**
                  * @brief Parses a string of theta values and returns an array of doubles.
@@ -180,7 +180,7 @@ namespace exageostat {
                  * @param aInputValues The input string of theta values.
                  * @return A pointer to an array of parsed theta values.
                  */
-                static std::vector<double> ParseTheta(const std::string& aInputValues);
+                static std::vector<double> ParseTheta(const std::string &aInputValues);
 
             protected:
                 /// The kernel to use.
