@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -11,168 +10,183 @@
  * @author Sameh Abdulah
  * @date 2023-04-09
 **/
+
+extern "C" {
+#include <control/hicma_context.h>
+}
+
 #include <libraries/catch/catch.hpp>
-#include <cmath>
-#include <vector>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <control/hicma_context.h>
+#include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations::data_configurations;
+
 using namespace std;
 
-void INIT_HARDWARE_TLR() {
+void INIT_FINALIZE_HARDWARE_TLR() {
+
+
     HicmaImplementation<double> hicmaImpl;
+    // Initialise the context
     hicmaImpl.ExaGeoStatInitContext(4, 0);
     HICMA_context_t *hicmaContext = hicma_context_self();
     REQUIRE(hicmaContext != nullptr);
-}
 
-void FINALIZE_HARDWARE_TLR() {
-    HicmaImplementation<double> hicmaImpl;
-    hicmaImpl.ExaGeoStatInitContext(4, 0);
+    // Finalize the context.
     hicmaImpl.ExaGeoStatFinalizeContext();
     REQUIRE(hicma_context_self() == nullptr);
+
+    // Test using operations without initialise Hardware.
+    REQUIRE_THROWS_WITH(hicmaImpl.InitiateDescriptors(),
+                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+
 }
 
 // Test that the function initializes all the required descriptors without errors.
-// ONLY DOUBLE IS AVAILABLE FOR NOW.
-void TEST_INITIALIZETION_TLR() {
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
+void TEST_DESCRIPTORS_INITIALIZATION_TLR() {
+    SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 
     SECTION("Double without NZmiss") {
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
-        syntheticDataConfigurations->SetLowTileSize(512);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
-        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
+        synthetic_data_configurations.SetProblemSize(64);
+        synthetic_data_configurations.SetLowTileSize(16);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+        int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZObservations() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZActual() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorMSE() == nullptr);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
+        REQUIRE(synthetic_data_configurations.GetDescriptorC().size() == 1);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZ().size() == 1);
 
-        for (auto &descriptorC: syntheticDataConfigurations->GetDescriptorC()) {
+        for (auto &descriptorC: synthetic_data_configurations.GetDescriptorC()) {
             REQUIRE(descriptorC != nullptr);
         }
-        for (auto &i: syntheticDataConfigurations->GetDescriptorZ()) {
+        for (auto &i: synthetic_data_configurations.GetDescriptorZ()) {
             REQUIRE(i != nullptr);
         }
-        if(nZmiss != 0){
-            for (auto &i: syntheticDataConfigurations->GetDescriptorCD()) {
+        if (nZmiss != 0) {
+            for (auto &i: synthetic_data_configurations.GetDescriptorCD()) {
                 REQUIRE(i != nullptr);
             }
-            for (auto &i: syntheticDataConfigurations->GetDescriptorCUV()) {
+            for (auto &i: synthetic_data_configurations.GetDescriptorCUV()) {
                 REQUIRE(i != nullptr);
             }
-            for (auto &i: syntheticDataConfigurations->GetDescriptorCrk()) {
+            for (auto &i: synthetic_data_configurations.GetDescriptorCrk()) {
                 REQUIRE(i != nullptr);
             }
-            REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() != nullptr);
-            REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() != nullptr);
-            REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() != nullptr);
+            REQUIRE(synthetic_data_configurations.GetDescriptorZObservations() != nullptr);
+            REQUIRE(synthetic_data_configurations.GetDescriptorZActual() != nullptr);
+            REQUIRE(synthetic_data_configurations.GetDescriptorMSE() != nullptr);
         }
         // Since HiCMA doesn't need product descriptor
-        for (auto &i: syntheticDataConfigurations->GetDescriptorProduct()) {
+        for (auto &i: synthetic_data_configurations.GetDescriptorProduct()) {
             REQUIRE(i == nullptr);
         }
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
-    }
-    SECTION("Double WITH NZmiss") {
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+    }SECTION("Double WITH NZmiss") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
-        syntheticDataConfigurations->SetLowTileSize(512);
-        syntheticDataConfigurations->SetUnknownObservationsNb(10);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
-        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
+        synthetic_data_configurations.SetProblemSize(32);
+        synthetic_data_configurations.SetLowTileSize(16);
+        synthetic_data_configurations.SetUnknownObservationsNb(10);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+        int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() == nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZObservations() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZActual() == nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorMSE() == nullptr);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorC().size() == 1);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZ().size() == 1);
+        REQUIRE(synthetic_data_configurations.GetDescriptorC().size() == 1);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZ().size() == 1);
 
-        for (auto &descriptorC: syntheticDataConfigurations->GetDescriptorC()) {
+        for (auto &descriptorC: synthetic_data_configurations.GetDescriptorC()) {
             REQUIRE(descriptorC != nullptr);
         }
-        for (auto &i: syntheticDataConfigurations->GetDescriptorZ()) {
+        for (auto &i: synthetic_data_configurations.GetDescriptorZ()) {
             REQUIRE(i != nullptr);
         }
-        if(nZmiss != 0){
-            for (auto &i: syntheticDataConfigurations->GetDescriptorCD()) {
+        if (nZmiss != 0) {
+            for (auto &i: synthetic_data_configurations.GetDescriptorCD()) {
                 REQUIRE(i != nullptr);
             }
-            for (auto &i: syntheticDataConfigurations->GetDescriptorCUV()) {
+            for (auto &i: synthetic_data_configurations.GetDescriptorCUV()) {
                 REQUIRE(i != nullptr);
             }
-            for (auto &i: syntheticDataConfigurations->GetDescriptorCrk()) {
+            for (auto &i: synthetic_data_configurations.GetDescriptorCrk()) {
                 REQUIRE(i != nullptr);
             }
-            REQUIRE(syntheticDataConfigurations->GetDescriptorZObservations() != nullptr);
-            REQUIRE(syntheticDataConfigurations->GetDescriptorZActual() != nullptr);
-            REQUIRE(syntheticDataConfigurations->GetDescriptorMSE() != nullptr);
+            REQUIRE(synthetic_data_configurations.GetDescriptorZObservations() != nullptr);
+            REQUIRE(synthetic_data_configurations.GetDescriptorZActual() != nullptr);
+            REQUIRE(synthetic_data_configurations.GetDescriptorMSE() != nullptr);
         }
         // Since HiCMA doesn't need product descriptor
-        for (auto &i: syntheticDataConfigurations->GetDescriptorProduct()) {
+        for (auto &i: synthetic_data_configurations.GetDescriptorProduct()) {
             REQUIRE(i == nullptr);
         }
 
-        REQUIRE(syntheticDataConfigurations->GetDescriptorZcpy() != nullptr);
-        REQUIRE(syntheticDataConfigurations->GetDescriptorDeterminant() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() != nullptr);
+        REQUIRE(synthetic_data_configurations.GetDescriptorDeterminant() != nullptr);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 
 //Test that the function initializes the (*HICMA_descriptorC) descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
-    auto *syntheticDataConfigurations = new SyntheticDataConfigurations();
+    SyntheticDataConfigurations synthetic_data_configurations;
+    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 
     SECTION("DOUBLE without NZmiss") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
-        syntheticDataConfigurations->SetLowTileSize(512);
-        syntheticDataConfigurations->SetApproximationMode(1);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        synthetic_data_configurations.SetProblemSize(20);
+        synthetic_data_configurations.SetLowTileSize(12);
+        synthetic_data_configurations.SetApproximationMode(1);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        auto **HICMA_descriptorC = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorC()[0];
-        auto **HICMA_descriptorZcpy = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZcpy();
-        auto **HICMA_descriptorDeterminant = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorDeterminant();
-        auto **HICMA_descriptorCD = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCD()[0];
-        auto **HICMA_descriptorCUV = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCUV()[0];
-        auto **HICMA_descriptorCrk = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCrk()[0];
-        int approximationMode = syntheticDataConfigurations->GetApproximationMode();
-        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
-        int lts = syntheticDataConfigurations->GetLowTileSize();
-        int pGrid = syntheticDataConfigurations->GetPGrid();
-        int qGrid = syntheticDataConfigurations->GetQGrid();
-        int maxRank = syntheticDataConfigurations->GetMaxRank();
-        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
-        double meanSquareError = syntheticDataConfigurations->GetMeanSquareError();
-        string actualObservationsFilePath = syntheticDataConfigurations->GetActualObservationsFilePath();
-        double determinantValue = syntheticDataConfigurations->GetDeterminantValue();
-        int nZobs = syntheticDataConfigurations->GetKnownObservationsValues();
+        auto **HICMA_descriptorC = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorC()[0];
+        int approximationMode = synthetic_data_configurations.GetApproximationMode();
+        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int lts = synthetic_data_configurations.GetLowTileSize();
+        int pGrid = synthetic_data_configurations.GetPGrid();
+        int qGrid = synthetic_data_configurations.GetQGrid();
 
-        if(approximationMode == 1){
+        if (approximationMode == 1) {
             // Descriptor C.
             REQUIRE((*HICMA_descriptorC)->m == N);
             REQUIRE((*HICMA_descriptorC)->n == N);
@@ -188,28 +202,44 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE((*HICMA_descriptorC)->p == pGrid);
             REQUIRE((*HICMA_descriptorC)->q == qGrid);
         }
+        linearAlgebraSolver->DestoryDescriptors();
+
         // Re-Run again but with approx mode OFF
-        syntheticDataConfigurations->SetApproximationMode(0);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        synthetic_data_configurations.SetApproximationMode(0);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
-        approximationMode = syntheticDataConfigurations->GetApproximationMode();
-        auto **HICMA_descriptorZ = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZ()[0];
+        approximationMode = synthetic_data_configurations.GetApproximationMode();
 
+        int maxRank = synthetic_data_configurations.GetMaxRank();
+        int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
+        double meanSquareError = synthetic_data_configurations.GetMeanSquareError();
+        string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
+        double determinantValue = synthetic_data_configurations.GetDeterminantValue();
+        int nZobs = synthetic_data_configurations.GetKnownObservationsValues();
 
-        if(approximationMode != 1){
+        auto **HICMA_descriptorZ = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZ()[0];
+        HICMA_descriptorC = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorC()[0];
+        auto **HICMA_descriptorZcpy = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZcpy();
+        auto **HICMA_descriptorDeterminant =
+                (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorDeterminant();
+        auto **HICMA_descriptorCD = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCD()[0];
+        auto **HICMA_descriptorCUV = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCUV()[0];
+        auto **HICMA_descriptorCrk = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCrk()[0];
+
+        if (approximationMode != 1) {
             // Descriptor C.
-            REQUIRE((*HICMA_descriptorC)->m == N);
-            REQUIRE((*HICMA_descriptorC)->n == 1);
-            REQUIRE((*HICMA_descriptorC)->mb == lts);
-            REQUIRE((*HICMA_descriptorC)->nb == lts);
-            REQUIRE((*HICMA_descriptorC)->bsiz == lts * lts);
+            REQUIRE((*HICMA_descriptorC)->m == lts);
+            REQUIRE((*HICMA_descriptorC)->n == lts);
+            REQUIRE((*HICMA_descriptorC)->mb == 1);
+            REQUIRE((*HICMA_descriptorC)->nb == 1);
+            REQUIRE((*HICMA_descriptorC)->bsiz == 1);
             REQUIRE((*HICMA_descriptorC)->i == 0);
             REQUIRE((*HICMA_descriptorC)->j == 0);
-            REQUIRE((*HICMA_descriptorC)->mt == ceil((N * 1.0) / (lts * 1.0)));
-            REQUIRE((*HICMA_descriptorC)->nt == 1);
-            REQUIRE((*HICMA_descriptorC)->lm == N);
-            REQUIRE((*HICMA_descriptorC)->ln == 1);
+            REQUIRE((*HICMA_descriptorC)->mt == lts);
+            REQUIRE((*HICMA_descriptorC)->nt == lts);
+            REQUIRE((*HICMA_descriptorC)->lm == lts);
+            REQUIRE((*HICMA_descriptorC)->ln == lts);
             REQUIRE((*HICMA_descriptorC)->p == pGrid);
             REQUIRE((*HICMA_descriptorC)->q == qGrid);
         }
@@ -307,39 +337,47 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE((*HICMA_descriptorDeterminant)->ln == 1);
         REQUIRE((*HICMA_descriptorDeterminant)->p == pGrid);
         REQUIRE((*HICMA_descriptorDeterminant)->q == qGrid);
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 
     SECTION("DOUBLE WITH NZmiss") {
+
+        // Initialise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
 
-        syntheticDataConfigurations->SetProblemSize(6400);
-        syntheticDataConfigurations->SetLowTileSize(512);
-        syntheticDataConfigurations->SetUnknownObservationsNb(10);
-        linearAlgebraSolver->SetConfigurations(syntheticDataConfigurations);
+        synthetic_data_configurations.SetProblemSize(8);
+        synthetic_data_configurations.SetLowTileSize(4);
+        synthetic_data_configurations.SetUnknownObservationsNb(3);
+        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
 
         linearAlgebraSolver->InitiateDescriptors();
 
-        auto **HICMA_descriptorZObservations = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZObservations();
-        auto **HICMA_descriptorZactual = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorZActual();
-        auto **HICMA_descriptorMSE = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorMSE();
+        auto **HICMA_descriptorZObservations =
+                (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZObservations();
+        auto **HICMA_descriptorZactual = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorZActual();
+        auto **HICMA_descriptorMSE = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorMSE();
 
-        auto **HICMA_descriptorC12D = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCD()[1];
-        auto **HICMA_descriptorC22D = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCD()[2];
+        auto **HICMA_descriptorC12D = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCD()[1];
+        auto **HICMA_descriptorC22D = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCD()[2];
 
-        auto **HICMA_descriptorC12UV = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCUV()[1];
-        auto **HICMA_descriptorC22UV = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCUV()[2];
+        auto **HICMA_descriptorC12UV = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCUV()[1];
+        auto **HICMA_descriptorC22UV = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCUV()[2];
 
-        auto **HICMA_descriptorC12rk = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCrk()[1];
-        auto **HICMA_descriptorC22rk = (HICMA_desc_t **) &syntheticDataConfigurations->GetDescriptorCrk()[2];
+        auto **HICMA_descriptorC12rk = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCrk()[1];
+        auto **HICMA_descriptorC22rk = (HICMA_desc_t * *) & synthetic_data_configurations.GetDescriptorCrk()[2];
 
-        int N = syntheticDataConfigurations->GetProblemSize() * syntheticDataConfigurations->GetP();
-        int lts = syntheticDataConfigurations->GetLowTileSize();
-        int pGrid = syntheticDataConfigurations->GetPGrid();
-        int qGrid = syntheticDataConfigurations->GetQGrid();
-        int maxRank = syntheticDataConfigurations->GetMaxRank();
-        int nZmiss = syntheticDataConfigurations->GetUnknownObservationsNb();
-        string actualObservationsFilePath = syntheticDataConfigurations->GetActualObservationsFilePath();
-        int nZobs = syntheticDataConfigurations->GetKnownObservationsValues();
+        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int lts = synthetic_data_configurations.GetLowTileSize();
+        int pGrid = synthetic_data_configurations.GetPGrid();
+        int qGrid = synthetic_data_configurations.GetQGrid();
+        int maxRank = synthetic_data_configurations.GetMaxRank();
+        int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
+        string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
+        int nZobs = synthetic_data_configurations.GetKnownObservationsValues();
 
         if (nZmiss != 0) {
             if (actualObservationsFilePath.empty()) {
@@ -479,12 +517,14 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE((*HICMA_descriptorMSE)->p == pGrid);
             REQUIRE((*HICMA_descriptorMSE)->q == qGrid);
         }
+
+        // Finalise Hardware.
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
     }
 }
 
 TEST_CASE("HiCMA Implementation TLR") {
-    FINALIZE_HARDWARE_TLR();
-    INIT_HARDWARE_TLR();
+    INIT_FINALIZE_HARDWARE_TLR();
+    TEST_DESCRIPTORS_INITIALIZATION_TLR();
     TEST_HICMA_DESCRIPTORS_VALUES_TLR();
-    TEST_INITIALIZETION_TLR();
 }

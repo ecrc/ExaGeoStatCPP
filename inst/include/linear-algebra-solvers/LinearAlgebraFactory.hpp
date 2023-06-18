@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -15,14 +14,16 @@
 #ifndef EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP
 #define EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP
 
+#include <memory>
+
 #include <common/Definitions.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
-#include <memory>
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
 #endif
+
 #ifdef EXAGEOSTAT_USE_HiCMA
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
 #endif
@@ -33,7 +34,8 @@ namespace exageostat {
         /**
          * @class LinearAlgebraFactory
          * @brief A class that creates linear algebra solvers based on the input computation type.
-         * @tparam T The data type of the linear algebra solver.
+         * @tparam T Data Type: float or double.
+         *
          */
         template<typename T>
         class LinearAlgebraFactory {
@@ -41,15 +43,19 @@ namespace exageostat {
 
             /**
              * @brief Creates a linear algebra solver based on the input computation type.
-             *
              * @param[in] aComputation The computation type to create the solver for.
+             * @return Pointer to the created linear algebra solver.
              *
-             * @return A unique pointer to the created linear algebra solver.
              */
-            static std::unique_ptr<LinearAlgebraMethods<T>>
+            static LinearAlgebraMethods<T> *
             CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 
+        /**
+        * @brief Instantiates the Linear Algebra factory class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
         EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraFactory)
 
     }//namespace linearAlgebra

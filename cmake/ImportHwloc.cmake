@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -31,12 +30,14 @@ if (NOT TARGET HWLOC)
         message("   Can't find Hwloc, Installing it instead ..")
 
         # Set the flags to be passed to the build command.
-        set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps)
+        set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/HWLOC/)
         set(ISCMAKE OFF)
         set(ISGIT ON)
+        set(AUTO_GEN ON)
 
         # Build Hwloc from source.
-        BuildDependency(HWLOC "https://github.com/open-mpi/hwloc" "hwloc-2.4.0" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        set(HWLOC_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/HWLOC/)
+        BuildDependency(HWLOC "https://github.com/open-mpi/hwloc" "hwloc-2.4.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
 
         # Clear the flags.
         set(FLAGS "")

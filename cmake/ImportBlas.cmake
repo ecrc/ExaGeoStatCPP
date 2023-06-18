@@ -1,6 +1,4 @@
-
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -11,28 +9,33 @@
 # @date 2023-03-12
 
 # search for BLAS library, if not already included
-# Search for BLAS library, if not already included
 message("")
 message("---------------------------------------- BLAS")
 message(STATUS "Checking for BLAS")
-
 include(macros/BuildDependency)
 
 if (NOT TARGET BLAS)
-
-    # Find the BLAS library.
+    include(FindPkgConfig)
+    find_package(PkgConfig QUIET)
     find_package(BLAS QUIET)
 
-    # If BLAS is not found, build the dependency.
     if (BLAS_FOUND)
         message("   Found BLAS: ${BLAS_LIBRARIES}")
     else ()
-        set(build_tests_save "${build_tests}")
+        message("   Can't find Blas, Installing it instead ..")
+        # Set installation flags
+        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/BLAS/)
+        set(ISCMAKE ON)
+        set(ISGIT ON)
+        set(AUTO_GEN OFF)
         set(build_tests "false")
-        BuildDependency(blas "https://github.com/xianyi/OpenBLAS" "v0.3.21")
-        set(build_tests "${build_tests_save}")
+        set(BLAS_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/BLAS)
+        BuildDependency(BLAS "https://github.com/xianyi/OpenBLAS" "v0.3.21" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
+
+        set(FLAGS "")
+        find_package(BLAS REQUIRED)
     endif ()
-# If BLAS has already been included, print a message
+
 else ()
     message("   BLAS already included")
 endif ()

@@ -1,5 +1,4 @@
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -21,7 +20,7 @@
 # and ${capital_name}_DIR) and includes and links to the installation directory of the dependency.
 
 # After building and installing the dependency, the macro installs the lib, include, and share directories  in the current directory.
-macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
+macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     # Set the name of the dependency.
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
@@ -40,7 +39,7 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     # Set up build paths and create directory for build artifacts.
     set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/${name}-src)
     set(${name}_binpath ${${name}_srcpath}/bin)
-    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
+    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name})
     file(MAKE_DIRECTORY ${${name}_binpath})
 
     # Configure subproject.
@@ -50,6 +49,11 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
                 WORKING_DIRECTORY
                 ${${name}_binpath})
     else()
+        if (AUTO_GEN)
+            execute_process(COMMAND ./autogen.sh
+                    WORKING_DIRECTORY ${${name}_srcpath}
+                    COMMAND_ERROR_IS_FATAL ANY)
+        endif()
         execute_process(COMMAND ./configure ${FLAGS}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
@@ -79,7 +83,7 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT})
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
     set(ENV{PKG_CONFIG_PATH} "${${name}_installpath}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-    set(${capital_name}_DIR "${${name}_installpath}/lib")
+    set(${capital_name}_DIR "${${name}_installpath}")
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
 

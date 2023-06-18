@@ -1,6 +1,5 @@
 
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-// Copyright (C) 2023 by Brightskies inc,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -14,12 +13,16 @@
 #include <data-units/Locations.hpp>
 
 using namespace exageostat::dataunits;
+using namespace exageostat::common;
 
 void Locations::SetLocationX(double *apLocationX) {
     this->mpLocationX = apLocationX;
 }
 
 double *Locations::GetLocationX() {
+    if (this->mpLocationX == nullptr) {
+        throw std::runtime_error("LocationX is null");
+    }
     return this->mpLocationX;
 }
 
@@ -28,6 +31,9 @@ void Locations::SetLocationY(double *apLocationY) {
 }
 
 double *Locations::GetLocationY() {
+    if (this->mpLocationY == nullptr) {
+        throw std::runtime_error("LocationY is null");
+    }
     return this->mpLocationY;
 }
 
@@ -37,4 +43,26 @@ void Locations::SetLocationZ(double *apLocationZ) {
 
 double *Locations::GetLocationZ() {
     return this->mpLocationZ;
+}
+
+Locations::Locations(int aSize, Dimension aDimension) {
+
+    this->mpLocationX = (double *) malloc(aSize * sizeof(double));
+    this->mpLocationY = (double *) malloc(aSize * sizeof(double));
+    if (aDimension != common::Dimension2D) {
+        this->mpLocationZ = (double *) malloc(aSize * sizeof(double));
+    }
+}
+
+Locations::~Locations() {
+
+    if (this->mpLocationX != nullptr) {
+        free(this->mpLocationX);
+    }
+    if (this->mpLocationY != nullptr) {
+        free(this->mpLocationY);
+    }
+    if (this->mpLocationZ != nullptr) {
+        free(this->mpLocationZ);
+    }
 }
