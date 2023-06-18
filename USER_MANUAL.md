@@ -22,9 +22,9 @@ ExaGeoStat User Manual
 
 * To enable debug mode add **```-d```**
 
-* To change the installation path of the dependencies use **```-i```** following by your/path
+* To change the installation path of the dependencies use **```-i <installation/path>```**
 
-Please note, Currently we are supporting using only one of the two options of HiCMA or Chameleon.
+Please note, currently we are supporting using only one of the two options of HiCMA or Chameleon.
 
 ## Building
 
@@ -82,10 +82,10 @@ Supported Covariance Functions/ Kernels:
 * {Optional} To set the dimension, Default is 2D
 
         --dimension=<2D/3D/ST>
-* {Optional} To set the p grid, Default is 2D
+* {Optional} To set the p grid
 
         --p_grid=<value>
-* {Optional} To set the q grid, Default is 2D
+* {Optional} To set the q grid
 
         --q_grid=<value>
 * {Optional} To set the time slot, Default is 1
@@ -100,7 +100,7 @@ Supported Covariance Functions/ Kernels:
 * {Optional} To set the number of cores, Default is 1
 
         --cores=<value>
-* {Optional} To set the number of GPUs, Default is 1
+* {Optional} To set the number of GPUs, Default is 0
 
         --gpus=<value>
 * {Optional} To set the number of unknown observation to be predicted, Default is 0
