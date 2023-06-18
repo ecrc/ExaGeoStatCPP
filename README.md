@@ -84,56 +84,43 @@ External libraries:
 Project Hierarchy
 --------------------
 
-* **```prerequisites```**\
-  Folder containing the prerequisites needed for the project, or default scripts to install them.
-
-* **```inst```**\
-  Folder containing all the headers of the system, reflecting the src directory structure.
-
-* **```src```**\
-  Folder containing all the source files of the system.
-    * configurations : Contains the high level configurations parsers for the Exageostat-CPP functionalities that are provided to library users.
-* **```tests```**\
-  Folder containing all the tests of the system. Follows same structure as the src folder.
-
-* **```examples```**\
-  Folder containing all the demo code showcasing how the framework is used within applications, and the capabilities of the framework.
-
-* **```clean_build.sh```**\
-  Script used to build the system tests after running the config.sh, and by default build all the different modules of the project.
-
-* **```config.sh```**\
-  Script used to generate the building system inside a 'bin' directory.
-
-* **```CMakeLists.txt```**\
-  The top level CMake file to configure the build system.
-
+* **```cmake```** Folder containing the needed cmake modules to import and find needed dependencies.
+* **```docs```** Folder containing the documents needed.
+* **```examples```** Folder containing all the demo code showcasing how the framework is used within applications, and the capabilities of the framework.
+* **```inst```** Folder containing all the headers of the system, reflecting the src directory structure.
+* **```prerequisites```** Folder containing the prerequisites needed for the project, or default scripts to install them.
+* **```src```** Folder containing all the source files of the system.
+* **```tests```** Folder containing all the tests of the system. Follows same structure as the src folder.
+* **```clean_build.sh```** Script used to build the system tests after running the config.sh, and by default build all the different modules of the project.
+* **```CMakeLists.txt```** The top level CMake file to configure the build system.
+* **```config.sh```** Script used to generate the building system inside a 'bin' directory.
 
 Installation
 ============
 
-Installation requires at least **CMake** of version 2.8.12. To build ExaGeoStat,
+Installation requires at least **CMake of version 3.2** To build ExaGeoStat,
 please follow these instructions:
 
 1.  Get  from git repository
 
-        git clone git@github.com:ecrc/exageostat
+        git clone git@github.com:ecrc/exageostat-cpp
 
     or
 
-        git clone https://github.com/ecrc/exageostat
+        git clone https://github.com/ecrc/exageostat-cpp
 
 2.  Go into exageostat folder
 
-        cd exageostat
+        cd exageostat-cpp
 
 3.  Run help of config.sh to know the needed arguments to run with your specific options.
 
-        ./config.sh --help
+        ./config.sh --h
+    or check user manual.
 
-4.  Run clean_build.sh
+4.  Run help of clean_build.sh to know the needed arguments to run with your specific options.
 
-        ./clean_build.sh
+        ./clean_build.sh -h
 
 10. Export the installations paths of the dependencies, Usually it will be
 
@@ -144,6 +131,9 @@ please follow these instructions:
 Now you can use pkg-config executable to collect compiler and linker flags for
 EXAGEOSTAT.
 
+Using ExaGeoStat
+============
+Please refer to **```USER_MANUAL```** for detailed instructions.
 
 References
 ==========

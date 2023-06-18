@@ -22,8 +22,6 @@ using namespace std;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 
-//// TODO: Add all arguments info in README.
-//// TODO: Add all supported kernels in README.
 void SyntheticDataConfigurations::InitializeArguments(int argc, char **argv) {
     // Get the example name
     string example_name = argv[0];

@@ -156,12 +156,15 @@ int number_count;
 - Default indentation is 4 spaces, and wrapped parameters have 4 spaces indent.
 
 - In ExaGeoStat-CPP, we have 4 namespaces, as follows:
-    - `exageostat::common`: Namespace used for all ExaGeoStat-CPP common and helper functionalities that might provide useful facilities in the examples and testing.
-    - `exageostat::configurations`: Namespace used for ExaGeoStat-CPP configurations arguments and parsers.
-    - `exageostat::kernels`: Namespace used for target backend implementations of the various kernels used internally to fulfill the targeted operations.
-    - `exageostat::data-generators`: Namespace used for ExaGeoStat-CPP implementations of the various options for data-generation module.
-    - `exageostat::data-units`: Namespace used for all ExaGeoStat-CPP base data structures that the user should utilize and interact with, including the base tiles.
-    - `exageostat::linear-algebra-solvers`: Namespace used for all ExaGeoStat-CPP integrated linear algebra solvers libraries.
+  - `exageostat::api`: This namespace contains the high-level drivers for the ExaGeoStat-cpp functionalities that are provided to library users. These functions help users interact with the ExaGeoStat-cpp framework and perform various statistical operations.
+  - `exageostat::common`: This namespace contains all ExaGeoStat-cpp common and helper functionalities that might provide useful facilities in the examples and testing. These functions provide common functionality that can be used across the different modules of the ExaGeoStat-cpp framework.
+  - `exageostat::configurations`: This namespace contains all ExaGeoStat-cpp configurations arguments and parsers. These functions are used to parse and set the configuration parameters for the ExaGeoStat-cpp framework.
+  - `exageostat::data-generators`: This namespace is used for ExaGeoStat-cpp implementations of the various options for data-generation module. These functions generate synthetic data sets that can be used for testing and demonstration purposes.
+  - `exageostat::data-units`: This namespace is used for all ExaGeoStat-cpp base data structures that the user should utilize and interact with, including the base tiles. These data units are used to represent the data and perform operations on it.
+  - `exageostat::helpers`: This namespace contains helper functions used by other modules of the ExaGeoStat-cpp framework. These functions provide common functionality that can be used across the different modules of the ExaGeoStat-cpp framework.
+  - `exageostat::kernels`: This namespace is used for target backend implementations of the various kernels used internally to fulfill the targeted operations. These functions provide low-level implementations of the operations performed by the ExaGeoStat-cpp framework.
+  - `exageostat::linear-algebra-solvers`: This namespace is used for all ExaGeoStat-cpp integrated linear algebra solvers libraries. These solvers are used to solve the linear algebra problems that arise during the execution of the ExaGeoStat-cpp framework.
+  - `exageostat::operators`: This namespace contains various operators used by the ExaGeoStat-cpp framework. These operators are used to perform various mathematical operations on the data sets.
 
 Use `clang-format` to check your C/C++ changes.
 
