@@ -43,11 +43,11 @@ void Configurations::SetComputation(Computation aComputation) {
     this->mComputation = aComputation;
 }
 
-Computation Configurations::GetComputation() {
+Computation Configurations::GetComputation() const {
     return this->mComputation;
 }
 
-Precision Configurations::GetPrecision() {
+Precision Configurations::GetPrecision() const{
     return this->mPrecision;
 }
 
@@ -59,7 +59,7 @@ void Configurations::SetOperator(Operators aOperator) {
     this->mOperator = aOperator;
 }
 
-Operators Configurations::GetOperator() {
+Operators Configurations::GetOperator() const{
     return this->mOperator;
 }
 
@@ -177,7 +177,7 @@ void Configurations::SetMaxRank(int aMaxRank) {
     this->mMaxRank = aMaxRank;
 }
 
-int Configurations::GetMaxRank() {
+int Configurations::GetMaxRank() const{
     return this->mMaxRank;
 }
 
@@ -193,7 +193,7 @@ void Configurations::SetKnownObservationsValues(int aKnownObservationsValues) {
     this->mKnownObservationsValues = aKnownObservationsValues;
 }
 
-int Configurations::GetKnownObservationsValues() {
+int Configurations::GetKnownObservationsValues() const{
     return this->mKnownObservationsValues;
 }
 
@@ -205,7 +205,7 @@ void Configurations::SetApproximationMode(int aApproximationMode) {
     this->mApproximationMode = aApproximationMode;
 }
 
-double Configurations::GetMeanSquareError() {
+double Configurations::GetMeanSquareError() const{
     return this->mMeanSquareError;
 }
 
@@ -217,7 +217,7 @@ void Configurations::SetActualObservationsFilePath(const std::string &aKnownObse
     this->mActualObservationsFilePath = aKnownObservationsValues;
 }
 
-string Configurations::GetActualObservationsFilePath() {
+string Configurations::GetActualObservationsFilePath() const{
     return this->mActualObservationsFilePath;
 }
 
@@ -225,7 +225,7 @@ void Configurations::SetDeterminantValue(double aDeterminantValue) {
     this->mDeterminantValue = aDeterminantValue;
 }
 
-double Configurations::GetDeterminantValue() {
+double Configurations::GetDeterminantValue() const{
     return this->mDeterminantValue;
 }
 
