@@ -99,8 +99,37 @@ void TEST_CONFIGURATIONS() {
     }
 }
 
+void TEST_COPY_CONSTRUCTOR() {
+    SECTION("copy-constructor"){
+        SyntheticDataConfigurations synthetic_data_configurations;
+        synthetic_data_configurations.SetProblemSize(10);
+        synthetic_data_configurations.SetKernel("BivariateSpacetimeMaternStationary");
+        synthetic_data_configurations.SetPrecision(exageostat::common::MIXED);
+        synthetic_data_configurations.SetLoggerPath("any/path");
+        void *test = synthetic_data_configurations.GetDescriptorZcpy();
+        int random_number;
+        test = &random_number;
+        vector<double> lb{0.1, 0.1, 0.1};
+        synthetic_data_configurations.SetLowerBounds(lb);
+
+
+        SyntheticDataConfigurations copied_synthetic_conf(synthetic_data_configurations);
+
+        REQUIRE(synthetic_data_configurations.GetProblemSize() == copied_synthetic_conf.GetProblemSize());
+        REQUIRE(copied_synthetic_conf.GetProblemSize() == 10);
+        REQUIRE(synthetic_data_configurations.GetKernel() == copied_synthetic_conf.GetKernel());
+        REQUIRE(copied_synthetic_conf.GetKernel() == "BivariateSpacetimeMaternStationary");
+        REQUIRE(synthetic_data_configurations.GetLowerBounds() == copied_synthetic_conf.GetLowerBounds());
+        REQUIRE(synthetic_data_configurations.GetPrecision() == copied_synthetic_conf.GetPrecision());
+        REQUIRE(*copied_synthetic_conf.GetLoggerPath() == "any/path");
+        REQUIRE(*synthetic_data_configurations.GetLoggerPath() == *copied_synthetic_conf.GetLoggerPath());
+        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() == copied_synthetic_conf.GetDescriptorZcpy());
+
+    }
+}
 TEST_CASE("Synthetic Data Configurations") {
     TEST_SYNTHETIC_CONFIGURATIONS();
     TEST_DATA_CONFIGURATIONS();
     TEST_CONFIGURATIONS();
+    TEST_COPY_CONSTRUCTOR();
 }

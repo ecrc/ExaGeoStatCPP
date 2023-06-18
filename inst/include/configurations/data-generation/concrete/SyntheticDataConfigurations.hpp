@@ -46,6 +46,13 @@ namespace exageostat {
                 ~SyntheticDataConfigurations() override = default;
 
                 /**
+                 * @brief Copy constructor.
+                 * @param[in] aSyntheticDataConfigurations Another instance of SyntheticDataConfigurations to copy from.
+                 *
+                 */
+                SyntheticDataConfigurations(const SyntheticDataConfigurations& aSyntheticDataConfigurations) = default;
+
+                /**
                  * @brief Set default values for input arguments.
                  * @param[in] argc The number of arguments being passed into the program from the command line.
                  * @param[in] argv The array of arguments.
