@@ -302,7 +302,7 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(void *descA, int &uplo, dataunit
             n0 = n * A.nb;
 
             // Register the data with StarPU
-            starpu_insert_task(starpu_mpi_codelet(cl),
+            starpu_insert_task(cl,
                                STARPU_VALUE, &tempmm, sizeof(int),
                                STARPU_VALUE, &tempnn, sizeof(int),
                                STARPU_VALUE, &m0, sizeof(int),

@@ -20,50 +20,42 @@ namespace exageostat {
     namespace kernels {
 
         /**
-        * @class BivariateMaternParsimonious
-        * @brief A class representing a Bivariate Matern Parsimonious kernel.
-        *
-        * This class represents a Bivariate Matern Parsimonious kernel, which is a subclass of the Kernel class. It provides
-        * a method for generating a covariance matrix using a set of input locations and kernel parameters.
-        */
+         * @class BivariateMaternParsimonious
+         * @brief A class representing a Bivariate Matern Flexible kernel.
+         * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class. 
+         * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
+         * 
+         */
         class BivariateMaternParsimonious : public Kernel {
+
         public:
 
             /**
              * @brief Constructs a new BivariateMaternParsimonious object.
-             *
-             * Initializes a new BivariateMaternParsimonious object with default values.
+             * @details Initializes a new BivariateMaternParsimonious object with default values.
              */
             BivariateMaternParsimonious();
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             * 
              */
             ~BivariateMaternParsimonious() = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
-             * @param[in] apMatrixA The output covariance matrix.
-             * @param[in] aRowsNumber The number of rows in the output matrix.
-             * @param[in] aColumnsNumber The number of columns in the output matrix.
-             * @param[in] aRowOffset The row offset for the input locations.
-             * @param[in] aColumnOffset The column offset for the input locations.
-             * @param[in] apLocation1 The set of input locations 1.
-             * @param[in] apLocation2 The set of input locations 2.
-             * @param[in] apLocation3 The set of input locations 3.
-             * @param[in] aLocalTheta An array of kernel parameters.
-             * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
+             * @copydoc Kernel::GenerateCovarianceMatrix()
              */
             void GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
                                           int &aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *aLocalTheta, int &aDistanceMetric) override;
+                                          double *aLocalTheta, int &aDistanceMetric) override ;
 
             /**
              * @brief Creates a new BivariateMaternParsimonious object.
+             * @details This method creates a new BivariateMaternParsimonious object and returns a pointer to it.
              * @return A pointer to the new BivariateMaternParsimonious object.
-             *
-             * This method creates a new BivariateMaternParsimonious object and returns a pointer to it.
+             * 
              */
             static Kernel *Create();
 

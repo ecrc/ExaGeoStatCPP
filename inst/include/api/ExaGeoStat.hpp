@@ -4,7 +4,7 @@
 
 /**
  * @file ExaGeoStat.hpp
- * @brief 
+ * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-05-30
@@ -19,46 +19,50 @@
 namespace exageostat {
     namespace api {
         /**
-         * @brief
-         * High-Level Wrapper class containing the static API for ExaGeoStat operations.
+         * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
+         * @tparam T Data Type: float or double
          *
-         * @tparam T
-         * Data type: float or double
          */
         template<typename T>
         class ExaGeoStat {
         public:
             /**
-            * @brief Initializes the ExaGeoStat hardware.
-            *
-            * @param apConfigurations Pointer to the configurations object.
-            */
+             * @brief Initializes the ExaGeoStat hardware.
+             * @param[in] apConfigurations Pointer to the configurations object.
+             * @return void
+             *
+             */
             static void ExaGeoStatInitializeHardware(configurations::Configurations *apConfigurations);
 
             /**
              * @brief Finalizes the ExaGeoStat hardware.
+             * @param[in] apConfigurations Pointer to the configurations object.
+             * @return void
              *
-             * @param apConfigurations Pointer to the configurations object.
              */
             static void ExaGeoStatFinalizeHardware(configurations::Configurations *apConfigurations);
 
             /**
              * @brief Generates Data whether it's synthetic data or real.
+             * @param[in] apConfigurations Pointer to the configurations object.
+             * @return void
              *
-             * @param apConfigurations Pointer to the configurations object.
              */
             static void ExaGeoStatGenerateData(configurations::Configurations *apConfigurations);
 
         private:
             /**
-            * @brief
-            * Prevent Class Instantiation for API Wrapper Class.
-            */
+             * @brief
+             * Prevent Class Instantiation for API Wrapper Class.
+             *
+             */
             ExaGeoStat() = default;
         };
 
         /**
          * @brief Instantiates the ExaGeoStat class for float and double types.
+         * @tparam T Data Type: float or double
+         *
          */
         EXAGEOSTAT_INSTANTIATE_CLASS(ExaGeoStat)
     }

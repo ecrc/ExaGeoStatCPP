@@ -21,10 +21,10 @@ namespace exageostat {
 
         /**
          * @class UnivariateMaternNonStat
-         * @brief A class representing a Univariate Matern Non Stat kernel.
+         * @brief A class representing a Bivariate Matern Flexible kernel.
+         * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class.
+         * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
          *
-         * This class represents a Univariate Matern Non Stat kernel, which is a subclass of the Kernel class. It provides
-         * a method for generating a covariance matrix using a set of input locations and kernel parameters.
          */
         class UnivariateMaternNonStat : public Kernel {
 
@@ -32,99 +32,94 @@ namespace exageostat {
 
             /**
              * @brief Constructs a new UnivariateMaternNonStat object.
-             *
-             * Initializes a new UnivariateMaternNonStat object with default values.
+             * @details Initializes a new UnivariateMaternNonStat object with default values.
              */
             UnivariateMaternNonStat();
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             *
              */
             ~UnivariateMaternNonStat() = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
-             * @param[in] apMatrixA The output covariance matrix.
-             * @param[in] aRowsNumber The number of rows in the output matrix.
-             * @param[in] aColumnsNumber The number of columns in the output matrix.
-             * @param[in] aRowOffset The row offset for the input locations.
-             * @param[in] aColumnOffset The column offset for the input locations.
-             * @param[in] apLocation1 The set of input locations 1.
-             * @param[in] apLocation2 The set of input locations 2.
-             * @param[in] apLocation3 The set of input locations 3.
-             * @param[in] aLocalTheta An array of kernel parameters.
-             * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
+             * @copydoc Kernel::GenerateCovarianceMatrix()
              */
             void GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
                                           int &aColumnOffset, dataunits::Locations *apLocation1,
                                           dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *aLocalTheta, int &aDistanceMetric) override;
+                                          double *aLocalTheta, int &aDistanceMetric) override ;
 
             /**
              * @brief Creates a new UnivariateMaternNonStat object.
+             * @details This method creates a new UnivariateMaternNonStat object and returns a pointer to it.
              * @return A pointer to the new UnivariateMaternNonStat object.
              *
-             * This method creates a new UnivariateMaternNonStat object and returns a pointer to it.
              */
             static Kernel *Create();
 
             /**
              * Function for smoothness parameter
-             * @param x x co-ordinate
-             * @param y y co-ordinate
-             * @param g parameter for function
-             * @param h parameter for function
-             * @param ti parameter for function
+             * @param[in] aX x co-ordinate
+             * @param[in] aY y co-ordinate
+             * @param[in] aG parameter for function
+             * @param[in] aH parameter for function
+             * @param[in] aTi parameter for function
              * @return The function ge^(h(x+y)) + ti
+             *
              */
-            static double Neu(double x, double y, double g, double h, double ti);
+            static double Neu(double aX, double aY, double aG, double aH, double aTi);
 
             /**
              * Function for partial sill
-             * @param x x co-ordinate
-             * @param y y co-ordinate
-             * @param d parameter for function
-             * @param e parameter for function
-             * @param f parameter for function
+             * @param[in] aX x co-ordinate
+             * @param[in] aY y co-ordinate
+             * @param[in] aD parameter for function
+             * @param[in] aE parameter for function
+             * @param[in] aF parameter for function
              * @return The function de^(e(x+y)) + f
+             *
              */
-            static double Sigma(double x, double y, double d, double e, double f);
+            static double Sigma(double aX, double aY, double aD, double aE, double aF);
 
             /**
              * Function for spatial range
-             * @param x x co-ordinate
-             * @param y y co-ordinate
-             * @param a parameter for function
-             * @param b parameter for function
+              * @param[in] aX x co-ordinate
+             * @param[in] aY y co-ordinate
+             * @param[in] aA parameter for function
+             * @param[in] aB parameter for function
              * @return The function ae^(sin bx + sin by)
+             *
              */
-            static double Lambda(double x, double y, double a, double b);
+            static double Lambda(double aX, double aY, double aA, double aB);
 
             /**
              * Returns the Mahalanobis distance between two points to account for anisotropy
-             * @param x1 x co-ordinate of first point
-             * @param y1 y co-ordinate of first point
-             * @param x2 x co-ordinate of second point
-             * @param y2 y co-ordinate of second point
-             * @param a11 First element of the positive definite matrix that defines the Mahalanobis Distance
-             * @param a12 Second element of the positive definite matrix that defines the Mahalanobis Distance
-             * @param a21 Third element of the positive definite matrix that defines the Mahalanobis Distance
-             * @param a22 Fourth element of the positive definite matrix that defines the Mahalanobis Distance
+             * @param[in] aX1 x co-ordinate of first point
+             * @param[in] aY1 y co-ordinate of first point
+             * @param[in] aX2 x co-ordinate of second point
+             * @param[in] aY2 y co-ordinate of second point
+             * @param[in] aA11 First element of the positive definite matrix that defines the Mahalanobis Distance
+             * @param[in] aA12 Second element of the positive definite matrix that defines the Mahalanobis Distance
+             * @param[in] aA21 Third element of the positive definite matrix that defines the Mahalanobis Distance
+             * @param[in] aA22 Fourth element of the positive definite matrix that defines the Mahalanobis Distance
              * @return The Mahalanobis Distance
+             *
              */
-            static double CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,
-                                                              double y2, double a11, double a12,
-                                                              double a21, double a22);
+            static double CalculateMahalanobisDistanceSquared(double aX1, double aY1, double aX2,
+                                                              double aY2, double aA11, double aA12,
+                                                              double aA21, double aA22);
 
             /**
-             * Utility function that evaluates the matern. Similiar to
-             * (https://www.rdocumentation.org/packages/PrevMap/versions/1.5.3/topics/matern.kernel) in R
-             * @param range Spatial Range parameter (Also known as rho)
-             * @param smoothness Smoothness parameter (Also known as neu)
-             * @param distance Distance between the two locations
+             * Utility function that evaluates the matern. Similiar to (https://www.rdocumentation.org/packages/PrevMap/versions/1.5.3/topics/matern.kernel) in R
+             * @param[in] aRange Spatial Range parameter (Also known as rho)
+             * @param[in] aSmoothness Smoothness parameter (Also known as neu)
+             * @param[in] aDistance Distance between the two locations
              * @return Matern function evaluation
+             *
              */
-            static double MaternUtil(double range, double smoothness, double distance);
+            static double MaternUtil(double aRange, double aSmoothness, double aDistance);
 
         private:
             //// Used plugin name for static registration

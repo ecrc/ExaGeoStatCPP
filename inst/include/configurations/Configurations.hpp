@@ -25,24 +25,25 @@ namespace exageostat {
         /**
          * @class Configurations
          * @brief Contains methods to set and get.
+         *
          */
         class Configurations {
         public:
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
+             *
              */
             virtual ~Configurations() = default;
 
             /**
              * @brief
              * Set default values for input arguments
-             *
              * @param[in] argc
              * The number of arguments being passed into your program from the command line.
-             *
              * @param[in] argv
              * The array of arguments.
+             * @return void
              *
              */
             virtual void
@@ -50,83 +51,83 @@ namespace exageostat {
 
             /**
              * @brief Print the usage and accepted Arguments.
+             * @return void
+             *
              */
             virtual void
             PrintUsage() = 0;
 
             /**
              * @brief Problem size setter.
-             * @param aProblemSize
+             * @param[in] aProblemSize
+             * @return void
+             *
              */
             void
             SetProblemSize(int aProblemSize);
 
             /**
              * @brief Problem size getter.
-             * @return mProblemSize
+             * @return The problem size.
+             *
              */
             int
             GetProblemSize() const;
 
             /**
-            * @brief Time slot setter.
-            * @param aTimeSlot
-            */
+             * @brief Time slot setter.
+             * @param[in] aTimeSlot The time slot to set.
+             * @return void
+             *
+             */
             void
             SetTimeSlot(int aTimeSlot);
 
             /**
              * @brief Time slot getter.
-             * @return mTimeSlot
+             * @return The time slot.
+             *
              */
             int
             GetTimeSlot() const;
 
             /**
-            * @brief
-            * Computation setter.
-            *
-            * @param aComputation
-            *
-            */
+             * @brief Computation setter.
+             * @param[in] aComputation The computation to set.
+             * @return void
+             *
+             */
             void
             SetComputation(common::Computation aComputation);
 
             /**
              * @brief
              * Computation getter.
-             *
-             * @return mComputation
+             * @return The computation.
              *
              */
-            common::Computation
-            GetComputation();
+            common::Computation GetComputation() const;
 
             /**
-             * @brief
-             * Precision setter.
-             *
-             * @param aComputation
+             * @brief Precision setter.
+             * @param[in] aPrecision The precision to set.
+             * @return void
              *
              */
             void
             SetPrecision(common::Precision aPrecision);
 
             /**
-             * @brief
-             * Operator getter.
-             *
-             * @return mOperator
+             * @brief Operator getter.
+             * @return The operator.
              *
              */
-            common::Operators
-            GetOperator();
+            common::Operators GetOperator() const;
 
             /**
-             * @brief
-             * Operator setter.
-             *
-             * @param aOperator
+             * @brief Operator setter.
+             * @param[in] aOperator The operator to set.
+             * @return void
              *
              */
             void
@@ -135,415 +136,438 @@ namespace exageostat {
             /**
              * @brief
              * Precision getter.
-             *
-             * @return mPrecision
+             * @return The precision.
              *
              */
-            common::Precision
-            GetPrecision();
+            common::Precision GetPrecision() const;
 
             /**
              * @brief PGrid setter.
-             * @param aPGrid
+             * @param[in] aPGrid The PGrid to set.
+             * @return void
+             *
              */
             void
             SetPGrid(int aPGrid);
 
             /**
              * @brief PGrid getter.
-             * @return mPGrid
+             * @return The PGrid.
+             *
              */
-            int
-            GetPGrid() const;
+            int GetPGrid() const;
 
             /**
              * @brief QGrid setter.
-             * @param aQGrid
+             * @param[in] aQGrid The QGrid to set.
+             * @return void
+             *
              */
             void
             SetQGrid(int aQGrid);
 
             /**
              * @brief QGrid getter.
-             * @return mQGrid
+             * @return The QGrid.
+             *
              */
             int
             GetQGrid() const;
 
             /**
              * @brief Cores number setter.
-             * @param aCoresNumbers
+             * @param[in] aCoresNumbers The number of cores to set.
+             * @return void
+             *
              */
             void
             SetCoresNumber(int aCoresNumbers);
 
             /**
              * @brief Cores numbers getter.
-             * @return mpCoresNumber
+             * @return The number of cores.
+             *
              */
             int
             GetCoresNumber() const;
 
             /**
              * @brief GPU number setter.
-             * @param aGPUs
+             * @param[in] aGPUsNumber The number of GPUs to set.
+             * @return void
+             *
              */
             void
             SetGPUsNumber(int aGPUsNumber);
 
             /**
-             * @brief GPU numbers getter.
-             * @return mpGPUsNumber
+             * @brief GPUnumber getter.
+             * @return The number of GPUs.
+             *
              */
             int
             GetGPUsNumber() const;
 
             /**
              * @brief P setter.
-             * @param aP
+             * @param[in] aP The P value to set.
+             * @return void
+             *
              */
             void
             SetP(int aP);
 
             /**
              * @brief P getter.
-             * @return mP
+             * @return The P value.
+             *
              */
             int
             GetP() const;
 
             /**
              * @brief Dense Tile size setter.
-             * @param aTileSize
+             * @param[in] aTileSize The dense Tile size to set.
+             * @return void
+             *
              */
             void
             SetDenseTileSize(int aTileSize);
 
             /**
              * @brief Dense Tile size getter.
-             * @return mTileSize
+             * @return The dense Tile size.
+             *
              */
             int
             GetDenseTileSize() const;
 
             /**
              * @brief Low Tile size setter.
-             * @param aTileSize
+             * @param[in] aTileSize The low Tile size to set.
+             * @return void
+             *
              */
             void
             SetLowTileSize(int aTileSize);
 
             /**
              * @brief Low tile size getter.
-             * @return mTileSize
+             * @return The low Tile size.
+             *
              */
             int
             GetLowTileSize() const;
 
             /**
              * @brief Out of Core technology setter.
-             * @param aIsOOC
+             * @param[in] aIsOOC Flag indicating whether out of core technology should be used.
+             * @return void
+             *
              */
             void
             SetIsOOC(bool aIsOOC);
 
             /**
              * @brief Out of Core technology getter.
-             * @return mIsOOC
+             * @return Flag indicating whether out of core technology is being used.
+             *
              */
             bool
             GetIsOOC() const;
 
             /**
              * @brief Max rank setter.
-             * @param aMaxRank
+             * @param aMaxRank The maximum rank to set.
+             * @return void
+             *
              */
             void
             SetMaxRank(int aMaxRank);
 
             /**
-             * @brief Max Rank getter.
-             * @return mMaxRank
+             * @brief Getter for the maximum rank.
+             * @return The maximum rank.
              */
-            int
-            GetMaxRank();
+            int GetMaxRank() const;
 
             /**
-             * @brief Number of unknown observation to be predicted setter.
-             * @param aUnknownObservationsNumber
+             * @brief Setter for the number of unknown observations to be predicted.
+             * @param[in] aUnknownObservationsNumber The number of unknown observations to set.
+             * @return void
+             *
              */
-            void
-            SetUnknownObservationsNb(int aUnknownObservationsNumber);
+            void SetUnknownObservationsNb(int aUnknownObservationsNumber);
 
             /**
-             * @brief Number of unknown observation to be predicted getter.
-             * @return mUnknownObservationsNumber
+             * @brief Getter for the number of unknown observations to be predicted.
+             * @return The number of unknown observations.
              */
-            int
-            GetUnknownObservationsNb() const;
+            int GetUnknownObservationsNb() const;
 
             /**
-             * @brief Mean square error value setter.
-             * @param aMeanSquareError
+             * @brief Setter for the mean square error value.
+             * @param[in] aMeanSquareError The mean square error value to set.
+             * @return void
+             *
              */
-            void
-            SetMeanSquareError(double aMeanSquareError);
+            void SetMeanSquareError(double aMeanSquareError);
 
             /**
-             * @brief Mean square error value getter.
-             * @return mMeanSquareError
+             * @brief Getter for the mean square error value.
+             * @return The mean square error value.
+             *
              */
-            double
-            GetMeanSquareError();
+            double GetMeanSquareError() const;
 
             /**
-             * @brief Check indicator for approximation mode setter.
-             * @param aApproximationMode
+             * @brief Setter for the approximation mode.
+             * @param[in] aApproximationMode The approximation mode to set.
+             * @return void
              */
-            void
-            SetApproximationMode(int aApproximationMode);
+            void SetApproximationMode(int aApproximationMode);
 
             /**
-             * @brief Mean square error value getter.
-             * @return mApproximationMode
+             * @brief Getter for the approximation mode.
+             * @return The approximation mode.
+             *
              */
-            int
-            GetApproximationMode() const;
+            int GetApproximationMode() const;
 
             /**
-             * @brief Number of known observation values setter.
-             * @param aKnownObservationsValues
+             * @brief Setter for the number of known observation values.
+             * @param[in] aKnownObservationsValues The number of known observation values to set.
+             * @return void
+             *
              */
-            void
-            SetKnownObservationsValues(int aKnownObservationsValues);
+            void SetKnownObservationsValues(int aKnownObservationsValues);
 
             /**
-             * @brief Number of known observation values getter.
-             * @return mKnownObservationsValues
+             * @brief Getter for the number of known observation values.
+             * @return The number of known observation values.
+             *
              */
-            int
-            GetKnownObservationsValues();
+            int GetKnownObservationsValues() const;
 
             /**
-             * @brief Determinant values setter.
-             * @param aDeterminantValue
+             * @brief Setter for the determinant value.
+             * @param[in] aDeterminantValue The determinant value to set.
+             * @return void
+             *
              */
-            void
-            SetDeterminantValue(double aDeterminantValue);
+            void SetDeterminantValue(double aDeterminantValue);
 
             /**
-             * @brief Determinant values getter.
-             * @return mDeterminantValue
+             * @brief Getter for the determinant value.
+             * @return The determinant value.
              */
-            double
-            GetDeterminantValue();
+            double GetDeterminantValue() const;
 
             /**
-             * @brief Actual Observations File Path setter.
-             * @param aKnownObservationsValues
+             * @brief Setter for the actual observations file path.
+             * @param[in] aActualObservationsFilePath The actual observations file path to set.
+             * @return void
+             *
              */
-            void
-            SetActualObservationsFilePath(const std::string &aKnownObservationsValues);
+            void SetActualObservationsFilePath(const std::string &aActualObservationsFilePath);
 
             /**
-             * @brief Actual Observations File Path getter.
-             * @return mActualObservationsFilePath
+             * @brief Getter for the actual observations file path.
+             * @return The actual observations file path.
+             *
              */
-            std::string
-            GetActualObservationsFilePath();
+            std::string GetActualObservationsFilePath() const;
 
             /**
-             * @brief vector of C descriptors getter.
-             * @return mpDescriptorC
+             * @brief Getter for the vector of C descriptors.
+             * @return A reference to the vector of C descriptors.
+             *
              */
-            std::vector<void *>
-            &GetDescriptorC();
+            std::vector<void *> &GetDescriptorC();
 
             /**
-             * @brief vector of Z descriptors getter.
-             * @return mpDescriptorZ
+             * @brief Getter for the vector of Z descriptors.
+             * @return A reference to the vector of Z descriptors.
+             *
              */
-            std::vector<void *>
-            &GetDescriptorZ();
+            std::vector<void *> &GetDescriptorZ();
 
             /**
-             * @brief Z copy descriptors getter.
-             * @return mpDescriptorZ
+             * @brief Getter for the Z copy descriptor.
+             * @return A reference to the Z copy descriptor.
+             *
              */
-            void *
-            &GetDescriptorZcpy();
+            void *&GetDescriptorZcpy();
 
             /**
-             * @brief vector of Product descriptors getter.
-             * @return mpDescriptorProduct
+             * @brief Getter for the vector of Product descriptors.
+             * @return A reference to the vector of Product descriptors.
+             *
              */
-            std::vector<void *>
-            &GetDescriptorProduct();
+            std::vector<void *> &GetDescriptorProduct();
 
             /**
-             * @brief Determinant descriptors getter.
-             * @return mpDescriptorDeterminant
+             * @brief Getter for the Determinant descriptor.
+             * @return A reference to the Determinant descriptor.
+             *
              */
-            void *
-            &GetDescriptorDeterminant();
+            void *&GetDescriptorDeterminant();
 
             /**
-            * @brief vector of CD descriptors getter.
-            * @return mpDescriptorCD
-            */
-            std::vector<void *>
-            &GetDescriptorCD();
+             * @brief Getter for the vector of CD descriptors.
+             * @return A reference to the vector of CD descriptors.
+             *
+             */
+            std::vector<void *> &GetDescriptorCD();
 
             /**
-             * @brief CUV descriptors getter.
-             * @return mpDescriptorCUV
+             * @brief Getter for the vector of CUV descriptors.
+             * @return A reference to the vector of CUV descriptors.
+             *
              */
-            std::vector<void *>
-            &GetDescriptorCUV();
+            std::vector<void *> &GetDescriptorCUV();
 
             /**
-             * @brief Crk descriptors getter.
-             * @return mpDescriptorCrk
+             * @brief Getter for the vector of Crk descriptors.
+             * @return A reference to the vector of Crk descriptors.
+             *
              */
-            std::vector<void *>
-            &GetDescriptorCrk();
+            std::vector<void *> &GetDescriptorCrk();
 
             /**
-             * @brief Unknown Observations Z descriptors getter.
-             * @return mpDescriptorZObservations
+             * @brief Getter for the Unknown Observations Z descriptor.
+             * @return A reference to the Unknown Observations Z descriptor.
+             *
              */
-            void *
-            &GetDescriptorZObservations();
+            void *&GetDescriptorZObservations();
 
             /**
-             * @brief Z Actual observations descriptors getter.
-             * @return mpDescriptorZActual
+             * @brief Getter for the Z Actual observations descriptor.
+             * @return A reference to the Z Actual observations descriptor.
+             *
              */
-            void *
-            &GetDescriptorZActual();
+            void *&GetDescriptorZActual();
 
             /**
-             * @brief Mean Square Error descriptors getter.
-             * @return mpDescriptorMSE
+             * @brief Getter for the Mean Square Error descriptor.
+             * @returnA reference to the Mean Square Error descriptor.
+             *
              */
-            void *
-            &GetDescriptorMSE();
+            void *&GetDescriptorMSE();
 
             /**
-             * @brief Sequence setter.
-             * @param apSequence
+             * @brief Setter for the sequence.
+             * @param[in] apSequence Pointer to the sequence to set.
+             * @return void
+             *
              */
-            void
-            SetSequence(void *apSequence);
+            void SetSequence(void *apSequence);
 
             /**
-             * @brief Sequence getter.
-             * @return mpSequence
+             * @brief Getter for the sequence.
+             * @return Pointer to the sequence.
+             *
              */
-            void *
-            GetSequence();
+            void *GetSequence();
 
             /**
-             * @brief Request setter.
-             * @param apRequest
+             * @brief Setter for the request.
+             * @param[in] apRequest Pointer to the request to set.
+             * @return void
+             *
              */
-            void
-            SetRequest(void *apRequest);
+            void SetRequest(void *apRequest);
 
             /**
-             * @brief Request getter.
-             * @return mpRequest
+             * @brief Getter for the request.
+             * @return Pointer to the request.
+             *
              */
-            void *
-            GetRequest();
+            void *GetRequest();
 
             /**
              * @brief Getter for the seed.
-             * @return mSeed
+             * @return The seed.
+             *
              */
             int GetSeed();
 
             /**
-             * @brief Getter for the seed.
-             * @param aSeed The seed to set.
+             * @brief Setter for the seed.
+             * @param[in] aSeed The seed to set.
+             * @return void
+             *
              */
             void SetSeed(int aSeed);
 
             /**
-             * @brief
-             * Check Numerical value.
-             *
-             * @param aValue
-             * The input from the user side
-             *
-             * @return aValue
-             * The int casted value.
+             * @brief Check if input value is numerical.
+             * @param[in] aValue The input from the user side.
+             * @return The int casted value.
              *
              */
             static int CheckNumericalValue(const std::string &aValue);
 
             /**
-             * @brief
-             * Check input Computation value.
-             *
-             * @param aValue
-             * The input from the user side
-             *
-             * @return aComputation
-             * Enum with the selected computation, Error if not exist.
+             * @brief Check input computation value.
+             * @param[in] aValue The input from the user side.
+             * @return Enum with the selected computation, Error if not exist.
              *
              */
             static common::Computation CheckComputationValue(const std::string &aValue);
 
             /**
-             * @brief
-             * Check input Precision value.
-             *
-             * @param aValue
-             * The input from the user side
-             *
-             * @return aComputation
-             * Enum with the selected Precision, Error if not exist.
+             * @brief Check input precision value.
+             * @param[in] aValue The input from the user side.
+             * @return Enum with the selected Precision, Error if not exist.
              *
              */
             static common::Precision CheckPrecisionValue(const std::string &aValue);
 
             /**
-             * @brief RunMode getter.
-             * @return mRunMode
+             * @brief Getter for the run mode.
+             * @return The run mode.
+             *
              */
             static exageostat::common::RunMode GetRunMode();
 
             /**
-             * @brief RunMode setter.
-             * @param aRunMode
+             * @brief Setter for the run mode.
+             * @param[in] aRunMode The run mode to set.
+             * @return void
+             *
              */
             static void SetRunMode(exageostat::common::RunMode aRunMode);
 
             /**
-             * @brief Logger getter.
-             * @return mLogger
+             * @brief Getter for the logger.
+             * @return The logger.
+             *
              */
             bool GetLogger();
 
             /**
-             * @brief Logger setter.
-             * @param aLogger
+             * @brief Setter for the logger.
+             * @param[in] aLogger The logger to set.
+             * @return void
+             *
              */
             void SetLogger(bool aLogger);
 
             /**
-             * @brief Logger path getter.
-             * @return mLoggerPath
+             * @brief Getter for the logger path.
+             * @return Pointer to the logger path.
+             *
              */
             std::string *GetLoggerPath();
 
             /**
-             * @brief Logger path setter.
-             * @param aLoggerPath
+             * @brief Setter for the logger path.
+             * @param[in] aLoggerPath The logger path to set.
+             * @return void
+             *
              */
             void SetLoggerPath(const std::string &aLoggerPath);
-
 
         protected:
             /// Used Problem size.

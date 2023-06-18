@@ -24,7 +24,8 @@ namespace exageostat {
         /**
          * @class DiskWriter
          * @brief A class for writting data to disk.
-         * @tparam T The data type of the disk writer.
+         * @tparam T Data Type: float or double
+         *
          */
         template<typename T>
         class DiskWriter {
@@ -32,11 +33,13 @@ namespace exageostat {
 
             /**
              * @brief Writes a matrix of vectors to disk.
-             * @param apMatrixPointer A pointer to the matrix data.
-             * @param apProblemSize The size of the problem.
-             * @param apP The number of processes.
-             * @param apLoggerPath The path to the logger file.
-             * @param apLocations A pointer to the Locations object.
+             * @param[in] apMatrixPointer A pointer to the matrix data.
+             * @param[in] apProblemSize The size of the problem.
+             * @param[in] apP The number of processes.
+             * @param[in] apLoggerPath The path to the logger file.
+             * @param[in] apLocations A pointer to the Locations object.
+             * @return void
+             *
              */
             void static
             WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath,
@@ -44,8 +47,10 @@ namespace exageostat {
         };
 
         /**
-         * @brief Instantiates the DiskWriter class for float and double types.
-         */
+          * @brief Instantiates the DiskWriter class for float and double types.
+          * @tparam T Data Type: float or double
+          *
+          */
         EXAGEOSTAT_INSTANTIATE_CLASS(DiskWriter)
     }
 }

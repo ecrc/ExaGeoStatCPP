@@ -25,7 +25,7 @@ using namespace std;
 using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 
-string DataConfigurations::GetKernel() {
+string DataConfigurations::GetKernel() const{
     return this->mKernel;
 }
 

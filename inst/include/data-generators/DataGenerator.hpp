@@ -1,4 +1,10 @@
 
+/*
+ * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+ * All rights reserved.
+ * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+ */
+
 /**
  * @file DataGenerator.hpp
  * @brief Contains the declaration of the SyntheticDataConfigurations class.
@@ -23,7 +29,8 @@ namespace exageostat {
         /**
          * @class DataGenerator
          * @brief Abstract base class for generating synthetic or real data.
-         * @tparam T The data type of the data generator.
+         * @tparam T Data Type: float or double
+         *
          */
         template<typename T>
         class DataGenerator {
@@ -31,18 +38,18 @@ namespace exageostat {
         public:
 
             /**
-             * @brief
-             * Generates the data locations.
-             * This method generates the X, Y, and Z variables used to define the locations of the data points.
+             * @brief Generates the data locations.
+             * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
+             * @return void
              *
              */
             virtual void
             GenerateLocations() = 0;
 
             /**
-             * @brief
-             * Generates the data descriptors.
-             * This method generates the descriptors used to define the properties of the data points.
+             * @brief Generates the data descriptors.
+             * @details This method generates the descriptors used to define the properties of the data points.
+             * @return void
              *
              */
             virtual void
@@ -51,59 +58,49 @@ namespace exageostat {
             /**
              * @brief Destroys the data descriptors.
              * @details This method frees the memory used by the data descriptors.
+             * @return void
+             *
              */
             virtual void DestoryDescriptors() = 0;
 
             /**
-             * @brief
-             * Generates the data observations.
-             *
-             * This method generates the observations of the data points, which are used to train and test the model.
-             *
+             * @brief Generates the data observations.
+             * @details This method generates the observations of the data points, which are used to train and test the model.
              * @return void
+             *
              */
             virtual void
             GenerateObservations() = 0;
 
             /**
-             * @brief
-             * Factory method for creating a data generator object.
-             * This method creates a data generator object based on the specified configurations.
-             *
-             * @param[in] apConfigurations
-             * Pointer to the synthetic data configurations.
-             *
-             * @return std::unique_ptr<DataGenerator>
-             * A unique pointer to the created data generator object.
+             * @brief Factory method for creating a data generator object.
+             * @details This method creates a data generator object based on the specified configurations.
+             * @param[in] apConfigurations Pointer to the synthetic data configurations.
+             * @return A unique pointer to the created data generator object.
              *
              */
             static std::unique_ptr<DataGenerator>
             CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
 
             /**
-              * @brief
-              * Gets the data locations object.
+              * @brief Gets the data locations object.
+              * @return A pointer to the locations object.
               *
-              * @return Locations *
-              * A pointer to the locations object.
               */
             dataunits::Locations *
             GetLocations();
 
             /**
-             * @brief
-             * Gets the kernel object used to compute the covariance matrix.
+             * @brief Gets the kernel object used to compute the covariance matrix.
+             * @return A pointer to the kernel object.
              *
-             * @return Kernel *
-             * A pointer to the kernel object.
              */
             exageostat::kernels::Kernel *
             GetKernel();
 
             /**
-             * @brief
-             * Destructor for the data generator object.
-             * This method frees the memory used by the data generator object.
+             * @brief Destructor for the data generator object.
+             * @details This method frees the memory used by the data generator object.
              *
              */
             virtual ~DataGenerator();
@@ -111,22 +108,25 @@ namespace exageostat {
             /**
              * @brief Gets the linear algebra solver object.
              * @return A pointer to the linear algebra solver object.
+             *
              */
             static linearAlgebra::LinearAlgebraMethods<T> *GetLinearAlgberaSolver();
 
         protected:
-            /// Used Synthetic Configuration.
-            configurations::data_configurations::SyntheticDataConfigurations *mpConfigurations{}; // Pointer to SyntheticDataConfigurations object
-            /// Used Locations
-            dataunits::Locations *mpLocations = nullptr; // Pointer to Locations object
-            /// Used Kernel
-            exageostat::kernels::Kernel *mpKernel = nullptr;
-            /// Used linear Algebra solver
-            static linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver;
+            /// Pointer to SyntheticDataConfigurations object
+            configurations::data_configurations::SyntheticDataConfigurations * mpConfigurations{}; // [in] Used Synthetic Configuration.
+            /// Pointer to Locations object
+            dataunits::Locations * mpLocations = nullptr; // [out] Used Locations
+            /// Pointer to Kernel object
+            exageostat::kernels::Kernel * mpKernel = nullptr; // [out] Used Kernel
+            /// Pointer to LinearAlgebraMethods object
+            static linearAlgebra::LinearAlgebraMethods<T> * mpLinearAlgebraSolver; // [out] Used linear Algebra solver
         };
 
         /**
-         * @brief Instantiates the LinearAlgebraMethods class for float and double types.
+         * @brief Instantiates the Data Generator class for float and double types.
+         * @tparam T Data Type: float or double
+         *
          */
         EXAGEOSTAT_INSTANTIATE_CLASS(DataGenerator)
     }//namespace generators

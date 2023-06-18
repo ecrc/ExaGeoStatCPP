@@ -20,11 +20,10 @@
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
-
 #endif
+
 #ifdef EXAGEOSTAT_USE_HiCMA
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
 #endif
@@ -35,7 +34,8 @@ namespace exageostat {
         /**
          * @class LinearAlgebraFactory
          * @brief A class that creates linear algebra solvers based on the input computation type.
-         * @tparam T The data type of the linear algebra solver.
+         * @tparam T Data Type: float or double.
+         *
          */
         template<typename T>
         class LinearAlgebraFactory {
@@ -43,17 +43,19 @@ namespace exageostat {
 
             /**
              * @brief Creates a linear algebra solver based on the input computation type.
-             *
              * @param[in] aComputation The computation type to create the solver for.
-             *
              * @return Pointer to the created linear algebra solver.
+             *
              */
             static LinearAlgebraMethods<T> *
             CreateLinearAlgebraSolver(common::Computation aComputation);
         };
+
         /**
-         * @brief Instantiates the LinearAlgebraFactory class for float and double types.
-         */
+        * @brief Instantiates the Linear Algebra factory class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
         EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraFactory)
 
     }//namespace linearAlgebra

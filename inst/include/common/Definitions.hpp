@@ -46,6 +46,7 @@ namespace exageostat {
         /**
          * @enum VerbosityLevel
          * @brief Enum denoting the run mode
+         *
          */
         enum RunMode {
             VERBOSE_MODE = 0,
@@ -55,6 +56,7 @@ namespace exageostat {
         /**
          * @enum Dimension
          * @brief Enum denoting the dimension of generated data.
+         *
          */
         enum Dimension {
             Dimension2D = 0,
@@ -66,6 +68,7 @@ namespace exageostat {
          * @enum Computation
          * @brief Enum denoting the types of computations that can be requested,
          * to use the required Linear Algebra solver library.
+         *
          */
         enum Computation {
             EXACT_DENSE = 0,
@@ -76,6 +79,7 @@ namespace exageostat {
         /**
          * @enum Operators
          * @brief Enum denoting the types of Operators that can be requested
+         *
          */
         enum Operators {
             MLE = 0,
@@ -84,6 +88,7 @@ namespace exageostat {
         /**
          * @enum Precision
          * @brief Enum denoting the precision of operations that are supported to be done on the matrix.
+         *
          */
         enum Precision {
             SINGLE = 0,
@@ -94,6 +99,7 @@ namespace exageostat {
         /**
          * @enum FloatPoint
          * @brief Enum denoting the floating point arithmetic of the matrix.
+         *
          */
         enum FloatPoint : int {
             EXAGEOSTAT_BYTE = 0,
@@ -107,6 +113,7 @@ namespace exageostat {
         /**
          * @enum UpperLower
          * @brief Enum denoting the Upper/Lower part
+         *
          */
         enum UpperLower : int {
             EXAGEOSTAT_UPPER = 121, /**< Use lower triangle of A */
@@ -121,6 +128,7 @@ namespace exageostat {
          * The set is initialized with a lambda function that iterates through a directory
          * and extracts the kernel names from the filenames. It also adds lowercase versions
          * of the kernel names with underscores before each capital letter.
+         *
          */
         const static std::set<std::string> availableKernels = []() {
             // This set stores the kernel names.
@@ -152,7 +160,7 @@ namespace exageostat {
                             if (i != 0) {
                                 lowercaseName += '_';
                             }
-                            lowercaseName += std::tolower(kernelName[i]);
+                            lowercaseName += static_cast<char>(std::tolower(kernelName[i]));
                         } else {
                             lowercaseName += kernelName[i];
                         }

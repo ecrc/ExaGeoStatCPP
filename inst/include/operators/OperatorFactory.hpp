@@ -26,7 +26,7 @@ namespace exageostat {
         /**
          * @class OperatorFactory
          * @brief A class that creates operators based on the input operator type.
-         * @tparam T The data type of the operator.
+         * @tparam T Data Type: float or double
          */
         template<typename T>
         class OperatorFactory {
@@ -35,15 +35,19 @@ namespace exageostat {
 
             /**
              * @brief Creates an operator based on the input operator type.
-             *
              * @param[in] aOperator The operator type to create.
-             *
              * @return A unique pointer to the created operator.
+             *
              */
             static std::unique_ptr<OperatorMethods<T>>
             CreateOperator(common::Operators aOperator);
         };
 
+        /**
+        * @brief Instantiates the operator methods class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
         EXAGEOSTAT_INSTANTIATE_CLASS(OperatorFactory)
 
     }//namespace operators
