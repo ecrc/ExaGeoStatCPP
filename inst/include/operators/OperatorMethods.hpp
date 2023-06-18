@@ -8,8 +8,7 @@
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-30
- *
- * This file contains the declaration of the OperatorMethods class, which defines the interface for operators.
+ * @details This file contains the declaration of the OperatorMethods class, which defines the interface for operators.
  * The OperatorMethods class is templated on the data type of the operator, and does not provide any method implementations.
 **/
 
@@ -23,7 +22,8 @@ namespace exageostat {
         /**
          * @class OperatorMethods
          * @brief A class that defines the interface for operators.
-         * @tparam T The data type of the operator.
+         * @tparam T Data Type: float or double
+         *
          */
         template<typename T>
         class OperatorMethods {
@@ -32,7 +32,13 @@ namespace exageostat {
 
         };
 
+        /**
+        * @brief Instantiates the operator methods class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
         EXAGEOSTAT_INSTANTIATE_CLASS(OperatorMethods)
+
     }//namespace operators
 }//namespace exageostat
 #endif //EXAGEOSTATCPP_OPERATORMETHODS_HPP

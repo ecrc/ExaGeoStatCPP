@@ -4,7 +4,7 @@
 
 /**
  * @file MaximumLikelihoodEstimation.hpp
- * @brief 
+ * @brief Maximum likelihood Estimation is a concrete implementation of LinearAlgebraMethods class for dense matrices.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-30
@@ -18,9 +18,10 @@
 namespace exageostat {
     namespace operators {
         /**
-         * @brief
-         * ChameleonImplementationDense is a concrete implementation of LinearAlgebraMethods class for dense matrices.
-         * @tparam T Type of matrix elements.
+         * @class MaximumLikelihoodEstimation
+         * @brief Maximum likelihood Estimation is a concrete implementation of LinearAlgebraMethods class for dense matrices.
+         * @tparam T Data Type: float or double
+         *
          */
         template<typename T>
         class MaximumLikelihoodEstimation : public OperatorMethods<T> {
@@ -29,6 +30,11 @@ namespace exageostat {
 
         };
 
+        /**
+        * @brief Instantiates the Maximum likelihood Estimation class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
         EXAGEOSTAT_INSTANTIATE_CLASS(MaximumLikelihoodEstimation)
 
     }//namespace operators

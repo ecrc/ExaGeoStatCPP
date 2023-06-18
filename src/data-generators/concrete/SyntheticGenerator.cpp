@@ -276,3 +276,5 @@ void SyntheticGenerator<T>::ReleaseInstance() {
         mpInstance = nullptr;
     }
 }
+
+template<typename T> SyntheticGenerator<T> *SyntheticGenerator<T>::mpInstance = nullptr;

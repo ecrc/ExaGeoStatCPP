@@ -25,18 +25,19 @@ extern "C" {
 #include <common/PluginRegistry.hpp>
 #include <data-units/Locations.hpp>
 
-/*
-* @def EARTH_RADIUS
-* @brief The radius of the Earth in kilometers.
-*
-* This macro defines the radius of the Earth in kilometers, which is used by the Great Circle Distance (GCD) function.
-*/
+/**
+ * @def EARTH_RADIUS
+ * @brief The radius of the Earth in kilometers.
+ * @details This macro defines the radius of the Earth in kilometers, which is used by the Great Circle Distance (GCD) function.
+ *
+ */
 #define EARTH_RADIUS 6371.0
+
 /**
  * @def POW_e
  * @brief The value of e to the power of 1.
+ * @details This macro defines the value of e to the power of 1, which is used in some kernel functions.
  *
- * This macro defines the value of e to the power of 1, which is used in some kernel functions.
  */
 #define POW_e (2.71828182845904)
 
@@ -47,9 +48,7 @@ namespace exageostat {
         /**
          * @class Kernels
          * @brief A base class for kernel functions.
-         *
-         * This class provides a base class for kernel functions and contains several utility functions for computing
-         * distance metrics and Bessel functions.
+         * @details This class provides a base class for kernel functions and contains several utility functions for computing distance metrics and Bessel functions.
          *
          */
         class Kernel {
@@ -67,6 +66,8 @@ namespace exageostat {
              * @param[in] apLocation3 The set of input locations 3.
              * @param[in] aLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
+             * @return void
+             *
              */
             virtual void
             GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
@@ -83,6 +84,7 @@ namespace exageostat {
              * @param aDistanceMetric Flag indicating the distance metric to use (1 for Manhattan distance, 2 for Euclidean distance).
              * @param aFlagZ Flag indicating whether the points are in 2D or 3D space (0 for 2D, 1 for 3D).
              * @return The Euclidean distance between the two points.
+             *
              */
             static double
             CalculateDistance(dataunits::Locations *apLocations1, dataunits::Locations *apLocations2,
@@ -97,59 +99,65 @@ namespace exageostat {
              * @param aLatitude2 Latitude of the second point in degrees.
              * @param aLongitude2 Longitude of the second point in degrees.
              * @return The distance between the two points in kilometers.
+             *
              */
             static double
             DistanceEarth(double &aLatitude1, double &aLongitude1, double &aLatitude2, double &aLongitude2);
 
             /**
-             * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu)
-             * with respect to its input, evaluated at input_value and order aOrder.
+             * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
              * @param aOrder The order of the Bessel function.
              * @param input_value The input value at which to evaluate the derivative.
              * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
+             *
              */
             static double CalculateDerivativeBesselInputNu(const double &aOrder, const double &aInputValue);
 
             /**
-             * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its order,
-             * evaluated at input_value and order aOrder.
+             * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its order, evaluated at input_value and order aOrder.
              * @param aOrder The order of the Bessel function.
              * @param input_value The input value at which to evaluate the derivative.
              * @return The value of the derivative of K_nu with respect to its order, evaluated at input_value and order aOrder.
+             *
              */
             static double CalculateDerivativeBesselNu(const double &aOrder, const double &aInputValue);
 
             /**
-             * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input,
-             * evaluated at input_value and order aOrder.
+             * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
              * @param aOrder The order of the Bessel function.
              * @param input_value The input value at which to evaluate the second derivative.
              * @return The value of the second derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
+             *
              */
             static double CalculateSecondDerivativeBesselNu(const double &aOrder, const double &aInputValue);
 
             /**
-             * Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
+             * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
              * @param aOrder The order of the Bessel function.
              * @param input_value The input value at which to evaluate the derivative.
              * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
+             *
              */
             static double CalculateSecondDerivativeBesselNuInput(const double &aOrder, const double &aInputValue);
 
             /**
              * @brief Returns the value of the parameter P used by the kernel function.
              * @return The value of P.
+             *
              */
             int GetPValue() const;
 
             /**
              * @brief Sets the value of the parameter P used by the kernel function.
+             * @return void
+             *
              */
             void SetPValue(int aP);
 
             /**
              * @brief Returns the number of the parameters used by the kernel function.
              * @return The value of ParametersNumber.
+             *
              */
             int GetParametersNumbers() const;
 

@@ -195,7 +195,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(void *descA, int &
             n0 = n * A.nb;
 
             // Register the data with StarPU
-            starpu_insert_task(starpu_mpi_codelet(cl),
+            starpu_insert_task(cl,
                                STARPU_VALUE, &tempmm, sizeof(int),
                                STARPU_VALUE, &tempnn, sizeof(int),
                                STARPU_VALUE, &m0, sizeof(int),
@@ -319,7 +319,7 @@ ChameleonImplementationDense<T>::CopyDescriptorZ(void *apDescA, double *apDouble
         tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
         m0 = m * A->mb;
 
-        starpu_insert_task(starpu_mpi_codelet(cl),
+        starpu_insert_task(cl,
                            STARPU_VALUE, &tempmm, sizeof(int),
                            STARPU_VALUE, &m0, sizeof(int),
                            STARPU_VALUE, &apDoubleVector, sizeof(double),
