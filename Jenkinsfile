@@ -11,9 +11,45 @@ pipeline {
     }
 
     stages {
+        stage('openblas') {
+            agent { label 'jenkinsfile' }
+            stages {
+                stage ('build with Chameleon') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Configure and build
+                            ####################################################
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            ####################################################
+
+                            ./config.sh -t -e -C
+                            ./clean_build.sh
+                        '''
+                    }
+                }
+                stage ('test with Chameleon') {
+                    steps {
+                        sh '''#!/bin/bash -le
+                            ####################################################
+                            # Run tester
+                            ####################################################
+                            echo "========================================"
+                            module purge
+                            module load gcc/10.2.0
+                            module load cmake/3.21.2
+                            cd bin/
+                            ctest --no-compress-output --verbose
+                            '''
+                    }
+                }
+            }
+        }
         stage ('mkl') {
             stages {
-                stage ('build') {
+                stage ('build with Chameleon') {
                     steps {
                         sh '''#!/bin/bash -le
                             ####################################################
@@ -26,12 +62,15 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
-                            ./config.sh -t -e
+                            ####################################################
+
+                            set -x
+                            ./config.sh -t -e -C
                             ./clean_build.sh
                         '''
                     }
                 }
-                stage ('test') {
+                stage ('test with Chameleon') {
                     steps {
 
                         sh '''#!/bin/bash -le
@@ -47,16 +86,11 @@ pipeline {
                             ####################################################
                             module load mkl/2020.0.166
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
-            }
-        }
-        stage('openblas') {
-            agent { label 'jenkinsfile' }
-            stages {
-                stage ('build') {
+                stage ('build with HiCMA') {
                     steps {
                         sh '''#!/bin/bash -le
                             ####################################################
@@ -65,13 +99,21 @@ pipeline {
                             module purge
                             module load gcc/10.2.0
                             module load cmake/3.21.2
-                            ./config.sh -t -e
+                            ####################################################
+                            # BLAS/LAPACK
+                            ####################################################
+                            module load mkl/2020.0.166
+                            ####################################################
+
+                            set -x
+                            ./config.sh -t -e -H
                             ./clean_build.sh
                         '''
                     }
                 }
-                stage ('test') {
+                stage ('test with HiCMA') {
                     steps {
+
                         sh '''#!/bin/bash -le
                             ####################################################
                             # Run tester
@@ -80,14 +122,20 @@ pipeline {
                             module purge
                             module load gcc/10.2.0
                             module load cmake/3.21.2
+                            ####################################################
+                            # BLAS/LAPACK
+                            ####################################################
+                            module load mkl/2020.0.166
+                            module load gsl/2.6-gcc-10.2.0
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
             }
         }
-	stage('documentation') {
+
+	    stage('documentation') {
              agent { label 'jenkinsfile'}
              steps {
                  sh '''#!/bin/bash -le
@@ -98,12 +146,13 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
+                    module load gsl/2.6-gcc-10.2.0
                     ./config.sh -t -e
                     ./clean_build.sh
                     cd bin
-                    #make docs
+                    make docs
                     '''
-//                  publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'bin/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
+                 publishHTML( target: [allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'bin/docs/build/html', reportFiles: 'index.html', reportName: 'Doxygen Documentation', reportTitles: ''] )
              }
         }
     }
