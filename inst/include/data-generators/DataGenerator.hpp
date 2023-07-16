@@ -19,7 +19,6 @@
 #include <memory>
 
 #include <data-units/Locations.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <kernels/Kernel.hpp>
@@ -62,7 +61,7 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void DestoryDescriptors() = 0;
+            virtual void DestroyDescriptors() = 0;
 
             /**
              * @brief Generates the data observations.
@@ -81,7 +80,7 @@ namespace exageostat {
              *
              */
             static std::unique_ptr<DataGenerator>
-            CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+            CreateGenerator();
 
             /**
               * @brief Gets the data locations object.
@@ -114,14 +113,12 @@ namespace exageostat {
             static linearAlgebra::LinearAlgebraMethods<T> *GetLinearAlgberaSolver();
 
         protected:
-            /// Pointer to SyntheticDataConfigurations object
-            configurations::data_configurations::SyntheticDataConfigurations * mpConfigurations{}; // [in] Used Synthetic Configuration.
             /// Pointer to Locations object
-            dataunits::Locations * mpLocations = nullptr; // [out] Used Locations
+            dataunits::Locations *mpLocations = nullptr;
             /// Pointer to Kernel object
-            exageostat::kernels::Kernel * mpKernel = nullptr; // [out] Used Kernel
+            exageostat::kernels::Kernel *mpKernel = nullptr;
             /// Pointer to LinearAlgebraMethods object
-            static linearAlgebra::LinearAlgebraMethods<T> * mpLinearAlgebraSolver; // [out] Used linear Algebra solver
+            static linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver;
         };
 
         /**

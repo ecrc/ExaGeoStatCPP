@@ -48,10 +48,10 @@ namespace exageostat {
 
                 /**
                  * @brief Destroys the descriptors used by the linear algebra solver.
-                 * @copydoc LinearAlgebraMethods::DestoryDescriptors()
+                 * @copydoc LinearAlgebraMethods::DestroyDescriptors()
                  * 
                  */
-                void DestoryDescriptors() override;
+                void DestroyDescriptors() override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -98,10 +98,10 @@ namespace exageostat {
 
                 /**
                  * @brief allocates dense matrix tile.
-                 * @copydoc LinearAlgebraMethods::ExageostatAllocateMatrixTile()
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatAllocateMatrixTile()
                  * 
                  */
-                void ExageostatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
+                void ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
                                                   int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM,
                                                   int aN2, int aP, int aQ) override;
 
@@ -114,7 +114,7 @@ namespace exageostat {
                  * @param apData MLE_data struct with different MLE inputs.
                  * @return log likelihood value
                 */
-                T ExageostatMleTile(std::vector <double> &apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration) override;
+                T ExaGeoStatMleTile(const T * apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
@@ -123,7 +123,7 @@ namespace exageostat {
                  * @param apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
                  * @return Successful exit
                  */
-                virtual int ExageostatLacpyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
+                virtual int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
 
                 /**
                  * @brief Conversion from LAPACK layout to HiCMA descriptor.
@@ -133,7 +133,7 @@ namespace exageostat {
                  * @param apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
                  * @return Successful exit
                  */
-                int ExageostatLap2Desc(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) override;
+                int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
@@ -141,7 +141,7 @@ namespace exageostat {
                  * @return successful exit
                  */
                 virtual int
-                ExageostatSequenceWait(void * apSequence) override;
+                ExaGeoStatSequenceWait(void * apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -150,7 +150,7 @@ namespace exageostat {
                  * @return
                  */
                 virtual int
-                ExageostatDpotrfTile(common::UpperLower aUpperLower, void *apA) override;
+                ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
 
                 /**
                 * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
@@ -164,7 +164,7 @@ namespace exageostat {
                 * @return successful exit
                 */
                 int
-                ExageostatDtrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
+                ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
 
                 /**
                  * @brief Performs matrix multiplication.
@@ -178,7 +178,7 @@ namespace exageostat {
                  * @return successful exit.
                  */
                 int
-                ExageostatDgemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) override;
+                ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) override;
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
@@ -189,7 +189,7 @@ namespace exageostat {
                  * @return
                  */
                 int
-                ExageostatMleMdetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) override;
+                ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) override;
                 /**
                  * @brief opy Chameleon descriptor to vector float*.
                  * @param apDescA Exageostat descriptor A.
@@ -199,7 +199,7 @@ namespace exageostat {
                  * @param apRequest Identifies this function call (for exception handling purposes).
                  * @return
                  */
-                 int ExageostaStrideVecTileAsync(void *apDescA, void *apDescB, void *apDescC,
+                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                         void * apSequence, void *apRequest) override;
                 /**
                  * @briefCodelet to generate covariance matrix in buffersiptor

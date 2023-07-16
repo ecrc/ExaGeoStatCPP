@@ -202,7 +202,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE((*HICMA_descriptorC)->p == pGrid);
             REQUIRE((*HICMA_descriptorC)->q == qGrid);
         }
-        linearAlgebraSolver->DestoryDescriptors();
+        linearAlgebraSolver->DestroyDescriptors();
 
         // Re-Run again but with approx mode OFF
         synthetic_data_configurations.SetApproximationMode(0);

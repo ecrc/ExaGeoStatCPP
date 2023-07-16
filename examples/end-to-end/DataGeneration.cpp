@@ -14,10 +14,10 @@
  * @date 2023-05-30
 **/
 
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <api/ExaGeoStat.hpp>
+#include <configurations/Configurations.hpp>
 
-using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::configurations;
 using namespace exageostat::api;
 
 /**
@@ -29,19 +29,21 @@ using namespace exageostat::api;
  */
 int main(int argc, char **argv) {
 
-    // Create a new synthetic_data_configurations object with the provided command line arguments
-    SyntheticDataConfigurations synthetic_data_configurations(argc, argv);
-
-    std::cout << "** Initialise ExaGeoStat hardware ** " << std::endl;
-    // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
-    ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
-
-    std::cout << "** Generate ExaGeoStat data ** " << std::endl;
-    ExaGeoStat<double>::ExaGeoStatGenerateData(&synthetic_data_configurations);
-
-    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
-    // Finalise ExaGeoStat context.
-    ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+//    // Create a new configurations object with the provided command line arguments
+//    auto conf = Configurations::GetConfigurations()->InitializeArguments(argc, argv);
+//
+//    std::cout << "** Initialise ExaGeoStat hardware ** " << std::endl;
+//    // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
+//    ExaGeoStat<double>::ExaGeoStatInitializeHardware();
+//
+//        // class ExageostatData (descriptors that will be generated)
+//        //class LocationData
+//        //struct {Exa Loc } generation_result
+//    std::cout << "** Generate ExaGeoStat data ** " << std::endl;
+//    auto exageostat_data = ExaGeoStat<double>::ExaGeoStatGenerateData(conf);
+//
+//    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
+//    ExaGeoStat<double>::ExaGeoStatFinalizeHardware();
 
     return 0;
 }

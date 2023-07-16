@@ -14,12 +14,9 @@
  * @date 2023-06-21
 **/
 
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <configurations/data-modeling/DataModelingConfigurations.hpp>
+#include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
 
-using namespace exageostat::configurations::data_configurations;
-using namespace exageostat::configurations::data_modeling;
 using namespace exageostat::configurations;
 using namespace exageostat::api;
 
@@ -33,31 +30,18 @@ using namespace exageostat::api;
 int main(int argc, char **argv) {
 
     // Creating Synthetic data configurations.
-    Configurations *configurations = new SyntheticDataConfigurations(argc, argv);
+//    Configurations *configurations = new SyntheticDataConfigurations(argc, argv);
 
     std::cout << "** Initialise ExaGeoStat hardware ** " << std::endl;
-    ExaGeoStat<double>::ExaGeoStatInitializeHardware(configurations);
+    ExaGeoStat<double>::ExaGeoStatInitializeHardware();
 
     std::cout << "** ExaGeoStat Data Generation ** " << std::endl;
-    exageostat::dataunits::Locations *data = ExaGeoStat<double>::ExaGeoStatGenerateData((SyntheticDataConfigurations *) configurations);
-    std::cout << "X: "<<"\t\t" << "Y" <<std::endl;
-//    std::cout << "msize = "<< data->GetSize() <<std::endl;
-//    for(int i = 0; i < data->GetSize()-1; i++){
-//    std::cout
-//    <<data->GetLocationX()[i]
-//    <<  "\t\t" << data->GetLocationY()[i]
-//    <<"  ";}
-
-    // Changing ExaGeoStat Configurations to Data Modeling Configurations
-//    configurations = new DataModelingConfigurations(*(DataModelingConfigurations *) configurations);
-    std::cout << "** ExaGeoStat Data Modeling ** " << std::endl;
-////    ExaGeoStat<double>::ExaGeoStatDataModeling(&&configurations.GetConfigurations(), ??data??);
-    auto *dataModelingConfigurations = dynamic_cast<DataModelingConfigurations *>(configurations);
-    ExaGeoStat<double>::ExaGeoStatDataModeling(dataModelingConfigurations, data);
+    exageostat::dataunits::Locations *data = ExaGeoStat<double>::ExaGeoStatGenerateData();
+//    ExaGeoStat<double>::ExaGeoStatDataModeling( data);
 
     std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
-    ExaGeoStat<double>::ExaGeoStatFinalizeHardware(configurations);
+    ExaGeoStat<double>::ExaGeoStatFinalizeHardware();
 
-    delete configurations;
+//    delete configurations;
     return 0;
 }

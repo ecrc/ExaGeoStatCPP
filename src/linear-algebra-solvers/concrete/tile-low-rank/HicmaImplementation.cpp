@@ -116,7 +116,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         NC = lts;
     }
 
-    ExageostatAllocateMatrixTile(pHicmaDescriptorC, is_OOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC,
+    ExaGeoStatAllocateMatrixTile(pHicmaDescriptorC, is_OOC, nullptr, (HICMA_enum) floatPoint, MBC, NBC,
                                  MBC * NBC, MC, NC, 0, 0, MC, NC, p_grid, q_grid);
 
     //CAD Descriptor
@@ -124,7 +124,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     NBD = lts;
     MD = N;
     ND = MBD;
-    ExageostatAllocateMatrixTile(pDescriptorCD, is_OOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD, MBD * NBD,
+    ExaGeoStatAllocateMatrixTile(pDescriptorCD, is_OOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD, MBD * NBD,
                                  MD, ND, 0, 0, MD, ND, p_grid, q_grid);
 
     //CUV Descriptor
@@ -141,7 +141,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
 
     T expr = (T) MUV / (T) lts;
     NUV = 2 * expr * max_rank;
-    ExageostatAllocateMatrixTile(pDescriptorCUV, is_OOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
+    ExaGeoStatAllocateMatrixTile(pDescriptorCUV, is_OOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
                                  MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, p_grid, q_grid);
 
     //Crk Descriptor
@@ -150,31 +150,31 @@ void HicmaImplementation<T>::InitiateDescriptors() {
     auto **desc_cuv = (HICMA_desc_t **) pDescriptorCUV;
     Mrk = (*desc_cuv)->mt;
     Nrk = (*desc_cuv)->mt;
-    ExageostatAllocateMatrixTile(pDescriptorCrk, is_OOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
+    ExaGeoStatAllocateMatrixTile(pDescriptorCrk, is_OOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
                                  MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
 
     HICMA_Sequence_Create(&pSequence);
-    ExageostatAllocateMatrixTile(pHicmaDescriptorZ, is_OOC, nullptr, (HICMA_enum) floatPoint, lts, lts,
+    ExaGeoStatAllocateMatrixTile(pHicmaDescriptorZ, is_OOC, nullptr, (HICMA_enum) floatPoint, lts, lts,
                                  lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
 
-    ExageostatAllocateMatrixTile(pDescriptorZcpy, is_OOC, Zcpy, (HICMA_enum) floatPoint, lts, lts, lts * lts,
+    ExaGeoStatAllocateMatrixTile(pDescriptorZcpy, is_OOC, Zcpy, (HICMA_enum) floatPoint, lts, lts, lts * lts,
                                  N, 1, 0, 0, N, 1, p_grid, q_grid);
-    ExageostatAllocateMatrixTile(pDescriptorDeterminant, is_OOC, &determinant_value, (HICMA_enum) floatPoint,
+    ExaGeoStatAllocateMatrixTile(pDescriptorDeterminant, is_OOC, &determinant_value, (HICMA_enum) floatPoint,
                                  lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
 
     if (nZmiss != 0) {
         if (actual_observations_path.empty()) {
-            ExageostatAllocateMatrixTile(pDescriptorZObservations, is_OOC, &Zcpy[nZmiss],
+            ExaGeoStatAllocateMatrixTile(pDescriptorZObservations, is_OOC, &Zcpy[nZmiss],
                                          (HICMA_enum) floatPoint, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs,
                                          1, p_grid, q_grid);
-            ExageostatAllocateMatrixTile(pDescriptorZactual, is_OOC, Zcpy, (HICMA_enum) floatPoint,
+            ExaGeoStatAllocateMatrixTile(pDescriptorZactual, is_OOC, Zcpy, (HICMA_enum) floatPoint,
                                          lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
         } else {
 
-            ExageostatAllocateMatrixTile(pDescriptorZObservations, is_OOC, nullptr, (HICMA_enum) floatPoint,
+            ExaGeoStatAllocateMatrixTile(pDescriptorZObservations, is_OOC, nullptr, (HICMA_enum) floatPoint,
                                          lts,
                                          lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
-            ExageostatAllocateMatrixTile(pDescriptorZactual, is_OOC, nullptr, (HICMA_enum) floatPoint, lts,
+            ExaGeoStatAllocateMatrixTile(pDescriptorZactual, is_OOC, nullptr, (HICMA_enum) floatPoint, lts,
                                          lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
         }
         //C12AD Descriptor
@@ -182,13 +182,13 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         NBD = lts;
         MD = nZmiss;
         ND = MBD;
-        ExageostatAllocateMatrixTile(pDescriptorC12D, is_OOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
+        ExaGeoStatAllocateMatrixTile(pDescriptorC12D, is_OOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
                                      MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
 
         //C12UV Descriptor
         MBUV = lts;
         NBUV = 2 * max_rank;
-        ExageostatAllocateMatrixTile(pDescriptorC12UV, is_OOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
+        ExaGeoStatAllocateMatrixTile(pDescriptorC12UV, is_OOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
                                      MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, p_grid, q_grid);
 
         //C12Ark Descriptor
@@ -197,7 +197,7 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         auto **desc_c12uv = (HICMA_desc_t **) pDescriptorC12UV;
         Mrk = (*desc_c12uv)->mt;
         Nrk = (*desc_c12uv)->mt;
-        ExageostatAllocateMatrixTile(pDescriptorC12rk, is_OOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
+        ExaGeoStatAllocateMatrixTile(pDescriptorC12rk, is_OOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
                                      MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
 
         //C22D Descriptor
@@ -205,13 +205,13 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         NBD = lts;
         MD = nZobs;
         ND = MBD;
-        ExageostatAllocateMatrixTile(pDescriptorC22D, is_OOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
+        ExaGeoStatAllocateMatrixTile(pDescriptorC22D, is_OOC, nullptr, (HICMA_enum) floatPoint, MBD, NBD,
                                      MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
 
         //C22UV Descriptor
         MBUV = lts;
         NBUV = 2 * max_rank;
-        ExageostatAllocateMatrixTile(pDescriptorC22UV, is_OOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
+        ExaGeoStatAllocateMatrixTile(pDescriptorC22UV, is_OOC, nullptr, (HICMA_enum) floatPoint, MBUV, NBUV,
                                      MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, p_grid, q_grid);
 
         //C22Ark Descriptor
@@ -220,11 +220,11 @@ void HicmaImplementation<T>::InitiateDescriptors() {
         auto **desc_c22uv = (HICMA_desc_t **) pDescriptorC22UV;
         Mrk = (*desc_c22uv)->mt;
         Nrk = (*desc_c22uv)->mt;
-        ExageostatAllocateMatrixTile(pDescriptorC22rk, is_OOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
+        ExaGeoStatAllocateMatrixTile(pDescriptorC22rk, is_OOC, nullptr, (HICMA_enum) floatPoint, MBrk, NBrk,
                                      MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
 
         //Other descriptors
-        ExageostatAllocateMatrixTile(pDescriptorMSE, is_OOC, &mean_square_error, (HICMA_enum) floatPoint, lts,
+        ExaGeoStatAllocateMatrixTile(pDescriptorMSE, is_OOC, &mean_square_error, (HICMA_enum) floatPoint, lts,
                                      lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     }
 
@@ -370,7 +370,7 @@ void HicmaImplementation<T>::GenerateObservationsVector(void *apDescriptor, Loca
 }
 
 template<typename T>
-void HicmaImplementation<T>::DestoryDescriptors() {
+void HicmaImplementation<T>::DestroyDescriptors() {
 
     vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
     vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
@@ -435,7 +435,7 @@ HicmaImplementation<T>::CopyDescriptorZ(void *apapDescriptor, double *apDoubleVe
 }
 
 template<typename T>
-void HicmaImplementation<T>::ExageostatAllocateMatrixTile(void **apDescriptor, bool ais_OOC, T *apMemSpace, int aType2,
+void HicmaImplementation<T>::ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool ais_OOC, T *apMemSpace, int aType2,
                                                           int aMB,
                                                           int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB,
                                                           int aM, int aN2, int aP, int aQ) {
@@ -450,57 +450,57 @@ void HicmaImplementation<T>::ExageostatAllocateMatrixTile(void **apDescriptor, b
 }
 
 template<typename T>
-T HicmaImplementation<T>::ExageostatMleTile(std::vector <double> &apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration){
+T HicmaImplementation<T>::ExaGeoStatMleTile(const T * apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatLacpyTile(exageostat::common::UpperLower aUpperLower, void *apA, void *apB){
+int HicmaImplementation<T>::ExaGeoStatLapackCopyTile(exageostat::common::UpperLower aUpperLower, void *apA, void *apB){
     throw std::domain_error("unimplemented for now");
 
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatLap2Desc(exageostat::common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA){
+int HicmaImplementation<T>::ExaGeoStatLapackToDescriptor(exageostat::common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatSequenceWait(void * apSequence) {
+int HicmaImplementation<T>::ExaGeoStatSequenceWait(void * apSequence) {
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatDpotrfTile(exageostat::common::UpperLower aUpperLower, void *apA){
+int HicmaImplementation<T>::ExaGeoStatPotrfTile(exageostat::common::UpperLower aUpperLower, void *apA){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatDtrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) {
+int HicmaImplementation<T>::ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) {
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatDgemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha,
+int HicmaImplementation<T>::ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha,
                                                          void *apA, void *apB, T aBeta, void *apC) {
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostaStrideVecTileAsync(void *apDescA, void *apDescB, void *apDescC,
+int HicmaImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                                void * apSequence, void *apRequest){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExageostatMleMdetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet){
+int HicmaImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
 int HicmaImplementation<T>::ExageostatMleDcmgTileAsync(common::UpperLower aUpperLower, void *apDescA, dataunits::Locations *apL1,
-                                                       dataunits::Locations *apL2, dataunits::Locations *apLm, T* apTheta,
-                                                       std::string &aDm, std::string &aKernelFun,
-                                                       void *apSequence, void *apRequest){
+                                                              dataunits::Locations *apL2, dataunits::Locations *apLm, T* apTheta,
+                                                              std::string &aDm, std::string &aKernelFun,
+                                                              RUNTIME_sequence_t *sequence, RUNTIME_request_t *request){
     throw std::domain_error("unimplemented for now");
 }

@@ -27,7 +27,6 @@ extern "C" {
 #include <common/Definitions.hpp>
 #include <kernels/Kernel.hpp>
 #include <configurations/Configurations.hpp>
-#include <configurations/data-modeling/DataModelingConfigurations.hpp>
 #include <common/Utils.hpp>
 #include <helpers/DiskWriter.hpp>
 
@@ -64,7 +63,7 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void DestoryDescriptors() = 0;
+            virtual void DestroyDescriptors() = 0;
 
             /**
              * @brief Computes the covariance matrix.
@@ -118,7 +117,7 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) = 0;
+            virtual void ExaGeoStatInitContext() = 0;
 
             /**
              * @brief Finalizes the context for the linear algebra solver.
@@ -127,29 +126,20 @@ namespace exageostat {
             virtual void ExaGeoStatFinalizeContext() = 0;
 
             /**
-             * @brief Sets the configurations for the linear algebra solver.
-             * @param[in] apConfigurations A pointer to the configurations for the solver.
-             * @return void
-             *
-             */
-            void SetConfigurations(configurations::Configurations *apConfigurations) {
-                this->mpConfigurations = apConfigurations;
-            }
-
-            /**
              * @brief Gets the matrix.
              * @return Pointer to the matrix.
              *
              */
             double *GetMatrix() {
                 if (this->apMatrix == nullptr) {
-                    throw std::runtime_error("Matrix is null");
+                    throw std::runtime_error("Matrix is empty!");
                 }
                 return this->apMatrix;
             }
 
             /**
              * @brief allocates matrix tile.
+             *
              * @param[in,out] apDescriptor The descriptor for the tile.
              * @param[in] aIsOOC Whether the matrix is out-of-core.
              * @param[in] apMemSpace The memory space to use for the tile.
@@ -169,7 +159,7 @@ namespace exageostat {
              *
              */
             virtual void
-            ExageostatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
+            ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
                                          int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM, int aN2,
                                          int aP, int aQ) = 0;
 
@@ -181,19 +171,21 @@ namespace exageostat {
              * @param apGrad double variable used by NLOPT library.
              * @param apData MLE_data struct with different MLE inputs.
              * @return log likelihood value
+             *
              */
             virtual T
-            ExageostatMleTile(std::vector<double> &apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration) = 0;
+            ExaGeoStatMleTile(dataunits::Locations *apDataLocations) = 0;
 
             /**
              * @brief Copies a matrix in the tile layout from source to destination
              * @param aUpperLower Specifies the part of the matrix A to be copied to B.
              * @param apA Source matrix A.
-             * @param apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
+             * @param apB Destination matrix B. On exit, B = A in the locations specified by Upper Lower.
              * @return Successful exit
+             *
              */
             virtual int
-            ExageostatLacpyTile(common::UpperLower aUpperLower, void *apA, void *apB) = 0;
+            ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) = 0;
 
             /**
              * @brief Conversion from LAPACK layout to Exageostat descriptor.
@@ -201,27 +193,30 @@ namespace exageostat {
              * @param apAf77 LAPACK matrix.
              * @param aLda The leading dimension of the matrix Af77.
              * @param apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
-             * @return
+             * @return Successful exit
+             *
              */
             virtual int
-            ExageostatLap2Desc(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) = 0;
+            ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) = 0;
 
             /**
              * @brief Wait for the completion of a sequence.
              * @param Identifies a set of routines sharing common exception handling.
              * @return successful exit
+             *
              */
             virtual int
-            ExageostatSequenceWait(void * apSequence) = 0;
+            ExaGeoStatSequenceWait(void * apSequence) = 0;
 
             /**
              * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
              * @param aUpperLower Whether upper or lower part of the matrix A
              * @param apA Symmetric matrix A
              * @return
+             *
              */
             virtual int
-            ExageostatDpotrfTile(common::UpperLower aUpperLower, void *apA) = 0;
+            ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) = 0;
 
             /**
              * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
@@ -233,9 +228,10 @@ namespace exageostat {
              * @param apA The triangular matrix A
              * @param apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
              * @return successful exit
+             *
              */
             virtual int
-            ExageostatDtrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) = 0;
+            ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) = 0;
 
             /**
              * @brief Performs matrix multiplication.
@@ -247,9 +243,10 @@ namespace exageostat {
              * @param aBeta Specifies the scalar beta.
              * @param apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
              * @return successful exit.
+             *
              */
             virtual int
-            ExageostatDgemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) = 0;
+            ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) = 0;
 
             /**
              * @brief Calculate determinant for triangular matrix.
@@ -257,43 +254,24 @@ namespace exageostat {
              * @param apSequence Identifies the sequence of function calls that this call belongs to.
              * @param apRequest Identifies this function call (for exception handling purposes).
              * @param apDescDet determinant value
-             * @return
+             * @return successful exit.
+             *
              */
             virtual int
-            ExageostatMleMdetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) = 0;
+            ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) = 0;
 
             /**
-             * @brief opy Chameleon descriptor to vector float*.
+             * @brief copy Chameleon descriptor to vector float*.
              * @param apDescA Exageostat descriptor A.
              * @param apDescB Exageostat descriptor B.
              * @param apDescC Exageostat descriptor C.
              * @param apSequence Identifies the sequence of function calls that this call belongs to.
              * @param apRequest Identifies this function call (for exception handling purposes).
-             * @return
+             * @return successful exit.
+             *
              */
-            virtual int ExageostaStrideVecTileAsync(void *apDescA, void *apDescB, void *apDescC,
+            virtual int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                  void * apSequence, void *apRequest) = 0;
-
-            /**
-             * @briefCodelet to generate covariance matrix in buffersiptor
-             * descA in  dense format between two sets of locations
-             * @param aUpperLower Upper or lower fill of the matrix.
-             * @param apDescA Chameleon buffersiptor that handles the generated covariance matrix.
-             * @param apL1 Location struct of the first input.
-             * @param apL2 Location struct of the second input.
-             * @param apLm
-             * @param apTheta
-             * @param apDm Distance metric "euclidean Distance ("ED" -->0) or "Great Circle Distance (GCD) -->1".
-             * @param apKernelFun
-             * @param sequence  Identifies the sequence of function calls that this call belongs to
-                                (for completion checks and exception handling purposes).
-             * @param request Identifies this function call (for exception handling purposes).
-             * @return
-             */
-            virtual int ExageostatMleDcmgTileAsync(common::UpperLower aUpperLower, void *apDescA, dataunits::Locations *apL1,
-                                                   dataunits::Locations *apL2, dataunits::Locations *apLm, T* apTheta,
-                                                   std::string &aDm, std::string &aKernelFun,
-                                                   void *apSequence, void *apRequest) = 0;
 
             //// These codlets and structs will be added to another level of abstraction and interface of runtime system. This is a quick fix for now.
             //// TODO: Create a Factory for Runtime system.
@@ -416,6 +394,7 @@ namespace exageostat {
                             .name           = "stride_vec"
                     };
 
+            //// TODO: RECONSTRUCT
             bool recover(char *path, int iter_count, T* theta, T* loglik, int num_params) {
 
                 FILE *fp;
@@ -456,8 +435,6 @@ namespace exageostat {
             }
 
         protected:
-            //// Used configurations map.
-            configurations::Configurations *mpConfigurations = nullptr;
             //// Used Matrix
             double *apMatrix = nullptr;
         };

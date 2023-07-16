@@ -40,8 +40,7 @@ namespace exageostat {
                  * @return A pointer to the instance of the SyntheticGenerator class.
                  *
                  */
-                static SyntheticGenerator<T> *
-                GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+                static SyntheticGenerator<T> *GetInstance();
 
                 /**
                  * @brief Initialize a vector with a given size to contain zeros.
@@ -75,7 +74,7 @@ namespace exageostat {
                  * @return void
                  *
                  */
-                void DestoryDescriptors() override;
+                void DestroyDescriptors() override;
 
                 /**
                  * @brief Generates the data observations.
@@ -141,8 +140,7 @@ namespace exageostat {
                  * @return void
                  *
                  */
-                explicit SyntheticGenerator(
-                        configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+                SyntheticGenerator();
 
                 /**
                  * @brief Virtual destructor to allow calls to the correct concrete destructor.

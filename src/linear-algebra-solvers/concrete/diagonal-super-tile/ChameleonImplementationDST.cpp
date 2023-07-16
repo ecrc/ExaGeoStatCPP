@@ -28,87 +28,93 @@ using namespace exageostat::common;
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace exageostat::helpers;
+using namespace exageostat::configurations;
 
 template<typename T>
 void ChameleonImplementationDST<T>::InitiateDescriptors() {
 
+    auto configurations = Configurations::GetConfigurations();
+    
     // Check for Initialise the Chameleon context.
     if (!this->apContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
-    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
-    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
-    auto pChameleonDescriptorZcpy = &this->mpConfigurations->GetDescriptorZcpy();
-    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
-    auto pChameleonDescriptorDeterminant = &this->mpConfigurations->GetDescriptorDeterminant();
-
+    vector<void *> &pDescriptorC = configurations->GetDescriptorC();
+//    vector<void *> &pDescriptorZ = configurations->GetDescriptorZ();
+//    auto pChameleonDescriptorZcpy = &configurations->GetDescriptorZcpy();
+//    vector<void *> &pDescriptorProduct = configurations->GetDescriptorProduct();
+//    auto pChameleonDescriptorDeterminant = &configurations->GetDescriptorDeterminant();
+//
+    auto temp= &pDescriptorC;
+    delete temp;
     pDescriptorC.push_back(nullptr);
-    auto **pChameleonDescriptorC = &pDescriptorC[0];
 
-    pDescriptorZ.push_back(nullptr);
-    auto **pChameleonDescriptorZ = &pDescriptorZ[0];
-
-    // Get the problem size and other configuration parameters
-    int N = this->mpConfigurations->GetProblemSize() * this->mpConfigurations->GetP();
-    int dts = this->mpConfigurations->GetDenseTileSize();
-    int p_grid = this->mpConfigurations->GetPGrid();
-    int q_grid = this->mpConfigurations->GetQGrid();
-    bool is_OOC = this->mpConfigurations->GetIsOOC();
-    int vector_size = 1;
-
-    // For distributed system and should be removed
-    T *Zcpy = (T *) malloc(N * sizeof(T));
-    T dot_product_value;
-
-    // Create a Chameleon sequence
-    RUNTIME_sequence_t *pSequence;
-    RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
-    CHAMELEON_Sequence_Create(&pSequence);
-
-    FloatPoint float_point;
-    if (sizeof(T) == SIZE_OF_FLOAT) {
-        float_point = EXAGEOSTAT_REAL_FLOAT;
-    } else {
-        float_point = EXAGEOSTAT_REAL_DOUBLE;
-        vector_size = 3;
-    }
-
-    //Identifies a set of routines sharing common exception handling.
-    CHAMELEON_Sequence_Create(&pSequence);
-
-    ExageostatAllocateMatrixTile(pChameleonDescriptorC, is_OOC, nullptr, (cham_flttype_t) float_point, dts, dts,
-                                 dts * dts, N, N, 0, 0, N, N, p_grid, q_grid);
-    ExageostatAllocateMatrixTile(pChameleonDescriptorZ, is_OOC, nullptr, (cham_flttype_t) float_point, dts, dts,
-                                 dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
-    ExageostatAllocateMatrixTile(pChameleonDescriptorZcpy, is_OOC, Zcpy, (cham_flttype_t) float_point, dts,
-                                 dts, dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
-
-    for (int idx = 0; idx < vector_size; idx++) {
-        pDescriptorProduct.push_back(nullptr);
-        auto **pChameleonDescriptorProduct = &pDescriptorProduct[idx];
-        ExageostatAllocateMatrixTile(pChameleonDescriptorProduct, is_OOC, &dot_product_value,
-                                     (cham_flttype_t) float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid,
-                                     q_grid);
-
-    }
-    ExageostatAllocateMatrixTile(pChameleonDescriptorDeterminant, is_OOC, &dot_product_value,
-                                 (cham_flttype_t) float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid,
-                                 q_grid);
-
-    this->mpConfigurations->SetSequence(pSequence);
-    this->mpConfigurations->SetRequest(request);
-    //stop gsl error handler
-    gsl_set_error_handler_off();
-    free(Zcpy);
+//    auto **pChameleonDescriptorC = &pDescriptorC[0];
+//
+//    pDescriptorZ.push_back(nullptr);
+//    auto **pChameleonDescriptorZ = &pDescriptorZ[0];
+//
+//    // Get the problem size and other configuration parameters
+//    int N = configurations->GetProblemSize() * configurations->GetP();
+//    int dts = configurations->GetDenseTileSize();
+//    int p_grid = configurations->GetPGrid();
+//    int q_grid = configurations->GetQGrid();
+//    bool is_OOC = configurations->GetIsOOC();
+//    int vector_size = 1;
+//
+//    // For distributed system and should be removed
+//    T *Zcpy = (T *) malloc(N * sizeof(T));
+//    T dot_product_value;
+//
+//    // Create a Chameleon sequence
+//    RUNTIME_sequence_t *pSequence;
+//    RUNTIME_request_t request[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
+//    CHAMELEON_Sequence_Create(&pSequence);
+//
+//    FloatPoint float_point;
+//    if (sizeof(T) == SIZE_OF_FLOAT) {
+//        float_point = EXAGEOSTAT_REAL_FLOAT;
+//    } else {
+//        float_point = EXAGEOSTAT_REAL_DOUBLE;
+//        vector_size = 3;
+//    }
+//
+//    //Identifies a set of routines sharing common exception handling.
+//    CHAMELEON_Sequence_Create(&pSequence);
+//
+//    ExaGeoStatAllocateMatrixTile(pChameleonDescriptorC, is_OOC, nullptr, (cham_flttype_t) float_point, dts, dts,
+//                                 dts * dts, N, N, 0, 0, N, N, p_grid, q_grid);
+//    ExaGeoStatAllocateMatrixTile(pChameleonDescriptorZ, is_OOC, nullptr, (cham_flttype_t) float_point, dts, dts,
+//                                 dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+//    ExaGeoStatAllocateMatrixTile(pChameleonDescriptorZcpy, is_OOC, Zcpy, (cham_flttype_t) float_point, dts,
+//                                 dts, dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+//
+//    for (int idx = 0; idx < vector_size; idx++) {
+//        pDescriptorProduct.push_back(nullptr);
+//        auto **pChameleonDescriptorProduct = &pDescriptorProduct[idx];
+//        ExaGeoStatAllocateMatrixTile(pChameleonDescriptorProduct, is_OOC, &dot_product_value,
+//                                     (cham_flttype_t) float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid,
+//                                     q_grid);
+//
+//    }
+//    ExaGeoStatAllocateMatrixTile(pChameleonDescriptorDeterminant, is_OOC, &dot_product_value,
+//                                 (cham_flttype_t) float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid,
+//                                 q_grid);
+//
+//    configurations->SetSequence(pSequence);
+//    configurations->SetRequest(request);
+//    //stop gsl error handler
+//    gsl_set_error_handler_off();
+//    free(Zcpy);
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) {
+void ChameleonImplementationDST<T>::ExaGeoStatInitContext() {
 
     if (!this->apContext) {
         CHAMELEON_user_tag_size(31, 26);
-        CHAMELEON_Init(apCoresNumber, apGPUs)
+        CHAMELEON_Init(Configurations::GetConfigurations()->GetCoresNumber(), Configurations::GetConfigurations()->GetGPUsNumbers())
         this->apContext = chameleon_context_self();
     }
 }
@@ -142,8 +148,8 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *apDescriptor, 
 
     RUNTIME_option_t options;
     RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
-                         (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
-                         (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
+                         (RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence(),
+                         (RUNTIME_request_t *) Configurations::GetConfigurations()->GetRequest());
 
     int tempmm, tempnn;
     auto *CHAM_apDescriptor = (CHAM_desc_t *) apDescriptor;
@@ -187,7 +193,7 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *apDescriptor, 
     RUNTIME_options_ws_free(&options);
     RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
 
-    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence());
 
 }
 
@@ -197,13 +203,14 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *apDescripto
                                                                vector<double> aLocalTheta, int aDistanceMetric,
                                                                Kernel *apKernel) {
 
+    auto configurations = Configurations::GetConfigurations();
     // Check for Initialise the Chameleon context.
     if (!this->apContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
-    int N = this->mpConfigurations->GetProblemSize();
-    int seed = this->mpConfigurations->GetSeed();
+    int N = configurations->GetProblemSize();
+    int seed = configurations->GetSeed();
     int iseed[4] = {seed, seed, seed, 1};
 
     //nomral random generation of e -- ei~N(0, 1) to generate Z
@@ -226,7 +233,7 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *apDescripto
 
     //Copy Nrand to Z
     VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....")
-    auto **CHAM_descriptorZ = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZ()[0];
+    auto **CHAM_descriptorZ = (CHAM_desc_t **) &configurations->GetDescriptorZ()[0];
     CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
     VERBOSE("Done.\n")
 
@@ -242,20 +249,20 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(void *apDescripto
                          *CHAM_descriptorZ);
     VERBOSE("Done.\n")
 
-    const int P = this->mpConfigurations->GetP();
-    if (this->mpConfigurations->GetLogger()) {
+    const int P = configurations->GetP();
+    if (configurations->GetLogger()) {
         T *pMatrix;
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
         pMatrix = (T*) malloc(N * sizeof(T));
         CHAMELEON_Tile_to_Lapack( *CHAM_descriptorZ, pMatrix, N);
         if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, this->mpConfigurations->GetLoggerPath(), apLocation1);
+            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
         }
         free(pMatrix);
 #else
         pMatrix = (T *) (*CHAM_descriptorZ)->mat;
-        DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, this->mpConfigurations->GetLoggerPath(), apLocation1);
+        DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
         free(pMatrix);
 #endif
         VERBOSE(" Done.\n")
@@ -278,8 +285,8 @@ ChameleonImplementationDST<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVe
 
     RUNTIME_option_t options;
     RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
-                         (RUNTIME_sequence_t *) this->mpConfigurations->GetSequence(),
-                         (RUNTIME_request_t *) this->mpConfigurations->GetRequest());
+                         (RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence(),
+                         (RUNTIME_request_t *) Configurations::GetConfigurations()->GetRequest());
 
     int m, m0;
     int tempmm;
@@ -305,13 +312,14 @@ ChameleonImplementationDST<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVe
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::DestoryDescriptors() {
+void ChameleonImplementationDST<T>::DestroyDescriptors() {
 
-    vector<void *> &pDescriptorC = this->mpConfigurations->GetDescriptorC();
-    vector<void *> &pDescriptorZ = this->mpConfigurations->GetDescriptorZ();
-    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorZcpy();
-    vector<void *> &pDescriptorProduct = this->mpConfigurations->GetDescriptorProduct();
-    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &this->mpConfigurations->GetDescriptorDeterminant();
+    auto configurations = Configurations::GetConfigurations();
+    vector<void *> &pDescriptorC = configurations->GetDescriptorC();
+    vector<void *> &pDescriptorZ = configurations->GetDescriptorZ();
+    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &configurations->GetDescriptorZcpy();
+    vector<void *> &pDescriptorProduct = configurations->GetDescriptorProduct();
+    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &configurations->GetDescriptorDeterminant();
 
     if (!pDescriptorC.empty() && pDescriptorC[0]) {
         CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorC[0]);
@@ -329,14 +337,14 @@ void ChameleonImplementationDST<T>::DestoryDescriptors() {
         CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
     }
 
-    if ((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence()) {
-        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpConfigurations->GetSequence());
+    if ((RUNTIME_sequence_t *) configurations->GetSequence()) {
+        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) configurations->GetSequence());
     }
 }
 
 template<typename T>
 void
-ChameleonImplementationDST<T>::ExageostatAllocateMatrixTile(void **apDescriptor, bool ais_OOC, T *apMemSpace,
+ChameleonImplementationDST<T>::ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool ais_OOC, T *apMemSpace,
                                                             int aType2,
                                                             int aMB,
                                                             int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB,
@@ -351,57 +359,50 @@ ChameleonImplementationDST<T>::ExageostatAllocateMatrixTile(void **apDescriptor,
 }
 
 template<typename T>
-T ChameleonImplementationDST<T>::ExageostatMleTile(vector<double> &apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration){
+T ChameleonImplementationDST<T>::ExaGeoStatMleTile(dataunits::Locations *apDataLocations){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatLacpyTile(exageostat::common::UpperLower aUpperLower, void *apA, void *apB){
+int ChameleonImplementationDST<T>::ExaGeoStatLapackCopyTile(exageostat::common::UpperLower aUpperLower, void *apA, void *apB){
     throw std::domain_error("unimplemented for now");
 
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatLap2Desc(exageostat::common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA){
+int ChameleonImplementationDST<T>::ExaGeoStatLapackToDescriptor(exageostat::common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatSequenceWait(void * apSequence) {
+int ChameleonImplementationDST<T>::ExaGeoStatSequenceWait(void * apSequence) {
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatDpotrfTile(exageostat::common::UpperLower aUpperLower, void *apA){
+int ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(exageostat::common::UpperLower aUpperLower, void *apA){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatDtrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) {
+int ChameleonImplementationDST<T>::ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) {
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatDgemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha,
+int ChameleonImplementationDST<T>::ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha,
                                                        void *apA, void *apB, T aBeta, void *apC) {
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostaStrideVecTileAsync(void *apDescA, void *apDescB, void *apDescC,
+int ChameleonImplementationDST<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                                  void * apSequence, void *apRequest){
     throw std::domain_error("unimplemented for now");
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExageostatMleMdetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet){
-    throw std::domain_error("unimplemented for now");
-}
-template<typename T>
-int ChameleonImplementationDST<T>::ExageostatMleDcmgTileAsync(common::UpperLower aUpperLower, void *apDescA, dataunits::Locations *apL1,
-                                                                dataunits::Locations *apL2, dataunits::Locations *apLm, T* apTheta,
-                                                                std::string &aDm, std::string &aKernelFun,
-                                                                void *apSequence, void *apRequest){
+int ChameleonImplementationDST<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet){
     throw std::domain_error("unimplemented for now");
 }
 

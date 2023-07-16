@@ -19,6 +19,51 @@
 #include <vector>
 
 #include <common/Definitions.hpp>
+#include <any>
+
+/**
+ * @brief Macro that generates a setter function for a member variable.
+ * @details This macro generates a function named Set##name that takes an argument of
+ * the specified type and sets the member variable with the specified name
+ * to the value of the argument. The name of the member variable is used as
+ * the key to set the corresponding value in the specified dictionary.
+ *
+ * @param[in] name The name of the member variable to be set.
+ * @param[in] type The data type of the member variable.
+ * @param[in] argument_name The name of the argument to the generated function.
+ * @param[in] dictionary_name The name of the dictionary to set the value in.
+ *
+ */
+#define CREATE_SETTER_FUNCTION(name, type, argument_name, dictionary_name)  \
+void Set##name(type argument_name)                                          \
+{                                                                           \
+    mDictionary[dictionary_name] = argument_name;                           \
+}
+
+/**
+ * @brief Macro that generates a getter function for a member variable.
+ * @details This macro generates a function named Get##name that returns the value of
+ * the member variable with the specified name from the specified dictionary.
+ *
+ * @param[in] name The name of the member variable to be retrieved.
+ * @param[in] type The data type of the member variable.
+ * @param[in] dictionary_name The name of the dictionary to retrieve the value from.
+ *
+ */
+#define CREATE_GETTER_FUNCTION(name, type, dictionary_name)                                                 \
+type Get##name()                                                                                            \
+{                                                                                                           \
+    if (mDictionary.find(dictionary_name) == mDictionary.end()) {                                           \
+        throw std::range_error(std::string("Argument ").append(dictionary_name).append(" is not set!"));    \
+    }                                                                                                       \
+    return std::any_cast<type>(mDictionary[dictionary_name]);                                               \
+}
+
+#define SET_VALUE_DEFAULT(name, value) \
+    Set##name(value);
+
+#define SET_DESCRIPTOR_DEFAULT(name, value) \
+    mDictionary[name] = value;
 
 namespace exageostat {
     namespace configurations {
@@ -31,28 +76,55 @@ namespace exageostat {
         public:
 
             /**
+             * @brief Get the singleton instance of Configurations.
+             * @return The singleton instance of Configurations.
+             *
+             */
+            static Configurations *GetConfigurations() {
+                if (configurations_ == nullptr) {
+                    configurations_ = new Configurations();
+                    configurations_->SetDefaultValues();
+                }
+                return configurations_;
+            }
+
+            /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
             virtual ~Configurations() = default;
 
+            void SetDefaultValues();
+
             /**
              * @brief Initialize the module arguments.
              * @param[in] aArgC The number of arguments being passed into the program from the command line.
              * @param[in] apArgV The array of arguments.
-             * @details This method initializes the command line arguments for the module.
-             *
-             */
-            virtual void InitModuleArguments(int aArgC, char **apArgV) = 0;
-
-            /**
-             * @brief Set default values for input arguments.
-             * @param[in] aArgC The number of arguments being passed into your program from the command line.
-             * @param[in] apArgV The array of arguments.
-             * @return void
+             * @details This method initializes the command line arguments and set default values for unused args.
              *
              */
             void InitializeArguments(int aArgC, char **apArgV);
+
+            /**
+             * @brief Initialize data generation arguments..
+             * @return void
+             *
+             */
+            void InitializeDataGenerationArguments();
+
+            /**
+             * @brief Initialize data Modeling arguments..
+             * @return void
+             *
+             */
+            void InitializeDataModelingArguments();
+
+            /**
+             * @brief Initialize data Prediction arguments..
+             * @return void
+             *
+             */
+            void InitializeDataPredictionArguments();
 
             /**
              * @brief Print the usage and accepted Arguments.
@@ -61,492 +133,171 @@ namespace exageostat {
              */
             static void PrintUsage();
 
+            /** START OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
+
+            CREATE_SETTER_FUNCTION(ProblemSize, int, aProblemSize, "ProblemSize")
+            CREATE_GETTER_FUNCTION(ProblemSize, int, "ProblemSize")
+
+            CREATE_SETTER_FUNCTION(KernelName, const std::string&, aKernel, "Kernel")
+            CREATE_GETTER_FUNCTION(KernelName, const std::string&, "Kernel")
+
+            CREATE_SETTER_FUNCTION(PGrid, int, aPGrid, "PGrid")
+            CREATE_GETTER_FUNCTION(PGrid, int, "PGrid")
+
+            CREATE_SETTER_FUNCTION(QGrid, int, aQGrid, "QGrid")
+            CREATE_GETTER_FUNCTION(QGrid, int, "QGrid")
+
+            CREATE_SETTER_FUNCTION(TimeSlot, int, aTimeSlot, "TimeSlot")
+            CREATE_GETTER_FUNCTION(TimeSlot, int, "TimeSlot")
+
+            CREATE_SETTER_FUNCTION(Computation, common::Computation, aComputation, "Computation")
+            CREATE_GETTER_FUNCTION(Computation, common::Computation, "Computation")
+
+            CREATE_SETTER_FUNCTION(Precision, common::Precision, aPrecision, "Precision")
+            CREATE_GETTER_FUNCTION(Precision, common::Precision, "Precision")
+
+            CREATE_SETTER_FUNCTION(CoresNumber, int, aCoresNumbers, "CoresNumbers")
+            CREATE_GETTER_FUNCTION(CoresNumber, int, "CoresNumbers")
+
+            CREATE_SETTER_FUNCTION(GPUsNumbers, int, aGPUsNumber, "GPUsNumbers")
+            CREATE_GETTER_FUNCTION(GPUsNumbers, int, "GPUsNumbers")
+
+            CREATE_SETTER_FUNCTION(DenseTileSize, int, aTileSize, "DST")
+            CREATE_GETTER_FUNCTION(DenseTileSize, int, "DST")
+
+            CREATE_SETTER_FUNCTION(LowTileSize, int, aTileSize, "LTS")
+            CREATE_GETTER_FUNCTION(LowTileSize, int, "LTS")
+
+            CREATE_SETTER_FUNCTION(MaxRank, int, aMaxRank, "MaxRank")
+            CREATE_GETTER_FUNCTION(MaxRank, int, "MaxRank")
+
+            CREATE_SETTER_FUNCTION(ActualObservationsFilePath, const std::string &, aActualObservationsFilePath, "ActualObservationsFilePath")
+            CREATE_GETTER_FUNCTION(ActualObservationsFilePath, std::string, "ActualObservationsFilePath")
+
+            CREATE_SETTER_FUNCTION(Seed, int, aSeed, "Seed")
+            CREATE_GETTER_FUNCTION(Seed, int, "Seed")
+
             /**
-             * @brief Setter for the kernel.
-             * @param[in] aKernel The kernel to set.
-             * @return void
+             * @brief Getter for the run mode.
+             * @return The run mode.
              *
              */
-            void SetKernel(const std::string &aKernel);
+            static exageostat::common::RunMode GetRunMode();
+
+            CREATE_SETTER_FUNCTION(LoggerPath, const std::string &, aLoggerPath, "LoggerPath")
+            CREATE_GETTER_FUNCTION(LoggerPath, std::string *, "LoggerPath")
+
+
+            CREATE_SETTER_FUNCTION(InitialTheta, std::vector<double> &, apTheta, "InitialTheta")
+            CREATE_GETTER_FUNCTION(InitialTheta, std::vector<double> &, "InitialTheta")
+
+            CREATE_SETTER_FUNCTION(IsOOC, bool, aIsOOC, "OOC")
+            CREATE_GETTER_FUNCTION(IsOOC, bool, "OOC")
+
+            CREATE_SETTER_FUNCTION(ApproximationMode, int, aApproximationMode, "ApproximationMode")
+            CREATE_GETTER_FUNCTION(ApproximationMode, int, "ApproximationMode")
+
+            CREATE_SETTER_FUNCTION(ParametersNumber, int, aParameterNumbers, "ParametersNumber")
+            CREATE_GETTER_FUNCTION(ParametersNumber, int, "ParametersNumber")
+
+            CREATE_SETTER_FUNCTION(Logger, bool, aLogger, "Logger")
+            CREATE_GETTER_FUNCTION(Logger, bool, "Logger")
+
+            CREATE_SETTER_FUNCTION(P, int, aP, "P")
+            CREATE_GETTER_FUNCTION(P, int, "P")
+
+            CREATE_SETTER_FUNCTION(MeanSquareError, double, aMeanSquareError, "MeanSquareError")
+            CREATE_GETTER_FUNCTION(MeanSquareError, double, "MeanSquareError")
+
+            CREATE_SETTER_FUNCTION(KnownObservationsValues, int, aKnownObservationsValues, "KnownObservationsValues")
+            CREATE_GETTER_FUNCTION(KnownObservationsValues, int, "KnownObservationsValues")
+
+            CREATE_SETTER_FUNCTION(DeterminantValue, double, aDeterminantValue, "DeterminantValue")
+            CREATE_GETTER_FUNCTION(DeterminantValue, double, "DeterminantValue")
+
+            CREATE_GETTER_FUNCTION(DescriptorC, std::vector<void *> &, "DescriptorC")
+            CREATE_GETTER_FUNCTION(DescriptorZ, std::vector<void *> &, "DescriptorZ")
+            CREATE_GETTER_FUNCTION(DescriptorZcpy, void *&, "DescriptorZcpy")
+            CREATE_GETTER_FUNCTION(DescriptorProduct, std::vector<void *> &, "DescriptorProduct")
+            CREATE_GETTER_FUNCTION(DescriptorDeterminant, void *&, "DescriptorDeterminant")
+            CREATE_GETTER_FUNCTION(DescriptorCD, std::vector<void *> &, "DescriptorCD")
+            CREATE_GETTER_FUNCTION(DescriptorCUV, std::vector<void *> &, "DescriptorCUV")
+            CREATE_GETTER_FUNCTION(DescriptorCrk, std::vector<void *> &, "DescriptorCrk")
+            CREATE_GETTER_FUNCTION(DescriptorZObservations, void *&, "DescriptorZObservations")
+            CREATE_GETTER_FUNCTION(DescriptorZActual, void *&, "DescriptorZActual")
+            CREATE_GETTER_FUNCTION(DescriptorMSE, void *&, "DescriptorMSE")
+
+            CREATE_SETTER_FUNCTION(Sequence, void *, apSequence, "Sequence")
+            CREATE_GETTER_FUNCTION(Sequence, void *, "Sequence")
+
+            CREATE_SETTER_FUNCTION(Request, void *, apRequest, "Request")
+            CREATE_GETTER_FUNCTION(Request, void *, "Request")
+
+            /** END OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
+            /** START OF THE DATA GENERATION MODULES. **/
+            CREATE_SETTER_FUNCTION(Dimension, exageostat::common::Dimension, aDimension, "Dimension")
+            CREATE_GETTER_FUNCTION(Dimension, exageostat::common::Dimension, "Dimension")
+
+            CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
+            CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
+
+            CREATE_SETTER_FUNCTION(LowerBounds, std::vector<double> &, apTheta, "LowerBounds")
+            CREATE_GETTER_FUNCTION(LowerBounds, std::vector<double> &,"LowerBounds")
+
+            CREATE_SETTER_FUNCTION(UpperBounds, std::vector<double> &, apTheta, "UpperBounds")
+            CREATE_GETTER_FUNCTION(UpperBounds, std::vector<double> &, "UpperBounds")
+
+            CREATE_SETTER_FUNCTION(TargetTheta, std::vector<double> &, apTheta, "TargetTheta")
+            CREATE_GETTER_FUNCTION(TargetTheta, std::vector<double> &, "TargetTheta")
+
+            CREATE_SETTER_FUNCTION(StartingTheta, std::vector<double> &, apTheta, "StartingTheta")
+            CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
+
+            CREATE_SETTER_FUNCTION(IsSynthetic, bool, aIsSynthetic, "IsSynthetic")
+            CREATE_GETTER_FUNCTION(IsSynthetic, bool, "IsSynthetic")
+
+            /** END OF THE DATA GENERATION MODULES. **/
+            /** START OF THE DATA MODELING MODULES. **/
+
+            CREATE_SETTER_FUNCTION(IterationsValue, int, aIterationValue, "IterationValue")
+            CREATE_GETTER_FUNCTION(IterationsValue, int, "IterationValue")
+
+            //// TODO: RECHECK THEM!
+//            void
+//            SetLog(bool aLog);
+//            bool
+//            GetLog();
+
+            CREATE_SETTER_FUNCTION(RecoveryFile, std::string &, aRecoveryFile, "RecoveryFile")
+            CREATE_GETTER_FUNCTION(RecoveryFile, std::string &, "RecoveryFile")
+
+            CREATE_GETTER_FUNCTION(DotProduct, std::vector<double *> &, "DotProduct");
+            CREATE_GETTER_FUNCTION(Variance, std::vector<double *> &, "Variance")
+            CREATE_GETTER_FUNCTION(FileLog, FILE *, "FileLog")
+
+            CREATE_SETTER_FUNCTION(AvgExecutedTimePerIteration, double, aAvgExecTimePerIter, "AvgExecuted")
+            CREATE_GETTER_FUNCTION(AvgExecutedTimePerIteration, double, "AvgExecuted")
+
+            CREATE_SETTER_FUNCTION(AvgFlopsPerIteration, double, aAvgFlopsPerIter, "AvgFlops")
+            CREATE_GETTER_FUNCTION(AvgFlopsPerIteration, double, "AvgFlops")
+
+            CREATE_SETTER_FUNCTION(FinalLogLik, double, aAvgExecTimePerIter, "FinalLogLik")
+            CREATE_GETTER_FUNCTION(FinalLogLik, double, "FinalLogLik")
+
+            /** END OF THE DATA MODELING MODULES. **/
+            /** START OF THE DATA PREDICTION MODULES. **/
+
+            /** END OF THE DATA PREDICTION MODULES. **/
+
+        private:
+
+            static Configurations *configurations_;
 
             /**
-             * @brief Getter for the kernel.
-             * @return The kernel.
+             * @brief Default constructor.
              *
              */
-            std::string GetKernel() const;
-
-            /**
-             * @brief Problem size setter.
-             * @param[in] aProblemSize
-             * @return void
-             *
-             */
-            void
-            SetProblemSize(int aProblemSize);
-
-            /**
-             * @brief Setter for the number of parameters.
-             * @param[in] aParameterNumbers The number of parameters to set.
-             * @return void
-             *
-             */
-            void SetParametersNumber(int aParameterNumbers);
-
-            /**
-             * @brief Getter for the number of parameters.
-             * @return The number of parameters.
-             *
-             */
-            int GetParametersNumber() const;
-
-            /**
-             * @brief Problem size getter.
-             * @return The problem size.
-             *
-             */
-            int
-            GetProblemSize() const;
-
-            /**
-             * @brief Time slot setter.
-             * @param[in] aTimeSlot The time slot to set.
-             * @return void
-             *
-             */
-            void
-            SetTimeSlot(int aTimeSlot);
-
-            /**
-             * @brief Time slot getter.
-             * @return The time slot.
-             *
-             */
-            int
-            GetTimeSlot() const;
-
-            /**
-             * @brief Computation setter.
-             * @param[in] aComputation The computation to set.
-             * @return void
-             *
-             */
-            void
-            SetComputation(common::Computation aComputation);
-
-            /**
-             * @brief
-             * Computation getter.
-             * @return The computation.
-             *
-             */
-            common::Computation GetComputation() const;
-
-            /**
-             * @brief Precision setter.
-             * @param[in] aPrecision The precision to set.
-             * @return void
-             *
-             */
-            void
-            SetPrecision(common::Precision aPrecision);
-
-            /**
-             * @brief
-             * Precision getter.
-             * @return The precision.
-             *
-             */
-            common::Precision GetPrecision() const;
-
-            /**
-             * @brief PGrid setter.
-             * @param[in] aPGrid The PGrid to set.
-             * @return void
-             *
-             */
-            void
-            SetPGrid(int aPGrid);
-
-            /**
-             * @brief PGrid getter.
-             * @return The PGrid.
-             *
-             */
-            int GetPGrid() const;
-
-            /**
-             * @brief QGrid setter.
-             * @param[in] aQGrid The QGrid to set.
-             * @return void
-             *
-             */
-            void
-            SetQGrid(int aQGrid);
-
-            /**
-             * @brief QGrid getter.
-             * @return The QGrid.
-             *
-             */
-            int
-            GetQGrid() const;
-
-            /**
-             * @brief Cores number setter.
-             * @param[in] aCoresNumbers The number of cores to set.
-             * @return void
-             *
-             */
-            void
-            SetCoresNumber(int aCoresNumbers);
-
-            /**
-             * @brief Cores numbers getter.
-             * @return The number of cores.
-             *
-             */
-            int
-            GetCoresNumber() const;
-
-            /**
-             * @brief GPU number setter.
-             * @param[in] aGPUsNumber The number of GPUs to set.
-             * @return void
-             *
-             */
-            void
-            SetGPUsNumber(int aGPUsNumber);
-
-            /**
-             * @brief GPUnumber getter.
-             * @return The number of GPUs.
-             *
-             */
-            int
-            GetGPUsNumber() const;
-
-            /**
-             * @brief P setter.
-             * @param[in] aP The P value to set.
-             * @return void
-             *
-             */
-            void
-            SetP(int aP);
-
-            /**
-             * @brief P getter.
-             * @return The P value.
-             *
-             */
-            int
-            GetP() const;
-
-            /**
-             * @brief Dense Tile size setter.
-             * @param[in] aTileSize The dense Tile size to set.
-             * @return void
-             *
-             */
-            void
-            SetDenseTileSize(int aTileSize);
-
-            /**
-             * @brief Dense Tile size getter.
-             * @return The dense Tile size.
-             *
-             */
-            int
-            GetDenseTileSize() const;
-
-            /**
-             * @brief Low Tile size setter.
-             * @param[in] aTileSize The low Tile size to set.
-             * @return void
-             *
-             */
-            void
-            SetLowTileSize(int aTileSize);
-
-            /**
-             * @brief Low tile size getter.
-             * @return The low Tile size.
-             *
-             */
-            int
-            GetLowTileSize() const;
-
-            /**
-             * @brief Out of Core technology setter.
-             * @param[in] aIsOOC Flag indicating whether out of core technology should be used.
-             * @return void
-             *
-             */
-            void
-            SetIsOOC(bool aIsOOC);
-
-            /**
-             * @brief Out of Core technology getter.
-             * @return Flag indicating whether out of core technology is being used.
-             *
-             */
-            bool
-            GetIsOOC() const;
-
-            /**
-             * @brief Max rank setter.
-             * @param aMaxRank The maximum rank to set.
-             * @return void
-             *
-             */
-            void
-            SetMaxRank(int aMaxRank);
-
-            /**
-             * @brief Getter for the maximum rank.
-             * @return The maximum rank.
-             */
-            int GetMaxRank() const;
-
-            /**
-             * @brief Setter for the number of unknown observations to be predicted.
-             * @param[in] aUnknownObservationsNumber The number of unknown observations to set.
-             * @return void
-             *
-             */
-            void SetUnknownObservationsNb(int aUnknownObservationsNumber);
-
-            /**
-             * @brief Getter for the number of unknown observations to be predicted.
-             * @return The number of unknown observations.
-             */
-            int GetUnknownObservationsNb() const;
-
-            /**
-             * @brief Setter for the mean square error value.
-             * @param[in] aMeanSquareError The mean square error value to set.
-             * @return void
-             *
-             */
-            void SetMeanSquareError(double aMeanSquareError);
-
-            /**
-             * @brief Getter for the mean square error value.
-             * @return The mean square error value.
-             *
-             */
-            double GetMeanSquareError() const;
-
-            /**
-             * @brief Setter for the approximation mode.
-             * @param[in] aApproximationMode The approximation mode to set.
-             * @return void
-             */
-            void SetApproximationMode(int aApproximationMode);
-
-            /**
-             * @brief Getter for the approximation mode.
-             * @return The approximation mode.
-             *
-             */
-            int GetApproximationMode() const;
-
-            /**
-             * @brief Setter for the number of known observation values.
-             * @param[in] aKnownObservationsValues The number of known observation values to set.
-             * @return void
-             *
-             */
-            void SetKnownObservationsValues(int aKnownObservationsValues);
-
-            /**
-             * @brief Getter for the number of known observation values.
-             * @return The number of known observation values.
-             *
-             */
-            int GetKnownObservationsValues() const;
-
-            /**
-             * @brief Setter for the determinant value.
-             * @param[in] aDeterminantValue The determinant value to set.
-             * @return void
-             *
-             */
-            void SetDeterminantValue(double aDeterminantValue);
-
-            /**
-             * @brief Getter for the determinant value.
-             * @return The determinant value.
-             */
-            double GetDeterminantValue() const;
-
-            /**
-             * @brief Setter for the actual observations file path.
-             * @param[in] aActualObservationsFilePath The actual observations file path to set.
-             * @return void
-             *
-             */
-            void SetActualObservationsFilePath(const std::string &aActualObservationsFilePath);
-
-            /**
-             * @brief Getter for the actual observations file path.
-             * @return The actual observations file path.
-             *
-             */
-            std::string GetActualObservationsFilePath() const;
-
-            /**
-             * @brief Getter for the vector of C descriptors.
-             * @return A reference to the vector of C descriptors.
-             *
-             */
-            std::vector<void *> &GetDescriptorC();
-
-            /**
-             * @brief Getter for the vector of Z descriptors.
-             * @return A reference to the vector of Z descriptors.
-             *
-             */
-            std::vector<void *> &GetDescriptorZ();
-
-            /**
-             * @brief Getter for the Z copy descriptor.
-             * @return A reference to the Z copy descriptor.
-             *
-             */
-            void *&GetDescriptorZcpy();
-
-            /**
-             * @brief Getter for the vector of Product descriptors.
-             * @return A reference to the vector of Product descriptors.
-             *
-             */
-            std::vector<void *> &GetDescriptorProduct();
-
-            /**
-             * @brief Getter for the Determinant descriptor.
-             * @return A reference to the Determinant descriptor.
-             *
-             */
-            void *&GetDescriptorDeterminant();
-
-            /**
-             * @brief Getter for the vector of CD descriptors.
-             * @return A reference to the vector of CD descriptors.
-             *
-             */
-            std::vector<void *> &GetDescriptorCD();
-
-            /**
-             * @brief Getter for the vector of CUV descriptors.
-             * @return A reference to the vector of CUV descriptors.
-             *
-             */
-            std::vector<void *> &GetDescriptorCUV();
-
-            /**
-             * @brief Getter for the vector of Crk descriptors.
-             * @return A reference to the vector of Crk descriptors.
-             *
-             */
-            std::vector<void *> &GetDescriptorCrk();
-
-            /**
-             * @brief Getter for the Unknown Observations Z descriptor.
-             * @return A reference to the Unknown Observations Z descriptor.
-             *
-             */
-            void *&GetDescriptorZObservations();
-
-            /**
-             * @brief Getter for the Z Actual observations descriptor.
-             * @return A reference to the Z Actual observations descriptor.
-             *
-             */
-            void *&GetDescriptorZActual();
-
-            /**
-             * @brief Getter for the Mean Square Error descriptor.
-             * @returnA reference to the Mean Square Error descriptor.
-             *
-             */
-            void *&GetDescriptorMSE();
-
-            /**
-             * @brief Setter for the sequence.
-             * @param[in] apSequence Pointer to the sequence to set.
-             * @return void
-             *
-             */
-            void SetSequence(void *apSequence);
-
-            /**
-             * @brief Getter for the sequence.
-             * @return Pointer to the sequence.
-             *
-             */
-            void *GetSequence();
-
-            /**
-             * @brief Setter for the request.
-             * @param[in] apRequest Pointer to the request to set.
-             * @return void
-             *
-             */
-            void SetRequest(void *apRequest);
-
-            /**
-             * @brief Getter for the request.
-             * @return Pointer to the request.
-             *
-             */
-            void *GetRequest();
-
-            /**
-             * @brief Getter for the seed.
-             * @return The seed.
-             *
-             */
-            int GetSeed() const;
-
-            /**
-             * @brief Setter for the seed.
-             * @param[in] aSeed The seed to set.
-             * @return void
-             *
-             */
-            void SetSeed(int aSeed);
-
-            /**
-             * @brief Getter for the logger.
-             * @return The logger.
-             *
-             */
-            bool GetLogger() const;
-
-            /**
-             * @brief Setter for the logger.
-             * @param[in] aLogger The logger to set.
-             * @return void
-             *
-             */
-            void SetLogger(bool aLogger);
-
-            /**
-             * @brief Getter for the logger path.
-             * @return Pointer to the logger path.
-             *
-             */
-            std::string *GetLoggerPath();
-
-            /**
-             * @brief Setter for the logger path.
-             * @param[in] aLoggerPath The logger path to set.
-             * @return void
-             *
-             */
-            void SetLoggerPath(const std::string &aLoggerPath);
+            Configurations() = default;
 
             /**
              * @brief Check if input value is numerical.
@@ -570,36 +321,8 @@ namespace exageostat {
              * @return Enum with the selected Precision, Error if not exist.
              *
              */
+
             static common::Precision CheckPrecisionValue(const std::string &aValue);
-
-            /**
-             * @brief Getter for the run mode.
-             * @return The run mode.
-             *
-             */
-            static exageostat::common::RunMode GetRunMode();
-
-            /**
-             * @brief Setter for the run mode.
-             * @param[in] aRunMode The run mode to set.
-             * @return void
-             *
-             */
-            static void SetRunMode(exageostat::common::RunMode aRunMode);
-            /**
-             * @brief Setter for the initial theta.
-             * @param[in,out] apTheta A pointer to an array of initial theta values to set.
-             * @return void
-             *
-             */
-            void SetInitialTheta(std::vector<double> &apTheta);
-
-            /**
-             * @brief Getter for the initial theta.
-             * @return A pointer to the array of initial theta values.
-             *
-             */
-            std::vector<double> &GetInitialTheta();
 
             /**
              * @brief Checks the run mode and sets the verbosity level.
@@ -634,95 +357,32 @@ namespace exageostat {
              */
             static std::vector<double> ParseTheta(const std::string &aInputValues);
 
-        protected:
+            /**
+             * @brief Checks the value of the dimension parameter.
+             * @param[in] aDimension A string representing the dimension.
+             * @return The corresponding dimension value.
+             *
+             */
+            static exageostat::common::Dimension CheckDimensionValue(const std::string &aDimension);
 
-            /// Used boolean to identify the first use of initialize arguments
-            static bool mIsInitialized;
+            /**
+             * @brief Checks the value of the unknown observations parameter.
+             * @param[in] aValue A string representing the number of unknown observations.
+             * @return The corresponding integer value.
+             */
+            int CheckUnknownObservationsValue(const std::string &aValue);
+
+            /// Used Dictionary
+            std::map<std::string, std::any> mDictionary;
             /// Used Argument counter
             int mArgC = 0;
             /// Used Argument vectors
             char **mpArgV = nullptr;
-            /// The kernel to use.
-            std::string mKernel;
-            /// Used Problem size.
-            int mProblemSize = 0;
-            //// The number of parameters to use.
-            int mParametersNumber = 0;
-            /// Used Time slot.
-            int mTimeSlot = 1;
-            /// Used PGrid.
-            int mPGrid = 1;
-            /// Used QGrid.
-            int mQGrid = 1;
-            /// Used Number of cores.
-            int mCoresNumber = 1;
-            /// Used Number of GPUs.
-            int mGPUsNumber = 0;
-            /// Used P.
-            int mP = 1;
-            //// Used Dense Tile Size.
-            int mDenseTileSize = 0;
-            //// Used Low Tile Size.
-            int mLowTileSize = 0;
-            //// Used Out of core technology.
-            bool mIsOOC = false;
-            //// Used max rank
-            int mMaxRank = 1;
-            //// Used number of unknown observation to be predicted - NZmiss
-            int mUnknownObservationsNumber = 0;
-            //// Used number of known observed values. -nZobs
-            int mKnownObservationsValues = 0;
-            //// Used Approximation mode values.
-            int mApproximationMode = 1;
-            //// Used Mean Square Error values.
-            double mMeanSquareError = 0.0;
-            //// Determinant value.
-            double mDeterminantValue = 0.0;
-            //// Used Actual observations file path in the case of prediction value.
-            std::string mActualObservationsFilePath;
-            /// Used Computation.
-            common::Computation mComputation = common::EXACT_DENSE;
-            /// Used Precision.
-            common::Precision mPrecision = common::SINGLE;
-            /// Used initial theta values.
-            std::vector<double> mInitialTheta;
-            //// Used vectors of C descriptor.
-            std::vector<void *> mpDescriptorC;
-            //// Used vectors of Z descriptor.
-            std::vector<void *> mpDescriptorZ;
-            //// Used copy Z descriptor.
-            void *mpDescriptorZcpy = nullptr;
-            //// Used Determinant descriptor.
-            void *mpDescriptorDeterminant = nullptr;
-            //// Used Z observations descriptor.
-            void *mpDescriptorZObservations = nullptr;
-            //// Used vectors of product descriptor.
-            std::vector<void *> mpDescriptorProduct;
-            //// Used vectors of CD descriptor.
-            std::vector<void *> mpDescriptorCD = {nullptr, nullptr, nullptr};
-            //// Used vectors of CUV descriptor.
-            std::vector<void *> mpDescriptorCUV = {nullptr, nullptr, nullptr};
-            //// Used vectors of Crk descriptor.
-            std::vector<void *> mpDescriptorCrk = {nullptr, nullptr, nullptr};
-            //// Used MSE descriptor.
-            void *mpDescriptorMSE = nullptr;
-            //// Used Z Actual observations descriptor.
-            void *mpDescriptorZActual = nullptr;
-            ////  Used sequence
-            void *mpSequence = nullptr;
-            //// Used request
-            void *mpRequest = nullptr;
-            /// The Seed variable, with default value = 0.
-            int mSeed = 0;
             //// Used run mode
             static exageostat::common::RunMode mRunMode;
-            //// Used logger
-            bool mLogger = false;
-            //// Used logger path.
-            std::string mLoggerPath;
         };
-
     }//namespace configurations
 }//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
+

@@ -24,136 +24,187 @@ using namespace std;
 using namespace exageostat::configurations;
 using namespace exageostat::common;
 
-bool Configurations::mIsInitialized = false;
+RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
+Configurations* Configurations::configurations_ = nullptr;
 
 void Configurations::InitializeArguments(int aArgC, char **apArgV) {
 
-    if (!mIsInitialized) {
-        this->mArgC = aArgC;
-        this->mpArgV = apArgV;
-        // Get the example name
-        string example_name = apArgV[0];
-        // Remove the './'
-        example_name.erase(0, 2);
-        cout << "Running " << example_name << endl;
+    this->mArgC = aArgC;
+    this->mpArgV = apArgV;
 
-        string argument;
-        string argument_name;
-        string argument_value;
-        int equal_sign_Idx;
+    // Get the example name
+    string example_name = apArgV[0];
+    // Remove the './'
+    example_name.erase(0, 2);
+    cout << "Running " << example_name << endl;
 
-        //Set verbosity level with default value = standard
-        SetRunMode(STANDARD_MODE);
+    string argument;
+    string argument_name;
+    string argument_value;
+    int equal_sign_Idx;
 
-        // Loop through the arguments
-        for (int i = 1; i < aArgC; ++i) {
-            argument = apArgV[i];
-            equal_sign_Idx = static_cast<int>(argument.find('='));
-            argument_name = argument.substr(0, equal_sign_Idx);
+    // Loop through the arguments
+    for (int i = 1; i < aArgC; ++i) {
+        argument = apArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
 
-            // Check if argument has an equal sign.
-            if (equal_sign_Idx != string::npos) {
-                argument_value = argument.substr(equal_sign_Idx + 1);
+        // Check if argument has an equal sign.
+        if (equal_sign_Idx != string::npos) {
+            argument_value = argument.substr(equal_sign_Idx + 1);
 
-                // Check the argument name and set the corresponding value
-                if (argument_name == "--N" || argument_name == "--n") {
-                    SetProblemSize(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
-                    CheckKernelValue(argument_value);
-                } else if (argument_name == "--PGrid" || argument_name == "--pGrid" || argument_name == "--pgrid" ||
-                           argument_name == "--p_grid") {
-                    SetPGrid(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid" ||
-                           argument_name == "--q_grid") {
-                    SetQGrid(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot" ||
-                           argument_name == "--time_slot") {
-                    SetTimeSlot(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--Computation" || argument_name == "--computation") {
-                    SetComputation(CheckComputationValue(argument_value));
-                } else if (argument_name == "--precision" || argument_name == "--Precision") {
-                    SetPrecision(CheckPrecisionValue(argument_value));
-                } else if (argument_name == "--cores" || argument_name == "--coresNumber" ||
-                           argument_name == "--cores_number") {
-                    SetCoresNumber(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--Gpus" || argument_name == "--GPUsNumbers" ||
-                           argument_name == "--gpu_number" || argument_name == "--gpus") {
-                    SetGPUsNumber(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
-                    SetDenseTileSize(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
-                    SetLowTileSize(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--maxRank" || argument_name == "--maxrank" ||
-                           argument_name == "--max_rank") {
-                    SetMaxRank(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--ObservationsFile" || argument_name == "--observationsfile" ||
-                           argument_name == "--observations_file") {
-                    SetActualObservationsFilePath(argument_value);
-                } else if (argument_name == "--Seed" || argument_name == "--seed") {
-                    SetSeed(CheckNumericalValue(argument_value));
-                } else if (argument_name == "--runmode" || argument_name == "--runMode" ||
-                           argument_name == "--run_mode") {
-                    ParseRunMode(argument_value);
-                } else if (argument_name == "--logpath" || argument_name == "--log_path" ||
-                           argument_name == "--logPath") {
-                    SetLoggerPath(argument_value);
-                } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
-                           argument_name == "--iTheta") {
-                    std::vector<double> theta = ParseTheta(argument_value);
-                    SetInitialTheta(theta);
-                } else {
-                    if (!(argument_name == "--Kernel" || argument_name == "--kernel" ||
-                          argument_name == "--Dimension" || argument_name == "--dimension" ||
-                          argument_name == "--dim" || argument_name == "--Dim" || argument_name == "--ZmissNumber" ||
-                          argument_name == "--Zmiss" || argument_name == "--lb" || argument_name == "--olb" ||
-                          argument_name == "--lowerBounds" || argument_name == "--ub" || argument_name == "--oub" ||
-                          argument_name == "--upper_bounds" || argument_name == "--initial_theta" ||
-                          argument_name == "--itheta" || argument_name == "--iTheta" ||
-                          argument_name == "--target_theta" || argument_name == "--ttheta" ||
-                          argument_name == "--tTheta" || argument_name == "--iterations" ||
-                          argument_name == "--Iterations")) {
-                        cout << "!! " << argument_name << " !!" << endl;
-                        throw invalid_argument(
-                                "This argument is undefined, Please use --help to print all available arguments");
-                    }
-                }
+            // Check the argument name and set the corresponding value
+            if (argument_name == "--N" || argument_name == "--n") {
+                SetProblemSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
+                CheckKernelValue(argument_value);
+            } else if (argument_name == "--PGrid" || argument_name == "--pGrid" || argument_name == "--pgrid" ||
+                       argument_name == "--p_grid") {
+                SetPGrid(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid" ||
+                       argument_name == "--q_grid") {
+                SetQGrid(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot" ||
+                       argument_name == "--time_slot") {
+                SetTimeSlot(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Computation" || argument_name == "--computation") {
+                SetComputation(CheckComputationValue(argument_value));
+            } else if (argument_name == "--precision" || argument_name == "--Precision") {
+                SetPrecision(CheckPrecisionValue(argument_value));
+            } else if (argument_name == "--cores" || argument_name == "--coresNumber" ||
+                       argument_name == "--cores_number" || argument_name == "ncores") {
+                SetCoresNumber(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Gpus" || argument_name == "--GPUsNumbers" ||
+                       argument_name == "--gpu_number" || argument_name == "--gpus") {
+                SetGPUsNumbers(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
+                SetDenseTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
+                SetLowTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--maxRank" || argument_name == "--maxrank" ||
+                       argument_name == "--max_rank") {
+                SetMaxRank(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--ObservationsFile" || argument_name == "--observationsfile" ||
+                       argument_name == "--observations_file") {
+                SetActualObservationsFilePath(argument_value);
+            } else if (argument_name == "--Seed" || argument_name == "--seed") {
+                SetSeed(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--runmode" || argument_name == "--runMode" ||
+                       argument_name == "--run_mode") {
+                ParseRunMode(argument_value);
+            } else if (argument_name == "--logpath" || argument_name == "--log_path" ||
+                       argument_name == "--logPath") {
+                SetLoggerPath(argument_value);
+            } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
+                       argument_name == "--iTheta") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetInitialTheta(theta);
             } else {
-                if (argument_name == "--help") {
-                    PrintUsage();
-                }
-                if (argument_name == "--OOC") {
-                    SetIsOOC(true);
-                } else if (argument_name == "--ApproximationMode" || argument_name == "--approximationmode" ||
-                           argument_name == "--approximation_mode") {
-                    SetApproximationMode(true);
-                } else if (argument_name == "--log" || argument_name == "--Log") {
-                    SetLogger(true);
-                } else {
-                    if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
-                          argument_name == "--synthetic_data" || argument_name == "--synthetic"))
-                        throw invalid_argument(
-                                "This argument is undefined, Please use --help to print all available arguments");
+                if (!(argument_name == "--Kernel" || argument_name == "--kernel" ||
+                      argument_name == "--Dimension" || argument_name == "--dimension" ||
+                      argument_name == "--dim" || argument_name == "--Dim" || argument_name == "--ZmissNumber" ||
+                      argument_name == "--Zmiss" || argument_name == "--lb" || argument_name == "--olb" ||
+                      argument_name == "--lowerBounds" || argument_name == "--ub" || argument_name == "--oub" ||
+                      argument_name == "--upper_bounds" || argument_name == "--initial_theta" ||
+                      argument_name == "--itheta" || argument_name == "--iTheta" ||
+                      argument_name == "--target_theta" || argument_name == "--ttheta" ||
+                      argument_name == "--tTheta" || argument_name == "--iterations" ||
+                      argument_name == "--Iterations")) {
+                    cout << "!! " << argument_name << " !!" << endl;
+                    throw invalid_argument(
+                            "This argument is undefined, Please use --help to print all available arguments");
                 }
             }
+        } else {
+            if (argument_name == "--help") {
+                PrintUsage();
+            }
+            if (argument_name == "--OOC") {
+                SetIsOOC(true);
+            } else if (argument_name == "--ApproximationMode" || argument_name == "--approximationmode" ||
+                       argument_name == "--approximation_mode") {
+                SetApproximationMode(true);
+            } else if (argument_name == "--log" || argument_name == "--Log") {
+                SetLogger(true);
+            } else {
+                if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
+                      argument_name == "--synthetic_data" || argument_name == "--synthetic"))
+                    throw invalid_argument(
+                            "This argument is undefined, Please use --help to print all available arguments");
+            }
         }
+    }
 
-        // Throw Errors if any of these arguments aren't given by the user.
-        if (GetProblemSize() == 0) {
-            throw domain_error("You need to set the problem size, before starting");
-        }
+    // Throw Errors if any of these arguments aren't given by the user.
+    if (GetProblemSize() == 0) {
+        throw domain_error("You need to set the problem size, before starting");
+    }
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        if (GetDenseTileSize() == 0) {
-            throw domain_error("You need to set the Dense tile size, before starting");
-        }
+    if (GetDenseTileSize() == 0) {
+        throw domain_error("You need to set the Dense tile size, before starting");
+    }
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
-        if (GetLowTileSize() == 0) {
-            throw domain_error("You need to set the Low tile size, before starting");
-        }
+    if (GetLowTileSize() == 0) {
+        throw domain_error("You need to set the Low tile size, before starting");
+    }
 #endif
 
-        mIsInitialized = true;
+}
+
+void Configurations::InitializeDataGenerationArguments(){
+
+    string argument;
+    string argument_name;
+    string argument_value;
+    int equal_sign_Idx;
+
+    // Loop through the arguments that are specific for data generation.
+    for (int i = 1; i < this->mArgC; ++i) {
+        argument = this->mpArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
+
+        // Check if argument has an equal sign.
+        if (equal_sign_Idx != string::npos) {
+            argument_value = argument.substr(equal_sign_Idx + 1);
+
+            // Check the argument name and set the corresponding value
+            if (argument_name == "--Dimension" || argument_name == "--dimension"
+                || argument_name == "--dim" || argument_name == "--Dim") {
+                SetDimension(CheckDimensionValue(argument_value));
+            } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
+                SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
+            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetLowerBounds(theta);
+            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetUpperBounds(theta);
+            } else if (argument_name == "--target_theta" || argument_name == "--ttheta" ||
+                       argument_name == "--tTheta") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetTargetTheta(theta);
+            }
+        } else {
+            if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
+                argument_name == "--synthetic_data" || argument_name == "--synthetic") {
+                SetIsSynthetic(true);
+            }
+        }
     }
+    // Throw Errors if any of these arguments aren't given by the user.
+    if (GetKernelName().empty()) {
+        throw domain_error("You need to set the Kernel, before starting");
+    }
+}
+
+void Configurations::InitializeDataModelingArguments() {
+
+}
+
+void Configurations::InitializeDataPredictionArguments() {
+
 }
 
 void Configurations::PrintUsage() {
@@ -190,234 +241,8 @@ void Configurations::PrintUsage() {
     exit(0);
 }
 
-string Configurations::GetKernel() const{
-    return this->mKernel;
-}
-
-void Configurations::SetKernel(const std::string &aKernel) {
-    this->mKernel = aKernel;
-}
-
-int Configurations::GetProblemSize() const {
-    return this->mProblemSize;
-}
-
-void Configurations::SetProblemSize(int aProblemSize) {
-    this->mProblemSize = aProblemSize;
-}
-
-void Configurations::SetParametersNumber(int aParameterNumbers) {
-    this->mParametersNumber = aParameterNumbers;
-}
-
-int Configurations::GetParametersNumber() const {
-    return this->mParametersNumber;
-}
-
-void Configurations::SetTimeSlot(int aTimeSlot) {
-    this->mTimeSlot = aTimeSlot;
-}
-
-int Configurations::GetTimeSlot() const {
-    return this->mTimeSlot;
-}
-
-void Configurations::SetComputation(Computation aComputation) {
-    this->mComputation = aComputation;
-}
-
-Computation Configurations::GetComputation() const {
-    return this->mComputation;
-}
-
-Precision Configurations::GetPrecision() const {
-    return this->mPrecision;
-}
-
-void Configurations::SetPrecision(Precision aPrecision) {
-    this->mPrecision = aPrecision;
-}
-
-void Configurations::SetPGrid(int aPGrid) {
-    this->mPGrid = aPGrid;
-}
-
-int Configurations::GetPGrid() const {
-    return this->mPGrid;
-}
-
-void Configurations::SetP(int aP) {
-    this->mP = aP;
-}
-
-int Configurations::GetP() const {
-    return this->mP;
-}
-
-void Configurations::SetDenseTileSize(int aTileSize) {
-    this->mDenseTileSize = aTileSize;
-}
-
-int Configurations::GetDenseTileSize() const {
-    return this->mDenseTileSize;
-}
-
-void Configurations::SetLowTileSize(int aTileSize) {
-    this->mLowTileSize = aTileSize;
-}
-
-int Configurations::GetLowTileSize() const {
-    return this->mLowTileSize;
-}
-
-void Configurations::SetQGrid(int aQGrid) {
-    this->mQGrid = aQGrid;
-}
-
-int Configurations::GetQGrid() const {
-    return this->mQGrid;
-
-}
-
-std::vector<void *> &Configurations::GetDescriptorC() {
-    return this->mpDescriptorC;
-}
-
-std::vector<void *> &Configurations::GetDescriptorZ() {
-    return this->mpDescriptorZ;
-}
-
-void *&Configurations::GetDescriptorZcpy() {
-    return this->mpDescriptorZcpy;
-}
-
-std::vector<void *> &Configurations::GetDescriptorProduct() {
-    return this->mpDescriptorProduct;
-}
-
-void *&Configurations::GetDescriptorDeterminant() {
-
-    return this->mpDescriptorDeterminant;
-}
-
-std::vector<void *> &Configurations::GetDescriptorCD() {
-    return this->mpDescriptorCD;
-}
-
-std::vector<void *> &Configurations::GetDescriptorCUV() {
-    return this->mpDescriptorCUV;
-}
-
-std::vector<void *> &Configurations::GetDescriptorCrk() {
-    return this->mpDescriptorCrk;
-}
-
-void *&Configurations::GetDescriptorZObservations() {
-    return this->mpDescriptorZObservations;
-}
-
-void *&Configurations::GetDescriptorMSE() {
-    return this->mpDescriptorMSE;
-}
-
-void *&Configurations::GetDescriptorZActual() {
-    return this->mpDescriptorZActual;
-}
-
-void Configurations::SetCoresNumber(int aCoresNumbers) {
-    this->mCoresNumber = aCoresNumbers;
-}
-
-int Configurations::GetCoresNumber() const {
-    return this->mCoresNumber;
-}
-
-void Configurations::SetGPUsNumber(int aGPUsNumber) {
-    this->mGPUsNumber = aGPUsNumber;
-}
-
-int Configurations::GetGPUsNumber() const {
-    return this->mGPUsNumber;
-}
-
-void Configurations::SetIsOOC(bool aIsOOC) {
-    this->mIsOOC = aIsOOC;
-}
-
-bool Configurations::GetIsOOC() const {
-    return this->mIsOOC;
-}
-
-void Configurations::SetMaxRank(int aMaxRank) {
-    this->mMaxRank = aMaxRank;
-}
-
-int Configurations::GetMaxRank() const {
-    return this->mMaxRank;
-}
-
-void Configurations::SetUnknownObservationsNb(int aUnknownObservationsNumber) {
-    this->mUnknownObservationsNumber = aUnknownObservationsNumber;
-}
-
-int Configurations::GetUnknownObservationsNb() const {
-    return this->mUnknownObservationsNumber;
-}
-
-void Configurations::SetKnownObservationsValues(int aKnownObservationsValues) {
-    this->mKnownObservationsValues = aKnownObservationsValues;
-}
-
-int Configurations::GetKnownObservationsValues() const {
-    return this->mKnownObservationsValues;
-}
-
-int Configurations::GetApproximationMode() const {
-    return this->mApproximationMode;
-}
-
-void Configurations::SetApproximationMode(int aApproximationMode) {
-    this->mApproximationMode = aApproximationMode;
-}
-
-double Configurations::GetMeanSquareError() const {
-    return this->mMeanSquareError;
-}
-
-void Configurations::SetMeanSquareError(double aMeanSquareError) {
-    this->mMeanSquareError = aMeanSquareError;
-}
-
-void Configurations::SetActualObservationsFilePath(const std::string &aKnownObservationsValues) {
-    this->mActualObservationsFilePath = aKnownObservationsValues;
-}
-
-string Configurations::GetActualObservationsFilePath() const {
-    return this->mActualObservationsFilePath;
-}
-
-void Configurations::SetDeterminantValue(double aDeterminantValue) {
-    this->mDeterminantValue = aDeterminantValue;
-}
-
-double Configurations::GetDeterminantValue() const {
-    return this->mDeterminantValue;
-}
-
-int Configurations::GetSeed() const {
-    return this->mSeed;
-}
-
-void Configurations::SetSeed(int aSeed) {
-    this->mSeed = aSeed;
-}
-
-void Configurations::SetInitialTheta(std::vector<double> &apTheta) {
-    this->mInitialTheta = apTheta;
-}
-
-std::vector<double> &Configurations::GetInitialTheta() {
-    return this->mInitialTheta;
+RunMode Configurations::GetRunMode() {
+    return Configurations::mRunMode;
 }
 
 int Configurations::CheckNumericalValue(const string &aValue) {
@@ -466,48 +291,6 @@ Precision Configurations::CheckPrecisionValue(const std::string &aValue) {
     return MIXED;
 }
 
-void Configurations::SetSequence(void *apSequence) {
-    this->mpSequence = apSequence;
-}
-
-void *Configurations::GetSequence() {
-    return this->mpSequence;
-}
-
-void Configurations::SetRequest(void *apRequest) {
-    this->mpRequest = apRequest;
-}
-
-void *Configurations::GetRequest() {
-    return this->mpRequest;
-}
-
-RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
-
-RunMode Configurations::GetRunMode() {
-    return Configurations::mRunMode;
-}
-
-void Configurations::SetRunMode(RunMode aRunMode) {
-    Configurations::mRunMode = aRunMode;
-}
-
-void Configurations::SetLogger(bool aLogger) {
-    this->mLogger = aLogger;
-}
-
-bool Configurations::GetLogger() const {
-    return this->mLogger;
-}
-
-std::string *Configurations::GetLoggerPath() {
-    return &this->mLoggerPath;
-}
-
-void Configurations::SetLoggerPath(const string &aLoggerPath) {
-    this->mLoggerPath = aLoggerPath;
-}
-
 void Configurations::ParseRunMode(const std::string &aRunMode) {
     if (aRunMode == "verbose" || aRunMode == "Verbose") {
         mRunMode = RunMode::VERBOSE_MODE;
@@ -528,7 +311,7 @@ void Configurations::CheckKernelValue(const string &aKernel) {
     } else {
         // Check if the string is already in CamelCase format
         if (IsCamelCase(aKernel)) {
-            this->SetKernel(aKernel);
+            this->SetKernelName(aKernel);
             return;
         }
         string str = aKernel;
@@ -538,10 +321,10 @@ void Configurations::CheckKernelValue(const string &aKernel) {
         std::string word, result;
         while (iss >> word) {
             // Capitalize the first letter of each word and append it to the result
-            word[0] = toupper(word[0]);
+            word[0] = static_cast<char>(toupper(word[0]));
             result += word;
         }
-        this->SetKernel(result);
+        this->SetKernelName(result);
     }
 }
 
@@ -573,7 +356,6 @@ std::vector<double> Configurations::ParseTheta(const std::string &aInputValues) 
     // Split the string into tokens using strtok()
     const char *delim = ":";
     char *token = strtok((char *) aInputValues.c_str(), delim);
-//    int i = 1;
     int i = 0;
     while (token != nullptr) {
         // Check if the token is a valid double or "?"
@@ -595,7 +377,6 @@ std::vector<double> Configurations::ParseTheta(const std::string &aInputValues) 
     }
 
     // Check if the number of values in the array is correct
-//    if (i != num_values + 1) {
     if (i != num_values) {
         throw range_error(
                 "Error: the number of values in the input string is invalid, please use this example format as a reference 1:?:0.1");
@@ -603,3 +384,90 @@ std::vector<double> Configurations::ParseTheta(const std::string &aInputValues) 
 
     return theta;
 }
+
+Dimension Configurations::CheckDimensionValue(const string &aDimension) {
+
+    if (aDimension != "2D" and aDimension != "2d"
+        and aDimension != "3D" and aDimension != "3d"
+        and aDimension != "st" and aDimension != "ST") {
+        throw range_error("Invalid value for Dimension. Please use 2D, 3D or ST.");
+    }
+    if (aDimension == "2D" or aDimension == "2d") {
+        return Dimension2D;
+    } else if (aDimension == "3D" or aDimension == "3d") {
+        return Dimension3D;
+    }
+    return DimensionST;
+}
+
+int Configurations::CheckUnknownObservationsValue(const string &aValue) {
+    int value = CheckNumericalValue(aValue);
+    if (value >= GetProblemSize()) {
+        throw range_error("Invalid value for ZmissNumber. Please make sure it's smaller than Problem size");
+    }
+    return value;
+}
+
+void Configurations::SetDefaultValues() {
+
+    SET_VALUE_DEFAULT(TimeSlot, 1)
+    SET_VALUE_DEFAULT(Computation, common::EXACT_DENSE)
+    SET_VALUE_DEFAULT(Precision, common::DOUBLE)
+    SET_VALUE_DEFAULT(CoresNumber, 1)
+    SET_VALUE_DEFAULT(GPUsNumbers, 0)
+    SET_VALUE_DEFAULT(Seed, 0)
+    vector<void*> *temp = new vector<void*>();
+    SET_DESCRIPTOR_DEFAULT("DescriptorC", *temp)
+    SET_DESCRIPTOR_DEFAULT("DescriptorZ", nullptr)
+
+}
+
+
+//void Configurations::InitModuleArguments(int aArgC, char **apArgV) {
+//    InitializeArguments(aArgC, apArgV);
+//    this->mpMatrixDeterminant = new double;
+//
+//    this->mDotProduct.resize(3);
+//    this->mVariance.resize(3);
+//
+//    this->mDotProduct[0] = new double;
+//    this->mDotProduct[1] = new double;
+//    this->mDotProduct[2] = new double;
+//
+//    *this->mDotProduct[0] = 0;
+//    *this->mDotProduct[1] = 0;
+//    *this->mDotProduct[2] = 0;
+//
+//    this->mVariance[0] = new double;
+//    this->mVariance[1] = new double;
+//    this->mVariance[2] = new double;
+//
+//    cout << "Mproduct Done" <<endl;
+//    string argument;
+//    string argument_name;
+//    string argument_value;
+//    int equal_sign_Idx;
+//    // Loop through the arguments that are specific for data generation.
+//    for (int i = 1; i < aArgC; ++i) {
+//        argument = apArgV[i];
+//        equal_sign_Idx = static_cast<int>(argument.find('='));
+//        argument_name = argument.substr(0, equal_sign_Idx);
+//
+//        // Check if argument has an equal sign.
+//        if (equal_sign_Idx != string::npos) {
+//            argument_value = argument.substr(equal_sign_Idx + 1);
+//
+//            // Check the argument name and set the corresponding value
+//            if (argument_name == "--iterations" || argument_name == "--Iterations") {
+//                SetIterationsValue(CheckNumericalValue(argument_value));
+//            } else if (argument_name == "--distance_metric" || argument_name == "--distanceMetric"){
+//                ParseDistanceMetric(argument_value);
+//            } else if (argument_name == "--data_log" || argument_name == "--dataLog"){
+//                ParseDataLog(argument_value);
+//            }
+//        } else {
+////            if (argument_name == "--emptyForNow" || argument_name == "--EmptyForNow") {
+////            }
+//        }
+//    }
+//}

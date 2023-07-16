@@ -11,67 +11,63 @@
 #include <kernels/Kernel.hpp>
 #include <common/PluginRegistry.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
+#include <configurations/Configurations.hpp>
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
-using namespace exageostat::configurations::data_configurations;
+using namespace exageostat::configurations;
 
 using namespace std;
 
 template<typename T>
 SyntheticGenerator<T> *
-SyntheticGenerator<T>::GetInstance(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations) {
+SyntheticGenerator<T>::GetInstance() {
 
     if (mpInstance == nullptr) {
-        mpInstance = new SyntheticGenerator<T>(apConfigurations);
+        mpInstance = new SyntheticGenerator<T>();
     }
     return mpInstance;
 }
 
 template<typename T>
-SyntheticGenerator<T>::SyntheticGenerator(SyntheticDataConfigurations *apConfigurations) {
+SyntheticGenerator<T>::SyntheticGenerator() {
 
-    // Set configuration map and init locations.
-    this->mpConfigurations = apConfigurations;
-
-    this->mpLocations = new Locations((apConfigurations->GetProblemSize() * apConfigurations->GetTimeSlot()),
-                                      apConfigurations->GetDimension());
+    auto configurations = Configurations::GetConfigurations();
+    this->mpLocations = new Locations((configurations->GetProblemSize() * configurations->GetTimeSlot()),
+                                      configurations->GetDimension());
 
     // Set selected Kernel
-    std::string kernel_name = this->mpConfigurations->GetKernel();
+    std::string kernel_name = configurations->GetKernelName();
     this->mpKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel>::Create(
-            this->mpConfigurations->GetKernel());
-    this->mpKernel->SetPValue(this->mpConfigurations->GetTimeSlot());
+            configurations->GetKernelName());
+    this->mpKernel->SetPValue(configurations->GetTimeSlot());
 
-    this->mpConfigurations->SetProblemSize(this->mpConfigurations->GetProblemSize() * this->mpKernel->GetPValue());
-    this->mpConfigurations->SetP(this->mpKernel->GetPValue());
+    configurations->SetProblemSize(configurations->GetProblemSize() * this->mpKernel->GetPValue());
+    configurations->SetP(this->mpKernel->GetPValue());
 
     int parameters_number = this->mpKernel->GetParametersNumbers();
-    this->mpConfigurations->SetParametersNumber(parameters_number);
+    configurations->SetParametersNumber(parameters_number);
 
-    this->mpConfigurations->SetLowerBounds(InitTheta(this->mpConfigurations->GetLowerBounds(), parameters_number));
-    this->mpConfigurations->SetUpperBounds(InitTheta(this->mpConfigurations->GetUpperBounds(), parameters_number));
-    this->mpConfigurations->SetInitialTheta(InitTheta(this->mpConfigurations->GetInitialTheta(), parameters_number));
-    this->mpConfigurations->SetTargetTheta(InitTheta(this->mpConfigurations->GetTargetTheta(), parameters_number));
+    configurations->SetLowerBounds(InitTheta(configurations->GetLowerBounds(), parameters_number));
+    configurations->SetUpperBounds(InitTheta(configurations->GetUpperBounds(), parameters_number));
+    configurations->SetInitialTheta(InitTheta(configurations->GetInitialTheta(), parameters_number));
+    configurations->SetTargetTheta(InitTheta(configurations->GetTargetTheta(), parameters_number));
 
     // Set starting theta with the lower bounds values
-    this->mpConfigurations->SetStartingTheta(this->mpConfigurations->GetLowerBounds());
+    configurations->SetStartingTheta(configurations->GetLowerBounds());
 
     for (int i = 0; i < parameters_number; i++) {
-        if (this->mpConfigurations->GetTargetTheta()[i] != -1) {
-            this->mpConfigurations->GetLowerBounds()[i] = this->mpConfigurations->GetTargetTheta()[i];
-            this->mpConfigurations->GetUpperBounds()[i] = this->mpConfigurations->GetTargetTheta()[i];
-            this->mpConfigurations->GetStartingTheta()[i] = this->mpConfigurations->GetTargetTheta()[i];
+        if (configurations->GetTargetTheta()[i] != -1) {
+            configurations->GetLowerBounds()[i] = configurations->GetTargetTheta()[i];
+            configurations->GetUpperBounds()[i] = configurations->GetTargetTheta()[i];
+            configurations->GetStartingTheta()[i] = configurations->GetTargetTheta()[i];
         }
     }
 
     // Set linear Algebra solver
-    this->mpLinearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
-            this->mpConfigurations->GetComputation());
-    this->mpLinearAlgebraSolver->SetConfigurations(this->mpConfigurations);
-
+    this->mpLinearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(configurations->GetComputation());
 }
 
 template<typename T>
@@ -82,18 +78,19 @@ void SyntheticGenerator<T>::GenerateDescriptors() {
 template<typename T>
 void SyntheticGenerator<T>::GenerateLocations() {
 
+    auto configurations = Configurations::GetConfigurations();
     int p;
     if (this->mpKernel) {
         p = this->mpKernel->GetPValue();
     } else {
         throw std::runtime_error("Error in Allocating Kernel plugin");
     }
-    int N = this->mpConfigurations->GetProblemSize() / p;
+    int N = configurations->GetProblemSize() / p;
     this->mpLocations->SetSize(N);
 
     int index = 0;
-    Dimension dimension = this->mpConfigurations->GetDimension();
-    int time_slots = this->mpConfigurations->GetTimeSlot();
+    Dimension dimension = configurations->GetDimension();
+    int time_slots = configurations->GetTimeSlot();
     this->mpLocations->SetDimension(dimension);
 
 
@@ -117,19 +114,19 @@ void SyntheticGenerator<T>::GenerateLocations() {
         for (auto j = 0; j < rootN && index < N; j++) {
             if (dimension == Dimension3D) {
                 for (auto k = 0; k < rootN && index < N; k++) {
-                     this->mpLocations->GetLocationX()[index] =
+                    this->mpLocations->GetLocationX()[index] =
                             (grid[i] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
-                     this->mpLocations->GetLocationY()[index] =
+                    this->mpLocations->GetLocationY()[index] =
                             (grid[j] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
-                     this->mpLocations->GetLocationZ()[index] =
+                    this->mpLocations->GetLocationZ()[index] =
                             (grid[k] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
 
-                 index++;
+                    index++;
                 }
             } else {
-                 this->mpLocations->GetLocationX()[index] =
+                this->mpLocations->GetLocationX()[index] =
                         (grid[i] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
-                 this->mpLocations->GetLocationY()[index] =
+                this->mpLocations->GetLocationY()[index] =
                         (grid[j] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
                 if (dimension == DimensionST) {
                     this->mpLocations->GetLocationZ()[index] = 1.0;
@@ -167,7 +164,7 @@ void SyntheticGenerator<T>::SortLocations(int &aN) {
 
     // Some sorting, required by spatial statistics code
     uint16_t x, y, z;
-    Dimension dimension = this->mpConfigurations->GetDimension();
+    Dimension dimension = Configurations::GetConfigurations()->GetDimension();
     uint64_t vectorZ[aN];
 
     // Encode data into vector z
@@ -237,13 +234,12 @@ bool SyntheticGenerator<T>::CompareUint64(const uint64_t &aFirstValue, const uin
 template<typename T>
 void SyntheticGenerator<T>::GenerateObservations() {
 
-    void *descriptorC = this->mpConfigurations->GetDescriptorC()[0];
+    void *descriptorC = Configurations::GetConfigurations()->GetDescriptorC()[0];
     const auto &l1 = this->GetLocations();
 
     this->mpLinearAlgebraSolver->GenerateObservationsVector(descriptorC, l1, l1, nullptr,
-                                                            this->mpConfigurations->GetInitialTheta(), 0,
+                                                            Configurations::GetConfigurations()->GetInitialTheta(), 0,
                                                             this->mpKernel);
-
 }
 
 template<typename T>
@@ -265,8 +261,8 @@ std::vector<double> &SyntheticGenerator<T>::InitTheta(std::vector<double> &apThe
 }
 
 template<typename T>
-void SyntheticGenerator<T>::DestoryDescriptors() {
-    this->mpLinearAlgebraSolver->DestoryDescriptors();
+void SyntheticGenerator<T>::DestroyDescriptors() {
+    this->mpLinearAlgebraSolver->DestroyDescriptors();
 }
 
 template<typename T>

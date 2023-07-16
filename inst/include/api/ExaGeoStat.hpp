@@ -14,8 +14,7 @@
 #define EXAGEOSTATCPP_EXAGEOSTAT_HPP
 
 #include <common/Definitions.hpp>
-#include <configurations/data-modeling/DataModelingConfigurations.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include <configurations/Configurations.hpp>
 #include <data-units/Locations.hpp>
 
 namespace exageostat {
@@ -34,7 +33,7 @@ namespace exageostat {
              * @return void
              *
              */
-            static void ExaGeoStatInitializeHardware(configurations::Configurations *apConfigurations);
+            static void ExaGeoStatInitializeHardware();
 
             /**
              * @brief Finalizes the ExaGeoStat hardware.
@@ -42,7 +41,7 @@ namespace exageostat {
              * @return void
              *
              */
-            static void ExaGeoStatFinalizeHardware(configurations::Configurations *apConfigurations);
+            static void ExaGeoStatFinalizeHardware();
 
             /**
              * @brief Generates Data whether it's synthetic data or real.
@@ -50,16 +49,15 @@ namespace exageostat {
              * @return void
              *
              */
-            static dataunits::Locations * ExaGeoStatGenerateData(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
+            static dataunits::Locations * ExaGeoStatGenerateData();
 
             /**
              * @brief Models Data whether it's synthetic data or real.
-             * @param[in] apConfigurations Pointer to the configurations object.
              * @param[in] apDataLocations Pointer to Data Locations.
              * @return void
              *
              */
-            static void ExaGeoStatDataModeling(configurations::data_modeling::DataModelingConfigurations *apConfigurations, dataunits::Locations *apDataLocations);
+            static void ExaGeoStatDataModeling(dataunits::Locations *apDataLocations);
 
         private:
             /**

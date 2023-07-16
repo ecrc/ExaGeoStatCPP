@@ -13,12 +13,10 @@
 **/
 
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 
 using namespace std;
 
 using namespace exageostat::linearAlgebra;
-using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
 
 
@@ -33,25 +31,25 @@ using namespace exageostat::common;
  * @return The status code of the program.
  */
 int main(int argc, char **argv) {
-
-    // Create an instance of the synthetic_data_configurations class with user-defined configurations.
-    SyntheticDataConfigurations synthetic_data_configurations;
-    synthetic_data_configurations.InitializeArguments(argc, argv);
-
-    // Create and initialize linear algebra solvers for different precision types.
-    if (synthetic_data_configurations.GetPrecision() == SINGLE) {
-        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
-                synthetic_data_configurations.GetComputation());
-        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-        linearAlgebraSolver->InitiateDescriptors();
-    } else if (synthetic_data_configurations.GetPrecision() == DOUBLE) {
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
-                synthetic_data_configurations.GetComputation());
-        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
-        linearAlgebraSolver->InitiateDescriptors();
-    } else if (synthetic_data_configurations.GetPrecision() == MIXED) {
-        // TODO: Add implementation for mixed-precision linear algebra solver.
-        throw domain_error("Mix precision is not supported for now.");
-    }
+//
+//    // Create an instance of the synthetic_data_configurations class with user-defined configurations.
+//    SyntheticDataConfigurations synthetic_data_configurations;
+//    synthetic_data_configurations.InitializeArguments(argc, argv);
+//
+//    // Create and initialize linear algebra solvers for different precision types.
+//    if (synthetic_data_configurations.GetPrecision() == SINGLE) {
+//        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(
+//                synthetic_data_configurations.GetComputation());
+//        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+//        linearAlgebraSolver->InitiateDescriptors();
+//    } else if (synthetic_data_configurations.GetPrecision() == DOUBLE) {
+//        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(
+//                synthetic_data_configurations.GetComputation());
+//        linearAlgebraSolver->SetConfigurations(&synthetic_data_configurations);
+//        linearAlgebraSolver->InitiateDescriptors();
+//    } else if (synthetic_data_configurations.GetPrecision() == MIXED) {
+//        // TODO: Add implementation for mixed-precision linear algebra solver.
+//        throw domain_error("Mix precision is not supported for now.");
+//    }
     return 0;
 }
