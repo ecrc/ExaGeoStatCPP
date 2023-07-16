@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -34,7 +33,8 @@ if (NOT TARGET HCORE_FOUND)
         set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/HCORE)
         set(ISCMAKE ON)
         set(ISGIT ON)
-        BuildDependency(HCORE "https://github.com/ecrc/hcore.git" "v0.1.3" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        set(AUTO_GEN OFF)
+        BuildDependency(HCORE "https://github.com/ecrc/hcore.git" "v0.1.3" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         set(FLAGS "")
         find_package(HCORE REQUIRED)
     endif()

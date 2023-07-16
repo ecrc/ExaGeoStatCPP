@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -34,7 +33,8 @@ if (NOT TARGET GSL_FOUND)
         set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/)
         set(ISCMAKE OFF)
         set(ISGIT OFF)
-        BuildDependency(GSL "https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz" "v2.6" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        set(AUTO_GEN OFF)
+        BuildDependency(GSL "https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz" "v2.6" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         set(FLAGS "")
         find_package(GSL REQUIRED)
     endif()
@@ -44,5 +44,8 @@ endif()
 
 # Add the GSL library to the project's list of libraries.
 list(APPEND LIBS ${GSL_LIBRARIES})
+set(ENV{CPATH} "${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/include:$ENV{CPATH}")
+include_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/include)
+link_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/lib)
 
 message(STATUS "GSL done")

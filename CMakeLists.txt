@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (C) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -19,11 +18,23 @@ cmake_policy(SET CMP0048 NEW)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+# Select toolchain based on whether CUDA is enabled or not
+if (USE_CUDA)
+    # Enable CUDA and include CudaToolchain
+    add_definitions(-DUSE_CUDA=TRUE)
+    enable_language(CUDA)
+    include(toolchains/CudaToolchain)
+    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
+    set(BLA_VENDOR NVHPC)
+else ()
+    message("-- Build x86 Support")
+    # Include GccToolchain for non-CUDA builds - Gcc
+    include(toolchains/GccToolchain)
+endif ()
+
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
-
-# Show the current version of CMake.
-message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 
 # Set project options
 option(USE_CUDA "Use Cuda, if available" false)
@@ -33,37 +44,22 @@ option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
 option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
 option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
-# Select toolchain based on whether CUDA is enabled or not
-if (USE_CUDA)
-    message("-- Build CUDA Support")
-    # Enable CUDA and include CudaToolchain
-    add_definitions(-DUSE_CUDA=TRUE)
-    enable_language(CUDA)
-    include(toolchains/CudaToolchain)
-    # Import CuSolver and Lapack libraries
-    include(ImportCuSolver)
-    unset(BLA_VENDOR)
-    include(ImportLapack)
-    set(LIBS
-        LAPACK::LAPACK
-        ${LIBS}
-        )
-    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
-    set(BLA_VENDOR NVHPC)
-else ()
-    message("-- Build x86 Support")
-    # Include GccToolchain for non-CUDA builds - Gcc
-    include(toolchains/GccToolchain)
-endif ()
-
+# Show the current version of CMake.
+message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
 
+# Add all dependencies for ExaGeoStat PP
+include(ImportGFortran)
+include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
+    # Import CuSolver and Lapack libraries
     include(ImportCuSolver)
+    include(ImportBlasPP)
     unset(BLA_VENDOR)
     include(ImportLapack)
+
     set(LIBS
             LAPACK::LAPACK
             ${LIBS}
@@ -71,16 +67,17 @@ if (USE_CUDA)
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE "none" FORCE)
+    unset(BLA_VENDOR)
 endif ()
 
 # Add all dependencies for Exageostat
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
-if(USE_MPI)
+if (USE_MPI)
     message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
-endif()
+endif ()
 
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
@@ -98,13 +95,6 @@ include(ImportGSL)
 # EXAGEOSTAT depends on a NLOPT
 # -------------------------------
 include(ImportNLOPT)
-
-# EXAGEOSTAT depends on a LAPACKE
-# -------------------------------
-find_package(LAPACKE)
-list(APPEND LIBS  ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
 
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
@@ -124,24 +114,44 @@ if (EXAGEOSTAT_USE_CHAMELEON)
     include(ImportChameleon)
 endif ()
 
+# EXAGEOSTAT depends on a LAPACKE
+# -------------------------------
+include(ImportBlas)
+include(ImportLapack)
+
+find_package(LAPACKE)
+list(APPEND LIBS ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
+
 
 # EXAGEOSTAT DOCUMENTATIONS
-if(EXAGEOSTAT_BUILD_DOCS)
+if (EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
 
-    if(DOXYGEN_FOUND)
+    if (DOXYGEN_FOUND)
         add_subdirectory("docs")
-    else()
+    else ()
         message(STATUS "Doxygen NOT found, skipping it")
-    endif()
-endif()
+    endif ()
+endif ()
 
 # Include directories for Exageostat-cpp
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
+set(MY_LOGGER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+add_definitions(-DMY_LOGGER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)
+
+# Creates a new INTERFACE library target named ${PROJECT_NAME}_INTERFACE.
+# The INTERFACE keyword specifies that this library will not be built, but instead will only be used for its properties.
+add_library(${PROJECT_NAME}_INTERFACE INTERFACE)
+target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME})
+# Add linker options to the target
+target_link_options(${PROJECT_NAME}_INTERFACE INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:${PROJECT_NAME}> -Wl,--no-whole-archive")
+
 # Install headers
 install(TARGETS exageostatcpp
         DESTINATION lib/
@@ -164,7 +174,6 @@ endif ()
 
 # Print installation path of Exageostat.
 message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
-
 # Installation actions
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 ## Install cmake find package.
@@ -217,4 +226,14 @@ if (EXAGEOSTAT_PACKAGE)
     set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
     set(CPACK_SOURCE_IGNORE_FILES "bin;.git;.gitmodules;Jenkinsfile")
     include(CPack)
-endif()
+endif ()
+
+message(" \n \t ** Configurations of ExaGeoStat and installation of dependence is done successfully ** ")
+message("\t Export the following line to avoid re-install dependencies each time, This line assume that you haven't changed the installation path. ")
+message("\t If not, Please change the following paths with your installation path. \n")
+message("\t ------------------------------------------------------------------------------------------------------------------------------- ")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/CHAMELEON/lib/pkgconfig:$PWD/installdir/_deps/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/HCORE/lib/pkgconfig:$PWD/installdir/_deps/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/HWLOC/lib/pkgconfig:$PWD/installdir/_deps/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/STARPU/lib/pkgconfig:$PWD/installdir/_deps/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")

@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -16,6 +15,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generation)
 # Add the Configurations.cpp file to the list of source files.
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Configurations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/data-modeling/DataModelingConfigurations.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

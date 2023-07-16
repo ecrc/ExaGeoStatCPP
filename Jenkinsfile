@@ -23,6 +23,8 @@ pipeline {
                             module purge
                             module load gcc/10.2.0
                             module load cmake/3.21.2
+                            ####################################################
+
                             ./config.sh -t -e -C
                             ./clean_build.sh
                         '''
@@ -39,7 +41,7 @@ pipeline {
                             module load gcc/10.2.0
                             module load cmake/3.21.2
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
@@ -60,6 +62,8 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
+                            ####################################################
+
                             set -x
                             ./config.sh -t -e -C
                             ./clean_build.sh
@@ -82,7 +86,7 @@ pipeline {
                             ####################################################
                             module load mkl/2020.0.166
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }
@@ -99,6 +103,8 @@ pipeline {
                             # BLAS/LAPACK
                             ####################################################
                             module load mkl/2020.0.166
+                            ####################################################
+
                             set -x
                             ./config.sh -t -e -H
                             ./clean_build.sh
@@ -122,7 +128,7 @@ pipeline {
                             module load mkl/2020.0.166
                             module load gsl/2.6-gcc-10.2.0
                             cd bin/
-                            make test
+                            ctest --no-compress-output --verbose
                             '''
                     }
                 }

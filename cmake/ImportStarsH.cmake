@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -30,7 +29,8 @@ if (NOT TARGET STARSH_FOUND)
         set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/STARSH/ \-DSTARPU=OFF \-DMPI=${USE_MPI})
         set(ISCMAKE ON)
         set(ISGIT ON)
-        BuildDependency(STARSH "https://github.com/ecrc/stars-h.git" "v0.3.1" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        set(AUTO_GEN OFF)
+        BuildDependency(STARSH "https://github.com/ecrc/stars-h.git" "v0.3.1" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         set(FLAGS "")
         find_package(STARSH REQUIRED)
     endif()

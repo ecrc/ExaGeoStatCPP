@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -9,5 +8,12 @@
 # @author Sameh Abdulah
 # @date 2023-01-31
 
-#add_executable(Example_Synthetic_Data_Generation ${CMAKE_CURRENT_SOURCE_DIR}/data-generation/synthetic_data.cpp)
-#target_link_libraries(Example_Synthetic_Data_Generation EXAGEOSTAT-LIB)
+# Define the target executable
+add_executable(Example_Data_Generation ${CMAKE_CURRENT_SOURCE_DIR}/DataGeneration.cpp)
+add_executable(Example_Data_Modeling ${CMAKE_CURRENT_SOURCE_DIR}/DataModeling.cpp)
+add_executable(Example_Data_Generation_and_Modeling ${CMAKE_CURRENT_SOURCE_DIR}/DataGenerationAndModeling.cpp)
+
+# Link the target executable with the project and any additional libraries
+target_link_libraries(Example_Data_Generation PRIVATE ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)
+target_link_libraries(Example_Data_Modeling PRIVATE ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)
+target_link_libraries(Example_Data_Generation_and_Modeling PRIVATE ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)

@@ -1,7 +1,6 @@
 
 /*
  * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * Copyright (C) 2023 by Brightskies inc,
  * All rights reserved.
  * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
  */
@@ -14,20 +13,15 @@
  * @date 2023-02-03
 **/
 
+#include <algorithm>
+#include <vector>
+
 #include <configurations/data-generation/DataConfigurations.hpp>
-#include <utility>
+
+using namespace std;
 
 using namespace exageostat::configurations::data_configurations;
-using namespace std;
 using namespace exageostat::common;
-
-string DataConfigurations::GetKernel() {
-    return this->mKernel;
-}
-
-void DataConfigurations::SetKernel(std::string aKernel) {
-    this->mKernel = std::move(aKernel);
-}
 
 void DataConfigurations::SetIsSynthetic(bool aIsSynthetic) {
     this->mIsSynthetic = aIsSynthetic;
@@ -37,13 +31,35 @@ bool DataConfigurations::GetIsSynthetic() const {
     return this->mIsSynthetic;
 }
 
-void DataConfigurations::CheckKernelValue(const std::string& aKernel) {
-
-    // Finding position of input kernel in the available kernels.
-    auto position = availableKernels.find(aKernel);
-
-    // If the element is not found, then the iterator points to the position just after the last element in the set.
-    if (position == availableKernels.end()) {
-        throw range_error("Invalid value for Kernel. Please check manual.");
-    }
+void DataConfigurations::SetLowerBounds(std::vector<double> &apTheta) {
+    this->mLowerBounds = apTheta;
 }
+
+std::vector<double> &DataConfigurations::GetLowerBounds() {
+    return this->mLowerBounds;
+}
+
+void DataConfigurations::SetUpperBounds(std::vector<double> &apTheta) {
+    this->mUpperBounds = apTheta;
+}
+
+std::vector<double> &DataConfigurations::GetUpperBounds() {
+    return this->mUpperBounds;
+}
+
+void DataConfigurations::SetStartingTheta(std::vector<double> &apTheta) {
+    this->mStartingTheta = apTheta;
+}
+
+std::vector<double> &DataConfigurations::GetStartingTheta() {
+    return this->mStartingTheta;
+}
+
+void DataConfigurations::SetTargetTheta(std::vector<double> &apTheta) {
+    this->mTargetTheta = apTheta;
+}
+
+std::vector<double> &DataConfigurations::GetTargetTheta() {
+    return this->mTargetTheta;
+}
+

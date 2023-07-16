@@ -1,6 +1,5 @@
 
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
-# Copyright (c) 2023 by Brightskies inc,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -27,12 +26,13 @@ if (NOT TARGET CHAMELEON_FOUND)
     else ()
         message("   Can't find Chameleon, Installing it instead ..")
         # Set installation flags
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/ \-DCHAMELEON_USE_CUDA=${USE_CUDA} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON)
+        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/ \-DCHAMELEON_USE_CUDA=${USE_CUDA} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON \-DCHAMELEON_ENABLE_TESTING=OFF)
         set(ISCMAKE ON)
         set(ISGIT ON)
+        set(AUTO_GEN OFF)
         # Install Chameleon
         set(CHAMELEON_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/CHAMELEON/)
-        BuildDependency(CHAMELEON "https://gitlab.inria.fr/solverstack/chameleon.git" "v1.1.0" ${FLAGS} ${ISCMAKE} ${ISGIT})
+        BuildDependency(CHAMELEON "https://gitlab.inria.fr/solverstack/chameleon.git" "v1.1.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         # Reset flags
         set(FLAGS "")
         find_package(CHAMELEON REQUIRED)
@@ -49,7 +49,7 @@ include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
 include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)
 
 if (CHAMELEON_LINKER_FLAGS)
-    list(APPEND CMAKE_EXE_LINKER_FLAGS "${CHAMELEON_LINKER_FLAGS}")
+    list(APPEND CMAKE_EXE_LINKER_FLAGS "${CHAMELEON_LINKER_FLAGS} ")
 endif ()
 if (CHAMELEON_LIBRARY_DIRS)
     # the RPATH to be used when installing
