@@ -17,25 +17,30 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-BivariateSpacetimeMaternStationary::BivariateSpacetimeMaternStationary() {
+template<typename T>
+BivariateSpacetimeMaternStationary<T>::BivariateSpacetimeMaternStationary() {
     this->mP = 2;
     this->mParametersNumber = 10;
 }
 
-Kernel *BivariateSpacetimeMaternStationary::Create() {
+template<typename T>
+Kernel<T> *BivariateSpacetimeMaternStationary<T>::Create() {
     return new BivariateSpacetimeMaternStationary();
 }
 
 namespace exageostat::kernels {
-    bool BivariateSpacetimeMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "BivariateSpacetimeMaternStationary", BivariateSpacetimeMaternStationary::Create);
+    template<typename T> bool BivariateSpacetimeMaternStationary<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "BivariateSpacetimeMaternStationary", BivariateSpacetimeMaternStationary<T>::Create);
 }
 
+template<typename T>
 void
-BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                             int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                             Locations *apLocation2, Locations *apLocation3,
-                                                             double *aLocalTheta, int &aDistanceMetric) {
+BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                int &aRowOffset, int &aColumnOffset,
+                                                                Locations<T> *apLocation1,
+                                                                Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                                T *aLocalTheta, int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0;

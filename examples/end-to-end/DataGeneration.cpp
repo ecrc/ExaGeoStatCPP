@@ -16,9 +16,14 @@
 
 #include <api/ExaGeoStat.hpp>
 #include <configurations/Configurations.hpp>
+#include <data-units/ExaGeoStatDescriptor.hpp>
+#include <chameleon/struct.h>
+
+using namespace std;
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;
+using namespace exageostat::common;
 
 /**
  * @brief Main entry point for the DataGeneration program.
@@ -29,21 +34,18 @@ using namespace exageostat::api;
  */
 int main(int argc, char **argv) {
 
-//    // Create a new configurations object with the provided command line arguments
-//    auto conf = Configurations::GetConfigurations()->InitializeArguments(argc, argv);
-//
-//    std::cout << "** Initialise ExaGeoStat hardware ** " << std::endl;
-//    // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
-//    ExaGeoStat<double>::ExaGeoStatInitializeHardware();
-//
-//        // class ExageostatData (descriptors that will be generated)
-//        //class LocationData
-//        //struct {Exa Loc } generation_result
-//    std::cout << "** Generate ExaGeoStat data ** " << std::endl;
-//    auto exageostat_data = ExaGeoStat<double>::ExaGeoStatGenerateData(conf);
-//
-//    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
-//    ExaGeoStat<double>::ExaGeoStatFinalizeHardware();
+    // Create a new configurations object. it needs to be a heap variable
+    auto *configurations = new Configurations();
+    //  Initialize the arguments with the provided command line arguments
+    configurations->InitializeArguments(argc, argv);
+    cout << "** Initialise ExaGeoStat hardware ** " << endl;
+    ExaGeoStat<double>::ExaGeoStatInitializeHardware(EXACT_DENSE, configurations->GetCoresNumber(),
+                                                     configurations->GetGPUsNumbers()); // Or you could use configurations.GetComputation().
+    cout << "** Generate ExaGeoStat data ** " << endl;
+    auto* data = ExaGeoStat<double>::ExaGeoStatGenerateData(configurations);
+
+    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
+    ExaGeoStat<double>::ExaGeoStatFinalizeHardware(EXACT_DENSE, data->GetDescriptorData());
 
     return 0;
 }

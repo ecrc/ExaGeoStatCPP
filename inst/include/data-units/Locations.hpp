@@ -24,6 +24,7 @@ namespace exageostat {
          * @brief A class containing methods to set and get location data.
          *
          */
+        template<typename T>
         class Locations {
         public:
             /**
@@ -34,6 +35,16 @@ namespace exageostat {
              *
              */
             Locations(int aSize, exageostat::common::Dimension aDimension);
+
+            Locations(const Locations<T> &lo) = default;
+//            // define move assignment operator
+//            Locations& operator=(Locations&& other) noexcept {
+//                // move all fields from other to this object
+//                mpLocationX = std::move(other.mpLocationX);
+//                mpLocationY = std::move(other.mpLocationY);
+//                // ...
+//                return *this;
+//            }
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
@@ -47,14 +58,14 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetLocationX(double *apLocationX);
+            void SetLocationX(T *apLocationX);
 
             /**
              * @brief Getter for LocationX.
              * @return Pointer to X data.
              *
              */
-            double *GetLocationX();
+            T *GetLocationX();
 
             /**
              * @brief Setter for LocationY.
@@ -62,14 +73,14 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetLocationY(double *apLocationY);
+            void SetLocationY(T *apLocationY);
 
             /**
              * @brief Getter for LocationY.
              * @return Pointer to Y data.
              *
              */
-            double *GetLocationY();
+            T *GetLocationY();
 
             /**
              * @brief Setter for LocationZ.
@@ -77,14 +88,14 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetLocationZ(double *apLocationZ);
+            void SetLocationZ(T *apLocationZ);
 
             /**
              * @brief Getter for LocationZ.
              * @return Pointer to Z data.
              *
              */
-            double *GetLocationZ();
+            T *GetLocationZ();
 
             /**
              * @brief Setter for mSize.
@@ -116,25 +127,26 @@ namespace exageostat {
              */
             common::Dimension GetDimension();
 
-            /**
-             * @brief Calculates Median Locations
-             */
-             Locations* CalculateMedianLocations();
-
         public:
         private:
             /// Pointer to X data.
-            double *mpLocationX = nullptr;
+            T *mpLocationX = nullptr;
             /// Pointer to Y data.
-            double *mpLocationY = nullptr;
+            T *mpLocationY = nullptr;
             /// Pointer to Z data.
-            double *mpLocationZ = nullptr;
+            T *mpLocationZ = nullptr;
             /// Size of each dimension
             int mSize;
             /// Data dimensions
             common::Dimension mDimension;
         };
 
+        /**
+        * @brief Instantiates the Linear Algebra methods class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
+        EXAGEOSTAT_INSTANTIATE_CLASS(Locations)
     }//namespace configurations
 }//namespace exageostat
 

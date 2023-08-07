@@ -17,24 +17,29 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternDdbetaBeta::UnivariateMaternDdbetaBeta() {
+template<typename T>
+UnivariateMaternDdbetaBeta<T>::UnivariateMaternDdbetaBeta() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternDdbetaBeta::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternDdbetaBeta<T>::Create() {
     return new UnivariateMaternDdbetaBeta();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternDdbetaBeta::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternDdbetaBeta", UnivariateMaternDdbetaBeta::Create);
+    template<typename T> bool UnivariateMaternDdbetaBeta<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternDdbetaBeta", UnivariateMaternDdbetaBeta<T>::Create);
 }
 
-void UnivariateMaternDdbetaBeta::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                          int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                          Locations *apLocation2, Locations *apLocation3,
-                                                          double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternDdbetaBeta<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                             int &aRowOffset, int &aColumnOffset,
+                                                             Locations<T> *apLocation1,
+                                                             Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                             T *aLocalTheta, int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -57,34 +62,34 @@ void UnivariateMaternDdbetaBeta::GenerateCovarianceMatrix(double *apMatrixA, int
             } else {
                 beta_expr = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2])
                             * gsl_sf_bessel_Knu(aLocalTheta[2], expr) - pow(expr, aLocalTheta[2])
-                                                                         * (aLocalTheta[2] / expr *
-                                                                            gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
-                                                                            gsl_sf_bessel_Knu(aLocalTheta[2] + 1,
-                                                                                              expr)) * expr /
-                                                                         aLocalTheta[1];
+                                                                        * (aLocalTheta[2] / expr *
+                                                                           gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                                                           gsl_sf_bessel_Knu(aLocalTheta[2] + 1,
+                                                                                             expr)) * expr /
+                                                                        aLocalTheta[1];
 
                 beta_expr_prime = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2])
                                   * (aLocalTheta[2] / expr * gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
                                      gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) - pow(expr, aLocalTheta[2])
-                                                                                     * (-0.5 *
-                                                                                        ((aLocalTheta[2] / expr *
-                                                                                          gsl_sf_bessel_Knu(
-                                                                                                  aLocalTheta[2],
-                                                                                                  expr) -
-                                                                                          gsl_sf_bessel_Knu(
-                                                                                                  aLocalTheta[2] + 1,
-                                                                                                  expr)) -
-                                                                                         pow(expr, aLocalTheta[2])
-                                                                                         + (aLocalTheta[2] / expr *
-                                                                                            gsl_sf_bessel_Knu(
-                                                                                                    aLocalTheta[2],
-                                                                                                    expr) -
-                                                                                            gsl_sf_bessel_Knu(
-                                                                                                    aLocalTheta[2] + 1,
-                                                                                                    expr)) -
-                                                                                         pow(expr, aLocalTheta[2])))
-                                                                                     * expr /
-                                                                                     aLocalTheta[1];
+                                                                                    * (-0.5 *
+                                                                                       ((aLocalTheta[2] / expr *
+                                                                                         gsl_sf_bessel_Knu(
+                                                                                                 aLocalTheta[2],
+                                                                                                 expr) -
+                                                                                         gsl_sf_bessel_Knu(
+                                                                                                 aLocalTheta[2] + 1,
+                                                                                                 expr)) -
+                                                                                        pow(expr, aLocalTheta[2])
+                                                                                        + (aLocalTheta[2] / expr *
+                                                                                           gsl_sf_bessel_Knu(
+                                                                                                   aLocalTheta[2],
+                                                                                                   expr) -
+                                                                                           gsl_sf_bessel_Knu(
+                                                                                                   aLocalTheta[2] + 1,
+                                                                                                   expr)) -
+                                                                                        pow(expr, aLocalTheta[2])))
+                                                                                    * expr /
+                                                                                    aLocalTheta[1];
                 apMatrixA[i + j * aRowsNumber] =
                         (aLocalTheta[2] / pow(aLocalTheta[1], 2) * pow(expr, aLocalTheta[2]) *
                          gsl_sf_bessel_Knu(aLocalTheta[2], expr)

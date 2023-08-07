@@ -17,25 +17,27 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternDdnuNu::UnivariateMaternDdnuNu() {
-    /// TODO: FIX THEIR VALUES
+template<typename T>
+UnivariateMaternDdnuNu<T>::UnivariateMaternDdnuNu() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternDdnuNu::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternDdnuNu<T>::Create() {
     return new UnivariateMaternDdnuNu();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternDdnuNu::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternDdnuNu", UnivariateMaternDdnuNu::Create);
+    template<typename T> bool UnivariateMaternDdnuNu<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternDdnuNu", UnivariateMaternDdnuNu<T>::Create);
 }
 
-void UnivariateMaternDdnuNu::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                        int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                        Locations *apLocation2, Locations *apLocation3,
-                                                        double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternDdnuNu<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                      int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
+                                                      Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                      T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;

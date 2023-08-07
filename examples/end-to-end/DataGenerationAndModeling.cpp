@@ -19,29 +19,39 @@
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;
+using namespace std;
+using namespace exageostat::common;
 
-/**
- * @brief Main entry point for the Data Generation & Data Modeling program.
- * @details This function generates synthetic data using the ExaGeoStat library and models it.
- * @param argc The number of command line arguments.
- * @param argv An array of command line argument strings.
- * @return An integer indicating the success or failure of the program.
- */
-int main(int argc, char **argv) {
 
-    // Creating Synthetic data configurations.
-//    Configurations *configurations = new SyntheticDataConfigurations(argc, argv);
+    /**
+     * @brief Main entry point for the Data Generation & Data Modeling program.
+     * @details This function generates synthetic data using the ExaGeoStat library and models it.
+     * @param argc The number of command line arguments.
+     * @param argv An array of command line argument strings.
+     * @return An integer indicating the success or failure of the program.
+     */
+    int main(int argc, char **argv) {
 
-    std::cout << "** Initialise ExaGeoStat hardware ** " << std::endl;
-    ExaGeoStat<double>::ExaGeoStatInitializeHardware();
+        // Create a new configurations object. it needs to be a heap variable
+        auto *configurations = new Configurations();
 
-    std::cout << "** ExaGeoStat Data Generation ** " << std::endl;
-    exageostat::dataunits::Locations *data = ExaGeoStat<double>::ExaGeoStatGenerateData();
-//    ExaGeoStat<double>::ExaGeoStatDataModeling( data);
+        //  Initialize the arguments with the provided command line arguments
+        configurations->InitializeArguments(argc, argv);
 
-    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
-    ExaGeoStat<double>::ExaGeoStatFinalizeHardware();
+        cout << "** Initialise ExaGeoStat hardware ** " << endl;
+        ExaGeoStat<double>::ExaGeoStatInitializeHardware(EXACT_DENSE, configurations->GetCoresNumber(),
+                                                         configurations->GetGPUsNumbers());
+        cout << "** Generate ExaGeoStat data ** " << endl;
+        auto* data = ExaGeoStat<double>::ExaGeoStatGenerateData(configurations);
 
-//    delete configurations;
-    return 0;
-}
+        cout << "** ExaGeoStat data Modeling** " << endl;
+        ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
+
+        std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
+        ExaGeoStat<double>::ExaGeoStatFinalizeHardware(EXACT_DENSE, data->GetDescriptorData());
+
+        //TODO: data freeing method should be here !
+        delete data;
+        return 0;
+    }
+

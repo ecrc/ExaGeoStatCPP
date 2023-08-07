@@ -17,24 +17,28 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateExpNonGaussian::UnivariateExpNonGaussian() {
+template<typename T>
+UnivariateExpNonGaussian<T>::UnivariateExpNonGaussian() {
     this->mP = 1;
     this->mParametersNumber = 6;
 }
 
-Kernel *UnivariateExpNonGaussian::Create() {
+template<typename T>
+Kernel<T> *UnivariateExpNonGaussian<T>::Create() {
     return new UnivariateExpNonGaussian();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateExpNonGaussian::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateExpNonGaussian", UnivariateExpNonGaussian::Create);
+    template<typename T> bool UnivariateExpNonGaussian<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateExpNonGaussian", UnivariateExpNonGaussian<T>::Create);
 }
 
-void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                            int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                            Locations *apLocation2, Locations *apLocation3,
-                                                            double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateExpNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                           int &aRowOffset, int &aColumnOffset,
+                                                           Locations<T> *apLocation1,
+                                                           Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                           T *aLocalTheta, int &aDistanceMetric) {
 
     int i, j;
     int i0 = aRowOffset;
@@ -47,7 +51,7 @@ void UnivariateExpNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int &
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0];
+            expr = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0];
 
             if (expr == 0)
                 apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;

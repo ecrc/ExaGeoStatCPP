@@ -34,8 +34,7 @@
  */
 #define FAILURE_LOGGER(failed, msg) \
     if (failed){ \
-        std::cout << msg << std::endl; \
-        exit(EXIT_FAILURE);\
+        throw std::runtime_error(msg);\
     }
 
 #endif //EXAGEOSTATCPP_UTILS_HPP
@@ -85,12 +84,12 @@
 /**
  * Timing macro to start timing.
  */
-#define START_TIMING(_t)     _t = cWtime();
+#define START_TIMING(_t)     _t =- cWtime();
 
 /**
  * Timing macro to stop timing.
  */
-#define STOP_TIMING(_t)      _t +=  cWtime() - _t;
+#define STOP_TIMING(_t)      _t +=  cWtime();
 
 //// TODO: Revisit this part!
 inline __time_t cWtime()
@@ -99,4 +98,43 @@ inline __time_t cWtime()
     struct timeval tp;
     gettimeofday(&tp, nullptr);
     return tp.tv_sec + 1e-6 * tp.tv_usec;
+}
+
+/**
+ * @brief print the summary of MLE inputs.
+ * @param N Number of Locations
+ * @param ncores Number of Threads per node
+ * @param gpus GPUs
+ * @param ts Dense Tile Size
+ * @param computation
+ * @param p_grid
+ * @param q_grid
+ * @param precision Double or Single Precision
+ * @return void
+ */
+inline void PrintSummary(int N, int ncores, int gpus, int ts, exageostat::common::Computation computation, int p_grid, int q_grid, exageostat::common::Precision precision)
+
+{
+#if defined(CHAMELEON_USE_MPI)
+    if ( MORSE_My_Mpi_Rank() == 0 )
+    {
+#endif
+    fprintf(stderr, "********************SUMMARY**********************\n");
+    fprintf(stderr, "#Synthetic Dataset\n");
+    fprintf(stderr, "Number of Locations: %d\n", N);
+    fprintf(stderr, "#Threads per node: %d\n", ncores);
+    fprintf(stderr, "#GPUs: %d\n", gpus);
+    if (precision == 1)
+        fprintf(stderr, "#Double Precision!\n");
+    else if (precision == 0)
+        fprintf(stderr, "#Single Precision!\n");
+    else if (precision == 2)
+        fprintf(stderr, "#Single/Double Precision!\n");
+    fprintf(stderr, "#Dense Tile Size: %d\n", ts);
+    fprintf(stderr, "#exact computation\n");
+    fprintf(stderr, "p=%d, q=%d\n", p_grid, q_grid);
+    fprintf(stderr, "***************************************************\n");
+#if defined(CHAMELEON_USE_MPI)
+    }
+#endif
 }

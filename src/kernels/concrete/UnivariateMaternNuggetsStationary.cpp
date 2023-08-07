@@ -19,24 +19,29 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternNuggetsStationary::UnivariateMaternNuggetsStationary() {
+template<typename T>
+UnivariateMaternNuggetsStationary<T>::UnivariateMaternNuggetsStationary() {
     this->mP = 1;
     this->mParametersNumber = 4;
 }
 
-Kernel *UnivariateMaternNuggetsStationary::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternNuggetsStationary<T>::Create() {
     return new UnivariateMaternNuggetsStationary();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternNuggetsStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternNuggetsStationary", UnivariateMaternNuggetsStationary::Create);
+    template<typename T> bool UnivariateMaternNuggetsStationary<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternNuggetsStationary", UnivariateMaternNuggetsStationary<T>::Create);
 }
 
-void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                       int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                       Locations *apLocation2, Locations *apLocation3,
-                                                       double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                    int &aRowOffset, int &aColumnOffset,
+                                                                    Locations<T> *apLocation1,
+                                                                    Locations<T> *apLocation2,
+                                                                    Locations<T> *apLocation3,
+                                                                    T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -58,7 +63,8 @@ void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatri
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 else
                     apMatrixA[i + j * aRowsNumber] =
-                            con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
+                            con * pow(expr, aLocalTheta[2]) *
+                            gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
                 j0++;
             }
             i0++;
@@ -73,7 +79,8 @@ void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatri
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 else
                     apMatrixA[i + j * aRowsNumber] =
-                            con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
+                            con * pow(expr, aLocalTheta[2]) *
+                            gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
                 j0++;
             }
             i0++;

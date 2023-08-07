@@ -21,6 +21,7 @@
 using namespace exageostat::api;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
+using namespace exageostat::configurations;
 
 /**
  * @brief Main entry point for the Data Modeling program.
@@ -31,28 +32,33 @@ using namespace exageostat::common;
  */
 int main(int argc, char **argv) {
 
-//    // Create a new data_modeling_configurations object with the provided command line arguments
-//    DataModelingConfigurations data_modeling_configurations(argc, argv);
-//
-//    //Data Setup
-//    std::cout << "** ExaGeoStat Initiation ** " << std::endl;
-//    auto* x = new double[9]{0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
-//    auto* y = new double[9]{0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
-//
-//    auto *data = new Locations(data_modeling_configurations.GetProblemSize(), exageostat::common::Dimension2D);
-//    data->SetLocationX(x);
-//    data->SetLocationY(y);
-//
-//
-//    // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
-//    ExaGeoStat<double>::ExaGeoStatInitializeHardware(&data_modeling_configurations);
-//
-//    std::cout << "** ExaGeoStat Data Modeling ** " << std::endl;
-//    ExaGeoStat<double>::ExaGeoStatDataModeling(&data_modeling_configurations, data);
-//
-//    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
-//    // Finalise ExaGeoStat context.
-//    ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&data_modeling_configurations);
+    // Create a new data_modeling_configurations object with the provided command line arguments
+    auto *configurations = new Configurations();
+    configurations->InitializeArguments(argc, argv);
+
+
+    //Data Setup
+    std::cout << "** ExaGeoStat Initiation ** " << std::endl;
+    auto* x = new double[9]{0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
+    auto* y = new double[9]{0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
+
+    auto *location = new Locations<double>(configurations->GetProblemSize(), configurations->GetDimension());
+    location->SetLocationX(x);
+    location->SetLocationY(y);
+    auto *data = new ExaGeoStatData<double>(configurations->GetProblemSize(), configurations->GetDimension()) ;
+    data->SetLocations(location);
+
+//    data->GetDescriptorData()->SetDescriptor();
+
+    // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
+    ExaGeoStat<double>::ExaGeoStatInitializeHardware(configurations->GetComputation(), configurations->GetCoresNumber(), configurations->GetGPUsNumbers());
+
+    std::cout << "** ExaGeoStat Data Modeling ** " << std::endl;
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
+
+    std::cout << "** Finalize ExaGeoStat hardware ** " << std::endl;
+    // Finalise ExaGeoStat context.
+    ExaGeoStat<double>::ExaGeoStatFinalizeHardware(configurations->GetComputation(), data->GetDescriptorData());
 
     return 0;
 }

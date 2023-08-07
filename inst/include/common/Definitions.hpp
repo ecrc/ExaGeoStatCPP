@@ -46,7 +46,7 @@ namespace exageostat {
         /**
          * Pi value.
          */
-        #define PI (3.141592653589793)
+#define PI (3.141592653589793)
 
         /**
          * @enum VerbosityLevel
@@ -73,7 +73,7 @@ namespace exageostat {
          * @enum Side
          * @brief Enum denoting the side on which the matrix appears in an equation.
          */
-        enum Side{
+        enum Side {
             EXAGEOSTAT_LEFT = 141,
             EXAGEOSTAT_RIGHT = 142
         };
@@ -82,9 +82,9 @@ namespace exageostat {
          * @enum Trans
          * @brief Enum denoting whether or not to transpose a matrix.
          */
-        enum Trans{
-            EXAGEOSTAT_NO_TRANS   = 111,
-            EXAGEOSTAT_TRANS     = 112,
+        enum Trans {
+            EXAGEOSTAT_NO_TRANS = 111,
+            EXAGEOSTAT_TRANS = 112,
             EXAGEOSTAT_CONJ_TRANS = 113
         };
 
@@ -92,15 +92,59 @@ namespace exageostat {
          * @enum Diag
          * @brief Enum denoting whether the diagonal is unitary.
          */
-        enum Diag{
+        enum Diag {
             EXAGEOSTAT_NON_UNIT = 131,
-            EXAGEOSTAT_UNIT    = 132
+            EXAGEOSTAT_UNIT = 132
         };
 
-        enum DistanceMetric{
+        enum DistanceMetric {
             EUCLIDIAN_DISTANCE = 0,
             GREAT_CIRCLE_DISTANCE = 1
         };
+
+        enum DescriptorType {
+            CHAMELEON_DESCRIPTOR = 0,
+            HICMA_DESCRIPTOR = 0
+        };
+
+        enum DescriptorName :int {
+            DESCRIPTOR_C = 0,
+            DESCRIPTOR_Z = 1,
+            DESCRIPTOR_Z_COPY = 2,
+            DESCRIPTOR_PRODUCT = 3,
+            DESCRIPTOR_DETERMINANT = 4,
+            DESCRIPTOR_CD = 5,
+            DESCRIPTOR_CUV = 6,
+            DESCRIPTOR_CRK = 7,
+            DESCRIPTOR_Z_OBSERVATIONS = 8,
+            DESCRIPTOR_Z_Actual = 9,
+            DESCRIPTOR_MSE = 10,
+            DESCRIPTOR_Z_1 = 11,
+            DESCRIPTOR_Z_2 = 12,
+            DESCRIPTOR_PRODUCT_1 = 13,
+            DESCRIPTOR_PRODUCT_2 = 14,
+            DESCRIPTOR_C11 = 15,
+            DESCRIPTOR_C12 = 16,
+            DESCRIPTOR_C22 = 17
+        };
+
+        /**
+         * @brief Matrix tile storage
+         */
+        typedef enum TileStorage {
+            EXAGOSTAT_CM = 101,
+            EXAGOSTAT_RM = 102,
+            EXAGOSTAT_CCRB = 103,
+            EXAGOSTAT_CRRB = 104,
+            EXAGOSTAT_RCRB = 105,
+            EXAGOSTAT_RRRB = 106,
+        } ExaGeoStatTileStorage;
+
+        typedef struct Tile {
+            int8_t format;
+            int    m, n, ld;
+            void  *mat;
+        } ExaGeoStatTile;
 
         /**
          * @enum Computation

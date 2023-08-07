@@ -19,8 +19,8 @@
 #include <memory>
 
 #include <data-units/Locations.hpp>
-#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <kernels/Kernel.hpp>
 
 namespace exageostat {
@@ -47,56 +47,27 @@ namespace exageostat {
             GenerateLocations() = 0;
 
             /**
-             * @brief Generates the data descriptors.
-             * @details This method generates the descriptors used to define the properties of the data points.
-             * @return void
-             *
-             */
-            virtual void
-            GenerateDescriptors() = 0;
-
-            /**
-             * @brief Destroys the data descriptors.
-             * @details This method frees the memory used by the data descriptors.
-             * @return void
-             *
-             */
-            virtual void DestroyDescriptors() = 0;
-
-            /**
-             * @brief Generates the data observations.
-             * @details This method generates the observations of the data points, which are used to train and test the model.
-             * @return void
-             *
-             */
-            virtual void
-            GenerateObservations() = 0;
-
-            /**
              * @brief Factory method for creating a data generator object.
              * @details This method creates a data generator object based on the specified configurations.
              * @param[in] apConfigurations Pointer to the synthetic data configurations.
              * @return A unique pointer to the created data generator object.
              *
              */
-            static std::unique_ptr<DataGenerator>
-            CreateGenerator();
+            static std::unique_ptr<DataGenerator> CreateGenerator(exageostat::configurations::Configurations *apConfigurations);
 
             /**
               * @brief Gets the data locations object.
               * @return A pointer to the locations object.
               *
               */
-            dataunits::Locations *
-            GetLocations();
+            dataunits::Locations<T> *GetLocations();
 
             /**
              * @brief Gets the kernel object used to compute the covariance matrix.
              * @return A pointer to the kernel object.
              *
              */
-            exageostat::kernels::Kernel *
-            GetKernel();
+            exageostat::kernels::Kernel<T> *GetKernel();
 
             /**
              * @brief Destructor for the data generator object.
@@ -105,20 +76,13 @@ namespace exageostat {
              */
             virtual ~DataGenerator();
 
-            /**
-             * @brief Gets the linear algebra solver object.
-             * @return A pointer to the linear algebra solver object.
-             *
-             */
-            static linearAlgebra::LinearAlgebraMethods<T> *GetLinearAlgberaSolver();
-
         protected:
             /// Pointer to Locations object
-            dataunits::Locations *mpLocations = nullptr;
+            dataunits::Locations<T> *mpLocations = nullptr;
             /// Pointer to Kernel object
-            exageostat::kernels::Kernel *mpKernel = nullptr;
-            /// Pointer to LinearAlgebraMethods object
-            static linearAlgebra::LinearAlgebraMethods<T> *mpLinearAlgebraSolver;
+            exageostat::kernels::Kernel<T> *mpKernel = nullptr;
+            /// Pointer to Configurations object
+            exageostat::configurations::Configurations * mpConfigurations = nullptr; // [in] Used Synthetic Configuration.
         };
 
         /**

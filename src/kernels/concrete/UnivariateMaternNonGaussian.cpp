@@ -17,24 +17,28 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternNonGaussian::UnivariateMaternNonGaussian() {
+template<typename T>
+UnivariateMaternNonGaussian<T>::UnivariateMaternNonGaussian() {
     this->mP = 1;
     this->mParametersNumber = 6;
 }
 
-Kernel *UnivariateMaternNonGaussian::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternNonGaussian<T>::Create() {
     return new UnivariateMaternNonGaussian();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternNonGaussian::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternNonGaussian", UnivariateMaternNonGaussian::Create);
+    template<typename T> bool UnivariateMaternNonGaussian<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternNonGaussian", UnivariateMaternNonGaussian<T>::Create);
 }
 
-void UnivariateMaternNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                      int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                      Locations *apLocation2, Locations *apLocation3,
-                                                      double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                              int &aRowOffset, int &aColumnOffset,
+                                                              Locations<T> *apLocation1,
+                                                              Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                              T *aLocalTheta, int &aDistanceMetric) {
     //localtheta[0] <- \phi
     //localtheta[1] <- \nu
     int i, j;

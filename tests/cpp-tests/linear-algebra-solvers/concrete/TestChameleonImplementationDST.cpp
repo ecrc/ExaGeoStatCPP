@@ -31,11 +31,12 @@ using namespace std;
 void INIT_FINALIZE_HARDWARE_DST() {
 
     ChameleonImplementationDST<double> chameleonImpl;
-    auto configurations = Configurations::GetConfigurations();
-    configurations->SetCoresNumber(4);
-    configurations->SetGPUsNumbers(0);
+    Configurations configurations;
+    configurations.SetCoresNumber(4);
+    configurations.SetGPUsNumbers(0);
+
     // Initialise the context
-    chameleonImpl.ExaGeoStatInitContext();
+    chameleonImpl.ExaGeoStatInitContext(configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
     CHAM_context_t *chameleonContext1 = chameleon_context_self();
     REQUIRE(chameleonContext1 != nullptr);
 
@@ -46,67 +47,6 @@ void INIT_FINALIZE_HARDWARE_DST() {
     // Test using operations without initialise Hardware.
     REQUIRE_THROWS_WITH(chameleonImpl.InitiateDescriptors(),
                         "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
-}
-
-// Test that the function initializes all the required descriptors without errors.
-void TEST_DESCRIPTORS_INITIALIZATION_DST() {
-
-    auto synthetic_data_configurations = Configurations::GetConfigurations();
-    synthetic_data_configurations->SetComputation(exageostat::common::DIAGONAL_APPROX);
-    synthetic_data_configurations->SetKernelName("UnivariateMaternStationary");
-    synthetic_data_configurations->InitializeDataGenerationArguments();
-
-    SECTION("Single") {
-
-        // Initialise Hardware.
-        exageostat::api::ExaGeoStat<float>::ExaGeoStatInitializeHardware();
-        auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-
-        synthetic_data_configurations->SetProblemSize(10);
-        synthetic_data_configurations->SetDenseTileSize(6);
-
-        linearAlgebraSolver->InitiateDescriptors();
-//
-//        REQUIRE(synthetic_data_configurations->GetDescriptorC()[0] != nullptr);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorZ()[0] != nullptr);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorProduct()[0] != nullptr);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorZcpy() != nullptr);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorDeterminant() != nullptr);
-
-        // Finalise Hardware.
-//        exageostat::api::ExaGeoStat<float>::ExaGeoStatFinalizeHardware();
-    }
-
-//    SECTION("Double") {
-//        // Initialise Hardware.
-//        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware();
-//
-//        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-//
-//        synthetic_data_configurations->SetProblemSize(24);
-//        synthetic_data_configurations->SetDenseTileSize(4);
-//
-//        linearAlgebraSolver->InitiateDescriptors();
-//
-//        REQUIRE(synthetic_data_configurations->GetDescriptorC().size() == 1);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorZ().size() == 1);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorProduct().size() == 3);
-//
-//        for (auto &descriptorC: synthetic_data_configurations->GetDescriptorC()) {
-//            REQUIRE(descriptorC != nullptr);
-//        }
-//        for (auto &i: synthetic_data_configurations->GetDescriptorZ()) {
-//            REQUIRE(i != nullptr);
-//        }
-//        for (auto &i: synthetic_data_configurations->GetDescriptorProduct()) {
-//            REQUIRE(i != nullptr);
-//        }
-//        REQUIRE(synthetic_data_configurations->GetDescriptorZcpy() != nullptr);
-//        REQUIRE(synthetic_data_configurations->GetDescriptorDeterminant() != nullptr);
-//
-//        // Finalise Hardware.
-//        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware();
-//    }
 }
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.

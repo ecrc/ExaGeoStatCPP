@@ -20,6 +20,7 @@ extern "C" {
 }
 
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+#include "data-units/ExaGeoStatData.hpp"
 
 using namespace std;
 
@@ -31,24 +32,23 @@ using namespace exageostat::helpers;
 using namespace exageostat::configurations;
 
 template<typename T>
-void ChameleonImplementationDST<T>::InitiateDescriptors() {
+void ChameleonImplementationDST<T>::InitiateDescriptors(configurations::Configurations *apConfigurations, dataunits::DescriptorData<T> *apDescriptorData) {
 
-    auto configurations = Configurations::GetConfigurations();
-    
-    // Check for Initialise the Chameleon context.
-    if (!this->apContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
-    }
-    vector<void *> &pDescriptorC = configurations->GetDescriptorC();
-//    vector<void *> &pDescriptorZ = configurations->GetDescriptorZ();
-//    auto pChameleonDescriptorZcpy = &configurations->GetDescriptorZcpy();
-//    vector<void *> &pDescriptorProduct = configurations->GetDescriptorProduct();
-//    auto pChameleonDescriptorDeterminant = &configurations->GetDescriptorDeterminant();
-//
-    auto temp= &pDescriptorC;
-    delete temp;
-    pDescriptorC.push_back(nullptr);
+//    
+//    // Check for Initialise the Chameleon context.
+//    if (!this->apContext) {
+//        throw std::runtime_error(
+//                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+//    }
+//    vector<void *> &pDescriptorC = configurations->GetDescriptorC();
+////    vector<void *> &pDescriptorZ = configurations->GetDescriptorZ();
+////    auto pChameleonDescriptorZcpy = &configurations->GetDescriptorZcpy();
+////    vector<void *> &pDescriptorProduct = configurations->GetDescriptorProduct();
+////    auto pChameleonDescriptorDeterminant = &configurations->GetDescriptorDeterminant();
+////
+//    auto temp= &pDescriptorC;
+//    delete temp;
+//    pDescriptorC.push_back(nullptr);
 
 //    auto **pChameleonDescriptorC = &pDescriptorC[0];
 //
@@ -110,13 +110,13 @@ void ChameleonImplementationDST<T>::InitiateDescriptors() {
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::ExaGeoStatInitContext() {
+void ChameleonImplementationDST<T>::ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) {
 
-    if (!this->apContext) {
-        CHAMELEON_user_tag_size(31, 26);
-        CHAMELEON_Init(Configurations::GetConfigurations()->GetCoresNumber(), Configurations::GetConfigurations()->GetGPUsNumbers())
-        this->apContext = chameleon_context_self();
-    }
+//    if (!this->apContext) {
+//        CHAMELEON_user_tag_size(31, 26);
+//        CHAMELEON_Init(Configurations::GetConfigurations()->GetCoresNumber(), Configurations::GetConfigurations()->GetGPUsNumbers())
+//        this->apContext = chameleon_context_self();
+//    }
 }
 
 template<typename T>
@@ -133,213 +133,212 @@ void ChameleonImplementationDST<T>::ExaGeoStatFinalizeContext() {
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(void *apDescriptor, int &aTriangularPart,
-                                                            dataunits::Locations *apLocation1,
-                                                            dataunits::Locations *apLocation2,
-                                                            dataunits::Locations *apLocation3,
-                                                            double *aLocalTheta, int aDistanceMetric,
-                                                            exageostat::kernels::Kernel *apKernel) {
+void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor, int &aTriangularPart,
+                                                            dataunits::Locations<T> *apLocation1,
+                                                            dataunits::Locations<T> *apLocation2,
+                                                            dataunits::Locations<T> *apLocation3,
+                                                            T *aLocalTheta, int aDistanceMetric,
+                                                            kernels::Kernel<T> *apKernel) {
 
-    // Check for Initialise the Chameleon context.
-    if (!this->apContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
-    }
-
-    RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
-                         (RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence(),
-                         (RUNTIME_request_t *) Configurations::GetConfigurations()->GetRequest());
-
-    int tempmm, tempnn;
-    auto *CHAM_apDescriptor = (CHAM_desc_t *) apDescriptor;
-    CHAM_desc_t A = *CHAM_apDescriptor;
-
-    struct starpu_codelet *cl = &this->cl_dcmg;
-    int m, n, m0 = 0, n0 = 0;
-
-    for (n = 0; n < A.nt; n++) {
-        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
-        if (aTriangularPart == ChamUpperLower) {
-            m = 0;
-        } else {
-            m = A.m == A.n ? n : 0;
-        }
-        for (; m < A.mt; m++) {
-
-            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
-            m0 = m * A.mb;
-            n0 = n * A.nb;
-
-            // Register the data with StarPU
-            starpu_insert_task(cl,
-                               STARPU_VALUE, &tempmm, sizeof(int),
-                               STARPU_VALUE, &tempnn, sizeof(int),
-                               STARPU_VALUE, &m0, sizeof(int),
-                               STARPU_VALUE, &n0, sizeof(int),
-                               STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_apDescriptor, m, n),
-                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations *),
-                               STARPU_VALUE, &aLocalTheta, sizeof(double *),
-                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
-                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel *),
-                               0);
-
-            auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_apDescriptor, m, n);
-            this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
-        }
-    }
-    RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
-
-    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence());
+//    // Check for Initialise the Chameleon context.
+//    if (!this->apContext) {
+//        throw std::runtime_error(
+//                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+//    }
+//
+//    RUNTIME_option_t options;
+//    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
+//                         (RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence(),
+//                         (RUNTIME_request_t *) Configurations::GetConfigurations()->GetRequest());
+//
+//    int tempmm, tempnn;
+//    auto *CHAM_apDescriptor = (CHAM_desc_t *) apDescriptor;
+//    CHAM_desc_t A = *CHAM_apDescriptor;
+//
+//    struct starpu_codelet *cl = &this->cl_dcmg;
+//    int m, n, m0 = 0, n0 = 0;
+//
+//    for (n = 0; n < A.nt; n++) {
+//        tempnn = n == A.nt - 1 ? A.n - n * A.nb : A.nb;
+//        if (aTriangularPart == ChamUpperLower) {
+//            m = 0;
+//        } else {
+//            m = A.m == A.n ? n : 0;
+//        }
+//        for (; m < A.mt; m++) {
+//
+//            tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
+//            m0 = m * A.mb;
+//            n0 = n * A.nb;
+//
+//            // Register the data with StarPU
+//            starpu_insert_task(cl,
+//                               STARPU_VALUE, &tempmm, sizeof(int),
+//                               STARPU_VALUE, &tempnn, sizeof(int),
+//                               STARPU_VALUE, &m0, sizeof(int),
+//                               STARPU_VALUE, &n0, sizeof(int),
+//                               STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_apDescriptor, m, n),
+//                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations<T> *),
+//                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations<T> *),
+//                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations<T> *),
+//                               STARPU_VALUE, &aLocalTheta, sizeof(double *),
+//                               STARPU_VALUE, &aDistanceMetric, sizeof(int),
+//                               STARPU_VALUE, &apKernel, sizeof(kernels::Kernel<T> *),
+//                               0);
+//
+//            auto handle = (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_apDescriptor, m, n);
+//            this->apMatrix = (double *) starpu_variable_get_local_ptr(handle);
+//        }
+//    }
+//    RUNTIME_options_ws_free(&options);
+//    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->apContext);
+//
+//    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence());
 
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::GenerateObservationsVector(void *apDescriptor, Locations *apLocation1,
-                                                               Locations *apLocation2, Locations *apLocation3,
-                                                               vector<double> aLocalTheta, int aDistanceMetric,
-                                                               Kernel *apKernel) {
-
-    auto configurations = Configurations::GetConfigurations();
-    // Check for Initialise the Chameleon context.
-    if (!this->apContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
-    }
-    int N = configurations->GetProblemSize();
-    int seed = configurations->GetSeed();
-    int iseed[4] = {seed, seed, seed, 1};
-
-    //nomral random generation of e -- ei~N(0, 1) to generate Z
-    auto *Nrand = (double *) malloc(N * sizeof(double));
-    LAPACKE_dlarnv(3, iseed, N, Nrand);
-
-    //Generate the co-variance matrix C
-    auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
-    for (int i = 0; i < aLocalTheta.size(); i++) {
-        theta[i] = aLocalTheta[i];
-    }
-
-    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
-    int lower_upper = EXAGEOSTAT_LOWER;
-    this->CovarianceMatrixCodelet(apDescriptor, lower_upper, apLocation1, apLocation2, apLocation3, theta,
-                                  aDistanceMetric, apKernel);
-
-    free(theta);
-    VERBOSE("Done.\n")
-
-    //Copy Nrand to Z
-    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....")
-    auto **CHAM_descriptorZ = (CHAM_desc_t **) &configurations->GetDescriptorZ()[0];
-    CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
-    VERBOSE("Done.\n")
-
-    //Cholesky factorization for the Co-variance matrix C
-    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....")
-    int potential_failure = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *) apDescriptor);
-    FAILURE_LOGGER(potential_failure, "Factorization cannot be performed..\nThe matrix is not positive definite")
-    VERBOSE("Done.\n")
-
-    //Triangular matrix-matrix multiplication
-    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....")
-    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) apDescriptor,
-                         *CHAM_descriptorZ);
-    VERBOSE("Done.\n")
-
-    const int P = configurations->GetP();
-    if (configurations->GetLogger()) {
-        T *pMatrix;
-        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
-#ifdef CHAMELEON_USE_MPI
-        pMatrix = (T*) malloc(N * sizeof(T));
-        CHAMELEON_Tile_to_Lapack( *CHAM_descriptorZ, pMatrix, N);
-        if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
-        }
-        free(pMatrix);
-#else
-        pMatrix = (T *) (*CHAM_descriptorZ)->mat;
-        DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
-        free(pMatrix);
-#endif
-        VERBOSE(" Done.\n")
-    }
-
-    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) apDescriptor);
-    free(Nrand);
-    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)")
+void ChameleonImplementationDST<T>::GenerateObservationsVector(configurations::Configurations *apConfigurations, dataunits::DescriptorData<T> *apDescriptorData, BaseDescriptor aDescriptor, Locations<T> *apLocation1,
+                                                               Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                               int aDistanceMetric, Kernel<T> *apKernel, T* Nrand) {
+//
+//    auto configurations = Configurations::GetConfigurations();
+//    // Check for Initialise the Chameleon context.
+//    if (!this->apContext) {
+//        throw std::runtime_error(
+//                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+//    }
+//    int N = configurations->GetProblemSize();
+//    int seed = configurations->GetSeed();
+//    int iseed[4] = {seed, seed, seed, 1};
+//
+//    //nomral random generation of e -- ei~N(0, 1) to generate Z
+//    auto *Nrand = (double *) malloc(N * sizeof(double));
+//    LAPACKE_dlarnv(3, iseed, N, Nrand);
+//
+//    //Generate the co-variance matrix C
+//    auto *theta = (double *) malloc(aLocalTheta.size() * sizeof(double));
+//    for (int i = 0; i < aLocalTheta.size(); i++) {
+//        theta[i] = aLocalTheta[i];
+//    }
+//
+//    VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
+//    int lower_upper = EXAGEOSTAT_LOWER;
+//    this->CovarianceMatrixCodelet(apDescriptor, lower_upper, apLocation1, apLocation2, apLocation3, theta,
+//                                  aDistanceMetric, apKernel);
+//
+//    free(theta);
+//    VERBOSE("Done.\n")
+//
+//    //Copy Nrand to Z
+//    VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....")
+//    auto **CHAM_descriptorZ = (CHAM_desc_t **) &configurations->GetDescriptorZ()[0];
+//    CopyDescriptorZ(*CHAM_descriptorZ, Nrand);
+//    VERBOSE("Done.\n")
+//
+//    //Cholesky factorization for the Co-variance matrix C
+//    VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....")
+//    int potential_failure = CHAMELEON_dpotrf_Tile(ChamLower, (CHAM_desc_t *) apDescriptor);
+//    FAILURE_LOGGER(potential_failure, "Factorization cannot be performed..\nThe matrix is not positive definite")
+//    VERBOSE("Done.\n")
+//
+//    //Triangular matrix-matrix multiplication
+//    VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....")
+//    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, (CHAM_desc_t *) apDescriptor,
+//                         *CHAM_descriptorZ);
+//    VERBOSE("Done.\n")
+//
+//    const int P = configurations->GetP();
+//    if (configurations->GetLogger()) {
+//        T *pMatrix;
+//        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
+//#ifdef CHAMELEON_USE_MPI
+//        pMatrix = (T*) malloc(N * sizeof(T));
+//        CHAMELEON_Tile_to_Lapack( *CHAM_descriptorZ, pMatrix, N);
+//        if ( CHAMELEON_My_Mpi_Rank() == 0 ){
+//            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
+//        }
+//        free(pMatrix);
+//#else
+//        pMatrix = (T *) (*CHAM_descriptorZ)->mat;
+//        DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
+//        free(pMatrix);
+//#endif
+//        VERBOSE(" Done.\n")
+//    }
+//
+//    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, (CHAM_desc_t *) apDescriptor);
+//    free(Nrand);
+//    VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)")
 }
 
 template<typename T>
 void
-ChameleonImplementationDST<T>::CopyDescriptorZ(void *apDescA, double *apDoubleVector) {
-
-    // Check for Initialise the Chameleon context.
-    if (!this->apContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
-    }
-
-    RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
-                         (RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence(),
-                         (RUNTIME_request_t *) Configurations::GetConfigurations()->GetRequest());
-
-    int m, m0;
-    int tempmm;
-    auto A = (CHAM_desc_t *) apDescA;
-    struct starpu_codelet *cl = &this->cl_dzcpy;
-
-    for (m = 0; m < A->mt; m++) {
-        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
-        m0 = m * A->mb;
-
-        starpu_insert_task(cl,
-                           STARPU_VALUE, &tempmm, sizeof(int),
-                           STARPU_VALUE, &m0, sizeof(int),
-                           STARPU_VALUE, &apDoubleVector, sizeof(double),
-                           STARPU_W, RUNTIME_data_getaddr(A, m, 0),
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-                STARPU_NAME, "dzcpy",
-#endif
-                           0);
-    }
-    RUNTIME_options_ws_free(&options);
+ChameleonImplementationDST<T>::CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescA, T *apDoubleVector) {
+//
+//    // Check for Initialise the Chameleon context.
+//    if (!this->apContext) {
+//        throw std::runtime_error(
+//                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
+//    }
+//
+//    RUNTIME_option_t options;
+//    RUNTIME_options_init(&options, (CHAM_context_t *) this->apContext,
+//                         (RUNTIME_sequence_t *) Configurations::GetConfigurations()->GetSequence(),
+//                         (RUNTIME_request_t *) Configurations::GetConfigurations()->GetRequest());
+//
+//    int m, m0;
+//    int tempmm;
+//    auto A = (CHAM_desc_t *) apDescA;
+//    struct starpu_codelet *cl = &this->cl_dzcpy;
+//
+//    for (m = 0; m < A->mt; m++) {
+//        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
+//        m0 = m * A->mb;
+//
+//        starpu_insert_task(cl,
+//                           STARPU_VALUE, &tempmm, sizeof(int),
+//                           STARPU_VALUE, &m0, sizeof(int),
+//                           STARPU_VALUE, &apDoubleVector, sizeof(double),
+//                           STARPU_W, RUNTIME_data_getaddr(A, m, 0),
+//#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+//                STARPU_NAME, "dzcpy",
+//#endif
+//                           0);
+//    }
+//    RUNTIME_options_ws_free(&options);
 
 }
 
 template<typename T>
-void ChameleonImplementationDST<T>::DestroyDescriptors() {
-
-    auto configurations = Configurations::GetConfigurations();
-    vector<void *> &pDescriptorC = configurations->GetDescriptorC();
-    vector<void *> &pDescriptorZ = configurations->GetDescriptorZ();
-    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &configurations->GetDescriptorZcpy();
-    vector<void *> &pDescriptorProduct = configurations->GetDescriptorProduct();
-    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &configurations->GetDescriptorDeterminant();
-
-    if (!pDescriptorC.empty() && pDescriptorC[0]) {
-        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorC[0]);
-    }
-    if (!pDescriptorZ.empty() && pDescriptorZ[0]) {
-        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorZ[0]);
-    }
-    if (!pDescriptorProduct.empty() && pDescriptorProduct[0]) {
-        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
-    }
-    if (*pChameleonDescriptorZcpy) {
-        CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
-    }
-    if (*pChameleonDescriptorDeterminant) {
-        CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
-    }
-
-    if ((RUNTIME_sequence_t *) configurations->GetSequence()) {
-        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) configurations->GetSequence());
-    }
+void ChameleonImplementationDST<T>::DestroyDescriptors(DescriptorData<T> *apDescriptorData) {
+//
+//    auto configurations = Configurations::GetConfigurations();
+//    vector<void *> &pDescriptorC = configurations->GetDescriptorC();
+//    vector<void *> &pDescriptorZ = configurations->GetDescriptorZ();
+//    auto pChameleonDescriptorZcpy = (CHAM_desc_t **) &configurations->GetDescriptorZcpy();
+//    vector<void *> &pDescriptorProduct = configurations->GetDescriptorProduct();
+//    auto pChameleonDescriptorDeterminant = (CHAM_desc_t **) &configurations->GetDescriptorDeterminant();
+//
+//    if (!pDescriptorC.empty() && pDescriptorC[0]) {
+//        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorC[0]);
+//    }
+//    if (!pDescriptorZ.empty() && pDescriptorZ[0]) {
+//        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorZ[0]);
+//    }
+//    if (!pDescriptorProduct.empty() && pDescriptorProduct[0]) {
+//        CHAMELEON_Desc_Destroy((CHAM_desc_t **) &pDescriptorProduct[0]);
+//    }
+//    if (*pChameleonDescriptorZcpy) {
+//        CHAMELEON_Desc_Destroy(pChameleonDescriptorZcpy);
+//    }
+//    if (*pChameleonDescriptorDeterminant) {
+//        CHAMELEON_Desc_Destroy(pChameleonDescriptorDeterminant);
+//    }
+//
+//    if ((RUNTIME_sequence_t *) configurations->GetSequence()) {
+//        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) configurations->GetSequence());
+//    }
 }
 
 template<typename T>
@@ -359,7 +358,7 @@ ChameleonImplementationDST<T>::ExaGeoStatAllocateMatrixTile(void **apDescriptor,
 }
 
 template<typename T>
-T ChameleonImplementationDST<T>::ExaGeoStatMleTile(dataunits::Locations *apDataLocations){
+T ChameleonImplementationDST<T>::ExaGeoStatMleTile(ExaGeoStatData<T> *apData, configurations::Configurations *apConfigurations, const double* theta){
     throw std::domain_error("unimplemented for now");
 }
 

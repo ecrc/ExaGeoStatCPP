@@ -9,9 +9,9 @@
 # @date 2023-01-31
 set(EXAGEOSTAT_TESTFILES ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp)
 
-add_subdirectory(linear-algebra-solvers)
+#add_subdirectory(linear-algebra-solvers)
 #add_subdirectory(data-generators)
-#add_subdirectory(configurations/data-generation)
+add_subdirectory(configurations/data-generation)
 #add_subdirectory(kernels)
 
 

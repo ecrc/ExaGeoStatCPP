@@ -17,24 +17,28 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-TrivariateMaternParsimonious::TrivariateMaternParsimonious() {
+template<typename T>
+TrivariateMaternParsimonious<T>::TrivariateMaternParsimonious() {
     this->mP = 3;
     this->mParametersNumber = 10;
 }
 
-Kernel *TrivariateMaternParsimonious::Create() {
+template<typename T>
+Kernel<T> *TrivariateMaternParsimonious<T>::Create() {
     return new TrivariateMaternParsimonious();
 }
 
 namespace exageostat::kernels {
-    bool TrivariateMaternParsimonious::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "TrivariateMaternParsimonious", TrivariateMaternParsimonious::Create);
+    template<typename T> bool TrivariateMaternParsimonious<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "TrivariateMaternParsimonious", TrivariateMaternParsimonious<T>::Create);
 }
 
-void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                            int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                            Locations *apLocation2, Locations *apLocation3,
-                                                            double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                               int &aRowOffset, int &aColumnOffset,
+                                                               Locations<T> *apLocation1,
+                                                               Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                               T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;

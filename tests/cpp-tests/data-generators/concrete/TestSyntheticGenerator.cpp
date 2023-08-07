@@ -13,30 +13,25 @@
 
 #include <iostream>
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-
-#include <chameleon/struct.h>
-
-#endif
-
 #include <libraries/catch/catch.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <api/ExaGeoStat.hpp>
+#include <configurations/Configurations.hpp>
 
 using namespace std;
 
-using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::api;
+using namespace exageostat::configurations;
 
 void TEST_SPREAD_REVERSED_BITS() {
 
-    SyntheticDataConfigurations synthetic_data_configurations;
+    Configurations synthetic_data_configurations;
 
     synthetic_data_configurations.SetProblemSize(16);
-    synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+    synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
@@ -193,21 +188,19 @@ void TEST_SPREAD_REVERSED_BITS() {
 
 void TEST_GENERATE_LOCATIONS() {
 
-    SyntheticDataConfigurations synthetic_data_configurations;
+    Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(8);
-    synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+    synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
-//    SyntheticGenerator<double>::ReleaseInstance();
 
     SECTION("2D Generation") {
 
-        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
-                &synthetic_data_configurations);
+        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
         synthetic_generator->GenerateLocations();
 
@@ -221,7 +214,6 @@ void TEST_GENERATE_LOCATIONS() {
         }
         SyntheticGenerator<double>::ReleaseInstance();
     }
-
     SECTION("3D Generation") {
         synthetic_data_configurations.SetDimension(Dimension3D);
         SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
@@ -239,7 +231,8 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(z[i] != 0);
         }
         SyntheticGenerator<double>::ReleaseInstance();
-    }SECTION("ST Generation") {
+    }
+    SECTION("ST Generation") {
 
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
@@ -264,9 +257,9 @@ void TEST_GENERATE_LOCATIONS() {
 
 void TEST_HELPERS_FUNCTIONS() {
 
-    SyntheticDataConfigurations synthetic_data_configurations;
+    Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(16);
-    synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+    synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
@@ -299,11 +292,11 @@ void TEST_GENERATION() {
 
     SECTION("test Generated location") {
 
-        SyntheticDataConfigurations synthetic_data_configurations;
+        Configurations synthetic_data_configurations;
         synthetic_data_configurations.SetDimension(Dimension2D);
         int N = 9;
         synthetic_data_configurations.SetProblemSize(N);
-        synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+        synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
@@ -349,10 +342,10 @@ void TEST_ALL_GENERATIONS() {
     SECTION("synthetic data generation") {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
 
-        SyntheticDataConfigurations synthetic_data_configurations;
+        Configurations synthetic_data_configurations;
         int N = 16;
         synthetic_data_configurations.SetProblemSize(N);
-        synthetic_data_configurations.SetKernel("UnivariateMaternStationary");
+        synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
         synthetic_data_configurations.SetDenseTileSize(9);
 
         vector<double> lb{0.1, 0.1, 0.1};
@@ -365,17 +358,18 @@ void TEST_ALL_GENERATIONS() {
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
         // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
-        ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+        ExaGeoStat<double>::ExaGeoStatInitializeHardware(exageostat::common::EXACT_DENSE, 3, 0);
 
+        //// TODO: FIX THIS!
         srand(0);
-        ExaGeoStat<double>::ExaGeoStatGenerateData(&synthetic_data_configurations);
+        auto * data = ExaGeoStat<double>::ExaGeoStatGenerateData(&synthetic_data_configurations);
 
         // Define the expected output for desk Z
         double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
                                          0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
                                          -0.752828, 0.290822};
-        auto **CHAM_descriptorZ = (CHAM_desc_t **) &synthetic_data_configurations.GetDescriptorZ()[0];
-        auto *A = (double *) (*CHAM_descriptorZ)->mat;
+        auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR, exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+        auto *A = (double *) CHAM_descriptorZ->mat;
         double diff;
 
         for (int i = 0; i < N; i++) {
@@ -383,7 +377,7 @@ void TEST_ALL_GENERATIONS() {
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
         // Finalise ExaGeoStat context.
-        ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+        ExaGeoStat<double>::ExaGeoStatFinalizeHardware(synthetic_data_configurations.GetComputation(), data->GetDescriptorData());
 #endif
     }
 }

@@ -17,13 +17,11 @@ extern "C" {
 
 #include <libraries/catch/catch.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::configurations::data_configurations;
 
 using namespace std;
 

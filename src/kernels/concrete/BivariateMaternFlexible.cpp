@@ -17,24 +17,27 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-BivariateMaternFlexible::BivariateMaternFlexible() {
+template<typename T>
+BivariateMaternFlexible<T>::BivariateMaternFlexible() {
     this->mP = 2;
     this->mParametersNumber = 11;
 }
 
-Kernel *BivariateMaternFlexible::Create() {
+template<typename T>
+Kernel<T> *BivariateMaternFlexible<T>::Create() {
     return new BivariateMaternFlexible();
 }
 
 namespace exageostat::kernels {
-    bool BivariateMaternFlexible::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "BivariateMaternFlexible", BivariateMaternFlexible::Create);
+    template<typename T> bool BivariateMaternFlexible<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "BivariateMaternFlexible", BivariateMaternFlexible<T>::Create);
 }
 
-void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                       int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                       Locations *apLocation2, Locations *apLocation3,
-                                                       double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                       int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
+                                                       Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                       T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -79,9 +82,9 @@ void BivariateMaternFlexible::GenerateCovarianceMatrix(double *apMatrixA, int &a
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
-            expr1 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale1;
-            expr2 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale2;
-            expr12 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale12;
+            expr1 = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale1;
+            expr2 = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale2;
+            expr12 = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale12;
             if (expr1 == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
                 if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {

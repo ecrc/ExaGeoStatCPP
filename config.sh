@@ -100,6 +100,12 @@ while getopts ":tevhHCi:dcm" opt; do
       echo ""
       printf "%20s %s\n" "-C :" "to enable using chameleon."
       echo ""
+      printf "%20s %s\n" "-c :" "to enable using CUDA."
+      echo ""
+      printf "%20s %s\n" "-m :" "to enable using MPI."
+      echo ""
+      printf "%20s %s\n" "-v :" "to enable full printings."
+      echo ""
       exit 1
       ;;
     esac

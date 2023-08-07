@@ -17,24 +17,29 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternDdsigmaSquareNu::UnivariateMaternDdsigmaSquareNu() {
+template<typename T>
+UnivariateMaternDdsigmaSquareNu<T>::UnivariateMaternDdsigmaSquareNu() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternDdsigmaSquareNu::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternDdsigmaSquareNu<T>::Create() {
     return new UnivariateMaternDdsigmaSquareNu();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternDdsigmaSquareNu::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternDdsigmaSquareNu", UnivariateMaternDdsigmaSquareNu::Create);
+    template<typename T> bool UnivariateMaternDdsigmaSquareNu<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternDdsigmaSquareNu", UnivariateMaternDdsigmaSquareNu<T>::Create);
 }
 
-void UnivariateMaternDdsigmaSquareNu::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                   int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                   Locations *apLocation2, Locations *apLocation3,
-                                                   double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternDdsigmaSquareNu<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                  int &aRowOffset, int &aColumnOffset,
+                                                                  Locations<T> *apLocation1,
+                                                                  Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                                  T *aLocalTheta, int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -59,10 +64,14 @@ void UnivariateMaternDdsigmaSquareNu::GenerateCovarianceMatrix(double *apMatrixA
                           pow(2, 1 - aLocalTheta[2])
                           * (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2])
                              * gsl_sf_bessel_Knu(aLocalTheta[2], expr) + 1 / tgamma(aLocalTheta[2])
-                                                                          * (pow(expr, aLocalTheta[2]) * log(expr)
-                                                                             * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
-                                                                             pow(expr, aLocalTheta[2])
-                                                                             * (gsl_sf_bessel_Knu(aLocalTheta[2] + 0.000000001, expr) - gsl_sf_bessel_Knu(aLocalTheta[2], expr)) / 0.000000001));
+                                                                         * (pow(expr, aLocalTheta[2]) * log(expr)
+                                                                            * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
+                                                                            pow(expr, aLocalTheta[2])
+                                                                            * (gsl_sf_bessel_Knu(
+                                                                                    aLocalTheta[2] + 0.000000001,
+                                                                                    expr) -
+                                                                               gsl_sf_bessel_Knu(aLocalTheta[2],
+                                                                                                 expr)) / 0.000000001));
                 apMatrixA[i + j * aRowsNumber] = nu_expr; // derivative with respect to sigma square
             }
             j0++;

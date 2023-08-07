@@ -25,7 +25,72 @@ using namespace exageostat::configurations;
 using namespace exageostat::common;
 
 RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
-Configurations* Configurations::configurations_ = nullptr;
+
+
+Configurations::Configurations() {
+
+    // Set default values for arguments!
+    SetComputation(common::EXACT_DENSE);
+    SetCoresNumber(1);
+    SetGPUsNumbers(0);
+    SetPGrid(1);
+    SetQGrid(1);
+    SetMaxRank(1);
+    SetIsOOC(false);
+    SetKernelName("");
+    SetDimension(common::Dimension2D);
+    SetTimeSlot(1);
+    SetProblemSize(0);
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    SetDenseTileSize(0);
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+    SetLowTileSize(0);
+#endif
+    SetLoggerPath("");
+    SetIsSynthetic(true);
+    std::vector<double> theta;
+    SetInitialTheta(theta);
+    SetLowerBounds(theta);
+    SetUpperBounds(theta);
+    SetTargetTheta(theta);
+    SetP(1);
+    SetSeed(0);
+    SetLogger(false);
+    SetLoggerPath("");
+    SetDeterminantValue(0.0);
+    SetProductValue(0);
+    SetIterationsValue(0);
+    SetRecoveryFile("");
+    SetPrecision(common::DOUBLE);
+    //// TODO: Continue
+//    arg_values->zvecs = "1";
+//    arg_values->async = 0;
+//    arg_values->kernel = "";
+//    arg_values->ikernel = "";
+//    arg_values->N = "0";
+//    arg_values->lts = "0";
+//    arg_values->dts = "0";
+//    arg_values->locs_file = "";
+//    arg_values->obs_dir = "";
+//    arg_values->obs_dir2 = "";
+//    arg_values->actualZ_file = "";
+//    arg_values->actualZloc_file = "";
+//    arg_values->predict = "0";
+//    arg_values->dm = "ed";
+//    arg_values->diag_thick = "1";
+//    arg_values->log = 0;
+//    arg_values->maxrank = "0";
+//    arg_values->acc = "0";
+//    arg_values->profile = 0;
+//    arg_values->opt_tol = "5";
+//    arg_values->opt_max_iters = "-1";
+//    arg_values->ooc = 0;
+//    arg_values->mloe_mmom = 0;
+//    arg_values->mloe_mmom_async = 0;
+//    arg_values->mspe = 0;
+}
+
 
 void Configurations::InitializeArguments(int aArgC, char **apArgV) {
 
@@ -100,8 +165,7 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
                 std::vector<double> theta = ParseTheta(argument_value);
                 SetInitialTheta(theta);
             } else {
-                if (!(argument_name == "--Kernel" || argument_name == "--kernel" ||
-                      argument_name == "--Dimension" || argument_name == "--dimension" ||
+                if (!(argument_name == "--Dimension" || argument_name == "--dimension" ||
                       argument_name == "--dim" || argument_name == "--Dim" || argument_name == "--ZmissNumber" ||
                       argument_name == "--Zmiss" || argument_name == "--lb" || argument_name == "--olb" ||
                       argument_name == "--lowerBounds" || argument_name == "--ub" || argument_name == "--oub" ||
@@ -109,7 +173,10 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
                       argument_name == "--itheta" || argument_name == "--iTheta" ||
                       argument_name == "--target_theta" || argument_name == "--ttheta" ||
                       argument_name == "--tTheta" || argument_name == "--iterations" ||
-                      argument_name == "--Iterations")) {
+                      argument_name == "--Iterations" ||
+                      argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
+                      argument_name == "--tolerance" ||
+                      argument_name == "--distanceMetric" || argument_name == "--distance_metric")) {
                     cout << "!! " << argument_name << " !!" << endl;
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -149,7 +216,10 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
         throw domain_error("You need to set the Low tile size, before starting");
     }
 #endif
-
+    // Throw Errors if any of these arguments aren't given by the user.
+    if (GetKernelName().empty()) {
+        throw domain_error("You need to set the Kernel, before starting");
+    }
 }
 
 void Configurations::InitializeDataGenerationArguments(){
@@ -193,14 +263,38 @@ void Configurations::InitializeDataGenerationArguments(){
             }
         }
     }
-    // Throw Errors if any of these arguments aren't given by the user.
-    if (GetKernelName().empty()) {
-        throw domain_error("You need to set the Kernel, before starting");
-    }
 }
 
 void Configurations::InitializeDataModelingArguments() {
 
+    string argument;
+    string argument_name;
+    string argument_value;
+    int equal_sign_Idx;
+    // Loop through the arguments that are specific for data generation.
+    for (int i = 1; i < this->mArgC; ++i) {
+        argument = this->mpArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
+
+        // Check if argument has an equal sign.
+        if (equal_sign_Idx != string::npos) {
+            argument_value = argument.substr(equal_sign_Idx + 1);
+
+            // Check the argument name and set the corresponding value
+            if (argument_name == "--iterations" || argument_name == "--Iterations") {
+                SetIterationsValue(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--distance_metric" || argument_name == "--distanceMetric"){
+                ParseDistanceMetric(argument_value);
+            } else if (argument_name == "--data_log" || argument_name == "--dataLog"){
+//                ParseDataLog(argument_value);
+            } else if (argument_name == "--max_mle_iterations" || argument_name == "--MaxMleIterations"){
+                SetMaxMleIterations(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--tolerance"){
+                SetTolerance(CheckNumericalValue(argument_value));
+            }
+        }
+    }
 }
 
 void Configurations::InitializeDataPredictionArguments() {
@@ -408,66 +502,12 @@ int Configurations::CheckUnknownObservationsValue(const string &aValue) {
     return value;
 }
 
-void Configurations::SetDefaultValues() {
-
-    SET_VALUE_DEFAULT(TimeSlot, 1)
-    SET_VALUE_DEFAULT(Computation, common::EXACT_DENSE)
-    SET_VALUE_DEFAULT(Precision, common::DOUBLE)
-    SET_VALUE_DEFAULT(CoresNumber, 1)
-    SET_VALUE_DEFAULT(GPUsNumbers, 0)
-    SET_VALUE_DEFAULT(Seed, 0)
-    vector<void*> *temp = new vector<void*>();
-    SET_DESCRIPTOR_DEFAULT("DescriptorC", *temp)
-    SET_DESCRIPTOR_DEFAULT("DescriptorZ", nullptr)
-
+void Configurations::ParseDistanceMetric(const std::string &aDistanceMetric) {
+    if (aDistanceMetric == "eg" || aDistanceMetric == "EG"){
+        SetDistanceMetric(EUCLIDIAN_DISTANCE);
+    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD"){
+        SetDistanceMetric(GREAT_CIRCLE_DISTANCE);
+    }else {
+        throw range_error("Invalid value. Please use eg or gcd values only.");
+    }
 }
-
-
-//void Configurations::InitModuleArguments(int aArgC, char **apArgV) {
-//    InitializeArguments(aArgC, apArgV);
-//    this->mpMatrixDeterminant = new double;
-//
-//    this->mDotProduct.resize(3);
-//    this->mVariance.resize(3);
-//
-//    this->mDotProduct[0] = new double;
-//    this->mDotProduct[1] = new double;
-//    this->mDotProduct[2] = new double;
-//
-//    *this->mDotProduct[0] = 0;
-//    *this->mDotProduct[1] = 0;
-//    *this->mDotProduct[2] = 0;
-//
-//    this->mVariance[0] = new double;
-//    this->mVariance[1] = new double;
-//    this->mVariance[2] = new double;
-//
-//    cout << "Mproduct Done" <<endl;
-//    string argument;
-//    string argument_name;
-//    string argument_value;
-//    int equal_sign_Idx;
-//    // Loop through the arguments that are specific for data generation.
-//    for (int i = 1; i < aArgC; ++i) {
-//        argument = apArgV[i];
-//        equal_sign_Idx = static_cast<int>(argument.find('='));
-//        argument_name = argument.substr(0, equal_sign_Idx);
-//
-//        // Check if argument has an equal sign.
-//        if (equal_sign_Idx != string::npos) {
-//            argument_value = argument.substr(equal_sign_Idx + 1);
-//
-//            // Check the argument name and set the corresponding value
-//            if (argument_name == "--iterations" || argument_name == "--Iterations") {
-//                SetIterationsValue(CheckNumericalValue(argument_value));
-//            } else if (argument_name == "--distance_metric" || argument_name == "--distanceMetric"){
-//                ParseDistanceMetric(argument_value);
-//            } else if (argument_name == "--data_log" || argument_name == "--dataLog"){
-//                ParseDataLog(argument_value);
-//            }
-//        } else {
-////            if (argument_name == "--emptyForNow" || argument_name == "--EmptyForNow") {
-////            }
-//        }
-//    }
-//}

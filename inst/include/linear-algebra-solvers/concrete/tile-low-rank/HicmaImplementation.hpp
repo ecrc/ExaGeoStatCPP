@@ -79,7 +79,7 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::ExaGeoStatInitContext()
                  * 
                  */
-                void ExaGeoStatInitContext(const int &apCoresNumber, const int &apGPUs) override;
+                void ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) override;
 
                 /**
                  * @brief Finalizes the context needed for the Chameleon solver.
@@ -114,7 +114,7 @@ namespace exageostat {
                  * @param apData MLE_data struct with different MLE inputs.
                  * @return log likelihood value
                 */
-                T ExaGeoStatMleTile(const T * apTheta, dataunits::Locations *apDataLocations, configurations::data_modeling::DataModelingConfigurations *apDataModelingConfiguration) override;
+                T ExaGeoStatMleTile(dataunits::Locations *apDataLocations) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
@@ -201,28 +201,6 @@ namespace exageostat {
                  */
                  int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                         void * apSequence, void *apRequest) override;
-                /**
-                 * @briefCodelet to generate covariance matrix in buffersiptor
-                 * descA in  dense format between two sets of locations
-                 * @param aUpperLower Upper or lower fill of the matrix.
-                 * @param apDescA Chameleon buffersiptor that handles the generated covariance matrix.
-                 * @param apL1 Location struct of the first input.
-                 * @param apL2 Location struct of the second input.
-                 * @param apLm
-                 * @param apTheta
-                 * @param apDm Distance metric "euclidean Distance ("ED" -->0) or "Great Circle Distance (GCD) -->1".
-                 * @param apKernelFun
-                 * @param sequence  Identifies the sequence of function calls that this call belongs to
-                                  (for completion checks and exception handling purposes).
-                 * @param request Identifies this function call (for exception handling purposes).
-                 * @return
-                 */
-                 int ExageostatMleDcmgTileAsync(common::UpperLower aUpperLower, void *apDescA, dataunits::Locations *apL1,
-                                                dataunits::Locations *apL2, dataunits::Locations *apLm, T* apTheta,
-                                                std::string &aDm, std::string &aKernelFun,
-                                                void *apSequence, void *apRequest) override;
-
-
 
             private:
                 //// Used context

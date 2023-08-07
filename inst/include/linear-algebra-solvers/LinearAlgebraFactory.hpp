@@ -17,6 +17,7 @@
 #include <memory>
 
 #include <common/Definitions.hpp>
+#include <data-units/DescriptorData.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
@@ -47,8 +48,7 @@ namespace exageostat {
              * @return Pointer to the created linear algebra solver.
              *
              */
-            static LinearAlgebraMethods<T> *
-            CreateLinearAlgebraSolver(common::Computation aComputation);
+             static LinearAlgebraMethods<T> *CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 
         /**

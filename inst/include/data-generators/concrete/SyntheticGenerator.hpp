@@ -40,7 +40,7 @@ namespace exageostat {
                  * @return A pointer to the instance of the SyntheticGenerator class.
                  *
                  */
-                static SyntheticGenerator<T> *GetInstance();
+                static SyntheticGenerator<T> *GetInstance(configurations::Configurations *apConfigurations);
 
                 /**
                  * @brief Initialize a vector with a given size to contain zeros.
@@ -59,30 +59,6 @@ namespace exageostat {
                  */
                 void
                 GenerateLocations() override;
-
-                /**
-                 * @brief Generates the data descriptors.
-                 * @details This method generates the descriptors used to define the properties of the data points.
-                 * @return void
-                 *
-                 */
-                void GenerateDescriptors() override;
-
-                /**
-                 * @brief Destroy the data descriptors.
-                 * @details This method destroys the descriptors used to define the properties of the data points.
-                 * @return void
-                 *
-                 */
-                void DestroyDescriptors() override;
-
-                /**
-                 * @brief Generates the data observations.
-                 * @details This method generates the observations of the data points, which are used to train and test the model.
-                 * @return void
-                 *
-                 */
-                void GenerateObservations() override;
 
                 /**
                  * @brief Generate uniform distribution between rangeLow , rangeHigh.
@@ -140,7 +116,7 @@ namespace exageostat {
                  * @return void
                  *
                  */
-                SyntheticGenerator();
+                SyntheticGenerator(exageostat::configurations::Configurations *apConfigurations);
 
                 /**
                  * @brief Virtual destructor to allow calls to the correct concrete destructor.

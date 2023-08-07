@@ -17,24 +17,28 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternDnu::UnivariateMaternDnu() {
+template<typename T>
+UnivariateMaternDnu<T>::UnivariateMaternDnu() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternDnu::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternDnu<T>::Create() {
     return new UnivariateMaternDnu();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternDnu::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternDnu", UnivariateMaternDnu::Create);
+    template<typename T> bool UnivariateMaternDnu<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternDnu", UnivariateMaternDnu<T>::Create);
 }
 
-void UnivariateMaternDnu::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                   int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                   Locations *apLocation2, Locations *apLocation3,
-                                                   double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                      int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
+                                                      Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                      T *aLocalTheta, int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;
@@ -57,10 +61,10 @@ void UnivariateMaternDnu::GenerateCovarianceMatrix(double *apMatrixA, int &aRows
                           pow(2, 1 - aLocalTheta[2])
                           * (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2])
                              * gsl_sf_bessel_Knu(aLocalTheta[2], expr) + 1 / tgamma(aLocalTheta[2])
-                                                                          * (pow(expr, aLocalTheta[2]) * log(expr)
-                                                                             * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
-                                                                             pow(expr, aLocalTheta[2])
-                                                                             * gsl_sf_bessel_Kn(aLocalTheta[2], expr)));
+                                                                         * (pow(expr, aLocalTheta[2]) * log(expr)
+                                                                            * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
+                                                                            pow(expr, aLocalTheta[2])
+                                                                            * gsl_sf_bessel_Kn(aLocalTheta[2], expr)));
 
                 apMatrixA[i + j * aRowsNumber] = sigma_square * nu_expr; //derivative with respect to nu
 

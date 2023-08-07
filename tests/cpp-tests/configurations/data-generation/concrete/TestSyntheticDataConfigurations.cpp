@@ -15,16 +15,16 @@
 #include <iostream>
 
 #include <libraries/catch/catch.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
+#include <configurations/Configurations.hpp>
 
 using namespace std;
 
-using namespace exageostat::configurations::data_configurations;
 using namespace exageostat::common;
+using namespace exageostat::configurations;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
-    SyntheticDataConfigurations synthetic_data_configurations;
+    Configurations synthetic_data_configurations;
     int random_number = 512;
 
     SECTION("Dimensions setter/getter test")
@@ -36,7 +36,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckDimensionValue("4D"),
                 "Invalid value for Dimension. Please use 2D, 3D or ST.");
-        SyntheticDataConfigurations::CheckDimensionValue("2D");
+        Configurations::CheckDimensionValue("2D");
     }
 
     SECTION("P-GRID setter/getter test")
@@ -44,7 +44,8 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE(synthetic_data_configurations.GetPGrid() == 1);
         synthetic_data_configurations.SetPGrid(random_number);
         REQUIRE(synthetic_data_configurations.GetPGrid() == random_number);
-    }SECTION("P-GRID value checker test")
+    }
+    SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("K"),
@@ -52,20 +53,17 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = SyntheticDataConfigurations::CheckNumericalValue("512");
+        int test_nb = Configurations::CheckNumericalValue("512");
         synthetic_data_configurations.SetPGrid(test_nb);
         REQUIRE(synthetic_data_configurations.GetPGrid() == 512);
     }
-}
-
-void TEST_DATA_CONFIGURATIONS() {
-    SyntheticDataConfigurations synthetic_data_configurations;
     SECTION("Kernel setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations.GetKernel().empty());
-        synthetic_data_configurations.SetKernel("univariate_matern_stationary");
-        REQUIRE(synthetic_data_configurations.GetKernel() == "univariate_matern_stationary");
-    }SECTION("Kernel checker value test")
+        REQUIRE(synthetic_data_configurations.GetKernelName().empty());
+        synthetic_data_configurations.SetKernelName("univariate_matern_stationary");
+        REQUIRE(synthetic_data_configurations.GetKernelName() == "univariate_matern_stationary");
+    }
+    SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckKernelValue("100"),
@@ -75,11 +73,6 @@ void TEST_DATA_CONFIGURATIONS() {
                 "Invalid value for Kernel. Please check manual.");
         synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu");
     }
-}
-
-void TEST_CONFIGURATIONS() {
-    SyntheticDataConfigurations synthetic_data_configurations;
-    int random_number = 512;
     SECTION("Problem size setter/getter test")
     {
         REQUIRE(synthetic_data_configurations.GetProblemSize() == 0);
@@ -93,7 +86,7 @@ void TEST_CONFIGURATIONS() {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = SyntheticDataConfigurations::CheckNumericalValue("512");
+        int test_nb = Configurations::CheckNumericalValue("512");
         synthetic_data_configurations.SetProblemSize(test_nb);
         REQUIRE(synthetic_data_configurations.GetProblemSize() == 512);
     }
@@ -101,35 +94,29 @@ void TEST_CONFIGURATIONS() {
 
 void TEST_COPY_CONSTRUCTOR() {
     SECTION("copy-constructor"){
-        SyntheticDataConfigurations synthetic_data_configurations;
+        Configurations synthetic_data_configurations;
         synthetic_data_configurations.SetProblemSize(10);
-        synthetic_data_configurations.SetKernel("BivariateSpacetimeMaternStationary");
+        synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
         synthetic_data_configurations.SetPrecision(exageostat::common::MIXED);
         synthetic_data_configurations.SetLoggerPath("any/path");
-        void *test = synthetic_data_configurations.GetDescriptorZcpy();
-        int random_number;
-        test = &random_number;
         vector<double> lb{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
 
 
-        SyntheticDataConfigurations copied_synthetic_conf(synthetic_data_configurations);
+        Configurations copied_synthetic_conf(synthetic_data_configurations);
 
         REQUIRE(synthetic_data_configurations.GetProblemSize() == copied_synthetic_conf.GetProblemSize());
         REQUIRE(copied_synthetic_conf.GetProblemSize() == 10);
-        REQUIRE(synthetic_data_configurations.GetKernel() == copied_synthetic_conf.GetKernel());
-        REQUIRE(copied_synthetic_conf.GetKernel() == "BivariateSpacetimeMaternStationary");
+        REQUIRE(synthetic_data_configurations.GetKernelName() == copied_synthetic_conf.GetKernelName());
+        REQUIRE(copied_synthetic_conf.GetKernelName() == "BivariateSpacetimeMaternStationary");
         REQUIRE(synthetic_data_configurations.GetLowerBounds() == copied_synthetic_conf.GetLowerBounds());
         REQUIRE(synthetic_data_configurations.GetPrecision() == copied_synthetic_conf.GetPrecision());
-        REQUIRE(*copied_synthetic_conf.GetLoggerPath() == "any/path");
-        REQUIRE(*synthetic_data_configurations.GetLoggerPath() == *copied_synthetic_conf.GetLoggerPath());
-        REQUIRE(synthetic_data_configurations.GetDescriptorZcpy() == copied_synthetic_conf.GetDescriptorZcpy());
+        REQUIRE(copied_synthetic_conf.GetLoggerPath() == "any/path");
+        REQUIRE(synthetic_data_configurations.GetLoggerPath() == copied_synthetic_conf.GetLoggerPath());
 
     }
 }
 TEST_CASE("Synthetic Data Configurations") {
     TEST_SYNTHETIC_CONFIGURATIONS();
-    TEST_DATA_CONFIGURATIONS();
-    TEST_CONFIGURATIONS();
     TEST_COPY_CONSTRUCTOR();
 }

@@ -26,7 +26,8 @@ namespace exageostat {
          * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
          * 
          */
-        class UnivariateMaternDdnuNu : public Kernel {
+        template<typename T>
+        class UnivariateMaternDdnuNu : public Kernel<T> {
 
         public:
 
@@ -46,10 +47,10 @@ namespace exageostat {
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @copydoc Kernel::GenerateCovarianceMatrix()
              */
-            void GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
-                                          int &aColumnOffset, dataunits::Locations *apLocation1,
-                                          dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *aLocalTheta, int &aDistanceMetric) override ;
+            void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
+                                          int &aColumnOffset, dataunits::Locations<T> *apLocation1,
+                                          dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                          T *aLocalTheta, int &aDistanceMetric) override ;
 
             /**
              * @brief Creates a new UnivariateMaternDdnuNu object.
@@ -57,7 +58,7 @@ namespace exageostat {
              * @return A pointer to the new UnivariateMaternDdnuNu object.
              * 
              */
-            static Kernel *Create();
+            static Kernel<T> *Create();
 
         private:
             //// Used plugin name for static registration

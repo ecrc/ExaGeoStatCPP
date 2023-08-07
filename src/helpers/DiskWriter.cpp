@@ -24,25 +24,24 @@ using namespace std;
 
 template<typename T>
 void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP,
-                                       std::string *apLoggerPath, Locations *apLocations) {
+                                       std::string aLoggerPath, Locations<T> *apLocations) {
 
     // Determine the path for storing the output files
-    string &user_path = *apLoggerPath;
-    if (user_path.empty()) {
-        user_path = "./synthetic_ds";
+    if (aLoggerPath.empty()) {
+        aLoggerPath = "./synthetic_ds";
     } else {
-        if (user_path.back() == '/') {
-            user_path += "synthetic_ds";
+        if (aLoggerPath.back() == '/') {
+            aLoggerPath += "synthetic_ds";
         } else {
-            user_path += "/synthetic_ds";
+            aLoggerPath += "/synthetic_ds";
         }
     }
 
     // Create a new directory if it does not already exist
     bool created = false;
-    if (!filesystem::exists(user_path)) {
+    if (!filesystem::exists(aLoggerPath)) {
         try {
-            created = filesystem::create_directory(user_path);
+            created = filesystem::create_directory(aLoggerPath);
         } catch (const filesystem::filesystem_error &e) {
             cerr << "Error creating directory: " << e.what() << endl;
         }
@@ -52,18 +51,18 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
 
     // Check if the directory was created successfully
     if (!created) {
-        cerr << "Error creating directory: " << user_path << endl;
+        cerr << "Error creating directory: " << aLoggerPath << endl;
         return;
     }
 
     // Determine the names of the output files
     size_t i = 1;
     std::ofstream p_file_z, p_file_z2, p_file_z3, p_file_xy, p_file_log;
-    std::string n_file_z = user_path + "/Z1_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_z2 = user_path + "/Z2_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_z3 = user_path + "/Z3_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_xy = user_path + "/LOC_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_log = user_path + "/log_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_z = aLoggerPath + "/Z1_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_z2 = aLoggerPath + "/Z2_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_z3 = aLoggerPath + "/Z3_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_xy = aLoggerPath + "/LOC_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_log = aLoggerPath + "/log_" + std::to_string(*apProblemSize / *apP) + "_";
     std::string temp = n_file_log + std::to_string(i);
 
     // Check if log file exists

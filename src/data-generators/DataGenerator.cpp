@@ -16,13 +16,14 @@ using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
 
 template<typename T>
-std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator() {
+std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configurations *apConfigurations) {
+
     // Check the used Data generation method, whether it's synthetic or real.
-    bool is_synthetic = Configurations::GetConfigurations()->GetIsSynthetic();
+    bool is_synthetic = apConfigurations->GetIsSynthetic();
 
     // Return DataGenerator unique pointer of Synthetic type
     if (is_synthetic) {
-        return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
+        return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance(apConfigurations));
     } else {
         // Open saved files
         throw std::domain_error("Unsupported for now, Please add --synthetic_data");
@@ -30,7 +31,7 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator() {
 }
 
 template<typename T>
-Locations *DataGenerator<T>::GetLocations() {
+Locations<T> *DataGenerator<T>::GetLocations() {
     if (this->mpLocations == nullptr) {
         throw std::runtime_error("Locations is null");
     }
@@ -38,7 +39,7 @@ Locations *DataGenerator<T>::GetLocations() {
 }
 
 template<typename T>
-exageostat::kernels::Kernel *DataGenerator<T>::GetKernel() {
+exageostat::kernels::Kernel<T> *DataGenerator<T>::GetKernel() {
     if (this->mpKernel == nullptr) {
         throw std::runtime_error("Kernel is null");
     }
@@ -46,30 +47,16 @@ exageostat::kernels::Kernel *DataGenerator<T>::GetKernel() {
 }
 
 template<typename T>
-exageostat::linearAlgebra::LinearAlgebraMethods<T> *DataGenerator<T>::GetLinearAlgberaSolver() {
-    if (mpLinearAlgebraSolver == nullptr) {
-        throw std::runtime_error("LinearAlgebraSolver is null");
-    }
-    return mpLinearAlgebraSolver;
-}
-
-template<typename T>
 DataGenerator<T>::~DataGenerator(){
 
     // Check the used Data generation method, whether it's synthetic or real.
-    bool is_synthetic = Configurations::GetConfigurations()->GetIsSynthetic();
+    bool is_synthetic = this->mpConfigurations->GetIsSynthetic();
 
     // Return DataGenerator unique pointer of Synthetic type
     if (is_synthetic) {
-        SyntheticGenerator<T>::GetInstance()->ReleaseInstance();
+        SyntheticGenerator<T>::GetInstance(this->mpConfigurations)->ReleaseInstance();
     } else {
         // Open saved files
         throw std::domain_error("Unsupported for now, Please add --synthetic_data");
-    }
-}
-
-namespace exageostat {
-    namespace generators {
-        template<typename T> linearAlgebra::LinearAlgebraMethods<T> *DataGenerator<T>::mpLinearAlgebraSolver = nullptr;
     }
 }

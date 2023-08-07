@@ -18,24 +18,29 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateSpacetimeMaternStationary::UnivariateSpacetimeMaternStationary() {
+template<typename T>
+UnivariateSpacetimeMaternStationary<T>::UnivariateSpacetimeMaternStationary() {
     this->mP = 1;
     this->mParametersNumber = 7;
 }
 
-Kernel *UnivariateSpacetimeMaternStationary::Create() {
+template<typename T>
+Kernel<T> *UnivariateSpacetimeMaternStationary<T>::Create() {
     return new UnivariateSpacetimeMaternStationary();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateSpacetimeMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateSpacetimeMaternStationary", UnivariateSpacetimeMaternStationary::Create);
+    template<typename T> bool UnivariateSpacetimeMaternStationary<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateSpacetimeMaternStationary", UnivariateSpacetimeMaternStationary<T>::Create);
 }
 
-void UnivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                                 int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                                 Locations *apLocation2, Locations *apLocation3,
-                                                                 double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void
+UnivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                 int &aRowOffset, int &aColumnOffset,
+                                                                 Locations<T> *apLocation1,
+                                                                 Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                                 T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0 = aColumnOffset;

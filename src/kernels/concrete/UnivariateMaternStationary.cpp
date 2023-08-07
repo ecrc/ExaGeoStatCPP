@@ -17,39 +17,39 @@ using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternStationary::UnivariateMaternStationary() {
+template<typename T>
+UnivariateMaternStationary<T>::UnivariateMaternStationary() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternStationary::Create() {
+
+template<typename T>
+Kernel<T> *UnivariateMaternStationary<T>::Create() {
     return new UnivariateMaternStationary();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternStationary", UnivariateMaternStationary::Create);
+    template<typename T> bool UnivariateMaternStationary<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternStationary", UnivariateMaternStationary<T>::Create);
 }
 
-void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                          int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                          Locations *apLocation2, Locations *apLocation3,
-                                                          double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                          int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
+                                                          Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                          T *aLocalTheta, int &aDistanceMetric) {
+    const T sigma_square = aLocalTheta[0];
+    const T nu = aLocalTheta[2];
+    const T inv_con = sigma_square * (1.0/(pow(2, (nu - 1)) * tgamma((nu))));
 
-    cout << "Gneretae bellah 3leeeeeeeeek" << endl;
-    cout << "cmg THETA = " << endl;
-    cout << aLocalTheta[0] << endl;
-    const double sigma_square = aLocalTheta[0];
-    const double nu = aLocalTheta[2];
-    const double inv_con = 1.0 / (sigma_square * pow(2, nu - 1) * tgamma(nu));
     int i0 = aRowOffset;
     int flag = 0;
 
     for (int i = 0; i < aRowsNumber; i++) {
         int j0 = aColumnOffset;
         for (int j = 0; j < aColumnsNumber; j++) {
-            const double dist =
-                    CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, flag) / aLocalTheta[1];
+            const T dist = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
                                                  ? sigma_square
                                                  : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
@@ -57,5 +57,4 @@ void UnivariateMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int
         }
         i0++;
     }
-    cout << "Gneretae bellah 3leeeeeeeeek" << endl;
 }

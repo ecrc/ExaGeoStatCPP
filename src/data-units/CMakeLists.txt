@@ -10,6 +10,9 @@
 
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatDescriptor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorData.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatData.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -17,9 +17,10 @@
 #define EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 
 #include <vector>
+#include <unordered_map>
+#include <any>
 
 #include <common/Definitions.hpp>
-#include <any>
 
 /**
  * @brief Macro that generates a setter function for a member variable.
@@ -59,12 +60,6 @@ type Get##name()                                                                
     return std::any_cast<type>(mDictionary[dictionary_name]);                                               \
 }
 
-#define SET_VALUE_DEFAULT(name, value) \
-    Set##name(value);
-
-#define SET_DESCRIPTOR_DEFAULT(name, value) \
-    mDictionary[name] = value;
-
 namespace exageostat {
     namespace configurations {
         /**
@@ -76,25 +71,16 @@ namespace exageostat {
         public:
 
             /**
-             * @brief Get the singleton instance of Configurations.
-             * @return The singleton instance of Configurations.
+             * @brief Default constructor.
              *
              */
-            static Configurations *GetConfigurations() {
-                if (configurations_ == nullptr) {
-                    configurations_ = new Configurations();
-                    configurations_->SetDefaultValues();
-                }
-                return configurations_;
-            }
+            Configurations();
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
             virtual ~Configurations() = default;
-
-            void SetDefaultValues();
 
             /**
              * @brief Initialize the module arguments.
@@ -184,8 +170,8 @@ namespace exageostat {
              */
             static exageostat::common::RunMode GetRunMode();
 
-            CREATE_SETTER_FUNCTION(LoggerPath, const std::string &, aLoggerPath, "LoggerPath")
-            CREATE_GETTER_FUNCTION(LoggerPath, std::string *, "LoggerPath")
+            CREATE_SETTER_FUNCTION(LoggerPath, std::string, aLoggerPath, "LoggerPath")
+            CREATE_GETTER_FUNCTION(LoggerPath, std::string, "LoggerPath")
 
 
             CREATE_SETTER_FUNCTION(InitialTheta, std::vector<double> &, apTheta, "InitialTheta")
@@ -215,17 +201,11 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(DeterminantValue, double, aDeterminantValue, "DeterminantValue")
             CREATE_GETTER_FUNCTION(DeterminantValue, double, "DeterminantValue")
 
-            CREATE_GETTER_FUNCTION(DescriptorC, std::vector<void *> &, "DescriptorC")
-            CREATE_GETTER_FUNCTION(DescriptorZ, std::vector<void *> &, "DescriptorZ")
-            CREATE_GETTER_FUNCTION(DescriptorZcpy, void *&, "DescriptorZcpy")
-            CREATE_GETTER_FUNCTION(DescriptorProduct, std::vector<void *> &, "DescriptorProduct")
-            CREATE_GETTER_FUNCTION(DescriptorDeterminant, void *&, "DescriptorDeterminant")
-            CREATE_GETTER_FUNCTION(DescriptorCD, std::vector<void *> &, "DescriptorCD")
-            CREATE_GETTER_FUNCTION(DescriptorCUV, std::vector<void *> &, "DescriptorCUV")
-            CREATE_GETTER_FUNCTION(DescriptorCrk, std::vector<void *> &, "DescriptorCrk")
-            CREATE_GETTER_FUNCTION(DescriptorZObservations, void *&, "DescriptorZObservations")
-            CREATE_GETTER_FUNCTION(DescriptorZActual, void *&, "DescriptorZActual")
-            CREATE_GETTER_FUNCTION(DescriptorMSE, void *&, "DescriptorMSE")
+            CREATE_SETTER_FUNCTION(ProductValue, double, aProductValue, "ProductValue")
+            CREATE_GETTER_FUNCTION(ProductValue, double, "ProductValue")
+
+            CREATE_SETTER_FUNCTION(Tolerance, double, aTolerance, "Tolerance")
+            CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")
 
             CREATE_SETTER_FUNCTION(Sequence, void *, apSequence, "Sequence")
             CREATE_GETTER_FUNCTION(Sequence, void *, "Sequence")
@@ -268,11 +248,9 @@ namespace exageostat {
 //            bool
 //            GetLog();
 
-            CREATE_SETTER_FUNCTION(RecoveryFile, std::string &, aRecoveryFile, "RecoveryFile")
-            CREATE_GETTER_FUNCTION(RecoveryFile, std::string &, "RecoveryFile")
+            CREATE_SETTER_FUNCTION(RecoveryFile, std::string , aRecoveryFile, "RecoveryFile")
+            CREATE_GETTER_FUNCTION(RecoveryFile, std::string , "RecoveryFile")
 
-            CREATE_GETTER_FUNCTION(DotProduct, std::vector<double *> &, "DotProduct");
-            CREATE_GETTER_FUNCTION(Variance, std::vector<double *> &, "Variance")
             CREATE_GETTER_FUNCTION(FileLog, FILE *, "FileLog")
 
             CREATE_SETTER_FUNCTION(AvgExecutedTimePerIteration, double, aAvgExecTimePerIter, "AvgExecuted")
@@ -284,20 +262,16 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(FinalLogLik, double, aAvgExecTimePerIter, "FinalLogLik")
             CREATE_GETTER_FUNCTION(FinalLogLik, double, "FinalLogLik")
 
+            CREATE_SETTER_FUNCTION(DistanceMetric, common::DistanceMetric, aDistanceMetric, "DistanceMetric")
+            CREATE_GETTER_FUNCTION(DistanceMetric, common::DistanceMetric, "DistanceMetric")
+
+            CREATE_SETTER_FUNCTION(MaxMleIterations, int, aMaxMleIterations, "MaxMleIterations")
+            CREATE_GETTER_FUNCTION(MaxMleIterations, int, "MaxMleIterations")
+
             /** END OF THE DATA MODELING MODULES. **/
             /** START OF THE DATA PREDICTION MODULES. **/
 
             /** END OF THE DATA PREDICTION MODULES. **/
-
-        private:
-
-            static Configurations *configurations_;
-
-            /**
-             * @brief Default constructor.
-             *
-             */
-            Configurations() = default;
 
             /**
              * @brief Check if input value is numerical.
@@ -306,6 +280,24 @@ namespace exageostat {
              *
              */
             static int CheckNumericalValue(const std::string &aValue);
+
+            /**
+             * @brief Checks the value of the dimension parameter.
+             * @param[in] aDimension A string representing the dimension.
+             * @return The corresponding dimension value.
+             *
+             */
+            static exageostat::common::Dimension CheckDimensionValue(const std::string &aDimension);
+
+            /**
+             * @brief Checks if the kernel value is valid.
+             * @param[in] aKernel The kernel to check.
+             * @return void
+             *
+             */
+            void CheckKernelValue(const std::string &aKernel);
+
+        private:
 
             /**
              * @brief Check input computation value.
@@ -334,14 +326,6 @@ namespace exageostat {
             static void ParseRunMode(const std::string &aRunMode);
 
             /**
-             * @brief Checks if the kernel value is valid.
-             * @param[in] aKernel The kernel to check.
-             * @return void
-             *
-             */
-            void CheckKernelValue(const std::string &aKernel);
-
-            /**
              * @brief Checks if a given string is in camel case format.
              * @param[in] aString The string to check.
              * @return true if the string is in camel case format, false otherwise.
@@ -358,22 +342,21 @@ namespace exageostat {
             static std::vector<double> ParseTheta(const std::string &aInputValues);
 
             /**
-             * @brief Checks the value of the dimension parameter.
-             * @param[in] aDimension A string representing the dimension.
-             * @return The corresponding dimension value.
-             *
-             */
-            static exageostat::common::Dimension CheckDimensionValue(const std::string &aDimension);
-
-            /**
              * @brief Checks the value of the unknown observations parameter.
              * @param[in] aValue A string representing the number of unknown observations.
              * @return The corresponding integer value.
              */
             int CheckUnknownObservationsValue(const std::string &aValue);
 
+            /**
+             * @brief parse user's input to distance metric.
+             * @param aDistanceMetric
+             */
+            void ParseDistanceMetric(const std::string &aDistanceMetric);
+
+
             /// Used Dictionary
-            std::map<std::string, std::any> mDictionary;
+            std::unordered_map<std::string, std::any> mDictionary;
             /// Used Argument counter
             int mArgC = 0;
             /// Used Argument vectors

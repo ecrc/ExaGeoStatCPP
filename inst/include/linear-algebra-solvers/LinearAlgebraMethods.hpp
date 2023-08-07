@@ -25,10 +25,12 @@ extern "C" {
 }
 
 #include <common/Definitions.hpp>
-#include <kernels/Kernel.hpp>
-#include <configurations/Configurations.hpp>
 #include <common/Utils.hpp>
+#include <configurations/Configurations.hpp>
 #include <helpers/DiskWriter.hpp>
+#include <kernels/Kernel.hpp>
+#include <data-units/DescriptorData.hpp>
+#include <data-units/ExaGeoStatData.hpp>
 
 namespace exageostat {
     namespace linearAlgebra {
@@ -55,7 +57,8 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void InitiateDescriptors() = 0;
+            virtual void InitiateDescriptors(configurations::Configurations *apConfigurations,
+                                             dataunits::DescriptorData<T> *apDescriptorData) = 0;
 
             /**
              * @brief Destroys the descriptors used by the linear algebra solver.
@@ -63,7 +66,7 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void DestroyDescriptors() = 0;
+            virtual void DestroyDescriptors(dataunits::DescriptorData<T> *apDescriptorData) = 0;
 
             /**
              * @brief Computes the covariance matrix.
@@ -79,10 +82,11 @@ namespace exageostat {
              *
              */
             virtual void
-            CovarianceMatrixCodelet(void *apDescriptor, int &aTriangularPart, dataunits::Locations *apLocation1,
-                                    dataunits::Locations *apLocation2,
-                                    dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
-                                    exageostat::kernels::Kernel *apKernel) = 0;
+            CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                    int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                    dataunits::Locations<T> *apLocation2,
+                                    dataunits::Locations<T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
+                                    exageostat::kernels::Kernel<T> *apKernel) = 0;
 
             /**
              * @brief Copies the descriptor data to a double vector.
@@ -91,7 +95,8 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void CopyDescriptorZ(void *apDescriptor, double *apDoubleVector) = 0;
+            virtual void
+            CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor, T *apDoubleVector) = 0;
 
             /**
              * @brief Generates the observations vector.
@@ -105,37 +110,28 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void GenerateObservationsVector(void *apDescriptor, dataunits::Locations *apLocation1,
-                                                    dataunits::Locations *apLocation2,
-                                                    dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
-                                                    int aDistanceMetric, exageostat::kernels::Kernel *apKernel) = 0;
+            virtual void GenerateObservationsVector(configurations::Configurations *apConfigurations,
+                                                    dataunits::DescriptorData<T> *apDescriptorData,
+                                                    dataunits::BaseDescriptor aDescriptor,
+                                                    dataunits::Locations<T> *apLocation1,
+                                                    dataunits::Locations<T> *apLocation2,
+                                                    dataunits::Locations<T> *apLocation3, int aDistanceMetric,
+                                                    exageostat::kernels::Kernel<T> *apKernel, T* Nrand) = 0;
 
             /**
              * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.
-             * @param[in] apCoresNumber The number of cores to use for the solver.
-             * @param[in] apGPUs The number of GPUs to use for the solver.
+             * @param[in] aCoresNumber The number of cores to use for the solver.
+             * @param[in] aGPUs The number of GPUs to use for the solver.
              * @return void
              *
              */
-            virtual void ExaGeoStatInitContext() = 0;
+            virtual void ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) = 0;
 
             /**
              * @brief Finalizes the context for the linear algebra solver.
              *
              */
             virtual void ExaGeoStatFinalizeContext() = 0;
-
-            /**
-             * @brief Gets the matrix.
-             * @return Pointer to the matrix.
-             *
-             */
-            double *GetMatrix() {
-                if (this->apMatrix == nullptr) {
-                    throw std::runtime_error("Matrix is empty!");
-                }
-                return this->apMatrix;
-            }
 
             /**
              * @brief allocates matrix tile.
@@ -174,7 +170,8 @@ namespace exageostat {
              *
              */
             virtual T
-            ExaGeoStatMleTile(dataunits::Locations *apDataLocations) = 0;
+            ExaGeoStatMleTile(dataunits::ExaGeoStatData<T> *apData, configurations::Configurations *apConfigurations,
+                              const double *theta) = 0;
 
             /**
              * @brief Copies a matrix in the tile layout from source to destination
@@ -197,7 +194,7 @@ namespace exageostat {
              *
              */
             virtual int
-            ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) = 0;
+            ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda, void *apA) = 0;
 
             /**
              * @brief Wait for the completion of a sequence.
@@ -206,7 +203,7 @@ namespace exageostat {
              *
              */
             virtual int
-            ExaGeoStatSequenceWait(void * apSequence) = 0;
+            ExaGeoStatSequenceWait(void *apSequence) = 0;
 
             /**
              * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -231,7 +228,8 @@ namespace exageostat {
              *
              */
             virtual int
-            ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) = 0;
+            ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
+                               common::Diag aDiag, T aAlpha, void *apA, void *apB) = 0;
 
             /**
              * @brief Performs matrix multiplication.
@@ -246,7 +244,8 @@ namespace exageostat {
              *
              */
             virtual int
-            ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) = 0;
+            ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta,
+                               void *apC) = 0;
 
             /**
              * @brief Calculate determinant for triangular matrix.
@@ -258,7 +257,7 @@ namespace exageostat {
              *
              */
             virtual int
-            ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) = 0;
+            ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescDet) = 0;
 
             /**
              * @brief copy Chameleon descriptor to vector float*.
@@ -271,27 +270,30 @@ namespace exageostat {
              *
              */
             virtual int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                 void * apSequence, void *apRequest) = 0;
+                                                       void *apSequence, void *apRequest) = 0;
 
             //// These codlets and structs will be added to another level of abstraction and interface of runtime system. This is a quick fix for now.
             //// TODO: Create a Factory for Runtime system.
 
             static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
                 int m, n, m0, n0;
-                exageostat::dataunits::Locations *apLocation1;
-                exageostat::dataunits::Locations *apLocation2;
-                exageostat::dataunits::Locations *apLocation3;
-                double *theta;
-                double *A;
+                exageostat::dataunits::Locations<T> *apLocation1;
+                exageostat::dataunits::Locations<T> *apLocation2;
+                exageostat::dataunits::Locations<T> *apLocation3;
+                T *theta;
+                T *A;
                 int distance_metric;
-                exageostat::kernels::Kernel *kernel;
+                exageostat::kernels::Kernel<T> *kernel;
 
-                A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+                A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
+
 
                 starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
                                            &distance_metric, &kernel);
+
                 kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
                                                  apLocation2, apLocation3, theta, distance_metric);
+
             }
 
             struct starpu_codelet cl_dcmg =
@@ -308,13 +310,13 @@ namespace exageostat {
 
             static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
                 int m;
-                double *A;
+                T *A;
                 int m0;
-                double *r;
+                T *r;
 
-                A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+                A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
                 starpu_codelet_unpack_args(cl_arg, &m, &m0, &r);
-                memcpy(A, &r[m0], m * sizeof(double));
+                memcpy(A, &r[m0], m * sizeof(T));
             }
 
             static void CORE_dmdet_starpu(void *buffers[], void *cl_arg) {
@@ -329,18 +331,20 @@ namespace exageostat {
                 *determinant = 0;
                 A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
                 determinant = (double* ) STARPU_MATRIX_GET_PTR(buffers[1]);
-                starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0);
-                double local_det = core_dmdet(A, m, n, m0, n0);
+                starpu_codelet_unpack_args(cl_arg, &m);
+
+                double local_det = core_dmdet(A, m);
                 *determinant += local_det;
             }
 
-            static double core_dmdet(double* A, int m, int n, int m0, int n0) {
+            static double core_dmdet(double *A, int m) {
 
                 int i;
                 double res = 0.0;
                 for (i = 0; i < m; i++) {
-                    if (A[i + i * m] > 0)
+                    if (A[i + i * m] > 0) {
                         res += log(A[i + i * m]);
+                    }
                 }
                 return res;
             }
@@ -348,16 +352,16 @@ namespace exageostat {
             static void CORE_stride_vecstarpu(void *buffers[], void *cl_arg) {
                 int m;
                 int tempmm;
-                double* A;
-                double* B;
-                double* C;
+                T *A;
+                T *B;
+                T *C;
                 int m0;
                 int i = 0;
                 int j = 0;
 
-                A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
-                B = (double* ) STARPU_MATRIX_GET_PTR(buffers[1]);
-                C = (double* ) STARPU_MATRIX_GET_PTR(buffers[2]);
+                A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
+                B = (T *) STARPU_MATRIX_GET_PTR(buffers[1]);
+                C = (T *) STARPU_MATRIX_GET_PTR(buffers[2]);
                 starpu_codelet_unpack_args(cl_arg, &tempmm, &m0, &m);
                 j = 0;
                 for (i = 0; i < tempmm - 1; i += 2) {
@@ -395,7 +399,7 @@ namespace exageostat {
                     };
 
             //// TODO: RECONSTRUCT
-            bool recover(char *path, int iter_count, T* theta, T* loglik, int num_params) {
+            bool recover(char *path, int iter_count, T *theta, T *loglik, int num_params) {
 
                 FILE *fp;
                 char *line = NULL;
@@ -433,10 +437,6 @@ namespace exageostat {
 
                 return false;
             }
-
-        protected:
-            //// Used Matrix
-            double *apMatrix = nullptr;
         };
 
         /**

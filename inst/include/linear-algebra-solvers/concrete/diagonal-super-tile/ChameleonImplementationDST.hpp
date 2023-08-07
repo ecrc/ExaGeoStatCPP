@@ -45,14 +45,14 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::InitiateDescriptors()
                  * 
                  */
-                void InitiateDescriptors() override;
+                void InitiateDescriptors(configurations::Configurations *apConfigurations, dataunits::DescriptorData<T> *apDescriptorData) override;
 
                 /**
                  * @brief Destroys the descriptors used by the linear algebra solver.
                  * @copydoc LinearAlgebraMethods::DestroyDescriptors()
                  * 
                  */
-                void DestroyDescriptors() override;
+                void DestroyDescriptors(dataunits::DescriptorData<T> *apDescriptorData) override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -60,27 +60,24 @@ namespace exageostat {
                  * 
                  */
                 void
-                CovarianceMatrixCodelet(void *apDescriptor, int &aTriangularPart, dataunits::Locations *apLocation1,
-                                        dataunits::Locations *apLocation2,
-                                        dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
-                                        exageostat::kernels::Kernel *apKernel) override;
+                CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor, int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                        dataunits::Locations<T> *apLocation2,
+                                        dataunits::Locations<T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
+                                        exageostat::kernels::Kernel<T> *apKernel) override;
 
                 /**
                  * @brief Generates the observations vector.
                  * @copydoc LinearAlgebraMethods::GenerateObservationsVector()
                  * 
                  */
-                void GenerateObservationsVector(void *apDescriptor, dataunits::Locations *apLocation1,
-                                                dataunits::Locations *apLocation2,
-                                                dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
-                                                int aDistanceMetric, exageostat::kernels::Kernel *apKernel) override;
+                void GenerateObservationsVector(configurations::Configurations *apConfigurations, dataunits::DescriptorData<T> *apDescriptorData, dataunits::BaseDescriptor aDescriptor, dataunits::Locations<T> *apLocation1, dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3, int aDistanceMetric, exageostat::kernels::Kernel<T> *apKernel, T* Nrand) override;
 
                 /**
                  * @brief Initializes the context needed for the Chameleon solver.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatInitContext()
                  * 
                  */
-                void ExaGeoStatInitContext() override;
+                void ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) override;
 
                 /**
                  * @brief Finalizes the context needed for the Chameleon solver.
@@ -94,7 +91,7 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::CopyDescriptorZ()
                  *
                  */
-                void CopyDescriptorZ(void *apDescriptor, double *apDoubleVector) override;
+                void CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor, T *apDoubleVector) override;
 
 
                 /**
@@ -115,7 +112,7 @@ namespace exageostat {
                  * @param apData MLE_data struct with different MLE inputs.
                  * @return log likelihood value
                 */
-                T ExaGeoStatMleTile(dataunits::Locations *apDataLocations) override;
+                T ExaGeoStatMleTile(dataunits::ExaGeoStatData<T> *apData, configurations::Configurations *apConfigurations, const double* theta) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
