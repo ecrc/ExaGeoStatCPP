@@ -15,7 +15,7 @@ extern "C" {
 #include <control/hicma_context.h>
 }
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <api/ExaGeoStat.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>

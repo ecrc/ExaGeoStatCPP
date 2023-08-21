@@ -11,7 +11,7 @@
  * @date 2023-08-07
 **/
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <configurations/Configurations.hpp>
@@ -25,7 +25,8 @@ using namespace exageostat::dataunits;
 using namespace exageostat::hardware;
 
 void TEST_GENERATE_DATA() {
-    SECTION("Data generation - Observations") {
+    SECTION("Data generation - Observations")
+    {
         int seed = 0;
         srand(seed);
 
@@ -70,7 +71,7 @@ void TEST_GENERATE_DATA() {
 
         for (int i = 0; i < N; i++) {
             diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
     }
 }
@@ -105,7 +106,8 @@ void TEST_MODEL_DATA() {
     configurations.SetInitialTheta(initial_theta);
 
 
-    SECTION("Data Modeling") {
+    SECTION("Data Modeling")
+    {
 
         // Initialise ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
@@ -181,7 +183,9 @@ void TEST_MODEL_DATA() {
         free(z_matrix);
         free(c_matrix);
 
-    }SECTION("Data Generation and Modeling") {
+    }
+    SECTION("Data Generation and Modeling")
+    {
         // Initialise ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
@@ -195,6 +199,8 @@ void TEST_MODEL_DATA() {
 }
 
 TEST_CASE("ExaGeoStat API tests") {
-    TEST_GENERATE_DATA();
-    TEST_MODEL_DATA();
+TEST_GENERATE_DATA();
+
+TEST_MODEL_DATA();
+
 }

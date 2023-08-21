@@ -11,7 +11,3 @@
 * @author Sameh Abdulah
 * @date 2023-01-31
 **/
-
-#define CATCH_CONFIG_MAIN
-
-#include <libraries/catch/catch.hpp>

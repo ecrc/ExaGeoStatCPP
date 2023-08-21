@@ -100,8 +100,10 @@ ExaGeoStat<T>::ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vect
     auto config = ((mModelingData *) apInfo)->mpConfiguration;
     auto data = ((mModelingData *) apInfo)->mpData;
     auto hardware = ((mModelingData *) apInfo)->mpHardware;
+
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
             config->GetComputation());
+
     double loglik = linear_algebra_solver->ExaGeoStatMleTile(*hardware, data, config, aTheta.data());
     delete linear_algebra_solver;
     return loglik;

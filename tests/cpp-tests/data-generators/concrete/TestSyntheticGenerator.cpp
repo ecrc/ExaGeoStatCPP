@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-generators/DataGenerator.hpp>
 #include <configurations/Configurations.hpp>
@@ -53,12 +53,14 @@ void TEST_SPREAD_REVERSED_BITS() {
         // So, at the end it will be
         // ---- ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1
         REQUIRE(returnedByte == 0x0111111111111111);
-    }SECTION("Reverse Spread Bytes")
+    }
+    SECTION("Reverse Spread Bytes")
     {
         uint64_t randomByte = 0x0111111111111111;
         uint16_t returnedByte = SyntheticGenerator<double>::ReverseSpreadBits(randomByte);
         REQUIRE(returnedByte == 0x7FFF);
-    }SECTION("Spread & reverse 3D")
+    }
+    SECTION("Spread & reverse 3D")
     {
         // Test spreading and shifting 3D and getting back values correctly.
         uint16_t x = INT16_MAX;
@@ -201,7 +203,8 @@ void TEST_GENERATE_LOCATIONS() {
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
-    SECTION("2D Generation") {
+    SECTION("2D Generation")
+    {
 
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
@@ -217,7 +220,9 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0);
         }
         delete locations;
-    }SECTION("3D Generation") {
+    }
+    SECTION("3D Generation")
+    {
         synthetic_data_configurations.SetDimension(Dimension3D);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
@@ -234,7 +239,9 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(z[i] != 0);
         }
         delete locations;
-    }SECTION("ST Generation") {
+    }
+    SECTION("ST Generation")
+    {
 
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
@@ -270,7 +277,8 @@ void TEST_HELPERS_FUNCTIONS() {
 #endif
 
 
-    SECTION("Uniform distribution") {
+    SECTION("Uniform distribution")
+    {
         double lowerRange = -0.4;
         double higherRange = 0.4;
         double uniformed_num = SyntheticGenerator<double>::UniformDistribution(lowerRange, higherRange);
@@ -278,7 +286,8 @@ void TEST_HELPERS_FUNCTIONS() {
         REQUIRE(uniformed_num < 1);
     }
 
-    SECTION("Compare Uint32") {
+    SECTION("Compare Uint32")
+    {
 
         uint32_t num1 = 16;
         REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1) == false);
@@ -290,7 +299,8 @@ void TEST_HELPERS_FUNCTIONS() {
 
 void TEST_GENERATION() {
 
-    SECTION("test Generated location") {
+    SECTION("test Generated location")
+    {
 
         Configurations synthetic_data_configurations;
         synthetic_data_configurations.SetDimension(Dimension2D);
@@ -317,15 +327,15 @@ void TEST_GENERATION() {
 
 
         for (int i = 0; i < N; i++) {
-            REQUIRE((locations->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
-            REQUIRE((locations->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((locations->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((locations->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
         }
 
         // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
         Locations<double> *locations1 = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
         for (int i = 0; i < N; i++) {
-            REQUIRE((locations1->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
-            REQUIRE((locations1->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((locations1->GetLocationX()[i] - x[i]) != Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((locations1->GetLocationY()[i] - y[i]) != Catch::Approx(0.0).margin(1e-6));
         }
 
         // Now if we modified seed again, we will get the first generated locations again.
@@ -333,8 +343,8 @@ void TEST_GENERATION() {
         srand(seed_srand);
         Locations<double> *locations2 = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
         for (int i = 0; i < N; i++) {
-            REQUIRE((locations2->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
-            REQUIRE((locations2->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((locations2->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((locations2->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
         }
         SyntheticGenerator<double>::ReleaseInstance();
         delete locations;
@@ -345,8 +355,12 @@ void TEST_GENERATION() {
 
 
 TEST_CASE("Synthetic Data Generation tests") {
-    TEST_SPREAD_REVERSED_BITS();
-    TEST_GENERATE_LOCATIONS();
-    TEST_HELPERS_FUNCTIONS();
-    TEST_GENERATION();
+TEST_SPREAD_REVERSED_BITS();
+
+TEST_GENERATE_LOCATIONS();
+
+TEST_HELPERS_FUNCTIONS();
+
+TEST_GENERATION();
+
 }

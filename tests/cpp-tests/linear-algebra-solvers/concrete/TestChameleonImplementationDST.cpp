@@ -15,7 +15,7 @@ extern "C" {
 #include <control/context.h>
 }
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <configurations/Configurations.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
@@ -35,7 +35,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 
     Configurations synthetic_data_configurations;
 
-    SECTION("SINGLE") {
+    SECTION("SINGLE")
+    {
         // Initialise Hardware.
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 1, 0);
 
@@ -158,7 +159,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         delete data;
     }
 
-    SECTION("DOUBLE") {
+    SECTION("DOUBLE")
+    {
 
         // Initialise Hardware.
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 2, 0);
@@ -309,5 +311,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 }
 
 TEST_CASE("Chameleon Implementation DST") {
-    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+
 }

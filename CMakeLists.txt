@@ -157,15 +157,17 @@ install(TARGETS exageostatcpp
         DESTINATION lib/
         PUBLIC_HEADER DESTINATION include/
         )
+
 # Add tests if enabled
 if (${EXAGEOSTAT_BUILD_TESTS})
-    message(STATUS "Building Tests is Enabled")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp-tests)
+    message(STATUS "Building Tests")
+    include(ImportCatch2)
+    include(Catch)
     include(CTest)
-    add_test(NAME exageostat-tests
-            COMMAND exageostat-tests
-            )
-endif ()
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp-tests)
+    enable_testing()
+endif()
+
 
 if (EXAGEOSTAT_BUILD_EXAMPLES)
     message(STATUS "Building Examples  is Enabled")
