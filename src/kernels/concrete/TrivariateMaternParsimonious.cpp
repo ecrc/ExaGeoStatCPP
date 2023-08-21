@@ -5,7 +5,7 @@
 
 /**
  * @file TrivariateMaternParsimonious.cpp
- *
+ * @brief Implementation of the BivariateMaternParsimonious kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,28 +13,33 @@
 
 #include <kernels/concrete/TrivariateMaternParsimonious.hpp>
 
-using namespace exageostat::kernels;
-using namespace exageostat::dataunits;
 using namespace std;
 
-TrivariateMaternParsimonious::TrivariateMaternParsimonious() {
+using namespace exageostat::kernels;
+using namespace exageostat::dataunits;
+
+template<typename T>
+TrivariateMaternParsimonious<T>::TrivariateMaternParsimonious() {
     this->mP = 3;
     this->mParametersNumber = 10;
 }
 
-Kernel *TrivariateMaternParsimonious::Create() {
+template<typename T>
+Kernel<T> *TrivariateMaternParsimonious<T>::Create() {
     return new TrivariateMaternParsimonious();
 }
 
 namespace exageostat::kernels {
-    bool TrivariateMaternParsimonious::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "TrivariateMaternParsimonious", TrivariateMaternParsimonious::Create);
+    template<typename T> bool TrivariateMaternParsimonious<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "TrivariateMaternParsimonious", TrivariateMaternParsimonious<T>::Create);
 }
 
-void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                            int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                            Locations *apLocation2, Locations *apLocation3,
-                                                            double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                               int &aRowOffset, int &aColumnOffset,
+                                                               Locations<T> *apLocation1,
+                                                               Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                               T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -84,13 +89,13 @@ void TrivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, i
 
     i0 /= 3;
     int matrix_size = aRowsNumber * aColumnsNumber;
-    int index = 0;
+    int index;
     int flag = 0;
 
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
 
             if (expr == 0) {
 

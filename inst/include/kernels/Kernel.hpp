@@ -3,6 +3,7 @@
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
+
 /**
  * @file Kernels.hpp
  * @brief Header file for the Kernels class, which contains the main kernel functions.
@@ -51,12 +52,18 @@ namespace exageostat {
          * @details This class provides a base class for kernel functions and contains several utility functions for computing distance metrics and Bessel functions.
          *
          */
+        template<typename T>
         class Kernel {
         public:
 
             /**
+             * Default virtual destructor to be overidden by the the suitable concrete kernel destructor.
+             */
+            virtual ~Kernel() = default;
+
+            /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
-             * @param[in] apMatrixA The output covariance matrix.
+             * @param[out] apMatrixA The output covariance matrix.
              * @param[in] aRowsNumber The number of rows in the output matrix.
              * @param[in] aColumnsNumber The number of columns in the output matrix.
              * @param[in] aRowOffset The row offset for the input locations.
@@ -67,78 +74,70 @@ namespace exageostat {
              * @param[in] aLocalTheta An array of kernel parameters.
              * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
              * @return void
-             *
              */
             virtual void
-            GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
-                                     int &aColumnOffset, dataunits::Locations *apLocation1,
-                                     dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                     double *aLocalTheta, int &aDistanceMetric) = 0;
+            GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
+                                     int &aColumnOffset, dataunits::Locations<T> *apLocation1,
+                                     dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                     T *aLocalTheta, int &aDistanceMetric) = 0;
 
             /**
              * @brief Calculates the Euclidean distance between two points.
-             * @param apLocations1 Pointer to the first set of locations.
-             * @param apLocations2 Pointer to the second set of locations.
-             * @param aIdxLocation1 Index of the first location in the first set.
-             * @param aIdxLocation2 Index of the second location in the second set.
-             * @param aDistanceMetric Flag indicating the distance metric to use (1 for Manhattan distance, 2 for Euclidean distance).
-             * @param aFlagZ Flag indicating whether the points are in 2D or 3D space (0 for 2D, 1 for 3D).
+             * @param[in] aLocations1 Reference to the first set of locations.
+             * @param[in] aLocations2 Reference to the second set of locations.
+             * @param[in] aIdxLocation1 Index of the first location in the first set.
+             * @param[in] aIdxLocation2 Index of the second location in the second set.
+             * @param[in] aDistanceMetric Flag indicating the distance metric to use (1 for Manhattan distance, 2 for Euclidean distance).
+             * @param[in] aFlagZ Flag indicating whether the points are in 2D or 3D space (0 for 2D, 1 for 3D).
              * @return The Euclidean distance between the two points.
-             *
              */
-            static double
-            CalculateDistance(dataunits::Locations *apLocations1, dataunits::Locations *apLocations2,
-                              int &aIdxLocationX,
-                              int &aIdxLocationY,
-                              int &aDistanceMetric, int &aFlagZ);
+            T CalculateDistance(dataunits::Locations<T> &aLocations1, dataunits::Locations<T> &aLocations2,
+                                int &aIdxLocation1, int &aIdxLocation2, int &aDistanceMetric, int &aFlagZ);
 
             /**
              * @brief Calculates the great-circle distance between two points on Earth using the Haversine formula.
-             * @param aLatitude1 Latitude of the first point in degrees.
-             * @param aLongitude1 Longitude of the first point in degrees.
-             * @param aLatitude2 Latitude of the second point in degrees.
-             * @param aLongitude2 Longitude of the second point in degrees.
+             * @param[in] aLatitude1 Latitude of the first point in degrees.
+             * @param[in] aLongitude1 Longitude of the first point in degrees.
+             * @param[in] aLatitude2 Latitude of the second point in degrees.
+             * @param[in] aLongitude2 Longitude of the second point in degrees.
              * @return The distance between the two points in kilometers.
-             *
              */
-            static double
-            DistanceEarth(double &aLatitude1, double &aLongitude1, double &aLatitude2, double &aLongitude2);
+            static T DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2);
 
             /**
              * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
-             * @param aOrder The order of the Bessel function.
-             * @param input_value The input value at which to evaluate the derivative.
+             * @param[in] aOrder The order of the Bessel function.
+             * @param[in] aInputValue The input value at which to evaluate the derivative.
              * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
-             *
              */
-            static double CalculateDerivativeBesselInputNu(const double &aOrder, const double &aInputValue);
+            static T CalculateDerivativeBesselInputNu(const T &aOrder, const T &aInputValue);
 
             /**
              * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its order, evaluated at input_value and order aOrder.
-             * @param aOrder The order of the Bessel function.
-             * @param input_value The input value at which to evaluate the derivative.
+             * @param[in] aOrder The order of the Bessel function.
+             * @param[in] aInputValue The input value at which to evaluate the derivative.
              * @return The value of the derivative of K_nu with respect to its order, evaluated at input_value and order aOrder.
              *
              */
-            static double CalculateDerivativeBesselNu(const double &aOrder, const double &aInputValue);
+            static T CalculateDerivativeBesselNu(const T &aOrder, const T &aInputValue);
 
             /**
              * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
-             * @param aOrder The order of the Bessel function.
-             * @param input_value The input value at which to evaluate the second derivative.
+             * @param[in] aOrder The order of the Bessel function.
+             * @param[in] aInputValue The input value at which to evaluate the second derivative.
              * @return The value of the second derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
              *
              */
-            static double CalculateSecondDerivativeBesselNu(const double &aOrder, const double &aInputValue);
+            static T CalculateSecondDerivativeBesselNu(const T &aOrder, const T &aInputValue);
 
             /**
              * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
-             * @param aOrder The order of the Bessel function.
-             * @param input_value The input value at which to evaluate the derivative.
+             * @param[in] aOrder The order of the Bessel function.
+             * @param[in] aInputValue The input value at which to evaluate the derivative.
              * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
              *
              */
-            static double CalculateSecondDerivativeBesselNuInput(const double &aOrder, const double &aInputValue);
+            static T CalculateSecondDerivativeBesselNuInput(const T &aOrder, const T &aInputValue);
 
             /**
              * @brief Returns the value of the parameter P used by the kernel function.
@@ -149,6 +148,7 @@ namespace exageostat {
 
             /**
              * @brief Sets the value of the parameter P used by the kernel function.
+             * @param[in] aP Value to set `mP` with.
              * @return void
              *
              */
@@ -167,6 +167,14 @@ namespace exageostat {
             //// Used number of paramters.
             int mParametersNumber = 3;
         };
+
+        /**
+         * @brief Instantiates the Data Generator class for float and double types.
+         * @tparam T Data Type: float or double
+         *
+         */
+        EXAGEOSTAT_INSTANTIATE_CLASS(Kernel)
+
     }//namespace Kernels
 }//namespace exageostat
 

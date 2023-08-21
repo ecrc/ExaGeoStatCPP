@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternNonGaussian.cpp
- *
+ * @brief Implementation of the UnivariateMaternNonGaussian kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,36 +13,40 @@
 
 #include <kernels/concrete/UnivariateMaternNonGaussian.hpp>
 
-using namespace exageostat::kernels;
-using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternNonGaussian::UnivariateMaternNonGaussian() {
+using namespace exageostat::kernels;
+using namespace exageostat::dataunits;
+
+template<typename T>
+UnivariateMaternNonGaussian<T>::UnivariateMaternNonGaussian() {
     this->mP = 1;
     this->mParametersNumber = 6;
 }
 
-Kernel *UnivariateMaternNonGaussian::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternNonGaussian<T>::Create() {
     return new UnivariateMaternNonGaussian();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternNonGaussian::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternNonGaussian", UnivariateMaternNonGaussian::Create);
+    template<typename T> bool UnivariateMaternNonGaussian<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternNonGaussian", UnivariateMaternNonGaussian<T>::Create);
 }
 
-void UnivariateMaternNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                      int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                      Locations *apLocation2, Locations *apLocation3,
-                                                      double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                              int &aRowOffset, int &aColumnOffset,
+                                                              Locations<T> *apLocation1,
+                                                              Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                              T *aLocalTheta, int &aDistanceMetric) {
     //localtheta[0] <- \phi
     //localtheta[1] <- \nu
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0, z0;
-    double expr = 0.0;
-    double con = 0.0;
+    int j0;
+    double expr;
+    double con;
     double sigma_square = 1;
 
     con = pow(2, (aLocalTheta[1] - 1)) * tgamma(aLocalTheta[1]);
@@ -54,7 +58,8 @@ void UnivariateMaternNonGaussian::GenerateCovarianceMatrix(double *apMatrixA, in
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
             expr = 4 * sqrt(2 * aLocalTheta[1]) *
-                   (CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0]);
+                   (this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) /
+                    aLocalTheta[0]);
             if (expr == 0)
                 apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
             else

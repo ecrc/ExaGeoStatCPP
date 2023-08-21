@@ -5,7 +5,7 @@
 
 /**
  * @file BivariateSpacetimeMaternStationary.cpp
- *
+ * @brief Implementation of the BivariateSpacetimeMaternStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,29 +13,35 @@
 
 #include <kernels/concrete/BivariateSpacetimeMaternStationary.hpp>
 
-using namespace exageostat::kernels;
-using namespace exageostat::dataunits;
 using namespace std;
 
-BivariateSpacetimeMaternStationary::BivariateSpacetimeMaternStationary() {
+using namespace exageostat::kernels;
+using namespace exageostat::dataunits;
+
+template<typename T>
+BivariateSpacetimeMaternStationary<T>::BivariateSpacetimeMaternStationary() {
     this->mP = 2;
     this->mParametersNumber = 10;
 }
 
-Kernel *BivariateSpacetimeMaternStationary::Create() {
+template<typename T>
+Kernel<T> *BivariateSpacetimeMaternStationary<T>::Create() {
     return new BivariateSpacetimeMaternStationary();
 }
 
 namespace exageostat::kernels {
-    bool BivariateSpacetimeMaternStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "BivariateSpacetimeMaternStationary", BivariateSpacetimeMaternStationary::Create);
+    template<typename T> bool BivariateSpacetimeMaternStationary<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "BivariateSpacetimeMaternStationary", BivariateSpacetimeMaternStationary<T>::Create);
 }
 
+template<typename T>
 void
-BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                             int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                             Locations *apLocation2, Locations *apLocation3,
-                                                             double *aLocalTheta, int &aDistanceMetric) {
+BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                int &aRowOffset, int &aColumnOffset,
+                                                                Locations<T> *apLocation1,
+                                                                Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                                T *aLocalTheta, int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -64,7 +70,7 @@ BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, 
 
     i0 /= 2;
     int matrix_size = aRowsNumber * aColumnsNumber;
-    int index = 0;
+    int index;
     int flag = 1;
 
     for (i = 0; i < aRowsNumber; i += 2) {
@@ -77,7 +83,8 @@ BivariateSpacetimeMaternStationary::GenerateCovarianceMatrix(double *apMatrixA, 
             if (apLocation2->GetLocationZ() != nullptr) {
                 z1 = apLocation2->GetLocationZ()[j0];
             }
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / (aLocalTheta[2] * 1000);
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) /
+                   (aLocalTheta[2] * 1000);
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1, aLocalTheta[8] / 2);
             expr3 = expr / expr2;
             expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1,

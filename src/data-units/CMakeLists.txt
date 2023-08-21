@@ -8,8 +8,13 @@
 # @author Sameh Abdulah
 # @date 2023-02-27
 
+# Include the concrete implementations of the ExaGeoStat Descriptor class
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptor)
+
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorData.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatData.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

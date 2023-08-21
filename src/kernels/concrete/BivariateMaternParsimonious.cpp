@@ -5,38 +5,46 @@
 
 /**
  * @file BivariateMaternParsimonious.cpp
- *
+ * @brief Implementation of the BivariateMaternParsimonious kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
-#include <kernels/concrete/BivariateMaternParsimonious.hpp>
 #include<cmath>
+
 #include <gsl/gsl_sf_bessel.h>
+
+#include <kernels/concrete/BivariateMaternParsimonious.hpp>
+
+using namespace std;
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
-BivariateMaternParsimonious::BivariateMaternParsimonious() {
+template<typename T>
+BivariateMaternParsimonious<T>::BivariateMaternParsimonious() {
     this->mP = 2;
     this->mParametersNumber = 6;
 }
 
-Kernel *BivariateMaternParsimonious::Create() {
+template<typename T>
+Kernel<T> *BivariateMaternParsimonious<T>::Create() {
     return new BivariateMaternParsimonious();
 }
 
 namespace exageostat::kernels {
-    bool BivariateMaternParsimonious::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
+
+    template<typename T> bool BivariateMaternParsimonious<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
             "BivariateMaternParsimonious", BivariateMaternParsimonious::Create);
 }
 
-void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                           int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                           Locations *apLocation2, Locations *apLocation3,
-                                                           double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void BivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                              int &aRowOffset, int &aColumnOffset,
+                                                              Locations<T> *apLocation1,
+                                                              Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                              T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -69,17 +77,17 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[2];
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[2];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
 
-                if(((i + 1) + j * aRowsNumber ) < aRowsNumber * aColumnsNumber){
+                if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {
                     apMatrixA[(i + 1) + j * aRowsNumber] = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]);
                 }
-                if((i + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
+                if ((i + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber) {
                     apMatrixA[i + (j + 1) * aRowsNumber] = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]);
                 }
-                if(((i + 1) + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
+                if (((i + 1) + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber) {
                     apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1];
                 }
 
@@ -87,14 +95,15 @@ void BivariateMaternParsimonious::GenerateCovarianceMatrix(double *apMatrixA, in
                 apMatrixA[i + j * aRowsNumber] = con1 * pow(expr, aLocalTheta[3])
                                                  * gsl_sf_bessel_Knu(aLocalTheta[3], expr);
 
-                if(((i + 1) + j * aRowsNumber ) < aRowsNumber * aColumnsNumber){
-                    apMatrixA[(i + 1) + j * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12,expr);
+                if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {
+                    apMatrixA[(i + 1) + j * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
                 }
-                if((i + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
-                    apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12,expr);
+                if ((i + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber) {
+                    apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
                 }
-                if(((i + 1) + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber){
-                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = con2 * pow(expr, aLocalTheta[4]) * gsl_sf_bessel_Knu(aLocalTheta[4], expr);
+                if (((i + 1) + (j + 1) * aRowsNumber) < aRowsNumber * aColumnsNumber) {
+                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] =
+                            con2 * pow(expr, aLocalTheta[4]) * gsl_sf_bessel_Knu(aLocalTheta[4], expr);
                 }
             }
             j0++;

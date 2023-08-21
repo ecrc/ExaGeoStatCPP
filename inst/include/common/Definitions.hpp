@@ -31,14 +31,14 @@
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
-#ifndef PROJECT_SOURCE_DIR
-#   define PROJECT_SOURCE_DIR ""
-
-#endif
-
 // Variables sizes.
 #define SIZE_OF_FLOAT 4
 #define SIZE_OF_DOUBLE 8
+
+/**
+ * Pi value.
+ */
+#define PI (3.141592653589793)
 
 namespace exageostat {
     namespace common {
@@ -65,6 +65,95 @@ namespace exageostat {
         };
 
         /**
+         * @enum Side
+         * @brief Enum denoting the side on which the matrix appears in an equation.
+         */
+        enum Side {
+            EXAGEOSTAT_LEFT = 141,
+            EXAGEOSTAT_RIGHT = 142
+        };
+
+        /**
+         * @enum Trans
+         * @brief Enum denoting whether or not to transpose a matrix.
+         */
+        enum Trans {
+            EXAGEOSTAT_NO_TRANS = 111,
+            EXAGEOSTAT_TRANS = 112,
+            EXAGEOSTAT_CONJ_TRANS = 113
+        };
+
+        /**
+         * @enum Diag
+         * @brief Enum denoting whether the diagonal is unitary.
+         */
+        enum Diag {
+            EXAGEOSTAT_NON_UNIT = 131,
+            EXAGEOSTAT_UNIT = 132
+        };
+
+        /**
+         * @enum Distance metric
+         * @brief Enum denoting distance metric type.
+         */
+        enum DistanceMetric {
+            EUCLIDIAN_DISTANCE = 0,
+            GREAT_CIRCLE_DISTANCE = 1
+        };
+
+        /**
+         * @enum Descriptor Type
+         * @brief Enum denoting the Descriptor Type.
+         */
+        enum DescriptorType {
+            CHAMELEON_DESCRIPTOR = 0,
+            HICMA_DESCRIPTOR = 1
+        };
+
+        /**
+         * @enum Descriptor Name
+         * @brief Enum denoting all Descriptors Names.
+         */
+        enum DescriptorName : int {
+            DESCRIPTOR_C = 0,
+            DESCRIPTOR_Z = 1,
+            DESCRIPTOR_Z_COPY = 2,
+            DESCRIPTOR_PRODUCT = 3,
+            DESCRIPTOR_DETERMINANT = 4,
+            DESCRIPTOR_CD = 5,
+            DESCRIPTOR_CUV = 6,
+            DESCRIPTOR_CRK = 7,
+            DESCRIPTOR_Z_OBSERVATIONS = 8,
+            DESCRIPTOR_Z_Actual = 9,
+            DESCRIPTOR_MSE = 10,
+            DESCRIPTOR_Z_1 = 11,
+            DESCRIPTOR_Z_2 = 12,
+            DESCRIPTOR_PRODUCT_1 = 13,
+            DESCRIPTOR_PRODUCT_2 = 14,
+            DESCRIPTOR_C11 = 15,
+            DESCRIPTOR_C12 = 16,
+            DESCRIPTOR_C22 = 17,
+            DESCRIPTOR_C12D = 18,
+            DESCRIPTOR_C12UV = 19,
+            DESCRIPTOR_C12RK = 20,
+            DESCRIPTOR_C22D = 21,
+            DESCRIPTOR_C22UV = 22,
+            DESCRIPTOR_C22RK = 23
+        };
+
+        /**
+         * @brief Matrix tile storage
+         */
+        typedef enum TileStorage {
+            EXAGOSTAT_CM = 101,
+            EXAGOSTAT_RM = 102,
+            EXAGOSTAT_CCRB = 103,
+            EXAGOSTAT_CRRB = 104,
+            EXAGOSTAT_RCRB = 105,
+            EXAGOSTAT_RRRB = 106,
+        } ExaGeoStatTileStorage;
+
+        /**
          * @enum Computation
          * @brief Enum denoting the types of computations that can be requested,
          * to use the required Linear Algebra solver library.
@@ -74,15 +163,6 @@ namespace exageostat {
             EXACT_DENSE = 0,
             DIAGONAL_APPROX = 1,
             TILE_LOW_RANK = 2,
-        };
-
-        /**
-         * @enum Operators
-         * @brief Enum denoting the types of Operators that can be requested
-         *
-         */
-        enum Operators {
-            MLE = 0,
         };
 
         /**
@@ -124,7 +204,7 @@ namespace exageostat {
         /**
          * @var availableKernels
          * @brief Set denoting the available kernels supported in matrix generation.
-         * @details This set is updated manually to add new kernels.
+         * @details This set is updated automatically to add new kernels.
          * The set is initialized with a lambda function that iterates through a directory
          * and extracts the kernel names from the filenames. It also adds lowercase versions
          * of the kernel names with underscores before each capital letter.

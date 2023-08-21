@@ -22,7 +22,7 @@ BUILDING_EXAMPLES="OFF"
 USING_HiCMA="OFF"
 USING_CHAMELEON="OFF"
 VERBOSE=OFF
-BUILD_TYPE="RELEASE"
+BUILD_TYPE="Release"
 USE_CUDA="OFF"
 USE_MPI="OFF"
 
@@ -72,7 +72,7 @@ while getopts ":tevhHCi:dcm" opt; do
       USING_CHAMELEON="OFF"
       INSTALL_PREFIX=$PWD/installdir/exageostat
       VERBOSE=OFF
-      BUILD_TYPE="RELEASE"
+      BUILD_TYPE="Release"
       USE_CUDA="OFF"
       USE_MPI="OFF"
 
@@ -126,8 +126,8 @@ if [ -z "$USING_CHAMELEON" ]; then
 fi
 
 if [ -z "$BUILD_TYPE" ]; then
-  BUILD_TYPE="RELEASE"
-  echo -e "${GREEN}Building in release mode${NC}"
+  BUILD_TYPE="Release"
+  echo -e "${GREEN}Building in Release mode${NC}"
 fi
 if [ -z "$USE_CUDA" ]; then
   USE_CUDA="OFF"

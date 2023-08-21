@@ -23,8 +23,6 @@ template<typename T>
 LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
 
     // Check the used Linear Algebra solver library, whether it's HiCMA or Chameleon.
-
-    // Chameleon Used
     if (aComputation == EXACT_DENSE) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
 

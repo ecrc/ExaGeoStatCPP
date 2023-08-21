@@ -21,12 +21,13 @@ namespace exageostat {
 
         /**
          * @class UnivariateMaternNonStationary
-         * @brief A class representing a Bivariate Matern Flexible kernel.
-         * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class.
+         * @brief A class representing a Univariate Matern Non Stationary kernel.
+         * @details This class represents a Univariate Matern Non Stationary, which is a subclass of the Kernel class.
          * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
          *
          */
-        class UnivariateMaternNonStationary : public Kernel {
+        template<typename T>
+        class UnivariateMaternNonStationary : public Kernel<T> {
 
         public:
 
@@ -40,16 +41,16 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
-            ~UnivariateMaternNonStationary() = default;
+            ~UnivariateMaternNonStationary() override = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @copydoc Kernel::GenerateCovarianceMatrix()
              */
-            void GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
-                                          int &aColumnOffset, dataunits::Locations *apLocation1,
-                                          dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *aLocalTheta, int &aDistanceMetric) override ;
+            void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
+                                          int &aColumnOffset, dataunits::Locations<T> *apLocation1,
+                                          dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                          T *aLocalTheta, int &aDistanceMetric) override;
 
             /**
              * @brief Creates a new UnivariateMaternNonStationary object.
@@ -57,7 +58,7 @@ namespace exageostat {
              * @return A pointer to the new UnivariateMaternNonStationary object.
              *
              */
-            static Kernel *Create();
+            static Kernel<T> *Create();
 
         private:
             //// Used plugin name for static registration

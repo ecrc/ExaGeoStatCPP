@@ -1,9 +1,7 @@
 
-/*
- * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * All rights reserved.
- * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
- */
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file DataGenerator.hpp
@@ -19,9 +17,9 @@
 #include <memory>
 
 #include <data-units/Locations.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <kernels/Kernel.hpp>
 
 namespace exageostat {
     namespace generators {
@@ -40,63 +38,22 @@ namespace exageostat {
             /**
              * @brief Generates the data locations.
              * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
+             * @param[in] apConfigurations Pointer to the data configurations.
              * @return void
              *
              */
-            virtual void
-            GenerateLocations() = 0;
-
-            /**
-             * @brief Generates the data descriptors.
-             * @details This method generates the descriptors used to define the properties of the data points.
-             * @return void
-             *
-             */
-            virtual void
-            GenerateDescriptors() = 0;
-
-            /**
-             * @brief Destroys the data descriptors.
-             * @details This method frees the memory used by the data descriptors.
-             * @return void
-             *
-             */
-            virtual void DestoryDescriptors() = 0;
-
-            /**
-             * @brief Generates the data observations.
-             * @details This method generates the observations of the data points, which are used to train and test the model.
-             * @return void
-             *
-             */
-            virtual void
-            GenerateObservations() = 0;
+            virtual dataunits::Locations<T> *
+            CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) = 0;
 
             /**
              * @brief Factory method for creating a data generator object.
              * @details This method creates a data generator object based on the specified configurations.
-             * @param[in] apConfigurations Pointer to the synthetic data configurations.
+             * @param[in] aConfigurations Reference to the data configurations.
              * @return A unique pointer to the created data generator object.
              *
              */
             static std::unique_ptr<DataGenerator>
-            CreateGenerator(configurations::data_configurations::SyntheticDataConfigurations *apConfigurations);
-
-            /**
-              * @brief Gets the data locations object.
-              * @return A pointer to the locations object.
-              *
-              */
-            dataunits::Locations *
-            GetLocations();
-
-            /**
-             * @brief Gets the kernel object used to compute the covariance matrix.
-             * @return A pointer to the kernel object.
-             *
-             */
-            exageostat::kernels::Kernel *
-            GetKernel();
+            CreateGenerator(exageostat::configurations::Configurations &aConfigurations);
 
             /**
              * @brief Destructor for the data generator object.
@@ -105,22 +62,9 @@ namespace exageostat {
              */
             virtual ~DataGenerator();
 
-            /**
-             * @brief Gets the linear algebra solver object.
-             * @return A pointer to the linear algebra solver object.
-             *
-             */
-            static linearAlgebra::LinearAlgebraMethods<T> *GetLinearAlgberaSolver();
-
         protected:
-            /// Pointer to SyntheticDataConfigurations object
-            configurations::data_configurations::SyntheticDataConfigurations * mpConfigurations{}; // [in] Used Synthetic Configuration.
-            /// Pointer to Locations object
-            dataunits::Locations * mpLocations = nullptr; // [out] Used Locations
-            /// Pointer to Kernel object
-            exageostat::kernels::Kernel * mpKernel = nullptr; // [out] Used Kernel
-            /// Pointer to LinearAlgebraMethods object
-            static linearAlgebra::LinearAlgebraMethods<T> * mpLinearAlgebraSolver; // [out] Used linear Algebra solver
+            /// Used bool identifying type of generation.
+            static bool mIsSynthetic;
         };
 
         /**
