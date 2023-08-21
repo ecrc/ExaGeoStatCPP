@@ -9,9 +9,6 @@
 # @author Sameh Abdulah
 # @date 2023-01-31
 
-# Add subdirectory for data-generation.
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generation)
-
 # Add the Configurations.cpp file to the list of source files.
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Configurations.cpp

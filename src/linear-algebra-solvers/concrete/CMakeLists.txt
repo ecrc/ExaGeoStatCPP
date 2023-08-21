@@ -11,18 +11,18 @@
 # @date 2023-03-20
 
 # Include the concrete implementations of the LinearAlgebraMethods class based on the enabled libraries (HiCMA or Chameleon)
-if(EXAGEOSTAT_USE_CHAMELEON)
+if (EXAGEOSTAT_USE_CHAMELEON)
     set(SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/dense/ChameleonImplementationDense.cpp
             ${CMAKE_CURRENT_SOURCE_DIR}/diagonal-super-tile/ChameleonImplementationDST.cpp
             ${SOURCES}
             PARENT_SCOPE
             )
-endif()
-if(EXAGEOSTAT_USE_HiCMA)
+endif ()
+if (EXAGEOSTAT_USE_HiCMA)
     set(SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/tile-low-rank/HicmaImplementation.cpp
             ${SOURCES}
             PARENT_SCOPE
             )
-endif()
+endif ()

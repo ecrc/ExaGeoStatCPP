@@ -5,41 +5,45 @@
 
 /**
  * @file UnivariateMaternNuggetsStationary.cpp
- *
+ * @brief Implementation of the UnivariateMaternNuggetsStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/UnivariateMaternNuggetsStationary.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
+
+using namespace std;
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
-UnivariateMaternNuggetsStationary::UnivariateMaternNuggetsStationary() {
+template<typename T>
+UnivariateMaternNuggetsStationary<T>::UnivariateMaternNuggetsStationary() {
     this->mP = 1;
     this->mParametersNumber = 4;
 }
 
-Kernel *UnivariateMaternNuggetsStationary::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternNuggetsStationary<T>::Create() {
     return new UnivariateMaternNuggetsStationary();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternNuggetsStationary::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternNuggetsStationary", UnivariateMaternNuggetsStationary::Create);
+    template<typename T> bool UnivariateMaternNuggetsStationary<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternNuggetsStationary", UnivariateMaternNuggetsStationary<T>::Create);
 }
 
-void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                       int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                       Locations *apLocation2, Locations *apLocation3,
-                                                       double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                                    int &aRowOffset, int &aColumnOffset,
+                                                                    Locations<T> *apLocation1,
+                                                                    Locations<T> *apLocation2,
+                                                                    Locations<T> *apLocation3,
+                                                                    T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
+    int j0;
     double expr;
     double con;
     double sigma_square = aLocalTheta[0];// * aLocalTheta[0];
@@ -53,12 +57,14 @@ void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatri
         for (i = 0; i < aRowsNumber; i++) {
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
-                expr = CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, flag) / aLocalTheta[1];
+                expr = this->CalculateDistance(*apLocation1, *apLocation2, j0, i0, aDistanceMetric, flag) /
+                       aLocalTheta[1];
                 if (expr == 0)
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 else
                     apMatrixA[i + j * aRowsNumber] =
-                            con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
+                            con * pow(expr, aLocalTheta[2]) *
+                            gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
                 j0++;
             }
             i0++;
@@ -68,12 +74,13 @@ void UnivariateMaternNuggetsStationary::GenerateCovarianceMatrix(double *apMatri
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
                 flag = 1;
-                expr = CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, flag);
+                expr = this->CalculateDistance(*apLocation1, *apLocation2, j0, i0, aDistanceMetric, flag);
                 if (expr == 0)
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 else
                     apMatrixA[i + j * aRowsNumber] =
-                            con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
+                            con * pow(expr, aLocalTheta[2]) *
+                            gsl_sf_bessel_Knu(aLocalTheta[2], expr); // Matern Function
                 j0++;
             }
             i0++;

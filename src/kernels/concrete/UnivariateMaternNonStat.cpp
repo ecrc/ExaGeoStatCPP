@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternNonStat.cpp
- *
+ * @brief Implementation of the UnivariateMaternNonStat kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,31 +13,35 @@
 
 #include <kernels/concrete/UnivariateMaternNonStat.hpp>
 
-using namespace exageostat::kernels;
-using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternNonStat::UnivariateMaternNonStat() {
+using namespace exageostat::kernels;
+using namespace exageostat::dataunits;
+
+template<typename T>
+UnivariateMaternNonStat<T>::UnivariateMaternNonStat() {
     this->mP = 1;
     this->mParametersNumber = 8;
 }
 
-Kernel *UnivariateMaternNonStat::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternNonStat<T>::Create() {
     return new UnivariateMaternNonStat();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternNonStat::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternNonStat", UnivariateMaternNonStat::Create);
+    template<typename T> bool UnivariateMaternNonStat<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternNonStat", UnivariateMaternNonStat<T>::Create);
 }
 
-void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                       int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                       Locations *apLocation2, Locations *apLocation3,
-                                                       double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                          int &aRowOffset, int &aColumnOffset,
+                                                          Locations<T> *apLocation1,
+                                                          Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                          T *aLocalTheta, int &aDistanceMetric) {
     double l1x, l1y, l2x, l2y;
-
-    double a, b, c, d, e, f, g, h, ti;
+    double a, b, d, e, f, g, h, ti;
 
     a = aLocalTheta[0];
     b = aLocalTheta[1];
@@ -91,22 +95,26 @@ void UnivariateMaternNonStat::GenerateCovarianceMatrix(double *apMatrixA, int &a
     }
 }
 
-double UnivariateMaternNonStat::Neu(double x, double y, double g, double h, double ti) {
+template<typename T>
+double UnivariateMaternNonStat<T>::Neu(double x, double y, double g, double h, double ti) {
     return (g * pow(POW_e, h * (x + y)) + ti);
 }
 
-double UnivariateMaternNonStat::Sigma(double x, double y, double d, double e, double f) {
+template<typename T>
+double UnivariateMaternNonStat<T>::Sigma(double x, double y, double d, double e, double f) {
     return (d * pow(POW_e, e * (x + y)) + f);
 }
 
-double UnivariateMaternNonStat::Lambda(double x, double y, double a, double b) {
+template<typename T>
+double UnivariateMaternNonStat<T>::Lambda(double x, double y, double a, double b) {
 
     return (a * pow(POW_e, sin(b * x) + sin(b * y)));
 }
 
-double UnivariateMaternNonStat::CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,
-                                           double y2, double a11, double a12,
-                                           double a21, double a22) {
+template<typename T>
+double UnivariateMaternNonStat<T>::CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,
+                                                                       double y2, double a11, double a12,
+                                                                       double a21, double a22) {
 
     double diffx = x1 - x2;
     double diffy = y1 - y2;
@@ -119,8 +127,9 @@ double UnivariateMaternNonStat::CalculateMahalanobisDistanceSquared(double x1, d
     return ans;
 }
 
-double UnivariateMaternNonStat::MaternUtil(double range, double smoothness, double distance) {
-    double con = 0.0;
+template<typename T>
+double UnivariateMaternNonStat<T>::MaternUtil(double range, double smoothness, double distance) {
+    double con;
     con = pow(2, (smoothness - 1)) * tgamma(smoothness);
     con = 1.0 / con;
 

@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternDsigmaSquare.cpp
- *
+ * @brief Implementation of the UnivariateMaternDsigmaSquare kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,33 +13,38 @@
 
 #include <kernels/concrete/UnivariateMaternDsigmaSquare.hpp>
 
-using namespace exageostat::kernels;
-using namespace exageostat::dataunits;
 using namespace std;
 
-UnivariateMaternDsigmaSquare::UnivariateMaternDsigmaSquare() {
+using namespace exageostat::kernels;
+using namespace exageostat::dataunits;
+
+template<typename T>
+UnivariateMaternDsigmaSquare<T>::UnivariateMaternDsigmaSquare() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternDsigmaSquare::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternDsigmaSquare<T>::Create() {
     return new UnivariateMaternDsigmaSquare();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternDsigmaSquare::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternDsigmaSquare", UnivariateMaternDsigmaSquare::Create);
+    template<typename T> bool UnivariateMaternDsigmaSquare<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternDsigmaSquare", UnivariateMaternDsigmaSquare<T>::Create);
 }
 
-void UnivariateMaternDsigmaSquare::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                            int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                            Locations *apLocation2, Locations *apLocation3,
-                                                            double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternDsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                               int &aRowOffset, int &aColumnOffset,
+                                                               Locations<T> *apLocation1,
+                                                               Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                               T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
+    int j0;
     double expr;
-    double con = 0.0;
+    double con;
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;

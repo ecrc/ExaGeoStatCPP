@@ -25,6 +25,7 @@ Changes to ExaGeoStat-CPP C/C++ code should conform to the
 the following specific style details:
 
 ## Naming convention
+
 ### File Names
 
 All file names should have a ```PascalCase```.
@@ -58,7 +59,7 @@ All namespaces should be all ```lowercase```.
 ```c++
 // Example
 namespace librarynamespace {
-    
+
 }
 ```
 
@@ -152,19 +153,30 @@ All scope variables should have a ```snake_case```.
 
 int number_count;
 ```
+
 ## ExaGeoStat NameSpaces
+
 - Default indentation is 4 spaces, and wrapped parameters have 4 spaces indent.
 
 - In ExaGeoStat-CPP, we have 4 namespaces, as follows:
-  - `exageostat::api`: This namespace contains the high-level drivers for the ExaGeoStat-cpp functionalities that are provided to library users. These functions help users interact with the ExaGeoStat-cpp framework and perform various statistical operations.
-  - `exageostat::common`: This namespace contains all ExaGeoStat-cpp common functionalities that might be used across the different modules of the ExaGeoStat-cpp framework.
-  - `exageostat::configurations`: This namespace contains all ExaGeoStat-cpp configurations arguments and parsers. These functions are used to parse and set the configuration parameters for the ExaGeoStat-cpp framework.
-  - `exageostat::data-generators`: This namespace is used to generate data sets.
-  - `exageostat::data-units`: This namespace is used for all ExaGeoStat-cpp base data structures that the user should utilize and interact with. These data units are used to represent the data and perform operations on it.
-  - `exageostat::helpers`: This namespace contains helper functions that can be used across the different modules of the ExaGeoStat-cpp framework.
-  - `exageostat::kernels`: These functions provide low-level implementations of the supported kernels offered by the ExaGeoStat-cpp framework.
-  - `exageostat::linear-algebra-solvers`: This namespace is used for all ExaGeoStat-cpp integrated linear algebra solvers libraries.
-  - `exageostat::operators`: This namespace contains various operators used by the ExaGeoStat-cpp framework. These operators are used to perform various mathematical operations on the data sets.
+    - `exageostat::api`: This namespace contains the high-level drivers for the ExaGeoStat-cpp functionalities that are
+      provided to library users. These functions help users interact with the ExaGeoStat-cpp framework and perform
+      various statistical operations.
+    - `exageostat::common`: This namespace contains all ExaGeoStat-cpp common functionalities that might be used across
+      the different modules of the ExaGeoStat-cpp framework.
+    - `exageostat::configurations`: This namespace contains all ExaGeoStat-cpp configurations arguments and parsers.
+      These functions are used to parse and set the configuration parameters for the ExaGeoStat-cpp framework.
+    - `exageostat::data-generators`: This namespace is used to generate data sets.
+    - `exageostat::data-units`: This namespace is used for all ExaGeoStat-cpp base data structures that the user should
+      utilize and interact with. These data units are used to represent the data and perform operations on it.
+    - `exageostat::helpers`: This namespace contains helper functions that can be used across the different modules of
+      the ExaGeoStat-cpp framework.
+    - `exageostat::kernels`: These functions provide low-level implementations of the supported kernels offered by the
+      ExaGeoStat-cpp framework.
+    - `exageostat::linear-algebra-solvers`: This namespace is used for all ExaGeoStat-cpp integrated linear algebra
+      solvers libraries.
+    - `exageostat::operators`: This namespace contains various operators used by the ExaGeoStat-cpp framework. These
+      operators are used to perform various mathematical operations on the data sets.
 
 Use `clang-format` to check your C/C++ changes.
 
@@ -245,11 +257,15 @@ your new code. If you are creating new methods or classes, please add Doxygen
 documentation.
 
 To add a new kernel you need to follow these steps.
-1. Add your kernel header file in the inst/include/kernels/concrete, The name of the file must be the same name of the called kernel
-for example, if the header file name is UnivariateMaternStationary.hpp then users can use this kernel by calling univariate_matern_stationary or UnivariateMaternStationary.
-This is automatically generated any you don't have to worry about anything.
+
+1. Add your kernel header file in the inst/include/kernels/concrete, The name of the file must be the same name of the
+   called kernel
+   for example, if the header file name is UnivariateMaternStationary.hpp then users can use this kernel by calling
+   univariate_matern_stationary or UnivariateMaternStationary.
+   This is automatically generated any you don't have to worry about anything.
 2. Inherent the parent class which is kernel.hpp and Implement the needed functions.
-3. Make sure you have the same functions as the other kernels with the same convention in order for your kernel to be supported correctly.
+3. Make sure you have the same functions as the other kernels with the same convention in order for your kernel to be
+   supported correctly.
 
 Once your feature is complete and your tests are passing, you can push your
 branch to GitHub and create a pull request.

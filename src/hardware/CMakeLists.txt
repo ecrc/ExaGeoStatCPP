@@ -7,12 +7,10 @@
 # @brief This file contains the CMake configuration for the configurations directory.
 # @version 1.0.0
 # @author Sameh Abdulah
-# @date 2023-02-03
+# @date 2023-08-08
 
-# Add the source files to the list of sources.
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/SyntheticDataConfigurations.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/DataConfigurations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatHardware.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

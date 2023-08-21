@@ -1,3 +1,4 @@
+
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
@@ -12,8 +13,6 @@
 
 #ifndef EXAGEOSTATCPP_DISKWRITER_HPP
 #define EXAGEOSTATCPP_DISKWRITER_HPP
-
-#include <iostream>
 
 #include <common/Definitions.hpp>
 #include <data-units/Locations.hpp>
@@ -33,17 +32,17 @@ namespace exageostat {
 
             /**
              * @brief Writes a matrix of vectors to disk.
-             * @param[in] apMatrixPointer A pointer to the matrix data.
-             * @param[in] apProblemSize The size of the problem.
-             * @param[in] apP The number of processes.
-             * @param[in] apLoggerPath The path to the logger file.
-             * @param[in] apLocations A pointer to the Locations object.
+             * @param[in] aMatrixPointer A Reference to the matrix data.
+             * @param[in] aProblemSize The size of the problem.
+             * @param[in] aP The number of processes.
+             * @param[in] aLoggerPath The path to the logger file.
+             * @param[in] aLocations A Reference to the Locations object.
              * @return void
              *
              */
             void static
-            WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP, std::string *apLoggerPath,
-                               exageostat::dataunits::Locations *apLocations);
+            WriteVectorsToDisk(T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
+                               exageostat::dataunits::Locations<T> &aLocations);
         };
 
         /**

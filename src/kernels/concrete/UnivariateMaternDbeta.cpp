@@ -5,42 +5,47 @@
 
 /**
  * @file UnivariateMaternDbeta.cpp
- *
+ * @brief Implementation of the UnivariateMaternDbeta kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
+
 #include <kernels/concrete/UnivariateMaternDbeta.hpp>
+
+using namespace std;
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
-UnivariateMaternDbeta::UnivariateMaternDbeta() {
+template<typename T>
+UnivariateMaternDbeta<T>::UnivariateMaternDbeta() {
     this->mP = 1;
     this->mParametersNumber = 3;
 }
 
-Kernel *UnivariateMaternDbeta::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternDbeta<T>::Create() {
     return new UnivariateMaternDbeta();
 }
 
 namespace exageostat::kernels {
-    bool UnivariateMaternDbeta::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel>::Add(
-            "UnivariateMaternDbeta", UnivariateMaternDbeta::Create);
+    template<typename T> bool UnivariateMaternDbeta<T>::plugin_name = plugins::PluginRegistry<exageostat::kernels::Kernel<T>>::Add(
+            "UnivariateMaternDbeta", UnivariateMaternDbeta<T>::Create);
 }
 
-void UnivariateMaternDbeta::GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                     int &aRowOffset, int &aColumnOffset, Locations *apLocation1,
-                                                     Locations *apLocation2, Locations *apLocation3,
-                                                     double *aLocalTheta, int &aDistanceMetric) {
+template<typename T>
+void UnivariateMaternDbeta<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
+                                                        int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
+                                                        Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                        T *aLocalTheta, int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0, z0;
-    double expr = 0.0;
-    double beta_expr = 0.0;
-    double con = 0.0;
+    int j0;
+    double expr;
+    double beta_expr;
+    double con;
     double sigma_square = aLocalTheta[0];
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
@@ -48,17 +53,17 @@ void UnivariateMaternDbeta::GenerateCovarianceMatrix(double *apMatrixA, int &aRo
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
                 beta_expr = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2])
                             * gsl_sf_bessel_Knu(aLocalTheta[2], expr) - pow(expr, aLocalTheta[2])
-                                                                         * (aLocalTheta[2] / expr *
-                                                                            gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
-                                                                            gsl_sf_bessel_Knu(aLocalTheta[2] + 1,
-                                                                                              expr)) * expr /
-                                                                         aLocalTheta[1];
+                                                                        * (aLocalTheta[2] / expr *
+                                                                           gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                                                           gsl_sf_bessel_Knu(aLocalTheta[2] + 1,
+                                                                                             expr)) * expr /
+                                                                        aLocalTheta[1];
 
                 apMatrixA[i + j * aRowsNumber] = sigma_square * con * beta_expr; //derivative with respect to beta
 

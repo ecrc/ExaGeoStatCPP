@@ -21,12 +21,13 @@ namespace exageostat {
 
         /**
          * @class UnivariateSpacetimeMaternStationary
-         * @brief A class representing a Bivariate Matern Flexible kernel.
-         * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class.
+         * @brief A class representing a Univariate Spacetime Matern Stationary kernel.
+         * @details This class represents a Univariate Spacetime Matern Stationary, which is a subclass of the Kernel class.
          * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
          *
          */
-        class UnivariateSpacetimeMaternStationary : public Kernel {
+        template<typename T>
+        class UnivariateSpacetimeMaternStationary : public Kernel<T> {
 
         public:
 
@@ -40,16 +41,16 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
-            ~UnivariateSpacetimeMaternStationary() = default;
+            ~UnivariateSpacetimeMaternStationary() override = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @copydoc Kernel::GenerateCovarianceMatrix()
              */
-            void GenerateCovarianceMatrix(double *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
-                                          int &aColumnOffset, dataunits::Locations *apLocation1,
-                                          dataunits::Locations *apLocation2, dataunits::Locations *apLocation3,
-                                          double *aLocalTheta, int &aDistanceMetric) override ;
+            void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
+                                          int &aColumnOffset, dataunits::Locations<T> *apLocation1,
+                                          dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                          T *aLocalTheta, int &aDistanceMetric) override;
 
             /**
              * @brief Creates a new UnivariateSpacetimeMaternStationary object.
@@ -57,12 +58,19 @@ namespace exageostat {
              * @return A pointer to the new UnivariateSpacetimeMaternStationary object.
              *
              */
-            static Kernel *Create();
+            static Kernel<T> *Create();
 
         private:
             //// Used plugin name for static registration
             static bool plugin_name;
         };
+
+        /**
+        * @brief Instantiates the Data Generator class for float and double types.
+        * @tparam T Data Type: float or double
+        *
+        */
+        EXAGEOSTAT_INSTANTIATE_CLASS(UnivariateSpacetimeMaternStationary)
     }//namespace Kernels
 }//namespace exageostat
 

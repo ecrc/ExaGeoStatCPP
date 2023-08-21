@@ -15,46 +15,78 @@
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 
-void Locations::SetLocationX(double *apLocationX) {
-    this->mpLocationX = apLocationX;
+template<typename T>
+void Locations<T>::SetLocationX(T &aLocationX) {
+    this->mpLocationX = &aLocationX;
 }
 
-double *Locations::GetLocationX() {
+template<typename T>
+T *Locations<T>::GetLocationX() {
     if (this->mpLocationX == nullptr) {
         throw std::runtime_error("LocationX is null");
     }
     return this->mpLocationX;
 }
 
-void Locations::SetLocationY(double *apLocationY) {
-    this->mpLocationY = apLocationY;
+template<typename T>
+void Locations<T>::SetLocationY(T &aLocationY) {
+    this->mpLocationY = &aLocationY;
 }
 
-double *Locations::GetLocationY() {
+template<typename T>
+T *Locations<T>::GetLocationY() {
     if (this->mpLocationY == nullptr) {
         throw std::runtime_error("LocationY is null");
     }
     return this->mpLocationY;
 }
 
-void Locations::SetLocationZ(double *apLocationZ) {
-    this->mpLocationZ = apLocationZ;
+template<typename T>
+void Locations<T>::SetLocationZ(T &aLocationZ) {
+    this->mpLocationZ = &aLocationZ;
 }
 
-double *Locations::GetLocationZ() {
+template<typename T>
+T *Locations<T>::GetLocationZ() {
     return this->mpLocationZ;
 }
 
-Locations::Locations(int aSize, Dimension aDimension) {
+template<typename T>
+void Locations<T>::SetSize(int aSize) {
+    this->mSize = aSize;
+}
 
-    this->mpLocationX = (double *) malloc(aSize * sizeof(double));
-    this->mpLocationY = (double *) malloc(aSize * sizeof(double));
+template<typename T>
+int Locations<T>::GetSize() {
+    return this->mSize;
+}
+
+template<typename T>
+void Locations<T>::SetDimension(Dimension aDimension) {
+    this->mDimension = aDimension;
+}
+
+template<typename T>
+Dimension Locations<T>::GetDimension() {
+    return this->mDimension;
+}
+
+
+template<typename T>
+Locations<T>::Locations(int aSize, Dimension aDimension) {
+
+    this->mSize = aSize;
+    this->mDimension = aDimension;
+    this->mpLocationX = (T *) malloc(aSize * sizeof(T));
+    this->mpLocationY = (T *) malloc(aSize * sizeof(T));
     if (aDimension != common::Dimension2D) {
-        this->mpLocationZ = (double *) malloc(aSize * sizeof(double));
+        this->mpLocationZ = (T *) malloc(aSize * sizeof(T));
     }
 }
 
-Locations::~Locations() {
+template<typename T>
+Locations<T>::~Locations() {
+
 
     if (this->mpLocationX != nullptr) {
         free(this->mpLocationX);

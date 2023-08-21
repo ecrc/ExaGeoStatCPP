@@ -15,7 +15,7 @@ if (EXAGEOSTAT_USE_CHAMELEON)
             ${EXAGEOSTAT_TESTFILES}
             PARENT_SCOPE
             )
-endif()
+endif ()
 
 if (EXAGEOSTAT_USE_HiCMA)
     set(EXAGEOSTAT_TESTFILES
@@ -23,4 +23,4 @@ if (EXAGEOSTAT_USE_HiCMA)
             ${EXAGEOSTAT_TESTFILES}
             PARENT_SCOPE
             )
-endif()
+endif ()
