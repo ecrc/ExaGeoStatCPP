@@ -1,4 +1,8 @@
 
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
 /**
  * @file DataGenerator.cpp
  * @brief Implementation of DataGenerator class
@@ -16,47 +20,31 @@ using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
 
 template<typename T>
-std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configurations *apConfigurations) {
+std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configurations &apConfigurations) {
 
     // Check the used Data generation method, whether it's synthetic or real.
-    bool is_synthetic = apConfigurations->GetIsSynthetic();
+    mIsSynthetic = apConfigurations.GetIsSynthetic();
 
     // Return DataGenerator unique pointer of Synthetic type
-    if (is_synthetic) {
-        return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance(apConfigurations));
+    if (mIsSynthetic) {
+        return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
     } else {
-        // Open saved files
-        throw std::domain_error("Unsupported for now, Please add --synthetic_data");
+        std::cerr << "Unsupported for now, Please add --synthetic_data" << std::endl;
+        std::exit(1);
     }
 }
 
-template<typename T>
-Locations<T> *DataGenerator<T>::GetLocations() {
-    if (this->mpLocations == nullptr) {
-        throw std::runtime_error("Locations is null");
-    }
-    return this->mpLocations;
-}
 
 template<typename T>
-exageostat::kernels::Kernel<T> *DataGenerator<T>::GetKernel() {
-    if (this->mpKernel == nullptr) {
-        throw std::runtime_error("Kernel is null");
-    }
-    return this->mpKernel;
-}
-
-template<typename T>
-DataGenerator<T>::~DataGenerator(){
-
-    // Check the used Data generation method, whether it's synthetic or real.
-    bool is_synthetic = this->mpConfigurations->GetIsSynthetic();
+DataGenerator<T>::~DataGenerator() {
 
     // Return DataGenerator unique pointer of Synthetic type
-    if (is_synthetic) {
-        SyntheticGenerator<T>::GetInstance(this->mpConfigurations)->ReleaseInstance();
+    if (mIsSynthetic) {
+        SyntheticGenerator<T>::GetInstance()->ReleaseInstance();
     } else {
-        // Open saved files
-        throw std::domain_error("Unsupported for now, Please add --synthetic_data");
+        std::cerr << "Unsupported for now, Please add --synthetic_data" << std::endl;
+        std::exit(1);
     }
 }
+
+template<typename T> bool DataGenerator<T>::mIsSynthetic = true;

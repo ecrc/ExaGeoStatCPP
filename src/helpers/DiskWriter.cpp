@@ -5,30 +5,31 @@
 
 /**
  * @file DiskWriter.cpp
- * @brief 
+ * @brief Contains the implementation of the DiskWriter class for writing data to disk.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-06-08
 **/
 
-#include <cstring>
 #include <string>
 #include <fstream>
+#include <filesystem>
 
 #include <helpers/DiskWriter.hpp>
+
+using namespace std;
 
 using namespace exageostat::helpers;
 using namespace exageostat::dataunits;
 
-using namespace std;
-
 template<typename T>
-void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemSize, const int *apP,
-                                       std::string aLoggerPath, Locations<T> *apLocations) {
+void DiskWriter<T>::WriteVectorsToDisk(T &aMatrixPointer, const int &aProblemSize, const int &aP,
+                                       std::string &aLoggerPath, Locations<T> &aLocations) {
 
     // Determine the path for storing the output files
     if (aLoggerPath.empty()) {
-        aLoggerPath = "./synthetic_ds";
+        aLoggerPath =
+                std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().string() + "/synthetic_ds";
     } else {
         if (aLoggerPath.back() == '/') {
             aLoggerPath += "synthetic_ds";
@@ -36,7 +37,6 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
             aLoggerPath += "/synthetic_ds";
         }
     }
-
     // Create a new directory if it does not already exist
     bool created = false;
     if (!filesystem::exists(aLoggerPath)) {
@@ -58,11 +58,11 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
     // Determine the names of the output files
     size_t i = 1;
     std::ofstream p_file_z, p_file_z2, p_file_z3, p_file_xy, p_file_log;
-    std::string n_file_z = aLoggerPath + "/Z1_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_z2 = aLoggerPath + "/Z2_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_z3 = aLoggerPath + "/Z3_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_xy = aLoggerPath + "/LOC_" + std::to_string(*apProblemSize / *apP) + "_";
-    std::string n_file_log = aLoggerPath + "/log_" + std::to_string(*apProblemSize / *apP) + "_";
+    std::string n_file_z = aLoggerPath + "/Z1_" + std::to_string(aProblemSize / aP) + "_";
+    std::string n_file_z2 = aLoggerPath + "/Z2_" + std::to_string(aProblemSize / aP) + "_";
+    std::string n_file_z3 = aLoggerPath + "/Z3_" + std::to_string(aProblemSize / aP) + "_";
+    std::string n_file_xy = aLoggerPath + "/LOC_" + std::to_string(aProblemSize / aP) + "_";
+    std::string n_file_log = aLoggerPath + "/log_" + std::to_string(aProblemSize / aP) + "_";
     std::string temp = n_file_log + std::to_string(i);
 
     // Check if log file exists
@@ -79,36 +79,36 @@ void DiskWriter<T>::WriteVectorsToDisk(T *apMatrixPointer, const int *apProblemS
     p_file_z.open(n_file_z);
     p_file_xy.open(n_file_xy);
 
-    if (*apP == 1) {
-        for (i = 0; i < *apProblemSize; i++) {
-            p_file_z << std::setprecision(15) << apMatrixPointer[i] << '\n';
+    if (aP == 1) {
+        for (i = 0; i < aProblemSize; i++) {
+            p_file_z << std::setprecision(15) << (&aMatrixPointer)[i] << '\n';
         }
-    } else if (*apP == 2) {
+    } else if (aP == 2) {
         p_file_z2.open(n_file_z2);
-        for (i = 0; i < *apProblemSize; i += 2) {
-            p_file_z << std::setprecision(15) << apMatrixPointer[i] << '\n';
-            p_file_z2 << std::setprecision(15) << apMatrixPointer[i + 1] << '\n';
+        for (i = 0; i < aProblemSize; i += 2) {
+            p_file_z << std::setprecision(15) << (&aMatrixPointer)[i] << '\n';
+            p_file_z2 << std::setprecision(15) << (&aMatrixPointer)[i + 1] << '\n';
         }
         p_file_z2.close();
-    } else if (*apP == 3) {
+    } else if (aP == 3) {
         p_file_z2.open(n_file_z2);
         p_file_z3.open(n_file_z3);
-        for (i = 0; i < *apProblemSize; i += 3) {
-            p_file_z << std::setprecision(15) << apMatrixPointer[i] << '\n';
-            p_file_z2 << std::setprecision(15) << apMatrixPointer[i + 1] << '\n';
-            p_file_z3 << std::setprecision(15) << apMatrixPointer[i + 2] << '\n';
+        for (i = 0; i < aProblemSize; i += 3) {
+            p_file_z << std::setprecision(15) << (&aMatrixPointer)[i] << '\n';
+            p_file_z2 << std::setprecision(15) << (&aMatrixPointer)[i + 1] << '\n';
+            p_file_z3 << std::setprecision(15) << (&aMatrixPointer)[i + 2] << '\n';
         }
         p_file_z2.close();
         p_file_z3.close();
     }
 
-    for (i = 0; i < *apProblemSize / *apP; i++) {
-        if (apLocations->GetLocationZ() == nullptr) {
-            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ','
-                      << apLocations->GetLocationY()[i] << '\n';
+    for (i = 0; i < aProblemSize / aP; i++) {
+        if (aLocations.GetLocationZ() == nullptr) {
+            p_file_xy << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
+                      << aLocations.GetLocationY()[i] << '\n';
         } else {
-            p_file_xy << std::setprecision(15) << apLocations->GetLocationX()[i] << ','
-                      << apLocations->GetLocationY()[i] << ',' << apLocations->GetLocationZ()[i] << '\n';
+            p_file_xy << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
+                      << aLocations.GetLocationY()[i] << ',' << aLocations.GetLocationZ()[i] << '\n';
         }
     }
 

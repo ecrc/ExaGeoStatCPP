@@ -4,7 +4,7 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file AllocateDescriptors.hpp
+ * @file LinearAlgebraMethods.hpp
  * @brief Header file for the LinearAlgebraMethods class, which defines the interface for linear algebra solvers.
  * @version 1.0.0
  * @author Sameh Abdulah
@@ -54,23 +54,37 @@ namespace exageostat {
             /**
              * @brief Initializes the descriptors necessary for the linear algebra solver.
              * @details This method initializes the descriptors necessary for the linear algebra solver.
+             * @param[in] aConfigurations Configurations object containing relevant settings.
+             * @param[in,out] aDescriptorData DescriptorData object to be populated with descriptors and data.
              * @return void
              *
              */
-            virtual void InitiateDescriptors(configurations::Configurations *apConfigurations,
-                                             dataunits::DescriptorData<T> *apDescriptorData) = 0;
+            virtual void InitiateDescriptors(configurations::Configurations &aConfigurations,
+                                             dataunits::DescriptorData<T> &aDescriptorData) = 0;
 
             /**
-             * @brief Destroys the descriptors used by the linear algebra solver.
-             * @details This method destroys the descriptors used by the linear algebra solver.
-             * @return void
+             * @brief Generates synthetic data.
+             * @param[in] apConfigurations The configurations object containing relevant settings.
+             * @param[in] apHardware  ExaGeoStatHardware object representing the hardwar.
+             * @param[in,out] apData ExaGeoStatData object to be populated with synthetic data.
+             * @param[in] aType The descriptor type.
+             * @return None.
              *
              */
-            virtual void DestroyDescriptors(dataunits::DescriptorData<T> *apDescriptorData) = 0;
+            void GenerateSyntheticData(configurations::Configurations &aConfigurations,
+                                       hardware::ExaGeoStatHardware &aHardware,
+                                       dataunits::ExaGeoStatData<T> &apData, common::DescriptorType aType) {
+                this->mpContext = aHardware.GetContext();
+                this->InitiateDescriptors(aConfigurations, *apData.GetDescriptorData());
+                auto descC = apData.GetDescriptorData()->GetDescriptor(aType, common::DESCRIPTOR_C);
+                this->GenerateObservationsVector(aConfigurations, apData.GetDescriptorData(), descC,
+                                                 apData.GetLocations(), apData.GetLocations(), nullptr, 0);
+            }
 
             /**
              * @brief Computes the covariance matrix.
-             * @param[in] apDescriptor Pointer to the descriptor for the covariance matrix.
+             * @param[in] apDescriptorData pointer to the DescriptorData object holding descriptors and data.
+             * @param[out] apDescriptor Pointer to the descriptor for the covariance matrix.
              * @param[in] aTriangularPart Specifies whether the upper or lower triangular part of the covariance matrix is stored.
              * @param[in] apLocation1 Pointer to the first set of locations.
              * @param[in] apLocation2 Pointer to the second set of locations.
@@ -90,6 +104,7 @@ namespace exageostat {
 
             /**
              * @brief Copies the descriptor data to a double vector.
+             * @param[in] apDescriptorData pointer to the DescriptorData object holding descriptors and data.
              * @param[in] apDescriptor Pointer to the descriptor data.
              * @param[in,out] apDoubleVector Pointer to the double vector to copy the descriptor data to.
              * @return void
@@ -100,84 +115,51 @@ namespace exageostat {
 
             /**
              * @brief Generates the observations vector.
-             * @param[in] apDescriptor Pointer to the descriptor for the observations vector.
+             * @param[in] aConfigurations Configurations object containing relevant settings.
+             * @param[in] apDescriptorData pointer to the DescriptorData object holding descriptors and data.
+             * @param[in] aDescriptor Pointer to the descriptor for the observations vector.
              * @param[in] apLocation1 Pointer to the first set of locations.
              * @param[in] apLocation2 Pointer to the second set of locations.
              * @param[in] apLocation3 Pointer to the third set of locations.
-             * @param[in] aLocalTheta Pointer to the local theta values.
              * @param[in] aDistanceMetric Specifies the distance metric to use.
-             * @param[in] apKernel Pointer to the kernel function to use.
              * @return void
              *
              */
-            virtual void GenerateObservationsVector(configurations::Configurations *apConfigurations,
+            virtual void GenerateObservationsVector(configurations::Configurations &aConfigurations,
                                                     dataunits::DescriptorData<T> *apDescriptorData,
                                                     dataunits::BaseDescriptor aDescriptor,
                                                     dataunits::Locations<T> *apLocation1,
                                                     dataunits::Locations<T> *apLocation2,
-                                                    dataunits::Locations<T> *apLocation3, int aDistanceMetric,
-                                                    exageostat::kernels::Kernel<T> *apKernel, T* Nrand) = 0;
-
-            /**
-             * @brief Initializes the context for the linear algebra solver with the specified number of cores and GPUs.
-             * @param[in] aCoresNumber The number of cores to use for the solver.
-             * @param[in] aGPUs The number of GPUs to use for the solver.
-             * @return void
-             *
-             */
-            virtual void ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) = 0;
-
-            /**
-             * @brief Finalizes the context for the linear algebra solver.
-             *
-             */
-            virtual void ExaGeoStatFinalizeContext() = 0;
-
-            /**
-             * @brief allocates matrix tile.
-             *
-             * @param[in,out] apDescriptor The descriptor for the tile.
-             * @param[in] aIsOOC Whether the matrix is out-of-core.
-             * @param[in] apMemSpace The memory space to use for the tile.
-             * @param[in] aType2 The data type of the tile.
-             * @param[in] aMB The row block size of the tile.
-             * @param[in] aNB The column block size of the tile.
-             * @param[in] aMBxNB The product of row and column block sizes.
-             * @param[in] aLda The leading dimension of the tile.
-             * @param[in] aN The total number of columns of the matrix.
-             * @param[in] aSMB The row block size for the matrix distribution.
-             * @param[in] aSNB The column block size for the matrix distribution.
-             * @param[in] aM The total number of rows of the matrix.
-             * @param[in] aN2 The total number of columns of the matrix after padding.
-             * @param[in] aP The row coordinate of the tile.
-             * @param[in] aQ The column coordinate of the tile.
-             * @return void
-             *
-             */
-            virtual void
-            ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
-                                         int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM, int aN2,
-                                         int aP, int aQ) = 0;
+                                                    dataunits::Locations<T> *apLocation3, int aDistanceMetric) = 0;
 
             /**
              * @brief Calculates the log likelihood value of a given value theta.
-             * @param aN unsigned variable used by NLOPT library.
-             * @param apTheta theta Vector with three parameter (Variance, Range, Smoothness)
-             * that is used to to generate the Covariance Matrix.
-             * @param apGrad double variable used by NLOPT library.
-             * @param apData MLE_data struct with different MLE inputs.
+             * @param[in] aHardware  ExaGeoStatHardware object representing the hardware.
+             * @param[in] apData MLE_data struct with different MLE inputs.
+             * @param[in] aConfigurations Configurations object containing relevant settings.
+             * @param[in] apTheta Optimization parameter used by NLOPT.
              * @return log likelihood value
              *
              */
             virtual T
-            ExaGeoStatMleTile(dataunits::ExaGeoStatData<T> *apData, configurations::Configurations *apConfigurations,
-                              const double *theta) = 0;
+            ExaGeoStatMleTile(hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> *apData,
+                              configurations::Configurations *apConfigurations, const double *apTheta) = 0;
+
+            /**
+             * @brief Converts a Gaussian descriptor to a non-tiled descriptor.
+             * @param[in] apDescriptorData DescriptorData struct with the Gaussian descriptor.
+             * @param[in] apDesc Pointer to the non-tiled descriptor.
+             * @param[in] apTheta Theta vector.
+             *
+             */
+            virtual void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
+                                                          T *apTheta) = 0;
 
             /**
              * @brief Copies a matrix in the tile layout from source to destination
-             * @param aUpperLower Specifies the part of the matrix A to be copied to B.
-             * @param apA Source matrix A.
-             * @param apB Destination matrix B. On exit, B = A in the locations specified by Upper Lower.
+             * @param[in] aUpperLower Specifies the part of the matrix A to be copied to B.
+             * @param[in] apA Source matrix A.
+             * @param[in,out] apB Destination matrix B. On exit, B = A in the locations specified by Upper Lower.
              * @return Successful exit
              *
              */
@@ -186,10 +168,10 @@ namespace exageostat {
 
             /**
              * @brief Conversion from LAPACK layout to Exageostat descriptor.
-             * @param aUpperLower Specifies the shape of the matrix A.
-             * @param apAf77 LAPACK matrix.
-             * @param aLda The leading dimension of the matrix Af77.
-             * @param apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
+             * @param[in] aUpperLower Specifies the shape of the matrix A.
+             * @param[in] apAf77 LAPACK matrix.
+             * @param[in] aLda The leading dimension of the matrix Af77.
+             * @param[in] apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
              * @return Successful exit
              *
              */
@@ -198,7 +180,7 @@ namespace exageostat {
 
             /**
              * @brief Wait for the completion of a sequence.
-             * @param Identifies a set of routines sharing common exception handling.
+             * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
              * @return successful exit
              *
              */
@@ -207,8 +189,8 @@ namespace exageostat {
 
             /**
              * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-             * @param aUpperLower Whether upper or lower part of the matrix A
-             * @param apA Symmetric matrix A
+             * @param[in] aUpperLower Whether upper or lower part of the matrix A
+             * @param[in] apA Symmetric matrix A
              * @return
              *
              */
@@ -217,13 +199,13 @@ namespace exageostat {
 
             /**
              * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
-             * @param aSide Specifies whether op(A) appears on the left or on the right of X
-             * @param aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
-             * @param aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
-             * @param aDiag Specifies whether or not A is unit triangular.
-             * @param aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
-             * @param apA The triangular matrix A
-             * @param apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
+             * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X
+             * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
+             * @param[in] aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
+             * @param[in] aDiag Specifies whether or not A is unit triangular.
+             * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
+             * @param[in] apA The triangular matrix A
+             * @param[in, out] apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
              * @return successful exit
              *
              */
@@ -233,13 +215,13 @@ namespace exageostat {
 
             /**
              * @brief Performs matrix multiplication.
-             * @param aTransA  Specifies whether the matrix A is transposed.
-             * @param aTransB Specifies whether the matrix B is transposed.
-             * @param aAlpha Specifies the scalar alpha.
-             * @param apA Matrix A.
-             * @param apB Matrix B.
-             * @param aBeta Specifies the scalar beta.
-             * @param apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
+             * @param[in] aTransA  Specifies whether the matrix A is transposed.
+             * @param[in] aTransB Specifies whether the matrix B is transposed.
+             * @param[in] aAlpha Specifies the scalar alpha.
+             * @param[in] apA Matrix A.
+             * @param[in] apB Matrix B.
+             * @param[in] aBeta Specifies the scalar beta.
+             * @param[in,out] apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
              * @return successful exit.
              *
              */
@@ -249,10 +231,10 @@ namespace exageostat {
 
             /**
              * @brief Calculate determinant for triangular matrix.
-             * @param apDescA Exageostat descriptor.
-             * @param apSequence Identifies the sequence of function calls that this call belongs to.
-             * @param apRequest Identifies this function call (for exception handling purposes).
-             * @param apDescDet determinant value
+             * @param[in] apDescA Exageostat descriptor.
+             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+             * @param[in] apRequest Identifies this function call (for exception handling purposes).
+             * @param[in] apDescDet determinant value
              * @return successful exit.
              *
              */
@@ -261,25 +243,34 @@ namespace exageostat {
 
             /**
              * @brief copy Chameleon descriptor to vector float*.
-             * @param apDescA Exageostat descriptor A.
-             * @param apDescB Exageostat descriptor B.
-             * @param apDescC Exageostat descriptor C.
-             * @param apSequence Identifies the sequence of function calls that this call belongs to.
-             * @param apRequest Identifies this function call (for exception handling purposes).
+             * @param[in] apDescA Exageostat descriptor A.
+             * @param[in] apDescB Exageostat descriptor B.
+             * @param[in] apDescC Exageostat descriptor C.
+             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+             * @param[in] apRequest Identifies this function call (for exception handling purposes).
              * @return successful exit.
              *
              */
             virtual int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                        void *apSequence, void *apRequest) = 0;
 
+            /**
+             * @brief Sets the context.
+             * @param[in] apContext The context.
+             *
+             */
+            void SetContext(void *apContext) {
+                this->mpContext = apContext;
+            }
+
             //// These codlets and structs will be added to another level of abstraction and interface of runtime system. This is a quick fix for now.
             //// TODO: Create a Factory for Runtime system.
 
             static void cl_dcmg_cpu_func(void *buffers[], void *cl_arg) {
                 int m, n, m0, n0;
-                exageostat::dataunits::Locations<T> *apLocation1;
-                exageostat::dataunits::Locations<T> *apLocation2;
-                exageostat::dataunits::Locations<T> *apLocation3;
+                exageostat::dataunits::Locations<T> *location1;
+                exageostat::dataunits::Locations<T> *location2;
+                exageostat::dataunits::Locations<T> *location3;
                 T *theta;
                 T *A;
                 int distance_metric;
@@ -287,13 +278,56 @@ namespace exageostat {
 
                 A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
 
-
-                starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &apLocation1, &apLocation2, &apLocation3, &theta,
+                starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &location1, &location2, &location3, &theta,
                                            &distance_metric, &kernel);
+                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, location1,
+                                                 location2, location3, theta, distance_metric);
+            }
 
-                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, apLocation1,
-                                                 apLocation2, apLocation3, theta, distance_metric);
+            struct starpu_codelet cl_gaussian_to_non =
+                    {
+                            .where        = STARPU_CPU,
+                            .cpu_funcs    = {CORE_gaussian_to_non_starpu},
+                            .nbuffers    = 1,
+                            .modes        = {STARPU_RW},
+                            .name        = "gaussian_to_non"
+                    };
 
+            static void CORE_gaussian_to_non_starpu(void *buffers[], void *cl_arg) {
+                int m, m0;
+                T *z;
+                T *theta;
+                theta = (T *) malloc(6 * sizeof(T));
+                z = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
+
+                starpu_codelet_unpack_args(cl_arg, &m, &m0,
+                                           &theta[0], &theta[1], &theta[2],
+                                           &theta[3], &theta[4], &theta[5]);
+
+                //core function to convert Z tile from Gaussian to non-Gaussian.
+                core_gaussian_to_non(z, theta, m);
+                free(theta);
+            }
+
+            static void core_gaussian_to_non(T *Z, T *localtheta, int m) {
+
+                double xi = localtheta[2];
+                double omega = localtheta[3];
+                double g = localtheta[4];
+                double h = localtheta[5];
+
+                int i;
+                if (h < 0) {
+                    printf("The kurtosis parameter cannot be negative");
+                    return;
+                }
+                if (g == 0) {
+                    for (i = 0; i < m; i++)
+                        Z[i] = xi + omega * Z[i] * (exp(0.5 * h * pow(Z[i], 2)));
+                } else {
+                    for (i = 0; i < m; i++)
+                        Z[i] = xi + omega * (exp(g * Z[i]) - 1) * (exp(0.5 * h * pow(Z[i], 2))) / g;
+                }
             }
 
             struct starpu_codelet cl_dcmg =
@@ -308,7 +342,7 @@ namespace exageostat {
                             .name         = "dcmg"
                     };
 
-            static void CORE_dzcpy_starpu(void *buffers[], void *cl_arg) {
+            static void CORE_dzcpy_Starpu(void *buffers[], void *cl_arg) {
                 int m;
                 T *A;
                 int m0;
@@ -322,29 +356,27 @@ namespace exageostat {
             static void CORE_dmdet_starpu(void *buffers[], void *cl_arg) {
                 int m;
                 int n;
-                double* A;
+                T *A;
                 int m0;
                 int n0;
-                double det = 0;
-                double* determinant = &det;
+                T det = 0;
+                T *determinant = &det;
 
                 *determinant = 0;
-                A = (double* ) STARPU_MATRIX_GET_PTR(buffers[0]);
-                determinant = (double* ) STARPU_MATRIX_GET_PTR(buffers[1]);
-                starpu_codelet_unpack_args(cl_arg, &m);
-
-                double local_det = core_dmdet(A, m);
+                A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
+                determinant = (T *) STARPU_MATRIX_GET_PTR(buffers[1]);
+                starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0);
+                T local_det = Core_dmdet(A, m);
                 *determinant += local_det;
             }
 
-            static double core_dmdet(double *A, int m) {
+            static T Core_dmdet(T *A, int m) {
 
                 int i;
-                double res = 0.0;
+                T res = 0.0;
                 for (i = 0; i < m; i++) {
-                    if (A[i + i * m] > 0) {
+                    if (A[i + i * m] > 0)
                         res += log(A[i + i * m]);
-                    }
                 }
                 return res;
             }
@@ -356,14 +388,14 @@ namespace exageostat {
                 T *B;
                 T *C;
                 int m0;
-                int i = 0;
+                int i;
                 int j = 0;
 
                 A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
                 B = (T *) STARPU_MATRIX_GET_PTR(buffers[1]);
                 C = (T *) STARPU_MATRIX_GET_PTR(buffers[2]);
                 starpu_codelet_unpack_args(cl_arg, &tempmm, &m0, &m);
-                j = 0;
+
                 for (i = 0; i < tempmm - 1; i += 2) {
                     B[j] = A[i];
                     C[j] = A[i + 1];
@@ -374,7 +406,7 @@ namespace exageostat {
             struct starpu_codelet cl_dzcpy =
                     {
                             .where        = STARPU_CPU,
-                            .cpu_funcs    = {CORE_dzcpy_starpu},
+                            .cpu_funcs    = {CORE_dzcpy_Starpu},
                             .nbuffers    = 1,
                             .modes        = {STARPU_W},
                             .name        = "dzcpy"
@@ -398,38 +430,34 @@ namespace exageostat {
                             .name           = "stride_vec"
                     };
 
-            //// TODO: RECONSTRUCT
             bool recover(char *path, int iter_count, T *theta, T *loglik, int num_params) {
 
                 FILE *fp;
-                char *line = NULL;
+                char *line = nullptr;
                 size_t len = 0;
-                ssize_t read;
-                int count = 0;
-                int i = 0;
+                int count;
+                int i;
                 char *pch;
                 fp = fopen(path, "r");
-                if (fp == NULL) {
+                if (fp == nullptr) {
                     printf("cannot open observations file\n");
                     exit(EXIT_FAILURE);
                 }
-
-                while ((read = getline(&line, &len, fp)) != -1) {
+                while (getline(&line, &len, fp) != -1) {
                     pch = strtok(line, " ");
-                    count = atoi(pch);
+                    count = (int) strtol(pch, nullptr, 10);
                     if (count == iter_count) {
-                        pch = strtok(NULL, " ");
+                        pch = strtok(nullptr, " ");
                         for (i = 0; i < num_params; i++) {
-                            theta[i] = atof(pch);
-                            pch = strtok(NULL, " ");
+                            theta[i] = strtol(pch, nullptr, 10);
+                            pch = strtok(nullptr, " ");
                         }
-                        *loglik = atof(pch);
+                        *loglik = strtol(pch, nullptr, 10);
                         fclose(fp);
                         free(line);
 
                         return true;
                     }
-                    count++;
                 }
 
                 fclose(fp);
@@ -437,6 +465,10 @@ namespace exageostat {
 
                 return false;
             }
+
+        protected:
+            /// Used Context.
+            void *mpContext = nullptr;
         };
 
         /**

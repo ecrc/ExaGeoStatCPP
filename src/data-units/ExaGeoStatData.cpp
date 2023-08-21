@@ -1,22 +1,25 @@
+
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
 /**
  * @file ExaGeoStatData.cpp
- * @brief 
+ * @brief Contains the implementation of the ExaGeoStatData class.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-07-21
 **/
+
 #include <data-units/ExaGeoStatData.hpp>
-#include <iostream>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 
 template<typename T>
-ExaGeoStatData<T>::ExaGeoStatData(int aSize, Dimension aDimension) {
-    auto *locations = new Locations<T>(aSize, aDimension);
-    this->mpLocations = locations;
-    auto *descriptorData = new DescriptorData<T>;
-    this->mpDescriptorData = descriptorData;
+ExaGeoStatData<T>::ExaGeoStatData(int aSize, Dimension aDimension, hardware::ExaGeoStatHardware &apHardware) {
+    this->mpLocations = new Locations<T>(aSize, aDimension);
+    this->mpDescriptorData = new DescriptorData<T>(apHardware);
 }
 
 template<typename T>
@@ -31,10 +34,15 @@ Locations<T> *ExaGeoStatData<T>::GetLocations() {
 }
 
 template<typename T>
-void ExaGeoStatData<T>::SetLocations(Locations<T> *apLocation) {
-    this->mpLocations = apLocation;
-    this->mpLocations->SetLocationX(apLocation->GetLocationX());
-    this->mpLocations->SetLocationY(apLocation->GetLocationY());
+void ExaGeoStatData<T>::SetLocations(Locations<T> &aLocation) {
+
+    if (this->mpLocations) {
+        delete this->mpLocations;
+    }
+    this->mpLocations = &aLocation;
+    this->mpLocations->SetLocationX(*aLocation.GetLocationX());
+    this->mpLocations->SetLocationY(*aLocation.GetLocationY());
+    this->mpLocations->SetLocationZ(*aLocation.GetLocationZ());
 }
 
 template<typename T>
@@ -43,9 +51,17 @@ DescriptorData<T> *ExaGeoStatData<T>::GetDescriptorData() {
 }
 
 template<typename T>
-Locations<T> *ExaGeoStatData<T>::CalculateMedianLocations(std::string &aKernelName) {
+void ExaGeoStatData<T>::SetMleIterations(int aMleIterations) {
+    this->mMleIterations = aMleIterations;
+}
 
-    auto median_Locations = new Locations<T>(this->mpLocations->GetSize(), this->mpLocations->GetDimension());
+template<typename T>
+int ExaGeoStatData<T>::GetMleIterations() {
+    return this->mMleIterations;
+}
+
+template<typename T>
+void ExaGeoStatData<T>::CalculateMedianLocations(std::string &aKernelName, Locations<T> &apLocations) {
 
     if (aKernelName == "UnivariateMaternNonStationary") {
 
@@ -75,17 +91,16 @@ Locations<T> *ExaGeoStatData<T>::CalculateMedianLocations(std::string &aKernelNa
             }
         }
 
-        median_Locations->GetLocationX()[0] = x_min + (x_max - x_min) / 2;
-        median_Locations->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
+        apLocations.GetLocationX()[0] = x_min + (x_max - x_min) / 2;
+        apLocations.GetLocationY()[0] = y_min + (y_max - y_min) / 2;
         if (this->mpLocations->GetDimension() != common::Dimension2D) {
-            median_Locations->GetLocationZ()[0] = z_min + (z_max - z_min) / 2;
+            apLocations.GetLocationZ()[0] = z_min + (z_max - z_min) / 2;
         }
     } else {
-        median_Locations->GetLocationX()[0] = 0.5;
-        median_Locations->GetLocationY()[0] = 0.5;
+        apLocations.GetLocationX()[0] = 0.5;
+        apLocations.GetLocationY()[0] = 0.5;
         if (this->mpLocations->GetDimension() != common::Dimension2D) {
-            median_Locations->GetLocationY()[0] = 0.5;
+            apLocations.GetLocationY()[0] = 0.5;
         }
     }
-    return median_Locations;
 }

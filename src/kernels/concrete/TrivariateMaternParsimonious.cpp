@@ -5,7 +5,7 @@
 
 /**
  * @file TrivariateMaternParsimonious.cpp
- *
+ * @brief Implementation of the BivariateMaternParsimonious kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/TrivariateMaternParsimonious.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 TrivariateMaternParsimonious<T>::TrivariateMaternParsimonious() {
@@ -88,13 +89,13 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, int
 
     i0 /= 3;
     int matrix_size = aRowsNumber * aColumnsNumber;
-    int index = 0;
+    int index;
     int flag = 0;
 
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
 
             if (expr == 0) {
 

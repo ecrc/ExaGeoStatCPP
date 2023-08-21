@@ -5,7 +5,7 @@
 
 /**
  * @file BivariateMaternFlexible.cpp
- *
+ * @brief Implementation of the BivariateMaternFlexible kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/BivariateMaternFlexible.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 BivariateMaternFlexible<T>::BivariateMaternFlexible() {
@@ -35,15 +36,15 @@ namespace exageostat::kernels {
 
 template<typename T>
 void BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                       int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
-                                                       Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                       T *aLocalTheta, int &aDistanceMetric) {
+                                                          int &aRowOffset, int &aColumnOffset,
+                                                          Locations<T> *apLocation1,
+                                                          Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                          T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0;
-    double expr1 = 0.0, expr2 = 0.0, expr12 = 0.0;
-    double con1 = 0.0, con2 = 0.0, con12 = 0.0, scale12 = 0.0, rho = 0.0, nu12 = 0.0, sigma_square11 = 0.0, sigma_square22 = 0.0;
+    int j0;
+    double expr1, expr2, expr12;
+    double con1, con2, con12, scale12, rho, nu12, sigma_square11, sigma_square22;
     double scale1 = aLocalTheta[0], scale2 = aLocalTheta[1], nu1 = aLocalTheta[4], nu2 = aLocalTheta[5];
 
     scale12 = pow(0.5 * (pow(scale1, -2) + pow(scale2, -2)) + aLocalTheta[2] * (1 - aLocalTheta[3]),
@@ -82,9 +83,9 @@ void BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRo
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
-            expr1 = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale1;
-            expr2 = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale2;
-            expr12 = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / scale12;
+            expr1 = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / scale1;
+            expr2 = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / scale2;
+            expr12 = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / scale12;
             if (expr1 == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
                 if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {

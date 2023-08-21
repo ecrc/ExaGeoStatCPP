@@ -1,147 +1,108 @@
+
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file ExaGeoStat.cpp
- * @brief 
+ * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-05-30
 **/
-#include <lapacke.h>
-
-#include <nlopt.hpp>
 
 #include <api/ExaGeoStat.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <data-generators/DataGenerator.hpp>
 
 using namespace std;
+using namespace nlopt;
 
 using namespace exageostat::api;
 using namespace exageostat::configurations;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
+using namespace exageostat::hardware;
+
 
 template<typename T>
-void ExaGeoStat<T>::ExaGeoStatInitializeHardware(common::Computation aComputation, int aCoreNumber, int aGpuNumber) {
-
-    auto linearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(aComputation);
-    linearAlgebraSolver->ExaGeoStatInitContext(aCoreNumber, aGpuNumber);
-    delete linearAlgebraSolver;
-}
-
-template<typename T>
-void ExaGeoStat<T>::ExaGeoStatFinalizeHardware(common::Computation aComputation, DescriptorData<T> *apDescriptorData) {
-
-    auto linearAlgebraSolver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(aComputation);
-//    linearAlgebraSolver->DestroyDescriptors(apDescriptorData);
-    linearAlgebraSolver->ExaGeoStatFinalizeContext();
-    delete linearAlgebraSolver;
-}
-
-template<typename T>
-void ExaGeoStat<T>::ExaGeoStatInitOptimizer(nlopt_opt *apOpt, double *apLowerBound, double *apUpperBound, double aTolerance)
-{
-    //initalizing opt library
-    nlopt_set_lower_bounds(*apOpt, apLowerBound);
-    nlopt_set_upper_bounds(*apOpt, apUpperBound);
-    nlopt_set_ftol_abs(*apOpt, aTolerance);
-}
-
-template<typename T>
-ExaGeoStatData<T> *ExaGeoStat<T>::ExaGeoStatGenerateData(Configurations *apConfigurations) {
+void ExaGeoStat<T>::ExaGeoStatGenerateData(ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
+                                           ExaGeoStatData<T> &pData) {
 
     // Add the data generation arguments.
-    apConfigurations->InitializeDataGenerationArguments();
+    aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<T>> data_generator;
-    // Create the DataGenerator object
-    data_generator = data_generator->CreateGenerator(apConfigurations);
-    // Create a new object of ExaGeoStat Data to store the locations and Descriptors
-    auto *data = new ExaGeoStatData<T>(apConfigurations->GetProblemSize(), apConfigurations->GetDimension());
-    data_generator->GenerateLocations();
-    // Copy the locations from generator to the data.
-    auto pLocation = new Locations<T>(*data_generator->GetLocations());
-    data->SetLocations(pLocation);
-    data_generator->GetLocations()->SetLocationX(nullptr);
+    unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
 
+    pData.SetLocations(*data_generator->CreateLocationsData(aConfigurations));
 
-    auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(apConfigurations->GetComputation());
+    PrintSummary(aConfigurations.GetProblemSize(), aConfigurations.GetCoresNumber(),
+                 aConfigurations.GetGPUsNumbers(), aConfigurations.GetDenseTileSize(),
+                 aConfigurations.GetPGrid(), aConfigurations.GetQGrid(), aConfigurations.GetPrecision());
 
-    linear_algebra_solver->InitiateDescriptors(apConfigurations, data->GetDescriptorData());
-
+    auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(aConfigurations.GetComputation());
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-    BaseDescriptor descC = data->GetDescriptorData()->GetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_C);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, pData, common::CHAMELEON_DESCRIPTOR);
 #endif
 #ifdef EXAGEOSTAT_USE_HiCMA
-    auto *descC = data->GetDescriptorData()->GetDescriptor(common::HICMA_DESCRIPTOR, common::DESCRIPTOR_C);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, pData, common::HICMA_DESCRIPTOR);
 #endif
-
-    int iseed[4] = {apConfigurations->GetSeed(), apConfigurations->GetSeed(), apConfigurations->GetSeed(), 1};
-    //nomral random generation of e -- ei~N(0, 1) to generate Z
-    T* Nrand = (T* ) malloc(apConfigurations->GetProblemSize() * 1 * sizeof(T));
-    LAPACKE_dlarnv(3, iseed, apConfigurations->GetProblemSize() * 1, (double *)Nrand);
-
-
-    linear_algebra_solver->GenerateObservationsVector(apConfigurations, data->GetDescriptorData(), descC,
-                                                      data->GetLocations(), data->GetLocations(), nullptr, 0,
-                                                      data_generator->GetKernel(), &Nrand[0]);
-
-    return data;
+    delete linear_algebra_solver;
 }
 
 template<typename T>
-double ExaGeoStat<T>::ExaGeoStatMleTileAPI(unsigned aN, const double *apTheta, double *apGrad, void *apInfo) {
-    auto config = ((mModelingData *) apInfo)->Configuration;
-    auto data = ((mModelingData *) apInfo)->Data;
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(config->GetComputation());
-    linear_algebra_solver->ExaGeoStatMleTile(data, config, apTheta);
-}
-
-template<typename T>
-void ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations *apConfigurations, ExaGeoStatData<T> *apData) {
-
-    apConfigurations->InitializeDataModelingArguments();
-
-    int max_number_of_iterations = apConfigurations->GetMaxMleIterations();
+void ExaGeoStat<T>::ExaGeoStatDataModeling(ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
+                                           ExaGeoStatData<T> &aData) {
 
     // Add the data modeling arguments.
-    nlopt_opt opt;
+    aConfigurations.InitializeDataModelingArguments();
+    int max_number_of_iterations = aConfigurations.GetMaxMleIterations();
 
-    //// @warning: this shouldn't be how the num of params passed.
+    // Setting struct of data to pass to the modeling.
+    auto modeling_data = new mModelingData();
+    modeling_data->mpConfiguration = &aConfigurations;
+    modeling_data->mpData = &aData;
+    modeling_data->mpHardware = &aHardware;
+
+    // Create a kernel object depending on which kernel the user is going to use.
     kernels::Kernel<T> *kernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T>>::Create(
-            apConfigurations->GetKernelName());
+            aConfigurations.GetKernelName());
 
-    opt = nlopt_create(NLOPT_LN_BOBYQA,  kernel->GetParametersNumbers());
-
+    // Create nlopt
+    double opt_f;
+    opt optimizing_function(nlopt::LN_BOBYQA, kernel->GetParametersNumbers());
     delete kernel;
 
-    ExaGeoStatInitOptimizer(&opt, apConfigurations->GetLowerBounds().data(), apConfigurations->GetUpperBounds().data(),
-                   apConfigurations->GetTolerance());
-    nlopt_set_maxeval(opt, max_number_of_iterations);
+    // Initialize problem's bound.
+    optimizing_function.set_lower_bounds(aConfigurations.GetLowerBounds());
+    optimizing_function.set_upper_bounds(aConfigurations.GetUpperBounds());
+    optimizing_function.set_ftol_abs(pow(10, -1 * aConfigurations.GetTolerance()));
+
+    // Set max iterations value.
+    optimizing_function.set_maxeval(max_number_of_iterations);
+
+    PrintSummary(aConfigurations.GetProblemSize(), aConfigurations.GetCoresNumber(),
+                 aConfigurations.GetGPUsNumbers(), aConfigurations.GetDenseTileSize(),
+                 aConfigurations.GetPGrid(), aConfigurations.GetQGrid(), aConfigurations.GetPrecision());
 
 
-    auto linear_algebra_solver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(apConfigurations->GetComputation());
-    linear_algebra_solver->ExaGeoStatSequenceWait(apData->GetDescriptorData()->GetSequence());
-    delete linear_algebra_solver;
-
-    PrintSummary(apConfigurations->GetProblemSize(), apConfigurations->GetCoresNumber(),
-                  apConfigurations->GetGPUsNumbers(), apConfigurations->GetDenseTileSize(), apConfigurations->GetComputation(),
-                  apConfigurations->GetPGrid(), apConfigurations->GetQGrid(), apConfigurations->GetPrecision());
-
-    //// TODO: that's the most challenging part, read more about NLOPT and redesign this part
-    auto modeling_data = new mModelingData();
-    modeling_data->Configuration= apConfigurations;
-    modeling_data->Data = apData;
-    nlopt_set_max_objective(opt, ExaGeoStatMleTileAPI, (void *) modeling_data);
-
-    double opt_f = 0;
-    double * theta = apConfigurations->GetStartingTheta().data();
-    nlopt_optimize(opt, theta, &opt_f);
+    optimizing_function.set_max_objective(ExaGeoStatMleTileAPI, (void *) modeling_data);
+    // Optimize mle using nlopt.
+    optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
 
     delete modeling_data;
-    nlopt_destroy(opt);
+}
+
+template<typename T>
+double
+ExaGeoStat<T>::ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
+    auto config = ((mModelingData *) apInfo)->mpConfiguration;
+    auto data = ((mModelingData *) apInfo)->mpData;
+    auto hardware = ((mModelingData *) apInfo)->mpHardware;
+    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
+            config->GetComputation());
+    double loglik = linear_algebra_solver->ExaGeoStatMleTile(*hardware, data, config, aTheta.data());
+    delete linear_algebra_solver;
+    return loglik;
 }

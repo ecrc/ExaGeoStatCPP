@@ -5,7 +5,7 @@
 
 /**
  * @file BivariateSpacetimeMaternStationary.cpp
- *
+ * @brief Implementation of the BivariateSpacetimeMaternStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/BivariateSpacetimeMaternStationary.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 BivariateSpacetimeMaternStationary<T>::BivariateSpacetimeMaternStationary() {
@@ -69,7 +70,7 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, in
 
     i0 /= 2;
     int matrix_size = aRowsNumber * aColumnsNumber;
-    int index = 0;
+    int index;
     int flag = 1;
 
     for (i = 0; i < aRowsNumber; i += 2) {
@@ -82,7 +83,8 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, in
             if (apLocation2->GetLocationZ() != nullptr) {
                 z1 = apLocation2->GetLocationZ()[j0];
             }
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / (aLocalTheta[2] * 1000);
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) /
+                   (aLocalTheta[2] * 1000);
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1, aLocalTheta[8] / 2);
             expr3 = expr / expr2;
             expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1,

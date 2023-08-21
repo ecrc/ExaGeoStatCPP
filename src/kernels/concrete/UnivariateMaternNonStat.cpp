@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternNonStat.cpp
- *
+ * @brief Implementation of the UnivariateMaternNonStat kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/UnivariateMaternNonStat.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateMaternNonStat<T>::UnivariateMaternNonStat() {
@@ -35,11 +36,12 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                       int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
-                                                       Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                       T *aLocalTheta, int &aDistanceMetric) {
+                                                          int &aRowOffset, int &aColumnOffset,
+                                                          Locations<T> *apLocation1,
+                                                          Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                          T *aLocalTheta, int &aDistanceMetric) {
     double l1x, l1y, l2x, l2y;
-    double a, b, c, d, e, f, g, h, ti;
+    double a, b, d, e, f, g, h, ti;
 
     a = aLocalTheta[0];
     b = aLocalTheta[1];
@@ -111,8 +113,8 @@ double UnivariateMaternNonStat<T>::Lambda(double x, double y, double a, double b
 
 template<typename T>
 double UnivariateMaternNonStat<T>::CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,
-                                           double y2, double a11, double a12,
-                                           double a21, double a22) {
+                                                                       double y2, double a11, double a12,
+                                                                       double a21, double a22) {
 
     double diffx = x1 - x2;
     double diffy = y1 - y2;
@@ -127,7 +129,7 @@ double UnivariateMaternNonStat<T>::CalculateMahalanobisDistanceSquared(double x1
 
 template<typename T>
 double UnivariateMaternNonStat<T>::MaternUtil(double range, double smoothness, double distance) {
-    double con = 0.0;
+    double con;
     con = pow(2, (smoothness - 1)) * tgamma(smoothness);
     con = 1.0 / con;
 

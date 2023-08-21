@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternDnu.cpp
- *
+ * @brief Implementation of the UnivariateMaternDnu kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/UnivariateMaternDnu.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateMaternDnu<T>::UnivariateMaternDnu() {
@@ -41,17 +42,16 @@ void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNu
 
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
-    double x0, y0, z0;
-    double expr = 0.0;
-    double nu_expr = 0.0;
+    int j0;
+    double expr;
+    double nu_expr;
     double sigma_square = aLocalTheta[0];
     int flag = 0;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {

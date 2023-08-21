@@ -31,22 +31,17 @@
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
-#ifndef PROJECT_SOURCE_DIR
-#   define PROJECT_SOURCE_DIR ""
-
-#endif
-
 // Variables sizes.
 #define SIZE_OF_FLOAT 4
 #define SIZE_OF_DOUBLE 8
 
+/**
+ * Pi value.
+ */
+#define PI (3.141592653589793)
+
 namespace exageostat {
     namespace common {
-
-        /**
-         * Pi value.
-         */
-#define PI (3.141592653589793)
 
         /**
          * @enum VerbosityLevel
@@ -97,17 +92,29 @@ namespace exageostat {
             EXAGEOSTAT_UNIT = 132
         };
 
+        /**
+         * @enum Distance metric
+         * @brief Enum denoting distance metric type.
+         */
         enum DistanceMetric {
             EUCLIDIAN_DISTANCE = 0,
             GREAT_CIRCLE_DISTANCE = 1
         };
 
+        /**
+         * @enum Descriptor Type
+         * @brief Enum denoting the Descriptor Type.
+         */
         enum DescriptorType {
             CHAMELEON_DESCRIPTOR = 0,
-            HICMA_DESCRIPTOR = 0
+            HICMA_DESCRIPTOR = 1
         };
 
-        enum DescriptorName :int {
+        /**
+         * @enum Descriptor Name
+         * @brief Enum denoting all Descriptors Names.
+         */
+        enum DescriptorName : int {
             DESCRIPTOR_C = 0,
             DESCRIPTOR_Z = 1,
             DESCRIPTOR_Z_COPY = 2,
@@ -125,7 +132,13 @@ namespace exageostat {
             DESCRIPTOR_PRODUCT_2 = 14,
             DESCRIPTOR_C11 = 15,
             DESCRIPTOR_C12 = 16,
-            DESCRIPTOR_C22 = 17
+            DESCRIPTOR_C22 = 17,
+            DESCRIPTOR_C12D = 18,
+            DESCRIPTOR_C12UV = 19,
+            DESCRIPTOR_C12RK = 20,
+            DESCRIPTOR_C22D = 21,
+            DESCRIPTOR_C22UV = 22,
+            DESCRIPTOR_C22RK = 23
         };
 
         /**
@@ -139,12 +152,6 @@ namespace exageostat {
             EXAGOSTAT_RCRB = 105,
             EXAGOSTAT_RRRB = 106,
         } ExaGeoStatTileStorage;
-
-        typedef struct Tile {
-            int8_t format;
-            int    m, n, ld;
-            void  *mat;
-        } ExaGeoStatTile;
 
         /**
          * @enum Computation
@@ -197,7 +204,7 @@ namespace exageostat {
         /**
          * @var availableKernels
          * @brief Set denoting the available kernels supported in matrix generation.
-         * @details This set is updated manually to add new kernels.
+         * @details This set is updated automatically to add new kernels.
          * The set is initialized with a lambda function that iterates through a directory
          * and extracts the kernel names from the filenames. It also adds lowercase versions
          * of the kernel names with underscores before each capital letter.

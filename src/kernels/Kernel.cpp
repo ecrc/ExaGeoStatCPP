@@ -5,13 +5,13 @@
 
 /**
  * @file Kernel.cpp
- *
+ * @brief implementation file for the Kernels class, which contains the main kernel functions.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-12
 **/
+
 #include <cmath>
-#include <iostream>
 
 extern "C" {
 #include <gsl/gsl_sf_bessel.h>
@@ -19,40 +19,38 @@ extern "C" {
 
 #include <kernels/Kernel.hpp>
 
+using namespace std;
+
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 
-using namespace std;
-
 template<typename T>
-T Kernel<T>::CalculateDistance(Locations<T> *apLocations1, Locations<T> *apLocations2, int &aIdxLocation1,
-                                    int &aIdxLocation2, int &aDistanceMetric, int &aFlagZ) {
+T Kernel<T>::CalculateDistance(Locations<T> &aLocations1, Locations<T> &aLocations2, int &aIdxLocation1,
+                               int &aIdxLocation2, int &aDistanceMetric, int &aFlagZ) {
 
-    T x1 = apLocations1->GetLocationX()[aIdxLocation1];
-    T y1 = apLocations2->GetLocationY()[aIdxLocation1];
-    T x2 = apLocations2->GetLocationX()[aIdxLocation2];
-    T y2 = apLocations2->GetLocationY()[aIdxLocation2];
+    T x1 = aLocations1.GetLocationX()[aIdxLocation1];
+    T y1 = aLocations2.GetLocationY()[aIdxLocation1];
+    T x2 = aLocations2.GetLocationX()[aIdxLocation2];
+    T y2 = aLocations2.GetLocationY()[aIdxLocation2];
 
     T dx = x2 - x1;
     T dy = y2 - y1;
-    T dz = 0;
+    T dz;
 
-    //TODO: I guess the condition should be if aFlagZ == 0 not 1, since in the C version documentation:
-    // * @param z_flag  0--->2D or 1-->3D
-    if (apLocations1->GetLocationZ() == NULL || apLocations2->GetLocationZ() == NULL || aFlagZ == 1) {
+    if (aLocations1.GetLocationZ() == nullptr || aLocations2.GetLocationZ() == nullptr || aFlagZ == 0) {
         //if 2D
-        if (aDistanceMetric == 1){
+        if (aDistanceMetric == 1) {
             return DistanceEarth(x1, y1, x2, y2);
         }
         return sqrt(pow(dx, 2) + pow(dy, 2));
     } else {
         //if 3D
-        if (aDistanceMetric == 1){
+        if (aDistanceMetric == 1) {
             printf("Great Circle (GC) distance is only valid for 2d\n");
             exit(0);
         }
-        T z1 =  apLocations1->GetLocationZ()[aIdxLocation1];
-        T z2 =  apLocations2->GetLocationZ()[aIdxLocation2];
+        T z1 = aLocations1.GetLocationZ()[aIdxLocation1];
+        T z2 = aLocations2.GetLocationZ()[aIdxLocation2];
         dz = z2 - z1;
         return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
     }
@@ -65,19 +63,6 @@ static double deg2rad(double deg) {
 
 template<typename T>
 T Kernel<T>::DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2) {
-
-//    const T deg2rad = M_PI / 180.0;
-//
-//    T latitude1 = aLatitude1 * deg2rad;
-//    T longitude1 = aLongitude1 * deg2rad;
-//    T latitude2 = aLatitude2 * deg2rad;
-//    T longitude2 = aLongitude2 * deg2rad;
-//
-//    T dLat = latitude2 - latitude1;
-//    T dLon = longitude2 - longitude1;
-//    T a = sin(dLat / 2) * sin(dLat / 2) + cos(latitude1) * cos(latitude2) * sin(dLon / 2) * sin(dLon / 2);
-//    T c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
     double lat1r, lon1r, lat2r, lon2r, u, v;
     lat1r = deg2rad(aLatitude1);
     lon1r = deg2rad(aLongitude1);

@@ -1,50 +1,39 @@
+
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file TestBivariateSpacetimeMaternStationary.cpp
- * @brief 
+ * @brief Unit tests for the TestBivariateSpacetimeMaternStationary kernel in the ExaGeoStat software package.
+ * @details This file contains Catch2 unit tests that validate the functionality of the TestBivariateSpacetimeMaternStationary kernel
+ * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-05-10
 **/
 
 #include <libraries/catch/catch.hpp>
-#include <configurations/data-generation/concrete/SyntheticDataConfigurations.hpp>
-#include <data-generators/DataGenerator.hpp>
 #include <api/ExaGeoStat.hpp>
-
-using namespace exageostat::configurations::data_configurations;
-using namespace exageostat::linearAlgebra;
-using namespace exageostat::common;
-using namespace exageostat::generators;
+#include <hardware/ExaGeoStatHardware.hpp>
 
 using namespace std;
 
+using namespace exageostat::configurations;
+using namespace exageostat::api;
+using namespace exageostat::common;
+using namespace exageostat::hardware;
+
 void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
 
-    SECTION("BivariateSpacetimeMaternStationary") {
+    SECTION("BivariateSpacetimeMaternStationary")
+    {
 
         // Create a new synthetic_data_configurations object with the provided command line arguments
-        SyntheticDataConfigurations synthetic_data_configurations;
-        synthetic_data_configurations.SetProblemSize(9);
-        synthetic_data_configurations.SetKernel("BivariateSpacetimeMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-        synthetic_data_configurations.SetDenseTileSize(5);
-        synthetic_data_configurations.SetComputation(EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HiCMA
-        synthetic_data_configurations.SetLowTileSize(5);
-        synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
-#endif
-        synthetic_data_configurations.SetDimension(DimensionST);
-        synthetic_data_configurations.SetIsSynthetic(true);
-        synthetic_data_configurations.SetPrecision(DOUBLE);
-        synthetic_data_configurations.SetTimeSlot(5);
-
-        // Create a unique pointer to a DataGenerator object
-        std::unique_ptr<DataGenerator<double>> synthetic_generator;
+        Configurations synthetic_data_configurations;
+        int N = 4;
+        synthetic_data_configurations.SetProblemSize(N);
+        synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
 
         vector<double> target_theta{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
         synthetic_data_configurations.SetTargetTheta(target_theta);
@@ -58,46 +47,43 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         vector<double> initial_theta{1, 1, 1, 0.1, 0.5, 1, 1.5, 0.1, 0.1, 0.1};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
+        synthetic_data_configurations.SetDimension(DimensionST);
+        synthetic_data_configurations.SetTimeSlot(5);
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+        int dts = 4;
+        synthetic_data_configurations.SetDenseTileSize(dts);
+        synthetic_data_configurations.SetComputation(EXACT_DENSE);
+
         // Initialise ExaGeoStat Hardware.
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(&synthetic_data_configurations);
+        auto hardware = ExaGeoStatHardware(EXACT_DENSE, 3, 0);
 
-        // Create the DataGenerator object
-        synthetic_generator = synthetic_generator->CreateGenerator(&synthetic_data_configurations);
-
-        // Initialize the seed manually with zero, to get the first generated seeded numbers.
-        srand(0);
-        // Generated locations data
-        synthetic_generator->GenerateLocations();
-        synthetic_generator->GenerateDescriptors();
-
-        auto descriptorC = synthetic_data_configurations.GetDescriptorC()[0];
-        exageostat::dataunits::Locations *l1 = synthetic_generator->GetLocations();
-
-        int upper_lower = EXAGEOSTAT_LOWER;
-        synthetic_generator->GetLinearAlgberaSolver()->CovarianceMatrixCodelet(descriptorC, upper_lower, l1, l1,
-                                                                               nullptr,
-                                                                               synthetic_data_configurations.GetInitialTheta().data(),
-                                                                               0, synthetic_generator->GetKernel());
-
-        auto *A = synthetic_generator->GetLinearAlgberaSolver()->GetMatrix();
-
+        int seed = 0;
+        srand(seed);
+                exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(), synthetic_data_configurations.GetDimension(), hardware);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
+        auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
+                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+        auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
-        double expected_output_data[] = {1.000000, 0.745356, 0.788999,
-                                         0.738211, 0.769694, 0.736064,
-                                         1.000000, 0.738211, 0.999532};
+        double expected_output_data[] = {
+                -1.272336, -2.516013, -1.182511, -2.512958, -1.203093, -2.548053, -1.213645, -2.511269, -1.807922,
+                -2.992990, -2.072972, -3.001448, -1.525724, -3.004085, -1.997874, -2.993439, -1.256771, -2.832258,
+                -1.022281, -2.827732, -0.924332, -2.856855, -1.363071, -2.832165, -1.680104, -3.400946, -1.685995,
+                -3.414854, -1.318928, -3.440336, -1.944915, -3.428945, -1.300296, -3.367150, -1.572847, -3.392844,
+                -1.126261, -3.392112, -1.682665, -3.394862
+        };
 
-        int m = 3;
-        int n = 3;
-
-        for (int i = 0; i < m * n; i++) {
+        for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Approx(0.0).margin(1e-6));
         }
-        // Finalize ExaGeoStat Hardware.
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(&synthetic_data_configurations);
+
+
+#endif
     }
 }
 
 TEST_CASE("BivariateSpacetimeMaternStationary kernel test") {
-    TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary();
+TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary();
+
 }

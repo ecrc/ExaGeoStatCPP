@@ -4,7 +4,7 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file ChameleonImplementation.hpp
+ * @file ChameleonImplementationDST.hpp
  * @brief This file contains the declaration of ChameleonImplementationDST class.
  * @details ChameleonImplementationDST is a concrete implementation of LinearAlgebraMethods class for diagonal super tile matrices.
  * @version 1.0.0
@@ -45,14 +45,8 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::InitiateDescriptors()
                  * 
                  */
-                void InitiateDescriptors(configurations::Configurations *apConfigurations, dataunits::DescriptorData<T> *apDescriptorData) override;
-
-                /**
-                 * @brief Destroys the descriptors used by the linear algebra solver.
-                 * @copydoc LinearAlgebraMethods::DestroyDescriptors()
-                 * 
-                 */
-                void DestroyDescriptors(dataunits::DescriptorData<T> *apDescriptorData) override;
+                void InitiateDescriptors(configurations::Configurations &aConfigurations,
+                                         dataunits::DescriptorData<T> &aDescriptorData) override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -60,150 +54,139 @@ namespace exageostat {
                  * 
                  */
                 void
-                CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor, int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                        int &aTriangularPart, dataunits::Locations<T> *apLocation1,
                                         dataunits::Locations<T> *apLocation2,
                                         dataunits::Locations<T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel<T> *apKernel) override;
+
+                /**
+                 * @brief Computes the covariance matrix.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatGaussianToNonTileAsync()
+                 *
+                 */
+                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
+                                                      T *apTheta) override;
 
                 /**
                  * @brief Generates the observations vector.
                  * @copydoc LinearAlgebraMethods::GenerateObservationsVector()
                  * 
                  */
-                void GenerateObservationsVector(configurations::Configurations *apConfigurations, dataunits::DescriptorData<T> *apDescriptorData, dataunits::BaseDescriptor aDescriptor, dataunits::Locations<T> *apLocation1, dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3, int aDistanceMetric, exageostat::kernels::Kernel<T> *apKernel, T* Nrand) override;
-
-                /**
-                 * @brief Initializes the context needed for the Chameleon solver.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatInitContext()
-                 * 
-                 */
-                void ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) override;
-
-                /**
-                 * @brief Finalizes the context needed for the Chameleon solver.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatFinalizeContext()
-                 * 
-                 */
-                void ExaGeoStatFinalizeContext() override;
+                void GenerateObservationsVector(configurations::Configurations &aConfigurations,
+                                                dataunits::DescriptorData<T> *apDescriptorData,
+                                                dataunits::BaseDescriptor aDescriptor,
+                                                dataunits::Locations<T> *apLocation1,
+                                                dataunits::Locations<T> *apLocation2,
+                                                dataunits::Locations<T> *apLocation3, int aDistanceMetric) override;
 
                 /**
                  * @brief Copies the descriptor data to a double vector.
                  * @copydoc LinearAlgebraMethods::CopyDescriptorZ()
                  *
                  */
-                void CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor, T *apDoubleVector) override;
+                void CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                     T *apDoubleVector) override;
 
-
-                /**
-                 * @brief allocates dense matrix tile.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatAllocateMatrixTile()
-                 * 
-                 */
-                void ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
-                                                  int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM,
-                                                  int aN2, int aP, int aQ) override;
 
                 /**
                  * @brief Calculates the log likelihood value of a given value theta.
-                 * @param aN unsigned variable used by NLOPT library.
-                 * @param apTheta theta Vector with three parameter (Variance, Range, Smoothness)
-                 * that is used to to generate the Covariance Matrix.
-                 * @param apGrad double variable used by NLOPT library.
-                 * @param apData MLE_data struct with different MLE inputs.
-                 * @return log likelihood value
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
                 */
-                T ExaGeoStatMleTile(dataunits::ExaGeoStatData<T> *apData, configurations::Configurations *apConfigurations, const double* theta) override;
+                T ExaGeoStatMleTile(hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> *apData,
+                                    configurations::Configurations *apConfigurations, const double *theta) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
-                 * @param aUpperLower Specifies the part of the matrix A to be copied to B.
-                 * @param apA Source matrix A.
-                 * @param apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
+                 * @param[in] aUpperLower Specifies the part of the matrix A to be copied to B.
+                 * @param[in] apA Source matrix A.
+                 * @param[in,out] apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
                  * @return Successful exit
                  */
                 int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
 
                 /**
-                 * @brief Conversion from LAPACK layout to CHAM_desc_t.
-                 * @param aUpperLower Specifies the shape of the matrix A.
-                 * @param apAf77 LAPACK matrix.
-                 * @param aLda The leading dimension of the matrix Af77.
-                 * @param apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
-                 * @return
-                 */
-                int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) override;
+                * @brief Conversion from LAPACK layout to CHAM_desct_t.
+                * @param[in] aUpperLower Specifies the shape of the matrix A.
+                * @param[in] apAf77 LAPACK matrix.
+                * @param[in] aLda The leading dimension of the matrix Af77.
+                * @param[in] apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
+                * @return successful exit
+                */
+                int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda,
+                                                 void *apA) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
-                 * @param Identifies a set of routines sharing common exception handling.
+                 * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
                  * @return successful exit
                  */
                 int
-                ExaGeoStatSequenceWait(void * apSequence) override;
+                ExaGeoStatSequenceWait(void *apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-                 * @param aUpperLower Whether upper or lower part of the matrix A
-                 * @param apA Symmetric matrix A
-                 * @return
+                 * @param[in] aUpperLower Whether upper or lower part of the matrix A
+                 * @param[in] apA Symmetric matrix A
+                 * @return successful exit
                  */
                 int
                 ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
 
                 /**
                  * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
-                 * @param aSide Specifies whether op(A) appears on the left or on the right of X
-                 * @param aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
-                 * @param aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
-                 * @param aDiag Specifies whether or not A is unit triangular.
-                 * @param aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
-                 * @param apA The triangular matrix A
-                 * @param apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
+                 * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X
+                 * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
+                 * @param[in] aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
+                 * @param[in] aDiag Specifies whether or not A is unit triangular.
+                 * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
+                 * @param[in] apA The triangular matrix A
+                 * @param[in,out] apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
                  * @return successful exit
                  */
                 int
-                ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
+                ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
+                                   common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
 
                 /**
                  * @brief Performs matrix multiplication.
-                 * @param aTransA  Specifies whether the matrix A is transposed.
-                 * @param aTransB Specifies whether the matrix B is transposed.
-                 * @param aAlpha Specifies the scalar alpha.
-                 * @param apA Matrix A.
-                 * @param apB Matrix B.
-                 * @param aBeta Specifies the scalar beta.
-                 * @param apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
+                 * @param[in] aTransA  Specifies whether the matrix A is transposed.
+                 * @param[in] aTransB Specifies whether the matrix B is transposed.
+                 * @param[in] aAlpha Specifies the scalar alpha.
+                 * @param[in] apA Matrix A.
+                 * @param[in] apB Matrix B.
+                 * @param[in] aBeta Specifies the scalar beta.
+                 * @param[in,out] apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
                  * @return successful exit.
                  */
                 int
-                ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) override;
+                ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
+                                   T aBeta, void *apC) override;
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
-                 * @param apDescA Exageostat descriptor.
-                 * @param apSequence Identifies the sequence of function calls that this call belongs to.
-                 * @param apRequest Identifies this function call (for exception handling purposes).
-                 * @param apDescDet determinant value
+                 * @param[in] apDescA Exageostat descriptor.
+                 * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+                 * @param[in] apRequest Identifies this function call (for exception handling purposes).
+                 * @param[in] apDescDet determinant value
                  * @return
                  */
                 int
-                ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) override;
+                ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
+                                              void *apDescDet) override;
 
                 /**
                  * @brief opy Chameleon descriptor to vector float*.
-                 * @param apDescA Exageostat descriptor A.
-                 * @param apDescB Exageostat descriptor B.
-                 * @param apDescC Exageostat descriptor C.
-                 * @param apSequence Identifies the sequence of function calls that this call belongs to.
-                 * @param apRequest Identifies this function call (for exception handling purposes).
+                 * @param[in] apDescA Exageostat descriptor A.
+                 * @param[in] apDescB Exageostat descriptor B.
+                 * @param[in] apDescC Exageostat descriptor C.
+                 * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+                 * @param[in] apRequest Identifies this function call (for exception handling purposes).
                  * @return
                  */
-                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                        void * apSequence, void *apRequest) override;
+                int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
+                                                   void *apSequence, void *apRequest) override;
 
-            private:
-                //// Used context
-                static void *apContext;
             };
 
             /**

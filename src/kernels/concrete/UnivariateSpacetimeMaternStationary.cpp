@@ -5,18 +5,22 @@
 
 /**
  * @file UnivariateSpacetimeMaternStationary.cpp
- *
+ * @brief Implementation of the UnivariateSpacetimeMaternStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
-#include <kernels/concrete/UnivariateSpacetimeMaternStationary.hpp>
+
 #include<cmath>
+
 #include <gsl/gsl_sf_bessel.h>
+
+#include <kernels/concrete/UnivariateSpacetimeMaternStationary.hpp>
+
+using namespace std;
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateSpacetimeMaternStationary<T>::UnivariateSpacetimeMaternStationary() {
@@ -43,10 +47,10 @@ UnivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, i
                                                                  T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
+    int j0;
     double z0, z1;
-    double expr, expr1 = 0.0, expr2 = 0.0, expr3 = 0.0, expr4 = 0.0;
-    double con = 0.0;
+    double expr, expr2, expr3, expr4;
+    double con;
     double sigma_square = aLocalTheta[0];
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
@@ -60,7 +64,7 @@ UnivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, i
         for (j = 0; j < aColumnsNumber; j++) {
             z1 = apLocation2->GetLocationZ()[j0];
 
-            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[4]) / aLocalTheta[3] + 1.0, aLocalTheta[5] / 2.0);
             expr3 = expr / expr2;
             expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[4]) / aLocalTheta[3] + 1.0,

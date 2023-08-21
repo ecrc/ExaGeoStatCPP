@@ -5,19 +5,18 @@
 
 /**
  * @file UnivariateMaternNuggetsStationary.cpp
- *
+ * @brief Implementation of the UnivariateMaternNuggetsStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/UnivariateMaternNuggetsStationary.hpp>
-#include<cmath>
-#include <gsl/gsl_sf_bessel.h>
+
+using namespace std;
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateMaternNuggetsStationary<T>::UnivariateMaternNuggetsStationary() {
@@ -44,7 +43,7 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
                                                                     T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
+    int j0;
     double expr;
     double con;
     double sigma_square = aLocalTheta[0];// * aLocalTheta[0];
@@ -58,7 +57,8 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
         for (i = 0; i < aRowsNumber; i++) {
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
-                expr = CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, flag) / aLocalTheta[1];
+                expr = this->CalculateDistance(*apLocation1, *apLocation2, j0, i0, aDistanceMetric, flag) /
+                       aLocalTheta[1];
                 if (expr == 0)
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 else
@@ -74,7 +74,7 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
                 flag = 1;
-                expr = CalculateDistance(apLocation1, apLocation2, j0, i0, aDistanceMetric, flag);
+                expr = this->CalculateDistance(*apLocation1, *apLocation2, j0, i0, aDistanceMetric, flag);
                 if (expr == 0)
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 else

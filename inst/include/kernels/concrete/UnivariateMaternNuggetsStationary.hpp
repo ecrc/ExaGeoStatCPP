@@ -21,8 +21,8 @@ namespace exageostat {
 
         /**
          * @class UnivariateMaternNuggetsStationary
-         * @brief A class representing a Bivariate Matern Flexible kernel.
-         * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class.
+         * @brief A class representing a Univariate Matern Nuggets Stationary kernel.
+         * @details This class represents a Univariate Matern Nuggets Stationary, which is a subclass of the Kernel class.
          * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
          *
          */
@@ -41,7 +41,7 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
-            ~UnivariateMaternNuggetsStationary() = default;
+            ~UnivariateMaternNuggetsStationary() override = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
@@ -50,7 +50,7 @@ namespace exageostat {
             void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
                                           int &aColumnOffset, dataunits::Locations<T> *apLocation1,
                                           dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                          T *aLocalTheta, int &aDistanceMetric) override ;
+                                          T *aLocalTheta, int &aDistanceMetric) override;
 
             /**
              * @brief Creates a new UnivariateMaternNuggetsStationary object.
@@ -64,6 +64,14 @@ namespace exageostat {
             //// Used plugin name for static registration
             static bool plugin_name;
         };
+
+        /**
+         * @brief Instantiates the Data Generator class for float and double types.
+         * @tparam T Data Type: float or double
+         *
+         */
+        EXAGEOSTAT_INSTANTIATE_CLASS(UnivariateMaternNuggetsStationary)
+
     }//namespace Kernels
 }//namespace exageostat
 

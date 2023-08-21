@@ -1,13 +1,14 @@
+
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Utils.hpp
- * @version 1.0.0
  * @brief This file contains common functions used in ExaGeoStat software package.
  * @details These functions include so far the VERBOSE macro that prints a message
  * to the console if the verbosity setting is set to "verbose mode.
+ * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-21
 **/
@@ -36,8 +37,6 @@
     if (failed){ \
         throw std::runtime_error(msg);\
     }
-
-#endif //EXAGEOSTATCPP_UTILS_HPP
 
 /**
  * FLOPS MACRO that compute the number of floating point multiplications required
@@ -84,57 +83,57 @@
 /**
  * Timing macro to start timing.
  */
-#define START_TIMING(_t)     _t =- cWtime();
+#define START_TIMING(t) auto t##_start = std::chrono::high_resolution_clock::now()
 
 /**
  * Timing macro to stop timing.
  */
-#define STOP_TIMING(_t)      _t +=  cWtime();
+#define STOP_TIMING(t) auto t##_end = std::chrono::high_resolution_clock::now(); \
+                    t = std::chrono::duration_cast<std::chrono::duration<double>>(t##_end - t##_start).count()
 
-//// TODO: Revisit this part!
-inline __time_t cWtime()
-//! get time
-{
-    struct timeval tp;
-    gettimeofday(&tp, nullptr);
-    return tp.tv_sec + 1e-6 * tp.tv_usec;
-}
+/// static bool to make sure that print summary is only performed once.
+static bool is_printed = false;
 
 /**
  * @brief print the summary of MLE inputs.
- * @param N Number of Locations
- * @param ncores Number of Threads per node
- * @param gpus GPUs
- * @param ts Dense Tile Size
- * @param computation
- * @param p_grid
- * @param q_grid
- * @param precision Double or Single Precision
+ * @param[in] N Number of Locations
+ * @param[in] ncores Number of Threads per node
+ * @param[in] gpus GPUs
+ * @param[in] ts Dense Tile Size
+ * @param[in] computation
+ * @param[in] p_grid
+ * @param[in] q_grid
+ * @param[in] precision Double or Single Precision
  * @return void
  */
-inline void PrintSummary(int N, int ncores, int gpus, int ts, exageostat::common::Computation computation, int p_grid, int q_grid, exageostat::common::Precision precision)
-
-{
+inline void
+PrintSummary(int N, int ncores, int gpus, int ts, int p_grid, int q_grid,
+             exageostat::common::Precision precision) {
+    if (!is_printed) {
 #if defined(CHAMELEON_USE_MPI)
-    if ( MORSE_My_Mpi_Rank() == 0 )
-    {
+        if ( MORSE_My_Mpi_Rank() == 0 )
+        {
 #endif
-    fprintf(stderr, "********************SUMMARY**********************\n");
-    fprintf(stderr, "#Synthetic Dataset\n");
-    fprintf(stderr, "Number of Locations: %d\n", N);
-    fprintf(stderr, "#Threads per node: %d\n", ncores);
-    fprintf(stderr, "#GPUs: %d\n", gpus);
-    if (precision == 1)
-        fprintf(stderr, "#Double Precision!\n");
-    else if (precision == 0)
-        fprintf(stderr, "#Single Precision!\n");
-    else if (precision == 2)
-        fprintf(stderr, "#Single/Double Precision!\n");
-    fprintf(stderr, "#Dense Tile Size: %d\n", ts);
-    fprintf(stderr, "#exact computation\n");
-    fprintf(stderr, "p=%d, q=%d\n", p_grid, q_grid);
-    fprintf(stderr, "***************************************************\n");
+        fprintf(stderr, "********************SUMMARY**********************\n");
+        fprintf(stderr, "#Synthetic Dataset\n");
+        fprintf(stderr, "Number of Locations: %d\n", N);
+        fprintf(stderr, "#Threads per node: %d\n", ncores);
+        fprintf(stderr, "#GPUs: %d\n", gpus);
+        if (precision == 1)
+            fprintf(stderr, "#Double Precision!\n");
+        else if (precision == 0)
+            fprintf(stderr, "#Single Precision!\n");
+        else if (precision == 2)
+            fprintf(stderr, "#Single/Double Precision!\n");
+        fprintf(stderr, "#Dense Tile Size: %d\n", ts);
+        fprintf(stderr, "#exact computation\n");
+        fprintf(stderr, "p=%d, q=%d\n", p_grid, q_grid);
+        fprintf(stderr, "***************************************************\n");
 #if defined(CHAMELEON_USE_MPI)
+        }
+#endif
+        is_printed = true;
     }
-#endif
 }
+
+#endif //EXAGEOSTATCPP_UTILS_HPP

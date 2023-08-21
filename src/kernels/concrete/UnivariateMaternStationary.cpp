@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternStationary.cpp
- *
+ * @brief Implementation of the UnivariateMaternStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/UnivariateMaternStationary.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateMaternStationary<T>::UnivariateMaternStationary() {
@@ -36,20 +37,24 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                          int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
-                                                          Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                          T *aLocalTheta, int &aDistanceMetric) {
+                                                             int &aRowOffset, int &aColumnOffset,
+                                                             Locations<T> *apLocation1,
+                                                             Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                             T *aLocalTheta, int &aDistanceMetric) {
     const T sigma_square = aLocalTheta[0];
     const T nu = aLocalTheta[2];
-    const T inv_con = sigma_square * (1.0/(pow(2, (nu - 1)) * tgamma((nu))));
+    const T inv_con = sigma_square * (1.0 / (pow(2, (nu - 1)) * tgamma((nu))));
 
     int i0 = aRowOffset;
     int flag = 0;
 
-    for (int i = 0; i < aRowsNumber; i++) {
-        int j0 = aColumnOffset;
-        for (int j = 0; j < aColumnsNumber; j++) {
-            const T dist = this->CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+    int j0;
+    int i, j;
+    T dist;
+    for (i = 0; i < aRowsNumber; i++) {
+        j0 = aColumnOffset;
+        for (j = 0; j < aColumnsNumber; j++) {
+            dist = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
                                                  ? sigma_square
                                                  : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);

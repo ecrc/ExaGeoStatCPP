@@ -16,8 +16,8 @@ using namespace exageostat::dataunits;
 using namespace exageostat::common;
 
 template<typename T>
-void Locations<T>::SetLocationX(T *apLocationX) {
-    this->mpLocationX = apLocationX;
+void Locations<T>::SetLocationX(T &aLocationX) {
+    this->mpLocationX = &aLocationX;
 }
 
 template<typename T>
@@ -29,8 +29,8 @@ T *Locations<T>::GetLocationX() {
 }
 
 template<typename T>
-void Locations<T>::SetLocationY(T *apLocationY) {
-    this->mpLocationY = apLocationY;
+void Locations<T>::SetLocationY(T &aLocationY) {
+    this->mpLocationY = &aLocationY;
 }
 
 template<typename T>
@@ -42,8 +42,8 @@ T *Locations<T>::GetLocationY() {
 }
 
 template<typename T>
-void Locations<T>::SetLocationZ(T *apLocationZ) {
-    this->mpLocationZ = apLocationZ;
+void Locations<T>::SetLocationZ(T &aLocationZ) {
+    this->mpLocationZ = &aLocationZ;
 }
 
 template<typename T>
@@ -70,7 +70,6 @@ template<typename T>
 Dimension Locations<T>::GetDimension() {
     return this->mDimension;
 }
-
 
 
 template<typename T>

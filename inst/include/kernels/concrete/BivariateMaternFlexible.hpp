@@ -41,7 +41,7 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
-            ~BivariateMaternFlexible() = default;
+            ~BivariateMaternFlexible() override = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
@@ -50,7 +50,7 @@ namespace exageostat {
             void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
                                           int &aColumnOffset, dataunits::Locations<T> *apLocation1,
                                           dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                          T *aLocalTheta, int &aDistanceMetric) override ;
+                                          T *aLocalTheta, int &aDistanceMetric) override;
 
             /**
              * @brief Creates a new BivariateMaternFlexible object.

@@ -10,11 +10,46 @@
  * @author Sameh Abdulah
  * @date 2023-07-18
 **/
+
 #include <data-units/DescriptorData.hpp>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
-using namespace exageostat::dataunits;
+using namespace exageostat::dataunits::descriptor;
+
+template<typename T>
+DescriptorData<T>::DescriptorData(hardware::ExaGeoStatHardware &apHardware) {
+    this->mpContext = apHardware.GetContext();
+    if (!this->mpContext) {
+        throw std::runtime_error("Can create descriptors, Hardware is not initialised!");
+    }
+}
+
+template<typename T>
+DescriptorData<T>::~DescriptorData() {
+
+    ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
+    // Destroy descriptors.
+    for (const auto &pair: this->mDictionary) {
+        const std::string &key = pair.first;
+        if (key.find("CHAMELEON") != std::string::npos && pair.second != nullptr) {
+            exaGeoStatDescriptor.DestroyDescriptor(common::CHAMELEON_DESCRIPTOR, pair.second);
+        } else if (pair.second != nullptr) {
+            exaGeoStatDescriptor.DestroyDescriptor(common::HICMA_DESCRIPTOR, pair.second);
+        }
+    }
+    this->mDictionary.clear();
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+    if (this->mpSequence) {
+        CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpSequence);
+    }
+#endif
+#ifdef EXAGEOSTAT_USE_HiCMA
+    if(this->mpSequence){
+        HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpSequence);
+    }
+#endif
+}
 
 template<typename T>
 void *DescriptorData<T>::GetSequence() {
@@ -39,7 +74,7 @@ void *DescriptorData<T>::GetRequest() {
 template<typename T>
 BaseDescriptor DescriptorData<T>::GetDescriptor(DescriptorType aDescriptorType, DescriptorName aDescriptorName) {
 
-    BaseDescriptor descriptor;
+    BaseDescriptor descriptor{};
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAMELEON") == this->mDictionary.end()) {
@@ -71,18 +106,16 @@ void DescriptorData<T>::SetDescriptor(DescriptorType aDescriptorType, Descriptor
     ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        descriptor = exaGeoStatDescriptor.CreateChameleonDescriptor((CHAM_desc_t *) descriptor, aIsOOC, apMatrix,
-                                                                    aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
-                                                                    aN, aP, aQ);
+        descriptor = exaGeoStatDescriptor.CreateDescriptor((CHAM_desc_t *) descriptor, aDescriptorType, aIsOOC,
+                                                           apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
+                                                           aN, aP, aQ);
         type = "_CHAMELEON";
 #else
         throw std::runtime_error("To create Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
 #endif
     } else {
 #ifdef EXAGEOSTAT_USE_HiCMA
-        descriptor = exaGeoStatDescriptor.CreateHicmaDescriptor((HICMA_desc_t *) descriptor, aIsOOC, apMatrix,
-                                                                    aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
-                                                                    aN, aP, aQ);
+        descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
         type = "_HICMA";
 #else
         throw std::runtime_error("To create HiCMA descriptor you need to enable EXAGEOSTAT_USE_HiCMA!");
@@ -93,42 +126,22 @@ void DescriptorData<T>::SetDescriptor(DescriptorType aDescriptorType, Descriptor
 }
 
 template<typename T>
-BaseDescriptor DescriptorData<T>::CreateSubMatrixDescriptor(common::DescriptorType aDescriptorType,
-                                                            common::DescriptorName aDescriptorName, void *apDescA,
-                                                            int aI, int aJ, int aM, int aN) {
+T *DescriptorData<T>::GetDescriptorMatrix(common::DescriptorType aDescriptorType, void *apDesc) {
+    if (aDescriptorType == common::CHAMELEON_DESCRIPTOR) {
 
-    std::string type;
-    BaseDescriptor descriptor;
-    ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
-    if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        descriptor.chameleon_desc = exaGeoStatDescriptor.CreateChameleonSubMatrixDescriptor((CHAM_desc_t *) apDescA, aI,
-                                                                                            aJ, aM, aN);
-        type = "_CHAMELEON";
+        return (T *) ((CHAM_desc_t *) apDesc)->mat;
 #else
-        throw std::runtime_error("To create Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
+        throw std::runtime_error("To use Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
 #endif
     } else {
 #ifdef EXAGEOSTAT_USE_HiCMA
-        descriptor = exaGeoStatDescriptor.CreateHicmaSubMatrixDescriptor((HICMA_desc_t *) descriptor, aIsOOC, apMatrix,
-                                                                    aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
-                                                                    aN, aP, aQ);
-        type = "_HICMA";
+        return (T *) ((HICMA_desc_t *) apDesc)->mat;
 #else
-        throw std::runtime_error("To create HiCMA descriptor you need to enable EXAGEOSTAT_USE_HiCMA!");
+        throw std::runtime_error("To use Hicma descriptor you need to enable EXAGEOSTAT_USE_HiCMA!");
 #endif
     }
-
-    this->mDictionary[GetDescriptorName(aDescriptorName) + type] = descriptor.chameleon_desc;
-
-    return descriptor;
 }
-
-template<typename T>
-T *DescriptorData<T>::GetDescriptorMatrix(void *apDesc) {
-    return (T *) ((CHAM_desc_t *) apDesc)->mat;
-}
-
 
 // Define a function that returns the name of a DescriptorName value as a string
 template<typename T>
@@ -170,8 +183,19 @@ std::string DescriptorData<T>::GetDescriptorName(DescriptorName aDescriptorName)
             return "DESCRIPTOR_Z_Actual";
         case DESCRIPTOR_MSE:
             return "DESCRIPTOR_MSE";
+        case DESCRIPTOR_C12D:
+            return "DESCRIPTOR_C12D";
+        case DESCRIPTOR_C12UV:
+            return "DESCRIPTOR_C12UV";
+        case DESCRIPTOR_C12RK:
+            return "DESCRIPTOR_C12RK";
+        case DESCRIPTOR_C22D:
+            return "DESCRIPTOR_C22D";
+        case DESCRIPTOR_C22UV:
+            return "DESCRIPTOR_C22UV";
+        case DESCRIPTOR_C22RK:
+            return "DESCRIPTOR_C22RK";
         default:
-            //// TODO: Add user manual
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");
     }

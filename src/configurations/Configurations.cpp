@@ -1,9 +1,7 @@
 
-/*
- * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * All rights reserved.
- * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
- */
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Configurations.cpp
@@ -57,38 +55,12 @@ Configurations::Configurations() {
     SetP(1);
     SetSeed(0);
     SetLogger(false);
-    SetLoggerPath("");
-    SetDeterminantValue(0.0);
-    SetProductValue(0);
-    SetIterationsValue(0);
+    SetUnknownObservationsNb(0);
+    SetMeanSquareError(0.0);
+    SetApproximationMode(1);
+    SetActualObservationsFilePath("");
     SetRecoveryFile("");
     SetPrecision(common::DOUBLE);
-    //// TODO: Continue
-//    arg_values->zvecs = "1";
-//    arg_values->async = 0;
-//    arg_values->kernel = "";
-//    arg_values->ikernel = "";
-//    arg_values->N = "0";
-//    arg_values->lts = "0";
-//    arg_values->dts = "0";
-//    arg_values->locs_file = "";
-//    arg_values->obs_dir = "";
-//    arg_values->obs_dir2 = "";
-//    arg_values->actualZ_file = "";
-//    arg_values->actualZloc_file = "";
-//    arg_values->predict = "0";
-//    arg_values->dm = "ed";
-//    arg_values->diag_thick = "1";
-//    arg_values->log = 0;
-//    arg_values->maxrank = "0";
-//    arg_values->acc = "0";
-//    arg_values->profile = 0;
-//    arg_values->opt_tol = "5";
-//    arg_values->opt_max_iters = "-1";
-//    arg_values->ooc = 0;
-//    arg_values->mloe_mmom = 0;
-//    arg_values->mloe_mmom_async = 0;
-//    arg_values->mspe = 0;
 }
 
 
@@ -137,7 +109,7 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
             } else if (argument_name == "--precision" || argument_name == "--Precision") {
                 SetPrecision(CheckPrecisionValue(argument_value));
             } else if (argument_name == "--cores" || argument_name == "--coresNumber" ||
-                       argument_name == "--cores_number" || argument_name == "ncores") {
+                       argument_name == "--cores_number" || argument_name == "--ncores") {
                 SetCoresNumber(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Gpus" || argument_name == "--GPUsNumbers" ||
                        argument_name == "--gpu_number" || argument_name == "--gpus") {
@@ -164,19 +136,25 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
                        argument_name == "--iTheta") {
                 std::vector<double> theta = ParseTheta(argument_value);
                 SetInitialTheta(theta);
+            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetLowerBounds(theta);
+                SetStartingTheta(theta);
+            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetUpperBounds(theta);
             } else {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" ||
                       argument_name == "--dim" || argument_name == "--Dim" || argument_name == "--ZmissNumber" ||
-                      argument_name == "--Zmiss" || argument_name == "--lb" || argument_name == "--olb" ||
-                      argument_name == "--lowerBounds" || argument_name == "--ub" || argument_name == "--oub" ||
-                      argument_name == "--upper_bounds" || argument_name == "--initial_theta" ||
+                      argument_name == "--Zmiss" || argument_name == "--initial_theta" ||
                       argument_name == "--itheta" || argument_name == "--iTheta" ||
                       argument_name == "--target_theta" || argument_name == "--ttheta" ||
                       argument_name == "--tTheta" || argument_name == "--iterations" ||
                       argument_name == "--Iterations" ||
                       argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
                       argument_name == "--tolerance" ||
-                      argument_name == "--distanceMetric" || argument_name == "--distance_metric")) {
+                      argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
+                      argument_name == "--log_file_name" || argument_name == "--logFileName")) {
                     cout << "!! " << argument_name << " !!" << endl;
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -220,9 +198,14 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
+
+    if (GetLogger()) {
+        //initlog
+        InitLog();
+    }
 }
 
-void Configurations::InitializeDataGenerationArguments(){
+void Configurations::InitializeDataGenerationArguments() {
 
     string argument;
     string argument_name;
@@ -245,12 +228,6 @@ void Configurations::InitializeDataGenerationArguments(){
                 SetDimension(CheckDimensionValue(argument_value));
             } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
                 SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
-            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
-                std::vector<double> theta = ParseTheta(argument_value);
-                SetLowerBounds(theta);
-            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
-                std::vector<double> theta = ParseTheta(argument_value);
-                SetUpperBounds(theta);
             } else if (argument_name == "--target_theta" || argument_name == "--ttheta" ||
                        argument_name == "--tTheta") {
                 std::vector<double> theta = ParseTheta(argument_value);
@@ -282,16 +259,18 @@ void Configurations::InitializeDataModelingArguments() {
             argument_value = argument.substr(equal_sign_Idx + 1);
 
             // Check the argument name and set the corresponding value
-            if (argument_name == "--iterations" || argument_name == "--Iterations") {
-                SetIterationsValue(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--distance_metric" || argument_name == "--distanceMetric"){
+            if (argument_name == "--distance_metric" || argument_name == "--distanceMetric") {
                 ParseDistanceMetric(argument_value);
-            } else if (argument_name == "--data_log" || argument_name == "--dataLog"){
-//                ParseDataLog(argument_value);
-            } else if (argument_name == "--max_mle_iterations" || argument_name == "--MaxMleIterations"){
+            } else if (argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations") {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--tolerance"){
+            } else if (argument_name == "--tolerance") {
                 SetTolerance(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--log_file_name" || argument_name == "--logFileName") {
+                if (!GetLogger()) {
+                    throw domain_error(
+                            "To enable logging, please utilize the '--log' option in order to specify a log file.");
+                }
+                SetFileLogName(argument_value);
             }
         }
     }
@@ -309,8 +288,8 @@ void Configurations::PrintUsage() {
     cout << "\t\t --p_grid=value : Used P-Grid." << endl;
     cout << "\t\t --q_grid=value : Used P-Grid." << endl;
     cout << "\t\t --time_slot=value : Time slot value for ST." << endl;
-    cout << "\t\t --computation=value : Used computation" << endl;
-    cout << "\t\t --precision=value : Used precision" << endl;
+    cout << "\t\t --computation=value : Used computation." << endl;
+    cout << "\t\t --precision=value : Used precision." << endl;
     cout << "\t\t --cores=value : Used to set the number of cores." << endl;
     cout << "\t\t --gpus=value : Used to set the number of GPUs." << endl;
     cout << "\t\t --dts=value : Used to set the Dense Tile size." << endl;
@@ -325,6 +304,9 @@ void Configurations::PrintUsage() {
     cout << "\t\t --seed=value : Seed value for random number generation." << endl;
     cout << "\t\t --run_mode=value : Run mode whether verbose/not." << endl;
     cout << "\t\t --log_path=value : Path to log file." << endl;
+    cout << "\t\t --distance_metric=value : Used distance metric either eg or gcd.";
+    cout << "\t\t --max_mle_iterations=value : Maximum number of MLE iterations.";
+    cout << "\t\t --tolerance : MLE tolerance between two iterations.";
 
     cout << "\t\t --synthetic_data : Used to enable generating synthetic data." << endl;
     cout << "\t\t --OOC : Used to enable Out of core technology." << endl;
@@ -503,11 +485,22 @@ int Configurations::CheckUnknownObservationsValue(const string &aValue) {
 }
 
 void Configurations::ParseDistanceMetric(const std::string &aDistanceMetric) {
-    if (aDistanceMetric == "eg" || aDistanceMetric == "EG"){
+    if (aDistanceMetric == "eg" || aDistanceMetric == "EG") {
         SetDistanceMetric(EUCLIDIAN_DISTANCE);
-    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD"){
+    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD") {
         SetDistanceMetric(GREAT_CIRCLE_DISTANCE);
-    }else {
+    } else {
         throw range_error("Invalid value. Please use eg or gcd values only.");
     }
+}
+
+void Configurations::InitLog() {
+    try {
+        SetFileLogPath(fopen(GetFileLogName().c_str(), "w+"));
+    }
+    catch (std::exception &e) {
+        SetFileLogPath(fopen("log_file", "w+"));
+    }
+    fprintf(GetFileLogPath(), "\t\tlog file is generated by ExaGeoStat application\n");
+    fprintf(GetFileLogPath(), "\t\t============================================\n");
 }

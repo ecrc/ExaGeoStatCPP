@@ -5,7 +5,10 @@
 
 /**
  * @file TestSyntheticGenerator.cpp
- *
+ * @brief Unit tests for the SyntheticGenerator class in the ExaGeoStat software package.
+ * @details This file contains Catch2 unit tests that validate the functionality of the SyntheticGenerator class
+ * in the ExaGeoStat software package. The tests cover various aspects of data generation, including spreading
+ * and reversing bits, generating locations for different dimensions, and testing helper functions.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-03-08
@@ -15,15 +18,15 @@
 
 #include <libraries/catch/catch.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <api/ExaGeoStat.hpp>
+#include <data-generators/DataGenerator.hpp>
 #include <configurations/Configurations.hpp>
 
 using namespace std;
 
 using namespace exageostat::generators::synthetic;
+using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
-using namespace exageostat::api;
 using namespace exageostat::configurations;
 
 void TEST_SPREAD_REVERSED_BITS() {
@@ -200,50 +203,49 @@ void TEST_GENERATE_LOCATIONS() {
 
     SECTION("2D Generation") {
 
-        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(&synthetic_data_configurations);
+        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+                synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
-        synthetic_generator->GenerateLocations();
+        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
 
-        double *x = synthetic_generator->GetLocations()->GetLocationX();
-        double *y = synthetic_generator->GetLocations()->GetLocationY();
-        REQUIRE(synthetic_generator->GetLocations()->GetLocationZ() == nullptr);
+        double *x = locations->GetLocationX();
+        double *y = locations->GetLocationY();
+        REQUIRE(locations->GetLocationZ() == nullptr);
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
         }
-        SyntheticGenerator<double>::ReleaseInstance();
-    }
-    SECTION("3D Generation") {
+        delete locations;
+    }SECTION("3D Generation") {
         synthetic_data_configurations.SetDimension(Dimension3D);
-        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
-                &synthetic_data_configurations);
+        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+                synthetic_data_configurations);
 
-        synthetic_generator->GenerateLocations();
+        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
 
-        double *x = synthetic_generator->GetLocations()->GetLocationX();
-        double *y = synthetic_generator->GetLocations()->GetLocationY();
-        double *z = synthetic_generator->GetLocations()->GetLocationZ();
+        double *x = locations->GetLocationX();
+        double *y = locations->GetLocationY();
+        double *z = locations->GetLocationZ();
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
             REQUIRE(z[i] != 0);
         }
-        SyntheticGenerator<double>::ReleaseInstance();
-    }
-    SECTION("ST Generation") {
+        delete locations;
+    }SECTION("ST Generation") {
 
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
 
-        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
-                &synthetic_data_configurations);
-        synthetic_generator->GenerateLocations();
+        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+                synthetic_data_configurations);
+        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
 
-        double *x = synthetic_generator->GetLocations()->GetLocationX();
-        double *y = synthetic_generator->GetLocations()->GetLocationY();
-        double *z = synthetic_generator->GetLocations()->GetLocationZ();
+        double *x = locations->GetLocationX();
+        double *y = locations->GetLocationY();
+        double *z = locations->GetLocationZ();
 
         for (auto i = 0;
              i < synthetic_data_configurations.GetProblemSize(); i++) {
@@ -251,7 +253,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0.0);
             REQUIRE(z[i] != 0.0);
         }
-        SyntheticGenerator<double>::ReleaseInstance();
+        delete locations;
     }
 }
 
@@ -278,12 +280,10 @@ void TEST_HELPERS_FUNCTIONS() {
 
     SECTION("Compare Uint32") {
 
-        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
-                &synthetic_data_configurations);
         uint32_t num1 = 16;
-        REQUIRE(synthetic_generator->CompareUint64(num1, num1) == false);
-        REQUIRE(synthetic_generator->CompareUint64(num1, num1 + num1) == true);
-        REQUIRE(synthetic_generator->CompareUint64(num1 + num1, num1) == false);
+        REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1) == false);
+        REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1 + num1) == true);
+        REQUIRE(SyntheticGenerator<double>::CompareUint64(num1 + num1, num1) == false);
         SyntheticGenerator<double>::ReleaseInstance();
     }
 }
@@ -303,89 +303,50 @@ void TEST_GENERATION() {
 #ifdef EXAGEOSTAT_USE_HiCMA
         synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
-        SyntheticGenerator<double> *synthetic_generator = SyntheticGenerator<double>::GetInstance(
-                &synthetic_data_configurations);
+        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+                synthetic_data_configurations);
 
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
-        srand(0);
-
-        synthetic_generator->GenerateLocations();
+        int seed = 0;
+        srand(seed);
+        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
 
         // The expected output of the locations.
         vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
         vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
 
+
         for (int i = 0; i < N; i++) {
-            REQUIRE((synthetic_generator->GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
-            REQUIRE((synthetic_generator->GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((locations->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((locations->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
         }
 
         // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
-        synthetic_generator->GenerateLocations();
+        Locations<double> *locations1 = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
         for (int i = 0; i < N; i++) {
-            REQUIRE((synthetic_generator->GetLocations()->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
-            REQUIRE((synthetic_generator->GetLocations()->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((locations1->GetLocationX()[i] - x[i]) != Approx(0.0).margin(1e-6));
+            REQUIRE((locations1->GetLocationY()[i] - y[i]) != Approx(0.0).margin(1e-6));
         }
 
         // Now if we modified seed again, we will get the first generated locations again.
-        srand(0);
-        synthetic_generator->GenerateLocations();
+        int seed_srand = 0;
+        srand(seed_srand);
+        Locations<double> *locations2 = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
         for (int i = 0; i < N; i++) {
-            REQUIRE((synthetic_generator->GetLocations()->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
-            REQUIRE((synthetic_generator->GetLocations()->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((locations2->GetLocationX()[i] - x[i]) == Approx(0.0).margin(1e-6));
+            REQUIRE((locations2->GetLocationY()[i] - y[i]) == Approx(0.0).margin(1e-6));
         }
         SyntheticGenerator<double>::ReleaseInstance();
+        delete locations;
+        delete locations1;
+        delete locations2;
     }
 }
 
-void TEST_ALL_GENERATIONS() {
-    SECTION("synthetic data generation") {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-
-        Configurations synthetic_data_configurations;
-        int N = 16;
-        synthetic_data_configurations.SetProblemSize(N);
-        synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-        synthetic_data_configurations.SetDenseTileSize(9);
-
-        vector<double> lb{0.1, 0.1, 0.1};
-        synthetic_data_configurations.SetLowerBounds(lb);
-
-        vector<double> ub{5, 5, 5};
-        synthetic_data_configurations.SetUpperBounds(ub);
-
-        vector<double> initial_theta{1, 0.1, 0.5};
-        synthetic_data_configurations.SetInitialTheta(initial_theta);
-
-        // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
-        ExaGeoStat<double>::ExaGeoStatInitializeHardware(exageostat::common::EXACT_DENSE, 3, 0);
-
-        //// TODO: FIX THIS!
-        srand(0);
-        auto * data = ExaGeoStat<double>::ExaGeoStatGenerateData(&synthetic_data_configurations);
-
-        // Define the expected output for desk Z
-        double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
-                                         0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
-                                         -0.752828, 0.290822};
-        auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR, exageostat::common::DESCRIPTOR_Z).chameleon_desc;
-        auto *A = (double *) CHAM_descriptorZ->mat;
-        double diff;
-
-        for (int i = 0; i < N; i++) {
-            diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
-        }
-        // Finalise ExaGeoStat context.
-        ExaGeoStat<double>::ExaGeoStatFinalizeHardware(synthetic_data_configurations.GetComputation(), data->GetDescriptorData());
-#endif
-    }
-}
 
 TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();
     TEST_GENERATION();
-    TEST_ALL_GENERATIONS();
 }

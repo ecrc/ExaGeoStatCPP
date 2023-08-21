@@ -22,7 +22,7 @@ namespace exageostat {
         /**
          * @class Locations
          * @brief A class containing methods to set and get location data.
-         *
+         * @tparam T Data Type: float or double
          */
         template<typename T>
         class Locations {
@@ -36,15 +36,11 @@ namespace exageostat {
              */
             Locations(int aSize, exageostat::common::Dimension aDimension);
 
-            Locations(const Locations<T> &lo) = default;
-//            // define move assignment operator
-//            Locations& operator=(Locations&& other) noexcept {
-//                // move all fields from other to this object
-//                mpLocationX = std::move(other.mpLocationX);
-//                mpLocationY = std::move(other.mpLocationY);
-//                // ...
-//                return *this;
-//            }
+            /**
+             * @brief Default copy constructor.
+             * @param[in] aLocations Locations to be copied.
+             */
+            Locations(const Locations<T> &aLocations) = default;
 
             /**
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
@@ -54,11 +50,11 @@ namespace exageostat {
 
             /**
              * @brief Setter for LocationX.
-             * @param[in] apLocationX Pointer to X data.
+             * @param[in] aLocationX Reference to X data.
              * @return void
              *
              */
-            void SetLocationX(T *apLocationX);
+            void SetLocationX(T &aLocationX);
 
             /**
              * @brief Getter for LocationX.
@@ -69,11 +65,11 @@ namespace exageostat {
 
             /**
              * @brief Setter for LocationY.
-             * @param[in] apLocationY Pointer to Y data.
+             * @param[in] aLocationY Reference to Y data.
              * @return void
              *
              */
-            void SetLocationY(T *apLocationY);
+            void SetLocationY(T &aLocationY);
 
             /**
              * @brief Getter for LocationY.
@@ -84,11 +80,11 @@ namespace exageostat {
 
             /**
              * @brief Setter for LocationZ.
-             * @param[in] apLocationZ Pointer to Z data.
+             * @param[in] aLocationZ Reference to Z data.
              * @return void
              *
              */
-            void SetLocationZ(T *apLocationZ);
+            void SetLocationZ(T &aLocationZ);
 
             /**
              * @brief Getter for LocationZ.
@@ -127,7 +123,6 @@ namespace exageostat {
              */
             common::Dimension GetDimension();
 
-        public:
         private:
             /// Pointer to X data.
             T *mpLocationX = nullptr;
@@ -136,9 +131,9 @@ namespace exageostat {
             /// Pointer to Z data.
             T *mpLocationZ = nullptr;
             /// Size of each dimension
-            int mSize;
+            int mSize = 1;
             /// Data dimensions
-            common::Dimension mDimension;
+            common::Dimension mDimension = common::Dimension2D;
         };
 
         /**

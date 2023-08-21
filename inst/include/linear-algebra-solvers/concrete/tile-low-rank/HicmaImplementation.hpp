@@ -26,7 +26,7 @@ namespace exageostat {
              * 
              */
             template<typename T>
-            class HicmaImplementation : public LinearAlgebraMethods<T>{
+            class HicmaImplementation : public LinearAlgebraMethods<T> {
             public:
 
                 /**
@@ -44,14 +44,8 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::InitiateDescriptors()
                  * 
                  */
-                void InitiateDescriptors() override;
-
-                /**
-                 * @brief Destroys the descriptors used by the linear algebra solver.
-                 * @copydoc LinearAlgebraMethods::DestroyDescriptors()
-                 * 
-                 */
-                void DestroyDescriptors() override;
+                void InitiateDescriptors(configurations::Configurations &aConfigurations,
+                                         dataunits::DescriptorData <T> &aDescriptorData) override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -59,51 +53,31 @@ namespace exageostat {
                  * 
                  */
                 void
-                CovarianceMatrixCodelet(void *apDescriptor, int &aTriangularPart, dataunits::Locations *apLocation1,
-                                        dataunits::Locations *apLocation2,
-                                        dataunits::Locations *apLocation3, double *aLocalTheta, int aDistanceMetric,
-                                        exageostat::kernels::Kernel *apKernel) override;
+                CovarianceMatrixCodelet(dataunits::DescriptorData <T> *apDescriptorData, void *apDescriptor,
+                                        int &aTriangularPart, dataunits::Locations <T> *apLocation1,
+                                        dataunits::Locations <T> *apLocation2,
+                                        dataunits::Locations <T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
+                                        exageostat::kernels::Kernel<T> *apKernel) override;
 
                 /**
                  * @brief Generates the observations vector.
                  * @copydoc LinearAlgebraMethods::GenerateObservationsVector()
                  * 
                  */
-                void GenerateObservationsVector(void *apDescriptor, dataunits::Locations *apLocation1,
-                                                dataunits::Locations *apLocation2,
-                                                dataunits::Locations *apLocation3, std::vector<double> aLocalTheta,
-                                                int aDistanceMetric, exageostat::kernels::Kernel *apKernel) override;
-
-                /**
-                 * @brief Initializes the context needed for the Chameleon solver.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatInitContext()
-                 * 
-                 */
-                void ExaGeoStatInitContext(int aCoresNumber, int aGPUsNumbers) override;
-
-                /**
-                 * @brief Finalizes the context needed for the Chameleon solver.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatFinalizeContext()
-                 * 
-                 */
-                void ExaGeoStatFinalizeContext() override;
+                void GenerateObservationsVector(configurations::Configurations &apConfigurations,
+                                                dataunits::DescriptorData <T> *apDescriptorData,
+                                                dataunits::BaseDescriptor aDescriptor,
+                                                dataunits::Locations <T> *apLocation1,
+                                                dataunits::Locations <T> *apLocation2,
+                                                dataunits::Locations <T> *apLocation3, int aDistanceMetric) override;
 
                 /**
                  * @brief Copies the descriptor data to a double vector.
                  * @copydoc LinearAlgebraMethods::CopyDescriptorZ()
                  *
                  */
-                void CopyDescriptorZ(void *apapDescriptor, double *apDoubleVector) override;
-
-
-                /**
-                 * @brief allocates dense matrix tile.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatAllocateMatrixTile()
-                 * 
-                 */
-                void ExaGeoStatAllocateMatrixTile(void **apDescriptor, bool aIsOOC, T *apMemSpace, int aType2, int aMB,
-                                                  int aNB, int aMBxNB, int aLda, int aN, int aSMB, int aSNB, int aM,
-                                                  int aN2, int aP, int aQ) override;
+                void CopyDescriptorZ(dataunits::DescriptorData <T> *apDescriptorData, void *apDescriptor,
+                                     T *apDoubleVector) override;
 
                 /**
                  * @brief Calculates the log likelihood value of a given value theta.
@@ -114,7 +88,16 @@ namespace exageostat {
                  * @param apData MLE_data struct with different MLE inputs.
                  * @return log likelihood value
                 */
-                T ExaGeoStatMleTile(dataunits::Locations *apDataLocations) override;
+                T ExaGeoStatMleTile(hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData <T> *apData,
+                                    configurations::Configurations *apConfigurations, const double *theta) override;
+
+                /**
+                 * @brief Calculates the log likelihood value of a given value theta.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatGaussianToNonTileAsync()
+                 *
+                */
+                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData <T> *apDescriptorData, void *apDesc,
+                                                      T *apTheta) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
@@ -123,7 +106,7 @@ namespace exageostat {
                  * @param apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
                  * @return Successful exit
                  */
-                virtual int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
+                int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
 
                 /**
                  * @brief Conversion from LAPACK layout to HiCMA descriptor.
@@ -133,15 +116,16 @@ namespace exageostat {
                  * @param apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
                  * @return Successful exit
                  */
-                int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda, void * apA) override;
+                int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda,
+                                                 void *apA) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
                  * @param Identifies a set of routines sharing common exception handling.
                  * @return successful exit
                  */
-                virtual int
-                ExaGeoStatSequenceWait(void * apSequence) override;
+                int
+                ExaGeoStatSequenceWait(void *apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -149,7 +133,7 @@ namespace exageostat {
                  * @param apA Symmetric matrix A
                  * @return
                  */
-                virtual int
+                int
                 ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
 
                 /**
@@ -164,7 +148,8 @@ namespace exageostat {
                 * @return successful exit
                 */
                 int
-                ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
+                ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
+                                   common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
 
                 /**
                  * @brief Performs matrix multiplication.
@@ -178,7 +163,8 @@ namespace exageostat {
                  * @return successful exit.
                  */
                 int
-                ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB, T aBeta, void * apC) override;
+                ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
+                                   T aBeta, void *apC) override;
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
@@ -189,7 +175,9 @@ namespace exageostat {
                  * @return
                  */
                 int
-                ExaGeoStatMeasureDetTileAsync(void *apDescA, void * apSequence, void *apRequest, void *apDescDet) override;
+                ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
+                                              void *apDescDet) override;
+
                 /**
                  * @brief opy Chameleon descriptor to vector float*.
                  * @param apDescA Exageostat descriptor A.
@@ -199,12 +187,8 @@ namespace exageostat {
                  * @param apRequest Identifies this function call (for exception handling purposes).
                  * @return
                  */
-                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                        void * apSequence, void *apRequest) override;
-
-            private:
-                //// Used context
-                static void *apContext;
+                int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
+                                                   void *apSequence, void *apRequest) override;
             };
 
             /**

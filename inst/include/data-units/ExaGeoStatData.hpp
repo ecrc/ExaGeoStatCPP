@@ -1,6 +1,11 @@
+
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
 /**
  * @file ExaGeoStatData.hpp
- * @brief 
+ * @brief Contains the definition of the ExaGeoStatData class.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-07-19
@@ -11,6 +16,7 @@
 
 #include <data-units/DescriptorData.hpp>
 #include <data-units/Locations.hpp>
+#include <hardware/ExaGeoStatHardware.hpp>
 
 namespace exageostat {
     namespace dataunits {
@@ -22,60 +28,76 @@ namespace exageostat {
          */
         template<typename T>
         class ExaGeoStatData {
+
         public:
             /**
              * @brief Constructor for ExaGeoStatData.
-             * @param aSize Locations Size.
-             * @param aDimension Dimensions used.
+             * @param[in] aSize The size of the data.
+             * @param[in] aDimension The dimension of the data.
+             * @param[in] apHardware Reference to the ExaGeoStatHardware object.
              */
-            ExaGeoStatData(int aSize, exageostat::common::Dimension aDimension);
+            ExaGeoStatData(int aSize, exageostat::common::Dimension aDimension,
+                           hardware::ExaGeoStatHardware &apHardware);
 
             /**
-             * Destructor for ExaGeoStatData.
+             * @brief Destructor for ExaGeoStatData.
              */
             ~ExaGeoStatData();
 
             /**
-             * @brief Getter for Locations.
-             * @return Locations
+             * @brief Get the locations.
+             * @return Pointer to the Locations object.
              */
             Locations<T> *GetLocations();
 
             /**
-             * @brief Setter for mpLocations.
-             * @param apLocation
-             * @return void
+             * @brief Set the locations.
+             * @param[in] aLocation Pointer to the Locations object.
              */
-            void SetLocations(Locations<T> *apLocation);
+            void SetLocations(Locations<T> &aLocation);
 
             /**
-             * @brief Getter for DescriptorData.
-             * @return DescriptorData
+             * @brief Get the descriptor data.
+             * @return Pointer to the DescriptorData object.
              */
             DescriptorData<T> *GetDescriptorData();
 
             /**
+             * @brief Setter for the number of performed MLE iterations.
+             * @param[in] aMleIterations number of performed MLE iterations.
+             * @return void
+             */
+            void SetMleIterations(int aMleIterations);
+
+            /**
+             * @brief Get the number of performed MLE iterations.
+             * @return Pointer to the DescriptorData object.
+             */
+            int GetMleIterations();
+
+            /**
              * @brief Calculates Median Locations.
              * @param[in] aKernelName Name of the Kernel used.
-             * @return median locations
+             * @param[out] apLocations Location object to save medianLocations in.
+             * @return void
              */
-            Locations<T> *CalculateMedianLocations(std::string &aKernelName);
+            void CalculateMedianLocations(std::string &aKernelName, dataunits::Locations<T> &apLocations);
 
         private:
-            /// Used Descriptors' Data.
+            //// Used descriptor data.
             DescriptorData<T> *mpDescriptorData = nullptr;
-            /// Used Locations.
-            Locations<T> *mpLocations;
+            //// Used locations data.
+            Locations<T> *mpLocations = nullptr;
+            //// Current number of performed MLE iterations.
+            int mMleIterations = 0;
         };
 
-
         /**
-        * @brief Instantiates the chameleon dense class for float and double types.
-        * @tparam T Data Type: float or double
-        *
-        */
+         * @brief Instantiates the ExaGeoStatData class for float and double types.
+         * @tparam T Data Type: float or double
+         */
         EXAGEOSTAT_INSTANTIATE_CLASS(ExaGeoStatData)
-    }//namespace configurations
-}//namespace exageostat
+    } // namespace dataunits
+} // namespace exageostat
 
 #endif //EXAGEOSTATCPP_EXAGEOSTATDATA_HPP

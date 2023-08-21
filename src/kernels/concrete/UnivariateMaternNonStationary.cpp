@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternNonStationary.cpp
- *
+ * @brief Implementation of the UnivariateMaternNonStationary kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-13
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/UnivariateMaternNonStationary.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateMaternNonStationary<T>::UnivariateMaternNonStationary() {
@@ -23,7 +24,8 @@ UnivariateMaternNonStationary<T>::UnivariateMaternNonStationary() {
     this->mParametersNumber = 9;
 }
 
-template<typename T> Kernel<T> *UnivariateMaternNonStationary<T>::Create() {
+template<typename T>
+Kernel<T> *UnivariateMaternNonStationary<T>::Create() {
     return new UnivariateMaternNonStationary();
 }
 
@@ -34,14 +36,15 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                                int &aRowOffset, int &aColumnOffset, Locations<T> *apLocation1,
+                                                                int &aRowOffset, int &aColumnOffset,
+                                                                Locations<T> *apLocation1,
                                                                 Locations<T> *apLocation2, Locations<T> *apLocation3,
                                                                 T *aLocalTheta, int &aDistanceMetric) {
 
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
     double dx, dy;
-    double dist = 0.0;
+    double dist;
     double con, sigma_square, beta, nu;
     int i, j;
 

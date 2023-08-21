@@ -1,12 +1,15 @@
 
-/*
- * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * All rights reserved.
- * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
- */
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
 * @file synthetic_data.cpp
+* @brief Unit tests for the Configurations class in the ExaGeoStat software package.
+* @details This file contains Catch2 unit tests that validate the functionality of the Configurations class
+* in the ExaGeoStat software package. The tests cover various setters, getters, and value checks
+* for configuration parameters such as dimensions, P-GRID, kernel name, problem size, precision, and more.
+* Additionally, the tests include a copy-constructor test for the Configurations class.
 * @version 1.0.0
 * @author Sameh Abdulah
 * @date 2023-01-31
@@ -44,8 +47,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE(synthetic_data_configurations.GetPGrid() == 1);
         synthetic_data_configurations.SetPGrid(random_number);
         REQUIRE(synthetic_data_configurations.GetPGrid() == random_number);
-    }
-    SECTION("P-GRID value checker test")
+    }SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("K"),
@@ -56,14 +58,12 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         int test_nb = Configurations::CheckNumericalValue("512");
         synthetic_data_configurations.SetPGrid(test_nb);
         REQUIRE(synthetic_data_configurations.GetPGrid() == 512);
-    }
-    SECTION("Kernel setter/getter test")
+    }SECTION("Kernel setter/getter test")
     {
         REQUIRE(synthetic_data_configurations.GetKernelName().empty());
         synthetic_data_configurations.SetKernelName("univariate_matern_stationary");
         REQUIRE(synthetic_data_configurations.GetKernelName() == "univariate_matern_stationary");
-    }
-    SECTION("Kernel checker value test")
+    }SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckKernelValue("100"),
@@ -72,8 +72,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
                 synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu%"),
                 "Invalid value for Kernel. Please check manual.");
         synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu");
-    }
-    SECTION("Problem size setter/getter test")
+    }SECTION("Problem size setter/getter test")
     {
         REQUIRE(synthetic_data_configurations.GetProblemSize() == 0);
         synthetic_data_configurations.SetProblemSize(random_number);
@@ -93,7 +92,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
 }
 
 void TEST_COPY_CONSTRUCTOR() {
-    SECTION("copy-constructor"){
+    SECTION("copy-constructor") {
         Configurations synthetic_data_configurations;
         synthetic_data_configurations.SetProblemSize(10);
         synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
@@ -116,6 +115,7 @@ void TEST_COPY_CONSTRUCTOR() {
 
     }
 }
+
 TEST_CASE("Synthetic Data Configurations") {
     TEST_SYNTHETIC_CONFIGURATIONS();
     TEST_COPY_CONSTRUCTOR();

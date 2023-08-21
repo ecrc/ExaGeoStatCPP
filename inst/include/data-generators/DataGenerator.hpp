@@ -1,9 +1,7 @@
 
-/*
- * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * All rights reserved.
- * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
- */
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file DataGenerator.hpp
@@ -40,34 +38,22 @@ namespace exageostat {
             /**
              * @brief Generates the data locations.
              * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
+             * @param[in] apConfigurations Pointer to the data configurations.
              * @return void
              *
              */
-            virtual void
-            GenerateLocations() = 0;
+            virtual dataunits::Locations<T> *
+            CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) = 0;
 
             /**
              * @brief Factory method for creating a data generator object.
              * @details This method creates a data generator object based on the specified configurations.
-             * @param[in] apConfigurations Pointer to the synthetic data configurations.
+             * @param[in] aConfigurations Reference to the data configurations.
              * @return A unique pointer to the created data generator object.
              *
              */
-            static std::unique_ptr<DataGenerator> CreateGenerator(exageostat::configurations::Configurations *apConfigurations);
-
-            /**
-              * @brief Gets the data locations object.
-              * @return A pointer to the locations object.
-              *
-              */
-            dataunits::Locations<T> *GetLocations();
-
-            /**
-             * @brief Gets the kernel object used to compute the covariance matrix.
-             * @return A pointer to the kernel object.
-             *
-             */
-            exageostat::kernels::Kernel<T> *GetKernel();
+            static std::unique_ptr<DataGenerator>
+            CreateGenerator(exageostat::configurations::Configurations &aConfigurations);
 
             /**
              * @brief Destructor for the data generator object.
@@ -77,12 +63,8 @@ namespace exageostat {
             virtual ~DataGenerator();
 
         protected:
-            /// Pointer to Locations object
-            dataunits::Locations<T> *mpLocations = nullptr;
-            /// Pointer to Kernel object
-            exageostat::kernels::Kernel<T> *mpKernel = nullptr;
-            /// Pointer to Configurations object
-            exageostat::configurations::Configurations * mpConfigurations = nullptr; // [in] Used Synthetic Configuration.
+            /// Used bool identifying type of generation.
+            static bool mIsSynthetic;
         };
 
         /**

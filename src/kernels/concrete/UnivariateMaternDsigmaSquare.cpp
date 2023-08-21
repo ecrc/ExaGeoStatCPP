@@ -5,7 +5,7 @@
 
 /**
  * @file UnivariateMaternDsigmaSquare.cpp
- *
+ * @brief Implementation of the UnivariateMaternDsigmaSquare kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -13,9 +13,10 @@
 
 #include <kernels/concrete/UnivariateMaternDsigmaSquare.hpp>
 
+using namespace std;
+
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
-using namespace std;
 
 template<typename T>
 UnivariateMaternDsigmaSquare<T>::UnivariateMaternDsigmaSquare() {
@@ -41,9 +42,9 @@ void UnivariateMaternDsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, int
                                                                T *aLocalTheta, int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
-    int j0 = aColumnOffset;
+    int j0;
     double expr;
-    double con = 0.0;
+    double con;
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;

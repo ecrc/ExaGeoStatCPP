@@ -21,8 +21,10 @@
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
+
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 #include <linear-algebra-solvers/concrete/diagonal-super-tile/ChameleonImplementationDST.hpp>
+
 #endif
 
 #ifdef EXAGEOSTAT_USE_HiCMA
@@ -48,7 +50,7 @@ namespace exageostat {
              * @return Pointer to the created linear algebra solver.
              *
              */
-             static LinearAlgebraMethods<T> *CreateLinearAlgebraSolver(common::Computation aComputation);
+            static LinearAlgebraMethods<T> *CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 
         /**

@@ -21,8 +21,8 @@ namespace exageostat {
 
         /**
          * @class UnivariateMaternDsigmaSquare
-         * @brief A class representing a Bivariate Matern Flexible kernel.
-         * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class.
+         * @brief A class representing a Univariate Matern Dsigma Square kernel.
+         * @details This class represents a Univariate Matern Dsigma Square, which is a subclass of the Kernel class.
          * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
          *
          */
@@ -41,7 +41,7 @@ namespace exageostat {
              * @brief Virtual destructor to allow calls to the correct concrete destructor.
              *
              */
-            ~UnivariateMaternDsigmaSquare() = default;
+            ~UnivariateMaternDsigmaSquare() override = default;
 
             /**
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
@@ -50,7 +50,7 @@ namespace exageostat {
             void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
                                           int &aColumnOffset, dataunits::Locations<T> *apLocation1,
                                           dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                          T *aLocalTheta, int &aDistanceMetric) override ;
+                                          T *aLocalTheta, int &aDistanceMetric) override;
 
             /**
              * @brief Creates a new UnivariateMaternDsigmaSquare object.

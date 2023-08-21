@@ -1,9 +1,7 @@
 
-/*
- * Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
- * All rights reserved.
- * ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
- */
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file SyntheticGenerator.hpp
@@ -36,29 +34,43 @@ namespace exageostat {
 
                 /**
                  * @brief Get a pointer to the singleton instance of the SyntheticGenerator class.
-                 * @param[in] apConfigurations A pointer to the configurations for the synthetic data.
                  * @return A pointer to the instance of the SyntheticGenerator class.
                  *
                  */
-                static SyntheticGenerator<T> *GetInstance(configurations::Configurations *apConfigurations);
+                static SyntheticGenerator<T> *GetInstance();
 
                 /**
                  * @brief Initialize a vector with a given size to contain zeros.
-                 * @param[in] apTheta A reference to the vector to initialize.
+                 * @param[out] aTheta A reference to the vector to initialize.
                  * @param[in] aSize The size of the vector to initialize.
                  * @return A reference to the initialized vector.
                  *
                  */
-                static std::vector<double>& InitTheta(std::vector<double> &apTheta, int &aSize);
+                static std::vector<double> &InitTheta(std::vector<double> &aTheta, int &aSize);
 
                 /**
                  * @brief Generates the data locations.
                  * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
+                 * @param[in] aN The number of data points.
+                 * @param[in] aTimeSlot The time slot.
+                 * @param[in] aDimension The dimension of the locations.
+                 * @param[out] aLocations Reference to the Locations object where the generated data will be stored.
                  * @return void
                  *
                  */
-                void
-                GenerateLocations() override;
+                void GenerateLocations(int aN, int aTimeSlot, common::Dimension aDimension,
+                                       dataunits::Locations<T> &aLocations);
+
+
+                /**
+                 * @brief Creates the Locations data.
+                 * @details This method creates the Locations data based on the provided configurations.
+                 * @param[in] aConfigurations Reference to the Configurations object.
+                 * @return Pointer to the Locations object.
+                 *
+                 */
+                dataunits::Locations<T> *
+                CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) override;
 
                 /**
                  * @brief Generate uniform distribution between rangeLow , rangeHigh.
@@ -72,10 +84,12 @@ namespace exageostat {
                 /**
                  * @brief Sort locations in Morton order (input points must be in [0;1]x[0;1] square]).
                  * @param[in] aN The problem size divided by P-Grid.
+                 * @param[in] aDimension Dimension of locations.
+                 * @param[in,out] aLocations Locations to be sorted.
                  * @return void
                  *
                  */
-                void SortLocations(int &aN);
+                void SortLocations(int &aN, common::Dimension aDimension, dataunits::Locations<T> &aLocations);
 
                 /**
                  * @brief Spread bits by three spaces.
@@ -112,17 +126,16 @@ namespace exageostat {
             private:
                 /**
                  * @brief Constructor for the SyntheticGenerator class.
-                 * @param[in] apConfigurations A pointer to the configurations for the synthetic data.
                  * @return void
                  *
                  */
-                SyntheticGenerator(exageostat::configurations::Configurations *apConfigurations);
+                SyntheticGenerator() = default;
 
                 /**
-                 * @brief Virtual destructor to allow calls to the correct concrete destructor.
+                 * @brief Default destructor.
                  *
                  */
-                ~SyntheticGenerator() override;
+                ~SyntheticGenerator() override = default;
 
                 /**
                  * @brief Pointer to the singleton instance of the SyntheticGenerator class.

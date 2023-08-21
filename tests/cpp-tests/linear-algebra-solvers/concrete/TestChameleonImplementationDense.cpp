@@ -17,54 +17,36 @@ extern "C" {
 
 #include <libraries/catch/catch.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <api/ExaGeoStat.hpp>
-#include <data-generators/DataGenerator.hpp>
 #include <configurations/Configurations.hpp>
-#include <data-units/ExaGeoStatData.hpp>
-
-using namespace exageostat::linearAlgebra::dense;
-using namespace exageostat::linearAlgebra;
-using namespace exageostat::common;
-using namespace exageostat::generators;
-using namespace exageostat::configurations;
-using namespace exageostat::dataunits;
+#include <hardware/ExaGeoStatHardware.hpp>
+#include <data-units/DescriptorData.hpp>
 
 using namespace std;
 
-void INIT_FINALIZE_HARDWARE() {
-
-    ChameleonImplementationDense<float> chameleonImpl;
-    // Initialise the context
-    chameleonImpl.ExaGeoStatInitContext(4, 0);
-    CHAM_context_t *chameleonContext1 = chameleon_context_self();
-    REQUIRE(chameleonContext1 != nullptr);
-
-    // Finalize the context.
-    chameleonImpl.ExaGeoStatFinalizeContext();
-    REQUIRE(chameleon_context_self() == nullptr);
-
-    // Test using operations without initialise Hardware.
-    auto *data = new DescriptorData<float>();
-    Configurations configurations;
-    REQUIRE_THROWS_WITH(chameleonImpl.InitiateDescriptors(&configurations, data),
-                        "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
-}
+using namespace exageostat::linearAlgebra;
+using namespace exageostat::common;
+using namespace exageostat::configurations;
+using namespace exageostat::dataunits;
+using namespace exageostat::hardware;
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
 void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
+
     Configurations synthetic_data_configurations;
 
     SECTION("SINGLE") {
 
         // Initialise Hardware.
-        exageostat::api::ExaGeoStat<float>::ExaGeoStatInitializeHardware(EXACT_DENSE, 1, 0);
+        auto hardware = ExaGeoStatHardware(EXACT_DENSE, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
+        linearAlgebraSolver->SetContext(hardware.GetContext());
+
         synthetic_data_configurations.SetProblemSize(4);
         synthetic_data_configurations.SetDenseTileSize(1);
 
-        auto *data = new DescriptorData<float>();
-        linearAlgebraSolver->InitiateDescriptors(&synthetic_data_configurations, data);
+        auto *data = new DescriptorData<float>(hardware);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -172,22 +154,23 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
             REQUIRE(mat[i] == 0.0f);
             REQUIRE(matProduct[i] == 0.0f);
         }
-        // Finalise Hardware.
-        exageostat::api::ExaGeoStat<float>::ExaGeoStatFinalizeHardware(EXACT_DENSE, data);
+        delete linearAlgebraSolver;
+        delete data;
     }
 
     SECTION("DOUBLE") {
 
         // Initialise Hardware.
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(EXACT_DENSE, 4, 0);
+        auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
+        linearAlgebraSolver->SetContext(hardware.GetContext());
 
         synthetic_data_configurations.SetProblemSize(64);
         synthetic_data_configurations.SetDenseTileSize(8);
 
-        auto *data = new DescriptorData<double>();
-        linearAlgebraSolver->InitiateDescriptors(&synthetic_data_configurations, data);
+        auto *data = new DescriptorData<double>(hardware);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descsubC11 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C11).chameleon_desc;
@@ -399,79 +382,11 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
             REQUIRE(mat[i] == 0.0f);
 
         }
-        // Finalise Hardware.
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(EXACT_DENSE, data);
-    }
-}
-
-void TEST_CHAMELEON_GENERATE_OBSERVATIONS() {
-    SECTION("Data generation - Observations") {
-        // Create a new synthetic_data_configurations object with the provided command line arguments
-        Configurations synthetic_data_configurations;
-        int N = 16;
-        synthetic_data_configurations.SetProblemSize(N);
-        synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-        synthetic_data_configurations.SetDenseTileSize(9);
-        synthetic_data_configurations.SetComputation(EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HiCMA
-        synthetic_data_configurations.SetLowTileSize(5);
-        synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
-#endif
-        synthetic_data_configurations.SetDimension(Dimension2D);
-        synthetic_data_configurations.SetIsSynthetic(true);
-        synthetic_data_configurations.SetPrecision(DOUBLE);
-
-        vector<double> lb{0.1, 0.1, 0.1};
-        synthetic_data_configurations.SetLowerBounds(lb);
-
-        vector<double> ub{5, 5, 5};
-        synthetic_data_configurations.SetUpperBounds(ub);
-
-        vector<double> initial_theta{1, 0.1, 0.5};
-        synthetic_data_configurations.SetInitialTheta(initial_theta);
-
-        // Initialise ExaGeoStat Hardware.
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatInitializeHardware(EXACT_DENSE, 1, 0);
-
-        // Create a unique pointer to a DataGenerator object
-        unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(&synthetic_data_configurations);
-
-        // Initialize the seed manually with zero, to get the first generated seeded numbers.
-        srand(0);
-        // Generated locations data
-        synthetic_generator->GenerateLocations();
-
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
-        auto *data = new DescriptorData<double>();
-        linearAlgebraSolver->InitiateDescriptors(&synthetic_data_configurations, data);
-
-        auto descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C);
-        exageostat::dataunits::Locations<double> *l1 = synthetic_generator->GetLocations();
-
-       linearAlgebraSolver->GenerateObservationsVector(&synthetic_data_configurations, data, descriptorC, l1, l1, nullptr, 0, synthetic_generator->GetKernel());
-
-        // Define the expected output for desk Z
-        double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
-                                         0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
-                                         -0.752828, 0.290822};
-        auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
-        auto *A = (double *) CHAM_descriptorZ->mat;
-        double diff;
-
-        for (int i = 0; i < N; i++) {
-            diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
-        }
-
-        // Finalize ExaGeoStat Hardware.
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatFinalizeHardware(EXACT_DENSE, data);
+        delete linearAlgebraSolver;
+        delete data;
     }
 }
 
 TEST_CASE("Chameleon Implementation Dense") {
-    INIT_FINALIZE_HARDWARE();
     TEST_CHAMELEON_DESCRIPTORS_VALUES();
-    TEST_CHAMELEON_GENERATE_OBSERVATIONS();
 }
