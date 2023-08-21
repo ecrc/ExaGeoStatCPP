@@ -12,7 +12,7 @@
  * @author Sameh Abdulah
  * @date 2023-05-10
 **/
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 
@@ -76,7 +76,7 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
+            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
         }
 #endif
     }
@@ -84,6 +84,6 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
 
 
 TEST_CASE("UnivariateSpacetimeMaternStationary kernel test") {
-    TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary();
+TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary();
 
 }

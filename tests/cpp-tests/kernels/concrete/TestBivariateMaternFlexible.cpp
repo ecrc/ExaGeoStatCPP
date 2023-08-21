@@ -1,4 +1,3 @@
-
 // Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
@@ -13,7 +12,7 @@
  * @date 2023-05-09
 **/
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 
@@ -75,7 +74,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
 
 #endif

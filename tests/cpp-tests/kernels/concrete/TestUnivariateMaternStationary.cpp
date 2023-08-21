@@ -13,7 +13,7 @@
  * @date 2023-04-29
 **/
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 
@@ -67,7 +67,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
+            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
         }
 
 #endif

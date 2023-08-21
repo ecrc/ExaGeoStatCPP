@@ -13,7 +13,7 @@
  * @date 2023-05-10
 **/
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace std;
@@ -25,7 +25,8 @@ using namespace exageostat::hardware;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
-    SECTION("UnivariateMaternNonGaussian") {
+    SECTION("UnivariateMaternNonGaussian")
+    {
 
         // Create a new synthetic_data_configurations object with the provided command line arguments
         Configurations synthetic_data_configurations;
@@ -66,7 +67,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff == Approx(0.0).margin(1e-6));
+            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
         }
 
 #endif
@@ -74,5 +75,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 }
 
 TEST_CASE("UnivariateMaternNonGaussian kernel test") {
-    TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian();
+TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian();
+
 }

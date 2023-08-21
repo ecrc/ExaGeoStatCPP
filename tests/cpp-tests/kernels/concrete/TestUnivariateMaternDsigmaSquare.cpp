@@ -13,7 +13,7 @@
  * @date 2023-04-29
 **/
 
-#include <libraries/catch/catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace std;

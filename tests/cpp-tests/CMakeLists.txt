@@ -7,7 +7,6 @@
 # @version 1.0.0
 # @author Sameh Abdulah
 # @date 2023-01-31
-set(EXAGEOSTAT_TESTFILES ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp)
 
 if (EXAGEOSTAT_USE_CHAMELEON)
     add_subdirectory(api)
@@ -20,4 +19,5 @@ add_subdirectory(kernels)
 
 enable_testing()
 add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})
-target_link_libraries(exageostat-tests ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)
+target_link_libraries(exageostat-tests ${PROJECT_NAME} ${LIBS} Catch2::Catch2WithMain ${PROJECT_NAME}_INTERFACE)
+catch_discover_tests(exageostat-tests)

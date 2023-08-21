@@ -148,8 +148,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations 
     Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T>>::Create(aConfigurations.GetKernelName());
 
     this->CovarianceMatrixCodelet(apDescriptorData, p_descriptor, upper_lower, apLocation1, apLocation2, apLocation3,
-                                  theta,
-                                  aDistanceMetric, kernel);
+                                  theta, aDistanceMetric, kernel);
 
     delete kernel;
     VERBOSE("Done.\n")

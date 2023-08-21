@@ -277,7 +277,6 @@ void Configurations::InitializeDataModelingArguments() {
 }
 
 void Configurations::InitializeDataPredictionArguments() {
-
 }
 
 void Configurations::PrintUsage() {
