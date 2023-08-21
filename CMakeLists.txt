@@ -48,13 +48,7 @@ option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
-# Add tests if enabled
-if (${EXAGEOSTAT_BUILD_TESTS})
-    message(STATUS "Building Tests")
-    include(ImportCatch2)
-    include(Catch)
-    include(CTest)
-endif ()
+
 # Add all dependencies for ExaGeoStat PP
 include(ImportGFortran)
 include(ImportOpenMP)
@@ -166,6 +160,10 @@ install(TARGETS exageostatcpp
 
 # Add tests if enabled
 if (${EXAGEOSTAT_BUILD_TESTS})
+    message(STATUS "Building Tests")
+    include(ImportCatch2)
+    include(Catch)
+    include(CTest)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp-tests)
     enable_testing()
 endif()
