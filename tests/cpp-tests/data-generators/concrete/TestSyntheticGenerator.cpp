@@ -11,6 +11,7 @@
  * and reversing bits, generating locations for different dimensions, and testing helper functions.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-08
 **/
 

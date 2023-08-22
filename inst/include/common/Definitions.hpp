@@ -10,6 +10,7 @@
  * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
  * A macro for instantiating template classes with supported types; and a set of available kernels.
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-21
 **/
 

@@ -5,11 +5,12 @@
 
 # @file CMakeLists.txt
 # @brief This is a CMakeLists.txt file for a C++ project ExaGeoStat.
-# The project is a parallel high performance unified framework for geographical statistics on many core systems.
+# The project is a parallel high performance unified framework for geographical statistics on manycore systems.
 # The file sets up variables and finds dependencies required for the project.
 # It also provides options to enable building tests, building examples, building documentation, and enabling a packaging system for distribution.
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-01-30
 
 # Set the minimum CMake version required to 3.20

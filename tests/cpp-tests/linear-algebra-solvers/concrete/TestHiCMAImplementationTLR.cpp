@@ -5,9 +5,10 @@
 
 /**
  * @file TestHiCMAImplementationTLR.cpp
- *
+ * @brief Unit tests for the Tile Low Rank computation in the ExaGeoStat software package.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
 

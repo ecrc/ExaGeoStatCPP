@@ -9,6 +9,7 @@
  * @details The program takes command line arguments and example variables to configure the data modeling.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/
 

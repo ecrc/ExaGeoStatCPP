@@ -8,6 +8,7 @@
  * @brief Dense Tile implementation of linear algebra methods.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-20
 **/
 
@@ -19,6 +20,7 @@ extern "C" {
 #include <chameleon.h>
 #include <control/descriptor.h>
 #include <control/context.h>
+#include <include/chameleon/flops.h>
 }
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
@@ -375,7 +377,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(hardware::ExaGeoStatHardwar
         //// TODO: Contact chameleon team
         FAILURE_LOGGER(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n")
         STOP_TIMING(time_facto);
-        flops = flops + FLOPS_DPOTRF(n);
+        flops = flops + flops_dpotrf(n);
         VERBOSE(" Done.\n")
 
         //Calculate log(|C|) --> log(square(|L|))
@@ -394,7 +396,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(hardware::ExaGeoStatHardwar
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_C,
                            CHAM_desc_Z);
         STOP_TIMING(time_solve);
-        flops = flops + FLOPS_DTRSM(ChamLeft, n, nhrs);
+        flops = flops + flops_dtrsm(ChamLeft, n, nhrs);
         VERBOSE(" Done.\n")
 
         //Calculate MLE likelihood

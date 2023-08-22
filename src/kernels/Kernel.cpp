@@ -8,6 +8,7 @@
  * @brief implementation file for the Kernels class, which contains the main kernel functions.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-12
 **/
 

@@ -7,7 +7,10 @@
  * @file UnivariateMaternNuggetsStationary.hpp
  * @brief Defines the UnivariateMaternNuggetsStationary class, a Univariate Matern Nuggets Stationary kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

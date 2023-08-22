@@ -7,7 +7,10 @@
  * @file UnivariateExpNonGaussian.hpp
  * @brief Defines the UnivariateExpNonGaussian class, a Univariate Exp Non Gaussian kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

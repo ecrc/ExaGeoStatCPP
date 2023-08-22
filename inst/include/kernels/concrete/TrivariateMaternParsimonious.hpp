@@ -7,7 +7,10 @@
  * @file TrivariateMaternParsimonious.hpp
  * @brief Defines the TrivariateMaternParsimonious class, a Trivariate Matern Parsimonious kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

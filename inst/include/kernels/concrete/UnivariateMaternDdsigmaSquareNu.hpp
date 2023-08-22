@@ -7,7 +7,10 @@
  * @file UnivariateMaternDdsigmaSquareNu.hpp
  * @brief Defines the UnivariateMaternDdsigmaSquareNu class, a Univariate Matern Ddsigma Square Nu kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

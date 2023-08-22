@@ -8,7 +8,10 @@
  * @file Kernels.hpp
  * @brief Header file for the Kernels class, which contains the main kernel functions.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-05
 **/
 

@@ -8,6 +8,7 @@
  * @brief Contains the definition of the DiskWriter class for writing data to disk.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-06-08
 **/
 

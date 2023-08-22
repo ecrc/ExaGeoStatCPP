@@ -8,6 +8,7 @@
  * @brief Implementation of the SyntheticGenerator class
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-02-14
 **/
 

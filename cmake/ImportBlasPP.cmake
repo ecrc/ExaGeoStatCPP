@@ -6,6 +6,7 @@
 # @brief This file searches for the BLAS++ library and includes it if not already included.
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-03-12
 
 # search for BLAS library, if not already included

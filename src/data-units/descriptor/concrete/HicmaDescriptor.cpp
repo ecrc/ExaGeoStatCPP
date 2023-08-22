@@ -3,6 +3,7 @@
  * @brief Defines the Hicma Descriptor class for creating matrix descriptors using the HICMA library.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-08-15
 **/
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>

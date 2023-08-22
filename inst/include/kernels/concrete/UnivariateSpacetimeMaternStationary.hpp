@@ -7,7 +7,10 @@
  * @file UnivariateSpacetimeMaternStationary.hpp
  * @brief Defines the UnivariateSpacetimeMaternStationary class, a Univariate Spacetime Matern Stationary kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

@@ -7,6 +7,7 @@
 # @brief CMake configuration file for the Synthetic Generator module
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-02-14
 
 # Add source files to the parent scope

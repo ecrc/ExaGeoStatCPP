@@ -12,6 +12,7 @@
 * Additionally, the tests include a copy-constructor test for the Configurations class.
 * @version 1.0.0
 * @author Sameh Abdulah
+* @author Mahmoud ElKarargy
 * @date 2023-01-31
 **/
 

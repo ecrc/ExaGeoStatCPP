@@ -7,8 +7,10 @@
  * @file SyntheticData_main.cpp
  * @brief This file contains the main function for generating synthetic data for ExaGeoStat
  * for dense computation and double precision.
- * @version 1.0.0
- * @author Sameh Abdulah
+  * @version 1.0.0
+ * @author Sameh Abdulah* @author Suhas Shankar
+ * @author Mary Lai Salvana
+ * @author Mahmoud ElKarargy
  * @date 2023-03-04
 **/
 

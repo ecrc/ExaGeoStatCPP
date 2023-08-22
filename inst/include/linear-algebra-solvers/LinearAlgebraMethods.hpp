@@ -8,6 +8,7 @@
  * @brief Header file for the LinearAlgebraMethods class, which defines the interface for linear algebra solvers.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-20
  * @details This header file defines the abstract class LinearAlgebraMethods, which provides an interface for linear algebra solvers.
  * The purpose of this interface is to allow different concrete linear algebra solvers to be interchangeable,

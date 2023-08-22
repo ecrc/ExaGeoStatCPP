@@ -5,9 +5,10 @@
 
 /**
  * @file TestChameleonImplmentationDense.cpp
- *
+ * @brief Unit tests for the Dense computation in the ExaGeoStat software package.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-06
 **/
 

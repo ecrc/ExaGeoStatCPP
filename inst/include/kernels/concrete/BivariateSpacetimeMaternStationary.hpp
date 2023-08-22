@@ -7,7 +7,10 @@
  * @file BivariateSpacetimeMaternStationary.hpp
  * @brief Defines the BivariateSpacetimeMaternStationary class, a Bivariate Spacetime Matern Stationary kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

@@ -8,6 +8,8 @@
  * @brief This file contains the declaration of HicmaImplementation class.
  * @details HicmaImplementation is a concrete implementation of LinearAlgebraMethods class for tile low-rank matrices.
  * @version 1.0.0
+ * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-26
 **/
 

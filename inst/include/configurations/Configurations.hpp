@@ -8,6 +8,7 @@
 * @version 1.0.0
 * @brief Contains the declaration of the Configurations class and its member functions.
 * @author Sameh Abdulah
+* @author Mahmoud ElKarargy
 * @date 2023-01-31
 **/
 

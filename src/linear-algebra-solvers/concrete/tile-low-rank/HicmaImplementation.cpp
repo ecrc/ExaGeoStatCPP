@@ -8,6 +8,7 @@
  * @brief Sets up the HiCMA descriptors needed for the tile low rank computations in ExaGeoStat.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-26
 **/
 

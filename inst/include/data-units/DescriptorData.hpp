@@ -8,6 +8,7 @@
  * @brief Contains the definition of the DescriptorData class.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-07-18
 **/
 

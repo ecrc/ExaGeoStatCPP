@@ -10,6 +10,7 @@
  * to the console if the verbosity setting is set to "verbose mode.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-21
 **/
 
@@ -37,49 +38,6 @@
     if (failed){ \
         throw std::runtime_error(msg);\
     }
-
-/**
- * FLOPS MACRO that compute the number of floating point multiplications required
- * for the Cholesky factorization of an n-by-n matrix.
- */
-#define FMULS_POTRF(__n) ((double)(__n) * (((1. / 6.) * (double)(__n) + 0.5) * (double)(__n) + (1. / 3.)))
-
-/**
- * FLOPS MACRO that compute the number of floating point additions required
- * for the Cholesky factorization of an n-by-n matrix.
- */
-#define FADDS_POTRF(__n) ((double)(__n) * (((1. / 6.) * (double)(__n)      ) * (double)(__n) - (1. / 6.)))
-
-/**
- * FLOPS MACRO that combine the above two macros to compute the
- * total number of floating point operations required for the Cholesky factorization of an n-by-n matrix.
- */
-#define FLOPS_DPOTRF(__n) (     FMULS_POTRF((__n)) +       FADDS_POTRF((__n)) )
-
-/**
- * FLOPS MACRO that compute the number of floating point multiplications
- * required for a triangular matrix-matrix multiplication operation where one matrix is 2-by-n and the other is n-by-n.
- */
-#define FMULS_TRMM_2(__m, __n) (0.5 * (double)(__n) * (double)(__m) * ((double)(__m)+1.))
-
-/**
- * FLOPS MACRO that compute the number of floating point multiplications required
- * for a triangular matrix-matrix multiplication operation where one matrix is m-by-n and the other is n-by-n.
- */
-#define FMULS_TRMM(__side, __m, __n) ( ( (__side) == ChamLeft ) ? FMULS_TRMM_2((__m), (__n)) : FMULS_TRMM_2((__n), (__m)) )
-
-/**
- * Aliases for the FMULS_TRMM macro,
- */
-#define FMULS_TRSM FMULS_TRMM
-#define FADDS_TRSM FMULS_TRMM
-
-/**
- * FLOPS macrp that combine the FMULS_TRMM and FADDS_TRSM macros to compute the total number of floating point operations
- * required for a triangular matrix solve operation where one matrix is m-by-n and the other is n-by-n.
- */
-#define FLOPS_DTRSM(__side, __m, __n) (     FMULS_TRSM(__side, (__m), (__n)) +       FADDS_TRSM(__side, (__m), (__n)) )
-
 /**
  * Timing macro to start timing.
  */

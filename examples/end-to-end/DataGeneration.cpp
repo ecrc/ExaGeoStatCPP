@@ -9,6 +9,7 @@
  * @details The program takes command line arguments to configure the data generation.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-05-30
 **/
 
