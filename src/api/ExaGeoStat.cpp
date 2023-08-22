@@ -46,7 +46,7 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(ExaGeoStatHardware &aHardware, Config
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, pData, common::CHAMELEON_DESCRIPTOR);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, pData, common::HICMA_DESCRIPTOR);
 #endif
     delete linear_algebra_solver;

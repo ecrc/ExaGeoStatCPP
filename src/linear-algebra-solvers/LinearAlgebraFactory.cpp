@@ -37,11 +37,11 @@ LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Comp
 
         // HiCMA Used
     else if (aComputation == TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         return new tileLowRank::HicmaImplementation<T>();
 #else
         throw std::runtime_error(
-                "Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HiCMA=ON");
+                "Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HICMA=ON");
 #endif
     } else if (aComputation == DIAGONAL_APPROX) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON

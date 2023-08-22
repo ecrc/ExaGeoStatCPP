@@ -28,7 +28,7 @@
 
 #endif
 
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
 #endif
 

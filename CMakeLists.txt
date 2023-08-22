@@ -99,8 +99,8 @@ include(ImportNLOPT)
 
 # EXAGEOSTAT depends on HiCMA
 # -------------------------------
-if (EXAGEOSTAT_USE_HiCMA)
-    add_definitions(-DEXAGEOSTAT_USE_HiCMA=TRUE)
+if (EXAGEOSTAT_USE_HICMA)
+    add_definitions(-DEXAGEOSTAT_USE_HICMA=TRUE)
     message(STATUS "Add Hcore, Dependency needed for HiCMA")
     include(ImportHcore)
     message(STATUS "Add StarsH, Dependency needed for HiCMA")

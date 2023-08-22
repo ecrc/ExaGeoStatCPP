@@ -19,7 +19,7 @@ extern "C" {
 }
 #endif
 
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
 extern "C"{
 #include <hicma.h>
 #include <control/hicma_context.h>
@@ -36,7 +36,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(common::Computation aComputation, int aCo
 
     // Init hardware using Hicma
     if (aComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         if (!this->mpContext) {
             HICMA_user_tag_size(31, 26);
             HICMA_Init(aCoreNumber, aGpuNumber);
@@ -63,7 +63,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(common::Computation aComputation, int aCo
 ExaGeoStatHardware::~ExaGeoStatHardware() {
     // Init hardware using Hicma
     if (this->mComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         if (!this->mpContext) {
             std::cout << "No initialised context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'" << std::endl;
         } else {

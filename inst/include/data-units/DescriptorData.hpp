@@ -26,7 +26,7 @@ extern "C" {
 #include <chameleon.h>
 }
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
 extern "C"{
 #include <hicma_struct.h>
 #include <hicma.h>
@@ -48,7 +48,7 @@ namespace exageostat {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
             CHAM_desc_t *chameleon_desc;
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
             HICMA_desc_t* hicma_desc;
 #endif
         };
@@ -80,7 +80,7 @@ namespace exageostat {
              * @param[in] aDescriptorType The type of the descriptor.
              * @param[in] aDescriptorName The name of the descriptor.
              * @return The base descriptor.
-             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HiCMA).
+             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
              */
             BaseDescriptor
             GetDescriptor(common::DescriptorType aDescriptorType, common::DescriptorName aDescriptorName);
@@ -132,7 +132,7 @@ namespace exageostat {
              * @param[in] aP The number of rows in the complete matrix.
              * @param[in] aQ The number of columns in the complete matrix.
              * @return void
-             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HiCMA).
+             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
              */
             void
             SetDescriptor(common::DescriptorType aDescriptorType, common::DescriptorName aDescriptorName, bool aIsOOC,
@@ -144,7 +144,7 @@ namespace exageostat {
              * @param[in] aDescriptorType Type of the descriptor, whether it's CHAMELEON or HiCMA.
              * @param[in] apDescriptor Pointer to the descriptor.
              * @return pointer to the Descriptor matrix.
-             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HiCMA).
+             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
              */
             T *GetDescriptorMatrix(common::DescriptorType aDescriptorType, void *apDescriptor);
 

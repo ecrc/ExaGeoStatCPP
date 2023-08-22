@@ -39,7 +39,7 @@ void TEST_SPREAD_REVERSED_BITS() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
@@ -200,7 +200,7 @@ void TEST_GENERATE_LOCATIONS() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
@@ -273,7 +273,7 @@ void TEST_HELPERS_FUNCTIONS() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
@@ -311,7 +311,7 @@ void TEST_GENERATION() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(

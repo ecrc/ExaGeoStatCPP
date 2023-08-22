@@ -19,7 +19,7 @@ if (EXAGEOSTAT_USE_CHAMELEON)
             PARENT_SCOPE
             )
 endif ()
-if (EXAGEOSTAT_USE_HiCMA)
+if (EXAGEOSTAT_USE_HICMA)
     set(SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/HicmaDescriptor.cpp
             ${SOURCES}

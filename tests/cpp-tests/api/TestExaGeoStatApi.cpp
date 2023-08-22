@@ -40,7 +40,7 @@ void TEST_GENERATE_DATA() {
         synthetic_data_configurations.SetDenseTileSize(9);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         synthetic_data_configurations.SetLowTileSize(5);
         synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
 #endif

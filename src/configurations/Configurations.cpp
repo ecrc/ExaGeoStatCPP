@@ -43,7 +43,7 @@ Configurations::Configurations() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     SetDenseTileSize(0);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     SetLowTileSize(0);
 #endif
     SetLoggerPath("");
@@ -190,7 +190,7 @@ void Configurations::InitializeArguments(int aArgC, char **apArgV) {
         throw domain_error("You need to set the Dense tile size, before starting");
     }
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     if (GetLowTileSize() == 0) {
         throw domain_error("You need to set the Low tile size, before starting");
     }

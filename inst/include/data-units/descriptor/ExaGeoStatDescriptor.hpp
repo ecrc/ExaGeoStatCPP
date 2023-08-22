@@ -22,7 +22,7 @@ extern "C" {
 #include <chameleon/struct.h>
 }
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
 extern "C"{
 #include <hicma_struct.h>
 }

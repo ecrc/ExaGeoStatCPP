@@ -17,7 +17,7 @@
 #include <data-units/descriptor/concrete/ChameleonDescriptor.hpp>
 
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>
 #endif
 
@@ -37,7 +37,7 @@ void *ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, DescriptorTy
                                                                  aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
 #endif
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         return HicmaDescriptor<T>::CreateHicmaDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
 #endif
     }
@@ -52,7 +52,7 @@ int ExaGeoStatDescriptor<T>::DestroyDescriptor(DescriptorType aDescriptorType, v
         return ChameleonDescriptor<T>::DestroyChameleonDescriptor(apDesc);
 #endif
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         return HicmaDescriptor<T>::DestroyHicmaDescriptor(apDesc);
 #endif
     }

@@ -45,7 +45,7 @@ DescriptorData<T>::~DescriptorData() {
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpSequence);
     }
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     if(this->mpSequence){
         HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpSequence);
     }
@@ -88,10 +88,10 @@ BaseDescriptor DescriptorData<T>::GetDescriptor(DescriptorType aDescriptorType, 
 #endif
 
     } else {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         descriptor.hicma_desc = (HICMA_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
 #else
-        throw std::runtime_error("To use HiCMA descriptor you need to enable EXAGEOSTAT_USE_HiCMA!");
+        throw std::runtime_error("To use HiCMA descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
 #endif
     }
     return descriptor;
@@ -115,11 +115,11 @@ void DescriptorData<T>::SetDescriptor(DescriptorType aDescriptorType, Descriptor
         throw std::runtime_error("To create Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
 #endif
     } else {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
         type = "_HICMA";
 #else
-        throw std::runtime_error("To create HiCMA descriptor you need to enable EXAGEOSTAT_USE_HiCMA!");
+        throw std::runtime_error("To create HiCMA descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
 #endif
     }
 
@@ -136,10 +136,10 @@ T *DescriptorData<T>::GetDescriptorMatrix(common::DescriptorType aDescriptorType
         throw std::runtime_error("To use Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
 #endif
     } else {
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         return (T *) ((HICMA_desc_t *) apDesc)->mat;
 #else
-        throw std::runtime_error("To use Hicma descriptor you need to enable EXAGEOSTAT_USE_HiCMA!");
+        throw std::runtime_error("To use Hicma descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
 #endif
     }
 }
