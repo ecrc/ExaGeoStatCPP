@@ -53,6 +53,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta() {
 }
 
 TEST_CASE("UnivariateMaternDdsigmaSquareBeta kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta();
+    TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta();
 
 }

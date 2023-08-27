@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
     Configurations configurations;
     configurations.InitializeArguments(argc, argv);
 
+    cout << "** These are some examples of the common arguments needed between all modules of ExaGeoStat **" << endl;
+
     // Obtain user-defined configurations and print them to the console.
     int N = configurations.GetProblemSize();
     if (N != 0) {

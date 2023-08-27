@@ -21,6 +21,7 @@
 #include <configurations/Configurations.hpp>
 #include <data-units/ExaGeoStatData.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
 namespace exageostat {
     namespace api {
@@ -41,21 +42,24 @@ namespace exageostat {
              * @return void
              *
              */
-            static void ExaGeoStatGenerateData(hardware::ExaGeoStatHardware &aHardware,
+            static void ExaGeoStatGenerateData(const hardware::ExaGeoStatHardware &aHardware,
                                                configurations::Configurations &aConfigurations,
-                                               dataunits::ExaGeoStatData<T> &pData);
+                                               dataunits::ExaGeoStatData<T> &aData);
 
             /**
              * @brief Models Data whether it's synthetic data or real.
              * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
              * @param[in] aConfigurations Reference to Configurations object containing user input data.
              * @param[in] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
+             * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
              * @return void
              *
              */
-            static void ExaGeoStatDataModeling(hardware::ExaGeoStatHardware &aHardware,
+            static void ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,
                                                configurations::Configurations &aConfigurations,
-                                               exageostat::dataunits::ExaGeoStatData<T> &aData);
+                                               exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                               T *apMeasurementsMatrix = nullptr);
+
 
             /**
              * @brief Objective function used in optimization, and following the NLOPT objective function format.
@@ -73,16 +77,6 @@ namespace exageostat {
              * Prevent Class Instantiation for API Wrapper Class.
              */
             ExaGeoStat() = default;
-
-            /// Struct containing all the data needed for modeling.
-            struct mModelingData {
-                /// ExaGeoStatData<T> object containing needed descriptors, and locations.
-                dataunits::ExaGeoStatData<T> *mpData;
-                /// Configurations object containing user input data.
-                configurations::Configurations *mpConfiguration;
-                /// Hardware configuration for the ExaGeoStat solver.
-                hardware::ExaGeoStatHardware *mpHardware;
-            };
         };
 
         /**

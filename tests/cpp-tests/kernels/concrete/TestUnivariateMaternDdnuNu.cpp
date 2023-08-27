@@ -53,6 +53,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdnuNu() {
 }
 
 TEST_CASE("UnivariateMaternDdnuNu kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDdnuNu();
+    TEST_KERNEL_GENERATION_UnivariateMaternDdnuNu();
 
 }

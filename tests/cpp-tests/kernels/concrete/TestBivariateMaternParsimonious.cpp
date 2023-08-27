@@ -57,7 +57,8 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
 
         int seed = 0;
         srand(seed);
-        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(), synthetic_data_configurations.GetDimension(), hardware);
+        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
+                                                           synthetic_data_configurations.GetDimension(), hardware);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
@@ -69,13 +70,13 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
 #endif
     }
 }
 
 TEST_CASE("Bivariate Matern Parsimonious kernel test") {
-TEST_KERNEL_GENERATION_BivariateMaternParsimonious();
+    TEST_KERNEL_GENERATION_BivariateMaternParsimonious();
 
 }

@@ -36,11 +36,13 @@ namespace exageostat::kernels {
 }
 
 template<typename T>
-void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                               int &aRowOffset, int &aColumnOffset,
-                                                               Locations<T> *apLocation1,
-                                                               Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                               T *aLocalTheta, int &aDistanceMetric) {
+void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
+                                                               const int &aColumnsNumber,
+                                                               const int &aRowOffset, const int &aColumnOffset,
+                                                               dataunits::Locations<T> &aLocation1,
+                                                               dataunits::Locations<T> &aLocation2,
+                                                               dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                               const int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -96,7 +98,7 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, int
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
-            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
+            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
 
             if (expr == 0) {
 

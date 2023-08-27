@@ -90,16 +90,16 @@ while getopts ":tevhHCi:dcm" opt; do
     h) ##### Prints the help #####
       echo "Usage of $(basename "$0"):"
       echo ""
+      printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
       printf "%20s %s\n" "-t :" "to enable building tests."
-      echo ""
       printf "%20s %s\n" "-e :" "to enable building examples."
-      echo ""
-      printf "%20s %s\n" "-i [path] :" "specify installation path."
-      printf "%20s %s\n" "" "default = /exageostat-cpp/installdir/exageostat"
-      echo ""
       printf "%20s %s\n" "-H :" "to enable using HiCMA."
-      echo ""
       printf "%20s %s\n" "-C :" "to enable using chameleon."
+      printf "%20s %s\n" "-c :" "to enable using CUDA."
+      printf "%20s %s\n" "-m :" "to enable using MPI."
+      printf "%20s %s\n" "-v :" "to enable verbose printings."
+      printf "%20s %s\n" "-d :" "to enable debug mode."
+      printf "%20s %s\n" "-h :" "Help."
       echo ""
       exit 1
       ;;

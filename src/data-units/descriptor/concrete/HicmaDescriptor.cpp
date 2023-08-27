@@ -11,10 +11,12 @@
 using namespace exageostat::dataunits::descriptor;
 
 template<typename T>
-HICMA_desc_t *HicmaDescriptor<T>::CreateHicmaDescriptor(void *apDescriptor, bool aIsOOC, void *apMatrix,
-                                                        common::FloatPoint aFloatPoint, int aMB, int aNB,
-                                                        int aSize, int aLM, int aLN, int aI, int aJ, int aM,
-                                                        int aN, int aP, int aQ) {
+HICMA_desc_t *HicmaDescriptor<T>::CreateHicmaDescriptor(void *apDescriptor, const bool &aIsOOC, void *apMatrix,
+                                                        const common::FloatPoint &aFloatPoint, const int &aMB,
+                                                        const int &aNB, const int &aSize, const int &aLM,
+                                                        const int &aLN, const int &aI, const int &aJ,
+                                                        const int &aM, const int &aN, const int &aP,
+                                                        const int &aQ) {
     auto hicma_desc = (HICMA_desc_t *) apDescriptor;
     if (aIsOOC && apMatrix == nullptr && aMB != 1 && aNB != 1) {
         HICMA_Desc_Create_OOC(&hicma_desc, (HICMA_enum) aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);

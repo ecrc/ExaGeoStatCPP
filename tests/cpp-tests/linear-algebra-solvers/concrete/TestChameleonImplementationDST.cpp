@@ -48,7 +48,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         synthetic_data_configurations.SetDenseTileSize(16);
 
         auto *data = new DescriptorData<float>(hardware);
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -156,7 +156,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
             REQUIRE(mat[i] == 0.0f);
             REQUIRE(matProduct[i] == 0.0f);
         }
-        delete linearAlgebraSolver;
+
         delete data;
     }
 
@@ -173,7 +173,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         synthetic_data_configurations.SetDenseTileSize(16);
 
         auto *data = new DescriptorData<double>(hardware);
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -306,12 +306,12 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
                              (CHAM_descriptorDeterminant->bsiz - 1); i++) {
             REQUIRE(mat[i] == 0.0f);
         }
-        delete linearAlgebraSolver;
+
         delete data;
     }
 }
 
 TEST_CASE("Chameleon Implementation DST") {
-TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 
 }

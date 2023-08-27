@@ -20,8 +20,9 @@
 
 #include<cmath>
 
-extern "C" {
 #include <starpu.h>
+
+extern "C" {
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_sf_psi.h>
 }
@@ -79,10 +80,11 @@ namespace exageostat {
              * @return void
              */
             virtual void
-            GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
-                                     int &aColumnOffset, dataunits::Locations<T> *apLocation1,
-                                     dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                     T *aLocalTheta, int &aDistanceMetric) = 0;
+            GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
+                                     const int &aRowOffset, const int &aColumnOffset,
+                                     dataunits::Locations<T> &aLocation1, dataunits::Locations<T> &aLocation2,
+                                     dataunits::Locations<T> &aLocation3, T *apLocalTheta,
+                                     const int &aDistanceMetric) = 0;
 
             /**
              * @brief Calculates the Euclidean distance between two points.
@@ -95,7 +97,8 @@ namespace exageostat {
              * @return The Euclidean distance between the two points.
              */
             T CalculateDistance(dataunits::Locations<T> &aLocations1, dataunits::Locations<T> &aLocations2,
-                                int &aIdxLocation1, int &aIdxLocation2, int &aDistanceMetric, int &aFlagZ);
+                                const int &aIdxLocation1, const int &aIdxLocation2, const int &aDistanceMetric,
+                                const int &aFlagZ);
 
             /**
              * @brief Calculates the great-circle distance between two points on Earth using the Haversine formula.

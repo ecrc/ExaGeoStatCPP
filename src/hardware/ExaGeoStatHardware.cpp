@@ -12,33 +12,24 @@
  * @date 2023-08-07
 **/
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-extern "C" {
-#include <chameleon.h>
-#include <control/context.h>
-}
-#endif
 
-#ifdef EXAGEOSTAT_USE_HICMA
-extern "C"{
-#include <hicma.h>
-#include <control/hicma_context.h>
-}
-#endif
-
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 
 using namespace exageostat::hardware;
 
-ExaGeoStatHardware::ExaGeoStatHardware(common::Computation aComputation, int aCoreNumber, int aGpuNumber) {
+ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber,
+                                       const int &aGpuNumber) {
 
     this->mComputation = aComputation;
+    int tag_width = 31, tag_sep = 26;
 
     // Init hardware using Hicma
     if (aComputation == common::TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HICMA
         if (!this->mpContext) {
-            HICMA_user_tag_size(31, 26);
+            HICMA_user_tag_size(tag_width, tag_sep);
             HICMA_Init(aCoreNumber, aGpuNumber);
             this->mpContext = hicma_context_self();
         }
@@ -50,7 +41,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(common::Computation aComputation, int aCo
     else {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         if (!this->mpContext) {
-            CHAMELEON_user_tag_size(31, 26);
+            CHAMELEON_user_tag_size(tag_width, tag_sep);
             CHAMELEON_Init(aCoreNumber, aGpuNumber)
             this->mpContext = chameleon_context_self();
         }
@@ -65,7 +56,9 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
     if (this->mComputation == common::TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HICMA
         if (!this->mpContext) {
-            std::cout << "No initialised context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'" << std::endl;
+            std::cout
+                    << "No initialised context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'"
+                    << std::endl;
         } else {
             HICMA_Finalize();
             this->mpContext = nullptr;
@@ -85,7 +78,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
     }
 }
 
-void *ExaGeoStatHardware::GetContext() {
+void *ExaGeoStatHardware::GetContext() const {
     if (!this->mpContext) {
         throw std::runtime_error("Hardware is not initialised!");
     }

@@ -68,7 +68,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
 
 #endif
@@ -76,6 +76,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 }
 
 TEST_CASE("UnivariateMaternNonGaussian kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian();
+    TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian();
 
 }

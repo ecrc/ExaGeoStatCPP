@@ -34,7 +34,8 @@ using namespace exageostat::configurations;
 
 template<typename T>
 void ChameleonImplementationDST<T>::InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                                        dataunits::DescriptorData<T> &aDescriptorData) {
+                                                        dataunits::DescriptorData<T> &aDescriptorData,
+                                                        T *apMeasurementsMatrix) {
 
 
     // Check for Initialise the Chameleon context.
@@ -50,7 +51,7 @@ void ChameleonImplementationDST<T>::InitiateDescriptors(configurations::Configur
     bool is_OOC = aConfigurations.GetIsOOC();
 
     // For distributed system and should be removed
-    T *z_cpy = (T *) malloc(N * sizeof(T));
+    T *z_cpy = new T[N];
     T dot_product_value;
     T det_value;
 
@@ -73,7 +74,8 @@ void ChameleonImplementationDST<T>::InitiateDescriptors(configurations::Configur
                                   dts * dts, N, N, 0, 0, N, N, p_grid, q_grid);
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, nullptr, float_point, dts, dts,
                                   dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, dts,
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, apMeasurementsMatrix,
+                                  float_point, dts,
                                   dts, dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
 
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, &det_value, float_point,
@@ -94,7 +96,8 @@ void ChameleonImplementationDST<T>::InitiateDescriptors(configurations::Configur
 
     //stop gsl error handler
     gsl_set_error_handler_off();
-    free(z_cpy);
+    delete[] z_cpy;
+    aDescriptorData.SetIsDescriptorInitiated(true);
 }
 
 template<typename T>
@@ -113,7 +116,8 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(dataunits::Descripto
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *) this->mpContext,
+    RUNTIME_options_init(&options, (CHAM_context_t *)
+                                 this->mpContext,
                          (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
                          (RUNTIME_request_t *) apDescriptorData->GetRequest());
 
@@ -155,7 +159,8 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(dataunits::Descripto
         }
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->mpContext);
+    RUNTIME_options_finalize(&options, (CHAM_context_t *)
+            this->mpContext);
 
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apDescriptorData->GetSequence());
 
@@ -164,7 +169,7 @@ void ChameleonImplementationDST<T>::CovarianceMatrixCodelet(dataunits::Descripto
 template<typename T>
 void ChameleonImplementationDST<T>::ExaGeoStatGaussianToNonTileAsync(
         dataunits::DescriptorData<T> *apDescriptorData, void *apDesc, T *apTheta) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 
@@ -186,11 +191,11 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(configurations::C
     auto *p_descriptor = aDescriptor.chameleon_desc;
 
     //nomral random generation of e -- ei~N(0, 1) to generate Z
-    auto *n_rand = (T *) malloc(N * sizeof(T));
+    auto *n_rand = new T[N];
     LAPACKE_dlarnv(3, iseed, N, (double *) n_rand);
 
     //Generate the co-variance matrix C
-    auto *theta = (T *) malloc(aConfigurations.GetInitialTheta().size() * sizeof(T));
+    auto *theta = new T[aConfigurations.GetInitialTheta().size()];
     for (int i = 0; i < aConfigurations.GetInitialTheta().size(); i++) {
         theta[i] = aConfigurations.GetInitialTheta()[i];
     }
@@ -198,13 +203,13 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(configurations::C
     VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
     int lower_upper = EXAGEOSTAT_LOWER;
     // Register and create a kernel object
-    Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T>>::Create(aConfigurations.GetKernelName());
+    Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T >>::Create(aConfigurations.GetKernelName());
 
     this->CovarianceMatrixCodelet(apDescriptorData, p_descriptor, lower_upper, apLocation1, apLocation2, apLocation3,
                                   theta,
                                   aDistanceMetric, kernel);
 
-    free(theta);
+    delete[] theta;
     VERBOSE("Done.\n")
 
     //Copy n_rand to Z
@@ -230,12 +235,12 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(configurations::C
         T *pMatrix;
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
-        pMatrix = (T*) malloc(N * sizeof(T));
+        pMatrix = new T[N];
         CHAMELEON_Tile_to_Lapack( *CHAM_descriptorZ, pMatrix, N);
         if ( CHAMELEON_My_Mpi_Rank() == 0 ){
             DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, configurations->GetLoggerPath(), apLocation1);
         }
-        free(pMatrix);
+        delete[] pMatrix;
 #else
         pMatrix = (T *) CHAM_descriptorZ->mat;
         string path = aConfigurations.GetLoggerPath();
@@ -245,7 +250,7 @@ void ChameleonImplementationDST<T>::GenerateObservationsVector(configurations::C
     }
 
     CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, p_descriptor);
-    free(n_rand);
+    delete[] n_rand;
     VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)")
 }
 
@@ -261,7 +266,8 @@ ChameleonImplementationDST<T>::CopyDescriptorZ(dataunits::DescriptorData<T> *apD
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *) this->mpContext,
+    RUNTIME_options_init(&options, (CHAM_context_t *)
+                                 this->mpContext,
                          (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
                          (RUNTIME_request_t *) apDescriptorData->GetRequest());
 
@@ -289,16 +295,17 @@ ChameleonImplementationDST<T>::CopyDescriptorZ(dataunits::DescriptorData<T> *apD
 }
 
 template<typename T>
-T ChameleonImplementationDST<T>::ExaGeoStatMleTile(hardware::ExaGeoStatHardware &aHardware, ExaGeoStatData<T> *apData,
-                                                   configurations::Configurations *apConfigurations,
-                                                   const double *theta) {
-    throw std::domain_error("unimplemented for now");
+T ChameleonImplementationDST<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware,
+                                                   dataunits::ExaGeoStatData<T> &apData,
+                                                   configurations::Configurations &apConfigurations,
+                                                   const double *theta, T *apMeasurementsMatrix) {
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStatLapackCopyTile(exageostat::common::UpperLower aUpperLower, void *apA,
                                                             void *apB) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 
 }
 
@@ -306,40 +313,40 @@ template<typename T>
 int
 ChameleonImplementationDST<T>::ExaGeoStatLapackToDescriptor(exageostat::common::UpperLower aUpperLower, void *apAf77,
                                                             int aLda, void *apA) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStatSequenceWait(void *apSequence) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(exageostat::common::UpperLower aUpperLower, void *apA) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower,
                                                       common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA,
                                                       void *apB) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha,
                                                       void *apA, void *apB, T aBeta, void *apC) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                                   void *apSequence, void *apRequest) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 int ChameleonImplementationDST<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
                                                                  void *apDescDet) {
-    throw std::domain_error("unimplemented for now");
+    throw std::runtime_error("unimplemented for now");
 }

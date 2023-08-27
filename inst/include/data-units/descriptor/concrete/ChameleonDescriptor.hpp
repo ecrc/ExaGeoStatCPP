@@ -55,10 +55,12 @@ namespace exageostat {
                  * @return A pointer to the newly created CHAM_desc_t descriptor.
                  *
                  */
-                static CHAM_desc_t *CreateChameleonDescriptor(void *apDescriptor, bool aIsOOC, void *apMatrix,
-                                                              common::FloatPoint aFloatPoint, int aMB, int aNB,
-                                                              int aSize, int aLM, int aLN, int aI, int aJ, int aM,
-                                                              int aN, int aP, int aQ);
+                static CHAM_desc_t *CreateChameleonDescriptor(void *apDescriptor, const bool &aIsOOC, void *apMatrix,
+                                                              const common::FloatPoint &aFloatPoint, const int &aMB,
+                                                              const int &aNB, const int &aSize, const int &aLM,
+                                                              const int &aLN, const int &aI, const int &aJ,
+                                                              const int &aM, const int &aN, const int &aP,
+                                                              const int &aQ);
 
                 /**
                  * @brief destroys and finalize a descriptor

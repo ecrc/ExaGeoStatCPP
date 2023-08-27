@@ -51,6 +51,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDbeta() {
 }
 
 TEST_CASE("UnivariateMaternDbeta kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDbeta();
+    TEST_KERNEL_GENERATION_UnivariateMaternDbeta();
 
 }

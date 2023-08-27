@@ -54,6 +54,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
 }
 
 TEST_CASE("Univariate Matern DdsigmaSquare kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare();
+    TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare();
 
 }

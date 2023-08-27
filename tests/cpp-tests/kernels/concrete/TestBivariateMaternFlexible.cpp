@@ -58,7 +58,8 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
         int seed = 0;
         srand(seed);
-                exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(), synthetic_data_configurations.GetDimension(), hardware);
+        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
+                                                           synthetic_data_configurations.GetDimension(), hardware);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
@@ -83,6 +84,6 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 }
 
 TEST_CASE("Bivariate Matern Flexible kernel test") {
-TEST_KERNEL_GENERATION_BivariateMaternFlexible();
+    TEST_KERNEL_GENERATION_BivariateMaternFlexible();
 
 }

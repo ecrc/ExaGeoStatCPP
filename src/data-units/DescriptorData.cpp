@@ -19,8 +19,8 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits::descriptor;
 
 template<typename T>
-DescriptorData<T>::DescriptorData(hardware::ExaGeoStatHardware &apHardware) {
-    this->mpContext = apHardware.GetContext();
+DescriptorData<T>::DescriptorData(const hardware::ExaGeoStatHardware &aHardware) {
+    this->mpContext = aHardware.GetContext();
     if (!this->mpContext) {
         throw std::runtime_error("Can create descriptors, Hardware is not initialised!");
     }
@@ -46,7 +46,7 @@ DescriptorData<T>::~DescriptorData() {
     }
 #endif
 #ifdef EXAGEOSTAT_USE_HICMA
-    if(this->mpSequence){
+    if (this->mpSequence) {
         HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpSequence);
     }
 #endif
@@ -73,7 +73,8 @@ void *DescriptorData<T>::GetRequest() {
 }
 
 template<typename T>
-BaseDescriptor DescriptorData<T>::GetDescriptor(DescriptorType aDescriptorType, DescriptorName aDescriptorName) {
+BaseDescriptor
+DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName) {
 
     BaseDescriptor descriptor{};
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
@@ -98,9 +99,11 @@ BaseDescriptor DescriptorData<T>::GetDescriptor(DescriptorType aDescriptorType, 
 }
 
 template<typename T>
-void DescriptorData<T>::SetDescriptor(DescriptorType aDescriptorType, DescriptorName aDescriptorName, bool aIsOOC,
-                                      void *apMatrix, FloatPoint aFloatPoint, int aMB, int aNB, int aSize, int aLM,
-                                      int aLN, int aI, int aJ, int aM, int aN, int aP, int aQ) {
+void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName,
+                                      const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint,
+                                      const int &aMB, const int &aNB, const int &aSize, const int &aLM, const int &aLN,
+                                      const int &aI, const int &aJ, const int &aM, const int &aN, const int &aP,
+                                      const int &aQ) {
 
     void *descriptor;
     std::string type;
@@ -116,7 +119,9 @@ void DescriptorData<T>::SetDescriptor(DescriptorType aDescriptorType, Descriptor
 #endif
     } else {
 #ifdef EXAGEOSTAT_USE_HICMA
-        descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
+        descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC,
+                                                           apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
+                                                           aN, aP, aQ);
         type = "_HICMA";
 #else
         throw std::runtime_error("To create HiCMA descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
@@ -127,7 +132,7 @@ void DescriptorData<T>::SetDescriptor(DescriptorType aDescriptorType, Descriptor
 }
 
 template<typename T>
-T *DescriptorData<T>::GetDescriptorMatrix(common::DescriptorType aDescriptorType, void *apDesc) {
+T *DescriptorData<T>::GetDescriptorMatrix(const common::DescriptorType &aDescriptorType, void *apDesc) {
     if (aDescriptorType == common::CHAMELEON_DESCRIPTOR) {
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
@@ -146,7 +151,7 @@ T *DescriptorData<T>::GetDescriptorMatrix(common::DescriptorType aDescriptorType
 
 // Define a function that returns the name of a DescriptorName value as a string
 template<typename T>
-std::string DescriptorData<T>::GetDescriptorName(DescriptorName aDescriptorName) {
+std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescriptorName) {
     switch (aDescriptorName) {
         case DESCRIPTOR_C:
             return "DESCRIPTOR_C";
@@ -200,4 +205,14 @@ std::string DescriptorData<T>::GetDescriptorName(DescriptorName aDescriptorName)
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");
     }
+}
+
+template<typename T>
+bool DescriptorData<T>::GetIsDescriptorInitiated() {
+    return this->mIsDescriptorInitiated;
+}
+
+template<typename T>
+void DescriptorData<T>::SetIsDescriptorInitiated(bool aIsInitiated) {
+    this->mIsDescriptorInitiated = aIsInitiated;
 }

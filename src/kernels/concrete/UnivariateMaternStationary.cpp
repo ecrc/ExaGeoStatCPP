@@ -37,11 +37,13 @@ namespace exageostat::kernels {
 }
 
 template<typename T>
-void UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                             int &aRowOffset, int &aColumnOffset,
-                                                             Locations<T> *apLocation1,
-                                                             Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                             T *aLocalTheta, int &aDistanceMetric) {
+void
+UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
+                                                        const int &aRowOffset, const int &aColumnOffset,
+                                                        dataunits::Locations<T> &aLocation1,
+                                                        dataunits::Locations<T> &aLocation2,
+                                                        dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                        const int &aDistanceMetric) {
     const T sigma_square = aLocalTheta[0];
     const T nu = aLocalTheta[2];
     const T inv_con = sigma_square * (1.0 / (pow(2, (nu - 1)) * tgamma((nu))));
@@ -55,7 +57,7 @@ void UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            dist = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            dist = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
                                                  ? sigma_square
                                                  : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);

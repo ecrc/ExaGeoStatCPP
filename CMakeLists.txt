@@ -17,6 +17,14 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
 
+# Set project options
+option(USE_CUDA "Use Cuda, if available" false)
+option(USE_MPI "Use MPI, if available" false)
+option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
+option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
+option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
+option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
+
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
@@ -28,6 +36,7 @@ if (USE_CUDA)
     include(toolchains/CudaToolchain)
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
+    list(APPEND STARPU_COMPONENT_LIST "CUDA")
 else ()
     message("-- Build x86 Support")
     # Include GccToolchain for non-CUDA builds - Gcc
@@ -37,18 +46,16 @@ endif ()
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
 
-# Set project options
-option(USE_CUDA "Use Cuda, if available" false)
-option(USE_MPI "Use MPI, if available" false)
-option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
-option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
-option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
-option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
+
+add_definitions(
+        -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
+        -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
+)
 
 # Add all dependencies for ExaGeoStat PP
 include(ImportGFortran)

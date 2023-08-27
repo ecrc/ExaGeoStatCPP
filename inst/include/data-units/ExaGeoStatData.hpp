@@ -18,6 +18,7 @@
 #include <data-units/DescriptorData.hpp>
 #include <data-units/Locations.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <configurations/Configurations.hpp>
 
 namespace exageostat {
     namespace dataunits {
@@ -35,10 +36,10 @@ namespace exageostat {
              * @brief Constructor for ExaGeoStatData.
              * @param[in] aSize The size of the data.
              * @param[in] aDimension The dimension of the data.
-             * @param[in] apHardware Reference to the ExaGeoStatHardware object.
+             * @param[in] aHardware Reference to the ExaGeoStatHardware object.
              */
-            ExaGeoStatData(int aSize, exageostat::common::Dimension aDimension,
-                           hardware::ExaGeoStatHardware &apHardware);
+            ExaGeoStatData(const int &aSize, const exageostat::common::Dimension &aDimension,
+                           const hardware::ExaGeoStatHardware &aHardware);
 
             /**
              * @brief Destructor for ExaGeoStatData.
@@ -68,7 +69,7 @@ namespace exageostat {
              * @param[in] aMleIterations number of performed MLE iterations.
              * @return void
              */
-            void SetMleIterations(int aMleIterations);
+            void SetMleIterations(const int &aMleIterations);
 
             /**
              * @brief Get the number of performed MLE iterations.
@@ -79,10 +80,10 @@ namespace exageostat {
             /**
              * @brief Calculates Median Locations.
              * @param[in] aKernelName Name of the Kernel used.
-             * @param[out] apLocations Location object to save medianLocations in.
+             * @param[out] aLocations Location object to save medianLocations in.
              * @return void
              */
-            void CalculateMedianLocations(std::string &aKernelName, dataunits::Locations<T> &apLocations);
+            void CalculateMedianLocations(const std::string &aKernelName, dataunits::Locations<T> &aLocations);
 
         private:
             //// Used descriptor data.

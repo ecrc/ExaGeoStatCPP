@@ -36,11 +36,13 @@ namespace exageostat::kernels {
 }
 
 template<typename T>
-void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                                int &aRowOffset, int &aColumnOffset,
-                                                                Locations<T> *apLocation1,
-                                                                Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                                T *aLocalTheta, int &aDistanceMetric) {
+void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
+                                                                const int &aColumnsNumber,
+                                                                const int &aRowOffset, const int &aColumnOffset,
+                                                                dataunits::Locations<T> &aLocation1,
+                                                                dataunits::Locations<T> &aLocation2,
+                                                                dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                                const int &aDistanceMetric) {
 
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
@@ -49,32 +51,32 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, in
     double con, sigma_square, beta, nu;
     int i, j;
 
-    apLocation3 = apLocation1;
-    double x_max = apLocation1->GetLocationX()[0];
-    double x_min = apLocation1->GetLocationX()[0];
-    double y_max = apLocation1->GetLocationY()[0];
-    double y_min = apLocation1->GetLocationY()[0];
+    aLocation3 = aLocation1;
+    double x_max = aLocation1->GetLocationX()[0];
+    double x_min = aLocation1->GetLocationX()[0];
+    double y_max = aLocation1->GetLocationY()[0];
+    double y_min = aLocation1->GetLocationY()[0];
     for (i = 1; i < 9; i++) {
-        if (x_max < apLocation1->GetLocationX()[i])
-            x_max = apLocation1->GetLocationX()[i];
-        if (x_min > apLocation1->GetLocationX()[i])
-            x_min = apLocation1->GetLocationX()[i];
-        if (y_max < apLocation1->GetLocationY()[i])
-            y_max = apLocation1->GetLocationY()[i];
-        if (y_max > apLocation1->GetLocationY()[i])
-            y_max = apLocation1->GetLocationY()[i];
+        if (x_max < aLocation1->GetLocationX()[i])
+            x_max = aLocation1->GetLocationX()[i];
+        if (x_min > aLocation1->GetLocationX()[i])
+            x_min = aLocation1->GetLocationX()[i];
+        if (y_max < aLocation1->GetLocationY()[i])
+            y_max = aLocation1->GetLocationY()[i];
+        if (y_max > aLocation1->GetLocationY()[i])
+            y_max = aLocation1->GetLocationY()[i];
     }
 
-    apLocation3->GetLocationX()[0] = x_min + (x_max - x_min) / 2;
-    apLocation3->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
-    printf(" The central point is ( %f, %f)\n", apLocation3->GetLocationX()[0], apLocation3->GetLocationY()[0]);
+    aLocation3->GetLocationX()[0] = x_min + (x_max - x_min) / 2;
+    aLocation3->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
+    printf(" The central point is ( %f, %f)\n", aLocation3->GetLocationX()[0], aLocation3->GetLocationY()[0]);
 
     // Compute the covariance matrix elements
     for (j = 0; j < aColumnsNumber; j++) {
-        location1X = apLocation1->GetLocationX()[aColumnOffset + j];
-        location1Y = apLocation1->GetLocationY()[aColumnOffset + j];
-        location3X = apLocation3->GetLocationX()[j];
-        location3Y = apLocation3->GetLocationY()[j];
+        location1X = aLocation1->GetLocationX()[aColumnOffset + j];
+        location1Y = aLocation1->GetLocationY()[aColumnOffset + j];
+        location3X = aLocation3->GetLocationX()[j];
+        location3Y = aLocation3->GetLocationY()[j];
         dx = abs(location1X - location3X);
         dy = abs(location1Y - location3Y);
 
@@ -83,10 +85,10 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, in
         theta_2i = aLocalTheta[6] + (aLocalTheta[7] * dx) + (aLocalTheta[8] * dy);
 
         for (i = 0; i < aRowsNumber; i++) {
-            location2X = apLocation2->GetLocationX()[aRowOffset + i];
-            location2Y = apLocation2->GetLocationY()[aRowOffset + i];
-            location3X = apLocation3->GetLocationX()[i];
-            location3Y = apLocation3->GetLocationY()[i];
+            location2X = aLocation2->GetLocationX()[aRowOffset + i];
+            location2Y = aLocation2->GetLocationY()[aRowOffset + i];
+            location3X = aLocation3->GetLocationX()[i];
+            location3Y = aLocation3->GetLocationY()[i];
             dx = abs(location2X - location3X);
             dy = abs(location2Y - location3Y);
 
@@ -105,7 +107,7 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, in
             int flag = 0;
 
             //MLE calculation
-            dist = CalculateDistance(apLocation1, apLocation2, i, j, aDistanceMetric, flag) / beta;
+            dist = CalculateDistance(aLocation1, aLocation2, i, j, aDistanceMetric, flag) / beta;
 
             *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
                                                  ? sigma_square

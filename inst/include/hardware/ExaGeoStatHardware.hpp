@@ -33,7 +33,7 @@ namespace exageostat {
              * @param[in] aGpuNumber The number of GPUs to use for the solver.
              *
              */
-            ExaGeoStatHardware(common::Computation aComputation, int aCoreNumber, int aGpuNumber);
+            ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
 
             /**
              * @brief Destructor for ExaGeoStatHardware.
@@ -45,7 +45,7 @@ namespace exageostat {
              * @return Pointer to the hardware context.
              *
              */
-            void *GetContext();
+            void *GetContext() const;
 
         private:
             //// Used Pointer to the hardware context.

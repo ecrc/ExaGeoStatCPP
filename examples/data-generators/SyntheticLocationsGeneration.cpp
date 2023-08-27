@@ -4,10 +4,9 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file SyntheticData_main.cpp
- * @brief This file contains the main function for generating synthetic data for ExaGeoStat
- * for dense computation and double precision.
-  * @version 1.0.0
+ * @file SyntheticLocationsGeneration.cpp
+ * @brief This file contains the main function for generating synthetic Locations for ExaGeoStat
+ * @version 1.0.0
  * @author Sameh Abdulah* @author Suhas Shankar
  * @author Mary Lai Salvana
  * @author Mahmoud ElKarargy
@@ -16,23 +15,15 @@
 
 #include <iostream>
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-extern "C" {
-#include <chameleon/struct.h>
-}
-#endif
-
 #include <data-generators/DataGenerator.hpp>
 #include <api/ExaGeoStat.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
 
 using namespace std;
 
+using namespace exageostat::configurations;
 using namespace exageostat::generators;
-using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::hardware;
-using namespace exageostat::configurations;
 
 /**
  * @brief The main function of the program.
@@ -49,7 +40,8 @@ int main(int argc, char **argv) {
     synthetic_data_configurations.InitializeArguments(argc, argv);
 
     // Initialise ExaGeoStat Hardware.
-    auto hardware = ExaGeoStatHardware(exageostat::common::EXACT_DENSE, synthetic_data_configurations.GetCoresNumber(),
+    auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
+                                       synthetic_data_configurations.GetCoresNumber(),
                                        synthetic_data_configurations.GetGPUsNumbers());
 
     // Create a unique pointer to a DataGenerator object

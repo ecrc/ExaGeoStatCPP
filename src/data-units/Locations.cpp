@@ -53,7 +53,7 @@ T *Locations<T>::GetLocationZ() {
 }
 
 template<typename T>
-void Locations<T>::SetSize(int aSize) {
+void Locations<T>::SetSize(const int &aSize) {
     this->mSize = aSize;
 }
 
@@ -63,7 +63,7 @@ int Locations<T>::GetSize() {
 }
 
 template<typename T>
-void Locations<T>::SetDimension(Dimension aDimension) {
+void Locations<T>::SetDimension(const Dimension &aDimension) {
     this->mDimension = aDimension;
 }
 
@@ -74,28 +74,27 @@ Dimension Locations<T>::GetDimension() {
 
 
 template<typename T>
-Locations<T>::Locations(int aSize, Dimension aDimension) {
+Locations<T>::Locations(const int &aSize, const Dimension &aDimension) {
 
     this->mSize = aSize;
     this->mDimension = aDimension;
-    this->mpLocationX = (T *) malloc(aSize * sizeof(T));
-    this->mpLocationY = (T *) malloc(aSize * sizeof(T));
+    this->mpLocationX = new T[aSize];
+    this->mpLocationY = new T[aSize];
     if (aDimension != common::Dimension2D) {
-        this->mpLocationZ = (T *) malloc(aSize * sizeof(T));
+        this->mpLocationZ = new T[aSize];
     }
 }
 
 template<typename T>
 Locations<T>::~Locations() {
 
-
     if (this->mpLocationX != nullptr) {
-        free(this->mpLocationX);
+        delete[] this->mpLocationX;
     }
     if (this->mpLocationY != nullptr) {
-        free(this->mpLocationY);
+        delete[] this->mpLocationY;
     }
     if (this->mpLocationZ != nullptr) {
-        free(this->mpLocationZ);
+        delete[] this->mpLocationZ;
     }
 }

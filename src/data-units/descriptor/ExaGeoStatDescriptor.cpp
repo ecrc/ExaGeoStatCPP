@@ -18,7 +18,9 @@
 
 #endif
 #ifdef EXAGEOSTAT_USE_HICMA
+
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>
+
 #endif
 
 #include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
@@ -27,9 +29,12 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits::descriptor;
 
 template<typename T>
-void *ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, DescriptorType aDescriptorType, bool aIsOOC,
-                                                void *apMatrix, FloatPoint aFloatPoint, int aMB, int aNB, int aSize,
-                                                int aLM, int aLN, int aI, int aJ, int aM, int aN, int aP, int aQ) {
+void *
+ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, const DescriptorType &aDescriptorType, const bool &aIsOOC,
+                                          void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
+                                          const int &aNB, const int &aSize, const int &aLM, const int &aLN,
+                                          const int &aI, const int &aJ, const int &aM, const int &aN, const int &aP,
+                                          const int &aQ) {
 
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
@@ -38,7 +43,8 @@ void *ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, DescriptorTy
 #endif
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_HICMA
-        return HicmaDescriptor<T>::CreateHicmaDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
+        return HicmaDescriptor<T>::CreateHicmaDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize,
+                                                         aLM, aLN, aI, aJ, aM, aN, aP, aQ);
 #endif
     }
     std::cerr << "Error, please select the correct descriptor type!" << std::endl;
@@ -46,7 +52,7 @@ void *ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, DescriptorTy
 }
 
 template<typename T>
-int ExaGeoStatDescriptor<T>::DestroyDescriptor(DescriptorType aDescriptorType, void *apDesc) {
+int ExaGeoStatDescriptor<T>::DestroyDescriptor(const DescriptorType &aDescriptorType, void *apDesc) {
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         return ChameleonDescriptor<T>::DestroyChameleonDescriptor(apDesc);

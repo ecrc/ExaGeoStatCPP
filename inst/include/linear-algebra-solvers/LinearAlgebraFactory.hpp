@@ -29,7 +29,9 @@
 #endif
 
 #ifdef EXAGEOSTAT_USE_HICMA
+
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
+
 #endif
 
 namespace exageostat {
@@ -51,7 +53,7 @@ namespace exageostat {
              * @return Pointer to the created linear algebra solver.
              *
              */
-            static LinearAlgebraMethods<T> *CreateLinearAlgebraSolver(common::Computation aComputation);
+            static std::unique_ptr<LinearAlgebraMethods<T>> CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 
         /**

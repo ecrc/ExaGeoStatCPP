@@ -21,7 +21,7 @@ using namespace exageostat::common;
 using namespace exageostat::configurations;
 
 template<typename T>
-LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
+std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
 
     // Check the used Linear Algebra solver library, whether it's HiCMA or Chameleon.
     if (aComputation == EXACT_DENSE) {
@@ -29,25 +29,28 @@ LinearAlgebraMethods<T> *LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Comp
 
 #include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 
-        return new dense::ChameleonImplementationDense<T>();
+        return std::make_unique<dense::ChameleonImplementationDense<T>>();
 #else
-        throw std::runtime_error("Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
+        throw std::runtime_error(
+                "Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
 #endif
     }
 
         // HiCMA Used
     else if (aComputation == TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HICMA
-        return new tileLowRank::HicmaImplementation<T>();
+        return std::make_unique<tileLowRank::HicmaImplementation<T>>();
 #else
         throw std::runtime_error(
                 "Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HICMA=ON");
 #endif
     } else if (aComputation == DIAGONAL_APPROX) {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
-        return new diagonalSuperTile::ChameleonImplementationDST<T>();
+        return std::make_unique<diagonalSuperTile::ChameleonImplementationDST<T>>();
+
 #else
-        throw std::runtime_error("Diagonal Super Tile matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
+        throw std::runtime_error(
+                "Diagonal Super Tile matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
 #endif
     }
     // Return nullptr if no computation is selected

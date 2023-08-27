@@ -37,11 +37,13 @@ namespace exageostat::kernels {
 
 template<typename T>
 void
-BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                                int &aRowOffset, int &aColumnOffset,
-                                                                Locations<T> *apLocation1,
-                                                                Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                                T *aLocalTheta, int &aDistanceMetric) {
+BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
+                                                                const int &aColumnsNumber,
+                                                                const int &aRowOffset, const int &aColumnOffset,
+                                                                dataunits::Locations<T> &aLocation1,
+                                                                dataunits::Locations<T> &aLocation2,
+                                                                dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                                const int &aDistanceMetric) {
 
     int i, j;
     int i0 = aRowOffset;
@@ -76,15 +78,15 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, in
 
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
-        if (apLocation1->GetLocationZ() != nullptr) {
-            z0 = apLocation1->GetLocationZ()[i0];
+        if (aLocation1.GetLocationZ() != nullptr) {
+            z0 = aLocation1.GetLocationZ()[i0];
         }
 
         for (j = 0; j < aColumnsNumber; j += 2) {
-            if (apLocation2->GetLocationZ() != nullptr) {
-                z1 = apLocation2->GetLocationZ()[j0];
+            if (aLocation2.GetLocationZ() != nullptr) {
+                z1 = aLocation2.GetLocationZ()[j0];
             }
-            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) /
+            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) /
                    (aLocalTheta[2] * 1000);
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1, aLocalTheta[8] / 2);
             expr3 = expr / expr2;

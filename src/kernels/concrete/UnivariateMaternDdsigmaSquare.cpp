@@ -37,11 +37,13 @@ namespace exageostat::kernels {
 }
 
 template<typename T>
-void UnivariateMaternDdsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                                int &aRowOffset, int &aColumnOffset,
-                                                                Locations<T> *apLocation1,
-                                                                Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                                T *aLocalTheta, int &aDistanceMetric) {
+void UnivariateMaternDdsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
+                                                                const int &aColumnsNumber,
+                                                                const int &aRowOffset, const int &aColumnOffset,
+                                                                dataunits::Locations<T> &aLocation1,
+                                                                dataunits::Locations<T> &aLocation2,
+                                                                dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                                const int &aDistanceMetric) {
 
     int i, j;
     //// TODO: Implementation is Empty in the old version!

@@ -47,7 +47,7 @@ namespace exageostat {
                  * @return A reference to the initialized vector.
                  *
                  */
-                static std::vector<double> &InitTheta(std::vector<double> &aTheta, int &aSize);
+                static std::vector<double> &InitTheta(std::vector<double> &aTheta, const int &aSize);
 
                 /**
                  * @brief Generates the data locations.
@@ -59,9 +59,8 @@ namespace exageostat {
                  * @return void
                  *
                  */
-                void GenerateLocations(int aN, int aTimeSlot, common::Dimension aDimension,
+                void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension,
                                        dataunits::Locations<T> &aLocations);
-
 
                 /**
                  * @brief Creates the Locations data.
@@ -90,7 +89,8 @@ namespace exageostat {
                  * @return void
                  *
                  */
-                void SortLocations(int &aN, common::Dimension aDimension, dataunits::Locations<T> &aLocations);
+                void
+                SortLocations(const int &aN, const common::Dimension &aDimension, dataunits::Locations<T> &aLocations);
 
                 /**
                  * @brief Spread bits by three spaces.

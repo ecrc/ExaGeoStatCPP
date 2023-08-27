@@ -207,7 +207,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE(HICMA_descriptorDeterminant->p == pGrid);
         REQUIRE(HICMA_descriptorDeterminant->q == qGrid);
 
-        delete linearAlgebraSolver;
+
         delete data;
     }
 
@@ -385,7 +385,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE(HICMA_descriptorMSE->p == pGrid);
             REQUIRE(HICMA_descriptorMSE->q == qGrid);
         }
-        delete linearAlgebraSolver;
+
         delete data;
     }
 }

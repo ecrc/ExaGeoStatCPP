@@ -217,8 +217,7 @@ namespace exageostat {
             // This string stores the directory path where the kernel files are located.
             // The path is obtained by using the __FILE__ macro to get the full path of the current source file,
             // and then navigating two levels up to reach the directory that contains the kernel files.
-            const std::string directoryPath =
-                    std::filesystem::path(__FILE__).parent_path().parent_path().string() + "/kernels/concrete/";
+            const std::string directoryPath = KERNELS_PATH;
             // This loop iterates through all the files in the directory and extracts the kernel names.
             for (const auto &entry: std::filesystem::directory_iterator(directoryPath)) {
                 // This checks if the current entry is a regular file.

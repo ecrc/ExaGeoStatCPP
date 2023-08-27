@@ -42,8 +42,8 @@ namespace exageostat {
              *
              */
             void static
-            WriteVectorsToDisk(T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
-                               exageostat::dataunits::Locations<T> &aLocations);
+            WriteVectorsToDisk(const T &aMatrixPointer, const int &aProblemSize, const int &aP,
+                               std::string &aLoggerPath, exageostat::dataunits::Locations<T> &aLocations);
         };
 
         /**

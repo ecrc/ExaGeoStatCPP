@@ -57,11 +57,13 @@ namespace exageostat {
              * @details This method initializes the descriptors necessary for the linear algebra solver.
              * @param[in] aConfigurations Configurations object containing relevant settings.
              * @param[in,out] aDescriptorData DescriptorData object to be populated with descriptors and data.
+             * @param[in] apMeasurementsMatrix Pointer to the measurement matrix.
              * @return void
              *
              */
             virtual void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                             dataunits::DescriptorData<T> &aDescriptorData) = 0;
+                                             dataunits::DescriptorData<T> &aDescriptorData,
+                                             T *apMeasurementsMatrix = nullptr) = 0;
 
             /**
              * @brief Generates synthetic data.
@@ -73,8 +75,8 @@ namespace exageostat {
              *
              */
             void GenerateSyntheticData(configurations::Configurations &aConfigurations,
-                                       hardware::ExaGeoStatHardware &aHardware,
-                                       dataunits::ExaGeoStatData<T> &apData, common::DescriptorType aType) {
+                                       const hardware::ExaGeoStatHardware &aHardware,
+                                       dataunits::ExaGeoStatData<T> &apData, const common::DescriptorType aType) {
                 this->mpContext = aHardware.GetContext();
                 this->InitiateDescriptors(aConfigurations, *apData.GetDescriptorData());
                 auto descC = apData.GetDescriptorData()->GetDescriptor(aType, common::DESCRIPTOR_C);
@@ -99,9 +101,8 @@ namespace exageostat {
             virtual void
             CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
                                     int &aTriangularPart, dataunits::Locations<T> *apLocation1,
-                                    dataunits::Locations<T> *apLocation2,
-                                    dataunits::Locations<T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
-                                    exageostat::kernels::Kernel<T> *apKernel) = 0;
+                                    dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                    T *aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel<T> *apKernel) = 0;
 
             /**
              * @brief Copies the descriptor data to a double vector.
@@ -143,8 +144,9 @@ namespace exageostat {
              *
              */
             virtual T
-            ExaGeoStatMleTile(hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> *apData,
-                              configurations::Configurations *apConfigurations, const double *apTheta) = 0;
+            ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &apData,
+                              configurations::Configurations &apConfigurations, const double *apTheta,
+                              T *apMeasurementsMatrix) = 0;
 
             /**
              * @brief Converts a Gaussian descriptor to a non-tiled descriptor.
@@ -252,8 +254,8 @@ namespace exageostat {
              * @return successful exit.
              *
              */
-            virtual int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                       void *apSequence, void *apRequest) = 0;
+            virtual int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
+                                                       void *apRequest) = 0;
 
             /**
              * @brief Sets the context.
@@ -262,6 +264,10 @@ namespace exageostat {
              */
             void SetContext(void *apContext) {
                 this->mpContext = apContext;
+            }
+
+            void *GetContext() {
+                return this->mpContext;
             }
 
             //// These codlets and structs will be added to another level of abstraction and interface of runtime system. This is a quick fix for now.
@@ -281,8 +287,8 @@ namespace exageostat {
 
                 starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &location1, &location2, &location3, &theta,
                                            &distance_metric, &kernel);
-                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, location1,
-                                                 location2, location3, theta, distance_metric);
+                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, *location1,
+                                                 *location2, *location3, theta, distance_metric);
             }
 
             struct starpu_codelet cl_gaussian_to_non =
@@ -298,7 +304,7 @@ namespace exageostat {
                 int m, m0;
                 T *z;
                 T *theta;
-                theta = (T *) malloc(6 * sizeof(T));
+                theta = new T[6];
                 z = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
 
                 starpu_codelet_unpack_args(cl_arg, &m, &m0,
@@ -307,7 +313,7 @@ namespace exageostat {
 
                 //core function to convert Z tile from Gaussian to non-Gaussian.
                 core_gaussian_to_non(z, theta, m);
-                free(theta);
+                delete[] theta;
             }
 
             static void core_gaussian_to_non(T *Z, T *localtheta, int m) {
