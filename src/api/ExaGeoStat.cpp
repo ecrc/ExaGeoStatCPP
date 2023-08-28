@@ -14,6 +14,7 @@
 
 #include <api/ExaGeoStat.hpp>
 #include <configurations/Configurations.hpp>
+#include <data-generators/DataGenerator.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <data-units/ModelingDataHolders.hpp>
 
