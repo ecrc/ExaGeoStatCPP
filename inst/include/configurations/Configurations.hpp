@@ -8,6 +8,7 @@
 * @version 1.0.0
 * @brief Contains the declaration of the Configurations class and its member functions.
 * @author Sameh Abdulah
+* @author Mahmoud ElKarargy
 * @date 2023-01-31
 **/
 
@@ -87,7 +88,7 @@ namespace exageostat {
              * @details This method initializes the command line arguments and set default values for unused args.
              *
              */
-            void InitializeArguments(int aArgC, char **apArgV);
+            void InitializeArguments(const int &aArgC, char **apArgV);
 
             /**
              * @brief Initialize data generation arguments..
@@ -176,13 +177,6 @@ namespace exageostat {
 
             CREATE_GETTER_FUNCTION(Seed, int, "Seed")
 
-            /**
-             * @brief Getter for the run mode.
-             * @return The run mode.
-             *
-             */
-            static exageostat::common::RunMode GetRunMode();
-
             CREATE_SETTER_FUNCTION(LoggerPath, const std::string&, aLoggerPath, "LoggerPath")
 
             CREATE_GETTER_FUNCTION(LoggerPath, std::string, "LoggerPath")
@@ -230,6 +224,14 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(StartingTheta, std::vector<double> &, apTheta, "StartingTheta")
 
             CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
+
+            /**
+             * @brief Getter for the run mode.
+             * @return The run mode.
+             *
+             */
+            static exageostat::common::RunMode GetRunMode();
+
 
             /** END OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
             /** START OF THE DATA GENERATION MODULES. **/
@@ -309,14 +311,12 @@ namespace exageostat {
              */
             void CheckKernelValue(const std::string &aKernel);
 
-        private:
-
             /**
-             * @brief Check input computation value.
-             * @param[in] aValue The input from the user side.
-             * @return Enum with the selected computation, Error if not exist.
-             *
-             */
+            * @brief Check input computation value.
+            * @param[in] aValue The input from the user side.
+            * @return Enum with the selected computation, Error if not exist.
+            *
+            */
             static common::Computation CheckComputationValue(const std::string &aValue);
 
             /**
@@ -328,9 +328,35 @@ namespace exageostat {
             static common::Precision CheckPrecisionValue(const std::string &aValue);
 
             /**
+             * @brief Checks the value of the unknown observations parameter.
+             * @param[in] aValue A string representing the number of unknown observations.
+             * @return The corresponding integer value.
+             */
+            int CheckUnknownObservationsValue(const std::string &aValue);
+
+            /**
+             * @brief print the summary of MLE inputs.
+             * @param[in] N Number of Locations
+             * @param[in] ncores Number of Threads per node
+             * @param[in] gpus GPUs
+             * @param[in] ts Dense Tile Size
+             * @param[in] computation
+             * @param[in] p_grid
+             * @param[in] q_grid
+             * @param[in] precision Double or Single Precision
+             * @return void
+             */
+            inline void PrintSummary();
+
+        private:
+
+            /// static bool to make sure that print summary is only performed once.
+            static bool mIsPrinted;
+
+            /**
              * @brief Checks the run mode and sets the verbosity level.
              * @param[in] aRunMode A string representing the desired run mode ("verbose" or "standard").
-             * @throws std::range_error if the input string isnot "verbose" or "standard".
+             * @throws std::range_error if the input string is not "verbose" or "standard".
              * @return void
              *
              */
@@ -353,13 +379,6 @@ namespace exageostat {
             static std::vector<double> ParseTheta(const std::string &aInputValues);
 
             /**
-             * @brief Checks the value of the unknown observations parameter.
-             * @param[in] aValue A string representing the number of unknown observations.
-             * @return The corresponding integer value.
-             */
-            int CheckUnknownObservationsValue(const std::string &aValue);
-
-            /**
              * @brief parse user's input to distance metric.
              * @param[in] aDistanceMetric string specifying the used distance metric.
              * @return void
@@ -368,7 +387,7 @@ namespace exageostat {
 
             /**
              * @brief Initializes the log file.
-             * @details This ftcunction attempts to open a log file with the name returned by GetFileLogName(),
+             * @details This function attempts to open a log file with the name returned by GetFileLogName(),
              * and sets the file log path accordingly. If an exception occurs during the file opening,
              * a default log file named "log_file" is created.
              * @return void

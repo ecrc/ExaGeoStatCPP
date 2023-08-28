@@ -7,6 +7,7 @@
 # @version 1.0.0
 # @brief CMake build script for the operators library, which includes the OperatorMethods base class and the OperatorFactory class for creating operators of different types.
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-05-30
 
 # Define the sources for the library

@@ -9,16 +9,14 @@ from commodity x86 to GPU accelerator-based shared and distributed-memory system
 tackle computationally challenging scientific problems at large-scale while abstracting the hardware complexity through
 state-of-the-art high-performance linear algebra software libraries.
 
-
-
 Vision of ExaGeoStat
 =================
 
 ExaGeoStat is a collaboration between the KAUST Spatial Statistics group and the Extreme Computing Research
-Center (ECRC). Its contribution lies not in a new algorithm nor in a new data set,
-but in demonstrating the routine use of the larger data sets becoming available to geospatial
+Center (ECRC). Its contribution lies not in a new algorithm nor in a new dataset,
+but in demonstrating the routine use of the larger datasets becoming available to geospatial
 statisticians, thanks to the implementation of state-of-the-art statistical algorithms on
-high-performance computing (HPC) hardware.
+High Performance Computing (HPC) hardware.
 
 We have built a standalone software framework (ExaGeoStat) that is able to run on a variety
 of hardware resources, including GPUs and massively distributed systems such as Shaheen-II,
@@ -27,12 +25,12 @@ to create a statistical model to predict environmental data (i.e., temperature, 
 wind speed, air pollution, etc.) at spatial locations on which data
 is missing, and to exploit large amounts of data to reduce the effect of individual measurement
 errors. The best-known methods for such statistical processing have a cost that grows rapidly
-in the size of the data set, namely, in proportion to its cube, or third power. Thus, increasing
-the size of the data set by a factor of ten drives up the cost of the computation by a factor of
+in the size of the dataset, namely, in proportion to its cube, or third power. Thus, increasing
+the size of the dataset by a factor of ten drives up the cost of the computation by a factor of
 a thousand, while simultaneously driving up the memory requirements by a factor of a hundred.
 
 For instance, according to this cubic growth in complexity, a computation that requires one
-minute would require nearly 17 hours on a data set just ten times larger. This creates a
+minute would require nearly 17 hours on a dataset just ten times larger. This creates a
 computational strain on standard statistics software, for which contemporary data sizes
 were not anticipated; and even if possible, it puts the computation beyond the interactive
 attention span of the analyst. Parallelism (assigning thousands of processors to a single task) and Moore's Law allow
@@ -50,7 +48,7 @@ numerical accuracy. This further expands practical problem sizes for
 statisticians with modest computational resources.
 
 
-Current Version of Exageostat CPP: 1.0.0
+Current Version of ExaGeoStat CPP: 1.0.0
 ======================
 Current Features of ExaGeoStat
 ======================
@@ -124,7 +122,7 @@ please follow these instructions:
 
        git clone https://github.com/ecrc/exageostat-cpp
 
-2. Go into exageostat folder
+2. Go into ExaGeoStat folder
 
        cd exageostat-cpp
 

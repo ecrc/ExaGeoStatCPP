@@ -8,6 +8,7 @@
  * @brief Contains the definition of the DiskWriter class for writing data to disk.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-06-08
 **/
 
@@ -41,8 +42,8 @@ namespace exageostat {
              *
              */
             void static
-            WriteVectorsToDisk(T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
-                               exageostat::dataunits::Locations<T> &aLocations);
+            WriteVectorsToDisk(const T &aMatrixPointer, const int &aProblemSize, const int &aP,
+                               std::string &aLoggerPath, exageostat::dataunits::Locations<T> &aLocations);
         };
 
         /**

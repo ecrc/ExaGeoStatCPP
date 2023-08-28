@@ -10,6 +10,7 @@
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-29
 **/
 
@@ -59,7 +60,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
 
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {-1.272336, -2.475473, 0.545850, -0.120985, 0.242569, -1.544215, 0.098647,
@@ -67,7 +68,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
 
 #endif
@@ -75,6 +76,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 }
 
 TEST_CASE("Univariate Matern Stationary kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternStationary();
+    TEST_KERNEL_GENERATION_UnivariateMaternStationary();
 
 }

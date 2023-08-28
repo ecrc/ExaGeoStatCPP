@@ -8,6 +8,7 @@
  * @brief Implementation of the SyntheticGenerator class
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-02-14
 **/
 
@@ -75,7 +76,8 @@ Locations<T> *SyntheticGenerator<T>::CreateLocationsData(configurations::Configu
 }
 
 template<typename T>
-void SyntheticGenerator<T>::GenerateLocations(int aN, int aTimeSlot, Dimension aDimension, Locations<T> &aLocations) {
+void SyntheticGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlot, const Dimension &aDimension,
+                                              Locations<T> &aLocations) {
 
     aLocations.SetSize(aN);
 
@@ -92,7 +94,7 @@ void SyntheticGenerator<T>::GenerateLocations(int aN, int aTimeSlot, Dimension a
         rootN = ceil(sqrt(aN));
     }
 
-    int *grid = (int *) calloc((int) rootN, sizeof(int));
+    int *grid = new int[rootN]();
     for (auto i = 0; i < rootN; i++) {
         grid[i] = i + 1;
     }
@@ -123,7 +125,7 @@ void SyntheticGenerator<T>::GenerateLocations(int aN, int aTimeSlot, Dimension a
             }
         }
     }
-    free(grid);
+    delete[] grid;
     if (aDimension != DimensionST) {
         SortLocations(aN, aDimension, aLocations);
     } else {
@@ -145,7 +147,7 @@ double SyntheticGenerator<T>::UniformDistribution(const double &aRangeLow, const
 }
 
 template<typename T>
-void SyntheticGenerator<T>::SortLocations(int &aN, Dimension aDimension, Locations<T> &aLocations) {
+void SyntheticGenerator<T>::SortLocations(const int &aN, const Dimension &aDimension, Locations<T> &aLocations) {
 
     // Some sorting, required by spatial statistics code
     uint16_t x, y, z;
@@ -216,7 +218,7 @@ bool SyntheticGenerator<T>::CompareUint64(const uint64_t &aFirstValue, const uin
 }
 
 template<typename T>
-std::vector<double> &SyntheticGenerator<T>::InitTheta(std::vector<double> &aTheta, int &size) {
+std::vector<double> &SyntheticGenerator<T>::InitTheta(std::vector<double> &aTheta, const int &size) {
 
     // If null, this mean user have not passed the values arguments, Make values equal -1
     if (aTheta.empty()) {

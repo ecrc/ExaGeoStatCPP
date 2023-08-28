@@ -10,6 +10,7 @@
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-05-10
 **/
 #include <catch2/catch_all.hpp>
@@ -76,7 +77,7 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
 #endif
     }
@@ -84,6 +85,6 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
 
 
 TEST_CASE("UnivariateSpacetimeMaternStationary kernel test") {
-TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary();
+    TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary();
 
 }

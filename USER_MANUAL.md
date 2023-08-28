@@ -14,14 +14,17 @@ ExaGeoStat User Manual
 ## Configurations
 
 * Run help of config.sh to know the needed arguments to run with your specific options.
-
-        ./config.sh -h
-* To Enable support of HiCMA, Use the following argument.
-
-        ./config.sh -H
+```commandline
+./config.sh -h
+```
 * To Enable support of Chameleon, Use the following argument.
-
-        ./config.sh -C
+```commandline
+./config.sh -C
+```
+* To Enable support of HiCMA, Use the following argument.
+```commandline
+./config.sh -H
+```
 * To enable examples add **```-e```**
 
 * To enable tests add **```-t```**
@@ -41,17 +44,21 @@ Please note, currently we are supporting using only one of the two options of Hi
 ## Building
 
 * Run help of clean_build.sh to know the additional arguments options.
-
-        ./clean_build.sh -h
+```commandline
+./clean_build.sh -h
+```
 * Run clean_build.sh to clean, Build and Install project.
-
-        ./clean_build.sh
+```commandline
+./clean_build.sh
+```
 * To enable verbose printing Run the following command.
-
-        ./clean_build.sh -v
+```commandline
+./clean_build.sh -v
+```
 * To enable building with specific number of threads Run the following command.
-
-        ./clean_build.sh -j <thread_number>
+```commandline
+./clean_build.sh -j <thread_number>
+```
 
 Supported Covariance Functions/ Kernels:
 ======================
@@ -218,8 +225,9 @@ This is done by the Configurations module. You have two ways to set your argumen
 ### Initialise the Hardware
 
 To use any operations you need to initialise the hardware with your selection of number of cores and gpus.
-
-    auto hardware = ExaGeoStatHardware(computation, number of cores, number of gpus);
+```c++
+auto hardware = ExaGeoStatHardware(computation, number of cores, number of gpus);
+```
 
 ### Data Generation
 
@@ -233,11 +241,12 @@ can be used to train the software to better predict the values of new data.
 ##### Synthetic data generation
 
 After providing your arguments with the Configurations module, you need to do the following two steps.
-
-    // Create a new ExaGeoStat data that holds the locations data and descriptors data.
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
-    // Generate data by passing your arguments throuh the configurations, your hardware and your container of the data which will be filled with the new generated data.
-    ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
+```c++
+// Create a new ExaGeoStat data that holds the locations data and descriptors data.
+ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
+// Generate data by passing your arguments throuh the configurations, your hardware and your container of the data which will be filled with the new generated data.
+ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
+```
 
 ##### Real data generation
 
@@ -246,9 +255,10 @@ After providing your arguments with the Configurations module, you need to do th
 ### Data Modeling.
 
 To use data modeling you have to do this operation.
-
-    // you have to pass your arguments throuh the configurations, your hardware and your data.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
+```c++
+// you have to pass your arguments throuh the configurations, your hardware and your data.
+ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
+```
 
 ### Data prediction
 

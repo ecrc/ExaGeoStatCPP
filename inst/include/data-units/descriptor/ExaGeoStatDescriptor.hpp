@@ -8,6 +8,7 @@
  * @brief Class for creating matrix descriptors used in CHAMELEON and HiCMA libraries.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-07-16
 **/
 
@@ -16,17 +17,8 @@
 
 #include <iostream>
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-extern "C" {
-#include <chameleon/struct.h>
-}
-#endif
-#ifdef EXAGEOSTAT_USE_HiCMA
-extern "C"{
-#include <hicma_struct.h>
-}
-#endif
-
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <common/Definitions.hpp>
 
 /**
@@ -82,9 +74,11 @@ namespace exageostat {
                  * @return A pointer to the newly created descriptor.
                  *
                  */
-                void *CreateDescriptor(void *apDescriptor, common::DescriptorType aDescriptorType, bool aIsOOC,
-                                       void *apMatrix, common::FloatPoint aFloatPoint, int aMB, int aNB, int aSize,
-                                       int aLM, int aLN, int aI, int aJ, int aM, int aN, int aP, int aQ);
+                void *
+                CreateDescriptor(void *apDescriptor, const common::DescriptorType &aDescriptorType, const bool &aIsOOC,
+                                 void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB, const int &aNB,
+                                 const int &aSize, const int &aLM, const int &aLN, const int &aI, const int &aJ,
+                                 const int &aM, const int &aN, const int &aP, const int &aQ);
 
                 /**
                  * @brief destroys and finalize a descriptor
@@ -93,7 +87,7 @@ namespace exageostat {
                  * @return An error code or success code.
                  *
                  */
-                int DestroyDescriptor(common::DescriptorType aDescriptorType, void *apDescriptor);
+                int DestroyDescriptor(const common::DescriptorType &aDescriptorType, void *apDescriptor);
             };
 
             /**

@@ -6,6 +6,7 @@
 # @file config.sh
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-01-30
 
 # Set variables and default values
@@ -89,16 +90,16 @@ while getopts ":tevhHCi:dcm" opt; do
     h) ##### Prints the help #####
       echo "Usage of $(basename "$0"):"
       echo ""
+      printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
       printf "%20s %s\n" "-t :" "to enable building tests."
-      echo ""
       printf "%20s %s\n" "-e :" "to enable building examples."
-      echo ""
-      printf "%20s %s\n" "-i [path] :" "specify installation path."
-      printf "%20s %s\n" "" "default = /exageostat-cpp/installdir/exageostat"
-      echo ""
       printf "%20s %s\n" "-H :" "to enable using HiCMA."
-      echo ""
       printf "%20s %s\n" "-C :" "to enable using chameleon."
+      printf "%20s %s\n" "-c :" "to enable using CUDA."
+      printf "%20s %s\n" "-m :" "to enable using MPI."
+      printf "%20s %s\n" "-v :" "to enable verbose printings."
+      printf "%20s %s\n" "-d :" "to enable debug mode."
+      printf "%20s %s\n" "-h :" "Help."
       echo ""
       exit 1
       ;;
@@ -150,7 +151,7 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
   -DEXAGEOSTAT_INSTALL_PREFIX="$INSTALL_PREFIX" \
   -DEXAGEOSTAT_BUILD_TESTS="$BUILDING_TESTS" \
   -DEXAGEOSTAT_BUILD_EXAMPLES="$BUILDING_EXAMPLES" \
-  -DEXAGEOSTAT_USE_HiCMA="$USING_HiCMA" \
+  -DEXAGEOSTAT_USE_HICMA="$USING_HiCMA" \
   -DEXAGEOSTAT_USE_CHAMELEON="$USING_CHAMELEON" \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=$VERBOSE \
   -DUSE_CUDA="$USE_CUDA" \

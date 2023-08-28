@@ -6,6 +6,7 @@
 # @brief Fetches, builds, and installs a dependency.
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-03-12
 
 # @param raw_name The name of the dependency.

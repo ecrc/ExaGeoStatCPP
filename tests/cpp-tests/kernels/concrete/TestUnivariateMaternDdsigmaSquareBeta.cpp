@@ -10,6 +10,7 @@
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-05-10
 **/
 
@@ -52,6 +53,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta() {
 }
 
 TEST_CASE("UnivariateMaternDdsigmaSquareBeta kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta();
+    TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta();
 
 }

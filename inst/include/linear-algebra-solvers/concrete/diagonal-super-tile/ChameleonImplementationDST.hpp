@@ -8,6 +8,8 @@
  * @brief This file contains the declaration of ChameleonImplementationDST class.
  * @details ChameleonImplementationDST is a concrete implementation of LinearAlgebraMethods class for diagonal super tile matrices.
  * @version 1.0.0
+ * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-26
 **/
 
@@ -46,7 +48,8 @@ namespace exageostat {
                  * 
                  */
                 void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                         dataunits::DescriptorData<T> &aDescriptorData) override;
+                                         dataunits::DescriptorData<T> &aDescriptorData,
+                                         T *apMeasurementsMatrix) override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -93,8 +96,9 @@ namespace exageostat {
                  * @brief Calculates the log likelihood value of a given value theta.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
                 */
-                T ExaGeoStatMleTile(hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> *apData,
-                                    configurations::Configurations *apConfigurations, const double *theta) override;
+                T ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &apData,
+                                    configurations::Configurations &apConfigurations, const double *theta,
+                                    T *apMeasurementsMatrix) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination

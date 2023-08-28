@@ -6,6 +6,7 @@
 # @file CMakeLists.txt
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-04-06
 
 if (EXAGEOSTAT_USE_CHAMELEON)
@@ -17,7 +18,7 @@ if (EXAGEOSTAT_USE_CHAMELEON)
             )
 endif ()
 
-if (EXAGEOSTAT_USE_HiCMA)
+if (EXAGEOSTAT_USE_HICMA)
     set(EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
             ${EXAGEOSTAT_TESTFILES}

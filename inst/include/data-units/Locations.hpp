@@ -8,6 +8,7 @@
  * @brief Header file for the Locations class, which contains methods to set and get location data.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-02-27
 **/
 
@@ -34,7 +35,7 @@ namespace exageostat {
              * @return void
              *
              */
-            Locations(int aSize, exageostat::common::Dimension aDimension);
+            Locations(const int &aSize, const exageostat::common::Dimension &aDimension);
 
             /**
              * @brief Default copy constructor.
@@ -99,7 +100,7 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetSize(int aSize);
+            void SetSize(const int &aSize);
 
             /**
              * @brief Getter for mSize.
@@ -114,7 +115,7 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetDimension(common::Dimension aDimension);
+            void SetDimension(const common::Dimension &aDimension);
 
             /**
              * @brief Getter for Dimension.
@@ -142,7 +143,7 @@ namespace exageostat {
         *
         */
         EXAGEOSTAT_INSTANTIATE_CLASS(Locations)
-    }//namespace configurations
+    }//namespace dataunits
 }//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_LOCATIONS_HPP

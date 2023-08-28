@@ -7,7 +7,10 @@
  * @file UnivariateMaternDdbetaNu.hpp
  * @brief Defines the UnivariateMaternDdbetaNu class, a Univariate Matern Ddbeta Nu kernel.
  * @version 1.0.0
+ * @author Suhas Shankar
+ * @author Mary Lai Salvana
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 
@@ -47,10 +50,11 @@ namespace exageostat {
              * @brief Generates a covariance matrix using a set of locations and kernel parameters.
              * @copydoc Kernel::GenerateCovarianceMatrix()
              */
-            void GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber, int &aRowOffset,
-                                          int &aColumnOffset, dataunits::Locations<T> *apLocation1,
-                                          dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                          T *aLocalTheta, int &aDistanceMetric) override;
+            void GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
+                                          const int &aRowOffset, const int &aColumnOffset,
+                                          dataunits::Locations<T> &aLocation1, dataunits::Locations<T> &aLocation2,
+                                          dataunits::Locations<T> &aLocation3, T *apLocalTheta,
+                                          const int &aDistanceMetric) override;
 
             /**
              * @brief Creates a new UnivariateMaternDdbetaNu object.

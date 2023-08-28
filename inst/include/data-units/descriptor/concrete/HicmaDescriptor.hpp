@@ -8,6 +8,7 @@
  * @brief Defines the Hicma Descriptor class for creating matrix descriptors using the HICMA library.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-08-15
 **/
 
@@ -55,9 +56,12 @@ namespace exageostat {
                  *
                  */
                 static HICMA_desc_t *
-                CreateHicmaDescriptor(void *apDescriptor, bool aIsOOC, void *apMatrix, common::FloatPoint aFloatPoint,
-                                      int aMB, int aNB, int aSize, int aLM, int aLN, int aI, int aJ, int aM, int aN,
-                                      int aP, int aQ);
+                CreateHicmaDescriptor(void *apDescriptor, const bool &aIsOOC, void *apMatrix,
+                                      const common::FloatPoint &aFloatPoint, const int &aMB,
+                                      const int &aNB, const int &aSize, const int &aLM,
+                                      const int &aLN, const int &aI, const int &aJ,
+                                      const int &aM, const int &aN, const int &aP,
+                                      const int &aQ);
 
                 /**
                  * @brief destroys and finalize a descriptor

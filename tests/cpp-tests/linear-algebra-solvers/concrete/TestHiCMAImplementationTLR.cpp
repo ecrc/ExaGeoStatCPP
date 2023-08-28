@@ -5,9 +5,10 @@
 
 /**
  * @file TestHiCMAImplementationTLR.cpp
- *
+ * @brief Unit tests for the Tile Low Rank computation in the ExaGeoStat software package.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
 
@@ -206,7 +207,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE(HICMA_descriptorDeterminant->p == pGrid);
         REQUIRE(HICMA_descriptorDeterminant->q == qGrid);
 
-        delete linearAlgebraSolver;
+
         delete data;
     }
 
@@ -384,7 +385,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE(HICMA_descriptorMSE->p == pGrid);
             REQUIRE(HICMA_descriptorMSE->q == qGrid);
         }
-        delete linearAlgebraSolver;
+
         delete data;
     }
 }

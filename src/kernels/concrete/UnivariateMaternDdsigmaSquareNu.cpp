@@ -8,6 +8,7 @@
  * @brief Implementation of the UnivariateMaternDdsigmaSquareNu kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 
@@ -35,11 +36,13 @@ namespace exageostat::kernels {
 }
 
 template<typename T>
-void UnivariateMaternDdsigmaSquareNu<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                                  int &aRowOffset, int &aColumnOffset,
-                                                                  Locations<T> *apLocation1,
-                                                                  Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                                  T *aLocalTheta, int &aDistanceMetric) {
+void UnivariateMaternDdsigmaSquareNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
+                                                                  const int &aColumnsNumber,
+                                                                  const int &aRowOffset, const int &aColumnOffset,
+                                                                  dataunits::Locations<T> &aLocation1,
+                                                                  dataunits::Locations<T> &aLocation2,
+                                                                  dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                                  const int &aDistanceMetric) {
 
     int i, j;
     int i0 = aRowOffset;
@@ -51,7 +54,7 @@ void UnivariateMaternDdsigmaSquareNu<T>::GenerateCovarianceMatrix(T *apMatrixA, 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = this->CalculateDistance(*apLocation1, *apLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
