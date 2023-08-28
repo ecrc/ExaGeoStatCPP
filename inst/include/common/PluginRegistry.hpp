@@ -8,6 +8,7 @@
  * @brief Defines a template class for registering and creating plugins.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-30
 **/
 

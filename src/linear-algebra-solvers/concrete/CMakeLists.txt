@@ -8,6 +8,7 @@
 # @brief CMake build script for the linear-algebra-solvers library, which includes the concrete implementations of the
 # LinearAlgebraMethods class based on the enabled libraries (HiCMA or Chameleon).
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-03-20
 
 # Include the concrete implementations of the LinearAlgebraMethods class based on the enabled libraries (HiCMA or Chameleon)
@@ -19,7 +20,7 @@ if (EXAGEOSTAT_USE_CHAMELEON)
             PARENT_SCOPE
             )
 endif ()
-if (EXAGEOSTAT_USE_HiCMA)
+if (EXAGEOSTAT_USE_HICMA)
     set(SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/tile-low-rank/HicmaImplementation.cpp
             ${SOURCES}

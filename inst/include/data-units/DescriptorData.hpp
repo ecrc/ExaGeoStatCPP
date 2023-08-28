@@ -8,6 +8,7 @@
  * @brief Contains the definition of the DescriptorData class.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-07-18
 **/
 
@@ -19,19 +20,8 @@
 #include <vector>
 #include <unordered_map>
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-extern "C" {
-#include <chameleon/struct.h>
-#include <chameleon.h>
-}
-#endif
-#ifdef EXAGEOSTAT_USE_HiCMA
-extern "C"{
-#include <hicma_struct.h>
-#include <hicma.h>
-}
-#endif
-
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <common/Definitions.hpp>
 #include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
@@ -47,8 +37,8 @@ namespace exageostat {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
             CHAM_desc_t *chameleon_desc;
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
-            HICMA_desc_t* hicma_desc;
+#ifdef EXAGEOSTAT_USE_HICMA
+            HICMA_desc_t *hicma_desc;
 #endif
         };
 
@@ -63,11 +53,11 @@ namespace exageostat {
         public:
             /**
              * @brief Constructor for DescriptorData.
-             * @param[in] apHardware Reference to the ExaGeoStatHardware object.
+             * @param[in] aHardware Reference to the ExaGeoStatHardware object.
              * @throws std::runtime_error if hardware is not initialized.
              */
 
-            explicit DescriptorData(hardware::ExaGeoStatHardware &apHardware);
+            explicit DescriptorData(const hardware::ExaGeoStatHardware &aHardware);
 
             /**
              * @brief Destructor for DescriptorData.
@@ -79,10 +69,10 @@ namespace exageostat {
              * @param[in] aDescriptorType The type of the descriptor.
              * @param[in] aDescriptorName The name of the descriptor.
              * @return The base descriptor.
-             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HiCMA).
+             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
              */
             BaseDescriptor
-            GetDescriptor(common::DescriptorType aDescriptorType, common::DescriptorName aDescriptorName);
+            GetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName);
 
             /**
              * @brief Get the sequence.
@@ -131,21 +121,34 @@ namespace exageostat {
              * @param[in] aP The number of rows in the complete matrix.
              * @param[in] aQ The number of columns in the complete matrix.
              * @return void
-             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HiCMA).
+             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
              */
             void
-            SetDescriptor(common::DescriptorType aDescriptorType, common::DescriptorName aDescriptorName, bool aIsOOC,
-                          void *apMatrix, common::FloatPoint aFloatPoint, int aMB, int aNB, int aSize, int aLM, int aLN,
-                          int aI, int aJ, int aM, int aN, int aP, int aQ);
+            SetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName,
+                          const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
+                          const int &aNB, const int &aSize, const int &aLM, const int &aLN, const int &aI,
+                          const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ);
 
             /**
              * @brief Getter for the Descriptor matrix.
              * @param[in] aDescriptorType Type of the descriptor, whether it's CHAMELEON or HiCMA.
              * @param[in] apDescriptor Pointer to the descriptor.
              * @return pointer to the Descriptor matrix.
-             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HiCMA).
+             * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
              */
-            T *GetDescriptorMatrix(common::DescriptorType aDescriptorType, void *apDescriptor);
+            T *GetDescriptorMatrix(const common::DescriptorType &aDescriptorType, void *apDescriptor);
+
+            /**
+             * @brief Getter for the mIsDescriptorInitiated field.
+             * @return mIsDescriptorInitiated
+             */
+            bool GetIsDescriptorInitiated();
+
+            /**
+             * @brief Setter for mIsDescriptorInitiated field.
+             * @param aIsInitiated Boolean for setting the mIsDescriptorInitiated field.
+             */
+            void SetIsDescriptorInitiated(bool aIsInitiated);
 
         private:
             /**
@@ -154,7 +157,7 @@ namespace exageostat {
              * @return The descriptor name as a string.
              * @throws std::invalid_argument if the provided descriptor name is not available.
              */
-            std::string GetDescriptorName(common::DescriptorName aDescriptorName);
+            std::string GetDescriptorName(const common::DescriptorName &aDescriptorName);
 
         private:
             //// Used Dictionary including the used descriptors.
@@ -165,6 +168,8 @@ namespace exageostat {
             void *mpRequest = nullptr;
             //// Used context
             void *mpContext = nullptr;
+            //// Specifies whether the descriptors have been initiated.
+            bool mIsDescriptorInitiated = false;
         };
 
         /**

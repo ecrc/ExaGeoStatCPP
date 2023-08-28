@@ -12,6 +12,7 @@
 * Additionally, the tests include a copy-constructor test for the Configurations class.
 * @version 1.0.0
 * @author Sameh Abdulah
+* @author Mahmoud ElKarargy
 * @date 2023-01-31
 **/
 
@@ -34,8 +35,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
     {
         synthetic_data_configurations.SetDimension(Dimension2D);
         REQUIRE(synthetic_data_configurations.GetDimension() == Dimension2D);
-    }
-    SECTION("Dimensions value checker test")
+    }SECTION("Dimensions value checker test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckDimensionValue("4D"),
@@ -48,8 +48,7 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         REQUIRE(synthetic_data_configurations.GetPGrid() == 1);
         synthetic_data_configurations.SetPGrid(random_number);
         REQUIRE(synthetic_data_configurations.GetPGrid() == random_number);
-    }
-    SECTION("P-GRID value checker test")
+    }SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("K"),
@@ -60,14 +59,12 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
         int test_nb = Configurations::CheckNumericalValue("512");
         synthetic_data_configurations.SetPGrid(test_nb);
         REQUIRE(synthetic_data_configurations.GetPGrid() == 512);
-    }
-    SECTION("Kernel setter/getter test")
+    }SECTION("Kernel setter/getter test")
     {
         REQUIRE(synthetic_data_configurations.GetKernelName().empty());
         synthetic_data_configurations.SetKernelName("univariate_matern_stationary");
         REQUIRE(synthetic_data_configurations.GetKernelName() == "univariate_matern_stationary");
-    }
-    SECTION("Kernel checker value test")
+    }SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckKernelValue("100"),
@@ -76,14 +73,12 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
                 synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu%"),
                 "Invalid value for Kernel. Please check manual.");
         synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu");
-    }
-    SECTION("Problem size setter/getter test")
+    }SECTION("Problem size setter/getter test")
     {
         REQUIRE(synthetic_data_configurations.GetProblemSize() == 0);
         synthetic_data_configurations.SetProblemSize(random_number);
         REQUIRE(synthetic_data_configurations.GetProblemSize() == random_number);
-    }
-    SECTION("Problem size checker value test")
+    }SECTION("Problem size checker value test")
     {
         REQUIRE_THROWS_WITH(
                 synthetic_data_configurations.CheckNumericalValue("K"),
@@ -124,8 +119,8 @@ void TEST_COPY_CONSTRUCTOR() {
 }
 
 TEST_CASE("Synthetic Data Configurations") {
-TEST_SYNTHETIC_CONFIGURATIONS();
+    TEST_SYNTHETIC_CONFIGURATIONS();
 
-TEST_COPY_CONSTRUCTOR();
+    TEST_COPY_CONSTRUCTOR();
 
 }

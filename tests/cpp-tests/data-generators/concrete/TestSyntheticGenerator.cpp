@@ -11,6 +11,7 @@
  * and reversing bits, generating locations for different dimensions, and testing helper functions.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-08
 **/
 
@@ -38,7 +39,7 @@ void TEST_SPREAD_REVERSED_BITS() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
@@ -53,14 +54,12 @@ void TEST_SPREAD_REVERSED_BITS() {
         // So, at the end it will be
         // ---- ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1
         REQUIRE(returnedByte == 0x0111111111111111);
-    }
-    SECTION("Reverse Spread Bytes")
+    }SECTION("Reverse Spread Bytes")
     {
         uint64_t randomByte = 0x0111111111111111;
         uint16_t returnedByte = SyntheticGenerator<double>::ReverseSpreadBits(randomByte);
         REQUIRE(returnedByte == 0x7FFF);
-    }
-    SECTION("Spread & reverse 3D")
+    }SECTION("Spread & reverse 3D")
     {
         // Test spreading and shifting 3D and getting back values correctly.
         uint16_t x = INT16_MAX;
@@ -199,7 +198,7 @@ void TEST_GENERATE_LOCATIONS() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
@@ -220,8 +219,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0);
         }
         delete locations;
-    }
-    SECTION("3D Generation")
+    }SECTION("3D Generation")
     {
         synthetic_data_configurations.SetDimension(Dimension3D);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
@@ -239,8 +237,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(z[i] != 0);
         }
         delete locations;
-    }
-    SECTION("ST Generation")
+    }SECTION("ST Generation")
     {
 
         synthetic_data_configurations.SetDimension(DimensionST);
@@ -272,7 +269,7 @@ void TEST_HELPERS_FUNCTIONS() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
@@ -310,7 +307,7 @@ void TEST_GENERATION() {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
 #endif
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
         synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
@@ -346,7 +343,6 @@ void TEST_GENERATION() {
             REQUIRE((locations2->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
             REQUIRE((locations2->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
         }
-        SyntheticGenerator<double>::ReleaseInstance();
         delete locations;
         delete locations1;
         delete locations2;
@@ -355,12 +351,12 @@ void TEST_GENERATION() {
 
 
 TEST_CASE("Synthetic Data Generation tests") {
-TEST_SPREAD_REVERSED_BITS();
+    TEST_SPREAD_REVERSED_BITS();
 
-TEST_GENERATE_LOCATIONS();
+    TEST_GENERATE_LOCATIONS();
 
-TEST_HELPERS_FUNCTIONS();
+    TEST_HELPERS_FUNCTIONS();
 
-TEST_GENERATION();
+    TEST_GENERATION();
 
 }

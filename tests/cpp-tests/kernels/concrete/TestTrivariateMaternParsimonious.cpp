@@ -10,6 +10,7 @@
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-05-10
 **/
 
@@ -53,7 +54,8 @@ void TEST_KERNEL_GENERATION_TrivariateMaternParsimonious() {
 
         int seed = 0;
         srand(seed);
-                exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(), synthetic_data_configurations.GetDimension(), hardware);
+        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
+                                                           synthetic_data_configurations.GetDimension(), hardware);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
@@ -70,7 +72,7 @@ void TEST_KERNEL_GENERATION_TrivariateMaternParsimonious() {
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];
-            REQUIRE(diff ==Catch::Approx(0.0).margin(1e-6));
+            REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
 
 
@@ -79,6 +81,6 @@ void TEST_KERNEL_GENERATION_TrivariateMaternParsimonious() {
 }
 
 TEST_CASE("TrivariateMaternParsimonious kernel test") {
-TEST_KERNEL_GENERATION_TrivariateMaternParsimonious();
+    TEST_KERNEL_GENERATION_TrivariateMaternParsimonious();
 
 }

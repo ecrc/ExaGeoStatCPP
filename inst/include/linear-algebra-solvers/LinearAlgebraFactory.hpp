@@ -8,6 +8,7 @@
  * @brief Header file for the LinearAlgebraFactory class, which creates linear algebra solvers based on the input computation type.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-20
 **/
 
@@ -27,8 +28,10 @@
 
 #endif
 
-#ifdef EXAGEOSTAT_USE_HiCMA
+#ifdef EXAGEOSTAT_USE_HICMA
+
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
+
 #endif
 
 namespace exageostat {
@@ -50,7 +53,7 @@ namespace exageostat {
              * @return Pointer to the created linear algebra solver.
              *
              */
-            static LinearAlgebraMethods<T> *CreateLinearAlgebraSolver(common::Computation aComputation);
+            static std::unique_ptr<LinearAlgebraMethods<T>> CreateLinearAlgebraSolver(common::Computation aComputation);
         };
 
         /**

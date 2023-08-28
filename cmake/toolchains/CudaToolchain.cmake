@@ -7,6 +7,7 @@
 # @brief This file is used to set up the CUDA toolchain for compilation.
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-03-12
 
 # Set CUDA compilation options
@@ -18,3 +19,5 @@ set(CUDA_ARCHITECTURES "35;50;72")
 
 # Find the CUDA toolkit
 find_package(CUDAToolkit REQUIRED)
+# TODO: Cuda linking
+set(ENV{LDFLAGS} "-L$ENV{CUDA_DIR}/lib64")

@@ -10,6 +10,7 @@
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-05-10
 **/
 
@@ -50,6 +51,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDnu() {
 }
 
 TEST_CASE("UnivariateMaternDnu kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDnu();
+    TEST_KERNEL_GENERATION_UnivariateMaternDnu();
 
 }

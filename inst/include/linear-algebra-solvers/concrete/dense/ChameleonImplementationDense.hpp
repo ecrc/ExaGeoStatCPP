@@ -8,6 +8,8 @@
  * @brief This file contains the declaration of ChameleonImplementationDense class.
  * @details ChameleonImplementationDense is a concrete implementation of LinearAlgebraMethods class for dense matrices.
  * @version 1.0.0
+ * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-20
 **/
 
@@ -46,7 +48,8 @@ namespace exageostat {
                  * 
                  */
                 void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                         dataunits::DescriptorData<T> &aDescriptorData) override;
+                                         dataunits::DescriptorData<T> &aDescriptorData,
+                                         T *apMeasurementsMatrix) override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -85,8 +88,9 @@ namespace exageostat {
                  * @brief Calculates the log likelihood value of a given value theta.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
                 */
-                T ExaGeoStatMleTile(hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> *apData,
-                                    configurations::Configurations *apConfigurations, const double *theta) override;
+                T ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &apData,
+                                    configurations::Configurations &apConfigurations, const double *theta,
+                                    T *apMeasurementsMatrix) override;
 
                 /**
                  * @brief Converts Gaussian to non-Gaussian distributed random numbers for a matrix descriptor asynchronously.

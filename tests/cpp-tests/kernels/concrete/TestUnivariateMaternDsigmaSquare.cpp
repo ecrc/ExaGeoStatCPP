@@ -10,6 +10,7 @@
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-29
 **/
 
@@ -48,6 +49,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDsigmaSquare() {
 
 
 TEST_CASE("Univariate Matern Dsigma Square kernel test") {
-TEST_KERNEL_GENERATION_UnivariateMaternDsigmaSquare();
+    TEST_KERNEL_GENERATION_UnivariateMaternDsigmaSquare();
 
 }

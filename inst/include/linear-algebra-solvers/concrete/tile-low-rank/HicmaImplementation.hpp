@@ -8,6 +8,8 @@
  * @brief This file contains the declaration of HicmaImplementation class.
  * @details HicmaImplementation is a concrete implementation of LinearAlgebraMethods class for tile low-rank matrices.
  * @version 1.0.0
+ * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-03-26
 **/
 
@@ -45,7 +47,8 @@ namespace exageostat {
                  * 
                  */
                 void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                         dataunits::DescriptorData <T> &aDescriptorData) override;
+                                         dataunits::DescriptorData<T> &aDescriptorData,
+                                         T *apMeasurementsMatrix) override;
 
                 /**
                  * @brief Computes the covariance matrix.
@@ -53,10 +56,10 @@ namespace exageostat {
                  * 
                  */
                 void
-                CovarianceMatrixCodelet(dataunits::DescriptorData <T> *apDescriptorData, void *apDescriptor,
-                                        int &aTriangularPart, dataunits::Locations <T> *apLocation1,
-                                        dataunits::Locations <T> *apLocation2,
-                                        dataunits::Locations <T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
+                CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                        int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                        dataunits::Locations<T> *apLocation2,
+                                        dataunits::Locations<T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
                                         exageostat::kernels::Kernel<T> *apKernel) override;
 
                 /**
@@ -65,18 +68,18 @@ namespace exageostat {
                  * 
                  */
                 void GenerateObservationsVector(configurations::Configurations &apConfigurations,
-                                                dataunits::DescriptorData <T> *apDescriptorData,
+                                                dataunits::DescriptorData<T> *apDescriptorData,
                                                 dataunits::BaseDescriptor aDescriptor,
-                                                dataunits::Locations <T> *apLocation1,
-                                                dataunits::Locations <T> *apLocation2,
-                                                dataunits::Locations <T> *apLocation3, int aDistanceMetric) override;
+                                                dataunits::Locations<T> *apLocation1,
+                                                dataunits::Locations<T> *apLocation2,
+                                                dataunits::Locations<T> *apLocation3, int aDistanceMetric) override;
 
                 /**
                  * @brief Copies the descriptor data to a double vector.
                  * @copydoc LinearAlgebraMethods::CopyDescriptorZ()
                  *
                  */
-                void CopyDescriptorZ(dataunits::DescriptorData <T> *apDescriptorData, void *apDescriptor,
+                void CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
                                      T *apDoubleVector) override;
 
                 /**
@@ -88,15 +91,17 @@ namespace exageostat {
                  * @param apData MLE_data struct with different MLE inputs.
                  * @return log likelihood value
                 */
-                T ExaGeoStatMleTile(hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData <T> *apData,
-                                    configurations::Configurations *apConfigurations, const double *theta) override;
+                T
+                ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData<T> &apData,
+                                  configurations::Configurations &apConfigurations, const double *theta,
+                                  T *apMeasurementsMatrix) override;
 
                 /**
                  * @brief Calculates the log likelihood value of a given value theta.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatGaussianToNonTileAsync()
                  *
                 */
-                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData <T> *apDescriptorData, void *apDesc,
+                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
                                                       T *apTheta) override;
 
                 /**

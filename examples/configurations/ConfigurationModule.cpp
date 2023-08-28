@@ -10,6 +10,7 @@
 * to obtain user-defined configurations for generating synthetic data.
 * @version 1.0.0
 * @author Sameh Abdulah
+* @author Mahmoud ElKarargy
 * @date 2023-01-31
 *
 **/
@@ -39,6 +40,8 @@ int main(int argc, char **argv) {
     // Create an instance of the SyntheticDataConfigurations class with user-defined configurations.
     Configurations configurations;
     configurations.InitializeArguments(argc, argv);
+
+    cout << "** These are some examples of the common arguments needed between all modules of ExaGeoStat **" << endl;
 
     // Obtain user-defined configurations and print them to the console.
     int N = configurations.GetProblemSize();

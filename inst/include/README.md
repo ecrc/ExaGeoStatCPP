@@ -11,9 +11,10 @@ This contains all the header files for the project.
   of the ExaGeoStat-cpp framework.
 - `configurations`: Directory contains all ExaGeoStat-cpp configurations arguments and parsers. These functions are used
   to parse and set the configuration parameters for the ExaGeoStat-cpp framework.
-- `data-generators`: Directory contained the needed methods to generate data sets.
+- `data-generators`: Directory contains the required methods to generate datasets, i.e., dense...etc
 - `data-units`: Directory is used for all ExaGeoStat-cpp base data structures that the user should utilize and interact
   with. These data units are used to represent the data and perform operations on it.
+- `hardware`: Directory contains the required methods to manage hardware allocations and de-allocations.
 - `helpers`: Directory contains helper functions that can be used across the different modules of the ExaGeoStat-cpp
   framework.
 - `kernels`: Directory provide low-level implementations of the supported kernels offered by the ExaGeoStat-cpp

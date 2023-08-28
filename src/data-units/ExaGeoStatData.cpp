@@ -8,6 +8,7 @@
  * @brief Contains the implementation of the ExaGeoStatData class.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-07-21
 **/
 
@@ -17,9 +18,10 @@ using namespace exageostat::dataunits;
 using namespace exageostat::common;
 
 template<typename T>
-ExaGeoStatData<T>::ExaGeoStatData(int aSize, Dimension aDimension, hardware::ExaGeoStatHardware &apHardware) {
+ExaGeoStatData<T>::ExaGeoStatData(const int &aSize, const Dimension &aDimension,
+                                  const hardware::ExaGeoStatHardware &aHardware) {
     this->mpLocations = new Locations<T>(aSize, aDimension);
-    this->mpDescriptorData = new DescriptorData<T>(apHardware);
+    this->mpDescriptorData = new DescriptorData<T>(aHardware);
 }
 
 template<typename T>
@@ -42,7 +44,9 @@ void ExaGeoStatData<T>::SetLocations(Locations<T> &aLocation) {
     this->mpLocations = &aLocation;
     this->mpLocations->SetLocationX(*aLocation.GetLocationX());
     this->mpLocations->SetLocationY(*aLocation.GetLocationY());
-    this->mpLocations->SetLocationZ(*aLocation.GetLocationZ());
+    if (aLocation.GetLocationZ()) {
+        this->mpLocations->SetLocationZ(*aLocation.GetLocationZ());
+    }
 }
 
 template<typename T>
@@ -51,7 +55,7 @@ DescriptorData<T> *ExaGeoStatData<T>::GetDescriptorData() {
 }
 
 template<typename T>
-void ExaGeoStatData<T>::SetMleIterations(int aMleIterations) {
+void ExaGeoStatData<T>::SetMleIterations(const int &aMleIterations) {
     this->mMleIterations = aMleIterations;
 }
 
@@ -61,7 +65,7 @@ int ExaGeoStatData<T>::GetMleIterations() {
 }
 
 template<typename T>
-void ExaGeoStatData<T>::CalculateMedianLocations(std::string &aKernelName, Locations<T> &apLocations) {
+void ExaGeoStatData<T>::CalculateMedianLocations(const std::string &aKernelName, Locations<T> &aLocations) {
 
     if (aKernelName == "UnivariateMaternNonStationary") {
 
@@ -91,16 +95,16 @@ void ExaGeoStatData<T>::CalculateMedianLocations(std::string &aKernelName, Locat
             }
         }
 
-        apLocations.GetLocationX()[0] = x_min + (x_max - x_min) / 2;
-        apLocations.GetLocationY()[0] = y_min + (y_max - y_min) / 2;
+        aLocations.GetLocationX()[0] = x_min + (x_max - x_min) / 2;
+        aLocations.GetLocationY()[0] = y_min + (y_max - y_min) / 2;
         if (this->mpLocations->GetDimension() != common::Dimension2D) {
-            apLocations.GetLocationZ()[0] = z_min + (z_max - z_min) / 2;
+            aLocations.GetLocationZ()[0] = z_min + (z_max - z_min) / 2;
         }
     } else {
-        apLocations.GetLocationX()[0] = 0.5;
-        apLocations.GetLocationY()[0] = 0.5;
+        aLocations.GetLocationX()[0] = 0.5;
+        aLocations.GetLocationY()[0] = 0.5;
         if (this->mpLocations->GetDimension() != common::Dimension2D) {
-            apLocations.GetLocationY()[0] = 0.5;
+            aLocations.GetLocationY()[0] = 0.5;
         }
     }
 }

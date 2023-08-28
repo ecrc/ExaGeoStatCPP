@@ -7,6 +7,7 @@
 # @brief Checks for the GSL library and includes it in the project if it is not already present.
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-03-16
 
 message("")

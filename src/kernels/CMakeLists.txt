@@ -7,6 +7,7 @@
 # @brief This file contains the CMake configuration for the kernels directory.
 # @version 1.0.0
 # @author Sameh Abdulah
+# @author Mahmoud ElKarargy
 # @date 2023-04-11
 
 # Add the Configurations.cpp file to the list of source files.

@@ -8,6 +8,7 @@
  * @brief Implementation of the UnivariateMaternNonStat kernel.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 
@@ -35,11 +36,13 @@ namespace exageostat::kernels {
 }
 
 template<typename T>
-void UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRowsNumber, int &aColumnsNumber,
-                                                          int &aRowOffset, int &aColumnOffset,
-                                                          Locations<T> *apLocation1,
-                                                          Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                          T *aLocalTheta, int &aDistanceMetric) {
+void
+UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
+                                                     const int &aRowOffset, const int &aColumnOffset,
+                                                     dataunits::Locations<T> &aLocation1,
+                                                     dataunits::Locations<T> &aLocation2,
+                                                     dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                     const int &aDistanceMetric) {
     double l1x, l1y, l2x, l2y;
     double a, b, d, e, f, g, h, ti;
 
@@ -60,16 +63,16 @@ void UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRo
     double lambda_arr_2[aColumnsNumber];
 
     for (int i = 0; i < aRowsNumber; i++) {
-        l1x = apLocation1->GetLocationX()[i + aRowOffset];
-        l1y = apLocation1->GetLocationY()[i + aRowOffset];
+        l1x = aLocation1.GetLocationX()[i + aRowOffset];
+        l1y = aLocation1.GetLocationY()[i + aRowOffset];
         nu_arr_1[i] = Neu(l1x, l1y, g, h, ti);
         sigma_arr_1[i] = Sigma(l1x, l1y, d, e, f);
         lambda_arr_1[i] = Lambda(l1x, l1y, a, b);
     }
 
     for (int j = 0; j < aColumnsNumber; j++) {
-        l2x = apLocation2->GetLocationX()[j + aColumnOffset];
-        l2y = apLocation2->GetLocationY()[j + aColumnOffset];
+        l2x = aLocation2.GetLocationX()[j + aColumnOffset];
+        l2y = aLocation2.GetLocationY()[j + aColumnOffset];
 
         nu_arr_2[j] = Neu(l2x, l2y, g, h, ti);
         sigma_arr_2[j] = Sigma(l2x, l2y, d, e, f);
@@ -77,12 +80,12 @@ void UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, int &aRo
     }
 
     for (int i = 0; i < aRowsNumber; i++) {
-        l1x = apLocation1->GetLocationX()[i + aRowOffset];
-        l1y = apLocation1->GetLocationY()[i + aRowOffset];
+        l1x = aLocation1.GetLocationX()[i + aRowOffset];
+        l1y = aLocation1.GetLocationY()[i + aRowOffset];
 
         for (int j = 0; j < aColumnsNumber; j++) {
-            l2x = apLocation2->GetLocationX()[j + aColumnOffset];
-            l2y = apLocation2->GetLocationY()[j + aColumnOffset];
+            l2x = aLocation2.GetLocationX()[j + aColumnOffset];
+            l2y = aLocation2.GetLocationY()[j + aColumnOffset];
 
             double term1 = (sigma_arr_1[i]) * (sigma_arr_2[j]) * sqrt(lambda_arr_1[i]) * sqrt(lambda_arr_2[j]);
             double term2 = 2 / ((lambda_arr_1[i]) + (lambda_arr_2[j]));

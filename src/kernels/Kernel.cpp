@@ -8,6 +8,7 @@
  * @brief implementation file for the Kernels class, which contains the main kernel functions.
  * @version 1.0.0
  * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-04-12
 **/
 
@@ -25,8 +26,8 @@ using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 
 template<typename T>
-T Kernel<T>::CalculateDistance(Locations<T> &aLocations1, Locations<T> &aLocations2, int &aIdxLocation1,
-                               int &aIdxLocation2, int &aDistanceMetric, int &aFlagZ) {
+T Kernel<T>::CalculateDistance(Locations<T> &aLocations1, Locations<T> &aLocations2, const int &aIdxLocation1,
+                               const int &aIdxLocation2, const int &aDistanceMetric, const int &aFlagZ) {
 
     T x1 = aLocations1.GetLocationX()[aIdxLocation1];
     T y1 = aLocations2.GetLocationY()[aIdxLocation1];
