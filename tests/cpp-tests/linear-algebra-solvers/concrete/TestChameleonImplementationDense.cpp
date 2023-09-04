@@ -7,7 +7,6 @@
  * @file TestChameleonImplmentationDense.cpp
  * @brief Unit tests for the Dense computation in the ExaGeoStat software package.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-04-06
 **/
@@ -38,7 +37,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
     SECTION("SINGLE")
     {
 
-        // Initialise Hardware.
+        // initialize Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
@@ -163,7 +162,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
     SECTION("DOUBLE")
     {
 
-        // Initialise Hardware.
+        // initialize Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
@@ -391,6 +390,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
 }
 
 TEST_CASE("Chameleon Implementation Dense") {
-    TEST_CHAMELEON_DESCRIPTORS_VALUES();
+TEST_CHAMELEON_DESCRIPTORS_VALUES();
 
 }

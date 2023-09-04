@@ -7,8 +7,8 @@
  * @file TestExaGeoStatApi.cpp
  * @brief Test suite for the ExaGeoStat API's data generation functionality.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-08-07
 **/
 
@@ -54,7 +54,7 @@ void TEST_GENERATE_DATA() {
         vector<double> initial_theta{1, 0.1, 0.5};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
-        // Initialise ExaGeoStat Hardware.
+        // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
                                                            synthetic_data_configurations.GetDimension(), hardware);
@@ -105,7 +105,7 @@ void TEST_MODEL_DATA() {
 
     SECTION("Data Modeling")
     {
-        // Initialise ExaGeoStat Hardware.
+        // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
                                                            configurations.GetDimension(), hardware);
@@ -141,9 +141,10 @@ void TEST_MODEL_DATA() {
 
         delete[] z_matrix;
 
-    }SECTION("Data Generation and Modeling")
+    }
+    SECTION("Data Generation and Modeling")
     {
-        // Initialise ExaGeoStat Hardware.
+        // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
                                                            configurations.GetDimension(), hardware);
@@ -155,8 +156,8 @@ void TEST_MODEL_DATA() {
 }
 
 TEST_CASE("ExaGeoStat API tests") {
-    TEST_GENERATE_DATA();
+TEST_GENERATE_DATA();
 
-    TEST_MODEL_DATA();
+TEST_MODEL_DATA();
 
 }

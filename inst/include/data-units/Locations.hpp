@@ -7,8 +7,8 @@
  * @file Locations.hpp
  * @brief Header file for the Locations class, which contains methods to set and get location data.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-02-27
 **/
 

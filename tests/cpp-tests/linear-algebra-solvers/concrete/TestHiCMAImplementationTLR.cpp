@@ -7,7 +7,6 @@
  * @file TestHiCMAImplementationTLR.cpp
  * @brief Unit tests for the Tile Low Rank computation in the ExaGeoStat software package.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -38,7 +37,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     SECTION("DOUBLE without NZmiss")
     {
 
-        // Initialise Hardware.
+        // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
@@ -214,7 +213,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     SECTION("DOUBLE WITH NZmiss")
     {
 
-        // Initialise Hardware.
+        // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 3, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
@@ -391,6 +390,6 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
 }
 
 TEST_CASE("HiCMA Implementation TLR") {
-TEST_HICMA_DESCRIPTORS_VALUES_TLR();
+    TEST_HICMA_DESCRIPTORS_VALUES_TLR();
 
 }

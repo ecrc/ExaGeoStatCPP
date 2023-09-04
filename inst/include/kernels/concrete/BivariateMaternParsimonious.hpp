@@ -7,12 +7,10 @@
  * @file BivariateMaternParsimonious.hpp
  * @brief Defines the BivariateMaternParsimonious class, a Bivariate Matern Parsimonious kernel.
  * @version 1.0.0
+ * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar
  * @author Mary Lai Salvana
- * @author Suhas Shankar
- * @author Mary Lai Salvana
- * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

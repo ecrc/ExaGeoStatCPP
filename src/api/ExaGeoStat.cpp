@@ -7,7 +7,6 @@
  * @file ExaGeoStat.cpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-05-30
 **/
@@ -55,14 +54,30 @@ void ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, 
 
     // Add the data modeling arguments.
     aConfigurations.InitializeDataModelingArguments();
+    // Create a kernel object depending on which kernel the user is going to use.
+    kernels::Kernel<T> *kernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T>>::Create(
+            aConfigurations.GetKernelName());
+    int parameters_number = kernel->GetParametersNumbers();
+
+    // Set starting theta with the lower bounds values
+    aConfigurations.SetLowerBounds(Configurations::InitTheta(aConfigurations.GetLowerBounds(), parameters_number));
+    aConfigurations.SetUpperBounds(Configurations::InitTheta(aConfigurations.GetUpperBounds(), parameters_number));
+    aConfigurations.SetStartingTheta(aConfigurations.GetLowerBounds());
+    //// TODO: Move this part in Prediction.
+//    aConfigurations.SetEstimatedTheta(InitTheta(aConfigurations.GetEstimatedTheta(), parameters_number));
+//    for (int i = 0; i < parameters_number; i++) {
+//        if (aConfigurations.GetEstimatedTheta()[i] != -1) {
+//            aConfigurations.GetLowerBounds()[i] = aConfigurations.GetEstimatedTheta()[i];
+//            aConfigurations.GetUpperBounds()[i] = aConfigurations.GetEstimatedTheta()[i];
+//            aConfigurations.GetStartingTheta()[i] = aConfigurations.GetEstimatedTheta()[i];
+//        }
+//    }
+
     int max_number_of_iterations = aConfigurations.GetMaxMleIterations();
 
     // Setting struct of data to pass to the modeling.
     auto modeling_data = new mModelingData(&aData, &aConfigurations, &aHardware, apMeasurementsMatrix);
 
-    // Create a kernel object depending on which kernel the user is going to use.
-    kernels::Kernel<T> *kernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T>>::Create(
-            aConfigurations.GetKernelName());
 
     // Create nlopt
     double opt_f;

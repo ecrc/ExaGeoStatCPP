@@ -217,9 +217,9 @@ namespace exageostat {
 
             CREATE_GETTER_FUNCTION(UpperBounds, std::vector<double> &, "UpperBounds")
 
-            CREATE_SETTER_FUNCTION(TargetTheta, std::vector<double> &, apTheta, "TargetTheta")
+            CREATE_SETTER_FUNCTION(EstimatedTheta, std::vector<double> &, apTheta, "EstimatedTheta")
 
-            CREATE_GETTER_FUNCTION(TargetTheta, std::vector<double> &, "TargetTheta")
+            CREATE_GETTER_FUNCTION(EstimatedTheta, std::vector<double> &, "EstimatedTheta")
 
             CREATE_SETTER_FUNCTION(StartingTheta, std::vector<double> &, apTheta, "StartingTheta")
 
@@ -333,6 +333,15 @@ namespace exageostat {
              * @return The corresponding integer value.
              */
             int CheckUnknownObservationsValue(const std::string &aValue);
+
+            /**
+             * @brief Initialize a vector with a given size to contain zeros.
+             * @param[out] aTheta A reference to the vector to initialize.
+             * @param[in] aSize The size of the vector to initialize.
+             * @return A reference to the initialized vector.
+             *
+             */
+            static std::vector<double> &InitTheta(std::vector<double> &aTheta, const int &aSize);
 
             /**
              * @brief print the summary of MLE inputs.

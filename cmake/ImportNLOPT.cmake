@@ -6,8 +6,8 @@
 # @file ImportNLOPT.cmake
 # @brief Find and include NLOPT library as a dependency.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-03-26
 message("")
 message("---------------------------------------- NLOPT")

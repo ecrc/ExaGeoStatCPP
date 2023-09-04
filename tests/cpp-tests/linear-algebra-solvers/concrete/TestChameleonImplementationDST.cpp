@@ -7,7 +7,6 @@
  * @file TestChameleonImplementationDST.cpp
  * @brief Unit tests for the Diagonal Super Tile computation in the ExaGeoStat software package.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -38,7 +37,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 
     SECTION("SINGLE")
     {
-        // Initialise Hardware.
+        // initialize Hardware.
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
@@ -163,7 +162,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
     SECTION("DOUBLE")
     {
 
-        // Initialise Hardware.
+        // initialize Hardware.
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 2, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
@@ -312,6 +311,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 }
 
 TEST_CASE("Chameleon Implementation DST") {
-    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 
 }

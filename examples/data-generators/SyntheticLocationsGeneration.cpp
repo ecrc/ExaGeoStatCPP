@@ -7,8 +7,6 @@
  * @file SyntheticLocationsGeneration.cpp
  * @brief This file contains the main function for generating synthetic Locations for ExaGeoStat
  * @version 1.0.0
- * @author Sameh Abdulah* @author Suhas Shankar
- * @author Mary Lai Salvana
  * @author Mahmoud ElKarargy
  * @date 2023-03-04
 **/
@@ -39,7 +37,7 @@ int main(int argc, char **argv) {
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.InitializeArguments(argc, argv);
 
-    // Initialise ExaGeoStat Hardware.
+    // initialize ExaGeoStat Hardware.
     auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
                                        synthetic_data_configurations.GetCoresNumber(),
                                        synthetic_data_configurations.GetGPUsNumbers());

@@ -6,8 +6,8 @@
 # @file CMakeLists.txt
 # @brief This file contains the CMake configuration for the ExaGeoStat library.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-01-30
 
 # Add subdirectories for configurations, data-generators, data-units, and linear-algebra-solvers.

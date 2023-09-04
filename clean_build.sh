@@ -6,7 +6,6 @@
 # @file clean_build.sh
 # @brief This script cleans and builds a software package called ExaGeoStat.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
 # @date 2023-01-30
 

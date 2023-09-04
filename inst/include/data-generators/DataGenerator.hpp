@@ -7,7 +7,6 @@
  * @file DataGenerator.hpp
  * @brief Contains definition for abstract Data Generator Class.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-02-14
 **/

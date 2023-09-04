@@ -7,8 +7,8 @@
  * @file ExaGeoStatDescriptor.hpp
  * @brief Class for creating matrix descriptors used in CHAMELEON and HiCMA libraries.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-07-16
 **/
 

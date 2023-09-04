@@ -7,8 +7,8 @@
  * @file ExaGeoStatData.cpp
  * @brief Contains the implementation of the ExaGeoStatData class.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-07-21
 **/
 

@@ -9,8 +9,8 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateSpacetimeMaternStationary kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-05-10
 **/
 #include <catch2/catch_all.hpp>
@@ -37,24 +37,15 @@ void TEST_KERNEL_GENERATION_UnivariateSpacetimeMaternStationary() {
         synthetic_data_configurations.SetDimension(exageostat::common::DimensionST);
         synthetic_data_configurations.SetTimeSlot(5);
 
-        vector<double> lb{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0};
-        synthetic_data_configurations.SetLowerBounds(lb);
-
-        vector<double> ub{5, 5, 5, 5, 5, 5, 0};
-        synthetic_data_configurations.SetUpperBounds(ub);
-
         vector<double> initial_theta{1, 1, 0.1, 0.5, 0.5, 0.1, 0};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
-
-        vector<double> target_theta{-1, -1, -1, -1, -1, -1, 0};
-        synthetic_data_configurations.SetTargetTheta(target_theta);
 
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         int dts = 2;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
 
-        // Initialise ExaGeoStat Hardware.
+        // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 3, 0);
 
         int seed = 0;

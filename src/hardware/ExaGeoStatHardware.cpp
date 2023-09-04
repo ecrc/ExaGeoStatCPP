@@ -7,8 +7,8 @@
  * @file ExaGeoStatHardware.cpp
  * @brief Contains the implementation of the ExaGeoStatHardware class.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-08-07
 **/
 
@@ -57,7 +57,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
 #ifdef EXAGEOSTAT_USE_HICMA
         if (!this->mpContext) {
             std::cout
-                    << "No initialised context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'"
+                    << "No initialized context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'"
                     << std::endl;
         } else {
             HICMA_Finalize();
@@ -69,7 +69,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
     else {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         if (!this->mpContext) {
-            std::cout << "No initialised context of Chameleon, Please Initialise a hardware first" << std::endl;
+            std::cout << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
         } else {
             CHAMELEON_Finalize()
             this->mpContext = nullptr;
@@ -80,7 +80,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
 
 void *ExaGeoStatHardware::GetContext() const {
     if (!this->mpContext) {
-        throw std::runtime_error("Hardware is not initialised!");
+        throw std::runtime_error("Hardware is not initialized!");
     }
     return this->mpContext;
 }

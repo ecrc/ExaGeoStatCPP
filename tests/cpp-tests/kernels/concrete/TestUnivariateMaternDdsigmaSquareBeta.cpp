@@ -9,8 +9,8 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternDdsigmaSquareBetaBeta kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-05-10
 **/
 
@@ -32,12 +32,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareBeta() {
         int N = 32;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternDdsigmaSquareBeta");
-
-        vector<double> lb{0.1, 0.1, 0.1};
-        synthetic_data_configurations.SetLowerBounds(lb);
-
-        vector<double> ub{5, 5, 5};
-        synthetic_data_configurations.SetUpperBounds(ub);
 
         vector<double> initial_theta{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetInitialTheta(initial_theta);

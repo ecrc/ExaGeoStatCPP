@@ -9,8 +9,8 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternStationary kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-04-29
 **/
 
@@ -37,12 +37,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
         synthetic_data_configurations.SetDimension(Dimension2D);
 
-        vector<double> lb{0.1, 0.1, 0.1};
-        synthetic_data_configurations.SetLowerBounds(lb);
-
-        vector<double> ub{5, 5, 5};
-        synthetic_data_configurations.SetUpperBounds(ub);
-
         vector<double> initial_theta{1, 0.1, 0.5};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
@@ -50,7 +44,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
         int dts = 5;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
-        // Initialise ExaGeoStat Hardware.
+        // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 3, 0);
 
         int seed = 0;

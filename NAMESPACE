@@ -1,1 +1,0 @@
-useDynLib(exageostat, .registration = TRUE)

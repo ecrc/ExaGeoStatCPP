@@ -9,8 +9,8 @@
 # The file sets up variables and finds dependencies required for the project.
 # It also provides options to enable building tests, building examples, building documentation, and enabling a packaging system for distribution.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-01-30
 
 # Set the minimum CMake version required to 3.20
@@ -74,7 +74,7 @@ if (USE_CUDA)
             )
 else ()
     message("-- Build x86 Support")
-    set(gpu_backend CACHE "none" FORCE)
+    set(gpu_backend CACHE STRING "none" FORCE)
     unset(BLA_VENDOR)
 endif ()
 

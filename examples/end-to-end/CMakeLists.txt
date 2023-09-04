@@ -5,7 +5,6 @@
 
 # @file CMakeLists.txt
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
 # @date 2023-01-31
 

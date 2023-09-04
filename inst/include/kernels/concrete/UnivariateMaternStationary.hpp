@@ -7,10 +7,10 @@
  * @file UnivariateMaternStationary.hpp
  * @brief Defines the UnivariateMaternStationary class, a univariate stationary Matern kernel.
  * @version 1.0.0
+ * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @author Suhas Shankar
  * @author Mary Lai Salvana
- * @author Sameh Abdulah
- * @author Mahmoud ElKarargy
  * @date 2023-04-12
  *
  * This file provides the declaration of the UnivariateMaternStationary class, which is a subclass of the Kernel class

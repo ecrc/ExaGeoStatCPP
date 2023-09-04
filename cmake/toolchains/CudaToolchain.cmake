@@ -6,8 +6,8 @@
 # @file CudaToolchain.cmake
 # @brief This file is used to set up the CUDA toolchain for compilation.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-03-12
 
 # Set CUDA compilation options

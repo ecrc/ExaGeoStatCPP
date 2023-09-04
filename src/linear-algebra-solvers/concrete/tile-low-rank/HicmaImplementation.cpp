@@ -7,8 +7,8 @@
  * @file HicmaImplementation.cpp
  * @brief Sets up the HiCMA descriptors needed for the tile low rank computations in ExaGeoStat.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-03-26
 **/
 
@@ -33,10 +33,10 @@ using namespace exageostat::configurations;
 
 template<typename T>
 void
-HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, DescriptorData <T> &aDescriptorData,
+HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, DescriptorData<T> &aDescriptorData,
                                             T *apMeasurementsMatrix) {
 
-    // Check for Initialise the Hicma context.
+    // Check for initialize the Hicma context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
@@ -47,29 +47,29 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, De
     HICMA_request_t request[2] = {HICMA_SUCCESS, HICMA_SUCCESS};
     HICMA_Sequence_Create(&pSequence);
 
-    int N = apConfigurations.GetProblemSize();
-    int lts = apConfigurations.GetLowTileSize();
-    int p_grid = apConfigurations.GetPGrid();
-    int q_grid = apConfigurations.GetQGrid();
-    bool is_OOC = apConfigurations.GetIsOOC();
-    int max_rank = apConfigurations.GetMaxRank();
-    int nZmiss = apConfigurations.GetUnknownObservationsNb();
-    T mean_square_error = apConfigurations.GetMeanSquareError();
-    int approximation_mode = apConfigurations.GetApproximationMode();
-    string actual_observations_path = apConfigurations.GetActualObservationsFilePath();
+    int n = aConfigurations.GetProblemSize();
+    int lts = aConfigurations.GetLowTileSize();
+    int p_grid = aConfigurations.GetPGrid();
+    int q_grid = aConfigurations.GetQGrid();
+    bool is_OOC = aConfigurations.GetIsOOC();
+    int max_rank = aConfigurations.GetMaxRank();
+    int nZmiss = aConfigurations.GetUnknownObservationsNb();
+    T mean_square_error = aConfigurations.GetMeanSquareError();
+    int approximation_mode = aConfigurations.GetApproximationMode();
+    string actual_observations_path = aConfigurations.GetActualObservationsFilePath();
 
     int nZobs_value;
     if (actual_observations_path.empty()) {
-        nZobs_value = N - nZmiss;
+        nZobs_value = n - nZmiss;
     } else {
-        nZobs_value = N;
+        nZobs_value = n;
     }
 
-    apConfigurations.SetKnownObservationsValues(nZobs_value);
-    int nZobs = apConfigurations.GetKnownObservationsValues();
+    aConfigurations.SetKnownObservationsValues(nZobs_value);
+    int nZobs = aConfigurations.GetKnownObservationsValues();
 
     // For distributed system and should be removed
-    T *Zcpy = new T[N];
+    T *Zcpy = new T[n];
 
     int MBC, NBC, MC, NC;
     int MBD, NBD, MD, ND;
@@ -87,8 +87,8 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, De
     if (approximation_mode == 1) {
         MBC = lts;
         NBC = lts;
-        MC = N;
-        NC = N;
+        MC = n;
+        NC = n;
     } else {
         MBC = 1;
         NBC = 1;
@@ -101,7 +101,7 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, De
     //CAD Descriptor
     MBD = lts;
     NBD = lts;
-    MD = N;
+    MD = n;
     ND = MBD;
     aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point, MBD, NBD,
                                   MBD * NBD,
@@ -110,10 +110,10 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, De
     //CUV Descriptor
     MBUV = lts;
     NBUV = 2 * max_rank;
-    int N_over_lts_times_lts = N / lts * lts;
-    if (N_over_lts_times_lts < N) {
+    int N_over_lts_times_lts = n / lts * lts;
+    if (N_over_lts_times_lts < n) {
         MUV = N_over_lts_times_lts + lts;
-    } else if (N_over_lts_times_lts == N) {
+    } else if (N_over_lts_times_lts == n) {
         MUV = N_over_lts_times_lts;
     } else {
         throw range_error("Invalid value. This case should not happen, Please make sure of N and lts values.");
@@ -136,12 +136,12 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, De
                                   MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
 
     aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, nullptr, float_point, lts, lts,
-                                  lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+                                  lts * lts, n, 1, 0, 0, n, 1, p_grid, q_grid);
 
     aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, lts,
                                   lts,
                                   lts * lts,
-                                  N, 1, 0, 0, N, 1, p_grid, q_grid);
+                                  n, 1, 0, 0, n, 1, p_grid, q_grid);
 
     aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr,
                                   float_point, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
@@ -240,32 +240,32 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &apConfigurations, De
 
 template<typename T>
 void
-HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData <T> *apDescriptorData,
+HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData,
                                                          void *apDesc, T *apTheta) {
     throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 void
-HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData <T> *apDescriptorData, void *apDescriptor,
+HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
                                                 int &aTriangularPart,
-                                                dataunits::Locations <T> *apLocation1,
-                                                dataunits::Locations <T> *apLocation2,
-                                                dataunits::Locations <T> *apLocation3,
+                                                dataunits::Locations<T> *apLocation1,
+                                                dataunits::Locations<T> *apLocation2,
+                                                dataunits::Locations<T> *apLocation3,
                                                 T *aLocalTheta, int aDistanceMetric,
-                                                kernels::Kernel <T> *apKernel) {
+                                                kernels::Kernel<T> *apKernel) {
 
-    // Check for Initialise the Hicma context.
+    // Check for initialize the Hicma context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
 
     HICMA_option_t options;
-    HICMA_RUNTIME_options_init(&options, (HICMA_context_t * )
-    this->mpContext,
-            (HICMA_sequence_t *) apDescriptorData->GetSequence(),
-            (HICMA_request_t *) apDescriptorData->GetRequest());
+    HICMA_RUNTIME_options_init(&options, (HICMA_context_t *)
+                                       this->mpContext,
+                               (HICMA_sequence_t *) apDescriptorData->GetSequence(),
+                               (HICMA_request_t *) apDescriptorData->GetRequest());
     int tempmm, tempnn;
 
     auto *HICMA_apDescriptor = (HICMA_desc_t *) apDescriptor;
@@ -293,55 +293,55 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData <T> *apDescriptor
                                STARPU_VALUE, &m0, sizeof(int),
                                STARPU_VALUE, &n0, sizeof(int),
                                STARPU_W, (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_apDescriptor, m, n),
-                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations < T > *),
-                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations < T > *),
-                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations < T > *),
+                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations<T> *),
+                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations<T> *),
+                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations<T> *),
                                STARPU_VALUE, &aLocalTheta, sizeof(double *),
                                STARPU_VALUE, &aDistanceMetric, sizeof(int),
-                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel < T > *),
+                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel<T> *),
                                0);
         }
     }
     HICMA_RUNTIME_options_ws_free(&options);
-    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t * )
-    this->mpContext);
+    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t *)
+            this->mpContext);
 
     HICMA_Sequence_Wait((HICMA_sequence_t *) apDescriptorData->GetSequence());
 
 }
 
 template<typename T>
-void HicmaImplementation<T>::GenerateObservationsVector(Configurations &apConfigurations,
-                                                        DescriptorData <T> *apDescriptorData,
+void HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigurations,
+                                                        DescriptorData<T> *apDescriptorData,
                                                         BaseDescriptor aDescriptor,
-                                                        Locations <T> *apLocation1, Locations <T> *apLocation2,
-                                                        Locations <T> *apLocation3, int aDistanceMetric) {
+                                                        Locations<T> *apLocation1, Locations<T> *apLocation2,
+                                                        Locations<T> *apLocation3, int aDistanceMetric) {
 
-    // Check for Initialise the Hicma context.
+    // Check for initialize the Hicma context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStat<double/float>::ExaGeoStatInitializeHardware(configurations)'.");
     }
-    int N = apConfigurations.GetProblemSize();
-    int seed = apConfigurations.GetSeed();
+    int n = aConfigurations.GetProblemSize();
+    int seed = aConfigurations.GetSeed();
     int iseed[4] = {seed, seed, seed, 1};
     auto *pDescriptor = aDescriptor.hicma_desc;
 
     //nomral random generation of e -- ei~N(0, 1) to generate Z
-    auto *Nrand = new T[N];
-    LAPACKE_dlarnv(3, iseed, N, (double *) Nrand);
+    auto *Nrand = new T[n];
+    LAPACKE_dlarnv(3, iseed, n, (double *) Nrand);
 
 
     //Generate the co-variance matrix C
-    auto *theta = new T[apConfigurations.GetInitialTheta().size()];
-    for (int i = 0; i < apConfigurations.GetInitialTheta().size(); i++) {
-        theta[i] = apConfigurations.GetInitialTheta()[i];
+    auto *theta = new T[aConfigurations.GetInitialTheta().size()];
+    for (int i = 0; i < aConfigurations.GetInitialTheta().size(); i++) {
+        theta[i] = aConfigurations.GetInitialTheta()[i];
     }
 
     VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
     int upper_lower = EXAGEOSTAT_LOWER;
     // Register and create a kernel object
-    Kernel <T> *kernel = exageostat::plugins::PluginRegistry < Kernel < T >> ::Create(apConfigurations.GetKernelName());
+    Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T >>::Create(aConfigurations.GetKernelName());
 
     this->CovarianceMatrixCodelet(apDescriptorData, pDescriptor, upper_lower, apLocation1, apLocation2, apLocation3,
                                   theta,
@@ -360,15 +360,15 @@ void HicmaImplementation<T>::GenerateObservationsVector(Configurations &apConfig
 
 template<typename T>
 void
-HicmaImplementation<T>::CopyDescriptorZ(DescriptorData <T> *apDescriptorData, void *apDescriptor, T *apDoubleVector) {
+HicmaImplementation<T>::CopyDescriptorZ(DescriptorData<T> *apDescriptorData, void *apDescriptor, T *apDoubleVector) {
     throw std::runtime_error("unimplemented for now");
 }
 
 
 template<typename T>
 T HicmaImplementation<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &apHardware,
-                                            dataunits::ExaGeoStatData <T> &apData,
-                                            configurations::Configurations &apConfigurations, const double *theta,
+                                            dataunits::ExaGeoStatData<T> &apData,
+                                            configurations::Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix) {
 
     throw std::runtime_error("unimplemented for now");

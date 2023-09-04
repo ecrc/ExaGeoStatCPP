@@ -6,8 +6,8 @@
 # @file ImportCuSolver.cmake
 # @brief This script sets CUDA libraries and adds CuSolver, CuBlas, and CuBlasLt to the list of libraries.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-03-13
 
 set(cudart_lib CUDA::cudart)

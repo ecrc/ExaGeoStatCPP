@@ -7,8 +7,8 @@
  * @file ExaGeoStatData.hpp
  * @brief Contains the definition of the ExaGeoStatData class.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-07-19
 **/
 

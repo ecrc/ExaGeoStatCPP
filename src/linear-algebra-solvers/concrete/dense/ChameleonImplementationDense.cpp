@@ -7,8 +7,8 @@
  * @file ChameleonImplementationDense.cpp
  * @brief Dense Tile implementation of linear algebra methods.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-03-20
 **/
 
@@ -38,24 +38,25 @@ using namespace exageostat::configurations;
 // Define a method to set up the Chameleon descriptors
 template<typename T>
 void ChameleonImplementationDense<T>::InitiateDescriptors(Configurations &aConfigurations,
-                                                          DescriptorData<T> &aDescriptorData, T *apMeasurementsMatrix) {
+                                                          DescriptorData <T> &aDescriptorData,
+                                                          T *apMeasurementsMatrix) {
 
 
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
     // Get the problem size and other configuration parameters
-    int N = aConfigurations.GetProblemSize();
+    int n = aConfigurations.GetProblemSize();
     int dts = aConfigurations.GetDenseTileSize();
     int p_grid = aConfigurations.GetPGrid();
     int q_grid = aConfigurations.GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
 
     // For distributed system and should be removed
-    T *Zcpy = new T[N];
+    T *Zcpy = new T[n];
 
     // Create a Chameleon sequence, if not initialized before through the same descriptors
     if (!aDescriptorData.GetSequence()) {
@@ -77,12 +78,12 @@ void ChameleonImplementationDense<T>::InitiateDescriptors(Configurations &aConfi
     }
 
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C, is_OOC, nullptr, float_point, dts, dts,
-                                  dts * dts, N, N, 0, 0, N, N, p_grid, q_grid);
+                                  dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, apMeasurementsMatrix,
                                   float_point, dts, dts,
-                                  dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+                                  dts * dts, n, 1, 0, 0, n, 1, p_grid, q_grid);
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, dts,
-                                  dts, dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+                                  dts, dts * dts, n, 1, 0, 0, n, 1, p_grid, q_grid);
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr, float_point,
                                   dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
 
@@ -93,20 +94,20 @@ void ChameleonImplementationDense<T>::InitiateDescriptors(Configurations &aConfi
         auto *CHAM_descC = aDescriptorData.GetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C11, is_OOC, nullptr, float_point, dts,
                                       dts,
-                                      dts * dts, N, N, 0, 0, CHAM_descC->m / 2, CHAM_descC->n / 2, p_grid, q_grid);
+                                      dts * dts, n, n, 0, 0, CHAM_descC->m / 2, CHAM_descC->n / 2, p_grid, q_grid);
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12, is_OOC, nullptr, float_point, dts,
                                       dts,
-                                      dts * dts, N, N, CHAM_descC->m / 2, 0, CHAM_descC->m / 2, CHAM_descC->n / 2,
+                                      dts * dts, n, n, CHAM_descC->m / 2, 0, CHAM_descC->m / 2, CHAM_descC->n / 2,
                                       p_grid, q_grid);
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22, is_OOC, nullptr, float_point, dts,
                                       dts,
-                                      dts * dts, N, N, CHAM_descC->m / 2, CHAM_descC->n / 2, CHAM_descC->m / 2,
+                                      dts * dts, n, n, CHAM_descC->m / 2, CHAM_descC->n / 2, CHAM_descC->m / 2,
                                       CHAM_descC->n / 2, p_grid, q_grid);
 
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_1, is_OOC, nullptr, float_point, dts,
-                                      dts, dts * dts, N / 2, 1, 0, 0, N / 2, 1, p_grid, q_grid);
+                                      dts, dts * dts, n / 2, 1, 0, 0, n / 2, 1, p_grid, q_grid);
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_2, is_OOC, nullptr, float_point, dts,
-                                      dts, dts * dts, N / 2, 1, 0, 0, N / 2, 1, p_grid, q_grid);
+                                      dts, dts * dts, n / 2, 1, 0, 0, n / 2, 1, p_grid, q_grid);
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1, is_OOC, nullptr,
                                       float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2, is_OOC, nullptr,
@@ -120,25 +121,25 @@ void ChameleonImplementationDense<T>::InitiateDescriptors(Configurations &aConfi
 
 template<typename T>
 void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations &aConfigurations,
-                                                                 DescriptorData<T> *apDescriptorData,
-                                                                 BaseDescriptor aDescriptor, Locations<T> *apLocation1,
-                                                                 Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                                 DescriptorData <T> *apDescriptorData,
+                                                                 BaseDescriptor aDescriptor, Locations <T> *apLocation1,
+                                                                 Locations <T> *apLocation2, Locations <T> *apLocation3,
                                                                  int aDistanceMetric) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
-    const int N = aConfigurations.GetProblemSize();
+    const int n = aConfigurations.GetProblemSize();
     int seed = aConfigurations.GetSeed();
     int iseed[4] = {seed, seed, seed, 1};
     auto *p_descriptor = aDescriptor.chameleon_desc;
 
     //nomral random generation of e -- ei~N(0, 1) to generate Z
-    auto *Nrand = new T[N];
-    LAPACKE_dlarnv(3, iseed, N, (double *) Nrand);
+    auto *Nrand = new T[n];
+    LAPACKE_dlarnv(3, iseed, n, (double *) Nrand);
 
     //Generate the co-variance matrix C
     auto *theta = new T[aConfigurations.GetInitialTheta().size()];
@@ -149,7 +150,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations 
     VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
     int upper_lower = EXAGEOSTAT_LOWER;
     // Register and create a kernel object
-    Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T>>::Create(aConfigurations.GetKernelName());
+    Kernel <T> *kernel = exageostat::plugins::PluginRegistry < Kernel < T >> ::Create(aConfigurations.GetKernelName());
 
     this->CovarianceMatrixCodelet(apDescriptorData, p_descriptor, upper_lower, apLocation1, apLocation2, apLocation3,
                                   theta, aDistanceMetric, kernel);
@@ -187,16 +188,16 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations 
         T *pMatrix;
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
-        pMatrix = new T[N];
+        pMatrix = new T[n];
         CHAMELEON_Tile_to_Lapack( CHAM_descriptorZ, pMatrix, N);
         if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &N, &P, aConfigurations->GetLoggerPath(), apLocation1);
+            DiskWriter<T>::WriteVectorsToDisk(pMatrix, &n, &P, aConfigurations->GetLoggerPath(), apLocation1);
         }
         delete[] pMatrix;
 #else
         pMatrix = (T *) CHAM_descriptorZ->mat;
         string path = aConfigurations.GetLoggerPath();
-        DiskWriter<T>::WriteVectorsToDisk(*pMatrix, N, P, path, *apLocation1);
+        DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
 #endif
         VERBOSE(" Done.\n")
     }
@@ -208,7 +209,7 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations 
 
 template<typename T>
 T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware,
-                                                     ExaGeoStatData<T> &apData, Configurations &apConfigurations,
+                                                     ExaGeoStatData <T> &apData, Configurations &apConfigurations,
                                                      const double *theta, T *apMeasurementsMatrix) {
 
     this->SetContext(aHardware.GetContext());
@@ -310,7 +311,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
             kernel_name == "bivariate_matern_parsimonious2_profile") {
 
             int upper_lower = EXAGEOSTAT_UPPER_LOWER;
-            kernels::Kernel<T> *kernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T >>::Create(
+            kernels::Kernel <T> *kernel = exageostat::plugins::PluginRegistry < kernels::Kernel < T >> ::Create(
                     kernel_name);
             num_params = kernel->GetParametersNumbers();
             univariate_theta = new T[3];
@@ -360,7 +361,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
         } else {
             int upper_lower = EXAGEOSTAT_LOWER;
 
-            kernels::Kernel<T> *kernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T >>::Create(
+            kernels::Kernel <T> *kernel = exageostat::plugins::PluginRegistry < kernels::Kernel < T >> ::Create(
                     kernel_name);
             num_params = kernel->GetParametersNumbers();
 
@@ -528,20 +529,20 @@ int ChameleonImplementationDense<T>::ExaGeoStatGemmTile(common::Trans aTransA, c
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::CopyDescriptorZ(DescriptorData<T> *apDescriptorData, void *apDescriptor,
+ChameleonImplementationDense<T>::CopyDescriptorZ(DescriptorData <T> *apDescriptorData, void *apDescriptor,
                                                  T *apDoubleVector) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
-                         (RUNTIME_request_t *) apDescriptorData->GetRequest());
+    RUNTIME_options_init(&options, (CHAM_context_t * )
+    this->mpContext,
+            (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
+            (RUNTIME_request_t *) apDescriptorData->GetRequest());
 
     int m, m0;
     int tempmm;
@@ -570,15 +571,15 @@ template<typename T>
 int ChameleonImplementationDense<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
                                                                    void *apDescDet) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
+    RUNTIME_options_init(&options, (CHAM_context_t * )
+    this->mpContext,
+            (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
 
     int m;
     int tempmm;
@@ -596,24 +597,24 @@ int ChameleonImplementationDense<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA
                            0);
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *)
-            this->mpContext);
+    RUNTIME_options_finalize(&options, (CHAM_context_t * )
+    this->mpContext);
     return CHAMELEON_SUCCESS;
 }
 
 template<typename T>
 int ChameleonImplementationDense<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
                                                                     void *apSequence, void *apRequest) {
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
+    RUNTIME_options_init(&options, (CHAM_context_t * )
+    this->mpContext,
+            (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
 
     int m, m0;
     int tempmm;
@@ -638,30 +639,30 @@ int ChameleonImplementationDense<T>::ExaGeoStaStrideVectorTileAsync(void *apDesc
 
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *)
-            this->mpContext);
+    RUNTIME_options_finalize(&options, (CHAM_context_t * )
+    this->mpContext);
     return CHAMELEON_SUCCESS;
 }
 
 template<typename T>
-void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
+void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData <T> *apDescriptorData, void *apDescriptor,
                                                               int &aTriangularPart,
-                                                              dataunits::Locations<T> *apLocation1,
-                                                              dataunits::Locations<T> *apLocation2,
-                                                              dataunits::Locations<T> *apLocation3, T *aLocalTheta,
-                                                              int aDistanceMetric, kernels::Kernel<T> *apKernel) {
+                                                              dataunits::Locations <T> *apLocation1,
+                                                              dataunits::Locations <T> *apLocation2,
+                                                              dataunits::Locations <T> *apLocation3, T *aLocalTheta,
+                                                              int aDistanceMetric, kernels::Kernel <T> *apKernel) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
-                         (RUNTIME_request_t *) apDescriptorData->GetRequest());
+    RUNTIME_options_init(&options, (CHAM_context_t * )
+    this->mpContext,
+            (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
+            (RUNTIME_request_t *) apDescriptorData->GetRequest());
 
     int tempmm, tempnn;
     auto *CHAM_apDescriptor = (CHAM_desc_t *) apDescriptor;
@@ -690,38 +691,38 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData<T> 
                                STARPU_VALUE, &m0, sizeof(int),
                                STARPU_VALUE, &n0, sizeof(int),
                                STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(CHAM_apDescriptor, m, n),
-                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations<T> *),
-                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations<T> *),
-                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations<T> *),
+                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations < T > *),
+                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations < T > *),
+                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations < T > *),
                                STARPU_VALUE, &aLocalTheta, sizeof(double *),
                                STARPU_VALUE, &aDistanceMetric, sizeof(int),
-                               STARPU_VALUE, &apKernel, sizeof(kernels::Kernel<T> *),
+                               STARPU_VALUE, &apKernel, sizeof(kernels::Kernel < T > *),
                                0);
         }
     }
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *)
-            this->mpContext);
+    RUNTIME_options_finalize(&options, (CHAM_context_t * )
+    this->mpContext);
 
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apDescriptorData->GetSequence());
 }
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData<T> *apDescriptorData, void *apDesc,
+ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData <T> *apDescriptorData, void *apDesc,
                                                                   T *apTheta) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
-                         (RUNTIME_request_t *) apDescriptorData->GetRequest());
+    RUNTIME_options_init(&options, (CHAM_context_t * )
+    this->mpContext,
+            (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
+            (RUNTIME_request_t *) apDescriptorData->GetRequest());
 
     int m, m0;
     int tempmm;
@@ -750,7 +751,7 @@ ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData
     }
 
     RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *)
-            this->mpContext);
+    RUNTIME_options_finalize(&options, (CHAM_context_t * )
+    this->mpContext);
     CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apDescriptorData->GetSequence());
 }

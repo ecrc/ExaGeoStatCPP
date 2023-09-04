@@ -7,8 +7,8 @@
  * @file SyntheticGenerator.hpp
  * @brief A class for generating synthetic data.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-02-14
 **/
 
@@ -39,15 +39,6 @@ namespace exageostat {
                  *
                  */
                 static SyntheticGenerator<T> *GetInstance();
-
-                /**
-                 * @brief Initialize a vector with a given size to contain zeros.
-                 * @param[out] aTheta A reference to the vector to initialize.
-                 * @param[in] aSize The size of the vector to initialize.
-                 * @return A reference to the initialized vector.
-                 *
-                 */
-                static std::vector<double> &InitTheta(std::vector<double> &aTheta, const int &aSize);
 
                 /**
                  * @brief Generates the data locations.

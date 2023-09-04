@@ -2,7 +2,7 @@
  * @file ModelingDataHolders.hpp
  * @brief This file contains the definition of the mModelingData struct, which contains all the data needed for modeling.
  * @version 1.0.0
- * @author Sameh Abdulah
+ * @author Mahmoud ElKarargy
  * @date 2023-08-24
 **/
 

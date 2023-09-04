@@ -9,8 +9,8 @@
  * @details These functions include so far the VERBOSE macro that prints a message
  * to the console if the verbosity setting is set to "verbose mode.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-03-21
 **/
 

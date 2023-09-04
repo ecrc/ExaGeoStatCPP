@@ -7,8 +7,8 @@
  * @file Configurations.cpp
  * @brief This file defines the Configurations class which stores the configuration parameters for ExaGeoStat.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-01-31
 **/
 
@@ -52,7 +52,7 @@ Configurations::Configurations() {
     SetInitialTheta(theta);
     SetLowerBounds(theta);
     SetUpperBounds(theta);
-    SetTargetTheta(theta);
+    SetEstimatedTheta(theta);
     SetP(1);
     SetSeed(0);
     SetLogger(false);
@@ -131,29 +131,20 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
             } else if (argument_name == "--logpath" || argument_name == "--log_path" ||
                        argument_name == "--logPath") {
                 SetLoggerPath(argument_value);
-            } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
-                       argument_name == "--iTheta") {
-                std::vector<double> theta = ParseTheta(argument_value);
-                SetInitialTheta(theta);
-            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
-                std::vector<double> theta = ParseTheta(argument_value);
-                SetLowerBounds(theta);
-                SetStartingTheta(theta);
-            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
-                std::vector<double> theta = ParseTheta(argument_value);
-                SetUpperBounds(theta);
             } else {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" ||
                       argument_name == "--dim" || argument_name == "--Dim" || argument_name == "--ZmissNumber" ||
                       argument_name == "--Zmiss" || argument_name == "--initial_theta" ||
                       argument_name == "--itheta" || argument_name == "--iTheta" ||
-                      argument_name == "--target_theta" || argument_name == "--ttheta" ||
+                      argument_name == "--estimated_theta" || argument_name == "--etheta" ||
                       argument_name == "--tTheta" || argument_name == "--iterations" ||
                       argument_name == "--Iterations" ||
                       argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
                       argument_name == "--tolerance" ||
                       argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
-                      argument_name == "--log_file_name" || argument_name == "--logFileName")) {
+                      argument_name == "--log_file_name" || argument_name == "--logFileName" ||
+                      argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds" ||
+                      argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds")) {
                     cout << "!! " << argument_name << " !!" << endl;
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -228,10 +219,14 @@ void Configurations::InitializeDataGenerationArguments() {
                 SetDimension(CheckDimensionValue(argument_value));
             } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
                 SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
-            } else if (argument_name == "--target_theta" || argument_name == "--ttheta" ||
-                       argument_name == "--tTheta") {
+            } else if (argument_name == "--estimated_theta" || argument_name == "--etheta" ||
+                       argument_name == "--eTheta") {
                 std::vector<double> theta = ParseTheta(argument_value);
-                SetTargetTheta(theta);
+                SetEstimatedTheta(theta);
+            } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
+                       argument_name == "--iTheta") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetInitialTheta(theta);
             }
         } else {
             if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
@@ -248,6 +243,7 @@ void Configurations::InitializeDataModelingArguments() {
     string argument_name;
     string argument_value;
     int equal_sign_Idx;
+
     // Loop through the arguments that are specific for data generation.
     for (int i = 1; i < this->mArgC; ++i) {
         argument = this->mpArgV[i];
@@ -261,6 +257,13 @@ void Configurations::InitializeDataModelingArguments() {
             // Check the argument name and set the corresponding value
             if (argument_name == "--distance_metric" || argument_name == "--distanceMetric") {
                 ParseDistanceMetric(argument_value);
+            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetLowerBounds(theta);
+                SetStartingTheta(theta);
+            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
+                std::vector<double> theta = ParseTheta(argument_value);
+                SetUpperBounds(theta);
             } else if (argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations") {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
             } else if (argument_name == "--tolerance") {
@@ -299,7 +302,7 @@ void Configurations::PrintUsage() {
     cout << "\t\t --olb=value : Lower bounds for optimization." << endl;
     cout << "\t\t --oub=value : Upper bounds for optimization." << endl;
     cout << "\t\t --itheta=value : Initial theta parameters for optimization." << endl;
-    cout << "\t\t --ttheta=value : Target kernel parameters for optimization." << endl;
+    cout << "\t\t --etheta=value : Estimated kernel parameters for optimization." << endl;
     cout << "\t\t --seed=value : Seed value for random number generation." << endl;
     cout << "\t\t --run_mode=value : Run mode whether verbose/not." << endl;
     cout << "\t\t --log_path=value : Path to log file." << endl;
@@ -501,6 +504,23 @@ void Configurations::InitLog() {
     }
     fprintf(GetFileLogPath(), "\t\tlog file is generated by ExaGeoStat application\n");
     fprintf(GetFileLogPath(), "\t\t============================================\n");
+}
+
+std::vector<double> &Configurations::InitTheta(std::vector<double> &aTheta, const int &size) {
+
+    // If null, this mean user have not passed the values arguments, Make values equal -1
+    if (aTheta.empty()) {
+        for (int i = 0; i < size; i++) {
+            aTheta.push_back(-1);
+        }
+    } else if (aTheta.size() < size) {
+
+        // Also allocate new memory as maybe they are not the same size.
+        for (size_t i = aTheta.size(); i < size; i++) {
+            aTheta.push_back(0);
+        }
+    }
+    return aTheta;
 }
 
 void Configurations::PrintSummary() {

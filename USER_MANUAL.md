@@ -222,9 +222,9 @@ This is done by the Configurations module. You have two ways to set your argumen
     synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
     synthetic_data_configurations.SetPrecision(exageostat::common::double);
 
-### Initialise the Hardware
+### initialize the Hardware
 
-To use any operations you need to initialise the hardware with your selection of number of cores and gpus.
+To use any operations you need to initialize the hardware with your selection of number of cores and gpus.
 ```c++
 auto hardware = ExaGeoStatHardware(computation, number of cores, number of gpus);
 ```

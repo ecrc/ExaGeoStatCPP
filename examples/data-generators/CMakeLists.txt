@@ -6,7 +6,6 @@
 # @file CMakeLists.txt
 # @brief CMake file for building the Example_Synthetic_Data_Generation executable.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
 # @date 2023-03-04
 

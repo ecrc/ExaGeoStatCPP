@@ -8,7 +8,6 @@
  * @brief This program models data using the ExaGeoStat library.
  * @details The program takes command line arguments and example variables to configure the data modeling.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/
@@ -51,8 +50,8 @@ int main(int argc, char **argv) {
     configurations.SetProblemSize(N);
     configurations.SetDenseTileSize(dts);
 
-    // Initialise ExaGeoStat hardware with the selected number of cores and  gpus.
-    cout << "** Initialise ExaGeoStat hardware ** " << endl;
+    // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
+    cout << "** initialize ExaGeoStat hardware ** " << endl;
     auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
 
     //Data Setup

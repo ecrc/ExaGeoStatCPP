@@ -9,8 +9,8 @@
  * @brief This file contains common definitions used in ExaGeoStat software package.
  * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
  * A macro for instantiating template classes with supported types; and a set of available kernels.
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-03-21
 **/
 
@@ -23,6 +23,7 @@
 #include <map>
 #include <set>
 #include <filesystem>
+#include <unordered_map>
 
 /**
  * @def EXAGEOSTAT_INSTANTIATE_CLASS
@@ -250,6 +251,21 @@ namespace exageostat {
                 }
             }
             return kernelNames;
+        }();
+
+        static std::unordered_map<std::string, int> KernelPValues = []() {
+            std::unordered_map<std::string, int> kernelP;
+
+            for (const std::string &kernelName: availableKernels) {
+                if (kernelName.rfind("Uni", 0) == 0) {
+                    kernelP[kernelName] = 1;
+                } else if (kernelName.rfind("Bi", 0) == 0) {
+                    kernelP[kernelName] = 2;
+                } else if (kernelName.rfind("Tri", 0) == 0) {
+                    kernelP[kernelName] = 3;
+                }
+            }
+            return kernelP;
         }();
 
     }//namespace common

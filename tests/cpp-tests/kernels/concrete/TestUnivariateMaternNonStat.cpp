@@ -9,8 +9,8 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternNonStat kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-05-10
 **/
 
@@ -37,12 +37,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
         synthetic_data_configurations.SetKernelName("UnivariateMaternNonStat");
         synthetic_data_configurations.SetDimension(Dimension2D);
 
-        vector<double> lb{0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
-        synthetic_data_configurations.SetLowerBounds(lb);
-
-        vector<double> ub{5, 5, 5, 5, 5, 5, 5, 5};
-        synthetic_data_configurations.SetUpperBounds(ub);
-
         vector<double> initial_theta{0.04, 1.57, 0.33, -1, 0.8, 0.1, -0.5, 0.5};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
@@ -50,7 +44,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
         int dts = 3;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
-        // Initialise ExaGeoStat Hardware.
+        // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 3, 0);
 
         int seed = 0;

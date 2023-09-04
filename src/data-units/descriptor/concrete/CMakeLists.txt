@@ -7,8 +7,8 @@
 # @version 1.0.0
 # @brief CMake build script for the descriptors library, which includes the concrete implementations of the
 # Descriptors class based on the enabled libraries (HiCMA or Chameleon).
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-03-20
 
 # Include the concrete implementations of the Descriptor class based on the enabled libraries (HiCMA or Chameleon)

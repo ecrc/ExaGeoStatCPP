@@ -7,10 +7,10 @@
  * @file BivariateMaternFlexible.hpp
  * @brief Defines the BivariateMaternFlexible class, a Bivariate Matern Flexible kernel.
  * @version 1.0.0
+ * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @author Suhas Shankar
  * @author Mary Lai Salvana
- * @author Sameh Abdulah
- * @author Mahmoud ElKarargy
  * @date 2023-04-14
 **/
 

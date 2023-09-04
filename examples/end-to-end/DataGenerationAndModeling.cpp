@@ -8,7 +8,6 @@
  * @brief This program generates synthetic data then performs data modeling on generated data using the ExaGeoStat library.
  * @details The program takes command line arguments to configure the data generation.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/
@@ -37,7 +36,7 @@ int main(int argc, char **argv) {
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    cout << "** Initialise ExaGeoStat hardware ** " << endl;
+    cout << "** initialize ExaGeoStat hardware ** " << endl;
     auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers()); // Or you could use configurations.GetComputation().
     cout << "** Create ExaGeoStat data ** " << endl;

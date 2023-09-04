@@ -7,8 +7,8 @@
  * @file DescriptorData.cpp
  * @brief Contains the definition of the DescriptorData class.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-07-18
 **/
 
@@ -22,7 +22,7 @@ template<typename T>
 DescriptorData<T>::DescriptorData(const hardware::ExaGeoStatHardware &aHardware) {
     this->mpContext = aHardware.GetContext();
     if (!this->mpContext) {
-        throw std::runtime_error("Can create descriptors, Hardware is not initialised!");
+        throw std::runtime_error("Can create descriptors, Hardware is not initialized!");
     }
 }
 

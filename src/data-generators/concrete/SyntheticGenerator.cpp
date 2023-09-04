@@ -7,8 +7,8 @@
  * @file SyntheticGenerator.cpp
  * @brief Implementation of the SyntheticGenerator class
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
  * @date 2023-02-14
 **/
 
@@ -51,21 +51,8 @@ Locations<T> *SyntheticGenerator<T>::CreateLocationsData(configurations::Configu
     aConfigurations.SetP(kernel->GetPValue());
     int parameters_number = kernel->GetParametersNumbers();
 
-    // Set theta's values.
-    aConfigurations.SetLowerBounds(InitTheta(aConfigurations.GetLowerBounds(), parameters_number));
-    aConfigurations.SetUpperBounds(InitTheta(aConfigurations.GetUpperBounds(), parameters_number));
-    aConfigurations.SetInitialTheta(InitTheta(aConfigurations.GetInitialTheta(), parameters_number));
-    aConfigurations.SetTargetTheta(InitTheta(aConfigurations.GetTargetTheta(), parameters_number));
-
-    // Set starting theta with the lower bounds values
-    aConfigurations.SetStartingTheta(aConfigurations.GetLowerBounds());
-    for (int i = 0; i < parameters_number; i++) {
-        if (aConfigurations.GetTargetTheta()[i] != -1) {
-            aConfigurations.GetLowerBounds()[i] = aConfigurations.GetTargetTheta()[i];
-            aConfigurations.GetUpperBounds()[i] = aConfigurations.GetTargetTheta()[i];
-            aConfigurations.GetStartingTheta()[i] = aConfigurations.GetTargetTheta()[i];
-        }
-    }
+    // Set initial theta values.
+    aConfigurations.SetInitialTheta(Configurations::InitTheta(aConfigurations.GetInitialTheta(), parameters_number));
 
     // Generate Locations.
     int N = aConfigurations.GetProblemSize() / kernel->GetPValue();
@@ -215,24 +202,6 @@ uint64_t SyntheticGenerator<T>::ReverseSpreadBits(uint64_t aInputByte) {
 template<typename T>
 bool SyntheticGenerator<T>::CompareUint64(const uint64_t &aFirstValue, const uint64_t &aSecondValue) {
     return aFirstValue < aSecondValue;
-}
-
-template<typename T>
-std::vector<double> &SyntheticGenerator<T>::InitTheta(std::vector<double> &aTheta, const int &size) {
-
-    // If null, this mean user have not passed the values arguments, Make values equal -1
-    if (aTheta.empty()) {
-        for (int i = 0; i < size; i++) {
-            aTheta.push_back(-1);
-        }
-    } else if (aTheta.size() < size) {
-
-        // Also allocate new memory as maybe they are not the same size.
-        for (size_t i = aTheta.size(); i < size; i++) {
-            aTheta.push_back(0);
-        }
-    }
-    return aTheta;
 }
 
 template<typename T>

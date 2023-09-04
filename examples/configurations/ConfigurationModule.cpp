@@ -9,7 +9,6 @@
 * @details This file demonstrates how to use the Configurations class from the ExaGeoStat software package
 * to obtain user-defined configurations for generating synthetic data.
 * @version 1.0.0
-* @author Sameh Abdulah
 * @author Mahmoud ElKarargy
 * @date 2023-01-31
 *
@@ -44,9 +43,9 @@ int main(int argc, char **argv) {
     cout << "** These are some examples of the common arguments needed between all modules of ExaGeoStat **" << endl;
 
     // Obtain user-defined configurations and print them to the console.
-    int N = configurations.GetProblemSize();
-    if (N != 0) {
-        cout << "You set N by: " << N << endl;
+    int n = configurations.GetProblemSize();
+    if (n != 0) {
+        cout << "You set N by: " << n << endl;
     }
 
     string kernel = configurations.GetKernelName();

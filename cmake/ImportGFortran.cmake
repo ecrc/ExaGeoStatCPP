@@ -6,8 +6,8 @@
 # @file ImportGFortran.cmake
 # @brief Defines the gfortran library for use in the project.
 # @version 1.0.0
-# @author Sameh Abdulah
 # @author Mahmoud ElKarargy
+# @author Sameh Abdulah
 # @date 2023-03-14
 
 # Export the list of libraries, including gfortran, for use in the project.
