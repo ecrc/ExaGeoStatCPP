@@ -11,130 +11,89 @@ pipeline {
     }
 
     stages {
-        stage('openblas') {
-            agent { label 'jenkinsfile' }
-            stages {
-                stage ('build with Chameleon') {
-                    steps {
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Configure and build
-                            ####################################################
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            ####################################################
+        stage ('Chameleon') {
+            steps {
+                sh '''#!/bin/bash -le
+                    ####################################################
+                    # Configure and build
+                    ####################################################
+                    module purge
+                    module load gcc/10.2.0
+                    module load cmake/3.21.2
+                    ####################################################
+                    # BLAS/LAPACK
+                    ####################################################
+                    module load mkl/2020.0.166
+                    ####################################################
 
-                            ./config.sh -t -e -C
-                            ./clean_build.sh
-                        '''
-                    }
-                }
-                stage ('test with Chameleon') {
-                    steps {
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Run tester
-                            ####################################################
-                            echo "========================================"
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            cd bin/
-                            ctest --no-compress-output --verbose
-                            '''
-                    }
-                }
+                    set -x
+                    ./config.sh -t -e -C
+                    ./clean_build.sh
+                '''
             }
         }
-        stage ('mkl') {
-            stages {
-                stage ('build with Chameleon') {
-                    steps {
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Configure and build
-                            ####################################################
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            ####################################################
-                            # BLAS/LAPACK
-                            ####################################################
-                            module load mkl/2020.0.166
-                            ####################################################
+        stage ('test Chameleon') {
+            steps {
 
-                            set -x
-                            ./config.sh -t -e -C
-                            ./clean_build.sh
-                        '''
-                    }
-                }
-                stage ('test with Chameleon') {
-                    steps {
-
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Run tester
-                            ####################################################
-                            echo "========================================"
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            ####################################################
-                            # BLAS/LAPACK
-                            ####################################################
-                            module load mkl/2020.0.166
-                            cd bin/
-                            ctest --no-compress-output --verbose
-                            '''
-                    }
-                }
-                stage ('build with HiCMA') {
-                    steps {
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Configure and build
-                            ####################################################
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            ####################################################
-                            # BLAS/LAPACK
-                            ####################################################
-                            module load mkl/2020.0.166
-                            ####################################################
-
-                            set -x
-                            ./config.sh -t -e -H
-                            ./clean_build.sh
-                        '''
-                    }
-                }
-                stage ('test with HiCMA') {
-                    steps {
-
-                        sh '''#!/bin/bash -le
-                            ####################################################
-                            # Run tester
-                            ####################################################
-                            echo "========================================"
-                            module purge
-                            module load gcc/10.2.0
-                            module load cmake/3.21.2
-                            ####################################################
-                            # BLAS/LAPACK
-                            ####################################################
-                            module load mkl/2020.0.166
-                            module load gsl/2.6-gcc-10.2.0
-                            cd bin/
-                            ctest --no-compress-output --verbose
-                            '''
-                    }
-                }
+                sh '''#!/bin/bash -le
+                    ####################################################
+                    # Run tester
+                    ####################################################
+                    echo "========================================"
+                    module purge
+                    module load gcc/10.2.0
+                    module load cmake/3.21.2
+                    ####################################################
+                    # BLAS/LAPACK
+                    ####################################################
+                    module load mkl/2020.0.166
+                    cd bin/
+                    ctest --no-compress-output --verbose
+                    '''
             }
         }
+        stage ('HiCMA') {
+            steps {
+                sh '''#!/bin/bash -le
+                    ####################################################
+                    # Configure and build
+                    ####################################################
+                    module purge
+                    module load gcc/10.2.0
+                    module load cmake/3.21.2
+                    ####################################################
+                    # BLAS/LAPACK
+                    ####################################################
+                    module load mkl/2020.0.166
+                    ####################################################
 
+                    set -x
+                    ./config.sh -t -e -H
+                    ./clean_build.sh
+                '''
+            }
+        }
+        stage ('test HiCMA') {
+            steps {
+
+                sh '''#!/bin/bash -le
+                    ####################################################
+                    # Run tester
+                    ####################################################
+                    echo "========================================"
+                    module purge
+                    module load gcc/10.2.0
+                    module load cmake/3.21.2
+                    ####################################################
+                    # BLAS/LAPACK
+                    ####################################################
+                    module load mkl/2020.0.166
+                    module load gsl/2.6-gcc-10.2.0
+                    cd bin/
+                    ctest --no-compress-output --verbose
+                    '''
+            }
+        }
 	    stage('documentation') {
              agent { label 'jenkinsfile'}
              steps {
