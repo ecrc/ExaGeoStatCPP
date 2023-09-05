@@ -14,6 +14,7 @@ extern "C" {
 #include <chameleon.h>
 #include <control/context.h>
 #include <control/context.h>
+#include <include/chameleon/flops.h>
 }
 #endif
 

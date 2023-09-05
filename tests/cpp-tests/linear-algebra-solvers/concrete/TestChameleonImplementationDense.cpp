@@ -55,7 +55,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto *CHAM_descriptorDeterminant = data->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                DESCRIPTOR_DETERMINANT).chameleon_desc;
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
-
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
@@ -390,6 +389,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
 }
 
 TEST_CASE("Chameleon Implementation Dense") {
-TEST_CHAMELEON_DESCRIPTORS_VALUES();
+    TEST_CHAMELEON_DESCRIPTORS_VALUES();
 
 }

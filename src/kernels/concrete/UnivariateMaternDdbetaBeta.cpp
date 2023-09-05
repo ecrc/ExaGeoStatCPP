@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternDdbetaBeta.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateMaternDdbetaBeta<T>::UnivariateMaternDdbetaBeta() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternDdbetaBeta<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternDdbetaBeta"] = 3;
     return new UnivariateMaternDdbetaBeta();
 }
 
@@ -39,9 +38,8 @@ template<typename T>
 void
 UnivariateMaternDdbetaBeta<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                         const int &aRowOffset, const int &aColumnOffset,
-                                                        dataunits::Locations<T> &aLocation1,
-                                                        dataunits::Locations<T> &aLocation2,
-                                                        dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                        Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                        Locations<T> &aLocation3, T *aLocalTheta,
                                                         const int &aDistanceMetric) {
 
     int i, j;
@@ -63,44 +61,46 @@ UnivariateMaternDdbetaBeta<T>::GenerateCovarianceMatrix(T *apMatrixA, const int 
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
-                beta_expr = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2])
-                            * gsl_sf_bessel_Knu(aLocalTheta[2], expr) - pow(expr, aLocalTheta[2])
-                                                                        * (aLocalTheta[2] / expr *
-                                                                           gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
-                                                                           gsl_sf_bessel_Knu(aLocalTheta[2] + 1,
-                                                                                             expr)) * expr /
-                                                                        aLocalTheta[1];
-
-                beta_expr_prime = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2])
-                                  * (aLocalTheta[2] / expr * gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
-                                     gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) - pow(expr, aLocalTheta[2])
-                                                                                    * (-0.5 *
-                                                                                       ((aLocalTheta[2] / expr *
-                                                                                         gsl_sf_bessel_Knu(
-                                                                                                 aLocalTheta[2],
-                                                                                                 expr) -
-                                                                                         gsl_sf_bessel_Knu(
-                                                                                                 aLocalTheta[2] + 1,
-                                                                                                 expr)) -
-                                                                                        pow(expr, aLocalTheta[2])
-                                                                                        + (aLocalTheta[2] / expr *
-                                                                                           gsl_sf_bessel_Knu(
-                                                                                                   aLocalTheta[2],
-                                                                                                   expr) -
-                                                                                           gsl_sf_bessel_Knu(
-                                                                                                   aLocalTheta[2] + 1,
-                                                                                                   expr)) -
-                                                                                        pow(expr, aLocalTheta[2])))
-                                                                                    * expr /
-                                                                                    aLocalTheta[1];
-                apMatrixA[i + j * aRowsNumber] =
-                        (aLocalTheta[2] / pow(aLocalTheta[1], 2) * pow(expr, aLocalTheta[2]) *
-                         gsl_sf_bessel_Knu(aLocalTheta[2], expr)
-                         - aLocalTheta[2] / aLocalTheta[1] * beta_expr +
-                         2 * expr / pow(aLocalTheta[1], 2) * pow(expr, aLocalTheta[2])
-                         * (aLocalTheta[2] / expr * gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
-                            gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) - expr / aLocalTheta[1] * beta_expr_prime) *
-                        sigma_square * con; // derivative with respect to beta
+                beta_expr = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2]) *
+                            gsl_sf_bessel_Knu(aLocalTheta[2], expr) - pow(expr, aLocalTheta[2]) *
+                                                                      (aLocalTheta[2] / expr *
+                                                                       gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                                                       gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) *
+                                                                      expr / aLocalTheta[1];
+                beta_expr_prime = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2]) *
+                                  (aLocalTheta[2] / expr * gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                   gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) - pow(expr, aLocalTheta[2]) * (-0.5 *
+                                                                                                               ((aLocalTheta[2] /
+                                                                                                                 expr *
+                                                                                                                 gsl_sf_bessel_Knu(
+                                                                                                                         aLocalTheta[2],
+                                                                                                                         expr) -
+                                                                                                                 gsl_sf_bessel_Knu(
+                                                                                                                         aLocalTheta[2] +
+                                                                                                                         1,
+                                                                                                                         expr)) -
+                                                                                                                pow(expr,
+                                                                                                                    aLocalTheta[2]) +
+                                                                                                                (aLocalTheta[2] /
+                                                                                                                 expr *
+                                                                                                                 gsl_sf_bessel_Knu(
+                                                                                                                         aLocalTheta[2],
+                                                                                                                         expr) -
+                                                                                                                 gsl_sf_bessel_Knu(
+                                                                                                                         aLocalTheta[2] +
+                                                                                                                         1,
+                                                                                                                         expr)) -
+                                                                                                                pow(expr,
+                                                                                                                    aLocalTheta[2]))) *
+                                                                                  expr / aLocalTheta[1];
+                apMatrixA[i + j * aRowsNumber] = (aLocalTheta[2] / pow(aLocalTheta[1], 2) * pow(expr, aLocalTheta[2]) *
+                                                  gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                                  aLocalTheta[2] / aLocalTheta[1] * beta_expr +
+                                                  2 * expr / pow(aLocalTheta[1], 2) * pow(expr, aLocalTheta[2]) *
+                                                  (aLocalTheta[2] / expr * gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                                   gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) -
+                                                  expr / aLocalTheta[1] * beta_expr_prime) * sigma_square *
+                                                 con; // derivative with respect to beta
             }
             j0++;
         }

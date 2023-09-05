@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternDdnuNu.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateMaternDdnuNu<T>::UnivariateMaternDdnuNu() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternDdnuNu<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternDdnuNu"] = 3;
     return new UnivariateMaternDdnuNu();
 }
 
@@ -39,10 +38,10 @@ template<typename T>
 void
 UnivariateMaternDdnuNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                     const int &aRowOffset, const int &aColumnOffset,
-                                                    dataunits::Locations<T> &aLocation1,
-                                                    dataunits::Locations<T> &aLocation2,
-                                                    dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                    Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                    Locations<T> &aLocation3, T *aLocalTheta,
                                                     const int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -62,34 +61,36 @@ UnivariateMaternDdnuNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRo
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
-                nu_expr = (1 - aLocalTheta[2]) * 1 / pow(2, aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2])
-                          * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
-                          pow(2, 1 - aLocalTheta[2])
-                          * (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2])
-                             * gsl_sf_bessel_Knu(aLocalTheta[2], expr) + 1 / tgamma(aLocalTheta[2])
-                                                                         * (pow(expr, aLocalTheta[2]) * log(expr)
-                                                                            * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
-                                                                            pow(expr, aLocalTheta[2])
-                                                                            * this->CalculateDerivativeBesselNu(
-                                                                                    aLocalTheta[2], expr)));
-
-                nu_expr_dprime = (1 - aLocalTheta[2]) * 1 / pow(2, aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2])
-                                 * pow(expr, aLocalTheta[2]) * this->CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
-                                 pow(2, 1 - aLocalTheta[2])
-                                 * (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2])
-                                    * this->CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
-                                    1 / tgamma(aLocalTheta[2])
-                                    * (pow(expr, aLocalTheta[2]) * log(expr)
-                                       * this->CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
-                                       pow(expr, aLocalTheta[2])
-                                       * this->CalculateSecondDerivativeBesselNu(aLocalTheta[2], expr)));
+                nu_expr = (1 - aLocalTheta[2]) * 1 / pow(2, aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2]) *
+                          pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
+                          pow(2, 1 - aLocalTheta[2]) *
+                          (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2]) *
+                           gsl_sf_bessel_Knu(aLocalTheta[2], expr) + 1 / tgamma(aLocalTheta[2]) *
+                                                                     (pow(expr, aLocalTheta[2]) * log(expr) *
+                                                                      gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
+                                                                      pow(expr, aLocalTheta[2]) *
+                                                                      this->CalculateDerivativeBesselNu(aLocalTheta[2],
+                                                                                                        expr)));
+                nu_expr_dprime = (1 - aLocalTheta[2]) * 1 / pow(2, aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2]) *
+                                 pow(expr, aLocalTheta[2]) * this->CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
+                                 pow(2, 1 - aLocalTheta[2]) *
+                                 (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2]) *
+                                  this->CalculateDerivativeBesselNu(aLocalTheta[2], expr) + 1 / tgamma(aLocalTheta[2]) *
+                                                                                            (pow(expr, aLocalTheta[2]) *
+                                                                                             log(expr) *
+                                                                                             this->CalculateDerivativeBesselNu(
+                                                                                                     aLocalTheta[2],
+                                                                                                     expr) +
+                                                                                             pow(expr, aLocalTheta[2]) *
+                                                                                             this->CalculateSecondDerivativeBesselNu(
+                                                                                                     aLocalTheta[2],
+                                                                                                     expr)));
                 apMatrixA[i + j * aRowsNumber] =
                         (-0.5 * con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
-                         (1 - aLocalTheta[2]) / 2 * nu_expr
-                         - (1 / aLocalTheta[2] + 0.5 * pow(aLocalTheta[2], 2)) * con * pow(expr, aLocalTheta[2]) *
-                           gsl_sf_bessel_Knu(aLocalTheta[2], expr) - gsl_sf_psi(aLocalTheta[2])
-                                                                     * nu_expr + log(expr) * nu_expr +
-                         nu_expr_dprime) * sigma_square;
+                         (1 - aLocalTheta[2]) / 2 * nu_expr -
+                         (1 / aLocalTheta[2] + 0.5 * pow(aLocalTheta[2], 2)) * con * pow(expr, aLocalTheta[2]) *
+                         gsl_sf_bessel_Knu(aLocalTheta[2], expr) - gsl_sf_psi(aLocalTheta[2]) * nu_expr +
+                         log(expr) * nu_expr + nu_expr_dprime) * sigma_square;
             }
             j0++;
         }

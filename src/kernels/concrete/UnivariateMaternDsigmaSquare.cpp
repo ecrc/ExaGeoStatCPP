@@ -16,8 +16,6 @@
 
 #include <kernels/concrete/UnivariateMaternDsigmaSquare.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -29,6 +27,7 @@ UnivariateMaternDsigmaSquare<T>::UnivariateMaternDsigmaSquare() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternDsigmaSquare<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternDsigmaSquare"] = 3;
     return new UnivariateMaternDsigmaSquare();
 }
 
@@ -39,12 +38,10 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternDsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
-                                                               const int &aColumnsNumber,
-                                                               const int &aRowOffset, const int &aColumnOffset,
-                                                               dataunits::Locations<T> &aLocation1,
-                                                               dataunits::Locations<T> &aLocation2,
-                                                               dataunits::Locations<T> &aLocation3, T *aLocalTheta,
-                                                               const int &aDistanceMetric) {
+                                                               const int &aColumnsNumber, const int &aRowOffset,
+                                                               const int &aColumnOffset, Locations<T> &aLocation1,
+                                                               Locations<T> &aLocation2, Locations<T> &aLocation3,
+                                                               T *aLocalTheta, const int &aDistanceMetric) {
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -61,9 +58,9 @@ void UnivariateMaternDsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, con
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 1;
             } else {
-                apMatrixA[i + j * aRowsNumber] = con * pow(expr, aLocalTheta[2]) *
-                                                 gsl_sf_bessel_Knu(aLocalTheta[2],
-                                                                   expr); // derivative with respect to sigma square
+                // derivative with respect to sigma square
+                apMatrixA[i + j * aRowsNumber] =
+                        con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr);
             }
             j0++;
         }

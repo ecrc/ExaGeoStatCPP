@@ -32,7 +32,6 @@ using namespace exageostat::configurations;
 void TEST_SPREAD_REVERSED_BITS() {
 
     Configurations synthetic_data_configurations;
-
     synthetic_data_configurations.SetProblemSize(16);
     synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
 #ifdef EXAGEOSTAT_USE_CHAMELEON
@@ -115,7 +114,6 @@ void TEST_SPREAD_REVERSED_BITS() {
         vectorZ = (SyntheticGenerator<double>::SpreadBits(z_random) << 2) +
                   (SyntheticGenerator<double>::SpreadBits(y_random) << 1) +
                   SyntheticGenerator<double>::SpreadBits(x_random);
-
         // Spreading is Done, Now reversing.
         uint16_t reversed_x_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
         uint16_t reversed_y_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
@@ -177,7 +175,6 @@ void TEST_SPREAD_REVERSED_BITS() {
         vectorZ = (SyntheticGenerator<double>::SpreadBits(z_random) << 2) +
                   (SyntheticGenerator<double>::SpreadBits(y_random) << 1) +
                   SyntheticGenerator<double>::SpreadBits(x_random);
-
         // Spreading is Done, Now reversing.
         uint16_t reversed_x_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
         uint16_t reversed_y_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
@@ -223,7 +220,6 @@ void TEST_GENERATE_LOCATIONS() {
         synthetic_data_configurations.SetDimension(Dimension3D);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
-
         Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
 
         double *x = locations->GetLocationX();
@@ -238,10 +234,8 @@ void TEST_GENERATE_LOCATIONS() {
         delete locations;
     }SECTION("ST Generation")
     {
-
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(3);
-
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
         Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
@@ -250,8 +244,7 @@ void TEST_GENERATE_LOCATIONS() {
         double *y = locations->GetLocationY();
         double *z = locations->GetLocationZ();
 
-        for (auto i = 0;
-             i < synthetic_data_configurations.GetProblemSize(); i++) {
+        for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0.0);
             REQUIRE(y[i] != 0.0);
             REQUIRE(z[i] != 0.0);
@@ -272,7 +265,6 @@ void TEST_HELPERS_FUNCTIONS() {
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
 #endif
 
-
     SECTION("Uniform distribution")
     {
         double lowerRange = -0.4;
@@ -284,7 +276,6 @@ void TEST_HELPERS_FUNCTIONS() {
 
     SECTION("Compare Uint32")
     {
-
         uint32_t num1 = 16;
         REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1) == false);
         REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1 + num1) == true);
@@ -311,16 +302,13 @@ void TEST_GENERATION() {
 #endif
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
-
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         int seed = 0;
         srand(seed);
         Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
-
         // The expected output of the locations.
         vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
         vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
-
 
         for (int i = 0; i < N; i++) {
             REQUIRE((locations->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
@@ -351,11 +339,8 @@ void TEST_GENERATION() {
 
 TEST_CASE("Synthetic Data Generation tests") {
     TEST_SPREAD_REVERSED_BITS();
-
     TEST_GENERATE_LOCATIONS();
-
     TEST_HELPERS_FUNCTIONS();
-
     TEST_GENERATION();
 
 }

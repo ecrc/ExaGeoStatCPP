@@ -64,13 +64,13 @@ namespace exageostat {
              * @return A pointer to the created plugin, or nullptr if the plugin could not be created.
              *
              */
-            static T *Create(const std::string &name) {
+            static T *Create(const std::string &aName) {
                 auto map = GetFactoryMap();
 
-                if (map.find(name) == map.end()) {
+                if (map.find(aName) == map.end()) {
                     return nullptr;
                 }
-                return map[name]();
+                return map[aName]();
             }
 
         private:
@@ -80,8 +80,8 @@ namespace exageostat {
              *
              */
             static FactoryMap &GetFactoryMap() {
-                static FactoryMap map;
-                return map;
+                static FactoryMap mSelfRegisteringMap;
+                return mSelfRegisteringMap;
             }
         };
     }//namespace plugins

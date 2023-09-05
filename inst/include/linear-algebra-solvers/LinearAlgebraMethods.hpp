@@ -25,6 +25,9 @@ extern "C" {
 #include <gsl/gsl_errno.h>
 }
 
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
+
 #include <common/Definitions.hpp>
 #include <common/Utils.hpp>
 #include <configurations/Configurations.hpp>
@@ -98,11 +101,11 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void
-            CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
-                                    int &aTriangularPart, dataunits::Locations<T> *apLocation1,
-                                    dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                    T *aLocalTheta, int aDistanceMetric, exageostat::kernels::Kernel<T> *apKernel) = 0;
+            virtual void CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                                 int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                                 dataunits::Locations<T> *apLocation2,
+                                                 dataunits::Locations<T> *apLocation3, T *aLocalTheta,
+                                                 int aDistanceMetric, const std::string &aKernelName) = 0;
 
             /**
              * @brief Copies the descriptor data to a double vector.
@@ -166,8 +169,7 @@ namespace exageostat {
              * @return Successful exit
              *
              */
-            virtual int
-            ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) = 0;
+            virtual int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) = 0;
 
             /**
              * @brief Conversion from LAPACK layout to Exageostat descriptor.
@@ -187,8 +189,7 @@ namespace exageostat {
              * @return successful exit
              *
              */
-            virtual int
-            ExaGeoStatSequenceWait(void *apSequence) = 0;
+            virtual int ExaGeoStatSequenceWait(void *apSequence) = 0;
 
             /**
              * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -197,8 +198,7 @@ namespace exageostat {
              * @return
              *
              */
-            virtual int
-            ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) = 0;
+            virtual int ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) = 0;
 
             /**
              * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
@@ -212,9 +212,8 @@ namespace exageostat {
              * @return successful exit
              *
              */
-            virtual int
-            ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
-                               common::Diag aDiag, T aAlpha, void *apA, void *apB) = 0;
+            virtual int ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
+                                           common::Diag aDiag, T aAlpha, void *apA, void *apB) = 0;
 
             /**
              * @brief Performs matrix multiplication.
@@ -284,11 +283,10 @@ namespace exageostat {
                 exageostat::kernels::Kernel<T> *kernel;
 
                 A = (T *) STARPU_MATRIX_GET_PTR(buffers[0]);
-
                 starpu_codelet_unpack_args(cl_arg, &m, &n, &m0, &n0, &location1, &location2, &location3, &theta,
                                            &distance_metric, &kernel);
-                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, *location1,
-                                                 *location2, *location3, theta, distance_metric);
+                kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, *location1, *location2, *location3, theta,
+                                                 distance_metric);
             }
 
             struct starpu_codelet cl_gaussian_to_non =

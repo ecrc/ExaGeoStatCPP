@@ -36,9 +36,7 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, 
     aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
-
     aData.SetLocations(*data_generator->CreateLocationsData(aConfigurations));
-
     auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(aConfigurations.GetComputation());
 #ifdef EXAGEOSTAT_USE_CHAMELEON
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData, common::CHAMELEON_DESCRIPTOR);
@@ -54,48 +52,23 @@ void ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, 
 
     // Add the data modeling arguments.
     aConfigurations.InitializeDataModelingArguments();
-    // Create a kernel object depending on which kernel the user is going to use.
-    kernels::Kernel<T> *kernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T>>::Create(
-            aConfigurations.GetKernelName());
-    int parameters_number = kernel->GetParametersNumbers();
-
-    // Set starting theta with the lower bounds values
-    aConfigurations.SetLowerBounds(Configurations::InitTheta(aConfigurations.GetLowerBounds(), parameters_number));
-    aConfigurations.SetUpperBounds(Configurations::InitTheta(aConfigurations.GetUpperBounds(), parameters_number));
-    aConfigurations.SetStartingTheta(aConfigurations.GetLowerBounds());
-    //// TODO: Move this part in Prediction.
-//    aConfigurations.SetEstimatedTheta(InitTheta(aConfigurations.GetEstimatedTheta(), parameters_number));
-//    for (int i = 0; i < parameters_number; i++) {
-//        if (aConfigurations.GetEstimatedTheta()[i] != -1) {
-//            aConfigurations.GetLowerBounds()[i] = aConfigurations.GetEstimatedTheta()[i];
-//            aConfigurations.GetUpperBounds()[i] = aConfigurations.GetEstimatedTheta()[i];
-//            aConfigurations.GetStartingTheta()[i] = aConfigurations.GetEstimatedTheta()[i];
-//        }
-//    }
-
+    int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
     int max_number_of_iterations = aConfigurations.GetMaxMleIterations();
-
     // Setting struct of data to pass to the modeling.
     auto modeling_data = new mModelingData(&aData, &aConfigurations, &aHardware, apMeasurementsMatrix);
-
-
     // Create nlopt
     double opt_f;
-    opt optimizing_function(nlopt::LN_BOBYQA, kernel->GetParametersNumbers());
-    delete kernel;
-
+    opt optimizing_function(nlopt::LN_BOBYQA, parameters_number);
     // Initialize problem's bound.
     optimizing_function.set_lower_bounds(aConfigurations.GetLowerBounds());
     optimizing_function.set_upper_bounds(aConfigurations.GetUpperBounds());
     optimizing_function.set_ftol_abs(pow(10, -1 * aConfigurations.GetTolerance()));
-
     // Set max iterations value.
     optimizing_function.set_maxeval(max_number_of_iterations);
 
     optimizing_function.set_max_objective(ExaGeoStatMleTileAPI, (void *) modeling_data);
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
-
     delete modeling_data;
 }
 
@@ -109,6 +82,5 @@ ExaGeoStat<T>::ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vect
 
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
             config->GetComputation());
-
     return linear_algebra_solver->ExaGeoStatMleTile(*hardware, *data, *config, aTheta.data(), measurements);
 }

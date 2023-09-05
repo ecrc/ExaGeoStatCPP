@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/TrivariateMaternParsimonious.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ TrivariateMaternParsimonious<T>::TrivariateMaternParsimonious() {
 
 template<typename T>
 Kernel<T> *TrivariateMaternParsimonious<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["TrivariateMaternParsimonious"] = 10;
     return new TrivariateMaternParsimonious();
 }
 
@@ -37,12 +36,11 @@ namespace exageostat::kernels {
 
 template<typename T>
 void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
-                                                               const int &aColumnsNumber,
-                                                               const int &aRowOffset, const int &aColumnOffset,
-                                                               dataunits::Locations<T> &aLocation1,
-                                                               dataunits::Locations<T> &aLocation2,
-                                                               dataunits::Locations<T> &aLocation3, T *aLocalTheta,
-                                                               const int &aDistanceMetric) {
+                                                               const int &aColumnsNumber, const int &aRowOffset,
+                                                               const int &aColumnOffset, Locations<T> &aLocation1,
+                                                               Locations<T> &aLocation2, Locations<T> &aLocation3,
+                                                               T *aLocalTheta, const int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -67,16 +65,11 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     nu23 = 0.5 * (aLocalTheta[5] + aLocalTheta[6]);
 
     rho12 = aLocalTheta[7] * sqrt((tgamma(aLocalTheta[4] + 1) * tgamma(aLocalTheta[5] + 1)) /
-                                  (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[5]))) *
-            tgamma(nu12) / tgamma(nu12 + 1);
-
+                                  (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[5]))) * tgamma(nu12) / tgamma(nu12 + 1);
     rho13 = aLocalTheta[8] * sqrt((tgamma(aLocalTheta[4] + 1) * tgamma(aLocalTheta[6] + 1)) /
-                                  (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[6]))) *
-            tgamma(nu13) / tgamma(nu13 + 1);
-
+                                  (tgamma(aLocalTheta[4]) * tgamma(aLocalTheta[6]))) * tgamma(nu13) / tgamma(nu13 + 1);
     rho23 = aLocalTheta[9] * sqrt((tgamma(aLocalTheta[5] + 1) * tgamma(aLocalTheta[6] + 1)) /
-                                  (tgamma(aLocalTheta[5]) * tgamma(aLocalTheta[6]))) *
-            tgamma(nu23) / tgamma(nu23 + 1);
+                                  (tgamma(aLocalTheta[5]) * tgamma(aLocalTheta[6]))) * tgamma(nu23) / tgamma(nu23 + 1);
 
     con12 = pow(2, (nu12 - 1)) * tgamma(nu12);
     con12 = 1.0 / con12;
@@ -147,8 +140,7 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
                 }
                 index = i + (j + 1) * aRowsNumber;
                 if (index < matrix_size) {
-                    apMatrixA[i + (j + 1) * aRowsNumber] =
-                            con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
+                    apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr, nu12) * gsl_sf_bessel_Knu(nu12, expr);
                 }
                 index = (i + 2) + j * aRowsNumber;
                 if (index < matrix_size) {

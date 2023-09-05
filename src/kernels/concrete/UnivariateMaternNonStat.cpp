@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternNonStat.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateMaternNonStat<T>::UnivariateMaternNonStat() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternNonStat<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternNonStat"] = 8;
     return new UnivariateMaternNonStat();
 }
 
@@ -39,13 +38,12 @@ template<typename T>
 void
 UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                      const int &aRowOffset, const int &aColumnOffset,
-                                                     dataunits::Locations<T> &aLocation1,
-                                                     dataunits::Locations<T> &aLocation2,
-                                                     dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                     Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                     Locations<T> &aLocation3, T *aLocalTheta,
                                                      const int &aDistanceMetric) {
+
     double l1x, l1y, l2x, l2y;
     double a, b, d, e, f, g, h, ti;
-
     a = aLocalTheta[0];
     b = aLocalTheta[1];
     d = aLocalTheta[2];
@@ -61,6 +59,12 @@ UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
     double nu_arr_2[aColumnsNumber];
     double sigma_arr_2[aColumnsNumber];
     double lambda_arr_2[aColumnsNumber];
+    double term1;
+    double term2;
+    double neuij;
+    double Qij;
+    double prod1;
+    double term3;
 
     for (int i = 0; i < aRowsNumber; i++) {
         l1x = aLocation1.GetLocationX()[i + aRowOffset];
@@ -86,13 +90,12 @@ UnivariateMaternNonStat<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
         for (int j = 0; j < aColumnsNumber; j++) {
             l2x = aLocation2.GetLocationX()[j + aColumnOffset];
             l2y = aLocation2.GetLocationY()[j + aColumnOffset];
-
-            double term1 = (sigma_arr_1[i]) * (sigma_arr_2[j]) * sqrt(lambda_arr_1[i]) * sqrt(lambda_arr_2[j]);
-            double term2 = 2 / ((lambda_arr_1[i]) + (lambda_arr_2[j]));
-            double neuij = ((nu_arr_1[i]) + (nu_arr_2[j])) / 2;
-            double Qij = CalculateMahalanobisDistanceSquared(l1x, l1y, l2x, l2y, term2, 0, 0, term2);
-            double prod1 = 2 * sqrt(neuij * Qij);
-            double term3 = MaternUtil(1, neuij, prod1);
+            term1 = (sigma_arr_1[i]) * (sigma_arr_2[j]) * sqrt(lambda_arr_1[i]) * sqrt(lambda_arr_2[j]);
+            term2 = 2 / ((lambda_arr_1[i]) + (lambda_arr_2[j]));
+            neuij = ((nu_arr_1[i]) + (nu_arr_2[j])) / 2;
+            Qij = CalculateMahalanobisDistanceSquared(l1x, l1y, l2x, l2y, term2, 0, 0, term2);
+            prod1 = 2 * sqrt(neuij * Qij);
+            term3 = MaternUtil(1, neuij, prod1);
             apMatrixA[i + j * aRowsNumber] = term1 * term2 * term3;
         }
     }
@@ -110,21 +113,18 @@ double UnivariateMaternNonStat<T>::Sigma(double x, double y, double d, double e,
 
 template<typename T>
 double UnivariateMaternNonStat<T>::Lambda(double x, double y, double a, double b) {
-
     return (a * pow(POW_e, sin(b * x) + sin(b * y)));
 }
 
 template<typename T>
-double UnivariateMaternNonStat<T>::CalculateMahalanobisDistanceSquared(double x1, double y1, double x2,
-                                                                       double y2, double a11, double a12,
-                                                                       double a21, double a22) {
+double
+UnivariateMaternNonStat<T>::CalculateMahalanobisDistanceSquared(double x1, double y1, double x2, double y2, double a11,
+                                                                double a12, double a21, double a22) {
 
     double diffx = x1 - x2;
     double diffy = y1 - y2;
-
     double el1 = a11 * diffx + a21 * diffy;
     double el2 = a12 * diffx + a22 * diffy;
-
     double ans = el1 * diffx + el2 * diffy;
 
     return ans;
@@ -136,9 +136,10 @@ double UnivariateMaternNonStat<T>::MaternUtil(double range, double smoothness, d
     con = pow(2, (smoothness - 1)) * tgamma(smoothness);
     con = 1.0 / con;
 
-    if (distance == 0)
+    if (distance == 0) {
         return 1;
-    else
-        return con * pow(distance / range, smoothness)
-               * gsl_sf_bessel_Knu(smoothness, distance / range); // Matern Function
+    } else {
+        // Matern Function
+        return con * pow(distance / range, smoothness) * gsl_sf_bessel_Knu(smoothness, distance / range);
+    }
 }

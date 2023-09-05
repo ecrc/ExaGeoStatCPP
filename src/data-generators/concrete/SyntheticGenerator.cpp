@@ -13,11 +13,7 @@
 **/
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <kernels/Kernel.hpp>
-#include <common/PluginRegistry.hpp>
 #include <configurations/Configurations.hpp>
-
-using namespace std;
 
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
@@ -26,8 +22,7 @@ using namespace exageostat::configurations;
 using namespace exageostat::kernels;
 
 template<typename T>
-SyntheticGenerator<T> *
-SyntheticGenerator<T>::GetInstance() {
+SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
 
     if (mpInstance == nullptr) {
         mpInstance = new SyntheticGenerator<T>();
@@ -36,7 +31,7 @@ SyntheticGenerator<T>::GetInstance() {
 }
 
 template<typename T>
-Locations<T> *SyntheticGenerator<T>::CreateLocationsData(configurations::Configurations &aConfigurations) {
+Locations<T> *SyntheticGenerator<T>::CreateLocationsData(Configurations &aConfigurations) {
 
     // Allocated new Locations object.
     auto *locations = new Locations<T>((aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot()),
@@ -52,7 +47,8 @@ Locations<T> *SyntheticGenerator<T>::CreateLocationsData(configurations::Configu
     int parameters_number = kernel->GetParametersNumbers();
 
     // Set initial theta values.
-    aConfigurations.SetInitialTheta(Configurations::InitTheta(aConfigurations.GetInitialTheta(), parameters_number));
+    Configurations::InitTheta(aConfigurations.GetInitialTheta(), parameters_number);
+    aConfigurations.SetInitialTheta(aConfigurations.GetInitialTheta());
 
     // Generate Locations.
     int N = aConfigurations.GetProblemSize() / kernel->GetPValue();
@@ -67,10 +63,8 @@ void SyntheticGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlo
                                               Locations<T> &aLocations) {
 
     aLocations.SetSize(aN);
-
     int index = 0;
     aLocations.SetDimension(aDimension);
-
 
     int rootN;
     if (aDimension == Dimension3D) {
@@ -101,10 +95,8 @@ void SyntheticGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlo
                     index++;
                 }
             } else {
-                aLocations.GetLocationX()[index] =
-                        (grid[i] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
-                aLocations.GetLocationY()[index] =
-                        (grid[j] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
+                aLocations.GetLocationX()[index] = (grid[i] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
+                aLocations.GetLocationY()[index] = (grid[j] - 0.5 + UniformDistribution(range_low, range_high)) / rootN;
                 if (aDimension == DimensionST) {
                     aLocations.GetLocationZ()[index] = 1.0;
                 }

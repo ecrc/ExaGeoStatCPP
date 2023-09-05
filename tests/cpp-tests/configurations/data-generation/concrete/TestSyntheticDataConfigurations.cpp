@@ -101,10 +101,7 @@ void TEST_COPY_CONSTRUCTOR() {
         synthetic_data_configurations.SetLoggerPath("any/path");
         vector<double> lb{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
-
-
         Configurations copied_synthetic_conf(synthetic_data_configurations);
-
         REQUIRE(synthetic_data_configurations.GetProblemSize() == copied_synthetic_conf.GetProblemSize());
         REQUIRE(copied_synthetic_conf.GetProblemSize() == 10);
         REQUIRE(synthetic_data_configurations.GetKernelName() == copied_synthetic_conf.GetKernelName());
@@ -113,13 +110,10 @@ void TEST_COPY_CONSTRUCTOR() {
         REQUIRE(synthetic_data_configurations.GetPrecision() == copied_synthetic_conf.GetPrecision());
         REQUIRE(copied_synthetic_conf.GetLoggerPath() == "any/path");
         REQUIRE(synthetic_data_configurations.GetLoggerPath() == copied_synthetic_conf.GetLoggerPath());
-
     }
 }
 
 TEST_CASE("Synthetic Data Configurations") {
     TEST_SYNTHETIC_CONFIGURATIONS();
-
     TEST_COPY_CONSTRUCTOR();
-
 }

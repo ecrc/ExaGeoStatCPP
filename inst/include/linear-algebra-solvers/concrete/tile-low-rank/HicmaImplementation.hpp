@@ -55,12 +55,11 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::CovarianceMatrixCodelet()
                  * 
                  */
-                void
-                CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
-                                        int &aTriangularPart, dataunits::Locations<T> *apLocation1,
-                                        dataunits::Locations<T> *apLocation2,
-                                        dataunits::Locations<T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
-                                        exageostat::kernels::Kernel<T> *apKernel) override;
+                void CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                             int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                             dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                             T *aLocalTheta, int aDistanceMetric,
+                                             const std::string &aKernelName) override;
 
                 /**
                  * @brief Generates the observations vector.
@@ -129,8 +128,7 @@ namespace exageostat {
                  * @param Identifies a set of routines sharing common exception handling.
                  * @return successful exit
                  */
-                int
-                ExaGeoStatSequenceWait(void *apSequence) override;
+                int ExaGeoStatSequenceWait(void *apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -138,8 +136,7 @@ namespace exageostat {
                  * @param apA Symmetric matrix A
                  * @return
                  */
-                int
-                ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
+                int ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
 
                 /**
                 * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
@@ -152,9 +149,8 @@ namespace exageostat {
                 * @param apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
                 * @return successful exit
                 */
-                int
-                ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
-                                   common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
+                int ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
+                                       common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
 
                 /**
                  * @brief Performs matrix multiplication.
@@ -167,9 +163,8 @@ namespace exageostat {
                  * @param apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
                  * @return successful exit.
                  */
-                int
-                ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
-                                   T aBeta, void *apC) override;
+                int ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
+                                       T aBeta, void *apC) override;
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
@@ -179,9 +174,8 @@ namespace exageostat {
                  * @param apDescDet determinant value
                  * @return
                  */
-                int
-                ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
-                                              void *apDescDet) override;
+                int ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
+                                                  void *apDescDet) override;
 
                 /**
                  * @brief opy Chameleon descriptor to vector float*.
@@ -192,8 +186,8 @@ namespace exageostat {
                  * @param apRequest Identifies this function call (for exception handling purposes).
                  * @return
                  */
-                int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                   void *apSequence, void *apRequest) override;
+                int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
+                                                   void *apRequest) override;
             };
 
             /**

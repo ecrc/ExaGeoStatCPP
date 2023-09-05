@@ -55,7 +55,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto *CHAM_descriptorDeterminant = data->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                DESCRIPTOR_DETERMINANT).chameleon_desc;
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
-
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
@@ -182,7 +181,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
         auto *CHAM_descriptorProduct_1 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1).chameleon_desc;
         auto *CHAM_descriptorProduct_2 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2).chameleon_desc;
-
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
@@ -311,6 +309,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 }
 
 TEST_CASE("Chameleon Implementation DST") {
-TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
+    TEST_CHAMELEON_DESCRIPTORS_VALUES_DST();
 
 }

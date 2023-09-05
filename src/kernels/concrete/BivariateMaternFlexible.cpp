@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/BivariateMaternFlexible.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ BivariateMaternFlexible<T>::BivariateMaternFlexible() {
 
 template<typename T>
 Kernel<T> *BivariateMaternFlexible<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["BivariateMaternFlexible"] = 11;
     return new BivariateMaternFlexible();
 }
 
@@ -39,10 +38,10 @@ template<typename T>
 void
 BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                      const int &aRowOffset, const int &aColumnOffset,
-                                                     dataunits::Locations<T> &aLocation1,
-                                                     dataunits::Locations<T> &aLocation2,
-                                                     dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                     Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                     Locations<T> &aLocation3, T *aLocalTheta,
                                                      const int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -50,23 +49,17 @@ BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
     double con1, con2, con12, scale12, rho, nu12, sigma_square11, sigma_square22;
     double scale1 = aLocalTheta[0], scale2 = aLocalTheta[1], nu1 = aLocalTheta[4], nu2 = aLocalTheta[5];
 
-    scale12 = pow(0.5 * (pow(scale1, -2) + pow(scale2, -2)) + aLocalTheta[2] * (1 - aLocalTheta[3]),
-                  -0.5); //Remark 1 (c) of Apanasovich et al. (2012)
-
-    nu12 = 0.5 * (nu1 + nu2) + aLocalTheta[6] * (1 - aLocalTheta[7]); //Theorem 1 (i) of Apanasovich et al. (2012).
-
-    rho = aLocalTheta[8] * aLocalTheta[9] * aLocalTheta[10] *
-          pow(scale12, 2 * aLocalTheta[6] + (nu1 + nu2))
-          * tgamma(0.5 * (nu1 + nu2) + 1) * tgamma(nu12) /
-          tgamma(nu12 + 1); //Equation (8) of Apanasovich et al. (2012).
-
-    sigma_square11 = aLocalTheta[8] * aLocalTheta[8] *
-                     pow(scale1, 2 * aLocalTheta[6] + nu1 + nu1) *
-                     tgamma(nu1); //Equation (8) of Apanasovich et al. (2012).
-
-    sigma_square22 = aLocalTheta[9] * aLocalTheta[9] *
-                     pow(scale2, 2 * aLocalTheta[6] + nu2 + nu2) *
-                     tgamma(nu2); //Equation (8) of Apanasovich et al. (2012).
+    //Remark 1 (c) of Apanasovich et al. (2012)
+    scale12 = pow(0.5 * (pow(scale1, -2) + pow(scale2, -2)) + aLocalTheta[2] * (1 - aLocalTheta[3]), -0.5);
+    //Theorem 1 (i) of Apanasovich et al. (2012).
+    nu12 = 0.5 * (nu1 + nu2) + aLocalTheta[6] * (1 - aLocalTheta[7]);
+    //Equation (8) of Apanasovich et al. (2012).
+    rho = aLocalTheta[8] * aLocalTheta[9] * aLocalTheta[10] * pow(scale12, 2 * aLocalTheta[6] + (nu1 + nu2)) *
+          tgamma(0.5 * (nu1 + nu2) + 1) * tgamma(nu12) / tgamma(nu12 + 1);
+    //Equation (8) of Apanasovich et al. (2012).
+    sigma_square11 = aLocalTheta[8] * aLocalTheta[8] * pow(scale1, 2 * aLocalTheta[6] + nu1 + nu1) * tgamma(nu1);
+    //Equation (8) of Apanasovich et al. (2012).
+    sigma_square22 = aLocalTheta[9] * aLocalTheta[9] * pow(scale2, 2 * aLocalTheta[6] + nu2 + nu2) * tgamma(nu2);
 
     con1 = pow(2, (nu1 - 1)) * tgamma(nu1);
     con1 = 1.0 / con1;
@@ -101,8 +94,7 @@ BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
                     apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1];
                 }
             } else {
-                apMatrixA[i + j * aRowsNumber] = con1 * pow(expr1, nu1)
-                                                 * gsl_sf_bessel_Knu(nu1, expr1);
+                apMatrixA[i + j * aRowsNumber] = con1 * pow(expr1, nu1) * gsl_sf_bessel_Knu(nu1, expr1);
 
                 if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {
                     apMatrixA[(i + 1) + j * aRowsNumber] = con12 * pow(expr12, nu12) * gsl_sf_bessel_Knu(nu12, expr12);
@@ -118,5 +110,4 @@ BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
         }
         i0++;
     }
-
 }

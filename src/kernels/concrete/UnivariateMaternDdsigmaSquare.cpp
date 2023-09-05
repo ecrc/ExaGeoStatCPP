@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternDdsigmaSquare.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -28,6 +26,7 @@ UnivariateMaternDdsigmaSquare<T>::UnivariateMaternDdsigmaSquare() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternDdsigmaSquare<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternDdsigmaSquare"] = 3;
     return new UnivariateMaternDdsigmaSquare();
 }
 
@@ -38,12 +37,10 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternDdsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
-                                                                const int &aColumnsNumber,
-                                                                const int &aRowOffset, const int &aColumnOffset,
-                                                                dataunits::Locations<T> &aLocation1,
-                                                                dataunits::Locations<T> &aLocation2,
-                                                                dataunits::Locations<T> &aLocation3, T *aLocalTheta,
-                                                                const int &aDistanceMetric) {
+                                                                const int &aColumnsNumber, const int &aRowOffset,
+                                                                const int &aColumnOffset, Locations<T> &aLocation1,
+                                                                Locations<T> &aLocation2, Locations<T> &aLocation3,
+                                                                T *aLocalTheta, const int &aDistanceMetric) {
 
     int i, j;
     //// TODO: Implementation is Empty in the old version!

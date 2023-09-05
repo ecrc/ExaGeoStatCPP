@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternNonStationary.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateMaternNonStationary<T>::UnivariateMaternNonStationary() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternNonStationary<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternNonStationary"] = 9;
     return new UnivariateMaternNonStationary();
 }
 
@@ -37,12 +36,10 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
-                                                                const int &aColumnsNumber,
-                                                                const int &aRowOffset, const int &aColumnOffset,
-                                                                dataunits::Locations<T> &aLocation1,
-                                                                dataunits::Locations<T> &aLocation2,
-                                                                dataunits::Locations<T> &aLocation3, T *aLocalTheta,
-                                                                const int &aDistanceMetric) {
+                                                                const int &aColumnsNumber, const int &aRowOffset,
+                                                                const int &aColumnOffset, Locations<T> &aLocation1,
+                                                                Locations<T> &aLocation2, Locations<T> &aLocation3,
+                                                                T *aLocalTheta, const int &aDistanceMetric) {
 
     double location1X, location1Y, location2X, location2Y, location3X, location3Y;
     double theta_0i, theta_0j, theta_1i, theta_1j, theta_2i, theta_2j;
@@ -108,11 +105,8 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
 
             //MLE calculation
             dist = CalculateDistance(aLocation1, aLocation2, i, j, aDistanceMetric, flag) / beta;
-
-            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
-                                                 ? sigma_square
-                                                 //                                                 : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
-                                                 : con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
+            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0) ? sigma_square : con * pow(dist, nu) *
+                                                                                gsl_sf_bessel_Knu(nu, dist);
         }
     }
 }

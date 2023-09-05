@@ -227,12 +227,10 @@ namespace exageostat {
                     const std::string filename = entry.path().filename().string();
                     // This string stores the file extension of the current entry.
                     const std::string extension = std::filesystem::path(filename).extension().string();
-
                     // This string stores the kernel name extracted from the filename.
                     const std::string kernelName = filename.substr(0, filename.size() - extension.size());
                     // This adds the kernel name to the kernelNames set.
                     kernelNames.insert(kernelName);
-
                     // This blo/ck of code converts the kernel name to lowercase     and adds underscores before each capital letter.
                     std::string lowercaseName;
                     for (std::size_t i = 0; i < kernelName.size(); ++i) {
@@ -252,22 +250,6 @@ namespace exageostat {
             }
             return kernelNames;
         }();
-
-        static std::unordered_map<std::string, int> KernelPValues = []() {
-            std::unordered_map<std::string, int> kernelP;
-
-            for (const std::string &kernelName: availableKernels) {
-                if (kernelName.rfind("Uni", 0) == 0) {
-                    kernelP[kernelName] = 1;
-                } else if (kernelName.rfind("Bi", 0) == 0) {
-                    kernelP[kernelName] = 2;
-                } else if (kernelName.rfind("Tri", 0) == 0) {
-                    kernelP[kernelName] = 3;
-                }
-            }
-            return kernelP;
-        }();
-
     }//namespace common
 }//namespace exageostat
 

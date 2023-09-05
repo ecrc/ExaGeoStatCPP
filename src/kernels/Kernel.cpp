@@ -33,7 +33,6 @@ T Kernel<T>::CalculateDistance(Locations<T> &aLocations1, Locations<T> &aLocatio
     T y1 = aLocations2.GetLocationY()[aIdxLocation1];
     T x2 = aLocations2.GetLocationX()[aIdxLocation2];
     T y2 = aLocations2.GetLocationY()[aIdxLocation2];
-
     T dx = x2 - x1;
     T dy = y2 - y1;
     T dz;
@@ -55,7 +54,6 @@ T Kernel<T>::CalculateDistance(Locations<T> &aLocations1, Locations<T> &aLocatio
         dz = z2 - z1;
         return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
     }
-
 }
 
 static double deg2rad(double deg) {

@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternNonGaussian.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateMaternNonGaussian<T>::UnivariateMaternNonGaussian() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternNonGaussian<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternNonGaussian"] = 6;
     return new UnivariateMaternNonGaussian();
 }
 
@@ -37,14 +36,11 @@ namespace exageostat::kernels {
 
 template<typename T>
 void UnivariateMaternNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
-                                                              const int &aColumnsNumber,
-                                                              const int &aRowOffset, const int &aColumnOffset,
-                                                              dataunits::Locations<T> &aLocation1,
-                                                              dataunits::Locations<T> &aLocation2,
-                                                              dataunits::Locations<T> &aLocation3, T *aLocalTheta,
-                                                              const int &aDistanceMetric) {
-    //localtheta[0] <- \phi
-    //localtheta[1] <- \nu
+                                                              const int &aColumnsNumber, const int &aRowOffset,
+                                                              const int &aColumnOffset, Locations<T> &aLocation1,
+                                                              Locations<T> &aLocation2, Locations<T> &aLocation3,
+                                                              T *aLocalTheta, const int &aDistanceMetric) {
+
     int i, j;
     int i0 = aRowOffset;
     int j0;
@@ -61,13 +57,14 @@ void UnivariateMaternNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, cons
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
             expr = 4 * sqrt(2 * aLocalTheta[1]) *
-                   (this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) /
-                    aLocalTheta[0]);
-            if (expr == 0)
-                apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
-            else
-                apMatrixA[i + j * aRowsNumber] = con * pow(expr, aLocalTheta[1])
-                                                 * gsl_sf_bessel_Knu(aLocalTheta[1], expr); // Matern Function
+                   (this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0]);
+            if (expr == 0) {
+                apMatrixA[i + j * aRowsNumber] = sigma_square;
+            } else {
+                // Matern Function
+                apMatrixA[i + j * aRowsNumber] =
+                        con * pow(expr, aLocalTheta[1]) * gsl_sf_bessel_Knu(aLocalTheta[1], expr);
+            }
             j0++;
         }
         i0++;

@@ -50,6 +50,21 @@ extern "C" {
 namespace exageostat {
     namespace kernels {
 
+        struct KernelsConfigurations{
+            /**
+             * @brief Returns the static map containing kernel parameter numbers.
+             * @return Reference to the static map.
+             */
+            static std::unordered_map<std::string, int> &GetParametersNumberKernelMap() {
+                /**
+                 * @brief Static map containing kernel parameter numbers.
+                 * @details The map is initialized only once and retains its value across multiple function invocations.
+                 */
+                static std::unordered_map<std::string, int> mKernelParametersNumbers;
+                return mKernelParametersNumbers;
+            }
+        };
+
         /**
          * @class Kernels
          * @brief A base class for kernel functions.
@@ -170,7 +185,7 @@ namespace exageostat {
         protected:
             //// Used P.
             int mP = 1;
-            //// Used number of paramters.
+            //// Used number of parameters.
             int mParametersNumber = 3;
         };
 

@@ -48,7 +48,7 @@ namespace exageostat {
                  * 
                  */
                 void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                         dataunits::DescriptorData <T> &aDescriptorData,
+                                         dataunits::DescriptorData<T> &aDescriptorData,
                                          T *apMeasurementsMatrix) override;
 
                 /**
@@ -57,18 +57,17 @@ namespace exageostat {
                  * 
                  */
                 void
-                CovarianceMatrixCodelet(dataunits::DescriptorData <T> *apDescriptorData, void *apDescriptor,
-                                        int &aTriangularPart, dataunits::Locations <T> *apLocation1,
-                                        dataunits::Locations <T> *apLocation2,
-                                        dataunits::Locations <T> *apLocation3, T *aLocalTheta, int aDistanceMetric,
-                                        exageostat::kernels::Kernel<T> *apKernel) override;
+                CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                        int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                        dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
+                                        T *aLocalTheta, int aDistanceMetric, const std::string &aKernelName) override;
 
                 /**
                  * @brief Computes the covariance matrix.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatGaussianToNonTileAsync()
                  *
                  */
-                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData <T> *apDescriptorData, void *apDesc,
+                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
                                                       T *apTheta) override;
 
                 /**
@@ -77,27 +76,26 @@ namespace exageostat {
                  * 
                  */
                 void GenerateObservationsVector(configurations::Configurations &aConfigurations,
-                                                dataunits::DescriptorData <T> *apDescriptorData,
+                                                dataunits::DescriptorData<T> *apDescriptorData,
                                                 dataunits::BaseDescriptor aDescriptor,
-                                                dataunits::Locations <T> *apLocation1,
-                                                dataunits::Locations <T> *apLocation2,
-                                                dataunits::Locations <T> *apLocation3, int aDistanceMetric) override;
+                                                dataunits::Locations<T> *apLocation1,
+                                                dataunits::Locations<T> *apLocation2,
+                                                dataunits::Locations<T> *apLocation3, int aDistanceMetric) override;
 
                 /**
                  * @brief Copies the descriptor data to a double vector.
                  * @copydoc LinearAlgebraMethods::CopyDescriptorZ()
                  *
                  */
-                void CopyDescriptorZ(dataunits::DescriptorData <T> *apDescriptorData, void *apDescriptor,
+                void CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
                                      T *apDoubleVector) override;
-
 
                 /**
                  * @brief Calculates the log likelihood value of a given value theta.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
                 */
                 T
-                ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData <T> &apData,
+                ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &apData,
                                   configurations::Configurations &apConfigurations, const double *theta,
                                   T *apMeasurementsMatrix) override;
 
@@ -189,11 +187,9 @@ namespace exageostat {
                  * @param[in] apRequest Identifies this function call (for exception handling purposes).
                  * @return
                  */
-                int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                   void *apSequence, void *apRequest) override;
-
+                int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
+                                                   void *apRequest) override;
             };
-
             /**
             * @brief Instantiates the chameleon DST class for float and double types.
             * @tparam T Data Type: float or double

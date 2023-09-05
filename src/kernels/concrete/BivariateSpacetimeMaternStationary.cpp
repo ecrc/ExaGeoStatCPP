@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/BivariateSpacetimeMaternStationary.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ BivariateSpacetimeMaternStationary<T>::BivariateSpacetimeMaternStationary() {
 
 template<typename T>
 Kernel<T> *BivariateSpacetimeMaternStationary<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["BivariateSpacetimeMaternStationary"] = 10;
     return new BivariateSpacetimeMaternStationary();
 }
 
@@ -38,12 +37,10 @@ namespace exageostat::kernels {
 template<typename T>
 void
 BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber,
-                                                                const int &aColumnsNumber,
-                                                                const int &aRowOffset, const int &aColumnOffset,
-                                                                dataunits::Locations<T> &aLocation1,
-                                                                dataunits::Locations<T> &aLocation2,
-                                                                dataunits::Locations<T> &aLocation3, T *aLocalTheta,
-                                                                const int &aDistanceMetric) {
+                                                                const int &aColumnsNumber, const int &aRowOffset,
+                                                                const int &aColumnOffset, Locations<T> &aLocation1,
+                                                                Locations<T> &aLocation2, Locations<T> &aLocation3,
+                                                                T *aLocalTheta, const int &aDistanceMetric) {
 
     int i, j;
     int i0 = aRowOffset;
@@ -55,18 +52,14 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
     con1 = pow(2, (aLocalTheta[3] - 1)) * tgamma(aLocalTheta[3]);
     con1 = 1.0 / con1;
     con1 = aLocalTheta[0] * con1;
-
     con2 = pow(2, (aLocalTheta[4] - 1)) * tgamma(aLocalTheta[4]);
     con2 = 1.0 / con2;
     con2 = aLocalTheta[1] * con2;
 
     //The average
     nu12 = 0.5 * (aLocalTheta[3] + aLocalTheta[4]);
-
     rho = aLocalTheta[5] * sqrt((tgamma(aLocalTheta[3] + 1) * tgamma(aLocalTheta[4] + 1)) /
-                                (tgamma(aLocalTheta[3]) * tgamma(aLocalTheta[4]))) *
-          tgamma(nu12) / tgamma(nu12 + 1);
-
+                                (tgamma(aLocalTheta[3]) * tgamma(aLocalTheta[4]))) * tgamma(nu12) / tgamma(nu12 + 1);
     con12 = pow(2, (nu12 - 1)) * tgamma(nu12);
     con12 = 1.0 / con12;
     con12 = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]) * con12;
@@ -95,7 +88,6 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
 
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0] / expr4;
-
                 index = (i + 1) + j * aRowsNumber;
                 if (index < matrix_size) {
                     apMatrixA[(i + 1) + j * aRowsNumber] = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]) / expr4;
@@ -109,9 +101,8 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
                     apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = aLocalTheta[1] / expr4;
                 }
             } else {
-                apMatrixA[i + j * aRowsNumber] = con1 * pow(expr3, aLocalTheta[3])
-                                                 * gsl_sf_bessel_Knu(aLocalTheta[3], expr3) / expr4;
-
+                apMatrixA[i + j * aRowsNumber] =
+                        con1 * pow(expr3, aLocalTheta[3]) * gsl_sf_bessel_Knu(aLocalTheta[3], expr3) / expr4;
                 index = (i + 1) + j * aRowsNumber;
                 if (index < matrix_size) {
                     apMatrixA[(i + 1) + j * aRowsNumber] =
@@ -119,13 +110,13 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
                 }
                 index = i + (j + 1) * aRowsNumber;
                 if (index < matrix_size) {
-                    apMatrixA[i + (j + 1) * aRowsNumber] = con12 * pow(expr3, nu12)
-                                                           * gsl_sf_bessel_Knu(nu12, expr3) / expr4;
+                    apMatrixA[i + (j + 1) * aRowsNumber] =
+                            con12 * pow(expr3, nu12) * gsl_sf_bessel_Knu(nu12, expr3) / expr4;
                 }
                 index = (i + 1) + (j + 1) * aRowsNumber;
                 if (index < matrix_size) {
-                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] = con2 * pow(expr3, aLocalTheta[4])
-                                                                 * gsl_sf_bessel_Knu(aLocalTheta[4], expr3) / expr4;
+                    apMatrixA[(i + 1) + (j + 1) * aRowsNumber] =
+                            con2 * pow(expr3, aLocalTheta[4]) * gsl_sf_bessel_Knu(aLocalTheta[4], expr3) / expr4;
                 }
             }
             j0++;

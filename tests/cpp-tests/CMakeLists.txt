@@ -19,5 +19,5 @@ add_subdirectory(kernels)
 
 enable_testing()
 add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})
-target_link_libraries(exageostat-tests ${PROJECT_NAME} ${LIBS} Catch2::Catch2WithMain ${PROJECT_NAME}_INTERFACE)
+target_link_libraries(exageostat-tests Catch2::Catch2WithMain ${PROJECT_NAME}_INTERFACE)
 catch_discover_tests(exageostat-tests)

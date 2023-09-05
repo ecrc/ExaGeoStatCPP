@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateExpNonGaussian.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateExpNonGaussian<T>::UnivariateExpNonGaussian() {
 
 template<typename T>
 Kernel<T> *UnivariateExpNonGaussian<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateExpNonGaussian"] = 6;
     return new UnivariateExpNonGaussian();
 }
 
@@ -39,9 +38,8 @@ template<typename T>
 void
 UnivariateExpNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                       const int &aRowOffset, const int &aColumnOffset,
-                                                      dataunits::Locations<T> &aLocation1,
-                                                      dataunits::Locations<T> &aLocation2,
-                                                      dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                      Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                      Locations<T> &aLocation3, T *aLocalTheta,
                                                       const int &aDistanceMetric) {
 
     int i, j;
@@ -56,11 +54,11 @@ UnivariateExpNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
         for (j = 0; j < aColumnsNumber; j++) {
             expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0];
 
-            if (expr == 0)
-                apMatrixA[i + j * aRowsNumber] = sigma_square /*+ 1e-4*/;
-            else
+            if (expr == 0) {
+                apMatrixA[i + j * aRowsNumber] = sigma_square;
+            } else {
                 apMatrixA[i + j * aRowsNumber] = exp(-expr);
-
+            }
             j0++;
         }
         i0++;

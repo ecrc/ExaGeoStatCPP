@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternDbeta.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -27,6 +25,7 @@ UnivariateMaternDbeta<T>::UnivariateMaternDbeta() {
 
 template<typename T>
 Kernel<T> *UnivariateMaternDbeta<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternDbeta"] = 3;
     return new UnivariateMaternDbeta();
 }
 
@@ -38,9 +37,8 @@ namespace exageostat::kernels {
 template<typename T>
 void UnivariateMaternDbeta<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                         const int &aRowOffset, const int &aColumnOffset,
-                                                        dataunits::Locations<T> &aLocation1,
-                                                        dataunits::Locations<T> &aLocation2,
-                                                        dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                        Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                        Locations<T> &aLocation3, T *aLocalTheta,
                                                         const int &aDistanceMetric) {
 
     int i, j;
@@ -53,6 +51,7 @@ void UnivariateMaternDbeta<T>::GenerateCovarianceMatrix(T *apMatrixA, const int 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
     int flag = 0;
+
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
@@ -60,20 +59,17 @@ void UnivariateMaternDbeta<T>::GenerateCovarianceMatrix(T *apMatrixA, const int 
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {
-                beta_expr = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2])
-                            * gsl_sf_bessel_Knu(aLocalTheta[2], expr) - pow(expr, aLocalTheta[2])
-                                                                        * (aLocalTheta[2] / expr *
-                                                                           gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
-                                                                           gsl_sf_bessel_Knu(aLocalTheta[2] + 1,
-                                                                                             expr)) * expr /
-                                                                        aLocalTheta[1];
-
-                apMatrixA[i + j * aRowsNumber] = sigma_square * con * beta_expr; //derivative with respect to beta
-
+                //derivative with respect to beta
+                beta_expr = -aLocalTheta[2] / aLocalTheta[1] * pow(expr, aLocalTheta[2]) *
+                            gsl_sf_bessel_Knu(aLocalTheta[2], expr) - pow(expr, aLocalTheta[2]) *
+                                                                      (aLocalTheta[2] / expr *
+                                                                       gsl_sf_bessel_Knu(aLocalTheta[2], expr) -
+                                                                       gsl_sf_bessel_Knu(aLocalTheta[2] + 1, expr)) *
+                                                                      expr / aLocalTheta[1];
+                apMatrixA[i + j * aRowsNumber] = sigma_square * con * beta_expr;
             }
             j0++;
         }
-
         i0++;
     }
 }

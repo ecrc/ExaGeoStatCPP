@@ -14,11 +14,6 @@
 
 #include <lapacke.h>
 
-extern "C" {
-#include <hicma.h>
-#include <control/hicma_context.h>
-}
-
 #include <linear-algebra-solvers/concrete/tile-low-rank/HicmaImplementation.hpp>
 #include <data-units/DescriptorData.hpp>
 
@@ -104,8 +99,7 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
     MD = n;
     ND = MBD;
     aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point, MBD, NBD,
-                                  MBD * NBD,
-                                  MD, ND, 0, 0, MD, ND, p_grid, q_grid);
+                                  MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
 
     //CUV Descriptor
     MBUV = lts;
@@ -121,8 +115,7 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
 
     T expr = (T) MUV / (T) lts;
     NUV = 2 * expr * max_rank;
-    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CUV, is_OOC, nullptr, float_point, MBUV,
-                                  NBUV,
+    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CUV, is_OOC, nullptr, float_point, MBUV, NBUV,
                                   MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, p_grid, q_grid);
 
     //Crk Descriptor
@@ -131,102 +124,68 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
     auto *desc_cuv = aDescriptorData.GetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CUV).hicma_desc;
     Mrk = desc_cuv->mt;
     Nrk = desc_cuv->mt;
-    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CRK, is_OOC, nullptr, float_point, MBrk,
-                                  NBrk,
+    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CRK, is_OOC, nullptr, float_point, MBrk, NBrk,
                                   MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
-
     aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, nullptr, float_point, lts, lts,
                                   lts * lts, n, 1, 0, 0, n, 1, p_grid, q_grid);
-
-    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, lts,
-                                  lts,
-                                  lts * lts,
-                                  n, 1, 0, 0, n, 1, p_grid, q_grid);
-
-    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr,
-                                  float_point, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, lts, lts,
+                                  lts * lts, n, 1, 0, 0, n, 1, p_grid, q_grid);
+    aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr, float_point, lts,
+                                  lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
 
     if (nZmiss != 0) {
         if (actual_observations_path.empty()) {
-            aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_OBSERVATIONS, is_OOC,
-                                          &Zcpy[nZmiss],
-                                          float_point, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs,
-                                          1, p_grid, q_grid);
+            aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_OBSERVATIONS, is_OOC, &Zcpy[nZmiss],
+                                          float_point, lts, lts, lts * lts, nZobs, 1, 0, 0, nZobs, 1, p_grid, q_grid);
         } else {
-
             aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_OBSERVATIONS, is_OOC, nullptr,
-                                          float_point,
-                                          lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
-
+                                          float_point, lts, lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
         }
         //C12AD Descriptor
         MBD = lts;
         NBD = lts;
         MD = nZmiss;
         ND = MBD;
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_Actual, is_OOC, nullptr, float_point,
-                                      lts,
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_Actual, is_OOC, nullptr, float_point, lts,
                                       lts, lts * lts, nZmiss, 1, 0, 0, nZmiss, 1, p_grid, q_grid);
-
-
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12D, is_OOC, nullptr, float_point, MBD,
-                                      NBD,
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12D, is_OOC, nullptr, float_point, MBD, NBD,
                                       MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
-
         //C12UV Descriptor
         MBUV = lts;
         NBUV = 2 * max_rank;
-
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12UV, is_OOC, nullptr, float_point,
-                                      MBUV,
-                                      NBUV,
-                                      MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, p_grid, q_grid);
-
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12UV, is_OOC, nullptr, float_point, MBUV,
+                                      NBUV, MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, p_grid, q_grid);
         //C12Ark Descriptor
         MBrk = 1;
         NBrk = 1;
         auto *desc_c12uv = aDescriptorData.GetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12UV).hicma_desc;
         Mrk = desc_c12uv->mt;
         Nrk = desc_c12uv->mt;
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12RK, is_OOC, nullptr, float_point,
-                                      MBrk,
-                                      NBrk,
-                                      MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
-
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C12RK, is_OOC, nullptr, float_point, MBrk,
+                                      NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
         //C22D Descriptor
         MBD = lts;
         NBD = lts;
         MD = nZobs;
         ND = MBD;
-
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22D, is_OOC, nullptr, float_point, MBD,
-                                      NBD,
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22D, is_OOC, nullptr, float_point, MBD, NBD,
                                       MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
-
         //C22UV Descriptor
         MBUV = lts;
         NBUV = 2 * max_rank;
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22UV, is_OOC, nullptr, float_point,
-                                      MBUV,
-                                      NBUV,
-                                      MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, p_grid, q_grid);
-
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22UV, is_OOC, nullptr, float_point, MBUV,
+                                      NBUV, MBUV * NBUV, MBUV, NBUV, 0, 0, MBUV, NBUV, p_grid, q_grid);
         //C22Ark Descriptor
         MBrk = 1;
         NBrk = 1;
         auto *desc_c22uv = aDescriptorData.GetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22UV).hicma_desc;
         Mrk = desc_c22uv->mt;
         Nrk = desc_c22uv->mt;
-
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22RK, is_OOC, nullptr, float_point,
-                                      MBrk,
-                                      NBrk,
-                                      MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
-
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_C22RK, is_OOC, nullptr, float_point, MBrk,
+                                      NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
         //Other descriptors
-        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_MSE, is_OOC, nullptr, float_point, lts,
-                                      lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-
+        aDescriptorData.SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_MSE, is_OOC, nullptr, float_point, lts, lts,
+                                      lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     }
 
     aDescriptorData.SetSequence(pSequence);
@@ -240,20 +199,16 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
 
 template<typename T>
 void
-HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData,
-                                                         void *apDesc, T *apTheta) {
+HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
+                                                         T *apTheta) {
     throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
-void
-HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
-                                                int &aTriangularPart,
-                                                dataunits::Locations<T> *apLocation1,
-                                                dataunits::Locations<T> *apLocation2,
-                                                dataunits::Locations<T> *apLocation3,
-                                                T *aLocalTheta, int aDistanceMetric,
-                                                kernels::Kernel<T> *apKernel) {
+void HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                                     int &aTriangularPart, Locations<T> *apLocation1,
+                                                     Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                     T *aLocalTheta, int aDistanceMetric, const string &aKernelName) {
 
     // Check for initialize the Hicma context.
     if (!this->mpContext) {
@@ -262,11 +217,11 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorD
     }
 
     HICMA_option_t options;
-    HICMA_RUNTIME_options_init(&options, (HICMA_context_t *)
-                                       this->mpContext,
-                               (HICMA_sequence_t *) apDescriptorData->GetSequence(),
-                               (HICMA_request_t *) apDescriptorData->GetRequest());
+    HICMA_RUNTIME_options_init(&options, (HICMA_context_t * )
+    this->mpContext, (HICMA_sequence_t *) apDescriptorData->GetSequence(), (HICMA_request_t *) apDescriptorData->GetRequest());
     int tempmm, tempnn;
+
+    kernels::Kernel<T> *pKernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T >>::Create(aKernelName);
 
     auto *HICMA_apDescriptor = (HICMA_desc_t *) apDescriptor;
     HICMA_desc_t A = *HICMA_apDescriptor;
@@ -298,24 +253,23 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorD
                                STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations<T> *),
                                STARPU_VALUE, &aLocalTheta, sizeof(double *),
                                STARPU_VALUE, &aDistanceMetric, sizeof(int),
-                               STARPU_VALUE, &apKernel, sizeof(exageostat::kernels::Kernel<T> *),
+                               STARPU_VALUE, &pKernel, sizeof(exageostat::kernels::Kernel<T> *),
                                0);
         }
     }
     HICMA_RUNTIME_options_ws_free(&options);
-    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t *)
-            this->mpContext);
-
+    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t * )
+    this->mpContext);
     HICMA_Sequence_Wait((HICMA_sequence_t *) apDescriptorData->GetSequence());
-
+    delete pKernel;
 }
 
 template<typename T>
-void HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigurations,
-                                                        DescriptorData<T> *apDescriptorData,
-                                                        BaseDescriptor aDescriptor,
-                                                        Locations<T> *apLocation1, Locations<T> *apLocation2,
-                                                        Locations<T> *apLocation3, int aDistanceMetric) {
+void
+HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigurations, DescriptorData<T> *apDescriptorData,
+                                                   BaseDescriptor aDescriptor, Locations<T> *apLocation1,
+                                                   Locations<T> *apLocation2, Locations<T> *apLocation3,
+                                                   int aDistanceMetric) {
 
     // Check for initialize the Hicma context.
     if (!this->mpContext) {
@@ -326,11 +280,9 @@ void HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigu
     int seed = aConfigurations.GetSeed();
     int iseed[4] = {seed, seed, seed, 1};
     auto *pDescriptor = aDescriptor.hicma_desc;
-
     //nomral random generation of e -- ei~N(0, 1) to generate Z
     auto *Nrand = new T[n];
     LAPACKE_dlarnv(3, iseed, n, (double *) Nrand);
-
 
     //Generate the co-variance matrix C
     auto *theta = new T[aConfigurations.GetInitialTheta().size()];
@@ -344,8 +296,7 @@ void HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigu
     Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T >>::Create(aConfigurations.GetKernelName());
 
     this->CovarianceMatrixCodelet(apDescriptorData, pDescriptor, upper_lower, apLocation1, apLocation2, apLocation3,
-                                  theta,
-                                  aDistanceMetric, kernel);
+                                  theta, aDistanceMetric, aConfigurations.GetKernelName());
     delete[] theta;
     VERBOSE("Done.")
 
@@ -370,7 +321,6 @@ T HicmaImplementation<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &
                                             dataunits::ExaGeoStatData<T> &apData,
                                             configurations::Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix) {
-
     throw std::runtime_error("unimplemented for now");
 }
 
@@ -404,14 +354,16 @@ int HicmaImplementation<T>::ExaGeoStatTrsmTile(common::Side aSide, common::Upper
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha,
-                                               void *apA, void *apB, T aBeta, void *apC) {
+int
+HicmaImplementation<T>::ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
+                                           T aBeta, void *apC) {
     throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
-int HicmaImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                           void *apSequence, void *apRequest) {
+int
+HicmaImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
+                                                       void *apRequest) {
     throw std::runtime_error("unimplemented for now");
 }
 

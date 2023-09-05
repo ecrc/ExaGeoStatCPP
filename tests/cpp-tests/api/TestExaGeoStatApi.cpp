@@ -64,7 +64,6 @@ void TEST_GENERATE_DATA() {
         double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
                                          0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
                                          -0.752828, 0.290822};
-
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                          DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
@@ -117,7 +116,6 @@ void TEST_MODEL_DATA() {
                                        -1.054282062428600009, -1.669383221392507943, 0.219170645803740793,
                                        0.971213790000161170, 0.538973474182433021, -0.752828466476077041,
                                        0.290822066007430102};
-
         //creating locations x and y.
         auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
                                          0.370473792629892440, 0.652140077821011688, 0.806332494087129037,
@@ -125,24 +123,19 @@ void TEST_MODEL_DATA() {
                                          0.347951476310368490, 0.092042420080872822, 0.465445944914930965,
                                          0.528267338063630132, 0.974792095826657490, 0.552452887769893985,
                                          0.877592126344701295};
-
         auto *location_y = new double[N]{0.103883421072709245, 0.135790035858701447, 0.434683756771190977,
                                          0.400778210116731537, 0.168459601739528508, 0.105195696955825133,
                                          0.396398870832379624, 0.296757457846952011, 0.564507515068284116,
                                          0.627679865720607300, 0.928648813611047563, 0.958236057068741931,
                                          0.573571374074921758, 0.568657969024185528, 0.935835812924391552,
                                          0.942824444953078489};
-
         data.GetLocations()->SetLocationX(*location_x);
         data.GetLocations()->SetLocationY(*location_y);
 
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
         //TODO: check for thr log_likelihood values, As log_likelihood value needs to be saved somewhere for it to be tested
-
         delete[] z_matrix;
-
-    }
-    SECTION("Data Generation and Modeling")
+    }SECTION("Data Generation and Modeling")
     {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
@@ -152,12 +145,9 @@ void TEST_MODEL_DATA() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
         //TODO: check for thr log_likelihood values, As log_likelihood value needs to be saved somewhere for it to be tested
     }
-
 }
 
 TEST_CASE("ExaGeoStat API tests") {
-TEST_GENERATE_DATA();
-
-TEST_MODEL_DATA();
-
+    TEST_GENERATE_DATA();
+    TEST_MODEL_DATA();
 }

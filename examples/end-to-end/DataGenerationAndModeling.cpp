@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
     cout << "** initialize ExaGeoStat hardware ** " << endl;
-    auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(),
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers()); // Or you could use configurations.GetComputation().
     cout << "** Create ExaGeoStat data ** " << endl;
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);

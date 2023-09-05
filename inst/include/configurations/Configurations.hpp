@@ -336,12 +336,12 @@ namespace exageostat {
 
             /**
              * @brief Initialize a vector with a given size to contain zeros.
-             * @param[out] aTheta A reference to the vector to initialize.
+             * @param[in, out] aTheta A reference to the vector to initialize.
              * @param[in] aSize The size of the vector to initialize.
-             * @return A reference to the initialized vector.
+             * @return void.
              *
              */
-            static std::vector<double> &InitTheta(std::vector<double> &aTheta, const int &aSize);
+            static void InitTheta(std::vector<double> &aTheta, const int &aSize);
 
             /**
              * @brief print the summary of MLE inputs.

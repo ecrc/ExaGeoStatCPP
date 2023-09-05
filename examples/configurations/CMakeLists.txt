@@ -13,4 +13,4 @@
 add_executable(Example_Synthetic_Data_Configurations ${CMAKE_CURRENT_SOURCE_DIR}/ConfigurationModule.cpp)
 
 # Link the executable with the ExaGeoStat library and other libraries.
-target_link_libraries(Example_Synthetic_Data_Configurations ${PROJECT_NAME} ${LIBS} ${PROJECT_NAME}_INTERFACE)
+target_link_libraries(Example_Synthetic_Data_Configurations ${PROJECT_NAME}_INTERFACE)

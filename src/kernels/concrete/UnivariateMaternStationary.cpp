@@ -14,8 +14,6 @@
 
 #include <kernels/concrete/UnivariateMaternStationary.hpp>
 
-using namespace std;
-
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
 
@@ -25,9 +23,9 @@ UnivariateMaternStationary<T>::UnivariateMaternStationary() {
     this->mParametersNumber = 3;
 }
 
-
 template<typename T>
 Kernel<T> *UnivariateMaternStationary<T>::Create() {
+    KernelsConfigurations::GetParametersNumberKernelMap()["UnivariateMaternStationary"] = 3;
     return new UnivariateMaternStationary();
 }
 
@@ -40,27 +38,25 @@ template<typename T>
 void
 UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
                                                         const int &aRowOffset, const int &aColumnOffset,
-                                                        dataunits::Locations<T> &aLocation1,
-                                                        dataunits::Locations<T> &aLocation2,
-                                                        dataunits::Locations<T> &aLocation3, T *aLocalTheta,
+                                                        Locations<T> &aLocation1, Locations<T> &aLocation2,
+                                                        Locations<T> &aLocation3, T *aLocalTheta,
                                                         const int &aDistanceMetric) {
+
     const T sigma_square = aLocalTheta[0];
     const T nu = aLocalTheta[2];
     const T inv_con = sigma_square * (1.0 / (pow(2, (nu - 1)) * tgamma((nu))));
-
     int i0 = aRowOffset;
     int flag = 0;
-
     int j0;
     int i, j;
     T dist;
+
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
             dist = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
-            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0)
-                                                 ? sigma_square
-                                                 : inv_con * pow(dist, nu) * gsl_sf_bessel_Knu(nu, dist);
+            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0) ? sigma_square : inv_con * pow(dist, nu) *
+                                                                                gsl_sf_bessel_Knu(nu, dist);
             j0++;
         }
         i0++;

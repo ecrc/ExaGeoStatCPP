@@ -17,6 +17,7 @@
 #include <cstring>
 
 #include <configurations/Configurations.hpp>
+#include <kernels/Kernel.hpp>
 
 using namespace std;
 
@@ -24,7 +25,6 @@ using namespace exageostat::configurations;
 using namespace exageostat::common;
 
 RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
-
 
 Configurations::Configurations() {
 
@@ -48,7 +48,7 @@ Configurations::Configurations() {
 #endif
     SetLoggerPath("");
     SetIsSynthetic(true);
-    std::vector<double> theta;
+    vector<double> theta;
     SetInitialTheta(theta);
     SetLowerBounds(theta);
     SetUpperBounds(theta);
@@ -117,30 +117,25 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--maxRank" || argument_name == "--maxrank" ||
-                       argument_name == "--max_rank") {
+            } else if (argument_name == "--maxRank" || argument_name == "--maxrank" || argument_name == "--max_rank") {
                 SetMaxRank(CheckNumericalValue(argument_value));
             } else if (argument_name == "--ObservationsFile" || argument_name == "--observationsfile" ||
                        argument_name == "--observations_file") {
                 SetActualObservationsFilePath(argument_value);
             } else if (argument_name == "--Seed" || argument_name == "--seed") {
                 SetSeed(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--runmode" || argument_name == "--runMode" ||
-                       argument_name == "--run_mode") {
+            } else if (argument_name == "--runmode" || argument_name == "--runMode" || argument_name == "--run_mode") {
                 ParseRunMode(argument_value);
-            } else if (argument_name == "--logpath" || argument_name == "--log_path" ||
-                       argument_name == "--logPath") {
+            } else if (argument_name == "--logpath" || argument_name == "--log_path" || argument_name == "--logPath") {
                 SetLoggerPath(argument_value);
             } else {
-                if (!(argument_name == "--Dimension" || argument_name == "--dimension" ||
-                      argument_name == "--dim" || argument_name == "--Dim" || argument_name == "--ZmissNumber" ||
-                      argument_name == "--Zmiss" || argument_name == "--initial_theta" ||
-                      argument_name == "--itheta" || argument_name == "--iTheta" ||
-                      argument_name == "--estimated_theta" || argument_name == "--etheta" ||
-                      argument_name == "--tTheta" || argument_name == "--iterations" ||
-                      argument_name == "--Iterations" ||
-                      argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
-                      argument_name == "--tolerance" ||
+                if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
+                      argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
+                      argument_name == "--initial_theta" || argument_name == "--itheta" ||
+                      argument_name == "--iTheta" || argument_name == "--estimated_theta" ||
+                      argument_name == "--etheta" || argument_name == "--tTheta" || argument_name == "--iterations" ||
+                      argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
+                      argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
                       argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
                       argument_name == "--log_file_name" || argument_name == "--logFileName" ||
                       argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds" ||
@@ -214,18 +209,18 @@ void Configurations::InitializeDataGenerationArguments() {
             argument_value = argument.substr(equal_sign_Idx + 1);
 
             // Check the argument name and set the corresponding value
-            if (argument_name == "--Dimension" || argument_name == "--dimension"
-                || argument_name == "--dim" || argument_name == "--Dim") {
+            if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
+                argument_name == "--Dim") {
                 SetDimension(CheckDimensionValue(argument_value));
             } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
                 SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
             } else if (argument_name == "--estimated_theta" || argument_name == "--etheta" ||
                        argument_name == "--eTheta") {
-                std::vector<double> theta = ParseTheta(argument_value);
+                vector<double> theta = ParseTheta(argument_value);
                 SetEstimatedTheta(theta);
             } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
                        argument_name == "--iTheta") {
-                std::vector<double> theta = ParseTheta(argument_value);
+                vector<double> theta = ParseTheta(argument_value);
                 SetInitialTheta(theta);
             }
         } else {
@@ -244,7 +239,7 @@ void Configurations::InitializeDataModelingArguments() {
     string argument_value;
     int equal_sign_Idx;
 
-    // Loop through the arguments that are specific for data generation.
+    // Loop through the arguments that are specific for data modeling.
     for (int i = 1; i < this->mArgC; ++i) {
         argument = this->mpArgV[i];
         equal_sign_Idx = static_cast<int>(argument.find('='));
@@ -258,11 +253,11 @@ void Configurations::InitializeDataModelingArguments() {
             if (argument_name == "--distance_metric" || argument_name == "--distanceMetric") {
                 ParseDistanceMetric(argument_value);
             } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
-                std::vector<double> theta = ParseTheta(argument_value);
+                vector<double> theta = ParseTheta(argument_value);
                 SetLowerBounds(theta);
                 SetStartingTheta(theta);
             } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
-                std::vector<double> theta = ParseTheta(argument_value);
+                vector<double> theta = ParseTheta(argument_value);
                 SetUpperBounds(theta);
             } else if (argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations") {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
@@ -277,6 +272,24 @@ void Configurations::InitializeDataModelingArguments() {
             }
         }
     }
+    // Set starting theta with the lower bounds values
+    int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[GetKernelName()];
+    InitTheta(GetLowerBounds(), parameters_number);
+    SetLowerBounds(GetLowerBounds());
+    InitTheta(GetUpperBounds(), parameters_number);
+    SetUpperBounds(GetUpperBounds());
+    SetStartingTheta(GetLowerBounds());
+
+    //// TODO: Move this part in Prediction.
+//    SetEstimatedTheta(InitTheta(GetEstimatedTheta(), parameters_number));
+//    for (int i = 0; i < parameters_number; i++) {
+//        if (GetEstimatedTheta()[i] != -1) {
+//            GetLowerBounds()[i] = GetEstimatedTheta()[i];
+//            GetUpperBounds()[i] = GetEstimatedTheta()[i];
+//            GetStartingTheta()[i] = GetEstimatedTheta()[i];
+//        }
+//    }
+
 }
 
 void Configurations::InitializeDataPredictionArguments() {
@@ -340,9 +353,9 @@ int Configurations::CheckNumericalValue(const string &aValue) {
 
 Computation Configurations::CheckComputationValue(const std::string &aValue) {
 
-    if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense"
-        and aValue != "diag_approx" and aValue != "diagonal_approx"
-        and aValue != "lr_approx" and aValue != "tlr" and aValue != "TLR") {
+    if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense" and
+        aValue != "diag_approx" and aValue != "diagonal_approx" and aValue != "lr_approx" and aValue != "tlr" and
+        aValue != "TLR") {
         throw range_error("Invalid value for Computation. Please use Exact, diagonal_approx or TLR.");
     }
     if (aValue == "exact" or aValue == "Exact" or aValue == "Dense" or aValue == "dense") {
@@ -355,9 +368,8 @@ Computation Configurations::CheckComputationValue(const std::string &aValue) {
 
 Precision Configurations::CheckPrecisionValue(const std::string &aValue) {
 
-    if (aValue != "single" and aValue != "Single"
-        and aValue != "double" and aValue != "Double"
-        and aValue != "mix" and aValue != "Mix" and aValue != "Mixed" and aValue != "mixed") {
+    if (aValue != "single" and aValue != "Single" and aValue != "double" and aValue != "Double" and aValue != "mix" and
+        aValue != "Mix" and aValue != "Mixed" and aValue != "mixed") {
         throw range_error("Invalid value for Computation. Please use Single, Double or Mixed.");
     }
     if (aValue == "single" or aValue == "Single") {
@@ -418,7 +430,7 @@ bool Configurations::IsCamelCase(const std::string &aString) {
     return true;
 }
 
-std::vector<double> Configurations::ParseTheta(const std::string &aInputValues) {
+vector<double> Configurations::ParseTheta(const std::string &aInputValues) {
     // Count the number of values in the string
     int num_values = 1;
     for (char aInputValue: aInputValues) {
@@ -426,9 +438,8 @@ std::vector<double> Configurations::ParseTheta(const std::string &aInputValues) 
             num_values++;
         }
     }
-
     // Allocate memory for the array of doubles
-    std::vector<double> theta;
+    vector<double> theta;
 
     // Split the string into tokens using strtok()
     const char *delim = ":";
@@ -464,9 +475,8 @@ std::vector<double> Configurations::ParseTheta(const std::string &aInputValues) 
 
 Dimension Configurations::CheckDimensionValue(const string &aDimension) {
 
-    if (aDimension != "2D" and aDimension != "2d"
-        and aDimension != "3D" and aDimension != "3d"
-        and aDimension != "st" and aDimension != "ST") {
+    if (aDimension != "2D" and aDimension != "2d" and aDimension != "3D" and aDimension != "3d" and
+        aDimension != "st" and aDimension != "ST") {
         throw range_error("Invalid value for Dimension. Please use 2D, 3D or ST.");
     }
     if (aDimension == "2D" or aDimension == "2d") {
@@ -506,7 +516,7 @@ void Configurations::InitLog() {
     fprintf(GetFileLogPath(), "\t\t============================================\n");
 }
 
-std::vector<double> &Configurations::InitTheta(std::vector<double> &aTheta, const int &size) {
+void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
 
     // If null, this mean user have not passed the values arguments, Make values equal -1
     if (aTheta.empty()) {
@@ -520,7 +530,6 @@ std::vector<double> &Configurations::InitTheta(std::vector<double> &aTheta, cons
             aTheta.push_back(0);
         }
     }
-    return aTheta;
 }
 
 void Configurations::PrintSummary() {

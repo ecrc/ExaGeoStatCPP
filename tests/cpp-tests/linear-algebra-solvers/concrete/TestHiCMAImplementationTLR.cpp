@@ -11,10 +11,6 @@
  * @date 2023-04-09
 **/
 
-extern "C" {
-#include <control/hicma_context.h>
-}
-
 #include <catch2/catch_all.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <api/ExaGeoStat.hpp>
@@ -384,12 +380,11 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE(HICMA_descriptorMSE->p == pGrid);
             REQUIRE(HICMA_descriptorMSE->q == qGrid);
         }
-
         delete data;
     }
 }
 
 TEST_CASE("HiCMA Implementation TLR") {
-    TEST_HICMA_DESCRIPTORS_VALUES_TLR();
+TEST_HICMA_DESCRIPTORS_VALUES_TLR();
 
 }

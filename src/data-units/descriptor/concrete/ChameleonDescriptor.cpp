@@ -29,8 +29,7 @@ CHAM_desc_t *ChameleonDescriptor<T>::CreateChameleonDescriptor(void *apDescripto
                                   aN, aP, aQ);
     } else {
         CHAMELEON_Desc_Create(&chameleon_desc, apMatrix, (cham_flttype_t) aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI,
-                              aJ,
-                              aM, aN, aP, aQ);
+                              aJ, aM, aN, aP, aQ);
     }
     return chameleon_desc;
 }

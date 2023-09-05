@@ -80,18 +80,14 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
                                  << '\n';
             } else if (aP == 2) {
                 p_file_synthetic << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
-                                 << aLocations.GetLocationY()[i] << ","
-                                 << std::setprecision(15) << (&aMatrixPointer)[j]
-                                 << std::setprecision(15) << (&aMatrixPointer)[j + 1]
-                                 << '\n';
+                                 << aLocations.GetLocationY()[i] << "," << std::setprecision(15) << (&aMatrixPointer)[j]
+                                 << std::setprecision(15) << (&aMatrixPointer)[j + 1] << '\n';
                 j += 2;
             } else if (aP == 3) {
                 p_file_synthetic << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
-                                 << aLocations.GetLocationY()[i] << ","
-                                 << std::setprecision(15) << (&aMatrixPointer)[j]
-                                 << std::setprecision(15) << (&aMatrixPointer)[j + 1]
-                                 << std::setprecision(15) << (&aMatrixPointer)[j + 2]
-                                 << '\n';
+                                 << aLocations.GetLocationY()[i] << "," << std::setprecision(15) << (&aMatrixPointer)[j]
+                                 << std::setprecision(15) << (&aMatrixPointer)[j + 1] << std::setprecision(15)
+                                 << (&aMatrixPointer)[j + 2] << '\n';
                 j += 3;
             }
         } else {
@@ -99,27 +95,23 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
             if (aP == 1) {
                 p_file_synthetic << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
                                  << aLocations.GetLocationY()[i] << ',' << aLocations.GetLocationZ()[i] << ","
-                                 << std::setprecision(15) << (&aMatrixPointer)[i]
-                                 << '\n';
+                                 << std::setprecision(15) << (&aMatrixPointer)[i] << '\n';
             } else if (aP == 2) {
                 p_file_synthetic << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
                                  << aLocations.GetLocationY()[i] << ',' << aLocations.GetLocationZ()[i] << ","
-                                 << std::setprecision(15) << (&aMatrixPointer)[j]
-                                 << std::setprecision(15) << (&aMatrixPointer)[j + 1]
-                                 << '\n';
+                                 << std::setprecision(15) << (&aMatrixPointer)[j] << std::setprecision(15)
+                                 << (&aMatrixPointer)[j + 1] << '\n';
                 j += 2;
             } else if (aP == 2) {
                 p_file_synthetic << std::setprecision(15) << aLocations.GetLocationX()[i] << ','
                                  << aLocations.GetLocationY()[i] << ',' << aLocations.GetLocationZ()[i] << ","
-                                 << std::setprecision(15) << (&aMatrixPointer)[j]
-                                 << std::setprecision(15) << (&aMatrixPointer)[j + 1]
-                                 << std::setprecision(15) << (&aMatrixPointer)[j + 2]
+                                 << std::setprecision(15) << (&aMatrixPointer)[j] << std::setprecision(15)
+                                 << (&aMatrixPointer)[j + 1] << std::setprecision(15) << (&aMatrixPointer)[j + 2]
                                  << '\n';
                 j += 3;
             }
 
         }
     }
-
     p_file_synthetic.close();
 }
