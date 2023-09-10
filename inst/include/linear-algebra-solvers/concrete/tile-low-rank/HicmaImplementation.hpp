@@ -51,6 +51,13 @@ namespace exageostat {
                                          T *apMeasurementsMatrix) override;
 
                 /**
+                 * @brief Initializes the chameleon descriptors necessary for the Prediction.
+                 * @copydoc LinearAlgebraMethods::InitiateDescriptors()
+                 */
+                void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
+                                                   dataunits::ExaGeoStatData<T> &aData) override;
+
+                /**
                  * @brief Computes the covariance matrix.
                  * @copydoc LinearAlgebraMethods::CovarianceMatrixCodelet()
                  * 
@@ -83,16 +90,11 @@ namespace exageostat {
 
                 /**
                  * @brief Calculates the log likelihood value of a given value theta.
-                 * @param aN unsigned variable used by NLOPT library.
-                 * @param apTheta theta Vector with three parameter (Variance, Range, Smoothness)
-                 * that is used to to generate the Covariance Matrix.
-                 * @param apGrad double variable used by NLOPT library.
-                 * @param apData MLE_data struct with different MLE inputs.
-                 * @return log likelihood value
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
                 */
                 T
-                ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData<T> &apData,
-                                  configurations::Configurations &apConfigurations, const double *theta,
+                ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData<T> &aData,
+                                  configurations::Configurations &aConfigurations, const double *theta,
                                   T *apMeasurementsMatrix) override;
 
                 /**
@@ -105,89 +107,99 @@ namespace exageostat {
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
-                 * @param aUpperLower Specifies the part of the matrix A to be copied to B.
-                 * @param apA Source matrix A.
-                 * @param apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
-                 * @return Successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLapackCopyTile()
                  */
                 int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
 
                 /**
                  * @brief Conversion from LAPACK layout to HiCMA descriptor.
-                 * @param aUpperLower Specifies the shape of the matrix A.
-                 * @param apAf77 LAPACK matrix.
-                 * @param aLda The leading dimension of the matrix Af77.
-                 * @param apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
-                 * @return Successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLapackToDescriptor()
                  */
                 int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda,
                                                  void *apA) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
-                 * @param Identifies a set of routines sharing common exception handling.
-                 * @return successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatSequenceWait()
                  */
                 int ExaGeoStatSequenceWait(void *apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-                 * @param aUpperLower Whether upper or lower part of the matrix A
-                 * @param apA Symmetric matrix A
-                 * @return
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
                  */
                 int ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
 
                 /**
                 * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
-                * @param aSide Specifies whether op(A) appears on the left or on the right of X
-                * @param aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
-                * @param aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
-                * @param aDiag Specifies whether or not A is unit triangular.
-                * @param aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
-                * @param apA The triangular matrix A
-                * @param apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
-                * @return successful exit
+                * @copydoc LinearAlgebraMethods::ExaGeoStatTrsmTile()
                 */
                 int ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
                                        common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
 
                 /**
                  * @brief Performs matrix multiplication.
-                 * @param aTransA  Specifies whether the matrix A is transposed.
-                 * @param aTransB Specifies whether the matrix B is transposed.
-                 * @param aAlpha Specifies the scalar alpha.
-                 * @param apA Matrix A.
-                 * @param apB Matrix B.
-                 * @param aBeta Specifies the scalar beta.
-                 * @param apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
-                 * @return successful exit.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatGemmTile()
                  */
                 int ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
                                        T aBeta, void *apC) override;
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
-                 * @param apDescA Exageostat descriptor.
-                 * @param apSequence Identifies the sequence of function calls that this call belongs to.
-                 * @param apRequest Identifies this function call (for exception handling purposes).
-                 * @param apDescDet determinant value
-                 * @return
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMeasureDetTileAsync()
                  */
                 int ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
                                                   void *apDescDet) override;
 
                 /**
                  * @brief opy Chameleon descriptor to vector float*.
-                 * @param apDescA Exageostat descriptor A.
-                 * @param apDescB Exageostat descriptor B.
-                 * @param apDescC Exageostat descriptor C.
-                 * @param apSequence Identifies the sequence of function calls that this call belongs to.
-                 * @param apRequest Identifies this function call (for exception handling purposes).
-                 * @return
+                 * @copydoc LinearAlgebraMethods::ExaGeoStaStrideVectorTileAsync()
                  */
                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
                                                    void *apRequest) override;
+
+                /**
+                 * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatPosvTile()
+                 */
+                int ExaGeoStatPosvTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
+
+                /**
+                 * @brief Calculate mean square error (MSE) scalar value the prediction.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMleMseTileAsync()
+                 */
+                int ExaGeoStatMleMseTileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError,
+                                              void *apSequence, void *apRequest) override;
+
+                /**
+                 * Predict missing values base on a set of given values and covariance matrix/
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEPredictTiLE()
+                 */
+                T *
+                ExaGeoStatMLEPredictTILE(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta, int aZMissNumber,
+                                         int aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
+                                         const hardware::ExaGeoStatHardware &aHardware,
+                                         configurations::Configurations &aConfiguration,
+                                         exageostat::dataunits::Locations<T> &aMissLocations,
+                                         exageostat::dataunits::Locations<T> &aObsLocations) override;
+
+                /**
+                 * @brief Copy Lapack matrix to Descriptor Matrix
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLap2Desc()
+                 */
+                void ExaGeoStatLap2Desc(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) override;
+
+                /**
+               * @brief Copy Descriptor Matrix to Lapack matrix.
+               * @copydoc LinearAlgebraMethods::ExaGeoStatDesc2Lap()
+               */
+                void ExaGeoStatDesc2Lap(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) override;
+
+                /**
+                 * @brief Copy the Z matrix into a pointer.
+                 * @copydoc LinearAlgebraMethods::GetZObs()
+                 */
+                void GetZObs(T *apZ, int aSize, exageostat::dataunits::DescriptorData<T> &aDescData) override;
             };
 
             /**

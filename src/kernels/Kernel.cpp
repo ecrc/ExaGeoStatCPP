@@ -26,53 +26,6 @@ using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 
 template<typename T>
-T Kernel<T>::CalculateDistance(Locations<T> &aLocations1, Locations<T> &aLocations2, const int &aIdxLocation1,
-                               const int &aIdxLocation2, const int &aDistanceMetric, const int &aFlagZ) {
-
-    T x1 = aLocations1.GetLocationX()[aIdxLocation1];
-    T y1 = aLocations2.GetLocationY()[aIdxLocation1];
-    T x2 = aLocations2.GetLocationX()[aIdxLocation2];
-    T y2 = aLocations2.GetLocationY()[aIdxLocation2];
-    T dx = x2 - x1;
-    T dy = y2 - y1;
-    T dz;
-
-    if (aLocations1.GetLocationZ() == nullptr || aLocations2.GetLocationZ() == nullptr || aFlagZ == 0) {
-        //if 2D
-        if (aDistanceMetric == 1) {
-            return DistanceEarth(x1, y1, x2, y2);
-        }
-        return sqrt(pow(dx, 2) + pow(dy, 2));
-    } else {
-        //if 3D
-        if (aDistanceMetric == 1) {
-            printf("Great Circle (GC) distance is only valid for 2d\n");
-            exit(0);
-        }
-        T z1 = aLocations1.GetLocationZ()[aIdxLocation1];
-        T z2 = aLocations2.GetLocationZ()[aIdxLocation2];
-        dz = z2 - z1;
-        return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
-    }
-}
-
-static double deg2rad(double deg) {
-    return (deg * PI / 180);
-}
-
-template<typename T>
-T Kernel<T>::DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2) {
-    double lat1r, lon1r, lat2r, lon2r, u, v;
-    lat1r = deg2rad(aLatitude1);
-    lon1r = deg2rad(aLongitude1);
-    lat2r = deg2rad(aLatitude2);
-    lon2r = deg2rad(aLongitude2);
-    u = sin((lat2r - lat1r) / 2);
-    v = sin((lon2r - lon1r) / 2);
-    return 2.0 * EARTH_RADIUS * asin(sqrt(u * u + cos(lat1r) * cos(lat2r) * v * v));
-}
-
-template<typename T>
 T Kernel<T>::CalculateDerivativeBesselInputNu(const T &aOrder, const T &aInputValue) {
     if (aOrder < 1) {
         T nu_new = abs(aOrder - 1);

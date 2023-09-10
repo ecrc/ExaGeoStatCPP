@@ -52,6 +52,13 @@ namespace exageostat {
                                          T *apMeasurementsMatrix) override;
 
                 /**
+                 * @brief Initializes the chameleon descriptors necessary for the Prediction.
+                 * @copydoc LinearAlgebraMethods::InitiateDescriptors()
+                 */
+                void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
+                                                   dataunits::ExaGeoStatData<T> &aData) override;
+
+                /**
                  * @brief Computes the covariance matrix.
                  * @copydoc LinearAlgebraMethods::CovarianceMatrixCodelet()
                  * 
@@ -87,8 +94,8 @@ namespace exageostat {
                  * @brief Calculates the log likelihood value of a given value theta.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
                 */
-                T ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &apData,
-                                    configurations::Configurations &apConfigurations, const double *theta,
+                T ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &aData,
+                                    configurations::Configurations &aConfigurations, const double *theta,
                                     T *apMeasurementsMatrix) override;
 
                 /**
@@ -100,51 +107,34 @@ namespace exageostat {
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
-                 * @param[in] aUpperLower Specifies the part of the matrix A to be copied to B.
-                 * @param[in] apA Source matrix A.
-                 * @param[in,out] apB Destination matrix B. On exit, B = A in the locations specified by UPLO.
-                 * @return Successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLapackCopyTile()
                  */
                 int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
 
                 /**
                 * @brief Conversion from LAPACK layout to CHAM_desct_t.
-                * @param[in] aUpperLower Specifies the shape of the matrix A.
-                * @param[in] apAf77 LAPACK matrix.
-                * @param[in] aLda The leading dimension of the matrix Af77.
-                * @param[in] apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
-                * @return successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLapackToDescriptor()
                 */
                 int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda,
                                                  void *apA) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
-                 * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
-                 * @return successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatSequenceWait()
                  */
                 int
                 ExaGeoStatSequenceWait(void *apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-                 * @param[in] aUpperLower Whether upper or lower part of the matrix A
-                 * @param[in] apA Symmetric matrix A
-                 * @return successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
                  */
                 int
                 ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
 
                 /**
                  * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
-                 * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X
-                 * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
-                 * @param[in] aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
-                 * @param[in] aDiag Specifies whether or not A is unit triangular.
-                 * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
-                 * @param[in] apA The triangular matrix A
-                 * @param[in,out] apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
-                 * @return successful exit
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatTrsmTile()
                  */
                 int
                 ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
@@ -152,14 +142,7 @@ namespace exageostat {
 
                 /**
                  * @brief Performs matrix multiplication.
-                 * @param[in] aTransA  Specifies whether the matrix A is transposed.
-                 * @param[in] aTransB Specifies whether the matrix B is transposed.
-                 * @param[in] aAlpha Specifies the scalar alpha.
-                 * @param[in] apA Matrix A.
-                 * @param[in] apB Matrix B.
-                 * @param[in] aBeta Specifies the scalar beta.
-                 * @param[in,out] apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
-                 * @return successful exit.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatGemmTile()
                  */
                 int
                 ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
@@ -167,11 +150,7 @@ namespace exageostat {
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
-                 * @param[in] apDescA Exageostat descriptor.
-                 * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
-                 * @param[in] apRequest Identifies this function call (for exception handling purposes).
-                 * @param[in] apDescDet determinant value
-                 * @return
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMeasureDetTileAsync()
                  */
                 int
                 ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
@@ -179,16 +158,54 @@ namespace exageostat {
 
                 /**
                  * @brief opy Chameleon descriptor to vector float*.
-                 * @param[in] apDescA Exageostat descriptor A.
-                 * @param[in] apDescB Exageostat descriptor B.
-                 * @param[in] apDescC Exageostat descriptor C.
-                 * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
-                 * @param[in] apRequest Identifies this function call (for exception handling purposes).
-                 * @return
+                 * @copydoc LinearAlgebraMethods::ExaGeoStaStrideVectorTileAsync()
                  */
                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
                                                    void *apRequest) override;
 
+                /**
+                 * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatPosvTile()
+                 */
+                int ExaGeoStatPosvTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
+
+                /**
+                 * @brief Calculate mean square error (MSE) scalar value the prediction.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMleMseTileAsync()
+                 */
+                int ExaGeoStatMleMseTileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError,
+                                              void *apSequence, void *apRequest) override;
+
+                /**
+                 * Predict missing values base on a set of given values and covariance matrix/
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEPredictTILE()
+                 */
+                T *
+                ExaGeoStatMLEPredictTILE(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta, int aZMissNumber,
+                                         int aZObsNumber,
+                                         T *apZObs, T *apZActual, T *apZMiss,
+                                         const hardware::ExaGeoStatHardware &aHardware,
+                                         configurations::Configurations &aConfiguration,
+                                         exageostat::dataunits::Locations<T> &aMissLocations,
+                                         exageostat::dataunits::Locations<T> &aObsLocations) override;
+
+                /**
+                 * @brief Copy Lapack matrix to Descriptor Matrix
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLap2Desc()
+                 */
+                void ExaGeoStatLap2Desc(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) override;
+
+                /**
+                 * @brief Copy Descriptor Matrix to Lapack matrix.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatDesc2Lap()
+                 */
+                void ExaGeoStatDesc2Lap(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) override;
+
+                /**
+                 * @brief Copy the Z matrix into a pointer.
+                 * @copydoc LinearAlgebraMethods::GetZObs()
+                 */
+                void GetZObs(T *apZ, int aSize, exageostat::dataunits::DescriptorData<T> &aDescData) override;
             };
 
             /**

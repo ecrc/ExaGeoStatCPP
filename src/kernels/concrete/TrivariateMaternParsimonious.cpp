@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/TrivariateMaternParsimonious.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 TrivariateMaternParsimonious<T>::TrivariateMaternParsimonious() {
@@ -91,7 +93,8 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
-            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[3];
+            expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                    flag) / aLocalTheta[3];
 
             if (expr == 0) {
 

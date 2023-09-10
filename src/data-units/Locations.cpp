@@ -11,6 +11,8 @@
  * @author Sameh Abdulah
  * @date 2023-02-27
 **/
+#include <iostream>
+
 #include <data-units/Locations.hpp>
 
 using namespace exageostat::dataunits;
@@ -18,7 +20,9 @@ using namespace exageostat::common;
 
 template<typename T>
 void Locations<T>::SetLocationX(T &aLocationX) {
-    this->mpLocationX = &aLocationX;
+    if(aLocationX) {
+        this->mpLocationX = &aLocationX;
+    }
 }
 
 template<typename T>
@@ -31,7 +35,9 @@ T *Locations<T>::GetLocationX() {
 
 template<typename T>
 void Locations<T>::SetLocationY(T &aLocationY) {
-    this->mpLocationY = &aLocationY;
+    if(aLocationY) {
+        this->mpLocationY = &aLocationY;
+    }
 }
 
 template<typename T>

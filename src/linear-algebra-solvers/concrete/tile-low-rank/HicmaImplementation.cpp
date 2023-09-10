@@ -53,15 +53,14 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
     int approximation_mode = aConfigurations.GetApproximationMode();
     string actual_observations_path = aConfigurations.GetActualObservationsFilePath();
 
-    int nZobs_value;
+    int z_obs_number_value;
     if (actual_observations_path.empty()) {
-        nZobs_value = n - nZmiss;
+        z_obs_number_value = n - nZmiss;
     } else {
-        nZobs_value = n;
+        z_obs_number_value = n;
     }
 
-    aConfigurations.SetKnownObservationsValues(nZobs_value);
-    int nZobs = aConfigurations.GetKnownObservationsValues();
+    int nZobs = aConfigurations.CalculateZObsNumber();
 
     // For distributed system and should be removed
     T *Zcpy = new T[n];
@@ -198,6 +197,12 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
 }
 
 template<typename T>
+void HicmaImplementation<T>::InitiatePredictionDescriptors(
+        configurations::Configurations &aConfigurations, dataunits::ExaGeoStatData<T> &aData) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
 void
 HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
                                                          T *apTheta) {
@@ -205,10 +210,14 @@ HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorDa
 }
 
 template<typename T>
-void HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
-                                                     int &aTriangularPart, Locations<T> *apLocation1,
-                                                     Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                     T *aLocalTheta, int aDistanceMetric, const string &aKernelName) {
+void
+HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                                                int &aTriangularPart,
+                                                Locations<T> *apLocation1,
+                                                Locations<T> *apLocation2,
+                                                Locations<T> *apLocation3,
+                                                T *aLocalTheta, int aDistanceMetric,
+                                                const string &aKernelName) {
 
     // Check for initialize the Hicma context.
     if (!this->mpContext) {
@@ -217,8 +226,9 @@ void HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescri
     }
 
     HICMA_option_t options;
-    HICMA_RUNTIME_options_init(&options, (HICMA_context_t * )
-    this->mpContext, (HICMA_sequence_t *) apDescriptorData->GetSequence(), (HICMA_request_t *) apDescriptorData->GetRequest());
+    HICMA_RUNTIME_options_init(&options, (HICMA_context_t *)
+                                       this->mpContext, (HICMA_sequence_t *) apDescriptorData->GetSequence(),
+                               (HICMA_request_t *) apDescriptorData->GetRequest());
     int tempmm, tempnn;
 
     kernels::Kernel<T> *pKernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T >>::Create(aKernelName);
@@ -258,8 +268,8 @@ void HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescri
         }
     }
     HICMA_RUNTIME_options_ws_free(&options);
-    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t * )
-    this->mpContext);
+    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t *)
+            this->mpContext);
     HICMA_Sequence_Wait((HICMA_sequence_t *) apDescriptorData->GetSequence());
     delete pKernel;
 }
@@ -318,9 +328,19 @@ HicmaImplementation<T>::CopyDescriptorZ(DescriptorData<T> *apDescriptorData, voi
 
 template<typename T>
 T HicmaImplementation<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &apHardware,
-                                            dataunits::ExaGeoStatData<T> &apData,
+                                            dataunits::ExaGeoStatData<T> &aData,
                                             configurations::Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix) {
+
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
+T *HicmaImplementation<T>::ExaGeoStatMLEPredictTILE(ExaGeoStatData<T> &aData, T *apTheta, int aZMissNumber,
+                                                    int aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
+                                                    const hardware::ExaGeoStatHardware &aHardware,
+                                                    Configurations &aConfiguration, Locations<T> &aMissLocations,
+                                                    Locations<T> &aObsLocations) {
     throw std::runtime_error("unimplemented for now");
 }
 
@@ -370,5 +390,36 @@ HicmaImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDe
 template<typename T>
 int HicmaImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
                                                           void *apDescDet) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
+int HicmaImplementation<T>::ExaGeoStatMleMseTileAsync(void *apDescZPredict, void *apDescZMiss,
+                                                      void *apDescError, void *apSequence,
+                                                      void *apRequest) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
+int
+HicmaImplementation<T>::ExaGeoStatPosvTile(common::UpperLower aUpperLower, void *apA, void *apB) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+
+template<typename T>
+void HicmaImplementation<T>::ExaGeoStatLap2Desc(T *apA, int aLDA, void *apDescA,
+                                                common::UpperLower aUpperLower) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
+void HicmaImplementation<T>::ExaGeoStatDesc2Lap(T *apA, int aLDA, void *apDescA,
+                                                common::UpperLower aUpperLower) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
+void HicmaImplementation<T>::GetZObs(T *apZ, int aSize, exageostat::dataunits::DescriptorData<T> &aDescData) {
     throw std::runtime_error("unimplemented for now");
 }

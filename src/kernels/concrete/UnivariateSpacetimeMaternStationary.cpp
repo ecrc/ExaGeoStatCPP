@@ -17,9 +17,11 @@
 #include <gsl/gsl_sf_bessel.h>
 
 #include <kernels/concrete/UnivariateSpacetimeMaternStationary.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 UnivariateSpacetimeMaternStationary<T>::UnivariateSpacetimeMaternStationary() {
@@ -65,7 +67,8 @@ UnivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, c
         for (j = 0; j < aColumnsNumber; j++) {
             z1 = aLocation2.GetLocationZ()[j0];
 
-            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                    flag) / aLocalTheta[1];
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[4]) / aLocalTheta[3] + 1.0, aLocalTheta[5] / 2.0);
             expr3 = expr / expr2;
             expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[4]) / aLocalTheta[3] + 1.0,

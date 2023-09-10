@@ -10,8 +10,9 @@
 # @date 2023-06-08
 
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/DiskWriter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/DistanceCalculationHelpers.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Prediction.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/PredictionHelpers.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/PredictionAuxiliaryFunctions.cpp
         ${SOURCES}
         PARENT_SCOPE
 )

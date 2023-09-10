@@ -42,6 +42,11 @@
  */
 #define PI (3.141592653589793)
 
+/**
+ * Earth Radius value.
+ */
+#define EARTH_RADIUS 6371.0
+
 namespace exageostat {
     namespace common {
 
@@ -140,7 +145,10 @@ namespace exageostat {
             DESCRIPTOR_C12RK = 20,
             DESCRIPTOR_C22D = 21,
             DESCRIPTOR_C22UV = 22,
-            DESCRIPTOR_C22RK = 23
+            DESCRIPTOR_C22RK = 23,
+            DESCRIPTOR_MSE_1 = 24,
+            DESCRIPTOR_MSE_2 = 25,
+            DESCRIPTOR_Z_MISS = 26
         };
 
         /**

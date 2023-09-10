@@ -62,6 +62,8 @@ Configurations::Configurations() {
     SetActualObservationsFilePath("");
     SetRecoveryFile("");
     SetPrecision(common::DOUBLE);
+    SetIsMSPE(false);
+    SetIsIDW(false);
 }
 
 
@@ -130,10 +132,12 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetLoggerPath(argument_value);
             } else {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
-                      argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
+                      argument_name == "--Dim" ||
+                      argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
+                      argument_name == "--ZMiss" ||
                       argument_name == "--initial_theta" || argument_name == "--itheta" ||
                       argument_name == "--iTheta" || argument_name == "--estimated_theta" ||
-                      argument_name == "--etheta" || argument_name == "--tTheta" || argument_name == "--iterations" ||
+                      argument_name == "--etheta" || argument_name == "--eTheta" || argument_name == "--iterations" ||
                       argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
                       argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
                       argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
@@ -158,7 +162,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetLogger(true);
             } else {
                 if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
-                      argument_name == "--synthetic_data" || argument_name == "--synthetic"))
+                      argument_name == "--synthetic_data" || argument_name == "--synthetic" ||
+                      argument_name == "--mspe" || argument_name == "--MSPE" || argument_name == "--idw" ||
+                      argument_name == "--IDW"))
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
             }
@@ -212,12 +218,6 @@ void Configurations::InitializeDataGenerationArguments() {
             if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                 argument_name == "--Dim") {
                 SetDimension(CheckDimensionValue(argument_value));
-            } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
-                SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
-            } else if (argument_name == "--estimated_theta" || argument_name == "--etheta" ||
-                       argument_name == "--eTheta") {
-                vector<double> theta = ParseTheta(argument_value);
-                SetEstimatedTheta(theta);
             } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
                        argument_name == "--iTheta") {
                 vector<double> theta = ParseTheta(argument_value);
@@ -279,20 +279,61 @@ void Configurations::InitializeDataModelingArguments() {
     InitTheta(GetUpperBounds(), parameters_number);
     SetUpperBounds(GetUpperBounds());
     SetStartingTheta(GetLowerBounds());
-
-    //// TODO: Move this part in Prediction.
-//    SetEstimatedTheta(InitTheta(GetEstimatedTheta(), parameters_number));
-//    for (int i = 0; i < parameters_number; i++) {
-//        if (GetEstimatedTheta()[i] != -1) {
-//            GetLowerBounds()[i] = GetEstimatedTheta()[i];
-//            GetUpperBounds()[i] = GetEstimatedTheta()[i];
-//            GetStartingTheta()[i] = GetEstimatedTheta()[i];
-//        }
-//    }
-
 }
 
 void Configurations::InitializeDataPredictionArguments() {
+    string argument;
+    string argument_name;
+    string argument_value;
+    int equal_sign_Idx;
+
+    for (int i = 1; i < this->mArgC; ++i) {
+        argument = this->mpArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
+        if (equal_sign_Idx != string::npos) {
+            argument_value = argument.substr(equal_sign_Idx + 1);
+            if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss" || argument_name == "--ZMiss") {
+                SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
+            } else if (argument_name == "--estimated_theta" || argument_name == "--etheta" ||
+                       argument_name == "--eTheta") {
+                vector<double> theta = ParseTheta(argument_value);
+                SetEstimatedTheta(theta);
+            }
+        }
+    }
+
+    // Loop through the arguments that are specific for Prediction.
+    for (int i = 1; i < this->mArgC; ++i) {
+        argument = this->mpArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
+
+        if (argument_name == "--mspe" || argument_name == "--MSPE") {
+            if (GetUnknownObservationsNb() <= 0) {
+                throw domain_error(
+                        "You need to set ZMiss number, as the number of missing values should be positive value");
+            }
+            SetIsMSPE(true);
+        } else if (argument_name == "--idw" || argument_name == "--IDW") {
+            if (GetUnknownObservationsNb() <= 0) {
+                throw domain_error(
+                        "You need to set ZMiss number, as the number of missing values should be positive value");
+            }
+            SetIsIDW(true);
+        }
+    }
+
+    int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[GetKernelName()];
+    InitTheta(GetEstimatedTheta(), parameters_number);
+    SetEstimatedTheta(GetEstimatedTheta());
+    for (int i = 0; i < parameters_number; i++) {
+        if (GetEstimatedTheta()[i] != -1) {
+            GetLowerBounds()[i] = GetEstimatedTheta()[i];
+            GetUpperBounds()[i] = GetEstimatedTheta()[i];
+            GetStartingTheta()[i] = GetEstimatedTheta()[i];
+        }
+    }
 }
 
 void Configurations::PrintUsage() {
@@ -310,7 +351,7 @@ void Configurations::PrintUsage() {
     cout << "\t\t --dts=value : Used to set the Dense Tile size." << endl;
     cout << "\t\t --lts=value : Used to set the Low Tile size." << endl;
     cout << "\t\t --Zmiss=value : Used to set number of unknown observation to be predicted." << endl;
-    cout << "\t\t --observations_file=PATH/TO/File : Used to path the observations file path." << endl;
+    cout << "\t\t --observations_file=PATH/TO/File : Used to pass the observations file path." << endl;
     cout << "\t\t --max_rank=value : Used to the max rank value." << endl;
     cout << "\t\t --olb=value : Lower bounds for optimization." << endl;
     cout << "\t\t --oub=value : Upper bounds for optimization." << endl;
@@ -323,6 +364,8 @@ void Configurations::PrintUsage() {
     cout << "\t\t --max_mle_iterations=value : Maximum number of MLE iterations." << endl;
     cout << "\t\t --tolerance : MLE tolerance between two iterations." << endl;
     cout << "\t\t --synthetic_data : Used to enable generating synthetic data." << endl;
+    cout << "\t\t --mspe: Used to enable mean square prediction error." << endl;
+    cout << "\t\t --idw: Used to IDW prediction auxiliary function." << endl;
     cout << "\t\t --OOC : Used to enable Out of core technology." << endl;
     cout << "\t\t --approximation_mode : Used to enable Approximation mode." << endl;
     cout << "\t\t --log : Enable logging." << endl;
@@ -562,3 +605,7 @@ void Configurations::PrintSummary() {
 }
 
 bool Configurations::mIsPrinted = false;
+
+int Configurations::CalculateZObsNumber() {
+    return this->GetProblemSize() - GetUnknownObservationsNb();
+}

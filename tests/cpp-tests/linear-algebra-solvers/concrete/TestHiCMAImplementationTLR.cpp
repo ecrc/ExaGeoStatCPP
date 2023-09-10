@@ -81,7 +81,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
         double meanSquareError = synthetic_data_configurations.GetMeanSquareError();
         string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
-        int nZobs = synthetic_data_configurations.GetKnownObservationsValues();
+        int nZobs = synthetic_data_configurations.CalculateZObsNumber();
 
         HICMA_descriptorC = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
         auto *HICMA_descriptorZ = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
@@ -240,7 +240,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         int maxRank = synthetic_data_configurations.GetMaxRank();
         int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
         string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
-        int nZobs = synthetic_data_configurations.GetKnownObservationsValues();
+        int nZobs = synthetic_data_configurations.CalculateZObsNumber();
 
         if (nZmiss != 0) {
             if (actualObservationsFilePath.empty()) {

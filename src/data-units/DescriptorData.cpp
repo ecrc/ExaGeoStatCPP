@@ -201,6 +201,12 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_C22UV";
         case DESCRIPTOR_C22RK:
             return "DESCRIPTOR_C22RK";
+        case DESCRIPTOR_MSE_1:
+            return "DESCRIPTOR_MSE_1";
+        case DESCRIPTOR_MSE_2:
+            return "DESCRIPTOR_MSE_2";
+        case DESCRIPTOR_Z_MISS:
+            return "DESCRIPTOR_Z_MISS";
         default:
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");
