@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/BivariateMaternFlexible.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 BivariateMaternFlexible<T>::BivariateMaternFlexible() {
@@ -79,9 +81,12 @@ BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
-            expr1 = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / scale1;
-            expr2 = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / scale2;
-            expr12 = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / scale12;
+            expr1 = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                     flag) / scale1;
+            expr2 = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                     flag) / scale2;
+            expr12 = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                      flag) / scale12;
             if (expr1 == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
                 if (((i + 1) + j * aRowsNumber) < aRowsNumber * aColumnsNumber) {

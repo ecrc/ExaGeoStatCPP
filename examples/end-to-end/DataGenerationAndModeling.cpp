@@ -19,7 +19,6 @@ using namespace std;
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;
-using namespace exageostat::common;
 using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 
@@ -32,7 +31,7 @@ using namespace exageostat::dataunits;
  */
 int main(int argc, char **argv) {
 
-    // Create a new configurations object. it needs to be a heap variable
+    // Create a new configurations object.
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
@@ -45,7 +44,7 @@ int main(int argc, char **argv) {
     ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
     cout << "** ExaGeoStat data Modeling** " << endl;
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
-    cout << "** Finalize data generation and modeling ** " << endl;
+    cout << "** All example stages have been completed successfully ** " << endl;
 
     return 0;
 }

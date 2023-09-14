@@ -12,7 +12,6 @@
  * @date 2023-06-21
 **/
 
-#include <cmath>
 #include <iostream>
 
 #include <configurations/Configurations.hpp>
@@ -22,7 +21,6 @@ using namespace std;
 
 using namespace exageostat::api;
 using namespace exageostat::dataunits;
-using namespace exageostat::common;
 using namespace exageostat::configurations;
 using namespace exageostat::hardware;
 
@@ -52,7 +50,7 @@ int main(int argc, char **argv) {
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
     cout << "** initialize ExaGeoStat hardware ** " << endl;
-    auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
 
     //Data Setup
     cout << "** Create ExaGeoStat data ** " << endl;
@@ -83,7 +81,7 @@ int main(int argc, char **argv) {
 
     std::cout << "** ExaGeoStat Data Modeling ** " << std::endl;
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
-    cout << "** Finalize data modeling ** " << endl;
+    cout << "** All example stages have been completed successfully ** " << endl;
     // Freeing the allocated memory.
     delete[] z_matrix;
     return 0;

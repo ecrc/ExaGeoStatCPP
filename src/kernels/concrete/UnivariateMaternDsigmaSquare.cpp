@@ -15,9 +15,11 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDsigmaSquare.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 UnivariateMaternDsigmaSquare<T>::UnivariateMaternDsigmaSquare() {
@@ -54,7 +56,8 @@ void UnivariateMaternDsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                    flag) / aLocalTheta[1];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 1;
             } else {

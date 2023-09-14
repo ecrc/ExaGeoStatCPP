@@ -25,7 +25,6 @@
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 
-
 /**
  * Verbose macro for logging and debugging mode
  */

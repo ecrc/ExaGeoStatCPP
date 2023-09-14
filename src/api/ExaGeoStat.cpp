@@ -12,10 +12,11 @@
 **/
 
 #include <api/ExaGeoStat.hpp>
-#include <configurations/Configurations.hpp>
 #include <data-generators/DataGenerator.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <data-units/ModelingDataHolders.hpp>
+#include <prediction/Prediction.hpp>
+#include <configurations/Configurations.hpp>
 
 using namespace std;
 using namespace nlopt;
@@ -26,6 +27,7 @@ using namespace exageostat::linearAlgebra;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::hardware;
+using namespace exageostat::prediction;
 
 
 template<typename T>
@@ -52,6 +54,9 @@ void ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, 
 
     // Add the data modeling arguments.
     aConfigurations.InitializeDataModelingArguments();
+    // Register and create a kernel object
+    kernels::Kernel<T> *kernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
+
     int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
     int max_number_of_iterations = aConfigurations.GetMaxMleIterations();
     // Setting struct of data to pass to the modeling.
@@ -69,6 +74,7 @@ void ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, 
     optimizing_function.set_max_objective(ExaGeoStatMleTileAPI, (void *) modeling_data);
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
+    delete kernel;
     delete modeling_data;
 }
 
@@ -83,4 +89,15 @@ ExaGeoStat<T>::ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vect
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
             config->GetComputation());
     return linear_algebra_solver->ExaGeoStatMleTile(*hardware, *data, *config, aTheta.data(), measurements);
+}
+
+
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
+                                         configurations::Configurations &aConfigurations,
+                                         dataunits::ExaGeoStatData<T> &aData) {
+    Prediction<T> predictor;
+    // Add the data prediction arguments.
+    aConfigurations.InitializeDataPredictionArguments();
+    predictor.PredictMissingData(aHardware, aData, aConfigurations);
 }

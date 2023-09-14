@@ -205,10 +205,6 @@ namespace exageostat {
 
             CREATE_GETTER_FUNCTION(MeanSquareError, double, "MeanSquareError")
 
-            CREATE_SETTER_FUNCTION(KnownObservationsValues, int, aKnownObservationsValues, "KnownObservationsValues")
-
-            CREATE_GETTER_FUNCTION(KnownObservationsValues, int, "KnownObservationsValues")
-
             CREATE_SETTER_FUNCTION(LowerBounds, std::vector<double> &, apTheta, "LowerBounds")
 
             CREATE_GETTER_FUNCTION(LowerBounds, std::vector<double> &, "LowerBounds")
@@ -239,10 +235,6 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(Dimension, exageostat::common::Dimension, aDimension, "Dimension")
 
             CREATE_GETTER_FUNCTION(Dimension, exageostat::common::Dimension, "Dimension")
-
-            CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
-
-            CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
 
             CREATE_SETTER_FUNCTION(IsSynthetic, bool, aIsSynthetic, "IsSynthetic")
 
@@ -282,8 +274,21 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(Tolerance, double, aTolerance, "Tolerance")
 
             CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")
+
             /** END OF THE DATA MODELING MODULES. **/
             /** START OF THE DATA PREDICTION MODULES. **/
+
+            CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
+
+            CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
+
+            CREATE_SETTER_FUNCTION(IsMSPE, bool, aIsMSPE, "IsMSPE")
+
+            CREATE_GETTER_FUNCTION(IsMSPE, bool, "IsMSPE")
+
+            CREATE_SETTER_FUNCTION(IsIDW, bool, aIsIDW, "IsIDW")
+
+            CREATE_GETTER_FUNCTION(IsIDW, bool, "IsIDW")
 
             /** END OF THE DATA PREDICTION MODULES. **/
 
@@ -356,6 +361,13 @@ namespace exageostat {
              * @return void
              */
             inline void PrintSummary();
+
+            /**
+             * @brief Calculates the number of observed measurements.
+             * @return number of observed measurements.
+             */
+            int CalculateZObsNumber();
+
 
         private:
 
