@@ -201,6 +201,46 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_C22UV";
         case DESCRIPTOR_C22RK:
             return "DESCRIPTOR_C22RK";
+        case DESCRIPTOR_MSE_1:
+            return "DESCRIPTOR_MSE_1";
+        case DESCRIPTOR_MSE_2:
+            return "DESCRIPTOR_MSE_2";
+        case DESCRIPTOR_Z_MISS:
+            return "DESCRIPTOR_Z_MISS";
+        case DESCRIPTOR_k_T :
+            return "DESCRIPTOR_k_T";
+        case DESCRIPTOR_k_A :
+            return "DESCRIPTOR_k_A";
+        case DESCRIPTOR_k_A_TMP :
+            return "DESCRIPTOR_k_A_TMP";
+        case DESCRIPTOR_k_T_TMP :
+            return "DESCRIPTOR_k_T_TMP";
+        case DESCRIPTOR_K_T :
+            return "DESCRIPTOR_K_T";
+        case DESCRIPTOR_K_T_TMP :
+            return "DESCRIPTOR_K_T_TMP";
+        case DESCRIPTOR_K_A :
+            return "DESCRIPTOR_K_A";
+        case DESCRIPTOR_EXPR_1 :
+            return "DESCRIPTOR_EXPR_1";
+        case DESCRIPTOR_EXPR_2 :
+            return "DESCRIPTOR_EXPR_2";
+        case DESCRIPTOR_EXPR_3 :
+            return "DESCRIPTOR_EXPR_3";
+        case DESCRIPTOR_EXPR_4 :
+            return "DESCRIPTOR_EXPR_4";
+        case DESCRIPTOR_MLOE :
+            return "DESCRIPTOR_MLOE";
+        case DESCRIPTOR_MMOM:
+            return "DESCRIPTOR_MMOM";
+        case DESCRIPTOR_ALPHA :
+            return "DESCRIPTOR_ALPHA";
+        case DESCRIPTOR_TRUTH_ALPHA :
+            return "DESCRIPTOR_TRUTH_ALPHA";
+        case DESCRIPTOR_TIMATED_ALPHA :
+            return "DESCRIPTOR_TIMATED_ALPHA";
+        case DESCRIPTOR_MLOE_MMOM :
+            return "DESCRIPTOR_MLOE_MMOM";
         default:
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");

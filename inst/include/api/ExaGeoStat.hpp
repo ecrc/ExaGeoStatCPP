@@ -54,10 +54,10 @@ namespace exageostat {
              * @return void
              *
              */
-            static void ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,
-                                               configurations::Configurations &aConfigurations,
-                                               exageostat::dataunits::ExaGeoStatData<T> &aData,
-                                               T *apMeasurementsMatrix = nullptr);
+            static T ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,
+                                            configurations::Configurations &aConfigurations,
+                                            exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                            T *apMeasurementsMatrix = nullptr);
 
 
             /**
@@ -68,7 +68,20 @@ namespace exageostat {
              * @return double MLE results.
              */
             static double
-            ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
+            ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
+
+            /**
+             * @brief Predict missing measurements values.
+             * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
+             * @param[in] aConfigurations Reference to Configurations object containing user input data.
+             * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
+             * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
+             * @return void
+             */
+            static void
+            ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
+                                 configurations::Configurations &aConfigurations,
+                                 exageostat::dataunits::ExaGeoStatData<T> &aData, T *apMeasurementsMatrix = nullptr);
 
         private:
             /**

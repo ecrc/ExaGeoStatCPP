@@ -12,7 +12,6 @@
  * @date 2023-06-21
 **/
 
-#include <cmath>
 #include <iostream>
 
 #include <configurations/Configurations.hpp>
@@ -22,7 +21,6 @@ using namespace std;
 
 using namespace exageostat::api;
 using namespace exageostat::dataunits;
-using namespace exageostat::common;
 using namespace exageostat::configurations;
 using namespace exageostat::hardware;
 
@@ -51,11 +49,12 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    cout << "** initialize ExaGeoStat hardware ** " << endl;
-    auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
+    LOGGER("** initialize ExaGeoStat hardware ** ")
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers());
 
     //Data Setup
-    cout << "** Create ExaGeoStat data ** " << endl;
+    LOGGER("** Create ExaGeoStat data ** ")
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
 
     // Initiating the matrix of the CHAMELEON Descriptor Z.
@@ -72,19 +71,23 @@ int main(int argc, char **argv) {
                                      0.347951476310368490, 0.092042420080872822, 0.465445944914930965,
                                      0.528267338063630132, 0.974792095826657490, 0.552452887769893985,
                                      0.877592126344701295};
+
     auto *location_y = new double[N]{0.103883421072709245, 0.135790035858701447, 0.434683756771190977,
                                      0.400778210116731537, 0.168459601739528508, 0.105195696955825133,
                                      0.396398870832379624, 0.296757457846952011, 0.564507515068284116,
                                      0.627679865720607300, 0.928648813611047563, 0.958236057068741931,
                                      0.573571374074921758, 0.568657969024185528, 0.935835812924391552,
                                      0.942824444953078489};
-    data.GetLocations()->SetLocationX(*location_x);
-    data.GetLocations()->SetLocationY(*location_y);
 
-    std::cout << "** ExaGeoStat Data Modeling ** " << std::endl;
+    data.GetLocations()->SetLocationX(*location_x, N);
+    data.GetLocations()->SetLocationY(*location_y, N);
+
+    LOGGER("** ExaGeoStat Data Modeling ** ")
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
-    cout << "** Finalize data modeling ** " << endl;
+    LOGGER("** All example stages have been completed successfully ** ")
     // Freeing the allocated memory.
     delete[] z_matrix;
+    delete[] location_x;
+    delete[] location_y;
     return 0;
 }

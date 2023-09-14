@@ -19,7 +19,6 @@ using namespace std;
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;
-using namespace exageostat::common;
 using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 
@@ -32,20 +31,20 @@ using namespace exageostat::dataunits;
  */
 int main(int argc, char **argv) {
 
-    // Create a new configurations object. it needs to be a heap variable
+    // Create a new configurations object.
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    cout << "** initialize ExaGeoStat hardware ** " << endl;
+    LOGGER("** initialize ExaGeoStat hardware ** ")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers()); // Or you could use configurations.GetComputation().
-    cout << "** Create ExaGeoStat data ** " << endl;
+    LOGGER("** Create ExaGeoStat data ** ")
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
-    cout << "** ExaGeoStat data generation** " << endl;
+    LOGGER("** ExaGeoStat data generation ** ")
     ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
-    cout << "** ExaGeoStat data Modeling** " << endl;
+    LOGGER("** ExaGeoStat data Modeling ** ")
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
-    cout << "** Finalize data generation and modeling ** " << endl;
+    LOGGER("** All example stages have been completed successfully ** ")
 
     return 0;
 }

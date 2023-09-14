@@ -18,13 +18,15 @@
 
 #include <configurations/Configurations.hpp>
 #include <kernels/Kernel.hpp>
+#include <common/Utils.hpp>
 
 using namespace std;
 
 using namespace exageostat::configurations;
 using namespace exageostat::common;
 
-RunMode Configurations::mRunMode = RunMode::STANDARD_MODE;
+Verbose Configurations::mVerbosity = Verbose::STANDARD_MODE;
+bool Configurations::mIsThetaInit = false;
 
 Configurations::Configurations() {
 
@@ -62,6 +64,9 @@ Configurations::Configurations() {
     SetActualObservationsFilePath("");
     SetRecoveryFile("");
     SetPrecision(common::DOUBLE);
+    SetIsMSPE(false);
+    SetIsIDW(false);
+    SetIsMLOEMMOM(false);
 }
 
 
@@ -73,7 +78,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
     string example_name = apArgV[0];
     // Remove the './'
     example_name.erase(0, 2);
-    cout << "Running " << example_name << endl;
+    LOGGER("Running " + example_name)
     string argument;
     string argument_name;
     string argument_value;
@@ -119,28 +124,40 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetLowTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--maxRank" || argument_name == "--maxrank" || argument_name == "--max_rank") {
                 SetMaxRank(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
+                       argument_name == "--iTheta") {
+                vector<double> theta = ParseTheta(argument_value);
+                SetInitialTheta(theta);
+            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
+                vector<double> theta = ParseTheta(argument_value);
+                SetLowerBounds(theta);
+                SetStartingTheta(theta);
+            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
+                vector<double> theta = ParseTheta(argument_value);
+                SetUpperBounds(theta);
+            } else if (argument_name == "--estimated_theta" || argument_name == "--etheta" ||
+                       argument_name == "--eTheta") {
+                vector<double> theta = ParseTheta(argument_value);
+                SetEstimatedTheta(theta);
             } else if (argument_name == "--ObservationsFile" || argument_name == "--observationsfile" ||
                        argument_name == "--observations_file") {
                 SetActualObservationsFilePath(argument_value);
             } else if (argument_name == "--Seed" || argument_name == "--seed") {
                 SetSeed(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--runmode" || argument_name == "--runMode" || argument_name == "--run_mode") {
-                ParseRunMode(argument_value);
+            } else if (argument_name == "--verbose" || argument_name == "--Verbose") {
+                ParseVerbose(argument_value);
             } else if (argument_name == "--logpath" || argument_name == "--log_path" || argument_name == "--logPath") {
                 SetLoggerPath(argument_value);
             } else {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                       argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
-                      argument_name == "--initial_theta" || argument_name == "--itheta" ||
-                      argument_name == "--iTheta" || argument_name == "--estimated_theta" ||
-                      argument_name == "--etheta" || argument_name == "--tTheta" || argument_name == "--iterations" ||
+                      argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
+                      argument_name == "--iterations" ||
                       argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
                       argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
                       argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
-                      argument_name == "--log_file_name" || argument_name == "--logFileName" ||
-                      argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds" ||
-                      argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds")) {
-                    cout << "!! " << argument_name << " !!" << endl;
+                      argument_name == "--log_file_name" || argument_name == "--logFileName")) {
+                    LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
                 }
@@ -158,9 +175,14 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetLogger(true);
             } else {
                 if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
-                      argument_name == "--synthetic_data" || argument_name == "--synthetic"))
+                      argument_name == "--synthetic_data" || argument_name == "--synthetic" ||
+                      argument_name == "--mspe" || argument_name == "--MSPE" || argument_name == "--idw" ||
+                      argument_name == "--IDW" || argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" ||
+                      argument_name == "--mloe_mmom")) {
+                    LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
+                }
             }
         }
     }
@@ -188,11 +210,38 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
         //initlog
         InitLog();
     }
+
     this->PrintSummary();
+}
+
+void Configurations::InitializeAllTheta() {
+
+    if (!mIsThetaInit) {
+        int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[this->GetKernelName()];
+        InitTheta(GetInitialTheta(), parameters_number);
+        SetInitialTheta(GetInitialTheta());
+        InitTheta(GetLowerBounds(), parameters_number);
+        SetLowerBounds(GetLowerBounds());
+        InitTheta(GetUpperBounds(), parameters_number);
+        SetUpperBounds(GetUpperBounds());
+        SetStartingTheta(GetLowerBounds());
+        InitTheta(GetEstimatedTheta(), parameters_number);
+        SetEstimatedTheta(GetEstimatedTheta());
+
+        for (int i = 0; i < parameters_number; i++) {
+            if (GetEstimatedTheta()[i] != -1) {
+                GetLowerBounds()[i] = GetEstimatedTheta()[i];
+                GetUpperBounds()[i] = GetEstimatedTheta()[i];
+                GetStartingTheta()[i] = GetEstimatedTheta()[i];
+            }
+        }
+        mIsThetaInit = true;
+    }
 }
 
 void Configurations::InitializeDataGenerationArguments() {
 
+    this->InitializeAllTheta();
     string argument;
     string argument_name;
     string argument_value;
@@ -212,16 +261,6 @@ void Configurations::InitializeDataGenerationArguments() {
             if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                 argument_name == "--Dim") {
                 SetDimension(CheckDimensionValue(argument_value));
-            } else if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss") {
-                SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
-            } else if (argument_name == "--estimated_theta" || argument_name == "--etheta" ||
-                       argument_name == "--eTheta") {
-                vector<double> theta = ParseTheta(argument_value);
-                SetEstimatedTheta(theta);
-            } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
-                       argument_name == "--iTheta") {
-                vector<double> theta = ParseTheta(argument_value);
-                SetInitialTheta(theta);
             }
         } else {
             if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
@@ -234,6 +273,7 @@ void Configurations::InitializeDataGenerationArguments() {
 
 void Configurations::InitializeDataModelingArguments() {
 
+    this->InitializeAllTheta();
     string argument;
     string argument_name;
     string argument_value;
@@ -252,13 +292,6 @@ void Configurations::InitializeDataModelingArguments() {
             // Check the argument name and set the corresponding value
             if (argument_name == "--distance_metric" || argument_name == "--distanceMetric") {
                 ParseDistanceMetric(argument_value);
-            } else if (argument_name == "--lb" || argument_name == "--olb" || argument_name == "--lower_bounds") {
-                vector<double> theta = ParseTheta(argument_value);
-                SetLowerBounds(theta);
-                SetStartingTheta(theta);
-            } else if (argument_name == "--ub" || argument_name == "--oub" || argument_name == "--upper_bounds") {
-                vector<double> theta = ParseTheta(argument_value);
-                SetUpperBounds(theta);
             } else if (argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations") {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
             } else if (argument_name == "--tolerance") {
@@ -272,67 +305,102 @@ void Configurations::InitializeDataModelingArguments() {
             }
         }
     }
-    // Set starting theta with the lower bounds values
-    int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[GetKernelName()];
-    InitTheta(GetLowerBounds(), parameters_number);
-    SetLowerBounds(GetLowerBounds());
-    InitTheta(GetUpperBounds(), parameters_number);
-    SetUpperBounds(GetUpperBounds());
-    SetStartingTheta(GetLowerBounds());
-
-    //// TODO: Move this part in Prediction.
-//    SetEstimatedTheta(InitTheta(GetEstimatedTheta(), parameters_number));
-//    for (int i = 0; i < parameters_number; i++) {
-//        if (GetEstimatedTheta()[i] != -1) {
-//            GetLowerBounds()[i] = GetEstimatedTheta()[i];
-//            GetUpperBounds()[i] = GetEstimatedTheta()[i];
-//            GetStartingTheta()[i] = GetEstimatedTheta()[i];
-//        }
-//    }
-
 }
 
 void Configurations::InitializeDataPredictionArguments() {
+
+    this->InitializeAllTheta();
+    string argument;
+    string argument_name;
+    string argument_value;
+    int equal_sign_Idx;
+
+    for (int i = 1; i < this->mArgC; ++i) {
+        argument = this->mpArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
+        if (equal_sign_Idx != string::npos) {
+            argument_value = argument.substr(equal_sign_Idx + 1);
+            if (argument_name == "--ZmissNumber" || argument_name == "--Zmiss" || argument_name == "--ZMiss" ||
+                argument_name == "--predict" || argument_name == "--Predict") {
+                SetUnknownObservationsNb(CheckUnknownObservationsValue(argument_value));
+            }
+        }
+    }
+
+    // Loop through the arguments that are specific for Prediction.
+    for (int i = 1; i < this->mArgC; ++i) {
+        argument = this->mpArgV[i];
+        equal_sign_Idx = static_cast<int>(argument.find('='));
+        argument_name = argument.substr(0, equal_sign_Idx);
+
+        if (argument_name == "--mspe" || argument_name == "--MSPE") {
+            if (GetUnknownObservationsNb() <= 0) {
+                throw domain_error(
+                        "You need to set ZMiss number, as the number of missing values should be positive value");
+            }
+            SetIsMSPE(true);
+        } else if (argument_name == "--idw" || argument_name == "--IDW") {
+            if (GetUnknownObservationsNb() <= 0) {
+                throw domain_error(
+                        "You need to set ZMiss number, as the number of missing values should be positive value");
+            }
+            SetIsIDW(true);
+        } else if (argument_name == "--mloe-mmom" || argument_name == "--MLOE_MMOM" || argument_name == "--mloe_mmom") {
+            if (GetUnknownObservationsNb() <= 0) {
+                throw domain_error(
+                        "You need to set ZMiss number, as the number of missing values should be positive value");
+            }
+            SetIsMLOEMMOM(true);
+        }
+    }
 }
 
 void Configurations::PrintUsage() {
-    cout << "\n\t*** Available Arguments For Synthetic Data Configurations***" << endl;
-    cout << "\t\t --N=value : Problem size." << endl;
-    cout << "\t\t --kernel=value : Used Kernel." << endl;
-    cout << "\t\t --dimension=value : Used Dimension." << endl;
-    cout << "\t\t --p_grid=value : Used P-Grid." << endl;
-    cout << "\t\t --q_grid=value : Used P-Grid." << endl;
-    cout << "\t\t --time_slot=value : Time slot value for ST." << endl;
-    cout << "\t\t --computation=value : Used computation." << endl;
-    cout << "\t\t --precision=value : Used precision." << endl;
-    cout << "\t\t --cores=value : Used to set the number of cores." << endl;
-    cout << "\t\t --gpus=value : Used to set the number of GPUs." << endl;
-    cout << "\t\t --dts=value : Used to set the Dense Tile size." << endl;
-    cout << "\t\t --lts=value : Used to set the Low Tile size." << endl;
-    cout << "\t\t --Zmiss=value : Used to set number of unknown observation to be predicted." << endl;
-    cout << "\t\t --observations_file=PATH/TO/File : Used to path the observations file path." << endl;
-    cout << "\t\t --max_rank=value : Used to the max rank value." << endl;
-    cout << "\t\t --olb=value : Lower bounds for optimization." << endl;
-    cout << "\t\t --oub=value : Upper bounds for optimization." << endl;
-    cout << "\t\t --itheta=value : Initial theta parameters for optimization." << endl;
-    cout << "\t\t --etheta=value : Estimated kernel parameters for optimization." << endl;
-    cout << "\t\t --seed=value : Seed value for random number generation." << endl;
-    cout << "\t\t --run_mode=value : Run mode whether verbose/not." << endl;
-    cout << "\t\t --log_path=value : Path to log file." << endl;
-    cout << "\t\t --distance_metric=value : Used distance metric either eg or gcd." << endl;
-    cout << "\t\t --max_mle_iterations=value : Maximum number of MLE iterations." << endl;
-    cout << "\t\t --tolerance : MLE tolerance between two iterations." << endl;
-    cout << "\t\t --synthetic_data : Used to enable generating synthetic data." << endl;
-    cout << "\t\t --OOC : Used to enable Out of core technology." << endl;
-    cout << "\t\t --approximation_mode : Used to enable Approximation mode." << endl;
-    cout << "\t\t --log : Enable logging." << endl;
-    cout << "\n\n";
+    LOGGER("\n\t*** Available Arguments For Synthetic Data Configurations***")
+    LOGGER("--N=value : Problem size.")
+    LOGGER("--kernel=value : Used Kernel.")
+    LOGGER("--dimension=value : Used Dimension.")
+    LOGGER("--p_grid=value : Used P-Grid.")
+    LOGGER("--q_grid=value : Used P-Grid.")
+    LOGGER("--time_slot=value : Time slot value for ST.")
+    LOGGER("--computation=value : Used computation.")
+    LOGGER("--precision=value : Used precision.")
+    LOGGER("--cores=value : Used to set the number of cores.")
+    LOGGER("--gpus=value : Used to set the number of GPUs.")
+    LOGGER("--dts=value : Used to set the Dense Tile size.")
+    LOGGER("--lts=value : Used to set the Low Tile size.")
+    LOGGER("--Zmiss=value : Used to set number of unknown observation to be predicted.")
+    LOGGER("--observations_file=PATH/TO/File : Used to pass the observations file path.")
+    LOGGER("--max_rank=value : Used to the max rank value.")
+    LOGGER("--olb=value : Lower bounds for optimization.")
+    LOGGER("--oub=value : Upper bounds for optimization.")
+    LOGGER("--itheta=value : Initial theta parameters for optimization.")
+    LOGGER("--etheta=value : Estimated kernel parameters for optimization.")
+    LOGGER("--seed=value : Seed value for random number generation.")
+    LOGGER("--verbose=value : Run mode whether quiet/standard/detailed.")
+    LOGGER("--log_path=value : Path to log file.")
+    LOGGER("--distance_metric=value : Used distance metric either eg or gcd.")
+    LOGGER("--max_mle_iterations=value : Maximum number of MLE iterations.")
+    LOGGER("--tolerance : MLE tolerance between two iterations.")
+    LOGGER("--synthetic_data : Used to enable generating synthetic data.")
+    LOGGER("--mspe: Used to enable mean square prediction error.")
+    LOGGER("--idw: Used to IDW prediction auxiliary function.")
+    LOGGER("--mloe-mmom: Used to enable MLOE MMOM.")
+    LOGGER("--OOC : Used to enable Out of core technology.")
+    LOGGER("--approximation_mode : Used to enable Approximation mode.")
+    LOGGER("--log : Enable logging.")
+    LOGGER("\n\n")
 
     exit(0);
 }
 
-RunMode Configurations::GetRunMode() {
-    return Configurations::mRunMode;
+Verbose Configurations::GetVerbosity() {
+    return Configurations::mVerbosity;
+}
+
+void Configurations::SetVerbosity(const Verbose &aVerbose) {
+    Configurations::mVerbosity = aVerbose;
 }
 
 int Configurations::CheckNumericalValue(const string &aValue) {
@@ -380,13 +448,15 @@ Precision Configurations::CheckPrecisionValue(const std::string &aValue) {
     return MIXED;
 }
 
-void Configurations::ParseRunMode(const std::string &aRunMode) {
-    if (aRunMode == "verbose" || aRunMode == "Verbose") {
-        mRunMode = RunMode::VERBOSE_MODE;
-    } else if (aRunMode == "standard" || aRunMode == "Standard") {
-        mRunMode = RunMode::STANDARD_MODE;
+void Configurations::ParseVerbose(const std::string &aVerbosity) {
+    if (aVerbosity == "quiet" || aVerbosity == "Quiet") {
+        mVerbosity = Verbose::QUIET_MODE;
+    } else if (aVerbosity == "standard" || aVerbosity == "Standard") {
+        mVerbosity = Verbose::STANDARD_MODE;
+    } else if (aVerbosity == "detailed" || aVerbosity == "Detailed" || aVerbosity == "detail") {
+        mVerbosity = Verbose::DETAILED_MODE;
     } else {
-        cout << "Error: " << aRunMode << " is not valid " << endl;
+        LOGGER("Error: " << aVerbosity << " is not valid ")
         throw range_error("Invalid value. Please use verbose or standard values only.");
     }
 }
@@ -454,7 +524,7 @@ vector<double> Configurations::ParseTheta(const std::string &aInputValues) {
                 theta.push_back(stod(token));
             }
             catch (...) {
-                cout << "Error: " << token << " is not a valid double or '?' " << endl;
+                LOGGER("Error: " << token << " is not a valid double or '?' ")
                 throw range_error("Invalid value. Please use Numerical values only.");
             }
         }
@@ -524,7 +594,6 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
             aTheta.push_back(-1);
         }
     } else if (aTheta.size() < size) {
-
         // Also allocate new memory as maybe they are not the same size.
         for (size_t i = aTheta.size(); i < size; i++) {
             aTheta.push_back(0);
@@ -534,31 +603,48 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
 
 void Configurations::PrintSummary() {
 
+    Verbose temp = this->GetVerbosity();
+    mVerbosity = STANDARD_MODE;
     if (!mIsPrinted) {
 #if defined(CHAMELEON_USE_MPI)
         if ( MORSE_My_Mpi_Rank() == 0 )
         {
 #endif
-        fprintf(stderr, "********************SUMMARY**********************\n");
-        fprintf(stderr, "#Synthetic Dataset\n");
-        fprintf(stderr, "Number of Locations: %d\n", this->GetProblemSize());
-        fprintf(stderr, "#Threads per node: %d\n", this->GetCoresNumber());
-        fprintf(stderr, "#GPUs: %d\n", this->GetGPUsNumbers());
-        if (this->GetPrecision() == 1)
-            fprintf(stderr, "#Double Precision!\n");
-        else if (this->GetPrecision() == 0)
-            fprintf(stderr, "#Single Precision!\n");
-        else if (this->GetPrecision() == 2)
-            fprintf(stderr, "#Single/Double Precision!\n");
-        fprintf(stderr, "#Dense Tile Size: %d\n", this->GetDenseTileSize());
-        fprintf(stderr, "#exact computation\n");
-        fprintf(stderr, "p=%d, q=%d\n", this->GetPGrid(), this->GetQGrid());
-        fprintf(stderr, "***************************************************\n");
+        LOGGER("********************SUMMARY**********************")
+        if (this->GetIsSynthetic()) {
+            LOGGER("#Synthetic Dataset")
+        } else {
+            LOGGER("#Real Dataset")
+        }
+        LOGGER("#Number of Locations: " << this->GetProblemSize())
+        LOGGER("#Threads per node: " << this->GetCoresNumber())
+        LOGGER("#GPUs: " << this->GetGPUsNumbers())
+        if (this->GetPrecision() == 1) {
+            LOGGER("#Double Precision!")
+        } else if (this->GetPrecision() == 0) {
+            LOGGER("#Single Precision!")
+        } else if (this->GetPrecision() == 2) {
+            LOGGER("#Single/Double Precision!")
+        }
+#ifdef EXAGEOSTAT_USE_CHAMELEON
+        LOGGER("#Dense Tile Size: " << this->GetDenseTileSize())
+#endif
+#ifdef EXAGEOSTAT_USE_HICMA
+            LOGGER("#Low Tile Size: " << this->GetLowTileSize())
+#endif
+        LOGGER("#exact computation")
+        LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
+        LOGGER("*************************************************")
 #if defined(CHAMELEON_USE_MPI)
         }
 #endif
         mIsPrinted = true;
     }
+    mVerbosity = temp;
 }
 
 bool Configurations::mIsPrinted = false;
+
+int Configurations::CalculateZObsNumber() {
+    return this->GetProblemSize() - GetUnknownObservationsNb();
+}

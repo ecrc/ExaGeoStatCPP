@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/BivariateMaternParsimonious.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 BivariateMaternParsimonious<T>::BivariateMaternParsimonious() {
@@ -69,7 +71,8 @@ void BivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, cons
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
-            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[2];
+            expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                    flag) / aLocalTheta[2];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
 

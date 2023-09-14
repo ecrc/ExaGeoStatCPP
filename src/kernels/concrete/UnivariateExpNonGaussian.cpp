@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/UnivariateExpNonGaussian.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 UnivariateExpNonGaussian<T>::UnivariateExpNonGaussian() {
@@ -52,7 +54,8 @@ UnivariateExpNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[0];
+            expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                    flag) / aLocalTheta[0];
 
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = sigma_square;

@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDdnuNu.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 UnivariateMaternDdnuNu<T>::UnivariateMaternDdnuNu() {
@@ -57,7 +59,8 @@ UnivariateMaternDdnuNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRo
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            expr = this->CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric, flag) / aLocalTheta[1];
+            expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
+                                                                    flag) / aLocalTheta[1];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = 0.0;
             } else {

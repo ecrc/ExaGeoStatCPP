@@ -40,64 +40,64 @@ int main(int argc, char **argv) {
     Configurations configurations;
     configurations.InitializeArguments(argc, argv);
 
-    cout << "** These are some examples of the common arguments needed between all modules of ExaGeoStat **" << endl;
+    LOGGER("** These are some examples of the common arguments needed between all modules of ExaGeoStat **")
 
     // Obtain user-defined configurations and print them to the console.
     int n = configurations.GetProblemSize();
     if (n != 0) {
-        cout << "You set N by: " << n << endl;
+        LOGGER("You set N by: " << n)
     }
 
     string kernel = configurations.GetKernelName();
     if (!kernel.empty()) {
-        cout << "You set Kernel by: " << kernel << endl;
+        LOGGER("You set Kernel by: " << kernel)
     }
 
     Dimension dimension = configurations.GetDimension();
     if (dimension == Dimension2D) {
-        cout << "You set Dimension by: 2D" << endl;
+        LOGGER("You set Dimension by: 2D")
     } else if (dimension == Dimension3D) {
-        cout << "You set Dimension by: 3D" << endl;
+        LOGGER("You set Dimension by: 3D")
     } else if (dimension == DimensionST) {
-        cout << "You set Dimension by: ST" << endl;
+        LOGGER("You set Dimension by: ST")
     }
 
     int p_grid = configurations.GetPGrid();
     if (p_grid != 0) {
-        cout << "You set P by: " << p_grid << endl;
+        LOGGER("You set P by: " << p_grid)
     }
 
     int time_slot = configurations.GetTimeSlot();
     if (time_slot != 0) {
-        cout << "You set time slot by: " << time_slot << endl;
+        LOGGER("You set time slot by: " << time_slot)
     }
 
     Computation computation = configurations.GetComputation();
     if (computation == EXACT_DENSE) {
-        cout << "You set Computation to: EXACT" << endl;
+        LOGGER("You set Computation to: EXACT")
     } else if (computation == DIAGONAL_APPROX) {
-        cout << "You set Computation to: DIAGONAL APPROX" << endl;
+        LOGGER("You set Computation to: DIAGONAL APPROX")
     } else if (computation == TILE_LOW_RANK) {
-        cout << "You set Computation to: TILE LOW RANK" << endl;
+        LOGGER("You set Computation to: TILE LOW RANK")
     }
 
     Precision precision = configurations.GetPrecision();
     if (precision == SINGLE) {
-        cout << "You set precision to: SINGLE" << endl;
+        LOGGER("You set precision to: SINGLE")
     } else if (precision == DOUBLE) {
-        cout << "You set precision to: DOUBLE" << endl;
+        LOGGER("You set precision to: DOUBLE")
     } else if (precision == MIXED) {
-        cout << "You set precision to: MIXED PRECISION" << endl;
+        LOGGER("You set precision to: MIXED PRECISION")
     }
 
     int seed = configurations.GetSeed();
-    cout << "You set seed to: " << seed << endl;
+    LOGGER("You set seed to: " << seed)
 
-    int run_mode = Configurations::GetRunMode();
-    if (run_mode == RunMode::VERBOSE_MODE) {
-        cout << " You set run mode to VERBOSE." << endl;
+    int run_mode = Configurations::GetVerbosity();
+    if (run_mode == Verbose::DETAILED_MODE) {
+        LOGGER(" You set run mode to VERBOSE.")
     } else {
-        cout << "You set run mode to STANDARD." << endl;
+        LOGGER("You set run mode to STANDARD.")
     }
 
     VERBOSE("VERBOSE ACTIVATED")

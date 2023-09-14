@@ -11,6 +11,7 @@
 
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/DiskWriter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DistanceCalculationHelpers.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

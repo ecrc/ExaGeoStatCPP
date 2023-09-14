@@ -91,6 +91,12 @@ namespace exageostat {
             void InitializeArguments(const int &aArgC, char **apArgV);
 
             /**
+             * @brief Initialize the all theta arguments.
+             * @return void
+             */
+            void InitializeAllTheta();
+
+            /**
              * @brief Initialize data generation arguments..
              * @return void
              *
@@ -205,10 +211,6 @@ namespace exageostat {
 
             CREATE_GETTER_FUNCTION(MeanSquareError, double, "MeanSquareError")
 
-            CREATE_SETTER_FUNCTION(KnownObservationsValues, int, aKnownObservationsValues, "KnownObservationsValues")
-
-            CREATE_GETTER_FUNCTION(KnownObservationsValues, int, "KnownObservationsValues")
-
             CREATE_SETTER_FUNCTION(LowerBounds, std::vector<double> &, apTheta, "LowerBounds")
 
             CREATE_GETTER_FUNCTION(LowerBounds, std::vector<double> &, "LowerBounds")
@@ -226,12 +228,13 @@ namespace exageostat {
             CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
 
             /**
-             * @brief Getter for the run mode.
-             * @return The run mode.
+             * @brief Getter for the verbosity.
+             * @return The verbosity mode.
              *
              */
-            static exageostat::common::RunMode GetRunMode();
+            static exageostat::common::Verbose GetVerbosity();
 
+            static void SetVerbosity(const common::Verbose &aVerbose);
 
             /** END OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
             /** START OF THE DATA GENERATION MODULES. **/
@@ -239,10 +242,6 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(Dimension, exageostat::common::Dimension, aDimension, "Dimension")
 
             CREATE_GETTER_FUNCTION(Dimension, exageostat::common::Dimension, "Dimension")
-
-            CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
-
-            CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
 
             CREATE_SETTER_FUNCTION(IsSynthetic, bool, aIsSynthetic, "IsSynthetic")
 
@@ -282,8 +281,25 @@ namespace exageostat {
             CREATE_SETTER_FUNCTION(Tolerance, double, aTolerance, "Tolerance")
 
             CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")
+
             /** END OF THE DATA MODELING MODULES. **/
             /** START OF THE DATA PREDICTION MODULES. **/
+
+            CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
+
+            CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
+
+            CREATE_SETTER_FUNCTION(IsMSPE, bool, aIsMSPE, "IsMSPE")
+
+            CREATE_GETTER_FUNCTION(IsMSPE, bool, "IsMSPE")
+
+            CREATE_SETTER_FUNCTION(IsIDW, bool, aIsIDW, "IsIDW")
+
+            CREATE_GETTER_FUNCTION(IsIDW, bool, "IsIDW")
+
+            CREATE_SETTER_FUNCTION(IsMLOEMMOM, bool, aIsMLOEMMOM, "IsMLOEMMOM")
+
+            CREATE_GETTER_FUNCTION(IsMLOEMMOM, bool, "IsMLOEMMOM")
 
             /** END OF THE DATA PREDICTION MODULES. **/
 
@@ -357,6 +373,13 @@ namespace exageostat {
              */
             inline void PrintSummary();
 
+            /**
+             * @brief Calculates the number of observed measurements.
+             * @return number of observed measurements.
+             */
+            int CalculateZObsNumber();
+
+
         private:
 
             /// static bool to make sure that print summary is only performed once.
@@ -364,12 +387,12 @@ namespace exageostat {
 
             /**
              * @brief Checks the run mode and sets the verbosity level.
-             * @param[in] aRunMode A string representing the desired run mode ("verbose" or "standard").
+             * @param[in] aVerbosity A string representing the desired run mode ("verbose" or "standard").
              * @throws std::range_error if the input string is not "verbose" or "standard".
              * @return void
              *
              */
-            static void ParseRunMode(const std::string &aRunMode);
+            static void ParseVerbose(const std::string &aVerbosity);
 
             /**
              * @brief Checks if a given string is in camel case format.
@@ -410,7 +433,10 @@ namespace exageostat {
             /// Used Argument vectors
             char **mpArgV = nullptr;
             //// Used run mode
-            static exageostat::common::RunMode mRunMode;
+            static exageostat::common::Verbose mVerbosity;
+            //// Used bool for init theta
+            static bool mIsThetaInit;
+
         };
     }//namespace configurations
 }//namespace exageostat

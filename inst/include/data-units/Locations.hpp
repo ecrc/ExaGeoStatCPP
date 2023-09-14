@@ -55,7 +55,7 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetLocationX(T &aLocationX);
+            void SetLocationX(T &aLocationX, const int &aSize);
 
             /**
              * @brief Getter for LocationX.
@@ -70,7 +70,7 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetLocationY(T &aLocationY);
+            void SetLocationY(T &aLocationY, const int &aSize);
 
             /**
              * @brief Getter for LocationY.
@@ -85,7 +85,7 @@ namespace exageostat {
              * @return void
              *
              */
-            void SetLocationZ(T &aLocationZ);
+            void SetLocationZ(T &aLocationZ, const int &aSize);
 
             /**
              * @brief Getter for LocationZ.

@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternNuggetsStationary.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 UnivariateMaternNuggetsStationary<T>::UnivariateMaternNuggetsStationary() {
@@ -57,7 +59,8 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
         for (i = 0; i < aRowsNumber; i++) {
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
-                expr = this->CalculateDistance(aLocation1, aLocation2, j0, i0, aDistanceMetric, flag) / aLocalTheta[1];
+                expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, j0, i0, aDistanceMetric,
+                                                                        flag) / aLocalTheta[1];
                 if (expr == 0) {
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 } else {
@@ -74,7 +77,8 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
                 flag = 1;
-                expr = this->CalculateDistance(aLocation1, aLocation2, j0, i0, aDistanceMetric, flag);
+                expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, j0, i0, aDistanceMetric,
+                                                                        flag);
                 if (expr == 0) {
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
                 } else {

@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     data_pointers.z = locations->GetLocationZ();
 
     // Print the generated location coordinates
-    cout << "Generated Locations are .. " << endl;
+    LOGGER("Generated Locations are .. ")
     int timeSlot;
     if (synthetic_data_configurations.GetDimension() != DimensionST) {
         timeSlot = 1;
@@ -70,11 +70,11 @@ int main(int argc, char **argv) {
         timeSlot = synthetic_data_configurations.GetTimeSlot();
     }
     for (auto i = 0; i < synthetic_data_configurations.GetProblemSize() * timeSlot; i++) {
-        printf("X: %.18f Y: %.18f", data_pointers.x[i], data_pointers.y[i]);
+        LOGGER("X: {:.18f} Y: {:.18f}" << data_pointers.x[i] << data_pointers.y[i])
         if (synthetic_data_configurations.GetDimension() != Dimension2D) {
-            cout << " Z: " << data_pointers.z[i];
+            LOGGER(" Z: " << data_pointers.z[i])
         }
-        printf("\n");
+        LOGGER("\n")
     }
 
     return 0;

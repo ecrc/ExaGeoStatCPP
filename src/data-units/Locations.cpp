@@ -11,18 +11,30 @@
  * @author Sameh Abdulah
  * @date 2023-02-27
 **/
+
+#include <iostream>
+#include <cstring>
+
 #include <data-units/Locations.hpp>
+
+using namespace std;
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 
 template<typename T>
-void Locations<T>::SetLocationX(T &aLocationX) {
-    this->mpLocationX = &aLocationX;
+void Locations<T>::SetLocationX(T &aLocationX, const int &aSize) {
+
+    if (aLocationX && aSize == this->mSize) {
+        memcpy(this->mpLocationX, &aLocationX, this->mSize * sizeof(T));
+    } else {
+        throw std::runtime_error("Invalid value for setting Locations X");
+    }
 }
 
 template<typename T>
 T *Locations<T>::GetLocationX() {
+
     if (this->mpLocationX == nullptr) {
         throw std::runtime_error("LocationX is null");
     }
@@ -30,8 +42,13 @@ T *Locations<T>::GetLocationX() {
 }
 
 template<typename T>
-void Locations<T>::SetLocationY(T &aLocationY) {
-    this->mpLocationY = &aLocationY;
+void Locations<T>::SetLocationY(T &aLocationY, const int &aSize) {
+
+    if (aLocationY && aSize == this->mSize) {
+        memcpy(this->mpLocationY, &aLocationY, this->mSize * sizeof(T));
+    } else {
+        throw std::runtime_error("Invalid value for setting Locations Y");
+    }
 }
 
 template<typename T>
@@ -43,8 +60,13 @@ T *Locations<T>::GetLocationY() {
 }
 
 template<typename T>
-void Locations<T>::SetLocationZ(T &aLocationZ) {
-    this->mpLocationZ = &aLocationZ;
+void Locations<T>::SetLocationZ(T &aLocationZ, const int &aSize) {
+
+    if (aLocationZ && aSize == this->mSize) {
+        memcpy(this->mpLocationZ, &aLocationZ, this->mSize * sizeof(T));
+    } else {
+        throw std::runtime_error("Invalid value for setting Locations Z");
+    }
 }
 
 template<typename T>
@@ -71,7 +93,6 @@ template<typename T>
 Dimension Locations<T>::GetDimension() {
     return this->mDimension;
 }
-
 
 template<typename T>
 Locations<T>::Locations(const int &aSize, const Dimension &aDimension) {

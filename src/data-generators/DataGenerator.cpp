@@ -13,6 +13,7 @@
 
 #include <data-generators/DataGenerator.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
+#include <results/Results.hpp>
 
 using namespace exageostat::generators;
 using namespace exageostat::generators::synthetic;
@@ -24,13 +25,13 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configuratio
 
     // Check the used Data generation method, whether it's synthetic or real.
     mIsSynthetic = apConfigurations.GetIsSynthetic();
+    results::Results::GetInstance()->SetIsSynthetic(mIsSynthetic);
 
     // Return DataGenerator unique pointer of Synthetic type
     if (mIsSynthetic) {
         return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
     } else {
-        std::cerr << "Unsupported for now, Please add --synthetic_data" << std::endl;
-        std::exit(1);
+        throw std::runtime_error("Unsupported for now, Please add --synthetic_data");
     }
 }
 

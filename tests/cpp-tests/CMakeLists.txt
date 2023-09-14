@@ -15,7 +15,7 @@ add_subdirectory(linear-algebra-solvers)
 add_subdirectory(data-generators)
 add_subdirectory(configurations/data-generation)
 add_subdirectory(kernels)
-
+add_subdirectory(helpers)
 
 enable_testing()
 add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})

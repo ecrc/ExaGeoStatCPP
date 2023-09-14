@@ -13,9 +13,11 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternNonStationary.hpp>
+#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
+using namespace exageostat::helpers;
 
 template<typename T>
 UnivariateMaternNonStationary<T>::UnivariateMaternNonStationary() {
@@ -66,7 +68,7 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
 
     aLocation3->GetLocationX()[0] = x_min + (x_max - x_min) / 2;
     aLocation3->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
-    printf(" The central point is ( %f, %f)\n", aLocation3->GetLocationX()[0], aLocation3->GetLocationY()[0]);
+    LOGGER(" The central point is ( %f, %f)\n", aLocation3->GetLocationX()[0], aLocation3->GetLocationY()[0]);
 
     // Compute the covariance matrix elements
     for (j = 0; j < aColumnsNumber; j++) {
@@ -104,7 +106,8 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
             int flag = 0;
 
             //MLE calculation
-            dist = CalculateDistance(aLocation1, aLocation2, i, j, aDistanceMetric, flag) / beta;
+            dist = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i, j, aDistanceMetric,
+                                                                    flag) / beta;
             *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0) ? sigma_square : con * pow(dist, nu) *
                                                                                 gsl_sf_bessel_Knu(nu, dist);
         }
