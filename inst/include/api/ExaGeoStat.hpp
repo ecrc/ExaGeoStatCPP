@@ -83,18 +83,6 @@ namespace exageostat {
                                  configurations::Configurations &aConfigurations,
                                  exageostat::dataunits::ExaGeoStatData<T> &aData, T *apMeasurementsMatrix = nullptr);
 
-            /**
-             * @brief Predict missing measurements values.
-             * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
-             * @param[in] aConfigurations Reference to Configurations object containing user input data.
-             * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
-             * @return void
-             */
-            static void
-            ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
-                                 configurations::Configurations &aConfigurations,
-                                 exageostat::dataunits::ExaGeoStatData<T> &aData);
-
         private:
             /**
              * @brief
