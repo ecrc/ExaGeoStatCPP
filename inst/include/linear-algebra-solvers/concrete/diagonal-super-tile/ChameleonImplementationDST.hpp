@@ -127,6 +127,23 @@ namespace exageostat {
                 */
                 int ExaGeoStatLapackToDescriptor(const common::UpperLower &aUpperLower, void *apAf77, const int &aLda,
                                                  void *apA) override;
+                /**
+                 * @brief Initialize the runtime option structure for CHAMELEON.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsInit()
+                 */
+                void ExaGeoStatOptionsInit(void *apOptoins, void * apContext, void * apSequence, void * apRequest) override;
+
+                /**
+                 * @brief Submit the release of the workspaces associated to the options structure.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFree()
+                 */
+                void ExaGeoStatOptionsFree(void *apOptions) override;
+
+                /**
+                 * @brief Finalize the runtime option structure for CHAMELEON.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFinalize()
+                 */
+                void ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
@@ -135,6 +152,13 @@ namespace exageostat {
                  */
                 int
                 ExaGeoStatSequenceWait(void *apSequence) override;
+
+                /**
+                 * @brief Create CHAMELEON Sequence.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatCreateSequence()
+                 */
+                int
+                ExaGeoStatCreateSequence(void * apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -216,6 +240,12 @@ namespace exageostat {
                */
                 void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA,
                                         const common::UpperLower &aUpperLower) override;
+
+                /**
+                 * @brief Sets the values of all or part of a two-dimensional Tile.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLaSetTile()
+                 */
+                int ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T alpha, T beta, void *apDescriptor) override;
 
                 /**
                  * @brief Copy the Z matrix into a pointer.

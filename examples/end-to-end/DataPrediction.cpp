@@ -46,12 +46,12 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    cout << "** Initialise ExaGeoStat hardware ** ";
+    LOGGER("** Initialise ExaGeoStat hardware **")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    cout << "** Create ExaGeoStat data ** ";
+    LOGGER("** Create ExaGeoStat data **")
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
 
     //creating locations x and y.
@@ -80,9 +80,9 @@ int main(int argc, char **argv) {
     data.GetLocations()->SetLocationX(*location_x, N);
     data.GetLocations()->SetLocationY(*location_y, N);
 
-    cout << "** ExaGeoStat data Prediction **";
+    LOGGER("** ExaGeoStat data Prediction **")
     ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
-    cout << "** All example stages have been completed successfully ** ";
+    LOGGER("** All example stages have been completed successfully **")
 
     delete[] location_x;
     delete[] location_y;

@@ -207,12 +207,43 @@ namespace exageostat {
                                          void *apA) = 0;
 
             /**
+             * @brief Initialize the runtime option structure for either HiCMA or CHAMELEON.
+             * @param[in, out] apOptions The options structure that needs to be initialized.
+             * @param[in] apContext The runtime context in which to initialize the runtime support.
+             * @param[in] apSequence The sequence structure to associate in the options.
+             * @param[in] apRequest The request structure to associate in the options.
+             */
+            virtual void
+            ExaGeoStatOptionsInit(void *apOptions, void * apContext, void * apSequence, void * apRequest) = 0;
+
+            /**
+             * @brief Submit the release of the workspaces associated to the options structure.
+             * @param[in,out] apOptions The options structure for which to workspcaes will be released
+             */
+            virtual void ExaGeoStatOptionsFree(void *apOptions) = 0;
+
+            /**
+             * @brief Finalize the runtime option structure for either HiCMA or CHAMELEON.
+             * @param[in,out] apOptions The options structure that needs to be finalized.
+             * @param[in] apContext The runtime context in which to finalize the runtime support.
+             */
+            virtual void ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) = 0;
+
+            /**
              * @brief Wait for the completion of a sequence.
              * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
              * @return successful exit
              *
              */
             virtual int ExaGeoStatSequenceWait(void *apSequence) = 0;
+
+            /**
+             * @brief Create Sequence.
+             * @param[out] apSequence A pointer to either CHAMELEON or HiCMA sequence.
+             * @return successful exit
+             */
+            virtual int
+            ExaGeoStatCreateSequence(void * apSequence) = 0;
 
             /**
              * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -344,6 +375,16 @@ namespace exageostat {
              */
             virtual void
             ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower) = 0;
+
+            /**
+             * @brief Sets the values of all or part of a two-dimensional Tile.
+             * @param[in] aUpperLower Specifies Specifies whether the upper or lower triangular part of the covariance matrix is stored.
+             * @param[in] aAlpha All the off diagonal array elements are set to aAlpha.
+             * @param[in] aBeta All the diagonal array elements are set to aBeta.
+             * @param[out] apDescriptor Pointer to matrix descriptor to be set with aAlpha and aBeta.
+             * @return
+             */
+            virtual int ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T aAlpha, T aBeta, void *apDescriptor) = 0;
 
             /**
              * @brief Copy the Z matrix into a pointer.

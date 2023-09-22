@@ -60,8 +60,7 @@ T DistanceCalculationHelpers<T>::CalculateDistance(exageostat::dataunits::Locati
     } else {
         //if 3D
         if (aDistanceMetric == 1) {
-            std::cerr << "Great Circle (GC) distance is only valid for 2d" << std::endl;
-            exit(1);
+            throw std::runtime_error("Great Circle (GC) distance is only valid for 2D!");
         }
         T z1 = aLocations1.GetLocationZ()[aIdxLocation1];
         T z2 = aLocations2.GetLocationZ()[aIdxLocation2];

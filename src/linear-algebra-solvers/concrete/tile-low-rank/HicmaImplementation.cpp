@@ -28,7 +28,7 @@ using namespace exageostat::configurations;
 
 template<typename T>
 void
-HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, DescriptorData <T> &aDescriptorData,
+HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, DescriptorData<T> &aDescriptorData,
                                             T *apMeasurementsMatrix) {
 
     // Check for initialize the Hicma context.
@@ -40,7 +40,7 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
     // Create a Hicma sequence
     HICMA_sequence_t *pSequence;
     HICMA_request_t request[2] = {HICMA_SUCCESS, HICMA_SUCCESS};
-    HICMA_Sequence_Create(&pSequence);
+    ExaGeoStatCreateSequence(&pSequence);
 
     int n = aConfigurations.GetProblemSize();
     int lts = aConfigurations.GetLowTileSize();
@@ -197,22 +197,22 @@ HicmaImplementation<T>::InitiateDescriptors(Configurations &aConfigurations, Des
 }
 
 template<typename T>
-void HicmaImplementation<T>::InitiatePredictionDescriptors(Configurations &aConfigurations, ExaGeoStatData <T> &aData) {
+void HicmaImplementation<T>::InitiatePredictionDescriptors(Configurations &aConfigurations, ExaGeoStatData<T> &aData) {
     throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 void
-HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData <T> &aDescriptorData, void *apDesc,
+HicmaImplementation<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData<T> &aDescriptorData, void *apDesc,
                                                          T *apTheta) {
     throw std::runtime_error("unimplemented for now");
 }
 
 template<typename T>
 void
-HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData <T> &aDescriptorData, void *apDescriptor,
-                                                const int &aTriangularPart, Locations <T> *apLocation1,
-                                                Locations <T> *apLocation2, Locations <T> *apLocation3, T *aLocalTheta,
+HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData<T> &aDescriptorData, void *apDescriptor,
+                                                const int &aTriangularPart, Locations<T> *apLocation1,
+                                                Locations<T> *apLocation2, Locations<T> *apLocation3, T *aLocalTheta,
                                                 const int &aDistanceMetric, const string &aKernelName) {
 
     // Check for initialize the Hicma context.
@@ -222,12 +222,9 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData <T> &aDescriptorD
     }
 
     HICMA_option_t options;
-    HICMA_RUNTIME_options_init(&options, (HICMA_context_t * )
-    this->mpContext,
-            (HICMA_sequence_t *) aDescriptorData.GetSequence(),
-            (HICMA_request_t *) aDescriptorData.GetRequest());
+    ExaGeoStatOptionsInit(&options, this->mpContext, aDescriptorData.GetSequence(), aDescriptorData.GetRequest());
     int tempmm, tempnn;
-    kernels::Kernel <T> *pKernel = exageostat::plugins::PluginRegistry < kernels::Kernel < T >> ::Create(aKernelName);
+    kernels::Kernel<T> *pKernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T >>::Create(aKernelName);
 
     auto *HICMA_apDescriptor = (HICMA_desc_t *) apDescriptor;
     HICMA_desc_t A = *HICMA_apDescriptor;
@@ -254,27 +251,26 @@ HicmaImplementation<T>::CovarianceMatrixCodelet(DescriptorData <T> &aDescriptorD
                                STARPU_VALUE, &m0, sizeof(int),
                                STARPU_VALUE, &n0, sizeof(int),
                                STARPU_W, (starpu_data_handle_t) HICMA_RUNTIME_data_getaddr(HICMA_apDescriptor, m, n),
-                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations < T > *),
-                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations < T > *),
-                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations < T > *),
+                               STARPU_VALUE, &apLocation1, sizeof(dataunits::Locations<T> *),
+                               STARPU_VALUE, &apLocation2, sizeof(dataunits::Locations<T> *),
+                               STARPU_VALUE, &apLocation3, sizeof(dataunits::Locations<T> *),
                                STARPU_VALUE, &aLocalTheta, sizeof(double *),
                                STARPU_VALUE, &aDistanceMetric, sizeof(int),
-                               STARPU_VALUE, &pKernel, sizeof(exageostat::kernels::Kernel < T > *),
+                               STARPU_VALUE, &pKernel, sizeof(exageostat::kernels::Kernel<T> *),
                                0);
         }
     }
-    HICMA_RUNTIME_options_ws_free(&options);
-    HICMA_RUNTIME_options_finalize(&options, (HICMA_context_t * )
-    this->mpContext);
-    HICMA_Sequence_Wait((HICMA_sequence_t *) aDescriptorData.GetSequence());
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options,this->mpContext);
+    ExaGeoStatSequenceWait((HICMA_sequence_t *) aDescriptorData.GetSequence());
     delete pKernel;
 }
 
 template<typename T>
 void
-HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigurations, DescriptorData <T> &aDescriptorData,
-                                                   const BaseDescriptor &aDescriptor, Locations <T> *apLocation1,
-                                                   Locations <T> *apLocation2, Locations <T> *apLocation3,
+HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfigurations, DescriptorData<T> &aDescriptorData,
+                                                   const BaseDescriptor &aDescriptor, Locations<T> *apLocation1,
+                                                   Locations<T> *apLocation2, Locations<T> *apLocation3,
                                                    const int &aDistanceMetric) {
 
     // Check for initialize the Hicma context.
@@ -314,7 +310,7 @@ HicmaImplementation<T>::GenerateObservationsVector(Configurations &aConfiguratio
 
 template<typename T>
 void
-HicmaImplementation<T>::CopyDescriptorZ(DescriptorData <T> &aDescriptorData, void *apDescriptor, T *apDoubleVector) {
+HicmaImplementation<T>::CopyDescriptorZ(DescriptorData<T> &aDescriptorData, void *apDescriptor, T *apDoubleVector) {
     throw std::runtime_error("unimplemented for now");
 }
 
@@ -331,8 +327,8 @@ template<typename T>
 T *HicmaImplementation<T>::ExaGeoStatMLEPredictTile(ExaGeoStatData <T> &aData, T *apTheta, const int &aZMissNumber,
                                                     const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
                                                     const hardware::ExaGeoStatHardware &aHardware,
-                                                    Configurations &aConfiguration, Locations <T> &aMissLocations,
-                                                    Locations <T> &aObsLocations) {
+                                                    Configurations &aConfiguration, Locations<T> &aMissLocations,
+                                                    Locations<T> &aObsLocations) {
     throw std::runtime_error("unimplemented for now");
 }
 
@@ -350,8 +346,37 @@ HicmaImplementation<T>::ExaGeoStatLapackToDescriptor(const UpperLower &aUpperLow
 }
 
 template<typename T>
+void
+HicmaImplementation<T>::ExaGeoStatOptionsInit(void *apOptoins, void *apContext, void *apSequence,
+                                              void *apRequest) {
+
+    HICMA_RUNTIME_options_init((HICMA_option_t * ) & apOptoins, (HICMA_context_t *) apContext,
+                               (HICMA_sequence_t *) apSequence,
+                               (HICMA_request_t *) apRequest);
+}
+
+template<typename T>
+void HicmaImplementation<T>::ExaGeoStatOptionsFree(void *apOptions) {
+    HICMA_RUNTIME_options_ws_free((HICMA_option_t *) apOptions);
+}
+
+template<typename T>
 int HicmaImplementation<T>::ExaGeoStatSequenceWait(void *apSequence) {
-    throw std::runtime_error("unimplemented for now");
+   return HICMA_Sequence_Wait((HICMA_sequence_t *) apSequence);
+}
+
+template<typename T>
+int HicmaImplementation<T>::ExaGeoStatCreateSequence(void *apSequence) {
+    int status = HICMA_Sequence_Create((HICMA_sequence_t **) apSequence);
+    if (status != HICMA_SUCCESS) {
+        throw std::runtime_error("HICMA_Sequence_Create Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+void HicmaImplementation<T>::ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) {
+    HICMA_RUNTIME_options_finalize((HICMA_option_t *)apOptions, (HICMA_context_t *) apContext);
 }
 
 template<typename T>
@@ -411,6 +436,12 @@ void HicmaImplementation<T>::ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *a
 }
 
 template<typename T>
+int HicmaImplementation<T>::ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T alpha, T beta,
+                                                void *apDescriptor) {
+    throw std::runtime_error("unimplemented for now");
+}
+
+template<typename T>
 void
 HicmaImplementation<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *apZ, const int &aSize,
                                           DescriptorData <T> &aDescData, T *apMeasurementsMatrix) {
@@ -420,7 +451,7 @@ HicmaImplementation<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *ap
 
 template<typename T>
 void
-HicmaImplementation<T>::InitiateMloeMmomDescriptors(Configurations &aConfigurations, ExaGeoStatData <T> &aData) {
+HicmaImplementation<T>::InitiateMloeMmomDescriptors(Configurations &aConfigurations, ExaGeoStatData<T> &aData) {
     throw std::runtime_error("unimplemented for now");
 
 }
@@ -430,8 +461,8 @@ template<typename T>
 void
 HicmaImplementation<T>::ExaGeoStatMLEMloeMmomTile(Configurations &aConfigurations, ExaGeoStatData <T> &aData,
                                                   const hardware::ExaGeoStatHardware &aHardware, T *apTruthTheta,
-                                                  T *apEstimatedTheta, Locations <T> &aMissLocations,
-                                                  Locations <T> &aObsLocations) {
+                                                  T *apEstimatedTheta, Locations<T> &aMissLocations,
+                                                  Locations<T> &aObsLocations) {
     throw std::runtime_error("unimplemented for now");
 }
 

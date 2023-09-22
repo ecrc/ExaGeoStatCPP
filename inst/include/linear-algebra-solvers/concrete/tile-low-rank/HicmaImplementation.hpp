@@ -51,7 +51,7 @@ namespace exageostat {
                                          T *apMeasurementsMatrix) override;
 
                 /**
-                 * @brief Initializes the chameleon descriptors necessary for the Prediction.
+                 * @brief Initializes the HiCMA descriptors necessary for the Prediction.
                  * @copydoc LinearAlgebraMethods::InitiateDescriptors()
                  */
                 void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
@@ -128,10 +128,35 @@ namespace exageostat {
                                                  void *apA) override;
 
                 /**
+                 * @brief Initialize the runtime option structure for HiCMA
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOprionsInit()
+                 */
+                void ExaGeoStatOptionsInit(void *apOptoins, void * apContext, void * apSequence, void * apRequest) override;
+
+                /**
+                 * @brief Submit the release of the workspaces associated to the options structure.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFree()
+                 */
+                void ExaGeoStatOptionsFree(void *apOptions) override;
+
+                /**
+                 * @brief Finalize the runtime option structure for HiCMA.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFinalize()
+                 */
+                void ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) override;
+
+                /**
                  * @brief Wait for the completion of a sequence.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatSequenceWait()
                  */
                 int ExaGeoStatSequenceWait(void *apSequence) override;
+
+                /**
+                 * @brief Create HiCMA Sequence.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatCreateSequence()
+                 */
+                int
+                ExaGeoStatCreateSequence(void * apSequence) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -163,7 +188,7 @@ namespace exageostat {
                                                   void *apDescDet) override;
 
                 /**
-                 * @brief opy Chameleon descriptor to vector float*.
+                 * @brief copy HiCMA descriptor to vector float*.
                  * @copydoc LinearAlgebraMethods::ExaGeoStaStrideVectorTileAsync()
                  */
                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
@@ -208,6 +233,12 @@ namespace exageostat {
                */
                 void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA,
                                         const common::UpperLower &aUpperLower) override;
+
+                /**
+                 * @brief Sets the values of all or part of a two-dimensional Tile.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLaSetTile()
+                 */
+                int ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T alpha, T beta, void *apDescriptor) override;
 
                 /**
                  * @brief Copy the Z matrix into a pointer.
