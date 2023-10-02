@@ -7,12 +7,10 @@
 # @version 1.0.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
-# @date 2023-06-08
+# @date 2023-09-14
 
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/Prediction.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/PredictionHelpers.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/PredictionAuxiliaryFunctions.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Results.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

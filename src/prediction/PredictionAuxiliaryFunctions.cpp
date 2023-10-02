@@ -16,6 +16,7 @@
 
 #include <prediction/PredictionAuxiliaryFunctions.hpp>
 #include <helpers/DistanceCalculationHelpers.hpp>
+#include <common/Utils.hpp>
 
 using namespace exageostat::common;
 using namespace exageostat::prediction;
@@ -23,9 +24,10 @@ using namespace exageostat::dataunits;
 using namespace exageostat::helpers;
 
 template<typename T>
-void
-PredictionAuxiliaryFunctions<T>::PredictTileIDW(T *apZMiss, T *apZActual, T *apZObs, int aZMissNumber, int aZObsNumber,
-                                                Locations<T> &aMissLocation, Locations<T> &aObsLocation, T *apMSPE) {
+void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *apZObs, const int &aZMissNumber,
+                                                 const int &aZObsNumber, Locations<T> &aMissLocation,
+                                                 Locations<T> &aObsLocation, T *apMSPE) {
+
     int i, j;
     T sigma_1 = 0;
     T sigma_2 = 0;
@@ -57,8 +59,8 @@ PredictionAuxiliaryFunctions<T>::PredictTileIDW(T *apZMiss, T *apZActual, T *apZ
     apMSPE[1] = error1 / (aZMissNumber / 2);
     apMSPE[2] = error2 / (aZMissNumber / 2);
 
-    int index;
-    for (index = 0; index < aZMissNumber; index++)
-        printf("(%3.6f, %3.6f)\n ", apZActual[index], apZMiss[index]);
-    fprintf(stderr, "\n\nPrediction Error (IDW): %3.9f  -  %3.9f -  %3.9f\n", apMSPE[0], apMSPE[1], apMSPE[2]);
+    LOGGER("- Z Actual .. Z Miss")
+    for (int index = 0; index < aZMissNumber; index++)
+        LOGGER(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
+    LOGGER("- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
 }

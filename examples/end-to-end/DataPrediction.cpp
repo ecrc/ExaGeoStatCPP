@@ -4,39 +4,36 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file DataModeling.cpp
- * @brief This program models data using the ExaGeoStat library.
- * @details The program takes command line arguments and example variables to configure the data modeling.
+ * @file DataPrediction.cpp
+ * @brief This program predicts missing measurements using the ExaGeoStat library.
+ * @details The program takes command line arguments to configure the data prediction module.
  * @version 1.0.0
  * @author Mahmoud ElKarargy
- * @date 2023-06-21
+ * @date 2023-09-11
 **/
-
-#include <iostream>
 
 #include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace std;
 
-using namespace exageostat::api;
-using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+using namespace exageostat::api;
 using namespace exageostat::hardware;
+using namespace exageostat::dataunits;
 
 /**
- * @brief Main entry point for the Data Modeling program.
- * @details This example illustrates the process of data modeling using the ExaGeoStat library's CHAMELEON descriptor framework.
- * It involves configuring parameters such as problem size and computation mode, initializing hardware resources, setting up matrices for descriptors,
- * and creating location information. The ExaGeoStatDataModeling function is then called to perform geostatistical analysis. The example showcases
- * the library's efficiency in handling large spatial datasets while efficiently utilizing hardware resources..
+ * @brief Main entry point for the Data Prediction program.
+ * @details This function predicts missing values.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
  * @return An integer indicating the success or failure of the program.
  */
 int main(int argc, char **argv) {
-    // Create a new data_modeling_configurations object with the provided command line arguments and example variables
+
+    // Create a new configurations object.
     Configurations configurations;
+    //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
     /**
      * Since this example is currently relying on user inputs instead of reading files, The following points are important to know:
@@ -49,21 +46,14 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    LOGGER("** initialize ExaGeoStat hardware ** ")
+    LOGGER("** Initialise ExaGeoStat hardware **")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    LOGGER("** Create ExaGeoStat data ** ")
+    LOGGER("** Create ExaGeoStat data **")
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
 
-    // Initiating the matrix of the CHAMELEON Descriptor Z.
-    auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
-                                   -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
-                                   0.161705025505231914, 0.623389205185149065, -1.341858445399783495,
-                                   -1.054282062428600009, -1.669383221392507943, 0.219170645803740793,
-                                   0.971213790000161170, 0.538973474182433021, -0.752828466476077041,
-                                   0.290822066007430102};
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
                                      0.370473792629892440, 0.652140077821011688, 0.806332494087129037,
@@ -79,15 +69,23 @@ int main(int argc, char **argv) {
                                      0.573571374074921758, 0.568657969024185528, 0.935835812924391552,
                                      0.942824444953078489};
 
+    // Initiating the matrix of the CHAMELEON Descriptor Z.
+    auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
+                                   -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
+                                   0.161705025505231914, 0.623389205185149065, -1.341858445399783495,
+                                   -1.054282062428600009, -1.669383221392507943, 0.219170645803740793,
+                                   0.971213790000161170, 0.538973474182433021, -0.752828466476077041,
+                                   0.290822066007430102};
+
     data.GetLocations()->SetLocationX(*location_x, N);
     data.GetLocations()->SetLocationY(*location_y, N);
 
-    LOGGER("** ExaGeoStat Data Modeling ** ")
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
-    LOGGER("** All example stages have been completed successfully ** ")
-    // Freeing the allocated memory.
-    delete[] z_matrix;
+    LOGGER("** ExaGeoStat data Prediction **")
+    ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+    LOGGER("** All example stages have been completed successfully **")
+
     delete[] location_x;
     delete[] location_y;
+    delete[] z_matrix;
     return 0;
 }

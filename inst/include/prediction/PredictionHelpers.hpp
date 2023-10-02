@@ -43,9 +43,9 @@ namespace exageostat {
             */
             static void
             PickRandomPoints(exageostat::configurations::Configurations &aConfigurations,
-                                         exageostat::dataunits::ExaGeoStatData<T> &aData, T *apZObs, T *apZActual,
-                                         T *apZ, exageostat::dataunits::Locations<T> &aMissLocation,
-                                         exageostat::dataunits::Locations<T> &aObsLocation);
+                             exageostat::dataunits::ExaGeoStatData<T> &aData, T *apZObs, T *apZActual, T *apZ,
+                             exageostat::dataunits::Locations<T> &aMissLocation,
+                             exageostat::dataunits::Locations<T> &aObsLocation);
 
             /**
              * @brief Shuffle array.
@@ -80,33 +80,15 @@ namespace exageostat {
             static void
             Shuffle(T *apArray1, T *apArray2, T *apArray3, exageostat::dataunits::Locations<T> &aLocations, int aSize);
 
-
             /**
-             * @brief Sorts the input data using the radix sort algorithm.
+             * @brief Sorts the input data using the C++, the pre-defined standard library function sort().
              * @param aData[in] Pointer to the array of data to be sorted.
              * @param aCount[in] Number of elements in the input array.
              * @param aDimension[in] Dimension of the input data.
-             * @param apOrder[out] Pointer to the array that will store the sorted order.
              * @return void
              */
             static void
-            RadixSort(uint32_t *aData, int aCount, int aDimension, int *apOrder);
-
-            /**
-             * @brief Recursively performs radix sort on the given data array based on specified dimensions and bits.
-             * @param[in] aData Pointer to the array of data to be sorted (input).
-             * @param[in] aCount Number of elements in the input array (input).
-             * @param[in] aDimensions Number of dimensions in the input data (input).
-             * @param[in,out] apOrder Pointer to the array that stores the order to be sorted (input/output).
-             * @param[in] apTempOrder Pointer to the temporary array used during sorting (internal).
-             * @param[in] aSortingDimension Current sorting dimension (input).
-             * @param[in] aSortingBit Current sorting bit (input).
-             * @param[in] aLow Lower index of the current partition (input).
-             * @param[in] aHigh Upper index of the current partition (input).
-             */
-            static void
-            RadixSortRecursive(uint32_t *aData, int aCount, int aDimensions, int *apOrder, int *apTempOrder,
-                               int aSortingDimension, int aSortingBit, int aLow, int aHigh);
+            SortArray(uint32_t *aData, int aCount);
 
             /**
              *@brief Sorts location data and corresponding observation values in-place based on Locations coordinates.

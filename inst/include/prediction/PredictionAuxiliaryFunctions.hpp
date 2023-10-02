@@ -52,9 +52,9 @@ namespace exageostat {
              * @param[out] apMSPE Pointer to be filled with MSPE value.
              * @return T Array provides insight into the accuracy of the IDW-interpolated predictions for missing values
              */
-            void PredictTileIDW(T *apZMiss, T *apZActual, T *apZObs, int aZMissNumber, int aZObsNumber,
-                                exageostat::dataunits::Locations<T> &aMissLocation,
-                                exageostat::dataunits::Locations<T> &aObsLocation, T *apMSPE);
+            static void PredictIDW(T *apZMiss, T *apZActual, T *apZObs, const int &aZMissNumber, const int &aZObsNumber,
+                                   exageostat::dataunits::Locations<T> &aMissLocation,
+                                   exageostat::dataunits::Locations<T> &aObsLocation, T *apMSPE);
 
         };
 

@@ -8,7 +8,6 @@
  * @brief This program generates synthetic data, performs data modeling on generated data, then predicts missing measurements using the ExaGeoStat library.
  * @details The program takes command line arguments to configure the data generation.
  * @version 1.0.0
- * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/
@@ -36,17 +35,17 @@ int main(int argc, char **argv) {
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    cout << "** Initialise ExaGeoStat hardware ** " << endl;
+    LOGGER("** Initialise ExaGeoStat hardware **");
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
-    cout << "** Create ExaGeoStat data ** " << endl;
+    LOGGER("** Create ExaGeoStat data **");
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
-    cout << "** ExaGeoStat data generation** " << endl;
+    LOGGER("** ExaGeoStat data generation **");
     ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
-    cout << "** ExaGeoStat data Modeling** " << endl;
+    LOGGER("** ExaGeoStat data Modeling **");
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
-    cout << "** ExaGeoStat data Prediction** " << endl;
+    LOGGER("** ExaGeoStat data Prediction **");
     ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data);
-    cout << "** All example stages have been completed successfully ** " << endl;
+    LOGGER("** All example stages have been completed successfully ** ");
     return 0;
 }

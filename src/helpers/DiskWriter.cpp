@@ -43,7 +43,7 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
         try {
             created = filesystem::create_directory(aLoggerPath);
         } catch (const filesystem::filesystem_error &e) {
-            cerr << "Error creating directory: " << e.what() << endl;
+            throw runtime_error("Error creating directory: " + aLoggerPath);
         }
     } else {
         created = true;
@@ -51,7 +51,7 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
 
     // Check if the directory was created successfully
     if (!created) {
-        cerr << "Error creating directory: " << aLoggerPath << endl;
+        throw runtime_error("Error creating directory: " + aLoggerPath);
         return;
     }
 
