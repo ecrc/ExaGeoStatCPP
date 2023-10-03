@@ -82,8 +82,7 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
                 z1 = aLocation2.GetLocationZ()[j0];
             }
             expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
-                                                                    flag) /
-                   (aLocalTheta[2] * 1000);
+                                                                    flag) / (aLocalTheta[2] * 1000);
             expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1, aLocalTheta[8] / 2);
             expr3 = expr / expr2;
             expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * aLocalTheta[7]) / aLocalTheta[6] + 1,

@@ -24,6 +24,7 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits;
 using namespace exageostat::helpers;
 using namespace exageostat::configurations;
+using namespace exageostat::hardware;
 
 // Define a method to set up the Chameleon descriptors
 template<typename T>
@@ -49,7 +50,7 @@ void ChameleonImplementationDense<T>::InitiateDescriptors(Configurations &aConfi
     // Create a Chameleon sequence, if not initialized before through the same descriptors
     if (!aDescriptorData.GetSequence()) {
         RUNTIME_sequence_t *pSequence;
-        CHAMELEON_Sequence_Create(&pSequence);
+        ExaGeoStatCreateSequence(&pSequence);
         aDescriptorData.SetSequence(pSequence);
         RUNTIME_request_t request_array[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
         aDescriptorData.SetRequest(request_array);
@@ -130,8 +131,6 @@ void ChameleonImplementationDense<T>::InitiatePredictionDescriptors(
     aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_OBSERVATIONS, is_OOC, nullptr,
                                              float_point, dts, dts, dts * dts, n_z_obs, 1, 0, 0, n_z_obs, 1, p_grid,
                                              q_grid);
-
-    //TODO: probably unnecessary check since it's only called when mspe is on.
     if (aConfigurations.GetIsMSPE()) {
         aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_Actual, is_OOC, nullptr,
                                                  float_point, dts, dts, dts * dts, z_miss_number, 1, 0, 0,
@@ -149,42 +148,92 @@ void ChameleonImplementationDense<T>::InitiatePredictionDescriptors(
                                              float_point, dts, dts, dts * dts, z_miss_number, 1, 0, 0, z_miss_number, 1,
                                              p_grid,
                                              q_grid);
-    try {
-        descriptor::ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
-        exaGeoStatDescriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR,
-                                               aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                                        DESCRIPTOR_C12).chameleon_desc);
-        exaGeoStatDescriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR,
-                                               aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                                        DESCRIPTOR_C22).chameleon_desc);
-        aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12, is_OOC, nullptr,
-                                                 float_point, dts, dts, dts * dts, z_miss_number, n_z_obs, 0, 0,
-                                                 z_miss_number,
-                                                 n_z_obs, p_grid, q_grid);
-        aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22, is_OOC, nullptr,
-                                                 float_point, dts, dts, dts * dts, n_z_obs, n_z_obs, 0, 0, n_z_obs,
-                                                 n_z_obs,
-                                                 p_grid, q_grid);
 
-    } catch (...) {
-        aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12, is_OOC, nullptr,
-                                                 float_point, dts, dts, dts * dts, z_miss_number, n_z_obs, 0, 0,
-                                                 z_miss_number,
-                                                 n_z_obs, p_grid, q_grid);
-        aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22, is_OOC, nullptr,
-                                                 float_point, dts, dts, dts * dts, n_z_obs, n_z_obs, 0, 0, n_z_obs,
-                                                 n_z_obs,
-                                                 p_grid, q_grid);
+    descriptor::ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
+    auto *CHAM_descC12 = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12).chameleon_desc;
+    if (CHAM_descC12) {
+        exaGeoStatDescriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR, CHAM_descC12);
+    }
+    auto *CHAM_descC22 = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22).chameleon_desc;
+    if (CHAM_descC22) {
+        exaGeoStatDescriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR, CHAM_descC22);
+    }
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12, is_OOC, nullptr, float_point,
+                                             dts, dts, dts * dts, z_miss_number, n_z_obs, 0, 0, z_miss_number, n_z_obs,
+                                             p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22, is_OOC, nullptr, float_point,
+                                             dts, dts, dts * dts, n_z_obs, n_z_obs, 0, 0, n_z_obs, n_z_obs, p_grid,
+                                             q_grid);
+}
+
+template<typename T>
+void ChameleonImplementationDense<T>::InitiateMloeMmomDescriptors(Configurations &aConfigurations,
+                                                                  ExaGeoStatData<T> &aData) {
+
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
 
+    int n_z_obs = aConfigurations.CalculateZObsNumber();
+    int dts = aConfigurations.GetDenseTileSize();
+    int p_grid = aConfigurations.GetPGrid();
+    int q_grid = aConfigurations.GetQGrid();
+    bool is_OOC = aConfigurations.GetIsOOC();
+    int P = aConfigurations.GetP();
+
+    FloatPoint float_point;
+    if (sizeof(T) == SIZE_OF_FLOAT) {
+        float_point = EXAGEOSTAT_REAL_FLOAT;
+    } else if (sizeof(T) == SIZE_OF_DOUBLE) {
+        float_point = EXAGEOSTAT_REAL_DOUBLE;
+    } else {
+        throw runtime_error("Unsupported for now!");
+    }
+
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_k_T, is_OOC, nullptr, float_point,
+                                             dts, dts, dts * dts, P * n_z_obs, P, 0, 0, P * n_z_obs, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_k_A, is_OOC, nullptr, float_point,
+                                             dts, dts, dts * dts, P * n_z_obs, P, 0, 0, P * n_z_obs, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_k_A_TMP, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P * n_z_obs, P, 0, 0, P * n_z_obs, P,
+                                             p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_k_T_TMP, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P * n_z_obs, P, 0, 0, P * n_z_obs, P,
+                                             p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_EXPR_1, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P, P, 0, 0, P, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_EXPR_2, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P, P, 0, 0, P, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_EXPR_3, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P, P, 0, 0, P, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_EXPR_4, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P, P, 0, 0, P, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_MLOE, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_MMOM, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_TRUTH_ALPHA, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P, P, 0, 0, P, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_TIMATED_ALPHA, is_OOC, nullptr,
+                                             float_point, dts, dts, dts * dts, P, P, 0, 0, P, P, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_K_T, is_OOC, nullptr, float_point,
+                                             dts, dts, dts * dts, P * n_z_obs, P * n_z_obs, 0, 0, P * n_z_obs,
+                                             P * n_z_obs, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_K_A, is_OOC, nullptr, float_point,
+                                             dts, dts, dts * dts, P * n_z_obs, P * n_z_obs, 0, 0, P * n_z_obs,
+                                             P * n_z_obs, p_grid, q_grid);
+    //stop gsl error handler
+    gsl_set_error_handler_off();
 }
 
 template<typename T>
 void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations &aConfigurations,
-                                                                 DescriptorData<T> *apDescriptorData,
-                                                                 BaseDescriptor aDescriptor, Locations<T> *apLocation1,
+                                                                 DescriptorData<T> &aDescriptorData,
+                                                                 const BaseDescriptor &aDescriptor,
+                                                                 Locations<T> *apLocation1,
                                                                  Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                                 int aDistanceMetric) {
+                                                                 const int &aDistanceMetric) {
 
     // Check for initialize the Chameleon context.
     if (!this->mpContext) {
@@ -209,33 +258,34 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations 
 
     VERBOSE("Initializing Covariance Matrix (Synthetic Dataset Generation Phase).....")
     int upper_lower = EXAGEOSTAT_LOWER;
-    this->CovarianceMatrixCodelet(apDescriptorData, p_descriptor, upper_lower, apLocation1, apLocation2, apLocation3,
+    this->CovarianceMatrixCodelet(aDescriptorData, p_descriptor, upper_lower, apLocation1, apLocation2, apLocation3,
                                   theta, aDistanceMetric, aConfigurations.GetKernelName());
-    VERBOSE("Done.\n")
+    VERBOSE("Done.")
 
     //Copy Nrand to Z
     VERBOSE("Generate Normal Random Distribution Vector Z (Synthetic Dataset Generation Phase) .....")
-    auto *CHAM_descriptorZ = apDescriptorData->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
-    CopyDescriptorZ(apDescriptorData, CHAM_descriptorZ, Nrand);
-    VERBOSE("Done.\n")
+    auto *CHAM_descriptorZ = aDescriptorData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
+    CopyDescriptorZ(aDescriptorData, CHAM_descriptorZ, Nrand);
+    VERBOSE("Done.")
 
     //Cholesky factorization for the Co-variance matrix C
     VERBOSE("Cholesky factorization of Sigma (Synthetic Dataset Generation Phase) .....")
-    int potential_failure = CHAMELEON_dpotrf_Tile(ChamLower, p_descriptor);
+    int potential_failure = ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, p_descriptor);
     FAILURE_LOGGER(potential_failure, "Factorization cannot be performed..\nThe matrix is not positive definite")
-    VERBOSE("Done.\n")
+    VERBOSE("Done.")
 
     //Triangular matrix-matrix multiplication
     VERBOSE("Triangular matrix-matrix multiplication Z=L.e (Synthetic Dataset Generation Phase) .....")
-    CHAMELEON_dtrmm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1, p_descriptor, CHAM_descriptorZ);
-    VERBOSE("Done.\n")
+    ExaGeoStatTrmmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1, p_descriptor,
+                       CHAM_descriptorZ);
+    VERBOSE("Done.")
 
 
     if (aConfigurations.GetKernelName() == "UnivariateMaternNonGaussian") {
         //Gaussian to non-gaussian transformation
         VERBOSE("Convert Z Gaussian to non-Gaussian (Synthetic Dataset Generation Phase) .....")
-        ExaGeoStatGaussianToNonTileAsync(apDescriptorData, CHAM_descriptorZ, theta);
-        VERBOSE(" Done.\n")
+        ExaGeoStatGaussianToNonTileAsync(aDescriptorData, CHAM_descriptorZ, theta);
+        VERBOSE("Done.")
     }
     delete[] theta;
     const int P = aConfigurations.GetP();
@@ -254,16 +304,19 @@ void ChameleonImplementationDense<T>::GenerateObservationsVector(Configurations 
         string path = aConfigurations.GetLoggerPath();
         DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
 #endif
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
     }
 
-    CHAMELEON_dlaset_Tile(ChamUpperLower, 0, 0, p_descriptor);
+    ExaGeoStatLaSetTile(EXAGEOSTAT_UPPER_LOWER, 0, 0, p_descriptor);
     delete[] Nrand;
     VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)")
+    results::Results::GetInstance()->SetGeneratedLocationsNumber(n);
+    results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
+    results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
 }
 
 template<typename T>
-T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &aHardware,
+T ChameleonImplementationDense<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware,
                                                      ExaGeoStatData<T> &aData, Configurations &aConfigurations,
                                                      const double *theta, T *apMeasurementsMatrix) {
 
@@ -276,7 +329,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
     RUNTIME_request_t request_array[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
     if (!aData.GetDescriptorData()->GetSequence()) {
         RUNTIME_sequence_t *sequence;
-        CHAMELEON_Sequence_Create(&sequence);
+        ExaGeoStatCreateSequence(&sequence);
         aData.GetDescriptorData()->SetSequence(sequence);
         aData.GetDescriptorData()->SetRequest(request_array);
     }
@@ -343,7 +396,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
         } else {
             VERBOSE("Re-store the original Z vector...")
             ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_Zcpy, CHAM_desc_Z);
-            VERBOSE(" Done.\n")
+            VERBOSE("Done.")
         }
         STOP_TIMING(dzcpy_time);
 
@@ -364,7 +417,7 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
 
             int distance_metric = aConfigurations.GetDistanceMetric();
 
-            this->CovarianceMatrixCodelet(aData.GetDescriptorData(), CHAM_desc_sub_C11, upper_lower,
+            this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_sub_C11, upper_lower,
                                           aData.GetLocations(), aData.GetLocations(), &median_locations,
                                           univariate_theta, distance_metric, kernel_name);
             nu12 = 0.5 * (theta[3] + theta[4]);
@@ -376,35 +429,35 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
             univariate2_theta[1] = theta[2];
             univariate2_theta[2] = nu12;
 
-            this->CovarianceMatrixCodelet(aData.GetDescriptorData(), CHAM_desc_sub_C12, upper_lower, &median_locations,
+            this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_sub_C12, upper_lower, &median_locations,
                                           aData.GetLocations(), &median_locations, univariate2_theta, 0, kernel_name);
             STOP_TIMING(matrix_gen_time);
-            VERBOSE(" Done.\n")
+            VERBOSE("Done.")
 
             univariate3_theta[0] = theta[1];
             univariate3_theta[1] = theta[2];
             univariate3_theta[2] = theta[4];
 
-            this->CovarianceMatrixCodelet(aData.GetDescriptorData(), CHAM_desc_sub_C22, upper_lower, &median_locations,
+            this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_sub_C22, upper_lower, &median_locations,
                                           aData.GetLocations(), &median_locations, univariate2_theta, 0, kernel_name);
         } else {
             int upper_lower = EXAGEOSTAT_LOWER;
-            this->CovarianceMatrixCodelet(aData.GetDescriptorData(), CHAM_desc_C, upper_lower, aData.GetLocations(),
+            this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_C, upper_lower, aData.GetLocations(),
                                           aData.GetLocations(), &median_locations, (T *) theta, 0, kernel_name);
         }
 
         ExaGeoStatSequenceWait(pSequence);
         STOP_TIMING(matrix_gen_time);
 
-        VERBOSE("Done.\n")
+        VERBOSE("Done.")
         VERBOSE("Cholesky factorization of Sigma...")
         START_TIMING(time_facto);
-        success = CHAMELEON_dpotrf_Tile(ChamLower, CHAM_desc_C);
+        success = ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_C);
         //// TODO: Contact chameleon team
         FAILURE_LOGGER(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n")
         STOP_TIMING(time_facto);
         flops = flops + flops_dpotrf(n);
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
 
         //Calculate log(|C|) --> log(square(|L|))
         VERBOSE("Calculating the log determinant ...")
@@ -414,16 +467,16 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
 
         logdet = 2 * (*determinant);
         STOP_TIMING(logdet_calculate);
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
 
         // Solving Linear System (L*X=Z)--->inv(L)*Z
-        VERBOSE("Solving the linear system ...\n")
+        VERBOSE("Solving the linear system ...")
         START_TIMING(time_solve);
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_C,
                            CHAM_desc_Z);
         STOP_TIMING(time_solve);
         flops = flops + flops_dtrsm(ChamLeft, n, nhrs);
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
 
         //Calculate MLE likelihood
         VERBOSE("Calculating the MLE likelihood function ...")
@@ -453,16 +506,16 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
             dot_product = *product;
             loglik = -0.5 * dot_product - 0.5 * logdet - (double) (n / 2.0) * log(2.0 * PI);
         }
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
     }
-    fprintf(stderr, " %3d- Model Parameters (", iter_count + 1);
+    LOGGER(iter_count + 1 << " - Model Parameters (", true)
 
     if (aConfigurations.GetLogger()) {
         fprintf(aConfigurations.GetFileLogPath(), " %3d- Model Parameters (", iter_count + 1);
     }
     if ((aConfigurations.GetKernelName() == "bivariate_matern_parsimonious_profile") ||
         (aConfigurations.GetKernelName() == "bivariate_matern_parsimonious2_profile")) {
-        fprintf(stderr, "%.8f, %.8f,", variance1, variance2);
+        LOGGER(setprecision(8) << variance1 << setprecision(8) << variance2)
         if (aConfigurations.GetLogger()) {
             fprintf(aConfigurations.GetFileLogPath(), "%.8f, %.8f,", variance1, variance2);
         }
@@ -470,44 +523,45 @@ T ChameleonImplementationDense<T>::ExaGeoStatMleTile(const hardware::ExaGeoStatH
     } else {
         i = 0;
     }
-
     for (; i < num_params; i++) {
-        fprintf(stderr, "%.8f", theta[i]);
+        LOGGER_PRECISION(theta[i])
         if (i < num_params - 1) {
-            fprintf(stderr, ",");
+            LOGGER_PRECISION(", ")
         }
-
         if (aConfigurations.GetLogger()) {
             fprintf(aConfigurations.GetFileLogPath(), "%.8f, ", theta[i]);
         }
     }
-    fprintf(stderr, ")----> LogLi: %.18f\n", loglik);
+    LOGGER_PRECISION(")----> LogLi: " << loglik << "\n", 18)
 
     if (aConfigurations.GetLogger()) {
         fprintf(aConfigurations.GetFileLogPath(), ")----> LogLi: %.18f\n", loglik);
     }
-
-    fprintf(stderr, " ---- Facto Time: %6.2f \n", time_facto);
-    fprintf(stderr, " ---- Matrix Generation Time: %6.2f\n", matrix_gen_time);
-    fprintf(stderr, " ---- Total Time: %6.2f\n", matrix_gen_time + time_facto + logdet_calculate + time_solve);
+    LOGGER(" ---- Facto Time: " << time_facto)
+    LOGGER(" ---- Matrix Generation Time: " << matrix_gen_time)
+    LOGGER(" ---- Total Time: " << matrix_gen_time + time_facto + logdet_calculate + time_solve)
 
     aData.SetMleIterations(aData.GetMleIterations() + 1);
     // for experiments
-    if (Configurations::GetRunMode() == VERBOSE_MODE) {
+    if (Configurations::GetVerbosity() == DETAILED_MODE) {
         avg_executed_time_per_iteration += /*matrix_gen_time*/+time_facto + logdet_calculate + time_solve;
         avg_flops_per_iter += flops / 1e9 / (time_facto + time_solve);
     }
 
+    results::Results::GetInstance()->SetMLEIterations(iter_count + 1);
+    results::Results::GetInstance()->SetMaximumTheta(vector<double>(theta, theta + num_params));
+    results::Results::GetInstance()->SetLogLikValue(loglik);
     return loglik;
 }
 
 template<typename T>
-T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta, int aZMissNumber,
-                                                             int aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
-                                                             const hardware::ExaGeoStatHardware &aHardware,
-                                                             configurations::Configurations &aConfiguration,
-                                                             exageostat::dataunits::Locations<T> &aMissLocations,
-                                                             exageostat::dataunits::Locations<T> &aObsLocations) {
+T *
+ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTile(ExaGeoStatData<T> &aData, T *apTheta,
+                                                          const int &aZMissNumber,
+                                                          const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
+                                                          const ExaGeoStatHardware &aHardware,
+                                                          Configurations &aConfiguration, Locations<T> &aMissLocations,
+                                                          Locations<T> &aObsLocations) {
 
     int i;
     this->SetContext(aHardware.GetContext());
@@ -550,7 +604,7 @@ T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::datauni
     RUNTIME_request_t request_array[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
     RUNTIME_sequence_t *sequence;
     if (!aData.GetDescriptorData()->GetSequence()) {
-        CHAMELEON_Sequence_Create(&sequence);
+        ExaGeoStatCreateSequence(&sequence);
         aData.GetDescriptorData()->SetSequence(sequence);
         aData.GetDescriptorData()->SetRequest(request_array);
     } else {
@@ -562,35 +616,38 @@ T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::datauni
     //Copy data to vectors
     VERBOSE("Copy measurments vector to descZobs descriptor...")
     ExaGeoStatLap2Desc(apZObs, aZObsNumber, CHAM_desc_Zobs, UpperLower::EXAGEOSTAT_UPPER_LOWER);
-    VERBOSE(" Done.\n")
+    VERBOSE("Done.")
 
     if (apZActual) {
         //Copy data to vectors
         VERBOSE("Copy actual measurments vector to descZactual descriptor...")
         ExaGeoStatLap2Desc(apZActual, aZMissNumber, CHAM_desc_Zactual, UpperLower::EXAGEOSTAT_UPPER_LOWER);
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
     }
 
-    printf("estimated parameters:");
+    LOGGER("- Estimated Parameters (", true)
     for (i = 0; i < num_params; i++) {
-        printf("%.8f,", apTheta[i]);
+        LOGGER_PRECISION(apTheta[i])
+        if (i != num_params - 1) {
+            LOGGER_PRECISION(", ")
+        }
     }
-    printf(")\n");
-
+    LOGGER_PRECISION(")")
+    LOGGER("")
     ExaGeoStatSequenceWait(sequence);
 
     START_TIMING(mat_gen_time);
     VERBOSE("Generate C22 Covariance Matrix... (Prediction Stage)")
     int upper_lower = EXAGEOSTAT_LOWER;
-    this->CovarianceMatrixCodelet(aData.GetDescriptorData(), CHAM_desc_C22, upper_lower, &aObsLocations, &aObsLocations,
-                                  &median_locations, apTheta, 0, kernel_name);
-    ExaGeoStatSequenceWait(sequence);
-    VERBOSE(" Done.\n")
-    VERBOSE("Generate C12 Covariance Matrix... (Prediction Stage)")
-    this->CovarianceMatrixCodelet(aData.GetDescriptorData(), CHAM_desc_C12, upper_lower, &aMissLocations,
+    this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_C22, upper_lower, &aObsLocations,
                                   &aObsLocations, &median_locations, apTheta, 0, kernel_name);
     ExaGeoStatSequenceWait(sequence);
-    VERBOSE(" Done.\n")
+    VERBOSE("Done.")
+    VERBOSE("Generate C12 Covariance Matrix... (Prediction Stage)")
+    this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_C12, upper_lower, &aMissLocations,
+                                  &aObsLocations, &median_locations, apTheta, 0, kernel_name);
+    ExaGeoStatSequenceWait(sequence);
+    VERBOSE("Done.")
     STOP_TIMING(mat_gen_time);
 
     START_TIMING(time_solve);
@@ -599,7 +656,7 @@ T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::datauni
     ExaGeoStatPosvTile(EXAGEOSTAT_LOWER, CHAM_desc_C22, CHAM_desc_Zobs);
     flops = flops + flops_dpotrf(aZObsNumber);
     flops = flops + flops_dtrsm(ChamLeft, aZObsNumber, aZObsNumber);
-    VERBOSE(" Done.\n")
+    VERBOSE("Done.")
     STOP_TIMING(time_solve);
 
 
@@ -607,23 +664,23 @@ T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::datauni
     VERBOSE("Calculate dgemm Zmiss= C12 * Zobs Covariance Matrix... (Prediction Stage)")
     ExaGeoStatGemmTile(EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_C12, CHAM_desc_Zobs, 0, CHAM_desc_Zmiss);
     flops = flops + flops_dgemm(aZMissNumber, aZObsNumber, aZObsNumber);
-    VERBOSE(" Done.\n")
+    VERBOSE("Done.")
     STOP_TIMING(time_gemm);
 
     ExaGeoStatDesc2Lap(apZMiss, aZMissNumber, CHAM_desc_Zmiss, EXAGEOSTAT_UPPER_LOWER);
 
     if (apZActual) {
         START_TIMING(time_mse);
-        VERBOSE("Calculate Mean Square Error (MSE) ... (Prediction Stage) \n")
+        VERBOSE("Calculate Mean Square Error (MSE) ... (Prediction Stage)")
         if (kernel_name == "BivariateMaternParsimonious" || kernel_name == "BivariateMaternParsimonious2" ||
             kernel_name == "BivariateMaternParsimoniousProfile") {
             //TODO:  EXAGEOSTAT_MLE_dmse_bivariate_Tile_Async
             throw runtime_error("Bivariate Kernels are not supported yet.");
         } else {
-            ExaGeoStatMleMseTileAsync(CHAM_desc_Zactual, CHAM_desc_Zmiss, CHAM_desc_mse, sequence, request);
+            ExaGeoStatMLEMseTileAsync(CHAM_desc_Zactual, CHAM_desc_Zmiss, CHAM_desc_mse, sequence, request);
         }
         ExaGeoStatSequenceWait(sequence);
-        VERBOSE(" Done.\n")
+        VERBOSE("Done.")
         STOP_TIMING(time_mse);
 
         *mspe /= aZMissNumber;
@@ -639,12 +696,13 @@ T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::datauni
                 "\n\n# of missing observations :%d\n\nPrediction Execution Time: %.8f, ""Flops: %.8f, Mean Square Error (MSE): %.8f\n\n",
                 aZMissNumber, (mat_gen_time + time_solve + time_mse), (flops / 1e9 / (time_solve)), *mspe);
     }
-    for (i = 0; i < aZMissNumber; i++)
-        printf("(%3.6f, %3.6f)\n ", apZActual[i], apZMiss[i]);
-
-    fprintf(stderr,
-            "\n\n# of missing observations :%d\n\nPrediction Execution Time: %.8f, ""Flops: %.8f, Mean Square Error (MSE): %.8f\n\n",
-            aZMissNumber, (mat_gen_time + time_solve + time_mse), (flops / 1e9 / (time_solve)), mspe[0]);
+    LOGGER("- Z Actual .. Z Miss")
+    for (i = 0; i < aZMissNumber; i++) {
+        LOGGER(" (" << apZActual[i] << ", " << apZMiss[i] << ")")
+    }
+    results::Results::GetInstance()->SetExecutionTime(mat_gen_time + time_solve + time_mse);
+    results::Results::GetInstance()->SetFlops((flops / 1e9 / (time_solve)));
+    results::Results::GetInstance()->SetMSPEError(*mspe);
 
     T *all_mspe = new T[3];
     all_mspe[0] = *mspe;
@@ -655,48 +713,435 @@ T *ChameleonImplementationDense<T>::ExaGeoStatMLEPredictTILE(exageostat::datauni
 }
 
 template<typename T>
-int ChameleonImplementationDense<T>::ExaGeoStatLapackCopyTile(exageostat::common::UpperLower aUpperLower, void *apA,
+void
+ChameleonImplementationDense<T>::ExaGeoStatMLEMloeMmomTile(Configurations &aConfigurations, ExaGeoStatData<T> &aData,
+                                                           const ExaGeoStatHardware &aHardware, T *apTruthTheta,
+                                                           T *apEstimatedTheta, Locations<T> &aMissLocations,
+                                                           Locations<T> &aObsLocations) {
+
+    this->SetContext(aHardware.GetContext());
+    this->InitiateMloeMmomDescriptors(aConfigurations, aData);
+    auto kernel_name = aConfigurations.GetKernelName();
+    auto median_locations = Locations<T>(1, aData.GetLocations()->GetDimension());
+    aData.CalculateMedianLocations(kernel_name, median_locations);
+
+    int N = aConfigurations.GetProblemSize();
+    int n_z_obs = aConfigurations.CalculateZObsNumber();
+    int n_z_miss = aConfigurations.GetUnknownObservationsNb();
+    int num_par = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[kernel_name];
+    LOGGER("- Truth Theta: ", true)
+    for (int num = 0; num < num_par; num++) {
+        LOGGER_PRECISION(apTruthTheta[num] << " ")
+    }
+    LOGGER("")
+    LOGGER("- Estimated Theta: ", true)
+    for (int num = 0; num < num_par; num++) {
+        LOGGER_PRECISION(apEstimatedTheta[num] << " ")
+    }
+    LOGGER("")
+    double loe_sum = 0.0;
+    double mom_sum = 0.0;
+    int i = 0;
+    int p = 0;
+    int v = 0;
+    int j = 0;
+    double all_time = 0.0;
+    double cholesky1 = 0.0;
+    double cholesky2 = 0.0;
+    double matrix_gen = 0.0;
+    double vecs_gen = 0.0;
+    double matrix_gen3 = 0.0;
+    double matrix_gen4 = 0.0;
+    double copy_vecs = 0.0;
+    double trsm1 = 0.0;
+    double trsm2 = 0.0;
+    double trsm3 = 0.0;
+    double trsm4 = 0.0;
+    double gevv1 = 0.0;
+    double gevv2 = 0.0;
+    double gevv3 = 0.0;
+    double gevv4 = 0.0;
+    double gevv5 = 0.0;
+
+    auto loe = new T[n_z_miss];
+    auto mom = new T[n_z_miss];
+
+    auto *CHAM_desc_k_t = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_k_T).chameleon_desc;
+    auto *CHAM_desc_k_a = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_k_A).chameleon_desc;
+    auto *CHAM_desc_K_t = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_K_T).chameleon_desc;
+    auto *CHAM_desc_K_a = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_K_A).chameleon_desc;
+    auto *CHAM_desc_k_a_tmp = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                       DESCRIPTOR_k_A_TMP).chameleon_desc;
+    auto *CHAM_desc_k_t_tmp = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                       DESCRIPTOR_k_T_TMP).chameleon_desc;
+    auto *CHAM_desc_expr1 = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                     DESCRIPTOR_EXPR_1).chameleon_desc;
+    auto *CHAM_desc_expr2 = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                     DESCRIPTOR_EXPR_2).chameleon_desc;
+    auto *CHAM_desc_expr3 = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                     DESCRIPTOR_EXPR_3).chameleon_desc;
+    auto *CHAM_desc_expr4 = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                     DESCRIPTOR_EXPR_4).chameleon_desc;
+    auto *CHAM_desc_mloe = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                    DESCRIPTOR_MLOE).chameleon_desc;
+    auto *CHAM_desc_mmom = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                    DESCRIPTOR_MMOM).chameleon_desc;
+    auto *CHAM_desc_estimated_alpha = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                               DESCRIPTOR_TIMATED_ALPHA).chameleon_desc;
+    auto *CHAM_desc_truth_alpha = aData.GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                           DESCRIPTOR_TRUTH_ALPHA).chameleon_desc;
+
+    T *mloe = aData.GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mloe);
+    *mloe = 0;
+    T *mmom = aData.GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mmom);
+    *mmom = 0;
+
+    //Creating sequence and request.
+    // Create a Chameleon sequence, if not initialized before through the same descriptors
+    RUNTIME_request_t request_array[2] = {CHAMELEON_SUCCESS, CHAMELEON_SUCCESS};
+    RUNTIME_sequence_t *sequence;
+    if (!aData.GetDescriptorData()->GetSequence()) {
+        ExaGeoStatCreateSequence(&sequence);
+        aData.GetDescriptorData()->SetSequence(sequence);
+        aData.GetDescriptorData()->SetRequest(request_array);
+    } else {
+        sequence = (RUNTIME_sequence_t *) aData.GetDescriptorData()->GetSequence();
+    }
+    void *request = aData.GetDescriptorData()->GetRequest();
+
+    auto lmiss = new Locations<T>(n_z_miss, aData.GetLocations()->GetDimension());
+    T *univariate_theta;
+    T *univariate2_theta;
+    T *univariate3_theta;
+    T nu12;
+    T rho;
+    T sigma_square12;
+
+    T flops = 0.0;
+    START_TIMING(all_time);
+
+    int m = CHAM_desc_estimated_alpha->m;
+
+    auto truth_alpha = new T[m * m];
+    auto estimated_alpha = new T[m * m];
+    auto temp1 = new T[m * m];
+    auto temp2 = new T[m * m];
+    auto temp3 = new T[m * m];
+
+    if (m == 1) {
+        truth_alpha[0] = apTruthTheta[0];
+        estimated_alpha[0] = apEstimatedTheta[0];
+    }
+
+    if (m == 2) {
+        double truth_nu12 = 0.5 * (apTruthTheta[3] + apTruthTheta[4]);
+        double truth_rho = apTruthTheta[5] * sqrt((tgamma(apTruthTheta[3] + 1) * tgamma(apTruthTheta[4] + 1)) /
+                                                  (tgamma(apTruthTheta[3]) * tgamma(apTruthTheta[4]))) *
+                           tgamma(truth_nu12) / tgamma(truth_nu12 + 1);
+        double estimated_nu12 = 0.5 * (apEstimatedTheta[3] + apEstimatedTheta[4]);
+        double estimated_rho = apEstimatedTheta[5] *
+                               sqrt((tgamma(apEstimatedTheta[3] + 1) * tgamma(apEstimatedTheta[4] + 1)) /
+                                    (tgamma(apEstimatedTheta[3]) * tgamma(apEstimatedTheta[4]))) *
+                               tgamma(estimated_nu12) / tgamma(estimated_nu12 + 1);
+
+        truth_alpha[0] = apTruthTheta[0];
+        estimated_alpha[0] = apEstimatedTheta[0];
+        truth_alpha[1] = truth_alpha[3] = truth_rho * sqrt(apTruthTheta[0] * apTruthTheta[1]);
+        estimated_alpha[1] = estimated_alpha[3] = estimated_rho * sqrt(apEstimatedTheta[0] * apEstimatedTheta[1]);
+        truth_alpha[2] = apTruthTheta[1];
+        estimated_alpha[2] = apEstimatedTheta[1];
+    }
+
+    ExaGeoStatLap2Desc(truth_alpha, m, CHAM_desc_truth_alpha, EXAGEOSTAT_UPPER_LOWER);
+    ExaGeoStatLap2Desc(estimated_alpha, m, CHAM_desc_estimated_alpha, EXAGEOSTAT_UPPER_LOWER);
+
+    if (kernel_name == "BivariateMaternParsimonious2" ||
+        kernel_name == "BivariateMaternParsimonious2Profile") {
+        //// TODO:not implemented in C
+        throw runtime_error("Selected Kernel Is Not Supported!");
+    }
+
+    START_TIMING(matrix_gen);
+    VERBOSE("Create K_a and K_t Covariance Matrices (MLOE-MMOM).....")
+    int upper_lower = EXAGEOSTAT_LOWER;
+    this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_K_a, upper_lower, &aObsLocations,
+                                  &aObsLocations, &median_locations, apEstimatedTheta, 0, kernel_name);
+    ExaGeoStatSequenceWait(sequence);
+    this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_K_t, upper_lower, &aObsLocations,
+                                  &aObsLocations, &median_locations, apTruthTheta, 0, kernel_name);
+    ExaGeoStatSequenceWait(sequence);
+    VERBOSE("Done.")
+    STOP_TIMING(matrix_gen);
+
+    //Cholesky factorization for the Co-variance matrix CHAM_desc_K_a
+    START_TIMING(cholesky1);
+    VERBOSE("(3)Cholesky factorization of CHAM_desc_K_a (MLOE-MMOM) .....")
+    int success = ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_K_a);
+    FAILURE_LOGGER(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n")
+    VERBOSE("Done.")
+    STOP_TIMING(cholesky1);
+    flops = flops + flops_dpotrf(CHAM_desc_K_a->m);
+
+    START_TIMING(cholesky2);
+    //(5)Cholesky factorization for the Co-variance matrix CHAM_desc_K_t
+    VERBOSE("(5)Cholesky factorization of CHAM_desc_K_t (MLOE-MMOM) .....")
+    success = ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_K_t);
+    FAILURE_LOGGER(success, "Factorization cannot be performed..\n The matrix is not positive definite\n\n")
+    VERBOSE("Done.")
+    STOP_TIMING(cholesky2);
+    flops = flops + flops_dpotrf(CHAM_desc_K_t->m);
+
+    T total_loop_time = 0.0;
+    T loop_time = 0.0;
+    for (p = 0; p < n_z_miss; p++) {
+#if defined(CHAMELEON_USE_MPI)
+        if(CHAMELEON_My_Mpi_Rank() == 0)
+    {
+#endif
+#if defined(CHAMELEON_USE_MPI)
+        }
+#endif
+        lmiss->GetLocationX()[0] = aMissLocations.GetLocationX()[p];
+        lmiss->GetLocationY()[0] = aMissLocations.GetLocationY()[p];
+
+        VERBOSE("Generate two vectors k_a and k_t (MLOE-MMOM).....")
+        START_TIMING(vecs_gen);
+        upper_lower = EXAGEOSTAT_UPPER_LOWER;
+        this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_k_t, upper_lower, &aObsLocations, lmiss,
+                                      &median_locations, apTruthTheta, 0, kernel_name);
+        this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_k_a, upper_lower, &aObsLocations, lmiss,
+                                      &median_locations, apEstimatedTheta, 0, kernel_name);
+        ExaGeoStatSequenceWait(sequence);
+
+        //// TODO: @Sameh please re-check all the comments here, verbose, timings.
+        STOP_TIMING(vecs_gen);
+        //(6a)Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM)
+        VERBOSE("(6a)Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM).....")
+        START_TIMING(copy_vecs);
+        ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_k_t, CHAM_desc_k_t_tmp);
+        ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_k_a, CHAM_desc_k_a_tmp);
+        STOP_TIMING(copy_vecs);
+        VERBOSE("Done.")
+
+        START_TIMING(loop_time);
+        START_TIMING(trsm1);
+        //(7) Triangular Solve (TRSM) k_a = TRSM(L_a^-1, k_a)
+        VERBOSE("Solving the linear system k_a = TRSM(l_a^-1, k_a) ...(MLOE-MMOM)")
+        ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
+                           CHAM_desc_K_a, CHAM_desc_k_a);
+        VERBOSE("Done.")
+        flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_a->m, CHAM_desc_k_a->n);
+        STOP_TIMING(trsm1);
+
+        START_TIMING(trsm2);
+        //(9) Triangular Solve (TRSM) k_t = TRSM(L_t^-1, k_t)
+        VERBOSE("(9)Solving the linear system k_t = TRSM(L_t^-1, k_t) ...(MLOE-MMOM)")
+        ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
+                           CHAM_desc_K_t, CHAM_desc_k_t);
+        flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_t->m, CHAM_desc_k_t->n);
+        VERBOSE("Done.")
+        STOP_TIMING(trsm2);
+
+        START_TIMING(trsm3);
+        //(8) Triangular Solve (TRSM) k_a = TRSM(L_a^-T, k_a)
+        VERBOSE("Solving the linear system k_a = TRSM(L_a^-T, k_a) ...(MLOE-MMOM)")
+        ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_a,
+                           CHAM_desc_k_a);
+        flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_a->m, CHAM_desc_k_a->n);
+        VERBOSE("Done.")
+        STOP_TIMING(trsm3);
+
+
+        START_TIMING(trsm4);
+        //(10) Triangular Solve (TRSM) k_t = TRSM(L_t^-T, k_t)
+        VERBOSE("(10)Solving the linear system k_t = TRSM(L_a^-T, k_t) ...(MLOE-MMOM)")
+        ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_t,
+                           CHAM_desc_k_t);
+        flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_t->m, CHAM_desc_k_t->n);
+        VERBOSE("Done.")
+        STOP_TIMING(trsm4);
+
+        START_TIMING(gevv2);
+        //(12) Calculate dgemm value= CHAM_desc_k_t^T * CHAM_desc_k_a
+        VERBOSE("(12)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_t^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        ExaGeoStatGemmTile(EXAGEOSTAT_TRANS, EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_k_t_tmp, CHAM_desc_k_a, 0,
+                           CHAM_desc_expr1);
+        flops = flops + flops_dgemm(CHAM_desc_k_t_tmp->m, CHAM_desc_k_a->n, CHAM_desc_expr1->n);
+        VERBOSE("Done.")
+        STOP_TIMING(gevv2);
+        START_TIMING(gevv3);
+        //(13) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_a_tmp
+        VERBOSE("(13)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        ExaGeoStatGemmTile(EXAGEOSTAT_TRANS, EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_k_a_tmp, CHAM_desc_k_a, 0,
+                           CHAM_desc_expr4);
+        flops = flops + flops_dgemm(CHAM_desc_k_a_tmp->m, CHAM_desc_k_a->n, CHAM_desc_expr4->n);
+        VERBOSE("Done.")
+        STOP_TIMING(gevv3);
+
+        START_TIMING(gevv1);
+        //(11) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
+        VERBOSE("(11)Calculate dgemm CHAM_desc_expr4 = CHAM_desc_k_a^T * CHAM_desc_k_t... (Prediction Stage)")
+        ExaGeoStatGemmTile(EXAGEOSTAT_TRANS, EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_k_t_tmp, CHAM_desc_k_t, 0,
+                           CHAM_desc_expr3);
+        flops = flops + flops_dgemm(CHAM_desc_k_t_tmp->m, CHAM_desc_k_t->n, CHAM_desc_expr3->n);
+        VERBOSE("Done.")
+        STOP_TIMING(gevv1);
+
+        //(14) Calculate dgemm CHAM_desc_k_a= CHAM_desc_K_t * CHAM_desc_k_a (use k_t as k_a)
+        START_TIMING(gevv4);
+        ExaGeoStatTrmmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_t,
+                           CHAM_desc_k_a);
+        STOP_TIMING(gevv4);
+
+        //(13) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
+        VERBOSE("(17)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (Prediction Stage)")
+        ExaGeoStatGemmTile(EXAGEOSTAT_TRANS, EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_k_a, CHAM_desc_k_a, 0, CHAM_desc_expr2);
+        flops = flops + flops_dgemm(CHAM_desc_k_a_tmp->m, CHAM_desc_k_t->n, CHAM_desc_expr2->n);
+        VERBOSE("Done.")
+        START_TIMING(gevv5);
+        STOP_TIMING(gevv5);
+        STOP_TIMING(loop_time);
+        total_loop_time += loop_time;
+        ExaGeoStatGeaddTile(EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_truth_alpha, -2, CHAM_desc_expr1);
+        ExaGeoStatGeaddTile(EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_expr1, 1, CHAM_desc_expr2);
+        ExaGeoStatGeaddTile(EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_truth_alpha, -1, CHAM_desc_expr3);
+        ExaGeoStatGeaddTile(EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_estimated_alpha, -1, CHAM_desc_expr4);
+
+        LOGGER("- Matrix Generation Time: " << matrix_gen << " Vectors Generation Time: " << vecs_gen
+                                            << " First Cholesky factorization Time: " << cholesky1
+                                            << " First Cholesky factorization Time: " << cholesky2)
+        LOGGER("- First Trsm time: " << trsm1 << " Second Trsm time: " << trsm2 << " Third Trsm time: " << trsm3
+                                     << " Fourth Trsm time: " << trsm4)
+        LOGGER("- First gemm time: " << gevv1 << " Second gemm time: " << gevv2 << " Third gemm time: " << gevv3
+                                     << " Fourth gemm time: " << gevv4 << " Fifth gemm time: " << gevv5)
+        ExaGeoStatMLEMloeMmomTileAsync(CHAM_desc_expr2, CHAM_desc_expr3, CHAM_desc_expr4, CHAM_desc_mloe,
+                                       CHAM_desc_mmom, sequence, request);
+        ExaGeoStatSequenceWait(sequence);
+    }
+#if defined(CHAMELEON_USE_MPI)
+    if(CHAMELEON_My_Mpi_Rank() == 0)
+    {
+#endif
+    LOGGER(" ---- MLOE-MMOM Gflop/s: " << flops / 1e9 / (total_loop_time + cholesky1 + cholesky2))
+
+#if defined(CHAMELEON_USE_MPI)
+    }
+#endif
+
+    *mloe /= n_z_miss;
+    *mmom /= n_z_miss;
+    STOP_TIMING(all_time);
+    LOGGER(" ---- MLOE = " << *mloe)
+    LOGGER(" ---- MMOM = " << *mmom)
+    LOGGER(" ---- MLOE MMOM Time: " << all_time << " seconds.")
+
+    results::Results::GetInstance()->SetMLOE(*mloe);
+    results::Results::GetInstance()->SetMMOM(*mmom);
+    delete[] loe;
+    delete[] mom;
+    delete[] temp1;
+    delete[] temp2;
+    delete[] temp3;
+    delete[] estimated_alpha;
+    delete[] truth_alpha;
+    delete lmiss;
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatLapackCopyTile(const UpperLower &aUpperLower, void *apA,
                                                               void *apB) {
-    return CHAMELEON_dlacpy_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
+    int status = CHAMELEON_dlacpy_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dlacpy_Tile Failed!");
+    }
+    return status;
 }
 
 template<typename T>
 int
-ChameleonImplementationDense<T>::ExaGeoStatLapackToDescriptor(exageostat::common::UpperLower aUpperLower, void *apAf77,
-                                                              int aLda, void *apA) {
-    return CHAMELEON_Lap2Desc((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apAf77, aLda, (CHAM_desc_t *) apA);
-}
-
-
-template<typename T>
-int ChameleonImplementationDense<T>::ExaGeoStatSequenceWait(void *apSequence) {
-    return CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apSequence);
-}
-
-template<typename T>
-int ChameleonImplementationDense<T>::ExaGeoStatPotrfTile(exageostat::common::UpperLower aUpperLower, void *apA) {
-    return CHAMELEON_dpotrf_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA);
-}
-
-template<typename T>
-int ChameleonImplementationDense<T>::ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower,
-                                                        common::Trans aTrans, common::Diag aDiag, T aAlpha, void *apA,
-                                                        void *apB) {
-    return CHAMELEON_dtrsm_Tile((cham_side_t) aSide, (cham_uplo_t) aUpperLower, (cham_trans_t) aTrans,
-                                (cham_diag_t) aDiag, aAlpha, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
-}
-
-template<typename T>
-int
-ChameleonImplementationDense<T>::ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA,
-                                                    void *apB, T aBeta, void *apC) {
-    return CHAMELEON_dgemm_Tile((cham_trans_t) aTransA, (cham_trans_t) aTransB, aAlpha, (CHAM_desc_t *) apA,
-                                (CHAM_desc_t *) apB, aBeta, (CHAM_desc_t *) apC);
+ChameleonImplementationDense<T>::ExaGeoStatLapackToDescriptor(const UpperLower &aUpperLower, void *apAf77,
+                                                              const int &aLda, void *apA) {
+    int status = CHAMELEON_Lap2Desc((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apAf77, aLda, (CHAM_desc_t *) apA);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_Lap2Desc Failed!");
+    }
+    return status;
 }
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::CopyDescriptorZ(DescriptorData<T> *apDescriptorData, void *apDescriptor,
+ChameleonImplementationDense<T>::ExaGeoStatOptionsInit(void *apOptoins, void *apContext, void *apSequence,
+                                                       void *apRequest) {
+    RUNTIME_options_init((RUNTIME_option_t *) apOptoins, (CHAM_context_t *) apContext,
+                         (RUNTIME_sequence_t *) apSequence,
+                         (RUNTIME_request_t *) apRequest);
+}
+
+template<typename T>
+void ChameleonImplementationDense<T>::ExaGeoStatOptionsFree(void *apOptions) {
+    RUNTIME_options_ws_free((RUNTIME_option_t *) apOptions);
+}
+
+template<typename T>
+void ChameleonImplementationDense<T>::ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) {
+    RUNTIME_options_finalize((RUNTIME_option_t *) apOptions, (CHAM_context_t *) apContext);
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatSequenceWait(void *apSequence) {
+    int status = CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apSequence);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_Sequence_Wait Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatCreateSequence(void *apSequence) {
+    int status = CHAMELEON_Sequence_Create(((RUNTIME_sequence_t **) apSequence));
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_Sequence_Create Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatPotrfTile(const UpperLower &aUpperLower, void *apA) {
+    int status = CHAMELEON_dpotrf_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dpotrf_Tile Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatTrsmTile(const Side &aSide, const UpperLower &aUpperLower,
+                                                        const Trans &aTrans, const Diag &aDiag,
+                                                        const T &aAlpha, void *apA, void *apB) {
+    int status = CHAMELEON_dtrsm_Tile((cham_side_t) aSide, (cham_uplo_t) aUpperLower, (cham_trans_t) aTrans,
+                                      (cham_diag_t) aDiag, aAlpha, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dtrsm_Tile Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+int
+ChameleonImplementationDense<T>::ExaGeoStatGemmTile(const Trans &aTransA, const Trans &aTransB, const T &aAlpha,
+                                                    void *apA,
+                                                    void *apB, const T &aBeta, void *apC) {
+    int status = CHAMELEON_dgemm_Tile((cham_trans_t) aTransA, (cham_trans_t) aTransB, aAlpha, (CHAM_desc_t *) apA,
+                                      (CHAM_desc_t *) apB, aBeta, (CHAM_desc_t *) apC);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dgemm_Tile Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+void
+ChameleonImplementationDense<T>::CopyDescriptorZ(DescriptorData<T> &aDescriptorData, void *apDescriptor,
                                                  T *apDoubleVector) {
 
     // Check for initialize the Chameleon context.
@@ -706,10 +1151,7 @@ ChameleonImplementationDense<T>::CopyDescriptorZ(DescriptorData<T> *apDescriptor
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
-                         (RUNTIME_request_t *) apDescriptorData->GetRequest());
+    ExaGeoStatOptionsInit(&options, this->mpContext, aDescriptorData.GetSequence(), aDescriptorData.GetRequest());
 
     int m, m0;
     int tempmm;
@@ -730,7 +1172,7 @@ ChameleonImplementationDense<T>::CopyDescriptorZ(DescriptorData<T> *apDescriptor
 #endif
                            0);
     }
-    RUNTIME_options_ws_free(&options);
+    ExaGeoStatOptionsFree(&options);
 
 }
 
@@ -744,8 +1186,7 @@ int ChameleonImplementationDense<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-            this->mpContext, (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
+    ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
 
     int m;
     int tempmm;
@@ -761,8 +1202,8 @@ int ChameleonImplementationDense<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA
                            STARPU_RW, RUNTIME_data_getaddr(det, 0, 0),
                            0);
     }
-    RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *)
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options, (CHAM_context_t *)
             this->mpContext);
     return CHAMELEON_SUCCESS;
 }
@@ -777,8 +1218,7 @@ int ChameleonImplementationDense<T>::ExaGeoStaStrideVectorTileAsync(void *apDesc
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-            this->mpContext, (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
+    ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
 
     int m, m0;
     int tempmm;
@@ -803,17 +1243,17 @@ int ChameleonImplementationDense<T>::ExaGeoStaStrideVectorTileAsync(void *apDesc
                            0);
 
     }
-    RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *)
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options, (CHAM_context_t *)
             this->mpContext);
     return CHAMELEON_SUCCESS;
 }
 
 template<typename T>
-void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData<T> *apDescriptorData, void *apDescriptor,
-                                                              int &aTriangularPart, Locations<T> *apLocation1,
+void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData<T> &aDescriptorData, void *apDescriptor,
+                                                              const int &aTriangularPart, Locations<T> *apLocation1,
                                                               Locations<T> *apLocation2, Locations<T> *apLocation3,
-                                                              T *aLocalTheta, int aDistanceMetric,
+                                                              T *aLocalTheta, const int &aDistanceMetric,
                                                               const string &aKernelName) {
 
     // Check for initialize the Chameleon context.
@@ -823,10 +1263,7 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData<T> 
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext, (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
-                         (RUNTIME_request_t *) apDescriptorData->GetRequest());
-
+    ExaGeoStatOptionsInit(&options, this->mpContext, aDescriptorData.GetSequence(), aDescriptorData.GetRequest());
     kernels::Kernel<T> *pKernel = exageostat::plugins::PluginRegistry<kernels::Kernel<T >>::Create(aKernelName);
 
     int tempmm, tempnn;
@@ -864,15 +1301,15 @@ void ChameleonImplementationDense<T>::CovarianceMatrixCodelet(DescriptorData<T> 
                                0);
         }
     }
-    RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->mpContext);
-    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apDescriptorData->GetSequence());
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options, this->mpContext);
+    ExaGeoStatSequenceWait(aDescriptorData.GetSequence());
     delete pKernel;
 }
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData<T> *apDescriptorData, void *apDesc,
+ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData<T> &aDescriptorData, void *apDesc,
                                                                   T *apTheta) {
 
     // Check for initialize the Chameleon context.
@@ -882,9 +1319,7 @@ ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext, (RUNTIME_sequence_t *) apDescriptorData->GetSequence(),
-                         (RUNTIME_request_t *) apDescriptorData->GetRequest());
+    ExaGeoStatOptionsInit(&options, this->mpContext, aDescriptorData.GetSequence(), aDescriptorData.GetRequest());
 
     int m, m0;
     int tempmm;
@@ -912,13 +1347,13 @@ ChameleonImplementationDense<T>::ExaGeoStatGaussianToNonTileAsync(DescriptorData
                            0);
     }
 
-    RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->mpContext);
-    CHAMELEON_Sequence_Wait((RUNTIME_sequence_t *) apDescriptorData->GetSequence());
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options, this->mpContext);
+    ExaGeoStatSequenceWait(aDescriptorData.GetSequence());
 }
 
 template<typename T>
-int ChameleonImplementationDense<T>::ExaGeoStatMleMseTileAsync(void *apDescZPredict, void *apDescZMiss,
+int ChameleonImplementationDense<T>::ExaGeoStatMLEMseTileAsync(void *apDescZPredict, void *apDescZMiss,
                                                                void *apDescError, void *apSequence,
                                                                void *apRequest) {
     // Check for Initialise the Chameleon context.
@@ -928,9 +1363,8 @@ int ChameleonImplementationDense<T>::ExaGeoStatMleMseTileAsync(void *apDescZPred
     }
 
     RUNTIME_option_t options;
-    RUNTIME_options_init(&options, (CHAM_context_t *)
-                                 this->mpContext,
-                         (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
+    ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
     int m, m0;
     int tempmm;
     auto Zpre = (CHAM_desc_t *) apDescZPredict;
@@ -952,33 +1386,154 @@ int ChameleonImplementationDense<T>::ExaGeoStatMleMseTileAsync(void *apDescZPred
 #endif
                            0);
     }
-    RUNTIME_options_ws_free(&options);
-    RUNTIME_options_finalize(&options, (CHAM_context_t *) this->mpContext);
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options, (CHAM_context_t *)
+            this->mpContext);
     ExaGeoStatSequenceWait(apSequence);
     return CHAMELEON_SUCCESS;
 }
 
 template<typename T>
 int
-ChameleonImplementationDense<T>::ExaGeoStatPosvTile(common::UpperLower aUpperLower, void *apA, void *apB) {
-    return CHAMELEON_dposv_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
+ChameleonImplementationDense<T>::ExaGeoStatPosvTile(const UpperLower &aUpperLower, void *apA, void *apB) {
+    int status = CHAMELEON_dposv_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dposv_Tile Failed!");
+    }
+    return status;
 }
 
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::ExaGeoStatLap2Desc(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) {
-    CHAMELEON_Lap2Desc((cham_uplo_t) aUpperLower, apA, aLDA, (CHAM_desc_t *) apDescA);
+ChameleonImplementationDense<T>::ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA,
+                                                    const UpperLower &aUpperLower) {
+    int status = CHAMELEON_Lap2Desc((cham_uplo_t) aUpperLower, apA, aLDA, (CHAM_desc_t *) apDescA);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_Lap2Desc Failed!");
+    }
 }
 
 template<typename T>
-void ChameleonImplementationDense<T>::ExaGeoStatDesc2Lap(T *apA, int aLDA, void *apDescA,
-                                                         common::UpperLower aUpperLower) {
-    CHAMELEON_Desc2Lap((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apDescA, apA, aLDA);
+void ChameleonImplementationDense<T>::ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA,
+                                                         const UpperLower &aUpperLower) {
+    int status = CHAMELEON_Desc2Lap((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apDescA, apA, aLDA);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_Desc2Lap Failed!");
+    }
 }
 
 template<typename T>
-void ChameleonImplementationDense<T>::GetZObs(T *apZ, int aSize, DescriptorData<T> &aDescData) {
+void
+ChameleonImplementationDense<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *apZ, const int &aSize,
+                                                   DescriptorData<T> &aDescData, T *apMeasurementsMatrix) {
+
     auto z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY).chameleon_desc;
+    if (!z_desc) {
+        int n = aConfigurations.GetProblemSize();
+        int dts = aConfigurations.GetDenseTileSize();
+        int p_grid = aConfigurations.GetPGrid();
+        int q_grid = aConfigurations.GetQGrid();
+        bool is_OOC = aConfigurations.GetIsOOC();
+
+
+        // Set the floating point precision based on the template type
+        FloatPoint float_point;
+        if (sizeof(T) == SIZE_OF_FLOAT) {
+            float_point = EXAGEOSTAT_REAL_FLOAT;
+        } else if (sizeof(T) == SIZE_OF_DOUBLE) {
+            float_point = EXAGEOSTAT_REAL_DOUBLE;
+        } else {
+            throw runtime_error("Unsupported for now!");
+        }
+
+        aDescData.SetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, apMeasurementsMatrix, float_point, dts,
+                                dts,
+                                dts * dts, n, 1, 0, 0, n, 1, p_grid, q_grid);
+        z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY).chameleon_desc;
+    }
     ExaGeoStatDesc2Lap(apZ, aSize, z_desc, UpperLower::EXAGEOSTAT_UPPER_LOWER);
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T alpha, T beta,
+                                                         void *apDescriptor) {
+    int status = CHAMELEON_dlaset_Tile((cham_uplo_t) aUpperLower, alpha, beta, (CHAM_desc_t *) apDescriptor);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dlaset_Tile Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+int ChameleonImplementationDense<T>::ExaGeoStatMLEMloeMmomTileAsync(void *apDescExpr2, void *apDescExpr3,
+                                                                    void *apDescExpr4, void *apDescMloe,
+                                                                    void *apDescMmom, void *apSequence,
+                                                                    void *apRequest) {
+    // Check for Initialise the Chameleon context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+
+    RUNTIME_option_t options;
+    ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
+    int m, n, m0, n0;
+    struct starpu_codelet *cl = &this->cl_dmloe_mmom;
+    int tempmm, tempnn;
+
+    for (n = 0; n < ((CHAM_desc_t *) apDescExpr2)->nt; n++) {
+        tempnn = n == ((CHAM_desc_t *) apDescExpr2)->nt - 1 ? ((CHAM_desc_t *) apDescExpr2)->n -
+                                                              n * ((CHAM_desc_t *) apDescExpr2)->nb
+                                                            : ((CHAM_desc_t *) apDescExpr2)->nb;
+        for (m = 0; m < ((CHAM_desc_t *) apDescExpr2)->mt; m++) {
+
+            tempmm = m == ((CHAM_desc_t *) apDescExpr2)->mt - 1 ? ((CHAM_desc_t *) apDescExpr2)->m -
+                                                                  m * ((CHAM_desc_t *) apDescExpr2)->mb
+                                                                : ((CHAM_desc_t *) apDescExpr2)->mb;
+            m0 = m * ((CHAM_desc_t *) apDescExpr2)->mb;
+            n0 = n * ((CHAM_desc_t *) apDescExpr2)->nb;
+            starpu_insert_task(cl,
+                               STARPU_VALUE, &tempmm, sizeof(int),
+                               STARPU_VALUE, &tempnn, sizeof(int),
+                               STARPU_VALUE, &m0, sizeof(int),
+                               STARPU_VALUE, &n0, sizeof(int),
+                               STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr2, m, n),
+                               STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr3, m, n),
+                               STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr4, m, n),
+                               STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMloe, m, n),
+                               STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMmom, m, n),
+                               0);
+        }
+    }
+    ExaGeoStatOptionsFree(&options);
+    ExaGeoStatOptionsFinalize(&options, this->mpContext);
+    return CHAMELEON_SUCCESS;
+}
+
+template<typename T>
+int
+ChameleonImplementationDense<T>::ExaGeoStatGeaddTile(const Trans &aTrans, const T &aAlpha, void *apDescA,
+                                                     const T &aBeta,
+                                                     void *apDescB) {
+    int status = CHAMELEON_dgeadd_Tile((cham_trans_t) aTrans, aAlpha, (CHAM_desc_t *) apDescA, aBeta,
+                                       (CHAM_desc_t *) apDescB);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dgeadd_Tile Failed!");
+    }
+    return status;
+}
+
+template<typename T>
+void ChameleonImplementationDense<T>::ExaGeoStatTrmmTile(const Side &aSide, const UpperLower &aUpperLower,
+                                                         const Trans &aTrans, const Diag &aDiag,
+                                                         const T &alpha, void *apDescA, void *apDescB) {
+    int status = CHAMELEON_dtrmm_Tile((cham_side_t) aSide, (cham_uplo_t) aUpperLower, (cham_trans_t) aTrans,
+                                      (cham_diag_t) aDiag,
+                                      alpha,
+                                      (CHAM_desc_t *) apDescA, (CHAM_desc_t *) apDescB);
+    if (status != CHAMELEON_SUCCESS) {
+        throw std::runtime_error("CHAMELEON_dtrmm_Tile Failed!");
+    }
 }

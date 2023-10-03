@@ -12,6 +12,8 @@
  * @date 2023-06-08
 **/
 
+#include <algorithm>
+
 #include <prediction/PredictionHelpers.hpp>
 
 using namespace exageostat::prediction;
@@ -31,6 +33,13 @@ void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations, Exa
     auto l = new Locations<T>(N, aData.GetLocations()->GetDimension());
 
     int p = aConfigurations.GetP();
+    bool is_shuffle = true;
+
+    if (aConfigurations.GetIsMLOEMMOM() && aConfigurations.GetP() == 2) {
+        p = 1;
+        N /= 2;
+        is_shuffle = false;
+    }
 
     // Create an array of pointers using 'new'
     T **Z_parts = new T *[p];
@@ -53,12 +62,14 @@ void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations, Exa
         l->GetLocationY()[i] = aData.GetLocations()->GetLocationY()[i];
     }
 
-    if (p == 1) {
-        Shuffle(apZ, *l, N);
-    } else if (p == 2) {
-        Shuffle(Z_parts[0], Z_parts[1], *l, N);
-    } else if (p == 3) {
-        Shuffle(Z_parts[0], Z_parts[1], Z_parts[2], *l, N);
+    if (is_shuffle) {
+        if (p == 1) {
+            Shuffle(apZ, *l, N);
+        } else if (p == 2) {
+            Shuffle(Z_parts[0], Z_parts[1], *l, N);
+        } else if (p == 3) {
+            Shuffle(Z_parts[0], Z_parts[1], Z_parts[2], *l, N);
+        }
     }
 
     j = 0;
@@ -203,45 +214,9 @@ void PredictionHelpers<T>::Shuffle(T *apArray1, T *apArray2, T *apArray3, Locati
 }
 
 template<typename T>
-void PredictionHelpers<T>::RadixSort(uint32_t *aData, int aCount, int aDimension, int *apOrder) {
-    int *tmp_order = new int[aCount];
-    RadixSortRecursive(aData, aCount, aDimension, apOrder, tmp_order, aDimension - 1, 31, 0, aCount - 1);
-    delete[] tmp_order;
-}
+void PredictionHelpers<T>::SortArray(uint32_t *aData, int aCount) {
 
-template<typename T>
-void PredictionHelpers<T>::RadixSortRecursive(uint32_t *aData, int aCount, int aDimensions, int *apOrder,
-                                              int *apTempOrder, int aSortingDimension, int aSortingBit, int aLow,
-                                              int aHigh) {
-    int i, lo_last = aLow, hi_last = aHigh;
-    uint32_t *s_data = aData + aSortingDimension * aCount;
-    uint32_t check = 1 << aSortingBit;
-    for (i = aLow; i <= aHigh; i++) {
-        if ((s_data[apOrder[i]] & check) == 0) {
-            apTempOrder[lo_last] = apOrder[i];
-            lo_last++;
-        } else {
-            apTempOrder[hi_last] = apOrder[i];
-            hi_last--;
-        }
-    }
-    for (i = aLow; i <= aHigh; i++)
-        apOrder[i] = apTempOrder[i];
-    if (aSortingDimension > 0) {
-        if (lo_last - aLow > 1)
-            RadixSortRecursive(aData, aCount, aDimensions, apOrder, apTempOrder, aSortingDimension - 1,
-                               aSortingBit, aLow, lo_last - 1);
-        if (aHigh - hi_last > 1)
-            RadixSortRecursive(aData, aCount, aDimensions, apOrder, apTempOrder, aSortingDimension - 1,
-                               aSortingBit, hi_last + 1, aHigh);
-    } else if (aSortingBit > 0) {
-        if (lo_last - aLow > 1)
-            RadixSortRecursive(aData, aCount, aDimensions, apOrder, apTempOrder, aDimensions - 1,
-                               aSortingBit - 1, aLow, lo_last - 1);
-        if (aHigh - hi_last > 1)
-            RadixSortRecursive(aData, aCount, aDimensions, apOrder, apTempOrder, aDimensions - 1,
-                               aSortingBit - 1, hi_last + 1, aHigh);
-    }
+    std::sort(aData, aData + aCount);
 }
 
 template<typename T>
@@ -297,7 +272,7 @@ int PredictionHelpers<T>::SortInplace(int aN, Locations<T> &aLocations, T *apZ) 
     auto order = new int[count];
     for (j = 0; j < count; j++)
         order[j] = j;
-    RadixSort(uint_point, count, ndim, order);
+    SortArray(uint_point, count);
 
     auto new_point = new T[ndim * count];
     auto new_z = new T[count];

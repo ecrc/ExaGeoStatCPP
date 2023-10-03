@@ -42,10 +42,10 @@ void ExaGeoStatData<T>::SetLocations(Locations<T> &aLocation) {
         delete this->mpLocations;
     }
     this->mpLocations = &aLocation;
-    this->mpLocations->SetLocationX(*aLocation.GetLocationX());
-    this->mpLocations->SetLocationY(*aLocation.GetLocationY());
+    this->mpLocations->SetLocationX(*aLocation.GetLocationX(), aLocation.GetSize());
+    this->mpLocations->SetLocationY(*aLocation.GetLocationY(), aLocation.GetSize());
     if (aLocation.GetLocationZ()) {
-        this->mpLocations->SetLocationZ(*aLocation.GetLocationZ());
+        this->mpLocations->SetLocationZ(*aLocation.GetLocationZ(), aLocation.GetSize());
     }
 }
 

@@ -45,11 +45,13 @@ namespace exageostat {
             * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
             * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
             * @param[in] aConfigurations Reference to Configurations object containing user input data.
+            * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
             * @return
             */
             void PredictMissingData(const exageostat::hardware::ExaGeoStatHardware &aHardware,
                                     exageostat::dataunits::ExaGeoStatData<T> &aData,
-                                    exageostat::configurations::Configurations &aConfigurations);
+                                    exageostat::configurations::Configurations &aConfigurations,
+                                    T *apMeasurementsMatrix);
 
             /**
              * @brief Initializes needed pointers for prediction.
@@ -60,6 +62,7 @@ namespace exageostat {
              * @param[out] apZActual Pointer to be filled with actual measurements
              * @param[out] aMissLocation Location object to be filled with missed locations.
              * @param[out] aObsLocation Location object to be filled with missed locations.
+             * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
              * @return void
              */
             void InitializePredictionArguments(exageostat::configurations::Configurations &aConfigurations,
@@ -67,7 +70,8 @@ namespace exageostat {
                                                std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                                T *apZObs, T *apZActual,
                                                exageostat::dataunits::Locations<T> &aMissLocation,
-                                               exageostat::dataunits::Locations<T> &aObsLocation);
+                                               exageostat::dataunits::Locations<T> &aObsLocation,
+                                               T *apMeasurementsMatrix);
 
         };
 

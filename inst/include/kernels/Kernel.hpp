@@ -51,7 +51,7 @@ extern "C" {
 namespace exageostat {
     namespace kernels {
 
-        struct KernelsConfigurations{
+        struct KernelsConfigurations {
             /**
              * @brief Returns the static map containing kernel parameter numbers.
              * @return Reference to the static map.

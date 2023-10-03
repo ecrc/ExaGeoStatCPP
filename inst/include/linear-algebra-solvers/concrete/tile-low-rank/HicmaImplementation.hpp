@@ -47,25 +47,33 @@ namespace exageostat {
                  * 
                  */
                 void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                         dataunits::DescriptorData<T> &aDescriptorData,
+                                         dataunits::DescriptorData <T> &aDescriptorData,
                                          T *apMeasurementsMatrix) override;
 
                 /**
-                 * @brief Initializes the chameleon descriptors necessary for the Prediction.
+                 * @brief Initializes the HiCMA descriptors necessary for the Prediction.
                  * @copydoc LinearAlgebraMethods::InitiateDescriptors()
                  */
                 void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
-                                                   dataunits::ExaGeoStatData<T> &aData) override;
+                                                   dataunits::ExaGeoStatData <T> &aData) override;
+
+                /**
+                 * @brief Initializes the descriptors necessary for the Prediction Auxiliary function MLE-MLOE-MMOM.
+                 * @copydoc LinearAlgebraMethods::InitiateMloeMmomDescriptors()
+                 */
+                void InitiateMloeMmomDescriptors(configurations::Configurations &aConfigurations,
+                                                 dataunits::ExaGeoStatData <T> &aData) override;
 
                 /**
                  * @brief Computes the covariance matrix.
                  * @copydoc LinearAlgebraMethods::CovarianceMatrixCodelet()
                  * 
                  */
-                void CovarianceMatrixCodelet(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
-                                             int &aTriangularPart, dataunits::Locations<T> *apLocation1,
-                                             dataunits::Locations<T> *apLocation2, dataunits::Locations<T> *apLocation3,
-                                             T *aLocalTheta, int aDistanceMetric,
+                void CovarianceMatrixCodelet(dataunits::DescriptorData <T> &aDescriptorData, void *apDescriptor,
+                                             const int &aTriangularPart, dataunits::Locations <T> *apLocation1,
+                                             dataunits::Locations <T> *apLocation2,
+                                             dataunits::Locations <T> *apLocation3,
+                                             T *aLocalTheta, const int &aDistanceMetric,
                                              const std::string &aKernelName) override;
 
                 /**
@@ -74,26 +82,27 @@ namespace exageostat {
                  * 
                  */
                 void GenerateObservationsVector(configurations::Configurations &apConfigurations,
-                                                dataunits::DescriptorData<T> *apDescriptorData,
-                                                dataunits::BaseDescriptor aDescriptor,
-                                                dataunits::Locations<T> *apLocation1,
-                                                dataunits::Locations<T> *apLocation2,
-                                                dataunits::Locations<T> *apLocation3, int aDistanceMetric) override;
+                                                dataunits::DescriptorData <T> &aDescriptorData,
+                                                const dataunits::BaseDescriptor &aDescriptor,
+                                                dataunits::Locations <T> *apLocation1,
+                                                dataunits::Locations <T> *apLocation2,
+                                                dataunits::Locations <T> *apLocation3,
+                                                const int &aDistanceMetric) override;
 
                 /**
                  * @brief Copies the descriptor data to a double vector.
                  * @copydoc LinearAlgebraMethods::CopyDescriptorZ()
                  *
                  */
-                void CopyDescriptorZ(dataunits::DescriptorData<T> *apDescriptorData, void *apDescriptor,
+                void CopyDescriptorZ(dataunits::DescriptorData <T> &aDescriptorData, void *apDescriptor,
                                      T *apDoubleVector) override;
 
                 /**
                  * @brief Calculates the log likelihood value of a given value theta.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatMleTile()
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
                 */
                 T
-                ExaGeoStatMleTile(const hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData<T> &aData,
+                ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData <T> &aData,
                                   configurations::Configurations &aConfigurations, const double *theta,
                                   T *apMeasurementsMatrix) override;
 
@@ -102,21 +111,39 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::ExaGeoStatGaussianToNonTileAsync()
                  *
                 */
-                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> *apDescriptorData, void *apDesc,
+                void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData <T> &aDescriptorData, void *apDesc,
                                                       T *apTheta) override;
 
                 /**
                  * @brief Copies a matrix in the tile layout from source to destination
                  * @copydoc LinearAlgebraMethods::ExaGeoStatLapackCopyTile()
                  */
-                int ExaGeoStatLapackCopyTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
+                int ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA, void *apB) override;
 
                 /**
                  * @brief Conversion from LAPACK layout to HiCMA descriptor.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatLapackToDescriptor()
                  */
-                int ExaGeoStatLapackToDescriptor(common::UpperLower aUpperLower, void *apAf77, int aLda,
+                int ExaGeoStatLapackToDescriptor(const common::UpperLower &aUpperLower, void *apAf77, const int &aLda,
                                                  void *apA) override;
+
+                /**
+                 * @brief Initialize the runtime option structure for HiCMA
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOprionsInit()
+                 */
+                void ExaGeoStatOptionsInit(void *apOptoins, void * apContext, void * apSequence, void * apRequest) override;
+
+                /**
+                 * @brief Submit the release of the workspaces associated to the options structure.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFree()
+                 */
+                void ExaGeoStatOptionsFree(void *apOptions) override;
+
+                /**
+                 * @brief Finalize the runtime option structure for HiCMA.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFinalize()
+                 */
+                void ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) override;
 
                 /**
                  * @brief Wait for the completion of a sequence.
@@ -125,24 +152,33 @@ namespace exageostat {
                 int ExaGeoStatSequenceWait(void *apSequence) override;
 
                 /**
+                 * @brief Create HiCMA Sequence.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatCreateSequence()
+                 */
+                int
+                ExaGeoStatCreateSequence(void * apSequence) override;
+
+                /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
                  */
-                int ExaGeoStatPotrfTile(common::UpperLower aUpperLower, void *apA) override;
+                int ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA) override;
 
                 /**
                 * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
                 * @copydoc LinearAlgebraMethods::ExaGeoStatTrsmTile()
                 */
-                int ExaGeoStatTrsmTile(common::Side aSide, common::UpperLower aUpperLower, common::Trans aTrans,
-                                       common::Diag aDiag, T aAlpha, void *apA, void *apB) override;
+                int ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
+                                       const common::Trans &aTrans,
+                                       const common::Diag &aDiag, const T &aAlpha, void *apA, void *apB) override;
 
                 /**
                  * @brief Performs matrix multiplication.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatGemmTile()
                  */
-                int ExaGeoStatGemmTile(common::Trans aTransA, common::Trans aTransB, T aAlpha, void *apA, void *apB,
-                                       T aBeta, void *apC) override;
+                int ExaGeoStatGemmTile(const common::Trans &aTransA, const common::Trans &aTransB, const T &aAlpha,
+                                       void *apA, void *apB,
+                                       const T &aBeta, void *apC) override;
 
                 /**
                  * @brief Calculate determinant for triangular matrix.
@@ -152,7 +188,7 @@ namespace exageostat {
                                                   void *apDescDet) override;
 
                 /**
-                 * @brief opy Chameleon descriptor to vector float*.
+                 * @brief copy HiCMA descriptor to vector float*.
                  * @copydoc LinearAlgebraMethods::ExaGeoStaStrideVectorTileAsync()
                  */
                 int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
@@ -162,22 +198,23 @@ namespace exageostat {
                  * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
                  * @copydoc LinearAlgebraMethods::ExaGeoStatPosvTile()
                  */
-                int ExaGeoStatPosvTile(common::UpperLower aUpperLower, void *apA, void *apB) override;
+                int ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB) override;
 
                 /**
                  * @brief Calculate mean square error (MSE) scalar value the prediction.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatMleMseTileAsync()
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEMseTileAsync()
                  */
-                int ExaGeoStatMleMseTileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError,
+                int ExaGeoStatMLEMseTileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError,
                                               void *apSequence, void *apRequest) override;
 
                 /**
                  * Predict missing values base on a set of given values and covariance matrix/
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEPredictTiLE()
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEPredictTile()
                  */
                 T *
-                ExaGeoStatMLEPredictTILE(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta, int aZMissNumber,
-                                         int aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
+                ExaGeoStatMLEPredictTile(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta,
+                                         const int &aZMissNumber,
+                                         const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
                                          const hardware::ExaGeoStatHardware &aHardware,
                                          configurations::Configurations &aConfiguration,
                                          exageostat::dataunits::Locations<T> &aMissLocations,
@@ -187,19 +224,64 @@ namespace exageostat {
                  * @brief Copy Lapack matrix to Descriptor Matrix
                  * @copydoc LinearAlgebraMethods::ExaGeoStatLap2Desc()
                  */
-                void ExaGeoStatLap2Desc(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) override;
+                void ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA,
+                                        const common::UpperLower &aUpperLower) override;
 
                 /**
                * @brief Copy Descriptor Matrix to Lapack matrix.
                * @copydoc LinearAlgebraMethods::ExaGeoStatDesc2Lap()
                */
-                void ExaGeoStatDesc2Lap(T *apA, int aLDA, void *apDescA, common::UpperLower aUpperLower) override;
+                void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA,
+                                        const common::UpperLower &aUpperLower) override;
+
+                /**
+                 * @brief Sets the values of all or part of a two-dimensional Tile.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatLaSetTile()
+                 */
+                int ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T alpha, T beta, void *apDescriptor) override;
 
                 /**
                  * @brief Copy the Z matrix into a pointer.
                  * @copydoc LinearAlgebraMethods::GetZObs()
                  */
-                void GetZObs(T *apZ, int aSize, exageostat::dataunits::DescriptorData<T> &aDescData) override;
+                void
+                ExaGeoStatGetZObs(exageostat::configurations::Configurations &aConfigurations, T *apZ, const int &aSize,
+                                  exageostat::dataunits::DescriptorData<T> &aDescData,
+                                  T *apMeasurementsMatrix) override;
+
+                /**
+                 * @brief Predict missing values base on a set of given values and covariance matrix.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEMloeMmomTile()
+                 */
+                void ExaGeoStatMLEMloeMmomTile(exageostat::configurations::Configurations &aConfigurations,
+                                               exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                               const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                                               T *apTruthTheta,
+                                               T *apEstimatedTheta, dataunits::Locations <T> &aMissLocations,
+                                               dataunits::Locations <T> &aObsLocations) override;
+
+                /**
+                 * @brief Perform an asynchronous computation of MLE, MLOE, and MMOM for a tile.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatMLEMloeMmomTileAsync()
+                 */
+                int ExaGeoStatMLEMloeMmomTileAsync(void *apDescExpr2, void *apDescExpr3, void *apDescExpr4,
+                                                   void *apDescMloe, void *apDescMmom,
+                                                   void *apSequence, void *apRequest) override;
+
+                /**
+                 * @brief Perform a matrix addition with scaling.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatGeaddTile()
+                 */
+                int ExaGeoStatGeaddTile(const common::Trans &aTrans, const T &aAlpha, void *apDescA, const T &aBeta,
+                                        void *apDescB) override;
+
+                /**
+                 * @brief Perform a triangular matrix multiplication.
+                 * @copydoc LinearAlgebraMethods::ExaGeoStatTrmmTile()
+                */
+                void ExaGeoStatTrmmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
+                                        const common::Trans &aTrans, const common::Diag &aDiag,
+                                        const T &alpha, void *apDescA, void *apDescB) override;
             };
 
             /**
@@ -207,7 +289,7 @@ namespace exageostat {
             * @tparam T Data Type: float or double
             *
             */
-            EXAGEOSTAT_INSTANTIATE_CLASS(HicmaImplementation);
+            EXAGEOSTAT_INSTANTIATE_CLASS(HicmaImplementation)
 
         }//namespace tileLowRank
     }//namespace linearAlgebra

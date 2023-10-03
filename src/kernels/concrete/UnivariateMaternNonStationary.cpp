@@ -68,7 +68,7 @@ void UnivariateMaternNonStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
 
     aLocation3->GetLocationX()[0] = x_min + (x_max - x_min) / 2;
     aLocation3->GetLocationY()[0] = y_min + (y_max - y_min) / 2;
-    printf(" The central point is ( %f, %f)\n", aLocation3->GetLocationX()[0], aLocation3->GetLocationY()[0]);
+    LOGGER(" The central point is ( %f, %f)\n", aLocation3->GetLocationX()[0], aLocation3->GetLocationY()[0]);
 
     // Compute the covariance matrix elements
     for (j = 0; j < aColumnsNumber; j++) {

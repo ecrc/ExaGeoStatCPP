@@ -35,15 +35,15 @@ int main(int argc, char **argv) {
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    cout << "** initialize ExaGeoStat hardware ** " << endl;
+    LOGGER("** initialize ExaGeoStat hardware ** ")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers()); // Or you could use configurations.GetComputation().
-    cout << "** Create ExaGeoStat data ** " << endl;
+    LOGGER("** Create ExaGeoStat data ** ")
     exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(),
                                                        hardware);
-    cout << "** Generate ExaGeoStat data ** " << endl;
+    LOGGER("** Generate ExaGeoStat data ** ")
     ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
-    cout << "** All example stages have been completed successfully ** " << endl;
+    LOGGER("** All example stages have been completed successfully ** ")
 
     return 0;
 }

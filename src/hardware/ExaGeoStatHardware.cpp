@@ -16,6 +16,7 @@
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <results/Results.hpp>
 
 using namespace exageostat::hardware;
 
@@ -36,9 +37,8 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
 #else
         throw std::runtime_error("You need to enable Hicma to use TLR computation!");
 #endif
-    }
+    } else {
         // Init hardware using Chameleon
-    else {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         if (!this->mpContext) {
             CHAMELEON_user_tag_size(tag_width, tag_sep);
@@ -69,13 +69,15 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
     else {
 #ifdef EXAGEOSTAT_USE_CHAMELEON
         if (!this->mpContext) {
-            std::cout << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
+            std::cerr << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
+            exit(1);
         } else {
             CHAMELEON_Finalize()
             this->mpContext = nullptr;
         }
 #endif
     }
+    results::Results::GetInstance()->PrintEndSummary();
 }
 
 void *ExaGeoStatHardware::GetContext() const {

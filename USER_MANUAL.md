@@ -209,19 +209,19 @@ To use any operations, you firstly need to provide your arguments to the operati
 This is done by the Configurations module. You have two ways to set your arguments.
 
 1. Provide your arguments with the command line.
-
+```c++
     // Create a new configurations object.
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-
+```
 2. Set your arguments manually in the code.
-
+```c++
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(10);
     synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
     synthetic_data_configurations.SetPrecision(exageostat::common::double);
-
+```
 ### initialize the Hardware
 
 To use any operations you need to initialize the hardware with your selection of number of cores and gpus.
@@ -257,9 +257,11 @@ ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
 To use data modeling you have to do this operation.
 ```c++
 // you have to pass your arguments throuh the configurations, your hardware and your data.
-ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
+ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
 ```
 
 ### Data prediction
-
-- Not supported for now.
+```c++
+// you have to pass your arguments throuh the configurations, your hardware and your data.
+ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+```

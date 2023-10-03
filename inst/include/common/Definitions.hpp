@@ -55,9 +55,10 @@ namespace exageostat {
          * @brief Enum denoting the run mode
          *
          */
-        enum RunMode {
-            VERBOSE_MODE = 0,
-            STANDARD_MODE = 1
+        enum Verbose {
+            QUIET_MODE = 0,
+            STANDARD_MODE = 1,
+            DETAILED_MODE = 2
         };
 
         /**
@@ -148,7 +149,25 @@ namespace exageostat {
             DESCRIPTOR_C22RK = 23,
             DESCRIPTOR_MSE_1 = 24,
             DESCRIPTOR_MSE_2 = 25,
-            DESCRIPTOR_Z_MISS = 26
+            DESCRIPTOR_Z_MISS = 26,
+            DESCRIPTOR_k_T = 27,
+            DESCRIPTOR_k_A = 28,
+            DESCRIPTOR_k_A_TMP = 29,
+            DESCRIPTOR_k_T_TMP = 30,
+            DESCRIPTOR_K_T = 31,
+            DESCRIPTOR_K_T_TMP = 32,
+            DESCRIPTOR_K_A = 33,
+            DESCRIPTOR_EXPR_1 = 34,
+            DESCRIPTOR_EXPR_2 = 35,
+            DESCRIPTOR_EXPR_3 = 36,
+            DESCRIPTOR_EXPR_4 = 37,
+            DESCRIPTOR_MLOE = 38,
+            DESCRIPTOR_MMOM = 39,
+            DESCRIPTOR_ALPHA = 40,
+            DESCRIPTOR_TRUTH_ALPHA = 41,
+            DESCRIPTOR_TIMATED_ALPHA = 42,
+            DESCRIPTOR_MLOE_MMOM = 43,
+
         };
 
         /**

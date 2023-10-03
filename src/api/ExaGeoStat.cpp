@@ -34,6 +34,8 @@ template<typename T>
 void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
                                            ExaGeoStatData<T> &aData) {
 
+    // Register and create a kernel object
+    kernels::Kernel<T> *kernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
     // Add the data generation arguments.
     aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
@@ -46,16 +48,17 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, 
 #ifdef EXAGEOSTAT_USE_HICMA
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData, common::HICMA_DESCRIPTOR);
 #endif
+    delete kernel;
 }
 
 template<typename T>
-void ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
-                                           ExaGeoStatData<T> &aData, T *apMeasurementsMatrix) {
+T ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
+                                        ExaGeoStatData<T> &aData, T *apMeasurementsMatrix) {
 
-    // Add the data modeling arguments.
-    aConfigurations.InitializeDataModelingArguments();
     // Register and create a kernel object
     kernels::Kernel<T> *kernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
+    // Add the data modeling arguments.
+    aConfigurations.InitializeDataModelingArguments();
 
     int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
     int max_number_of_iterations = aConfigurations.GetMaxMleIterations();
@@ -71,16 +74,17 @@ void ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, 
     // Set max iterations value.
     optimizing_function.set_maxeval(max_number_of_iterations);
 
-    optimizing_function.set_max_objective(ExaGeoStatMleTileAPI, (void *) modeling_data);
+    optimizing_function.set_max_objective(ExaGeoStatMLETileAPI, (void *) modeling_data);
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
     delete kernel;
     delete modeling_data;
+    return optimizing_function.last_optimum_value();
 }
 
 template<typename T>
 double
-ExaGeoStat<T>::ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
+ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
     auto config = ((mModelingData<T> *) apInfo)->mpConfiguration;
     auto data = ((mModelingData<T> *) apInfo)->mpData;
     auto hardware = ((mModelingData<T> *) apInfo)->mpHardware;
@@ -88,16 +92,19 @@ ExaGeoStat<T>::ExaGeoStatMleTileAPI(const std::vector<double> &aTheta, std::vect
 
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
             config->GetComputation());
-    return linear_algebra_solver->ExaGeoStatMleTile(*hardware, *data, *config, aTheta.data(), measurements);
+    return linear_algebra_solver->ExaGeoStatMLETile(*hardware, *data, *config, aTheta.data(), measurements);
 }
 
 
 template<typename T>
-void ExaGeoStat<T>::ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
-                                         configurations::Configurations &aConfigurations,
-                                         dataunits::ExaGeoStatData<T> &aData) {
+void ExaGeoStat<T>::ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
+                                         ExaGeoStatData<T> &aData, T *apMeasurementsMatrix) {
+
     Prediction<T> predictor;
+    // Register and create a kernel object
+    kernels::Kernel<T> *kernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
     // Add the data prediction arguments.
     aConfigurations.InitializeDataPredictionArguments();
-    predictor.PredictMissingData(aHardware, aData, aConfigurations);
+    predictor.PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix);
+    delete kernel;
 }
