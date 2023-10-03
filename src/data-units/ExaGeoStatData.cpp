@@ -18,10 +18,9 @@ using namespace exageostat::dataunits;
 using namespace exageostat::common;
 
 template<typename T>
-ExaGeoStatData<T>::ExaGeoStatData(const int &aSize, const Dimension &aDimension,
-                                  const hardware::ExaGeoStatHardware &aHardware) {
+ExaGeoStatData<T>::ExaGeoStatData(const int &aSize, const Dimension &aDimension) {
     this->mpLocations = new Locations<T>(aSize, aDimension);
-    this->mpDescriptorData = new DescriptorData<T>(aHardware);
+    this->mpDescriptorData = new DescriptorData<T>();
 }
 
 template<typename T>

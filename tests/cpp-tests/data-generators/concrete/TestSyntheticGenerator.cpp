@@ -34,12 +34,7 @@ void TEST_SPREAD_REVERSED_BITS() {
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(16);
     synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
-#endif
 
     SECTION("Spread Bytes")
     {
@@ -191,12 +186,7 @@ void TEST_GENERATE_LOCATIONS() {
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(8);
     synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
-#endif
 
     SECTION("2D Generation")
     {
@@ -258,12 +248,7 @@ void TEST_HELPERS_FUNCTIONS() {
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetProblemSize(16);
     synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
-#endif
 
     SECTION("Uniform distribution")
     {
@@ -294,12 +279,8 @@ void TEST_GENERATION() {
         int N = 9;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-        synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
-#endif
+
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
         // Initialize the seed manually with zero, to get the first generated seeded numbers.

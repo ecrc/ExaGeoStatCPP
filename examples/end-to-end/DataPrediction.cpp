@@ -12,6 +12,8 @@
  * @date 2023-09-11
 **/
 
+#include <common/Utils.hpp>
+#include <data-units/ExaGeoStatData.hpp>
 #include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
 
@@ -52,7 +54,7 @@ int main(int argc, char **argv) {
 
     //Data Setup
     LOGGER("** Create ExaGeoStat data **")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
+    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,

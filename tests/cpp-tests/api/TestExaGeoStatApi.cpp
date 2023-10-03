@@ -36,14 +36,10 @@ void TEST_GENERATE_DATA() {
         int N = 16;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
+
         synthetic_data_configurations.SetDenseTileSize(9);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-        synthetic_data_configurations.SetLowTileSize(5);
-        synthetic_data_configurations.SetComputation(TILE_LOW_RANK);
-#endif
+
         Configurations::SetVerbosity(QUIET_MODE);
         vector<double> lb{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);
@@ -57,7 +53,7 @@ void TEST_GENERATE_DATA() {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
-                                                           synthetic_data_configurations.GetDimension(), hardware);
+                                                           synthetic_data_configurations.GetDimension());
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
 
         // Define the expected output for desk Z
@@ -76,7 +72,7 @@ void TEST_GENERATE_DATA() {
     }
 }
 
-void TEST_MODEL_DATA() {
+void TEST_MODEL_DATA(Computation aComputation) {
     int seed = 0;
     srand(seed);
 
@@ -88,7 +84,7 @@ void TEST_MODEL_DATA() {
     int dts = 8;
 
     configurations.SetDenseTileSize(dts);
-    configurations.SetComputation(EXACT_DENSE);
+    configurations.SetComputation(aComputation);
     configurations.SetMaxMleIterations(3);
     configurations.SetTolerance(pow(10, -4));
 
@@ -101,14 +97,13 @@ void TEST_MODEL_DATA() {
 
     vector<double> initial_theta{1, 0.1, 0.5};
     configurations.SetInitialTheta(initial_theta);
-    Configurations::SetVerbosity(QUIET_MODE);
 
     SECTION("Data Modeling")
     {
         // initialize ExaGeoStat Hardware.
-        auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
+        auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
-                                                           configurations.GetDimension(), hardware);
+                                                           configurations.GetDimension());
 
         //initiating the matrix of the CHAMELEON Descriptor Z.
         auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
@@ -137,8 +132,8 @@ void TEST_MODEL_DATA() {
 
         double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
                                                                                             data, z_matrix);
-
-        REQUIRE((log_likelihood - -24.026000) == Catch::Approx(0.0).margin(1e-6));
+        double expected = aComputation == EXACT_DENSE ? -24.026000 : aComputation == DIAGONAL_APPROX ? -24.028197 : -1;
+        REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
 
         delete[] location_x;
         delete[] location_y;
@@ -146,13 +141,14 @@ void TEST_MODEL_DATA() {
     }SECTION("Data Generation and Modeling")
     {
         // initialize ExaGeoStat Hardware.
-        auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
+        auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
         exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
-                                                           configurations.GetDimension(), hardware);
+                                                           configurations.GetDimension());
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
         double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
                                                                                             data);
-        REQUIRE((log_likelihood - -24.026000) == Catch::Approx(0.0).margin(1e-6));
+        double expected = aComputation == EXACT_DENSE ? -24.026000 : aComputation == DIAGONAL_APPROX ? -24.028197 : -1;
+        REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
     }
 }
 
@@ -185,7 +181,7 @@ void TEST_PREDICTION() {
                                        configurations.GetGPUsNumbers());
 
     exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
-                                                       configurations.GetDimension(), hardware);
+                                                       configurations.GetDimension());
 
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
                                    -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
@@ -214,6 +210,8 @@ void TEST_PREDICTION() {
 
     SECTION("Test Prediction - MSPE ONLY")
     {
+        vector<double> new_estimated_theta{0.9, 0.09, 0.4};
+        configurations.SetEstimatedTheta(new_estimated_theta);
         configurations.SetIsMSPE(true);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
 
@@ -229,6 +227,8 @@ void TEST_PREDICTION() {
         configurations.SetIsMLOEMMOM(true);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
     }SECTION("Test Prediction - ALL OPERATIONS") {
+        vector<double> new_estimated_theta{0.9, 0.09, 0.4};
+        configurations.SetEstimatedTheta(new_estimated_theta);
         configurations.SetIsMSPE(true);
         configurations.SetIsIDW(true);
         configurations.SetIsMLOEMMOM(true);
@@ -251,6 +251,7 @@ void TEST_PREDICTION() {
 
 TEST_CASE("ExaGeoStat API tests") {
     TEST_GENERATE_DATA();
-    TEST_MODEL_DATA();
+    TEST_MODEL_DATA(EXACT_DENSE);
+    TEST_MODEL_DATA(DIAGONAL_APPROX);
     TEST_PREDICTION();
 }

@@ -17,14 +17,7 @@ ExaGeoStat User Manual
 ```commandline
 ./config.sh -h
 ```
-* To Enable support of Chameleon, Use the following argument.
-```commandline
-./config.sh -C
-```
-* To Enable support of HiCMA, Use the following argument.
-```commandline
-./config.sh -H
-```
+* To Enable support of HiCMA add **```-H```**
 * To enable examples add **```-e```**
 
 * To enable tests add **```-t```**

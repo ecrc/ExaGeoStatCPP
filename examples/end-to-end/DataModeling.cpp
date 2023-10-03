@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include <common/Utils.hpp>
 #include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
 
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
 
     //Data Setup
     LOGGER("** Create ExaGeoStat data ** ")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
+    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
 
     // Initiating the matrix of the CHAMELEON Descriptor Z.
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,

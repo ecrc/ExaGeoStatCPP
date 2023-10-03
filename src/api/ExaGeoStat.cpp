@@ -13,10 +13,8 @@
 
 #include <api/ExaGeoStat.hpp>
 #include <data-generators/DataGenerator.hpp>
-#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <data-units/ModelingDataHolders.hpp>
 #include <prediction/Prediction.hpp>
-#include <configurations/Configurations.hpp>
 
 using namespace std;
 using namespace nlopt;
@@ -33,7 +31,6 @@ using namespace exageostat::prediction;
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
                                            ExaGeoStatData<T> &aData) {
-
     // Register and create a kernel object
     kernels::Kernel<T> *kernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
     // Add the data generation arguments.
@@ -41,13 +38,8 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, 
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
     aData.SetLocations(*data_generator->CreateLocationsData(aConfigurations));
-    auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(aConfigurations.GetComputation());
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData, common::CHAMELEON_DESCRIPTOR);
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData, common::HICMA_DESCRIPTOR);
-#endif
+    auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData);
     delete kernel;
 }
 

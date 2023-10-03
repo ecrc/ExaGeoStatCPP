@@ -22,11 +22,24 @@ using namespace exageostat::hardware;
 using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 using namespace exageostat::linearAlgebra;
+using namespace exageostat::common;
 
 template<typename T>
 void
 Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
                                   Configurations &aConfigurations, T *apMeasurementsMatrix) {
+
+    bool can_predict = true;
+    int num_params = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
+    for(int i = 0; i < num_params; i++){
+        if (aConfigurations.GetEstimatedTheta()[i] == -1){
+            can_predict = false;
+            break;
+        }
+    }
+    if(!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE())){
+        throw std::runtime_error("Can't predict without an estimated theta, please either pass --etheta or run the modeling module before prediction");
+    }
 
     //If the number of missed locations isn't a positive value, No prediction needed.
     if (aConfigurations.GetUnknownObservationsNb() <= 0) {
@@ -48,7 +61,7 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
     auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
     auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
-            aConfigurations.GetComputation());
+            EXACT_DENSE);
 
     InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
                                   *obs_locations, apMeasurementsMatrix);
@@ -57,6 +70,7 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
         LOGGER("---- Using Auxiliary Function MLOE MMOM ----")
         double all_time;
         START_TIMING(all_time);
+        //TODO: synchronize between starting and estimated theta
         linear_algebra_solver->ExaGeoStatMLEMloeMmomTile(aConfigurations, aData, aHardware,
                                                          (T *) aConfigurations.GetInitialTheta().data(),
                                                          (T *) aConfigurations.GetEstimatedTheta().data(),
@@ -90,7 +104,7 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
     if (aConfigurations.GetIsMSPE()) {
         LOGGER("---- Using MSPE ----")
         T *prediction_error_mspe = linear_algebra_solver->ExaGeoStatMLEPredictTile(aData,
-                                                                                   (T *) aConfigurations.GetStartingTheta().data(),
+                                                                                   (T *) aConfigurations.GetEstimatedTheta().data(),
                                                                                    z_miss_number, n_z_obs, z_obs,
                                                                                    z_actual, z_miss, aHardware,
                                                                                    aConfigurations, *miss_locations,

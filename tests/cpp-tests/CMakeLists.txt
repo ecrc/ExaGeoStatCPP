@@ -8,9 +8,7 @@
 # @author Mahmoud ElKarargy
 # @date 2023-01-31
 
-if (EXAGEOSTAT_USE_CHAMELEON)
-    add_subdirectory(api)
-endif ()
+add_subdirectory(api)
 add_subdirectory(linear-algebra-solvers)
 add_subdirectory(data-generators)
 add_subdirectory(configurations/data-generation)

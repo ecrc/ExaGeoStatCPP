@@ -12,18 +12,15 @@
 # @date 2023-03-20
 
 # Include the concrete implementations of the Descriptor class based on the enabled libraries (HiCMA or Chameleon)
-if (EXAGEOSTAT_USE_CHAMELEON)
-    set(SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/ChameleonDescriptor.cpp
-            ${SOURCES}
-            PARENT_SCOPE
-            )
-endif ()
+set(SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChameleonDescriptor.cpp
+        ${SOURCES}
+)
+
 if (EXAGEOSTAT_USE_HICMA)
-    set(SOURCES
+    list(APPEND SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/HicmaDescriptor.cpp
-            ${SOURCES}
-            PARENT_SCOPE
-            )
+    )
 endif ()
 
+set(SOURCES ${SOURCES} PARENT_SCOPE)

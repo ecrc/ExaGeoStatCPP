@@ -61,9 +61,9 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                             dataunits::DescriptorData<T> &aDescriptorData,
-                                             T *apMeasurementsMatrix = nullptr) = 0;
+            void InitiateDescriptors(configurations::Configurations &aConfigurations,
+                                     dataunits::DescriptorData<T> &aDescriptorData,
+                                     T *apMeasurementsMatrix = nullptr);
 
             /**
              * @brief Initializes the descriptors necessary for the Prediction.
@@ -73,8 +73,8 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
-                                                       dataunits::ExaGeoStatData<T> &aData) = 0;
+            void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
+                                               dataunits::ExaGeoStatData<T> &aData);
 
             /**
              * @brief Initializes the descriptors necessary for the Prediction Auxiliary function MLE-MLOE-MMOM.
@@ -84,28 +84,20 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void InitiateMloeMmomDescriptors(configurations::Configurations &aConfigurations,
-                                                     dataunits::ExaGeoStatData<T> &aData) = 0;
+            void InitiateMloeMmomDescriptors(configurations::Configurations &aConfigurations,
+                                             dataunits::ExaGeoStatData<T> &aData);
 
             /**
              * @brief Generates synthetic data.
              * @param[in] aConfigurations The configurations object containing relevant settings.
              * @param[in] aHardware  ExaGeoStatHardware object representing the hardware.
              * @param[in,out] aData ExaGeoStatData object to be populated with synthetic data.
-             * @param[in] aType The descriptor type.
              * @return None.
              *
              */
             void GenerateSyntheticData(configurations::Configurations &aConfigurations,
                                        const hardware::ExaGeoStatHardware &aHardware,
-                                       dataunits::ExaGeoStatData<T> &aData, const common::DescriptorType &aType) {
-
-                this->mpContext = aHardware.GetContext();
-                this->InitiateDescriptors(aConfigurations, *aData.GetDescriptorData());
-                auto descC = aData.GetDescriptorData()->GetDescriptor(aType, common::DESCRIPTOR_C);
-                this->GenerateObservationsVector(aConfigurations, *aData.GetDescriptorData(), descC,
-                                                 aData.GetLocations(), aData.GetLocations(), nullptr, 0);
-            }
+                                       dataunits::ExaGeoStatData<T> &aData);
 
             /**
              * @brief Computes the covariance matrix.
@@ -115,17 +107,17 @@ namespace exageostat {
              * @param[in] apLocation1 Pointer to the first set of locations.
              * @param[in] apLocation2 Pointer to the second set of locations.
              * @param[in] apLocation3 Pointer to the third set of locations.
-             * @param[in] aLocalTheta Pointer to the local theta values.
+             * @param[in] apLocalTheta Pointer to the local theta values.
              * @param[in] aDistanceMetric Specifies the distance metric to use.
              * @param[in] aKernelName Pointer to the kernel function to use.
              * @return void
              *
              */
-            virtual void CovarianceMatrixCodelet(dataunits::DescriptorData<T> &aDescriptorData, void *apDescriptor,
-                                                 const int &aTriangularPart, dataunits::Locations<T> *apLocation1,
-                                                 dataunits::Locations<T> *apLocation2,
-                                                 dataunits::Locations<T> *apLocation3, T *aLocalTheta,
-                                                 const int &aDistanceMetric, const std::string &aKernelName) = 0;
+            void CovarianceMatrixCodelet(dataunits::DescriptorData<T> &aDescriptorData, void *apDescriptor,
+                                         const int &aTriangularPart, dataunits::Locations<T> *apLocation1,
+                                         dataunits::Locations<T> *apLocation2,
+                                         dataunits::Locations<T> *apLocation3, T *apLocalTheta,
+                                         const int &aDistanceMetric, const std::string &aKernelName);
 
             /**
              * @brief Copies the descriptor data to a double vector.
@@ -135,28 +127,26 @@ namespace exageostat {
              * @return void
              *
              */
-            virtual void
-            CopyDescriptorZ(dataunits::DescriptorData<T> &aDescriptorData, void *apDescriptor, T *apDoubleVector) = 0;
+            void
+            CopyDescriptorZ(dataunits::DescriptorData<T> &aDescriptorData, void *apDescriptor, T *apDoubleVector);
 
             /**
              * @brief Generates the observations vector.
              * @param[in] aConfigurations Configurations object containing relevant settings.
              * @param[in] aDescriptorData pointer to the DescriptorData object holding descriptors and data.
-             * @param[in] aDescriptor Pointer to the descriptor for the observations vector.
-             * @param[in] aLocation1 Pointer to the first set of locations.
-             * @param[in] aLocation2 Pointer to the second set of locations.
-             * @param[in] aLocation3 Pointer to the third set of locations.
+             * @param[in] apLocation1 Pointer to the first set of locations.
+             * @param[in] apLocation2 Pointer to the second set of locations.
+             * @param[in] apLocation3 Pointer to the third set of locations.
              * @param[in] aDistanceMetric Specifies the distance metric to use.
              * @return void
              *
              */
-            virtual void GenerateObservationsVector(configurations::Configurations &aConfigurations,
-                                                    dataunits::DescriptorData<T> &aDescriptorData,
-                                                    const dataunits::BaseDescriptor &aDescriptor,
-                                                    dataunits::Locations<T> *apLocation1,
-                                                    dataunits::Locations<T> *apLocation2,
-                                                    dataunits::Locations<T> *apLocation3,
-                                                    const int &aDistanceMetric) = 0;
+            void GenerateObservationsVector(configurations::Configurations &aConfigurations,
+                                            dataunits::DescriptorData<T> &aDescriptorData,
+                                            dataunits::Locations<T> *apLocation1,
+                                            dataunits::Locations<T> *apLocation2,
+                                            dataunits::Locations<T> *apLocation3,
+                                            const int &aDistanceMetric);
 
             /**
              * @brief Calculates the log likelihood value of a given value theta.
@@ -178,33 +168,20 @@ namespace exageostat {
              * @param[in] aDescriptorData DescriptorData struct with the Gaussian descriptor.
              * @param[in] apDesc Pointer to the non-tiled descriptor.
              * @param[in] apTheta Theta vector.
-             *
+             * @return void
              */
-            virtual void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> &aDescriptorData, void *apDesc,
-                                                          T *apTheta) = 0;
+            void ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> &aDescriptorData, void *apDesc,
+                                                  T *apTheta);
 
             /**
              * @brief Copies a matrix in the tile layout from source to destination
              * @param[in] aUpperLower Specifies the part of the matrix A to be copied to B.
              * @param[in] apA Source matrix A.
              * @param[in,out] apB Destination matrix B. On exit, B = A in the locations specified by Upper Lower.
-             * @return Successful exit
+             * @return void
              *
              */
-            virtual int ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
-
-            /**
-             * @brief Conversion from LAPACK layout to Exageostat descriptor.
-             * @param[in] aUpperLower Specifies the shape of the matrix A.
-             * @param[in] apAf77 LAPACK matrix.
-             * @param[in] aLda The leading dimension of the matrix Af77.
-             * @param[in] apA Descriptor of the CHAMELEON matrix initialized with data from Af77.
-             * @return Successful exit
-             *
-             */
-            virtual int
-            ExaGeoStatLapackToDescriptor(const common::UpperLower &aUpperLower, void *apAf77, const int &aLda,
-                                         void *apA) = 0;
+            virtual void ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
 
             /**
              * @brief Initialize the runtime option structure for either HiCMA or CHAMELEON.
@@ -212,13 +189,15 @@ namespace exageostat {
              * @param[in] apContext The runtime context in which to initialize the runtime support.
              * @param[in] apSequence The sequence structure to associate in the options.
              * @param[in] apRequest The request structure to associate in the options.
+             * @return void
              */
             virtual void
-            ExaGeoStatOptionsInit(void *apOptions, void * apContext, void * apSequence, void * apRequest) = 0;
+            ExaGeoStatOptionsInit(void *apOptions, void *apContext, void *apSequence, void *apRequest) = 0;
 
             /**
              * @brief Submit the release of the workspaces associated to the options structure.
              * @param[in,out] apOptions The options structure for which to workspcaes will be released
+             * @return void
              */
             virtual void ExaGeoStatOptionsFree(void *apOptions) = 0;
 
@@ -226,33 +205,36 @@ namespace exageostat {
              * @brief Finalize the runtime option structure for either HiCMA or CHAMELEON.
              * @param[in,out] apOptions The options structure that needs to be finalized.
              * @param[in] apContext The runtime context in which to finalize the runtime support.
+             * @return void
+             *
              */
             virtual void ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) = 0;
 
             /**
              * @brief Wait for the completion of a sequence.
              * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
-             * @return successful exit
+             * @return void
              *
              */
-            virtual int ExaGeoStatSequenceWait(void *apSequence) = 0;
+            virtual void ExaGeoStatSequenceWait(void *apSequence) = 0;
 
             /**
              * @brief Create Sequence.
              * @param[out] apSequence A pointer to either CHAMELEON or HiCMA sequence.
-             * @return successful exit
+             * @return void
+             *
              */
-            virtual int
-            ExaGeoStatCreateSequence(void * apSequence) = 0;
+            virtual void
+            ExaGeoStatCreateSequence(void *apSequence) = 0;
 
             /**
              * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
              * @param[in] aUpperLower Whether upper or lower part of the matrix A
              * @param[in] apA Symmetric matrix A
-             * @return Returns 0 for success, error code otherwise.
+             * @return void
              *
              */
-            virtual int ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA) = 0;
+            virtual void ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick) = 0;
 
             /**
              * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
@@ -263,28 +245,12 @@ namespace exageostat {
              * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
              * @param[in] apA The triangular matrix A
              * @param[in, out] apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
-             * @return successful exit
+             * @return void
              *
              */
-            virtual int ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
-                                           const common::Trans &aTrans,
-                                           const common::Diag &aDiag, const T &aAlpha, void *apA, void *apB) = 0;
-
-            /**
-             * @brief Performs matrix multiplication.
-             * @param[in] aTransA  Specifies whether the matrix A is transposed.
-             * @param[in] aTransB Specifies whether the matrix B is transposed.
-             * @param[in] aAlpha Specifies the scalar alpha.
-             * @param[in] apA Matrix A.
-             * @param[in] apB Matrix B.
-             * @param[in] aBeta Specifies the scalar beta.
-             * @param[in,out] apC On exit, the array is overwritten by the M by N matrix ( alpha*op( A )*op( B ) + beta*C )
-             * @return Returns 0 for success, error code otherwise.
-             *
-             */
-            virtual int
-            ExaGeoStatGemmTile(const common::Trans &aTransA, const common::Trans &aTransB, const T &aAlpha, void *apA,
-                               void *apB, const T &aBeta, void *apC) = 0;
+            virtual void ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
+                                            const common::Trans &aTrans,
+                                            const common::Diag &aDiag, const T &aAlpha, void *apA, void *apB) = 0;
 
             /**
              * @brief Calculate determinant for triangular matrix.
@@ -312,13 +278,27 @@ namespace exageostat {
                                                        void *apRequest) = 0;
 
             /**
+             * @brief Copy Chameleon descriptor to vector float*.
+             * @param[in] apDescA Exageostat descriptor A.
+             * @param[in] apDescB Exageostat descriptor B.
+             * @param[in] apDescC Exageostat descriptor C.
+             * @param[in] apDescD Exageostat descriptor D.
+             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+             * @param[in] apRequest Identifies this function call (for exception handling purposes).
+             * @return Returns 0 for success, error code otherwise.
+             */
+            virtual int
+            ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apDescD, void *apSequence,
+                                           void *apRequest) = 0;
+
+            /**
              * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
              * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
              * @param [in] apA coefficient matrix of the system of linear equations. This matrix is expected to be positive definite.
              * @param [in] apB Pointer to coefficient matrix of the system of linear equations. This matrix is expected to be positive definite.
-             * @return Returns 0 for success, error code otherwise.
+             * @return void
              */
-            virtual int ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
+            virtual void ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
 
             /**
              * @brief Calculate mean square error (MSE) scalar value of the prediction.
@@ -329,8 +309,8 @@ namespace exageostat {
              * @param[out] apRequest Identifies this function call (for exception handling purposes).
              * @return Returns 0 for success, error code otherwise.
              */
-            virtual int ExaGeoStatMLEMseTileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError,
-                                                  void *apSequence, void *apRequest) = 0;
+            int ExaGeoStatMLEMseTileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError,
+                                          void *apSequence, void *apRequest);
 
             /**
              * Predict missing values base on a set of given values and covariance matrix/
@@ -347,19 +327,19 @@ namespace exageostat {
              * @param[in] aObsLocations Reference to Locations object containing observed locations.
              * @return the prediction Mean Square Error (MSE).
              */
-            virtual T *ExaGeoStatMLEPredictTile(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta,
-                                                const int &aZMissNumber, const int &aZObsNumber, T *apZObs,
-                                                T *apZActual, T *apZMiss, const hardware::ExaGeoStatHardware &aHardware,
-                                                configurations::Configurations &aConfiguration,
-                                                exageostat::dataunits::Locations<T> &aMissLocations,
-                                                exageostat::dataunits::Locations<T> &aObsLocations) = 0;
+            T *ExaGeoStatMLEPredictTile(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta,
+                                        const int &aZMissNumber, const int &aZObsNumber, T *apZObs,
+                                        T *apZActual, T *apZMiss, const hardware::ExaGeoStatHardware &aHardware,
+                                        configurations::Configurations &aConfiguration,
+                                        exageostat::dataunits::Locations<T> &aMissLocations,
+                                        exageostat::dataunits::Locations<T> &aObsLocations);
 
             /**
              * @brief Copy Lapack matrix to Descriptor Matrix.
              * @param[in] apA Lapack Matrix.
              * @param[in] aLDA Size.
              * @param[out] apDescA Matrix Descriptor.
-             * @param[in]@param[in] aUpperLower Specifies Specifies whether the upper or lower triangular part of the covariance matrix is stored.
+             * @param[in] aUpperLower Specifies Specifies whether the upper or lower triangular part of the covariance matrix is stored.
              * @return void
              */
             virtual void
@@ -382,9 +362,10 @@ namespace exageostat {
              * @param[in] aAlpha All the off diagonal array elements are set to aAlpha.
              * @param[in] aBeta All the diagonal array elements are set to aBeta.
              * @param[out] apDescriptor Pointer to matrix descriptor to be set with aAlpha and aBeta.
-             * @return
+             * @return void
              */
-            virtual int ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T aAlpha, T aBeta, void *apDescriptor) = 0;
+            virtual void
+            ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T aAlpha, T aBeta, void *apDescriptor) = 0;
 
             /**
              * @brief Copy the Z matrix into a pointer.
@@ -392,9 +373,9 @@ namespace exageostat {
              * @param[in] aSize Size of the matrix.
              * @param[in] aDescData Descriptor data containing required Z matrix Descriptor.
              */
-            virtual void
+            void
             ExaGeoStatGetZObs(exageostat::configurations::Configurations &aConfigurations, T *apZ, const int &aSize,
-                              exageostat::dataunits::DescriptorData<T> &aDescData, T *apMeasurementsMatrix) = 0;
+                              exageostat::dataunits::DescriptorData<T> &aDescData, T *apMeasurementsMatrix);
 
             /**
              * @brief Predict missing values based on a set of given values and covariance matrix.
@@ -407,13 +388,14 @@ namespace exageostat {
              * @param[in] apEstimatedTheta Pointer to the estimated theta values.
              * @param[in] aMissLocations Locations of missing values.
              * @param[in] aObsLocations Locations of observed values.
+             * @return void
              */
-            virtual void ExaGeoStatMLEMloeMmomTile(exageostat::configurations::Configurations &aConfigurations,
-                                                   exageostat::dataunits::ExaGeoStatData<T> &aData,
-                                                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                                                   T *apTruthTheta, T *apEstimatedTheta,
-                                                   dataunits::Locations<T> &aMissLocations,
-                                                   dataunits::Locations<T> &aObsLocations) = 0;
+            void ExaGeoStatMLEMloeMmomTile(exageostat::configurations::Configurations &aConfigurations,
+                                           exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                           const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                                           T *apTruthTheta, T *apEstimatedTheta,
+                                           dataunits::Locations<T> &aMissLocations,
+                                           dataunits::Locations<T> &aObsLocations);
 
             /**
              * @brief Perform an asynchronous computation of MLE, MLOE, and MMOM for a tile.
@@ -429,9 +411,9 @@ namespace exageostat {
              * @param[in] apRequest Request for the computation.
              * @return Result of the asynchronous operation.
              */
-            virtual int
+            int
             ExaGeoStatMLEMloeMmomTileAsync(void *apDescExpr2, void *apDescExpr3, void *apDescExpr4, void *apDescMloe,
-                                           void *apDescMmom, void *apSequence, void *apRequest) = 0;
+                                           void *apDescMmom, void *apSequence, void *apRequest);
 
             /**
              * @brief Perform a matrix addition with scaling.
@@ -441,9 +423,9 @@ namespace exageostat {
              * @param[in] apDescA Descriptor for matrix A.
              * @param[in] aBeta Scaling factor for matrix B.
              * @param[in] apDescB Descriptor for matrix B.
-             * @return Result of the operation.
+             * @return void
              */
-            virtual int
+            virtual void
             ExaGeoStatGeaddTile(const common::Trans &aTrans, const T &aAlpha, void *apDescA, const T &aBeta,
                                 void *apDescB) = 0;
 
@@ -461,6 +443,15 @@ namespace exageostat {
             virtual void ExaGeoStatTrmmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
                                             const common::Trans &aTrans, const common::Diag &aDiag, const T &alpha,
                                             void *apDescA, void *apDescB) = 0;
+
+            /**
+             * @brief Get the pointer to the data or the runtime handler associated to the piece of data (m, n) in desc.
+             * @param[in] apA The descriptor to which belongs the piece of data
+             * @param[in] aAm The row coordinate of the piece of data in the matrix
+             * @param[in] aAn he column coordinate of the piece of data in the matrix
+             * @return The runtime handler address of the piece of data.
+             */
+            virtual void *ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) = 0;
 
             /**
              * @brief Sets the context.
@@ -529,7 +520,7 @@ namespace exageostat {
 
                 int i;
                 if (h < 0) {
-                    LOGGER("The kurtosis parameter cannot be negative");
+                    LOGGER("The kurtosis parameter cannot be negative")
                     return;
                 }
                 if (g == 0) {
@@ -610,6 +601,34 @@ namespace exageostat {
                 for (i = 0; i < tempmm - 1; i += 2) {
                     B[j] = A[i];
                     C[j] = A[i + 1];
+                    j++;
+                }
+            }
+
+            static void CORE_tristride_vecstarpu(void *buffers[], void *cl_arg) {
+                int m;
+                int tempmm;
+                double *A;
+                double *B;
+                double *C;
+                double *D;
+                int m0;
+                int i;
+                int j;
+
+                A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+                B = (double *) STARPU_MATRIX_GET_PTR(buffers[1]);
+                C = (double *) STARPU_MATRIX_GET_PTR(buffers[2]);
+                D = (double *) STARPU_MATRIX_GET_PTR(buffers[3]);
+
+                starpu_codelet_unpack_args(cl_arg, &tempmm, &m0, &m);
+
+                //accept only tempmm divided by three (should be optimized)
+                j = 0;
+                for (i = 0; i < tempmm - 1; i += 3) {
+                    B[j] = A[i];
+                    C[j] = A[i + 1];
+                    D[j] = A[i + 2];
                     j++;
                 }
             }
@@ -697,6 +716,15 @@ namespace exageostat {
                             .name           = "stride_vec"
                     };
 
+            struct starpu_codelet cl_tristride_vec =
+                    {
+                            .where          = STARPU_CPU,
+                            .cpu_funcs      = {CORE_tristride_vecstarpu},
+                            .nbuffers       = 4,
+                            .modes          = {STARPU_R, STARPU_W, STARPU_W, STARPU_W},
+                            .name           = "tristride_vec"
+                    };
+
             struct starpu_codelet cl_dmse =
                     {
                             .where        = STARPU_CPU,
@@ -725,7 +753,7 @@ namespace exageostat {
                 char *pch;
                 fp = fopen(path, "r");
                 if (fp == nullptr) {
-                    LOGGER("cannot open observations file\n");
+                    LOGGER("cannot open observations file\n")
                     exit(EXIT_FAILURE);
                 }
                 while (getline(&line, &len, fp) != -1) {

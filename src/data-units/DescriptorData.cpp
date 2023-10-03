@@ -19,14 +19,6 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits::descriptor;
 
 template<typename T>
-DescriptorData<T>::DescriptorData(const hardware::ExaGeoStatHardware &aHardware) {
-    this->mpContext = aHardware.GetContext();
-    if (!this->mpContext) {
-        throw std::runtime_error("Can create descriptors, Hardware is not initialized!");
-    }
-}
-
-template<typename T>
 DescriptorData<T>::~DescriptorData() {
 
     ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
@@ -40,16 +32,10 @@ DescriptorData<T>::~DescriptorData() {
         }
     }
     this->mDictionary.clear();
-#ifdef EXAGEOSTAT_USE_CHAMELEON
     if (this->mpSequence) {
+        //TODO: should it be ExageostatDestroy()?
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpSequence);
     }
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-    if (this->mpSequence) {
-        HICMA_Sequence_Destroy((HICMA_sequence_t *) this->mpSequence);
-    }
-#endif
 }
 
 template<typename T>
@@ -78,16 +64,11 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
 
     BaseDescriptor descriptor{};
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAMELEON") == this->mDictionary.end()) {
             descriptor.chameleon_desc = nullptr;
         }
         descriptor.chameleon_desc = (CHAM_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) +
                                                                       "_CHAMELEON"];
-#else
-        throw std::runtime_error("To use Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
-#endif
-
     } else {
 #ifdef EXAGEOSTAT_USE_HICMA
         descriptor.hicma_desc = (HICMA_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
@@ -109,14 +90,11 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
     std::string type;
     ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         descriptor = exaGeoStatDescriptor.CreateDescriptor((CHAM_desc_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
                                                            aN, aP, aQ);
         type = "_CHAMELEON";
-#else
-        throw std::runtime_error("To create Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
-#endif
+
     } else {
 #ifdef EXAGEOSTAT_USE_HICMA
         descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC,
@@ -134,12 +112,7 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
 template<typename T>
 T *DescriptorData<T>::GetDescriptorMatrix(const common::DescriptorType &aDescriptorType, void *apDesc) {
     if (aDescriptorType == common::CHAMELEON_DESCRIPTOR) {
-
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         return (T *) ((CHAM_desc_t *) apDesc)->mat;
-#else
-        throw std::runtime_error("To use Chameleon descriptor you need to enable EXAGEOSTAT_USE_CHAMELEON!");
-#endif
     } else {
 #ifdef EXAGEOSTAT_USE_HICMA
         return (T *) ((HICMA_desc_t *) apDesc)->mat;
@@ -167,6 +140,8 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_Z_1";
         case DESCRIPTOR_Z_2:
             return "DESCRIPTOR_Z_2";
+        case DESCRIPTOR_Z_3:
+            return "DESCRIPTOR_Z_3";
         case DESCRIPTOR_Z_COPY:
             return "DESCRIPTOR_Z_COPY";
         case DESCRIPTOR_PRODUCT:
@@ -175,6 +150,8 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_PRODUCT_1";
         case DESCRIPTOR_PRODUCT_2:
             return "DESCRIPTOR_PRODUCT_2";
+        case DESCRIPTOR_PRODUCT_3:
+            return "DESCRIPTOR_PRODUCT_3";
         case DESCRIPTOR_DETERMINANT:
             return "DESCRIPTOR_DETERMINANT";
         case DESCRIPTOR_CD:

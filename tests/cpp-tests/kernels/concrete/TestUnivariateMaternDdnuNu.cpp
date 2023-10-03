@@ -37,12 +37,10 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdnuNu() {
         vector<double> initial_theta{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         int dts = 5;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
         //// TODO: Missing values in C.
-#endif
     }
 }
 

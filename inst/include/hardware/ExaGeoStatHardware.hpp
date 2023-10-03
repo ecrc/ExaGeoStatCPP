@@ -41,15 +41,36 @@ namespace exageostat {
             virtual ~ExaGeoStatHardware();
 
             /**
-             * @brief Get the hardware context.
+             * @brief Get the Chameleon hardware context.
              * @return Pointer to the hardware context.
              *
              */
-            void *GetContext() const;
+            [[nodiscard]] void *GetChameleonContext() const;
+
+#ifdef EXAGEOSTAT_USE_HICMA
+/**
+             * @brief Get the Hicma hardware context.
+             * @return Pointer to the hardware context.
+             *
+             */
+            [[nodiscard]] void *GetHicmaContext() const;
+#endif
+
+            /**
+             * @brief Get the hardware context.
+             * @param[in] aComputation Used computation to decide whether to use Hicma or Chameleon context.
+             * @return Pointer to the hardware context.
+             *
+             */
+            [[nodiscard]] void *GetContext(common::Computation aComputation) const;
 
         private:
-            //// Used Pointer to the hardware context.
-            void *mpContext = nullptr;
+            //// Used Pointer to the Chameleon hardware context.
+            void *mpChameleonContext = nullptr;
+#ifdef EXAGEOSTAT_USE_HICMA
+            //// Used Pointer to the Hicma hardware context.
+            void *mpHicmaContext = nullptr;
+#endif
             //// Used Computation mode for the solver.
             common::Computation mComputation;
         };

@@ -15,14 +15,6 @@
 #ifndef EXAGEOSTATCPP_DESCRIPTORDATA_HPP
 #define EXAGEOSTATCPP_DESCRIPTORDATA_HPP
 
-#include <iostream>
-#include <any>
-#include <vector>
-#include <unordered_map>
-
-#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
-#include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
-#include <common/Definitions.hpp>
 #include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 
@@ -34,9 +26,7 @@ namespace exageostat {
          * @details This union is used to store different types of descriptors based on the configuration.
          */
         union BaseDescriptor {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
             CHAM_desc_t *chameleon_desc;
-#endif
 #ifdef EXAGEOSTAT_USE_HICMA
             HICMA_desc_t *hicma_desc;
 #endif
@@ -52,12 +42,10 @@ namespace exageostat {
 
         public:
             /**
-             * @brief Constructor for DescriptorData.
-             * @param[in] aHardware Reference to the ExaGeoStatHardware object.
-             * @throws std::runtime_error if hardware is not initialized.
+             * @brief Default Constructor for DescriptorData.
              */
 
-            explicit DescriptorData(const hardware::ExaGeoStatHardware &aHardware);
+            explicit DescriptorData() = default;
 
             /**
              * @brief Destructor for DescriptorData.
@@ -166,8 +154,6 @@ namespace exageostat {
             void *mpSequence = nullptr;
             //// Used request
             void *mpRequest = nullptr;
-            //// Used context
-            void *mpContext = nullptr;
             //// Specifies whether the descriptors have been initiated.
             bool mIsDescriptorInitiated = false;
         };

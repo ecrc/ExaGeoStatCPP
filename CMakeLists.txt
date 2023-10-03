@@ -117,10 +117,7 @@ endif ()
 
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
-if (EXAGEOSTAT_USE_CHAMELEON)
-    add_definitions(-DEXAGEOSTAT_USE_CHAMELEON=TRUE)
-    include(ImportChameleon)
-endif ()
+include(ImportChameleon)
 
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------

@@ -170,6 +170,10 @@ namespace exageostat {
 
             CREATE_GETTER_FUNCTION(LowTileSize, int, "LTS")
 
+            CREATE_SETTER_FUNCTION(DiagThick, int, aDiagThick, "DiagThick")
+
+            CREATE_GETTER_FUNCTION(DiagThick, int, "DiagThick")
+
             CREATE_SETTER_FUNCTION(MaxRank, int, aMaxRank, "MaxRank")
 
             CREATE_GETTER_FUNCTION(MaxRank, int, "MaxRank")

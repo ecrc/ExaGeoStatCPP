@@ -15,6 +15,16 @@
 
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
+
+#include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonImplementationDense.hpp>
+#include <linear-algebra-solvers/concrete/chameleon/diagonal-super-tile/ChameleonImplementationDST.hpp>
+
+#ifdef EXAGEOSTAT_USE_HICMA
+
+#include <linear-algebra-solvers/concrete/hicma/tile-low-rank/HicmaImplementation.hpp>
+
+#endif
+
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
@@ -24,15 +34,8 @@ std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAl
 
     // Check the used Linear Algebra solver library, whether it's HiCMA or Chameleon.
     if (aComputation == EXACT_DENSE) {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-
-#include <linear-algebra-solvers/concrete/dense/ChameleonImplementationDense.hpp>
 
         return std::make_unique<dense::ChameleonImplementationDense<T>>();
-#else
-        throw std::runtime_error(
-                "Dense matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
-#endif
     }
 
         // HiCMA Used
@@ -44,13 +47,8 @@ std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAl
                 "Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HICMA=ON");
 #endif
     } else if (aComputation == DIAGONAL_APPROX) {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         return std::make_unique<diagonalSuperTile::ChameleonImplementationDST<T>>();
 
-#else
-        throw std::runtime_error(
-                "Diagonal Super Tile matrix generation isn't supported without enabling Chameleon. Use -DEXAGEOSTAT_USE_CHAMELEON=ON");
-#endif
     }
     // Return nullptr if no computation is selected
     throw std::runtime_error("You need to enable whether HiCMA or Chameleon");

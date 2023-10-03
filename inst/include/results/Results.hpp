@@ -136,7 +136,7 @@ namespace exageostat {
             /// Used MAX theta.
             std::vector<double> mMaximumTheta;
             /// Used log likelihood value.
-            double mLogLikValue;
+            double mLogLikValue = 0;
             /// Used number of Z missed values.
             int mZMiss = 0;
             /// Used MSPE error.

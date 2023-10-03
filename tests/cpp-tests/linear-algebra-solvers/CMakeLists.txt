@@ -8,19 +8,16 @@
 # @author Mahmoud ElKarargy
 # @date 2023-04-06
 
-if (EXAGEOSTAT_USE_CHAMELEON)
-    set(EXAGEOSTAT_TESTFILES
-            ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDense.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDST.cpp
-            ${EXAGEOSTAT_TESTFILES}
-            PARENT_SCOPE
-            )
-endif ()
+set(EXAGEOSTAT_TESTFILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDense.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDST.cpp
+        ${EXAGEOSTAT_TESTFILES}
+)
 
 if (EXAGEOSTAT_USE_HICMA)
-    set(EXAGEOSTAT_TESTFILES
+    list(APPEND EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
-            ${EXAGEOSTAT_TESTFILES}
-            PARENT_SCOPE
-            )
+    )
 endif ()
+
+set(EXAGEOSTAT_TESTFILES ${EXAGEOSTAT_TESTFILES} PARENT_SCOPE)

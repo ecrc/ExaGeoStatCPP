@@ -20,7 +20,6 @@
 #include <configurations/Configurations.hpp>
 #include <data-units/ExaGeoStatData.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
-#include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
 namespace exageostat {
     namespace api {

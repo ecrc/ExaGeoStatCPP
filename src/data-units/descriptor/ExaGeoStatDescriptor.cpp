@@ -12,11 +12,8 @@
  * @date 2023-07-17
 **/
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-
 #include <data-units/descriptor/concrete/ChameleonDescriptor.hpp>
 
-#endif
 #ifdef EXAGEOSTAT_USE_HICMA
 
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>
@@ -37,10 +34,8 @@ ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, const DescriptorTy
                                           const int &aQ) {
 
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         return ChameleonDescriptor<T>::CreateChameleonDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB,
                                                                  aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
-#endif
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_HICMA
         return HicmaDescriptor<T>::CreateHicmaDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize,
@@ -54,9 +49,7 @@ ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, const DescriptorTy
 template<typename T>
 int ExaGeoStatDescriptor<T>::DestroyDescriptor(const DescriptorType &aDescriptorType, void *apDesc) {
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         return ChameleonDescriptor<T>::DestroyChameleonDescriptor(apDesc);
-#endif
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
 #ifdef EXAGEOSTAT_USE_HICMA
         return HicmaDescriptor<T>::DestroyHicmaDescriptor(apDesc);

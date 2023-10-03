@@ -36,10 +36,8 @@ namespace exageostat {
              * @brief Constructor for ExaGeoStatData.
              * @param[in] aSize The size of the data.
              * @param[in] aDimension The dimension of the data.
-             * @param[in] aHardware Reference to the ExaGeoStatHardware object.
              */
-            ExaGeoStatData(const int &aSize, const exageostat::common::Dimension &aDimension,
-                           const hardware::ExaGeoStatHardware &aHardware);
+            ExaGeoStatData(const int &aSize, const exageostat::common::Dimension &aDimension);
 
             /**
              * @brief Destructor for ExaGeoStatData.
