@@ -25,7 +25,9 @@ using namespace exageostat::hardware;
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick) {
+ChameleonImplementationDense<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
+                                                     void *apCD, void *apCrk,
+                                                     const int &aMaxRank, const int &aAcc) {
     int status = CHAMELEON_dpotrf_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA);
     if (status != CHAMELEON_SUCCESS) {
         throw std::runtime_error("CHAMELEON_dpotrf_Tile Failed, Matrix is not positive definite");

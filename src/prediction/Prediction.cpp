@@ -31,14 +31,15 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
 
     bool can_predict = true;
     int num_params = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
-    for(int i = 0; i < num_params; i++){
-        if (aConfigurations.GetEstimatedTheta()[i] == -1){
+    for (int i = 0; i < num_params; i++) {
+        if (aConfigurations.GetEstimatedTheta()[i] == -1) {
             can_predict = false;
             break;
         }
     }
-    if(!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE())){
-        throw std::runtime_error("Can't predict without an estimated theta, please either pass --etheta or run the modeling module before prediction");
+    if (!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE())) {
+        throw std::runtime_error(
+                "Can't predict without an estimated theta, please either pass --etheta or run the modeling module before prediction");
     }
 
     //If the number of missed locations isn't a positive value, No prediction needed.

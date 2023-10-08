@@ -228,29 +228,38 @@ namespace exageostat {
             ExaGeoStatCreateSequence(void *apSequence) = 0;
 
             /**
-             * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-             * @param[in] aUpperLower Whether upper or lower part of the matrix A
-             * @param[in] apA Symmetric matrix A
-             * @return void
-             *
-             */
-            virtual void ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick) = 0;
+            * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
+            * @param[in] aUpperLower Whether upper or lower part of the matrix A.
+            * @param[in, out] apA Symmetric matrix A.
+            * @param[in] aDiagThick Diagonal thickness parameter.
+            * @param[in] apCD Additional matrix CD.
+            * @param[in] apCrk Additional matrix Crk.
+            * @param[in] aMaxRank Maximum rank parameter.
+            * @param[in] aAcc Accuracy parameter.
+            * @return void
+            */
+            virtual void
+            ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apCD,
+                                void *apCrk, const int &aMaxRank, const int &aAcc) = 0;
+
 
             /**
-             * @brief  Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
-             * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X
+             * @brief Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
+             * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X.
              * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
              * @param[in] aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
              * @param[in] aDiag Specifies whether or not A is unit triangular.
-             * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero then A is not referenced and B need not be set before entry.
-             * @param[in] apA The triangular matrix A
-             * @param[in, out] apB The matrix B of dimension ,on exit is overwritten by the solution matrix X.
+             * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero, A is not referenced and B need not be set before entry.
+             * @param[in] apA The triangular matrix A.
+             * @param[in] apCD Additional matrix CD.
+             * @param[in] apCrk Additional matrix Crk.
+             * @param[in, out] apZ The matrix B of dimension, on exit is overwritten by the solution matrix X.
+             * @param[in] aMaxRank Maximum rank parameter.
              * @return void
-             *
              */
             virtual void ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
-                                            const common::Trans &aTrans,
-                                            const common::Diag &aDiag, const T &aAlpha, void *apA, void *apB) = 0;
+                                            const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha,
+                                            void *apA, void *apCD, void *apCrk, void *apZ, const int &aMaxRank) = 0;
 
             /**
              * @brief Calculate determinant for triangular matrix.
@@ -274,8 +283,8 @@ namespace exageostat {
              * @return Returns 0 for success, error code otherwise.
              *
              */
-            virtual int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
-                                                       void *apRequest) = 0;
+            int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
+                                               void *apRequest);
 
             /**
              * @brief Copy Chameleon descriptor to vector float*.
@@ -287,9 +296,9 @@ namespace exageostat {
              * @param[in] apRequest Identifies this function call (for exception handling purposes).
              * @return Returns 0 for success, error code otherwise.
              */
-            virtual int
+            int
             ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apDescD, void *apSequence,
-                                           void *apRequest) = 0;
+                                           void *apRequest);
 
             /**
              * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
@@ -298,7 +307,7 @@ namespace exageostat {
              * @param [in] apB Pointer to coefficient matrix of the system of linear equations. This matrix is expected to be positive definite.
              * @return void
              */
-            virtual void ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
+            void ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB);
 
             /**
              * @brief Calculate mean square error (MSE) scalar value of the prediction.
@@ -353,8 +362,7 @@ namespace exageostat {
              * @param[in] aUpperLower Specifies whether the upper or lower triangular part of the covariance matrix is stored.
              * @return void
              */
-            virtual void
-            ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower) = 0;
+            void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower);
 
             /**
              * @brief Sets the values of all or part of a two-dimensional Tile.
@@ -364,8 +372,8 @@ namespace exageostat {
              * @param[out] apDescriptor Pointer to matrix descriptor to be set with aAlpha and aBeta.
              * @return void
              */
-            virtual void
-            ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T aAlpha, T aBeta, void *apDescriptor) = 0;
+            void
+            ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T aAlpha, T aBeta, void *apDescriptor);
 
             /**
              * @brief Copy the Z matrix into a pointer.
@@ -425,9 +433,8 @@ namespace exageostat {
              * @param[in] apDescB Descriptor for matrix B.
              * @return void
              */
-            virtual void
-            ExaGeoStatGeaddTile(const common::Trans &aTrans, const T &aAlpha, void *apDescA, const T &aBeta,
-                                void *apDescB) = 0;
+            void ExaGeoStatGeaddTile(const common::Trans &aTrans, const T &aAlpha, void *apDescA, const T &aBeta,
+                                     void *apDescB);
 
             /**
              * @brief Perform a triangular matrix multiplication.
@@ -440,9 +447,9 @@ namespace exageostat {
              * @param[in] apDescA Descriptor for matrix A.
              * @param[in] apDescB Descriptor for matrix B.
              */
-            virtual void ExaGeoStatTrmmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
-                                            const common::Trans &aTrans, const common::Diag &aDiag, const T &alpha,
-                                            void *apDescA, void *apDescB) = 0;
+            void ExaGeoStatTrmmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
+                                    const common::Trans &aTrans, const common::Diag &aDiag, const T &alpha,
+                                    void *apDescA, void *apDescB);
 
             /**
              * @brief Get the pointer to the data or the runtime handler associated to the piece of data (m, n) in desc.

@@ -12,12 +12,12 @@ set(EXAGEOSTAT_TESTFILES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDense.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestChameleonImplementationDST.cpp
         ${EXAGEOSTAT_TESTFILES}
-)
+        )
 
 if (EXAGEOSTAT_USE_HICMA)
     list(APPEND EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
-    )
+            )
 endif ()
 
 set(EXAGEOSTAT_TESTFILES ${EXAGEOSTAT_TESTFILES} PARENT_SCOPE)

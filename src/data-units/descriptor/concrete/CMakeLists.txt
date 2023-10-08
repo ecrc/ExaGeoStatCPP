@@ -15,12 +15,12 @@
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/ChameleonDescriptor.cpp
         ${SOURCES}
-)
+        )
 
 if (EXAGEOSTAT_USE_HICMA)
     list(APPEND SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/HicmaDescriptor.cpp
-    )
+            )
 endif ()
 
 set(SOURCES ${SOURCES} PARENT_SCOPE)

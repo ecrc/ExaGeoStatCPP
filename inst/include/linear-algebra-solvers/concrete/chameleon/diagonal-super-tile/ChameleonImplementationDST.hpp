@@ -47,7 +47,8 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
                  */
                 void
-                ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick = 0) override;
+                ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apCD,
+                                    void *apCrk, const int &aMaxRank, const int &aAcc) override;
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite diagonal super tile matrix.
@@ -59,7 +60,8 @@ namespace exageostat {
                  * @return successful exit.
                  */
                 void
-                ExaGeoStatPpotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apSequence, void *apRequest);
+                ExaGeoStatPpotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apSequence,
+                                     void *apRequest);
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite diagonal super tile matrix.
@@ -71,7 +73,8 @@ namespace exageostat {
                  * @return successful exit.
                  */
                 int
-                ExaGeoStatPotrfTileAsync(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apSequence, void *apRequest);
+                ExaGeoStatPotrfTileAsync(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
+                                         void *apSequence, void *apRequest);
             };
 
             /**

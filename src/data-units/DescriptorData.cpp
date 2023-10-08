@@ -13,6 +13,7 @@
 **/
 
 #include <data-units/DescriptorData.hpp>
+#include <cstring>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
@@ -23,17 +24,28 @@ DescriptorData<T>::~DescriptorData() {
 
     ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
     // Destroy descriptors.
+    const std::string &chameleon = "_CHAMELEON";
     for (const auto &pair: this->mDictionary) {
         const std::string &key = pair.first;
         if (key.find("CHAMELEON") != std::string::npos && pair.second != nullptr) {
             exaGeoStatDescriptor.DestroyDescriptor(common::CHAMELEON_DESCRIPTOR, pair.second);
-        } else if (pair.second != nullptr) {
+#ifdef EXAGEOSTAT_USE_HICMA
+            // Since there are converted descriptors from Chameleon to Hicma, which have the same memory address.
+            // So, by deleting the owner which is Chameleon, no need to delete hicma. Therefore, we remove the row of that descriptor.
+            std::string converted_chameleon = key.substr(0, key.length() - chameleon.length());
+            const std::string &desc = converted_chameleon + "_CHAM_HIC";
+            if (this->mDictionary.find(desc) != this->mDictionary.end()) {
+                delete (HICMA_desc_t * )
+                this->mDictionary[converted_chameleon + "_CHAM_HIC"];
+                this->mDictionary.erase(converted_chameleon + "_CHAM_HIC");
+            }
+#endif
+        } else if (key.find("HICMA") != std::string::npos && pair.second != nullptr) {
             exaGeoStatDescriptor.DestroyDescriptor(common::HICMA_DESCRIPTOR, pair.second);
         }
     }
     this->mDictionary.clear();
     if (this->mpSequence) {
-        //TODO: should it be ExageostatDestroy()?
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpSequence);
     }
 }
@@ -58,6 +70,32 @@ void *DescriptorData<T>::GetRequest() {
     return this->mpRequest;
 }
 
+#ifdef EXAGEOSTAT_USE_HICMA
+
+template<typename T>
+HICMA_desc_t *DescriptorData<T>::ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc) {
+
+    auto *hicma_desc = new HICMA_desc_t;
+
+    hicma_desc->get_blkaddr = hicma_getaddr_ccrb;
+    hicma_desc->get_blkldd = hicma_getblkldd_ccrb;
+    hicma_desc->get_rankof = hicma_getrankof_2d;
+
+    size_t hicma_desc_total_size = 184;
+    size_t chameleon_desc_total_size = 200;
+    size_t common_total_size = 3 * sizeof(size_t) + 30 * sizeof(int);
+    size_t hicma_offset = hicma_desc_total_size - (common_total_size + sizeof(void *));
+    size_t chameleon_offset = chameleon_desc_total_size - (common_total_size + sizeof(void *));
+
+    memcpy(((char *) hicma_desc) + hicma_offset, ((char *) apChameleonDesc) + chameleon_offset, common_total_size);
+    hicma_desc->mat = apChameleonDesc->mat;
+    hicma_desc->schedopt = apChameleonDesc->schedopt;
+
+    return hicma_desc;
+}
+
+#endif
+
 template<typename T>
 BaseDescriptor
 DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName) {
@@ -71,7 +109,21 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
                                                                       "_CHAMELEON"];
     } else {
 #ifdef EXAGEOSTAT_USE_HICMA
-        descriptor.hicma_desc = (HICMA_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
+        if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_HICMA") != this->mDictionary.end()) {
+            descriptor.hicma_desc = (HICMA_desc_t * )
+            this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
+        } else if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAM_HIC") !=
+                   this->mDictionary.end()) {
+            descriptor.hicma_desc = (HICMA_desc_t * )
+            this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAM_HIC"];
+        } else if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAMELEON") !=
+                   this->mDictionary.end()) {
+            descriptor.hicma_desc = this->ConvertChameleonToHicma(
+                    (CHAM_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAMELEON"]);
+            this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAM_HIC"] = descriptor.hicma_desc;
+        } else {
+            descriptor.hicma_desc = nullptr;
+        }
 #else
         throw std::runtime_error("To use HiCMA descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
 #endif

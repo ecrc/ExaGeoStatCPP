@@ -35,10 +35,8 @@ if (NOT TARGET HICMA_FOUND)
         # Build HiCMA from source.
         set(HICMA_DIR ${PROJECT_SOURCE_DIR}/installdir/_deps/HICMA/)
         BuildDependency(HiCMA "https://github.com/ecrc/hicma.git" "v1.0.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-
         # Clear the flags.
         set(FLAGS "")
-
         # Find HiCMA after installation.
         find_package(HICMA REQUIRED)
     endif ()
@@ -48,8 +46,8 @@ endif()
 
 # Include HiCMA headers in the project.
 include_directories(${HICMA_INCLUDE_DIRS_DEP})
-# TODO: Fix install control headers
-include_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/HICMA/hicma-src/hicma_ext/)
+include_directories(AFTER ${HICMA_DIR_FOUND}/include/coreblas)
+include_directories(${HICMA_LIBDIR}/../hicma-src/hicma_ext)
 
 # Include HiCMA libraries in the project.
 if (HICMA_LINKER_FLAGS)
