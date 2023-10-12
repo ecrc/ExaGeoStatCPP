@@ -44,7 +44,7 @@ namespace exageostat {
                 /**
                  * @brief Set the modeling descriptors for HiCMA implementation.
                  * @param[in,out] aData Reference to the ExaGeoStatData object.
-                 * @param[in,out] aConfigurations Reference to the Configurations object.
+                 * @param[in] aConfigurations Reference to the Configurations object.
                  */
                 void SetModelingDescriptors(dataunits::ExaGeoStatData<T> &aData,
                                             configurations::Configurations &aConfigurations);

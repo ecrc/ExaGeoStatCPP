@@ -78,6 +78,8 @@ void HicmaImplementation<T>::SetModelingDescriptors(ExaGeoStatData<T> &aData, Co
     int Nrk = HICMA_descCUV->mt;
     aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CRK, is_OOC, nullptr, float_point,
                                              MBrk, NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
+
+    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, lts, lts, lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
 }
 
 template<typename T>
@@ -129,6 +131,8 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
                                                                  DescriptorName::DESCRIPTOR_Z).hicma_desc;
     auto *CHAM_descZ = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                 DescriptorName::DESCRIPTOR_Z).chameleon_desc;
+    auto *CHAM_descZcpy = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                DescriptorName::DESCRIPTOR_Z_COPY).chameleon_desc;
     auto *HICMA_descZcpy = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
                                                                     DescriptorName::DESCRIPTOR_Z_COPY).hicma_desc;
     auto *HICMA_desc_det = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
@@ -153,8 +157,10 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
             this->ExaGeoStatDesc2Lap(z, N, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
             this->ExaGeoStatLap2Desc(z, N, HICMA_descZ, EXAGEOSTAT_UPPER_LOWER);
             delete[] z;
-            //Save a copy of descZ into descZcpy for restoring each iteration
-            ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, HICMA_descZ, HICMA_descZcpy);
+            // Save a copy of descZ into descZcpy for restoring each iteration
+            this->ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, HICMA_descZ, HICMA_descZcpy);
+            // Save another copy into descZcpy for chameleon, This is in case of other operations after Modeling. ex: Prediction.
+            CHAMELEON_dlacpy_Tile(ChamUpperLower, CHAM_descZ, CHAM_descZcpy);
         }
     }
     //Matrix generation part.
@@ -263,6 +269,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     results::Results::GetInstance()->SetMLEIterations(iter_count + 1);
     results::Results::GetInstance()->SetMaximumTheta(vector<double>(theta, theta + num_params));
     results::Results::GetInstance()->SetLogLikValue(loglik);
+    aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
     return loglik;
 }
 

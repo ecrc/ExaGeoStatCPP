@@ -388,3 +388,89 @@ int ChameleonImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, voi
             this->mpContext);
     return CHAMELEON_SUCCESS;
 }
+
+template<typename T>
+int ChameleonImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
+                                                            void *apSequence, void *apRequest) {
+    // Check for initialize the Chameleon context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+
+    RUNTIME_option_t options;
+    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
+    int m, m0;
+    int tempmm;
+    auto A = (CHAM_desc_t *) apDescA;
+    auto B = (CHAM_desc_t *) apDescB;
+    auto C = (CHAM_desc_t *) apDescC;
+    struct starpu_codelet *cl = &this->cl_stride_vec;
+
+    for (m = 0; m < A->mt; m++) {
+        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
+        m0 = m * A->mb;
+        starpu_insert_task(cl,
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_VALUE, &m, sizeof(int),
+                           STARPU_R, ExaGeoStatDataGetAddr(A, m, 0),
+                           STARPU_W, ExaGeoStatDataGetAddr(B, (int) floor(m / 2.0), 0),
+                           STARPU_W, ExaGeoStatDataGetAddr(C, (int) floor(m / 2.0), 0),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "stride_vec",
+#endif
+                           0);
+
+    }
+    this->ExaGeoStatOptionsFree(&options);
+    this->ExaGeoStatOptionsFinalize(&options, (CHAM_context_t *)
+            this->mpContext);
+    return CHAMELEON_SUCCESS;
+}
+
+template<typename T>
+int ChameleonImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
+                                                        void *apDescD, void *apSequence,
+                                                        void *apRequest) {
+    // Check for initialize the Chameleon context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+
+    RUNTIME_option_t options;
+    RUNTIME_options_init(&options, (CHAM_context_t *)
+            this->mpContext, (RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest);
+
+    int m, m0;
+    int tempmm;
+    auto A = (CHAM_desc_t *) apDescA;
+    auto B = (CHAM_desc_t *) apDescB;
+    auto C = (CHAM_desc_t *) apDescC;
+    auto D = (CHAM_desc_t *) apDescD;
+    struct starpu_codelet *cl = &this->cl_tristride_vec;
+
+    for (m = 0; m < A->mt; m++) {
+        tempmm = m == A->mt - 1 ? A->m - m * A->mb : A->mb;
+        m0 = m * A->mb;
+        starpu_insert_task(cl,
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_VALUE, &m, sizeof(int),
+                           STARPU_R, ExaGeoStatDataGetAddr(A, m, 0),
+                           STARPU_W, ExaGeoStatDataGetAddr(B, (int) floor(m / 3.0), 0),
+                           STARPU_W, ExaGeoStatDataGetAddr(C, (int) floor(m / 3.0), 0),
+                           STARPU_W, ExaGeoStatDataGetAddr(D, (int) floor(m / 3.0), 0),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "tristride_vec",
+#endif
+                           0);
+
+    }
+    this->ExaGeoStatOptionsFree(&options);
+    this->ExaGeoStatOptionsFinalize(&options, (CHAM_context_t *)
+            this->mpContext);
+    return CHAMELEON_SUCCESS;
+}

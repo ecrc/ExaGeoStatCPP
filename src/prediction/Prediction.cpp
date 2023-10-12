@@ -61,8 +61,8 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
     std::vector<T> avg_pred_value(number_of_mspe);
     auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
     auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
-            EXACT_DENSE);
+    // We Predict date with only Exact computation. This is a pre-request.
+    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
 
     InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
                                   *obs_locations, apMeasurementsMatrix);

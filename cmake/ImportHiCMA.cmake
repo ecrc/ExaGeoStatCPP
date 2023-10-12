@@ -46,7 +46,6 @@ endif()
 
 # Include HiCMA headers in the project.
 include_directories(${HICMA_INCLUDE_DIRS_DEP})
-include_directories(AFTER ${HICMA_DIR_FOUND}/include/coreblas)
 include_directories(${HICMA_LIBDIR}/../hicma-src/hicma_ext)
 
 # Include HiCMA libraries in the project.

@@ -51,7 +51,7 @@ namespace exageostat {
                                     void *apCrk, const int &aMaxRank, const int &aAcc) override;
 
                 /**
-                 * @brief Computes the Cholesky factorization of a symmetric positive definite diagonal super tile matrix.
+                 * @brief Computes the parallel Cholesky factorization of a symmetric positive definite diagonal super tile matrix.
                  * @param[in] aUpperLower Whether upper or lower part of the matrix A
                  * @param[in] apA Symmetric matrix A
                  * @param[in] aDiagThick diagonal thickness.
@@ -60,8 +60,8 @@ namespace exageostat {
                  * @return successful exit.
                  */
                 void
-                ExaGeoStatPpotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apSequence,
-                                     void *apRequest);
+                ExaGeoStatParallelPotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
+                                            void *apSequence, void *apRequest);
 
                 /**
                  * @brief Computes the Cholesky factorization of a symmetric positive definite diagonal super tile matrix.

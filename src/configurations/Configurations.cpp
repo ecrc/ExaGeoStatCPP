@@ -400,6 +400,7 @@ void Configurations::PrintUsage() {
     LOGGER("--OOC : Used to enable Out of core technology.")
     LOGGER("--approximation_mode : Used to enable Approximation mode.")
     LOGGER("--log : Enable logging.")
+    LOGGER("--acc : Used to set the accuracy when using tlr.")
     LOGGER("\n\n")
 
     exit(0);

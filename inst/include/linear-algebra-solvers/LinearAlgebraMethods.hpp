@@ -274,33 +274,6 @@ namespace exageostat {
             ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescDet) = 0;
 
             /**
-             * @brief copy Chameleon descriptor to vector float*.
-             * @param[in] apDescA Exageostat descriptor A.
-             * @param[in] apDescB Exageostat descriptor B.
-             * @param[in] apDescC Exageostat descriptor C.
-             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
-             * @param[in] apRequest Identifies this function call (for exception handling purposes).
-             * @return Returns 0 for success, error code otherwise.
-             *
-             */
-            int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
-                                               void *apRequest);
-
-            /**
-             * @brief Copy Chameleon descriptor to vector float*.
-             * @param[in] apDescA Exageostat descriptor A.
-             * @param[in] apDescB Exageostat descriptor B.
-             * @param[in] apDescC Exageostat descriptor C.
-             * @param[in] apDescD Exageostat descriptor D.
-             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
-             * @param[in] apRequest Identifies this function call (for exception handling purposes).
-             * @return Returns 0 for success, error code otherwise.
-             */
-            int
-            ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apDescD, void *apSequence,
-                                           void *apRequest);
-
-            /**
              * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
              * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
              * @param [in] apA coefficient matrix of the system of linear equations. This matrix is expected to be positive definite.
@@ -469,9 +442,6 @@ namespace exageostat {
                 this->mpContext = apContext;
             }
 
-            void *GetContext() {
-                return this->mpContext;
-            }
 
             //// These codlets and structs will be added to another level of abstraction and interface of runtime system. This is a quick fix for now.
             //// TODO: Create a Factory for Runtime system.

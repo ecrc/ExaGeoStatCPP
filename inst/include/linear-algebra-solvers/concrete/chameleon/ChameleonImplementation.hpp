@@ -114,6 +114,33 @@ namespace exageostat {
             void
             ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) override;
 
+            /**
+             * @brief copy Chameleon descriptor to vector float*.
+             * @param[in] apDescA Exageostat descriptor A.
+             * @param[in] apDescB Exageostat descriptor B.
+             * @param[in] apDescC Exageostat descriptor C.
+             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+             * @param[in] apRequest Identifies this function call (for exception handling purposes).
+             * @return Returns 0 for success, error code otherwise.
+             *
+             */
+            int ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apSequence,
+                                               void *apRequest);
+
+            /**
+             * @brief Copy Chameleon descriptor to vector float*.
+             * @param[in] apDescA Exageostat descriptor A.
+             * @param[in] apDescB Exageostat descriptor B.
+             * @param[in] apDescC Exageostat descriptor C.
+             * @param[in] apDescD Exageostat descriptor D.
+             * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+             * @param[in] apRequest Identifies this function call (for exception handling purposes).
+             * @return Returns 0 for success, error code otherwise.
+             */
+            int
+            ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apDescD, void *apSequence,
+                                           void *apRequest);
+
         };
 
         EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementation)

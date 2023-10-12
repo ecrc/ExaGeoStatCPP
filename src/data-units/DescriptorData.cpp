@@ -12,8 +12,8 @@
  * @date 2023-07-18
 **/
 
-#include <data-units/DescriptorData.hpp>
 #include <cstring>
+#include <data-units/DescriptorData.hpp>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
@@ -75,19 +75,26 @@ void *DescriptorData<T>::GetRequest() {
 template<typename T>
 HICMA_desc_t *DescriptorData<T>::ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc) {
 
+    // Create a new HICMA descriptor
     auto *hicma_desc = new HICMA_desc_t;
 
+    // Set function pointers in HICMA descriptor
     hicma_desc->get_blkaddr = hicma_getaddr_ccrb;
     hicma_desc->get_blkldd = hicma_getblkldd_ccrb;
     hicma_desc->get_rankof = hicma_getrankof_2d;
 
+    // Set sizes and offsets for memory copy
     size_t hicma_desc_total_size = 184;
     size_t chameleon_desc_total_size = 200;
+    // Size of the common members between Hicma_desc and Chameleon_desc
     size_t common_total_size = 3 * sizeof(size_t) + 30 * sizeof(int);
+    // Skip the size of function pointers.
     size_t hicma_offset = hicma_desc_total_size - (common_total_size + sizeof(void *));
     size_t chameleon_offset = chameleon_desc_total_size - (common_total_size + sizeof(void *));
 
+    // Copy common data from CHAMELEON descriptor to HICMA descriptor
     memcpy(((char *) hicma_desc) + hicma_offset, ((char *) apChameleonDesc) + chameleon_offset, common_total_size);
+    // Set additional data in HICMA descriptor
     hicma_desc->mat = apChameleonDesc->mat;
     hicma_desc->schedopt = apChameleonDesc->schedopt;
 
