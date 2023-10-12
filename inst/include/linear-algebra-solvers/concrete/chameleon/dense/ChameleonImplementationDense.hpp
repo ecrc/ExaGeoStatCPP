@@ -46,7 +46,8 @@ namespace exageostat {
                  * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
                  */
                 void
-                ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick) override;
+                ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apCD,
+                                    void *apCrk, const int &aMaxRank, const int &aAcc) override;
 
             };
 

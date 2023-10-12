@@ -19,7 +19,6 @@
 
 #include <iostream>
 #include <string>
-#include <chrono>
 #include <sys/time.h>
 
 #include <common/Definitions.hpp>

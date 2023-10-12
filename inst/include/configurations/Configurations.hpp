@@ -282,6 +282,10 @@ namespace exageostat {
 
             CREATE_GETTER_FUNCTION(MaxMleIterations, int, "MaxMleIterations")
 
+            CREATE_SETTER_FUNCTION(Accuracy, int, aAccuracy, "Accuracy")
+
+            CREATE_GETTER_FUNCTION(Accuracy, int, "Accuracy")
+
             CREATE_SETTER_FUNCTION(Tolerance, double, aTolerance, "Tolerance")
 
             CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")

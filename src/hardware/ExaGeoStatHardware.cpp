@@ -63,7 +63,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
                     << std::endl;
         } else {
             HICMA_Finalize();
-            this->mpHicmaContext= nullptr;
+            this->mpHicmaContext = nullptr;
         }
 #endif
     }
@@ -78,6 +78,7 @@ void *ExaGeoStatHardware::GetHicmaContext() const {
     }
     return this->mpHicmaContext;
 }
+
 #endif
 
 void *ExaGeoStatHardware::GetChameleonContext() const {

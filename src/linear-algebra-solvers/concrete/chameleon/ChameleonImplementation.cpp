@@ -164,7 +164,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardw
     VERBOSE("Done.")
     VERBOSE("Cholesky factorization of Sigma...")
     START_TIMING(time_facto);
-    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_C, aConfigurations.GetDiagThick());
+    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_C, aConfigurations.GetDiagThick(), nullptr, nullptr, 0, 0);
     //// TODO: Contact chameleon team
     STOP_TIMING(time_facto);
     flops = flops + flops_dpotrf(n);
@@ -184,8 +184,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardw
     VERBOSE("Solving the linear system ...")
     START_TIMING(time_solve);
     this->ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
-                             CHAM_desc_C,
-                             CHAM_desc_Z);
+                             CHAM_desc_C, nullptr, nullptr, CHAM_desc_Z, 0);
     STOP_TIMING(time_solve);
     flops = flops + flops_dtrsm(ChamLeft, n, nhrs);
     VERBOSE("Done.")
@@ -199,7 +198,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardw
                  (T) (n / 2.0) * log(2.0 * PI);
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z1, CHAM_desc_Z1, 0,
                              CHAM_desc_product1);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1,  CHAM_desc_Z2, CHAM_desc_Z2, 0,
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z2, CHAM_desc_Z2, 0,
                              CHAM_desc_product2);
         variance1 = (1.0 / (n / 2)) * dot_product1;
         variance2 = (1.0 / (n / 2)) * dot_product2;
@@ -208,9 +207,9 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardw
         loglik = -(n / 2) + (n / 2) * log(n) - (n / 2) * log(dot_product) - 0.5 * logdet -
                  (double) (n / 2.0) * log(2.0 * PI);
         this->ExaGeoStaStrideVectorTileAsync(CHAM_desc_Z, CHAM_desc_Z1, CHAM_desc_Z2, pSequence, &request_array[0]);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1,   CHAM_desc_Z1, CHAM_desc_Z1, 0,
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z1, CHAM_desc_Z1, 0,
                              CHAM_desc_product1);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1,   CHAM_desc_Z2, CHAM_desc_Z2, 0,
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z2, CHAM_desc_Z2, 0,
                              CHAM_desc_product2);
         variance1 = (1.0 / (n / 2)) * dot_product1;
         variance2 = (1.0 / (n / 2)) * dot_product2;
@@ -221,11 +220,11 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardw
         //to be optimized
         this->ExaGeoStaStrideVectorTileAsync(CHAM_desc_Z, CHAM_desc_Z1, CHAM_desc_Z2, CHAM_desc_Z3, pSequence,
                                              &request_array[0]);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1,   CHAM_desc_Z1, CHAM_desc_Z1, 0,
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z1, CHAM_desc_Z1, 0,
                              CHAM_desc_product1);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1,   CHAM_desc_Z2, CHAM_desc_Z2, 0,
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z2, CHAM_desc_Z2, 0,
                              CHAM_desc_product2);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1,   CHAM_desc_Z3, CHAM_desc_Z3, 0,
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z3, CHAM_desc_Z3, 0,
                              CHAM_desc_product3);
         variance1 = (1.0 / (n / 3.0)) * dot_product1;
         variance2 = (1.0 / (n / 3.0)) * dot_product2;
@@ -298,15 +297,6 @@ ChameleonImplementation<T>::ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *ap
 }
 
 template<typename T>
-void ChameleonImplementation<T>::ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA,
-                                                    const UpperLower &aUpperLower) {
-    int status = CHAMELEON_Desc2Lap((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apDescA, apA, aLDA);
-    if (status != CHAMELEON_SUCCESS) {
-        throw std::runtime_error("CHAMELEON_Desc2Lap Failed!");
-    }
-}
-
-template<typename T>
 void ChameleonImplementation<T>::ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA,
                                                           void *apB) {
     int status = CHAMELEON_dlacpy_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
@@ -316,60 +306,20 @@ void ChameleonImplementation<T>::ExaGeoStatLapackCopyTile(const common::UpperLow
 }
 
 template<typename T>
-void ChameleonImplementation<T>::ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T alpha, T beta,
-                                                     void *apDescriptor) {
-    int status = CHAMELEON_dlaset_Tile((cham_uplo_t) aUpperLower, alpha, beta, (CHAM_desc_t *) apDescriptor);
-    if (status != CHAMELEON_SUCCESS) {
-        throw std::runtime_error("CHAMELEON_dlaset_Tile Failed!");
-    }
-}
-
-template<typename T>
 void *ChameleonImplementation<T>::ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) {
     return RUNTIME_data_getaddr((CHAM_desc_t *) apA, aAm, aAn);
 }
 
 template<typename T>
-void ChameleonImplementation<T>::ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB) {
-    int status = CHAMELEON_dposv_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
-    if (status != CHAMELEON_SUCCESS) {
-        throw std::runtime_error("CHAMELEON_dposv_Tile Failed!");
-    }
-}
-
-template<typename T>
 void ChameleonImplementation<T>::ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
-                                                    const common::Trans &aTrans, const common::Diag &aDiag,
-                                                    const T &aAlpha, void *apA, void *apB) {
+                                                    const common::Trans &aTrans,
+                                                    const common::Diag &aDiag, const T &aAlpha, void *apA, void *apCD,
+                                                    void *apCrk, void *apZ,
+                                                    const int &aMaxRank) {
     int status = CHAMELEON_dtrsm_Tile((cham_side_t) aSide, (cham_uplo_t) aUpperLower, (cham_trans_t) aTrans,
-                                      (cham_diag_t) aDiag, aAlpha, (CHAM_desc_t *) apA, (CHAM_desc_t *) apB);
+                                      (cham_diag_t) aDiag, aAlpha, (CHAM_desc_t *) apA, (CHAM_desc_t *) apZ);
     if (status != CHAMELEON_SUCCESS) {
         throw std::runtime_error("CHAMELEON_dtrsm_Tile Failed!");
-    }
-}
-
-template<typename T>
-void ChameleonImplementation<T>::ExaGeoStatTrmmTile(const Side &aSide, const UpperLower &aUpperLower,
-                                                    const Trans &aTrans, const Diag &aDiag,
-                                                    const T &alpha, void *apDescA, void *apDescB) {
-    int status = CHAMELEON_dtrmm_Tile((cham_side_t) aSide, (cham_uplo_t) aUpperLower, (cham_trans_t) aTrans,
-                                      (cham_diag_t) aDiag,
-                                      alpha,
-                                      (CHAM_desc_t *) apDescA, (CHAM_desc_t *) apDescB);
-    if (status != CHAMELEON_SUCCESS) {
-        throw std::runtime_error("CHAMELEON_dtrmm_Tile Failed!");
-    }
-}
-
-template<typename T>
-void
-ChameleonImplementation<T>::ExaGeoStatGeaddTile(const common::Trans &aTrans, const T &aAlpha, void *apDescA,
-                                                const T &aBeta,
-                                                void *apDescB) {
-    int status = CHAMELEON_dgeadd_Tile((cham_trans_t) aTrans, aAlpha, (CHAM_desc_t *) apDescA, aBeta,
-                                       (CHAM_desc_t *) apDescB);
-    if (status != CHAMELEON_SUCCESS) {
-        throw std::runtime_error("CHAMELEON_dgeadd_Tile Failed!");
     }
 }
 
@@ -441,7 +391,7 @@ int ChameleonImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, voi
 
 template<typename T>
 int ChameleonImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                               void *apSequence, void *apRequest) {
+                                                            void *apSequence, void *apRequest) {
     // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
@@ -481,10 +431,9 @@ int ChameleonImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, vo
 }
 
 template<typename T>
-int
-ChameleonImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
-                                                           void *apDescD, void *apSequence,
-                                                           void *apRequest) {
+int ChameleonImplementation<T>::ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC,
+                                                        void *apDescD, void *apSequence,
+                                                        void *apRequest) {
     // Check for initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(

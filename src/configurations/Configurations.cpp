@@ -62,6 +62,8 @@ Configurations::Configurations() {
     SetIsMSPE(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
+    SetDistanceMetric(common::EUCLIDIAN_DISTANCE);
+    SetAccuracy(0);
 }
 
 
@@ -151,7 +153,8 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                       argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
                       argument_name == "--log_file_name" || argument_name == "--logFileName" ||
                       argument_name == "--DiagThick" || argument_name == "--diag_thick" ||
-                      argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts")) {
+                      argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts" ||
+                      argument_name == "--acc" || argument_name == "--Acc")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -288,6 +291,8 @@ void Configurations::InitializeDataModelingArguments() {
                 SetDiagThick(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--acc" || argument_name == "--Acc") {
+                SetAccuracy(CheckNumericalValue(argument_value));
             } else if (argument_name == "--log_file_name" || argument_name == "--logFileName") {
                 if (!GetLogger()) {
                     throw domain_error(
@@ -361,7 +366,7 @@ void Configurations::InitializeDataPredictionArguments() {
 }
 
 void Configurations::PrintUsage() {
-    LOGGER("\n\t*** Available Arguments For Synthetic Data Configurations***")
+    LOGGER("\n\t*** Available Arguments For ExaGeoStat Configurations ***")
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")
     LOGGER("--dimension=value : Used Dimension.")
@@ -395,6 +400,7 @@ void Configurations::PrintUsage() {
     LOGGER("--OOC : Used to enable Out of core technology.")
     LOGGER("--approximation_mode : Used to enable Approximation mode.")
     LOGGER("--log : Enable logging.")
+    LOGGER("--acc : Used to set the accuracy when using tlr.")
     LOGGER("\n\n")
 
     exit(0);
@@ -635,11 +641,11 @@ void Configurations::PrintSummary() {
 #ifdef EXAGEOSTAT_USE_HICMA
         LOGGER("#Low Tile Size: " << this->GetLowTileSize())
 #endif
-        if(this->GetComputation() == TILE_LOW_RANK) {
+        if (this->GetComputation() == TILE_LOW_RANK) {
             LOGGER("Tile Low Rank Computation")
-        } else if (this->GetComputation() == EXACT_DENSE){
+        } else if (this->GetComputation() == EXACT_DENSE) {
             LOGGER("Exact Dense Computation")
-        } else if (this->GetComputation() == DIAGONAL_APPROX){
+        } else if (this->GetComputation() == DIAGONAL_APPROX) {
             LOGGER("Diagonal Approx Computation")
         }
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())

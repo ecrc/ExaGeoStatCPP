@@ -12,8 +12,13 @@
 #ifdef EXAGEOSTAT_USE_HICMA
 extern "C" {
 #include <hicma_struct.h>
-#include <hicma.h>
+#include <starsh-spatial.h>
+#include <hicma_z.h>
+#include "hicma/misc/auxdescutil.h"
+#include <hicma_d.h>
+#include <control/hicma_descriptor.h>
 #include <control/hicma_context.h>
+#include "hicma/misc/auxcompute_z.h"
 }
 #endif
 #endif //EXAGEOSTATCPP_HICMAHEADERS_HPP

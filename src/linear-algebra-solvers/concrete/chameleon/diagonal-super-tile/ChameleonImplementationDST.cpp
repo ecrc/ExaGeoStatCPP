@@ -21,7 +21,9 @@ using namespace exageostat::common;
 
 template<typename T>
 void
-ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick) {
+ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
+                                                   void *apCD, void *apCrk,
+                                                   const int &aMaxRank, const int &aAcc) {
     CHAM_context_t *chamctxt;
     RUNTIME_sequence_t *sequence = nullptr;
     RUNTIME_request_t request = RUNTIME_REQUEST_INITIALIZER;
@@ -81,7 +83,7 @@ ChameleonImplementationDST<T>::ExaGeoStatPotrfTileAsync(const common::UpperLower
         return chameleon_request_fail((RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest, -1);
     }
     /* Quick return */
-    ExaGeoStatPpotrfDiag(aUpperLower, apA, aDiagThick, apSequence, apRequest);
+    ExaGeoStatParallelPotrfDiag(aUpperLower, apA, aDiagThick, apSequence, apRequest);
 
     return CHAMELEON_SUCCESS;
 }
@@ -89,7 +91,7 @@ ChameleonImplementationDST<T>::ExaGeoStatPotrfTileAsync(const common::UpperLower
 
 template<typename T>
 void
-ChameleonImplementationDST<T>::ExaGeoStatPpotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
+ChameleonImplementationDST<T>::ExaGeoStatParallelPotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
                                                     void *apSequence, void *apRequest) {
     CHAM_context_t *chamctxt;
     RUNTIME_option_t options;

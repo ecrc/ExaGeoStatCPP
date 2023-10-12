@@ -98,6 +98,20 @@ void TEST_MODEL_DATA(Computation aComputation) {
     vector<double> initial_theta{1, 0.1, 0.5};
     configurations.SetInitialTheta(initial_theta);
 
+    double expected = 0;
+    if (aComputation == EXACT_DENSE){
+        expected = -24.026000;
+    }
+    else if(aComputation == DIAGONAL_APPROX){
+        expected = -24.028197;
+        configurations.SetDiagThick(1);
+    }
+    else if(aComputation == TILE_LOW_RANK){
+        expected = -24.0049327;
+        configurations.SetLowTileSize(dts);
+        configurations.SetMaxRank(500);
+    }
+
     SECTION("Data Modeling")
     {
         // initialize ExaGeoStat Hardware.
@@ -132,13 +146,13 @@ void TEST_MODEL_DATA(Computation aComputation) {
 
         double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
                                                                                             data, z_matrix);
-        double expected = aComputation == EXACT_DENSE ? -24.026000 : aComputation == DIAGONAL_APPROX ? -24.028197 : -1;
         REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
 
         delete[] location_x;
         delete[] location_y;
         delete[] z_matrix;
-    }SECTION("Data Generation and Modeling")
+    }
+    SECTION("Data Generation and Modeling")
     {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
@@ -147,7 +161,6 @@ void TEST_MODEL_DATA(Computation aComputation) {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
         double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
                                                                                             data);
-        double expected = aComputation == EXACT_DENSE ? -24.026000 : aComputation == DIAGONAL_APPROX ? -24.028197 : -1;
         REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
     }
 }
@@ -253,5 +266,6 @@ TEST_CASE("ExaGeoStat API tests") {
     TEST_GENERATE_DATA();
     TEST_MODEL_DATA(EXACT_DENSE);
     TEST_MODEL_DATA(DIAGONAL_APPROX);
+    TEST_MODEL_DATA(TILE_LOW_RANK);
     TEST_PREDICTION();
 }

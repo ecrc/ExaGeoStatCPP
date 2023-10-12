@@ -90,6 +90,15 @@ namespace exageostat {
              */
             void SetRequest(void *apRequest);
 
+#ifdef EXAGEOSTAT_USE_HICMA
+            /**
+             * @brief Converts a CHAMELEON descriptor to a HICMA descriptor.
+             * @param[in] apChameleonDesc Pointer to the CHAMELEON descriptor to be converted.
+             * @return Pointer to the converted HICMA descriptor.
+             */
+            HICMA_desc_t *ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc);
+#endif
+
             /**
              * @brief Set the descriptor.
              * @param[in] aDescriptorType The type of the descriptor.

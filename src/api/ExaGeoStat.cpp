@@ -38,6 +38,7 @@ void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, 
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
     aData.SetLocations(*data_generator->CreateLocationsData(aConfigurations));
+    // We Generate date with only Exact computation. This is a pre-request.
     auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData);
     delete kernel;
@@ -81,7 +82,7 @@ ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vect
     auto data = ((mModelingData<T> *) apInfo)->mpData;
     auto hardware = ((mModelingData<T> *) apInfo)->mpHardware;
     auto measurements = ((mModelingData<T> *) apInfo)->mpMeasurementsMatrix;
-
+    // We do Date Modeling with any computation.
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
             config->GetComputation());
     return linear_algebra_solver->ExaGeoStatMLETile(*hardware, *data, *config, aTheta.data(), measurements);

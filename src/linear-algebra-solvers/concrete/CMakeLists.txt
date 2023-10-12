@@ -17,12 +17,12 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/diagonal-super-tile/ChameleonImplementationDST.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/ChameleonImplementation.cpp
         ${SOURCES}
-)
+        )
 
 if (EXAGEOSTAT_USE_HICMA)
     list(APPEND SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/tile-low-rank/HicmaImplementation.cpp
-    )
+            )
 endif ()
 
 set(SOURCES ${SOURCES} PARENT_SCOPE)
