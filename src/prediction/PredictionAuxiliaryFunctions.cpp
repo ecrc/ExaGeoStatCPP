@@ -18,10 +18,8 @@
 #include <helpers/DistanceCalculationHelpers.hpp>
 #include <common/Utils.hpp>
 
-using namespace exageostat::common;
 using namespace exageostat::prediction;
 using namespace exageostat::dataunits;
-using namespace exageostat::helpers;
 
 template<typename T>
 void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *apZObs, const int &aZMissNumber,
@@ -38,8 +36,8 @@ void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *ap
 
     for (j = 0; j < aZMissNumber; j++) {
         for (i = 0; i < aZObsNumber; i++) {
-            dij = DistanceCalculationHelpers<T>::CalculateDistance(aObsLocation, aMissLocation, i, j,
-                                                                   DistanceMetric::EUCLIDIAN_DISTANCE, 0);
+            dij = helpers::DistanceCalculationHelpers<T>::CalculateDistance(aObsLocation, aMissLocation, i, j,
+                                                                            common::EUCLIDEAN_DISTANCE, 0);
             if (dij != 0) {
                 sigma_1 += apZObs[i] / pow(dij, n);
                 sigma_2 += 1.0 / pow(dij, n);

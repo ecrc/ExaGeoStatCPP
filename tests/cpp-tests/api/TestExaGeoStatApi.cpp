@@ -5,7 +5,7 @@
 
 /**
  * @file TestExaGeoStatApi.cpp
- * @brief Test suite for the ExaGeoStat API's data generation functionality.
+ * @brief Test suite for the ExaGeoStat APIs data generation functionality.
  * @version 1.0.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
@@ -14,15 +14,11 @@
 
 #include <catch2/catch_all.hpp>
 #include <api/ExaGeoStat.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
-#include <configurations/Configurations.hpp>
-#include <data-units/ExaGeoStatData.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::configurations;
-using namespace exageostat::dataunits;
 using namespace exageostat::hardware;
 
 void TEST_GENERATE_DATA() {
@@ -36,7 +32,6 @@ void TEST_GENERATE_DATA() {
         int N = 16;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-
         synthetic_data_configurations.SetDenseTileSize(9);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
 
@@ -82,7 +77,6 @@ void TEST_MODEL_DATA(Computation aComputation) {
     configurations.SetProblemSize(N);
     configurations.SetKernelName("UnivariateMaternStationary");
     int dts = 8;
-
     configurations.SetDenseTileSize(dts);
     configurations.SetComputation(aComputation);
     configurations.SetMaxMleIterations(3);
@@ -99,14 +93,12 @@ void TEST_MODEL_DATA(Computation aComputation) {
     configurations.SetInitialTheta(initial_theta);
 
     double expected = 0;
-    if (aComputation == EXACT_DENSE){
+    if (aComputation == EXACT_DENSE) {
         expected = -24.026000;
-    }
-    else if(aComputation == DIAGONAL_APPROX){
+    } else if (aComputation == DIAGONAL_APPROX) {
         expected = -24.028197;
-        configurations.SetDiagThick(1);
-    }
-    else if(aComputation == TILE_LOW_RANK){
+        configurations.SetBand(1);
+    } else if (aComputation == TILE_LOW_RANK) {
         expected = -24.0049327;
         configurations.SetLowTileSize(dts);
         configurations.SetMaxRank(500);
@@ -151,8 +143,7 @@ void TEST_MODEL_DATA(Computation aComputation) {
         delete[] location_x;
         delete[] location_y;
         delete[] z_matrix;
-    }
-    SECTION("Data Generation and Modeling")
+    }SECTION("Data Generation and Modeling")
     {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
@@ -190,11 +181,8 @@ void TEST_PREDICTION() {
     configurations.SetEstimatedTheta(estimated_theta);
     Configurations::SetVerbosity(QUIET_MODE);
 
-    auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers());
-
-    exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(),
-                                                       configurations.GetDimension());
+    auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
+    exageostat::dataunits::ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
 
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
                                    -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
@@ -202,7 +190,6 @@ void TEST_PREDICTION() {
                                    -1.054282062428600009, -1.669383221392507943, 0.219170645803740793,
                                    0.971213790000161170, 0.538973474182433021, -0.752828466476077041,
                                    0.290822066007430102};
-
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
                                      0.370473792629892440, 0.652140077821011688, 0.806332494087129037,
@@ -210,7 +197,6 @@ void TEST_PREDICTION() {
                                      0.347951476310368490, 0.092042420080872822, 0.465445944914930965,
                                      0.528267338063630132, 0.974792095826657490, 0.552452887769893985,
                                      0.877592126344701295};
-
     auto *location_y = new double[N]{0.103883421072709245, 0.135790035858701447, 0.434683756771190977,
                                      0.400778210116731537, 0.168459601739528508, 0.105195696955825133,
                                      0.396398870832379624, 0.296757457846952011, 0.564507515068284116,
@@ -259,7 +245,6 @@ void TEST_PREDICTION() {
     delete[] location_x;
     delete[] location_y;
     delete[] z_matrix;
-
 }
 
 TEST_CASE("ExaGeoStat API tests") {

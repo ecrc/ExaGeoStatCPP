@@ -9,38 +9,38 @@
 #ifndef EXAGEOSTATCPP_MODELINGDATAHOLDERS_HPP
 #define EXAGEOSTATCPP_MODELINGDATAHOLDERS_HPP
 
+namespace exageostat::dataunits {
 
-namespace exageostat {
-    namespace dataunits {
+    /**
+     * @brief Struct containing all the data needed for modeling.
+     * @tparam T The data type of the data.
+     */
+    template<typename T>
+    struct mModelingData {
+        /// ExaGeoStatData<T> object containing needed descriptors, and locations.
+        dataunits::ExaGeoStatData<T> *mpData;
+        /// Configurations object containing user input data.
+        configurations::Configurations *mpConfiguration;
+        /// Hardware configuration for the ExaGeoStat solver.
+        const hardware::ExaGeoStatHardware *mpHardware;
+        /// Used Kernel for ExaGeoStat Modeling Data.
+        const kernels::Kernel<T> *mpKernel;
+
+        /// User Input Measurements Matrix
+        T *mpMeasurementsMatrix;
 
         /**
-         * @brief Struct containing all the data needed for modeling.
-         * @tparam T The data type of the data.
+         * @brief Constructor.
+         * @param aData The ExaGeoStatData object.
+         * @param aConfiguration The Configurations object.
+         * @param aHardware The hardware configuration object.
+         * @param aKernel The Kernel object.
          */
-        template<typename T>
-        struct mModelingData {
-            /// ExaGeoStatData<T> object containing needed descriptors, and locations.
-            dataunits::ExaGeoStatData<T> *mpData;
-            /// Configurations object containing user input data.
-            configurations::Configurations *mpConfiguration;
-            /// Hardware configuration for the ExaGeoStat solver.
-            const hardware::ExaGeoStatHardware *mpHardware;
-            /// User Input Measurements Matrix
-            T *mpMeasurementsMatrix;
+        mModelingData(dataunits::ExaGeoStatData<T> &aData, configurations::Configurations &aConfiguration,
+                      const hardware::ExaGeoStatHardware &aHardware, T &aMatrix, const kernels::Kernel<T> &aKernel) :
+                mpData(std::move(&aData)), mpConfiguration(&aConfiguration), mpHardware(&aHardware),
+                mpMeasurementsMatrix(&aMatrix), mpKernel(&aKernel) {}
+    };
 
-            /**
-             * @brief Constructor.
-             * @param data The ExaGeoStatData object.
-             * @param configuration The Configurations object.
-             * @param hardware The hardware configuration object.
-             */
-            mModelingData(dataunits::ExaGeoStatData<T> *data, configurations::Configurations *configuration,
-                          const hardware::ExaGeoStatHardware *hardware, T *matrix) : mpData(std::move(data)),
-                                                                                     mpConfiguration(configuration),
-                                                                                     mpHardware(hardware),
-                                                                                     mpMeasurementsMatrix(matrix) {}
-        };
-
-    }//namespace dataunits
 }//namespace exageostat
 #endif //EXAGEOSTATCPP_MODELINGDATAHOLDERS_HPP

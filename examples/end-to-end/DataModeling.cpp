@@ -29,7 +29,7 @@ using namespace exageostat::hardware;
  * @brief Main entry point for the Data Modeling program.
  * @details This example illustrates the process of data modeling using the ExaGeoStat library's CHAMELEON descriptor framework.
  * It involves configuring parameters such as problem size and computation mode, initializing hardware resources, setting up matrices for descriptors,
- * and creating location information. The ExaGeoStatDataModeling function is then called to perform geostatistical analysis. The example showcases
+ * and creating location information. The ExaGeoStatDataModeling function is then called to perform geo statistical analysis. The example showcases
  * the library's efficiency in handling large spatial datasets while efficiently utilizing hardware resources..
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.

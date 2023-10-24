@@ -17,17 +17,11 @@
 using namespace std;
 
 using namespace exageostat::linearAlgebra::dense;
-using namespace exageostat::common;
-using namespace exageostat::dataunits;
-using namespace exageostat::helpers;
-using namespace exageostat::configurations;
-using namespace exageostat::hardware;
 
 template<typename T>
 void
-ChameleonImplementationDense<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
-                                                     void *apCD, void *apCrk,
-                                                     const int &aMaxRank, const int &aAcc) {
+ChameleonImplementationDense<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand,
+                                                     void *apCD, void *apCrk, const int &aMaxRank, const int &aAcc) {
     int status = CHAMELEON_dpotrf_Tile((cham_uplo_t) aUpperLower, (CHAM_desc_t *) apA);
     if (status != CHAMELEON_SUCCESS) {
         throw std::runtime_error("CHAMELEON_dpotrf_Tile Failed, Matrix is not positive definite");

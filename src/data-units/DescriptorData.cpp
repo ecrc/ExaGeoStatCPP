@@ -35,8 +35,8 @@ DescriptorData<T>::~DescriptorData() {
             std::string converted_chameleon = key.substr(0, key.length() - chameleon.length());
             const std::string &desc = converted_chameleon + "_CHAM_HIC";
             if (this->mDictionary.find(desc) != this->mDictionary.end()) {
-                delete (HICMA_desc_t * )
-                this->mDictionary[converted_chameleon + "_CHAM_HIC"];
+                delete (HICMA_desc_t *)
+                        this->mDictionary[converted_chameleon + "_CHAM_HIC"];
                 this->mDictionary.erase(converted_chameleon + "_CHAM_HIC");
             }
 #endif
@@ -117,12 +117,12 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
     } else {
 #ifdef EXAGEOSTAT_USE_HICMA
         if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_HICMA") != this->mDictionary.end()) {
-            descriptor.hicma_desc = (HICMA_desc_t * )
-            this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
+            descriptor.hicma_desc = (HICMA_desc_t *)
+                    this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
         } else if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAM_HIC") !=
                    this->mDictionary.end()) {
-            descriptor.hicma_desc = (HICMA_desc_t * )
-            this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAM_HIC"];
+            descriptor.hicma_desc = (HICMA_desc_t *)
+                    this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAM_HIC"];
         } else if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAMELEON") !=
                    this->mDictionary.end()) {
             descriptor.hicma_desc = this->ConvertChameleonToHicma(
@@ -223,8 +223,8 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_Z_OBSERVATIONS";
         case DESCRIPTOR_Z_Actual:
             return "DESCRIPTOR_Z_Actual";
-        case DESCRIPTOR_MSE:
-            return "DESCRIPTOR_MSE";
+        case DESCRIPTOR_MSPE:
+            return "DESCRIPTOR_MSPE";
         case DESCRIPTOR_C12D:
             return "DESCRIPTOR_C12D";
         case DESCRIPTOR_C12UV:
@@ -237,10 +237,10 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_C22UV";
         case DESCRIPTOR_C22RK:
             return "DESCRIPTOR_C22RK";
-        case DESCRIPTOR_MSE_1:
-            return "DESCRIPTOR_MSE_1";
-        case DESCRIPTOR_MSE_2:
-            return "DESCRIPTOR_MSE_2";
+        case DESCRIPTOR_MSPE_1:
+            return "DESCRIPTOR_MSPE_1";
+        case DESCRIPTOR_MSPE_2:
+            return "DESCRIPTOR_MSPE_2";
         case DESCRIPTOR_Z_MISS:
             return "DESCRIPTOR_Z_MISS";
         case DESCRIPTOR_k_T :

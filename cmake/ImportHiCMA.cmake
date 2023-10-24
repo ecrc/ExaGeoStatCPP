@@ -28,21 +28,20 @@ if (NOT TARGET HICMA_FOUND)
         message("   Can't find HiCMA, Installing it instead ..")
 
         # Set the flags to be passed to the build command.
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/HICMA/ \-DHICMA_USE_MPI=${USE_MPI})
+        set(FLAGS \-DHICMA_USE_MPI=${USE_MPI})
         set(ISCMAKE ON)
         set(ISGIT ON)
         set(AUTO_GEN OFF)
         # Build HiCMA from source.
-        set(HICMA_DIR ${PROJECT_SOURCE_DIR}/installdir/_deps/HICMA/)
         BuildDependency(HiCMA "https://github.com/ecrc/hicma.git" "v1.0.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         # Clear the flags.
         set(FLAGS "")
         # Find HiCMA after installation.
         find_package(HICMA REQUIRED)
     endif ()
-else()
+else ()
     message("   HiCMA already included")
-endif()
+endif ()
 
 # Include HiCMA headers in the project.
 include_directories(${HICMA_INCLUDE_DIRS_DEP})
@@ -62,6 +61,6 @@ if (HICMA_LIBRARIES_DEP)
     list(APPEND LIBS ${HICMA_LIBRARIES_DEP})
 else ()
     list(APPEND LIBS ${HICMA_LIBRARIES})
-endif()
+endif ()
 
 message(STATUS "HiCMA done")

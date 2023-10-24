@@ -38,7 +38,7 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
         }
     }
     // Create a new directory if it does not already exist
-    bool created = false;
+    bool created;
     if (!filesystem::exists(aLoggerPath)) {
         try {
             created = filesystem::create_directory(aLoggerPath);
@@ -52,7 +52,6 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
     // Check if the directory was created successfully
     if (!created) {
         throw runtime_error("Error creating directory: " + aLoggerPath);
-        return;
     }
 
     // Determine the names of the output files
@@ -110,7 +109,6 @@ void DiskWriter<T>::WriteVectorsToDisk(const T &aMatrixPointer, const int &aProb
                                  << '\n';
                 j += 3;
             }
-
         }
     }
     p_file_synthetic.close();

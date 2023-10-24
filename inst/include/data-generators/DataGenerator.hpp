@@ -21,59 +21,57 @@
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <kernels/Kernel.hpp>
 
-namespace exageostat {
-    namespace generators {
+namespace exageostat::generators {
+
+    /**
+     * @class DataGenerator
+     * @brief Abstract base class for generating synthetic or real data.
+     * @tparam T Data Type: float or double
+     *
+     */
+    template<typename T>
+    class DataGenerator {
+
+    public:
 
         /**
-         * @class DataGenerator
-         * @brief Abstract base class for generating synthetic or real data.
-         * @tparam T Data Type: float or double
+         * @brief Generates the data locations.
+         * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
+         * @param[in] apConfigurations Pointer to the data configurations.
+         * @return void
          *
          */
-        template<typename T>
-        class DataGenerator {
-
-        public:
-
-            /**
-             * @brief Generates the data locations.
-             * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
-             * @param[in] apConfigurations Pointer to the data configurations.
-             * @return void
-             *
-             */
-            virtual dataunits::Locations<T> *
-            CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) = 0;
-
-            /**
-             * @brief Factory method for creating a data generator object.
-             * @details This method creates a data generator object based on the specified configurations.
-             * @param[in] aConfigurations Reference to the data configurations.
-             * @return A unique pointer to the created data generator object.
-             *
-             */
-            static std::unique_ptr<DataGenerator>
-            CreateGenerator(exageostat::configurations::Configurations &aConfigurations);
-
-            /**
-             * @brief Destructor for the data generator object.
-             * @details This method frees the memory used by the data generator object.
-             *
-             */
-            virtual ~DataGenerator();
-
-        protected:
-            /// Used bool identifying type of generation.
-            static bool mIsSynthetic;
-        };
+        virtual dataunits::Locations<T> *
+        CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) = 0;
 
         /**
-         * @brief Instantiates the Data Generator class for float and double types.
-         * @tparam T Data Type: float or double
+         * @brief Factory method for creating a data generator object.
+         * @details This method creates a data generator object based on the specified configurations.
+         * @param[in] aConfigurations Reference to the data configurations.
+         * @return A unique pointer to the created data generator object.
          *
          */
-        EXAGEOSTAT_INSTANTIATE_CLASS(DataGenerator)
-    }//namespace generators
+        static std::unique_ptr<DataGenerator>
+        CreateGenerator(exageostat::configurations::Configurations &aConfigurations);
+
+        /**
+         * @brief Destructor for the data generator object.
+         * @details This method frees the memory used by the data generator object.
+         *
+         */
+        virtual ~DataGenerator();
+
+    protected:
+        /// Used bool identifying type of generation.
+        static bool mIsSynthetic;
+    };
+
+    /**
+     * @brief Instantiates the Data Generator class for float and double types.
+     * @tparam T Data Type: float or double
+     *
+     */
+    EXAGEOSTAT_INSTANTIATE_CLASS(DataGenerator)
 }//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_DATAGENERATOR_HPP

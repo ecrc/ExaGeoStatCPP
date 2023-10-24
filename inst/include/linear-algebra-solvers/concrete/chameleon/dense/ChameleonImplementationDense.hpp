@@ -18,48 +18,44 @@
 
 #include <linear-algebra-solvers/concrete/chameleon/ChameleonImplementation.hpp>
 
-namespace exageostat {
-    namespace linearAlgebra {
-        namespace dense {
+namespace exageostat::linearAlgebra::dense {
 
-            /**
-             * @brief ChameleonImplementationDense is a concrete implementation for dense matrices using Chameleon..
-             * @tparam T Data Type: float or double
-             * 
-             */
-            template<typename T>
-            class ChameleonImplementationDense : public ChameleonImplementation<T> {
-            public:
+    /**
+     * @brief ChameleonImplementationDense is a concrete implementation for dense matrices using Chameleon..
+     * @tparam T Data Type: float or double
+     *
+     */
+    template<typename T>
+    class ChameleonImplementationDense : public ChameleonImplementation<T> {
+    public:
 
-                /**
-                 * @brief Default constructor.
-                 */
-                explicit ChameleonImplementationDense() = default;
+        /**
+         * @brief Default constructor.
+         */
+        explicit ChameleonImplementationDense() = default;
 
-                /**
-                 * @brief Virtual destructor to allow calls to the correct concrete destructor.
-                 */
-                ~ChameleonImplementationDense() override = default;
+        /**
+         * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         */
+        ~ChameleonImplementationDense() override = default;
 
-                /**
-                 * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-                 * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
-                 */
-                void
-                ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick, void *apCD,
-                                    void *apCrk, const int &aMaxRank, const int &aAcc) override;
+        /**
+         * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
+         * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
+         */
+        void
+        ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,
+                            const int &aMaxRank, const int &aAcc) override;
 
-            };
+    };
 
-            /**
-            * @brief Instantiates the chameleon dense class for float and double types.
-            * @tparam T Data Type: float or double
-            *
-            */
-            EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementationDense)
+    /**
+    * @brief Instantiates the chameleon dense class for float and double types.
+    * @tparam T Data Type: float or double
+    *
+    */
+    EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementationDense)
 
-        }//namespace dense
-    }//namespace linearAlgebra
 }//namespace exageostat
 
 #endif //EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDENSE_HPP

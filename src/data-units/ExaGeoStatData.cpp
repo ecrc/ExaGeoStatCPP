@@ -68,10 +68,7 @@ void ExaGeoStatData<T>::CalculateMedianLocations(const std::string &aKernelName,
 
     if (aKernelName == "UnivariateMaternNonStationary") {
 
-        T x_min = this->mpLocations->GetLocationX()[0], x_max = this->mpLocations->GetLocationX()[0],
-                y_min = this->mpLocations->GetLocationY()[0], y_max = this->mpLocations->GetLocationY()[0],
-                z_min, z_max;
-
+        T x_min = this->mpLocations->GetLocationX()[0], x_max = this->mpLocations->GetLocationX()[0], y_min = this->mpLocations->GetLocationY()[0], y_max = this->mpLocations->GetLocationY()[0], z_min, z_max;
 
         if (this->mpLocations->GetDimension() != common::Dimension2D) {
             z_min = this->mpLocations->GetLocationZ()[0];

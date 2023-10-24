@@ -18,40 +18,38 @@
 #include <common/Definitions.hpp>
 #include <data-units/Locations.hpp>
 
-namespace exageostat {
-    namespace helpers {
+namespace exageostat::helpers {
+
+    /**
+     * @class DiskWriter
+     * @brief A class for writing data to disk.
+     * @tparam T Data Type: float or double
+     *
+     */
+    template<typename T>
+    class DiskWriter {
+    public:
 
         /**
-         * @class DiskWriter
-         * @brief A class for writting data to disk.
-         * @tparam T Data Type: float or double
+         * @brief Writes a matrix of vectors to disk.
+         * @param[in] aMatrixPointer A Reference to the matrix data.
+         * @param[in] aProblemSize The size of the problem.
+         * @param[in] aP The number of processes.
+         * @param[in] aLoggerPath The path to the logger file.
+         * @param[in] aLocations A Reference to the Locations object.
+         * @return void
          *
          */
-        template<typename T>
-        class DiskWriter {
-        public:
+        void static
+        WriteVectorsToDisk(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
+                           exageostat::dataunits::Locations<T> &aLocations);
+    };
 
-            /**
-             * @brief Writes a matrix of vectors to disk.
-             * @param[in] aMatrixPointer A Reference to the matrix data.
-             * @param[in] aProblemSize The size of the problem.
-             * @param[in] aP The number of processes.
-             * @param[in] aLoggerPath The path to the logger file.
-             * @param[in] aLocations A Reference to the Locations object.
-             * @return void
-             *
-             */
-            void static
-            WriteVectorsToDisk(const T &aMatrixPointer, const int &aProblemSize, const int &aP,
-                               std::string &aLoggerPath, exageostat::dataunits::Locations<T> &aLocations);
-        };
-
-        /**
-          * @brief Instantiates the DiskWriter class for float and double types.
-          * @tparam T Data Type: float or double
-          *
-          */
-        EXAGEOSTAT_INSTANTIATE_CLASS(DiskWriter)
-    }
+    /**
+      * @brief Instantiates the DiskWriter class for float and double types.
+      * @tparam T Data Type: float or double
+      *
+      */
+    EXAGEOSTAT_INSTANTIATE_CLASS(DiskWriter)
 }
 #endif //EXAGEOSTATCPP_DISKWRITER_HPP

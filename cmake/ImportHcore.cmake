@@ -31,12 +31,11 @@ if (NOT TARGET HCORE_FOUND)
 
         # If the Hcore library is not found, install it and add it to the project's libraries.
         message("   Can't find Hcore, Installing it instead ..")
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/HCORE)
+        set(FLAGS "")
         set(ISCMAKE ON)
         set(ISGIT ON)
         set(AUTO_GEN OFF)
         BuildDependency(HCORE "https://github.com/ecrc/hcore.git" "v0.1.3" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-        set(FLAGS "")
         find_package(HCORE REQUIRED)
     endif()
 else()

@@ -19,56 +19,54 @@
 
 #include <kernels/Kernel.hpp>
 
-namespace exageostat {
-    namespace kernels {
+namespace exageostat::kernels {
+
+    /**
+     * @class UnivariateMaternDsigmaSquare
+     * @brief A class representing a Univariate Matern Dsigma Square kernel.
+     * @details This class represents a Univariate Matern Dsigma Square, which is a subclass of the Kernel class.
+     * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
+     *
+     */
+    template<typename T>
+    class UnivariateMaternDsigmaSquare : public Kernel<T> {
+
+    public:
 
         /**
-         * @class UnivariateMaternDsigmaSquare
-         * @brief A class representing a Univariate Matern Dsigma Square kernel.
-         * @details This class represents a Univariate Matern Dsigma Square, which is a subclass of the Kernel class.
-         * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
+         * @brief Constructs a new UnivariateMaternDsigmaSquare object.
+         * @details Initializes a new UnivariateMaternDsigmaSquare object with default values.
+         */
+        UnivariateMaternDsigmaSquare();
+
+        /**
+         * @brief Virtual destructor to allow calls to the correct concrete destructor.
          *
          */
-        template<typename T>
-        class UnivariateMaternDsigmaSquare : public Kernel<T> {
+        ~UnivariateMaternDsigmaSquare() override = default;
 
-        public:
+        /**
+         * @brief Generates a covariance matrix using a set of locations and kernel parameters.
+         * @copydoc Kernel::GenerateCovarianceMatrix()
+         */
+        void
+        GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,
+                                 const int &aColumnOffset, dataunits::Locations<T> &aLocation1,
+                                 dataunits::Locations<T> &aLocation2, dataunits::Locations<T> &aLocation3,
+                                 T *apLocalTheta, const int &aDistanceMetric) override;
 
-            /**
-             * @brief Constructs a new UnivariateMaternDsigmaSquare object.
-             * @details Initializes a new UnivariateMaternDsigmaSquare object with default values.
-             */
-            UnivariateMaternDsigmaSquare();
+        /**
+         * @brief Creates a new UnivariateMaternDsigmaSquare object.
+         * @details This method creates a new UnivariateMaternDsigmaSquare object and returns a pointer to it.
+         * @return A pointer to the new UnivariateMaternDsigmaSquare object.
+         *
+         */
+        static Kernel<T> *Create();
 
-            /**
-             * @brief Virtual destructor to allow calls to the correct concrete destructor.
-             *
-             */
-            ~UnivariateMaternDsigmaSquare() override = default;
-
-            /**
-             * @brief Generates a covariance matrix using a set of locations and kernel parameters.
-             * @copydoc Kernel::GenerateCovarianceMatrix()
-             */
-            void GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
-                                          const int &aRowOffset, const int &aColumnOffset,
-                                          dataunits::Locations<T> &aLocation1, dataunits::Locations<T> &aLocation2,
-                                          dataunits::Locations<T> &aLocation3, T *apLocalTheta,
-                                          const int &aDistanceMetric) override;
-
-            /**
-             * @brief Creates a new UnivariateMaternDsigmaSquare object.
-             * @details This method creates a new UnivariateMaternDsigmaSquare object and returns a pointer to it.
-             * @return A pointer to the new UnivariateMaternDsigmaSquare object.
-             *
-             */
-            static Kernel<T> *Create();
-
-        private:
-            //// Used plugin name for static registration
-            static bool plugin_name;
-        };
-    }//namespace Kernels
+    private:
+        //// Used plugin name for static registration
+        static bool plugin_name;
+    };
 }//namespace exageostat
 
 #endif //EXAGEOSTATCPP_UNIVARIATEMATERNDSIGMASQUARE_HPP

@@ -19,63 +19,61 @@
 
 #include <kernels/Kernel.hpp>
 
-namespace exageostat {
-    namespace kernels {
+namespace exageostat::kernels {
+
+    /**
+     * @class UnivariateMaternDdbetaNu
+     * @brief A class representing a Univariate Matern Ddbeta Nu kernel.
+     * @details This class represents a Univariate Matern Ddbeta Nu, which is a subclass of the Kernel class.
+     * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
+     *
+     */
+    template<typename T>
+    class UnivariateMaternDdbetaNu : public Kernel<T> {
+
+    public:
 
         /**
-         * @class UnivariateMaternDdbetaNu
-         * @brief A class representing a Univariate Matern Ddbeta Nu kernel.
-         * @details This class represents a Univariate Matern Ddbeta Nu, which is a subclass of the Kernel class.
-         * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
-         * 
+         * @brief Constructs a new UnivariateMaternDdbetaNu object.
+         * @details Initializes a new UnivariateMaternDdbetaNu object with default values.
          */
-        template<typename T>
-        class UnivariateMaternDdbetaNu : public Kernel<T> {
-
-        public:
-
-            /**
-             * @brief Constructs a new UnivariateMaternDdbetaNu object.
-             * @details Initializes a new UnivariateMaternDdbetaNu object with default values.
-             */
-            UnivariateMaternDdbetaNu();
-
-            /**
-             * @brief Virtual destructor to allow calls to the correct concrete destructor.
-             * 
-             */
-            ~UnivariateMaternDdbetaNu() override = default;
-
-            /**
-             * @brief Generates a covariance matrix using a set of locations and kernel parameters.
-             * @copydoc Kernel::GenerateCovarianceMatrix()
-             */
-            void GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
-                                          const int &aRowOffset, const int &aColumnOffset,
-                                          dataunits::Locations<T> &aLocation1, dataunits::Locations<T> &aLocation2,
-                                          dataunits::Locations<T> &aLocation3, T *apLocalTheta,
-                                          const int &aDistanceMetric) override;
-
-            /**
-             * @brief Creates a new UnivariateMaternDdbetaNu object.
-             * @details This method creates a new UnivariateMaternDdbetaNu object and returns a pointer to it.
-             * @return A pointer to the new UnivariateMaternDdbetaNu object.
-             * 
-             */
-            static Kernel<T> *Create();
-
-        private:
-            //// Used plugin name for static registration
-            static bool plugin_name;
-        };
+        UnivariateMaternDdbetaNu();
 
         /**
-         * @brief Instantiates the Data Generator class for float and double types.
-         * @tparam T Data Type: float or double
+         * @brief Virtual destructor to allow calls to the correct concrete destructor.
          *
          */
-        EXAGEOSTAT_INSTANTIATE_CLASS(UnivariateMaternDdbetaNu)
-    }//namespace Kernels
+        ~UnivariateMaternDdbetaNu() override = default;
+
+        /**
+         * @brief Generates a covariance matrix using a set of locations and kernel parameters.
+         * @copydoc Kernel::GenerateCovarianceMatrix()
+         */
+        void
+        GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,
+                                 const int &aColumnOffset, dataunits::Locations<T> &aLocation1,
+                                 dataunits::Locations<T> &aLocation2, dataunits::Locations<T> &aLocation3,
+                                 T *apLocalTheta, const int &aDistanceMetric) override;
+
+        /**
+         * @brief Creates a new UnivariateMaternDdbetaNu object.
+         * @details This method creates a new UnivariateMaternDdbetaNu object and returns a pointer to it.
+         * @return A pointer to the new UnivariateMaternDdbetaNu object.
+         *
+         */
+        static Kernel<T> *Create();
+
+    private:
+        //// Used plugin name for static registration
+        static bool plugin_name;
+    };
+
+    /**
+     * @brief Instantiates the Data Generator class for float and double types.
+     * @tparam T Data Type: float or double
+     *
+     */
+    EXAGEOSTAT_INSTANTIATE_CLASS(UnivariateMaternDdbetaNu)
 }//namespace exageostat
 
 #endif //EXAGEOSTATCPP_UNIVARIATEMATERNDDBETANU_HPP

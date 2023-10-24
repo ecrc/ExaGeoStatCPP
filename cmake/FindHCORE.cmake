@@ -66,22 +66,22 @@ if (NOT HCORE_FOUND)
     set(HCORE_DIR "")
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "A cache variable, namely HCORE_DIR, has been set to specify the install directory of HCORE")
-    endif()
-endif()
+    endif ()
+endif ()
 
 set(ENV_HCORE_DIR "$ENV{HCORE_DIR}")
 set(ENV_HCORE_INCDIR "$ENV{HCORE_INCDIR}")
 set(ENV_HCORE_LIBDIR "$ENV{HCORE_LIBDIR}")
 set(HCORE_GIVEN_BY_USER "FALSE")
-if ( HCORE_DIR OR ( HCORE_INCDIR AND HCORE_LIBDIR) OR ENV_HCORE_DIR OR (ENV_HCORE_INCDIR AND ENV_HCORE_LIBDIR) )
+if (HCORE_DIR OR (HCORE_INCDIR AND HCORE_LIBDIR) OR ENV_HCORE_DIR OR (ENV_HCORE_INCDIR AND ENV_HCORE_LIBDIR))
     set(HCORE_GIVEN_BY_USER "TRUE")
-endif()
+endif ()
 
 # Optionally use pkg-config to detect include/library dirs (if pkg-config is available)
 # -------------------------------------------------------------------------------------
 include(FindPkgConfig)
 find_package(PkgConfig QUIET)
-if(PKG_CONFIG_EXECUTABLE AND NOT HCORE_GIVEN_BY_USER)
+if (PKG_CONFIG_EXECUTABLE AND NOT HCORE_GIVEN_BY_USER)
 
     pkg_search_module(HCORE hcore)
     if (NOT HCORE_FIND_QUIETLY)
@@ -92,59 +92,59 @@ if(PKG_CONFIG_EXECUTABLE AND NOT HCORE_GIVEN_BY_USER)
             # "Perhaps the path to HCORE headers is already present in your"
             # "C(PLUS)_INCLUDE_PATH environment variable.${ColourReset}")
             #endif()
-        else()
+        else ()
             message(STATUS "${Magenta}Looking for HCORE - not found using PkgConfig."
                     "\n     Perhaps you should add the directory containing hcore.pc"
                     "\n     to the PKG_CONFIG_PATH environment variable.${ColourReset}")
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     if (HCORE_FIND_VERSION_EXACT)
-        if( NOT (HCORE_FIND_VERSION_MAJOR STREQUAL HCORE_VERSION_MAJOR) OR
-                NOT (HCORE_FIND_VERSION_MINOR STREQUAL HCORE_VERSION_MINOR) )
-            if(NOT HCORE_FIND_QUIETLY)
+        if (NOT (HCORE_FIND_VERSION_MAJOR STREQUAL HCORE_VERSION_MAJOR) OR
+                NOT (HCORE_FIND_VERSION_MINOR STREQUAL HCORE_VERSION_MINOR))
+            if (NOT HCORE_FIND_QUIETLY)
                 message(FATAL_ERROR
                         "HCORE version found is ${HCORE_VERSION_STRING}"
                         "when required is ${HCORE_FIND_VERSION}")
-            endif()
-        endif()
-    else()
+            endif ()
+        endif ()
+    else ()
         # if the version found is older than the required then error
-        if( (HCORE_FIND_VERSION_MAJOR STRGREATER HCORE_VERSION_MAJOR) OR
-        (HCORE_FIND_VERSION_MINOR STRGREATER HCORE_VERSION_MINOR) )
-            if(NOT HCORE_FIND_QUIETLY)
+        if ((HCORE_FIND_VERSION_MAJOR STRGREATER HCORE_VERSION_MAJOR) OR
+        (HCORE_FIND_VERSION_MINOR STRGREATER HCORE_VERSION_MINOR))
+            if (NOT HCORE_FIND_QUIETLY)
                 message(FATAL_ERROR
                         "HCORE version found is ${HCORE_VERSION_STRING}"
                         "when required is ${HCORE_FIND_VERSION} or newer")
-            endif()
-        endif()
-    endif()
+            endif ()
+        endif ()
+    endif ()
 
     set(HCORE_INCLUDE_DIRS_DEP "${HCORE_INCLUDE_DIRS}")
     set(HCORE_LIBRARY_DIRS_DEP "${HCORE_LIBRARY_DIRS}")
     set(HCORE_LIBRARIES_DEP "${HCORE_LIBRARIES}")
 
-endif(PKG_CONFIG_EXECUTABLE AND NOT HCORE_GIVEN_BY_USER)
+endif (PKG_CONFIG_EXECUTABLE AND NOT HCORE_GIVEN_BY_USER)
 
-if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) OR (HCORE_GIVEN_BY_USER) )
+if ((NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) OR (HCORE_GIVEN_BY_USER))
 
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "Looking for HCORE - PkgConfig not used")
-    endif()
+    endif ()
 
     # Dependencies detection
     # ----------------------
 
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "Looking for HCORE - Try to detect pthread")
-    endif()
+    endif ()
     if (HCORE_FIND_REQUIRED)
         find_package(Threads REQUIRED)
-    else()
+    else ()
         find_package(Threads)
-    endif()
+    endif ()
     set(HCORE_EXTRA_LIBRARIES "")
-    if( THREADS_FOUND )
+    if (THREADS_FOUND)
         list(APPEND HCORE_EXTRA_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
     endif ()
 
@@ -152,9 +152,9 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
     # it normally exists on all common systems provided with a C compiler
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "Looking for HCORE - Try to detect libm")
-    endif()
+    endif ()
     set(HCORE_M_LIBRARIES "")
-    if(UNIX OR WIN32)
+    if (UNIX OR WIN32)
         find_library(
                 HCORE_M_m_LIBRARY
                 NAMES m
@@ -163,21 +163,21 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
         if (HCORE_M_m_LIBRARY)
             list(APPEND HCORE_M_LIBRARIES "${HCORE_M_m_LIBRARY}")
             list(APPEND HCORE_EXTRA_LIBRARIES "${HCORE_M_m_LIBRARY}")
-        else()
+        else ()
             if (HCORE_FIND_REQUIRED)
                 message(FATAL_ERROR "Could NOT find libm on your system."
                         "Are you sure to a have a C compiler installed?")
-            endif()
-        endif()
-    endif()
+            endif ()
+        endif ()
+    endif ()
 
     # Try to find librt (libposix4 - POSIX.1b Realtime Extensions library)
     # on Unix systems except Apple ones because it does not exist on it
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "Looking for HCORE - Try to detect librt")
-    endif()
+    endif ()
     set(HCORE_RT_LIBRARIES "")
-    if(UNIX AND NOT APPLE)
+    if (UNIX AND NOT APPLE)
         find_library(
                 HCORE_RT_rt_LIBRARY
                 NAMES rt
@@ -186,23 +186,23 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
         if (HCORE_RT_rt_LIBRARY)
             list(APPEND HCORE_RT_LIBRARIES "${HCORE_RT_rt_LIBRARY}")
             list(APPEND HCORE_EXTRA_LIBRARIES "${HCORE_RT_rt_LIBRARY}")
-        else()
+        else ()
             if (HCORE_FIND_REQUIRED)
                 message(FATAL_ERROR "Could NOT find librt on your system")
-            endif()
-        endif()
-    endif()
+            endif ()
+        endif ()
+    endif ()
 
     # HCORE depends on CBLAS
     #---------------------------
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "Looking for HCORE - Try to detect CBLAS (depends on BLAS)")
-    endif()
+    endif ()
     if (HCORE_FIND_REQUIRED)
         find_package(CBLAS REQUIRED)
-    else()
+    else ()
         find_package(CBLAS)
-    endif()
+    endif ()
 
     # HCORE depends on LAPACKE
     #-----------------------------
@@ -213,12 +213,12 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
     #set(LAPACKE_STANDALONE TRUE)
     if (NOT HCORE_FIND_QUIETLY)
         message(STATUS "Looking for HCORE - Try to detect LAPACKE (depends on LAPACK)")
-    endif()
+    endif ()
     if (HCORE_FIND_REQUIRED)
         find_package(LAPACKE REQUIRED)
-    else()
+    else ()
         find_package(LAPACKE)
-    endif()
+    endif ()
 
     # Looking for include
     # -------------------
@@ -228,16 +228,16 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
     unset(_inc_env)
     set(ENV_HCORE_DIR "$ENV{HCORE_DIR}")
     set(ENV_HCORE_INCDIR "$ENV{HCORE_INCDIR}")
-    if(ENV_HCORE_INCDIR)
+    if (ENV_HCORE_INCDIR)
         list(APPEND _inc_env "${ENV_HCORE_INCDIR}")
-    elseif(ENV_HCORE_DIR)
+    elseif (ENV_HCORE_DIR)
         list(APPEND _inc_env "${ENV_HCORE_DIR}")
         list(APPEND _inc_env "${ENV_HCORE_DIR}/include")
         list(APPEND _inc_env "${ENV_HCORE_DIR}/include/hcore")
-    else()
-        if(WIN32)
+    else ()
+        if (WIN32)
             string(REPLACE ":" ";" _inc_env "$ENV{INCLUDE}")
-        else()
+        else ()
             string(REPLACE ":" ";" _path_env "$ENV{INCLUDE}")
             list(APPEND _inc_env "${_path_env}")
             string(REPLACE ":" ";" _path_env "$ENV{C_INCLUDE_PATH}")
@@ -246,8 +246,8 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
             list(APPEND _inc_env "${_path_env}")
             string(REPLACE ":" ";" _path_env "$ENV{INCLUDE_PATH}")
             list(APPEND _inc_env "${_path_env}")
-        endif()
-    endif()
+        endif ()
+    endif ()
     list(APPEND _inc_env "${CMAKE_PLATFORM_IMPLICIT_INCLUDE_DIRECTORIES}")
     list(APPEND _inc_env "${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}")
     list(REMOVE_DUPLICATES _inc_env)
@@ -256,26 +256,26 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
     # Try to find the hcore header in the given paths
     # ---------------------------------------------------
     # call cmake macro to find the header path
-    if(HCORE_INCDIR)
+    if (HCORE_INCDIR)
         set(hcore.h_DIRS "hcore.h_DIRS-NOTFOUND")
         find_path(hcore.h_DIRS
                 NAMES hcore.h
                 HINTS ${HCORE_INCDIR})
-    else()
-        if(HCORE_DIR)
+    else ()
+        if (HCORE_DIR)
             set(hcore.h_DIRS "hcore.h_DIRS-NOTFOUND")
             find_path(hcore.h_DIRS
                     NAMES hcore.h
                     HINTS ${HCORE_DIR}
                     PATH_SUFFIXES "include" "include/hcore")
-        else()
+        else ()
             set(hcore.h_DIRS "hcore.h_DIRS-NOTFOUND")
             find_path(hcore.h_DIRS
                     NAMES hcore.h
                     HINTS ${_inc_env}
                     PATH_SUFFIXES "hcore")
-        endif()
-    endif()
+        endif ()
+    endif ()
     mark_as_advanced(hcore.h_DIRS)
 
     # If found, add path to cmake variable
@@ -284,10 +284,10 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
         set(HCORE_INCLUDE_DIRS "${hcore.h_DIRS}")
     else ()
         set(HCORE_INCLUDE_DIRS "HCORE_INCLUDE_DIRS-NOTFOUND")
-        if(NOT HCORE_FIND_QUIETLY)
+        if (NOT HCORE_FIND_QUIETLY)
             message(STATUS "Looking for HCORE -- hcore.h not found")
-        endif()
-    endif()
+        endif ()
+    endif ()
 
 
     # Looking for lib
@@ -297,24 +297,24 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
     # --------------------------------------
     unset(_lib_env)
     set(ENV_HCORE_LIBDIR "$ENV{HCORE_LIBDIR}")
-    if(ENV_HCORE_LIBDIR)
+    if (ENV_HCORE_LIBDIR)
         list(APPEND _lib_env "${ENV_HCORE_LIBDIR}")
-    elseif(ENV_HCORE_DIR)
+    elseif (ENV_HCORE_DIR)
         list(APPEND _lib_env "${ENV_HCORE_DIR}")
         list(APPEND _lib_env "${ENV_HCORE_DIR}/lib")
-    else()
-        if(WIN32)
+    else ()
+        if (WIN32)
             string(REPLACE ":" ";" _lib_env "$ENV{LIB}")
-        else()
-            if(APPLE)
+        else ()
+            if (APPLE)
                 string(REPLACE ":" ";" _lib_env "$ENV{DYLD_LIBRARY_PATH}")
-            else()
+            else ()
                 string(REPLACE ":" ";" _lib_env "$ENV{LD_LIBRARY_PATH}")
-            endif()
+            endif ()
             list(APPEND _lib_env "${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES}")
             list(APPEND _lib_env "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
-        endif()
-    endif()
+        endif ()
+    endif ()
     list(REMOVE_DUPLICATES _lib_env)
 
     # Try to find the HCORE lib in the given paths
@@ -325,54 +325,54 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
     list(APPEND HCORE_libs_to_find "coreblas")
 
     # call cmake macro to find the lib path
-    if(HCORE_LIBDIR)
-        foreach(hcore_lib ${HCORE_libs_to_find})
+    if (HCORE_LIBDIR)
+        foreach (hcore_lib ${HCORE_libs_to_find})
             set(HCORE_${hcore_lib}_LIBRARY "HCORE_${hcore_lib}_LIBRARY-NOTFOUND")
             find_library(HCORE_${hcore_lib}_LIBRARY
                     NAMES ${hcore_lib}
                     HINTS ${HCORE_LIBDIR})
-        endforeach()
-    else()
-        if(HCORE_DIR)
-            foreach(hcore_lib ${HCORE_libs_to_find})
+        endforeach ()
+    else ()
+        if (HCORE_DIR)
+            foreach (hcore_lib ${HCORE_libs_to_find})
                 set(HCORE_${hcore_lib}_LIBRARY "HCORE_${hcore_lib}_LIBRARY-NOTFOUND")
                 find_library(HCORE_${hcore_lib}_LIBRARY
                         NAMES ${hcore_lib}
                         HINTS ${HCORE_DIR}
                         PATH_SUFFIXES lib lib32 lib64)
-            endforeach()
-        else()
-            foreach(hcore_lib ${HCORE_libs_to_find})
+            endforeach ()
+        else ()
+            foreach (hcore_lib ${HCORE_libs_to_find})
                 set(HCORE_${hcore_lib}_LIBRARY "HCORE_${hcore_lib}_LIBRARY-NOTFOUND")
                 find_library(HCORE_${hcore_lib}_LIBRARY
                         NAMES ${hcore_lib}
                         HINTS ${_lib_env})
-            endforeach()
-        endif()
-    endif()
+            endforeach ()
+        endif ()
+    endif ()
 
     # If found, add path to cmake variable
     # ------------------------------------
-    foreach(hcore_lib ${HCORE_libs_to_find})
+    foreach (hcore_lib ${HCORE_libs_to_find})
 
         get_filename_component(${hcore_lib}_lib_path ${HCORE_${hcore_lib}_LIBRARY} PATH)
         # set cmake variables (respects naming convention)
         if (HCORE_LIBRARIES)
             list(APPEND HCORE_LIBRARIES "${HCORE_${hcore_lib}_LIBRARY}")
-        else()
+        else ()
             set(HCORE_LIBRARIES "${HCORE_${hcore_lib}_LIBRARY}")
-        endif()
+        endif ()
         if (HCORE_LIBRARY_DIRS)
             list(APPEND HCORE_LIBRARY_DIRS "${${hcore_lib}_lib_path}")
-        else()
+        else ()
             set(HCORE_LIBRARY_DIRS "${${hcore_lib}_lib_path}")
-        endif()
+        endif ()
         mark_as_advanced(HCORE_${hcore_lib}_LIBRARY)
 
-    endforeach(hcore_lib ${HCORE_libs_to_find})
+    endforeach (hcore_lib ${HCORE_libs_to_find})
 
     # check a function to validate the find
-    if(HCORE_LIBRARIES)
+    if (HCORE_LIBRARIES)
 
         set(REQUIRED_LDFLAGS)
         set(REQUIRED_INCDIRS)
@@ -382,12 +382,12 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
         # HCORE
         if (HCORE_INCLUDE_DIRS)
             set(REQUIRED_INCDIRS "${HCORE_INCLUDE_DIRS}")
-        endif()
-        foreach(libdir ${HCORE_LIBRARY_DIRS})
+        endif ()
+        foreach (libdir ${HCORE_LIBRARY_DIRS})
             if (libdir)
                 list(APPEND REQUIRED_LIBDIRS "${libdir}")
-            endif()
-        endforeach()
+            endif ()
+        endforeach ()
         set(REQUIRED_LIBS "${HCORE_LIBRARIES}")
         # LAPACKE
         if (LAPACKE_FOUND)
@@ -395,42 +395,42 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
                 list(APPEND REQUIRED_INCDIRS "${LAPACKE_INCLUDE_DIRS_DEP}")
             elseif (LAPACKE_INCLUDE_DIRS)
                 list(APPEND REQUIRED_INCDIRS "${LAPACKE_INCLUDE_DIRS}")
-            endif()
-            if(LAPACKE_LIBRARY_DIRS_DEP)
+            endif ()
+            if (LAPACKE_LIBRARY_DIRS_DEP)
                 list(APPEND REQUIRED_LIBDIRS "${LAPACKE_LIBRARY_DIRS_DEP}")
-            elseif(LAPACKE_LIBRARY_DIRS)
+            elseif (LAPACKE_LIBRARY_DIRS)
                 list(APPEND REQUIRED_LIBDIRS "${LAPACKE_LIBRARY_DIRS}")
-            endif()
+            endif ()
             if (LAPACKE_LIBRARIES_DEP)
                 list(APPEND REQUIRED_LIBS "${LAPACKE_LIBRARIES_DEP}")
-            elseif(LAPACKE_LIBRARIES)
+            elseif (LAPACKE_LIBRARIES)
                 list(APPEND REQUIRED_LIBS "${LAPACKE_LIBRARIES}")
-            endif()
+            endif ()
             if (LAPACK_LINKER_FLAGS)
                 list(APPEND REQUIRED_LDFLAGS "${LAPACK_LINKER_FLAGS}")
-            endif()
-        endif()
+            endif ()
+        endif ()
         # CBLAS
         if (CBLAS_FOUND)
             if (CBLAS_INCLUDE_DIRS_DEP)
                 list(APPEND REQUIRED_INCDIRS "${CBLAS_INCLUDE_DIRS_DEP}")
             elseif (CBLAS_INCLUDE_DIRS)
                 list(APPEND REQUIRED_INCDIRS "${CBLAS_INCLUDE_DIRS}")
-            endif()
-            if(CBLAS_LIBRARY_DIRS_DEP)
+            endif ()
+            if (CBLAS_LIBRARY_DIRS_DEP)
                 list(APPEND REQUIRED_LIBDIRS "${CBLAS_LIBRARY_DIRS_DEP}")
-            elseif(CBLAS_LIBRARY_DIRS)
+            elseif (CBLAS_LIBRARY_DIRS)
                 list(APPEND REQUIRED_LIBDIRS "${CBLAS_LIBRARY_DIRS}")
-            endif()
+            endif ()
             if (CBLAS_LIBRARIES_DEP)
                 list(APPEND REQUIRED_LIBS "${CBLAS_LIBRARIES_DEP}")
-            elseif(CBLAS_LIBRARIES)
+            elseif (CBLAS_LIBRARIES)
                 list(APPEND REQUIRED_LIBS "${CBLAS_LIBRARIES}")
-            endif()
+            endif ()
             if (BLAS_LINKER_FLAGS)
                 list(APPEND REQUIRED_LDFLAGS "${BLAS_LINKER_FLAGS}")
-            endif()
-        endif()
+            endif ()
+        endif ()
         # EXTRA LIBS such that pthread, m, rt
         list(APPEND REQUIRED_LIBS ${HCORE_EXTRA_LIBRARIES})
 
@@ -438,9 +438,9 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
         set(CMAKE_REQUIRED_INCLUDES "${REQUIRED_INCDIRS}")
         set(CMAKE_REQUIRED_LIBRARIES)
         list(APPEND CMAKE_REQUIRED_LIBRARIES "${REQUIRED_LDFLAGS}")
-        foreach(lib_dir ${REQUIRED_LIBDIRS})
+        foreach (lib_dir ${REQUIRED_LIBDIRS})
             list(APPEND CMAKE_REQUIRED_LIBRARIES "-L${lib_dir}")
-        endforeach()
+        endforeach ()
         list(APPEND CMAKE_REQUIRED_LIBRARIES "${REQUIRED_LIBS}")
         string(REGEX REPLACE "^ -" "-" CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}")
 
@@ -450,7 +450,7 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
         check_function_exists(HCORE_Init HCORE_WORKS)
         mark_as_advanced(HCORE_WORKS)
 
-        if(HCORE_WORKS)
+        if (HCORE_WORKS)
             # save link with dependencies
             set(HCORE_LIBRARIES_DEP "${REQUIRED_LIBS}")
             set(HCORE_LIBRARY_DIRS_DEP "${REQUIRED_LIBDIRS}")
@@ -459,45 +459,45 @@ if( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) O
             list(REMOVE_DUPLICATES HCORE_LIBRARY_DIRS_DEP)
             list(REMOVE_DUPLICATES HCORE_INCLUDE_DIRS_DEP)
             list(REMOVE_DUPLICATES HCORE_LINKER_FLAGS)
-        else()
-            if(NOT HCORE_FIND_QUIETLY)
+        else ()
+            if (NOT HCORE_FIND_QUIETLY)
                 message(STATUS "Looking for HCORE : test of HCORE_Init fails")
                 message(STATUS "CMAKE_REQUIRED_LIBRARIES: ${CMAKE_REQUIRED_LIBRARIES}")
                 message(STATUS "CMAKE_REQUIRED_INCLUDES: ${CMAKE_REQUIRED_INCLUDES}")
                 message(STATUS "Check in CMakeFiles/CMakeError.log to figure out why it fails")
                 message(STATUS "Maybe HCORE is linked with specific libraries. "
                         "See the explanation in FindHCORE.cmake.")
-            endif()
-        endif()
+            endif ()
+        endif ()
         set(CMAKE_REQUIRED_INCLUDES)
         set(CMAKE_REQUIRED_FLAGS)
         set(CMAKE_REQUIRED_LIBRARIES)
-    endif(HCORE_LIBRARIES)
+    endif (HCORE_LIBRARIES)
 
-endif( (NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) OR (HCORE_GIVEN_BY_USER) )
+endif ((NOT PKG_CONFIG_EXECUTABLE) OR (PKG_CONFIG_EXECUTABLE AND NOT HCORE_FOUND) OR (HCORE_GIVEN_BY_USER))
 
 if (HCORE_LIBRARIES)
     if (HCORE_LIBRARY_DIRS)
-        set( first_lib_path "" )
-        foreach(dir ${HCORE_LIBRARY_DIRS})
+        set(first_lib_path "")
+        foreach (dir ${HCORE_LIBRARY_DIRS})
             if ("${dir}" MATCHES "hcore")
                 set(first_lib_path "${dir}")
-            endif()
-        endforeach()
-        if( NOT first_lib_path )
+            endif ()
+        endforeach ()
+        if (NOT first_lib_path)
             list(GET HCORE_LIBRARY_DIRS 0 first_lib_path)
-        endif()
-    else()
+        endif ()
+    else ()
         list(GET HCORE_LIBRARIES 0 first_lib)
         get_filename_component(first_lib_path "${first_lib}" PATH)
-    endif()
+    endif ()
     if (${first_lib_path} MATCHES "/lib(32|64)?$")
         string(REGEX REPLACE "/lib(32|64)?$" "" not_cached_dir "${first_lib_path}")
         set(HCORE_DIR_FOUND "${not_cached_dir}" CACHE PATH "Installation directory of HCORE library" FORCE)
-    else()
+    else ()
         set(HCORE_DIR_FOUND "${first_lib_path}" CACHE PATH "Installation directory of HCORE library" FORCE)
-    endif()
-endif()
+    endif ()
+endif ()
 mark_as_advanced(HCORE_DIR)
 mark_as_advanced(HCORE_DIR_FOUND)
 
@@ -507,8 +507,8 @@ include(FindPackageHandleStandardArgs)
 if (PKG_CONFIG_EXECUTABLE AND HCORE_FOUND)
     find_package_handle_standard_args(HCORE DEFAULT_MSG
             HCORE_LIBRARIES)
-else()
+else ()
     find_package_handle_standard_args(HCORE DEFAULT_MSG
             HCORE_LIBRARIES
             HCORE_WORKS)
-endif()
+endif ()

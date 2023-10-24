@@ -25,7 +25,7 @@
 #include <configurations/Configurations.hpp>
 
 /**
- * DEFAULT_PRECISION the value of the default C++ cout number of precision.
+ * DEFAULT_PRECISION the value of the default C++ std::cout number of precision.
  */
 #define DEFAULT_PRECISION 6
 
@@ -90,13 +90,6 @@
                                  LOGGER_PRECISION_2(__VA_ARGS__),         \
                                                  )
 
-/**
- * Verbose macro for logging any failure operation.
- */
-#define FAILURE_LOGGER(failed, msg) \
-    if (failed){ \
-        throw std::runtime_error(msg);\
-    }
 /**
  * Timing macro to start timing.
  */

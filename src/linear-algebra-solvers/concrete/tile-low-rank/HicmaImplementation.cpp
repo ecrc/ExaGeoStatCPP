@@ -53,8 +53,8 @@ void HicmaImplementation<T>::SetModelingDescriptors(ExaGeoStatData<T> &aData, Co
     int NBD = lts;
     int MD = N;
     int ND = MBD;
-    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point,
-                                             MBD, NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point, MBD,
+                                             NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
     int MBUV = lts;
     int NBUV = 2 * max_rank;
     int MUV;
@@ -78,14 +78,14 @@ void HicmaImplementation<T>::SetModelingDescriptors(ExaGeoStatData<T> &aData, Co
     int Nrk = HICMA_descCUV->mt;
     aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CRK, is_OOC, nullptr, float_point,
                                              MBrk, NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
-
-    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, lts, lts, lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point,
+                                             lts, lts, lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
 }
 
 template<typename T>
 T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
                                             Configurations &aConfigurations, const double *theta,
-                                            T *apMeasurementsMatrix) {
+                                            T *apMeasurementsMatrix, const Kernel<T> &aKernel) {
 
     this->SetContext(aHardware.GetContext(aConfigurations.GetComputation()));
     if (!aData.GetDescriptorData()->GetIsDescriptorInitiated()) {
@@ -103,7 +103,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
 
     //Initialization
     T loglik, logdet, test_time, variance, variance1 = 1, variance2 = 1, variance3, dot_product, dot_product1, dot_product2, dot_product3, dzcpy_time, time_facto, time_solve, logdet_calculate, matrix_gen_time;
-    double avg_executed_time_per_iteration = 0, avg_flops_per_iter = 0.0;
+    double accumulated_executed_time, accumulated_flops;
 
     int NRHS, i;
     T flops = 0.0;
@@ -113,7 +113,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     int max_rank = aConfigurations.GetMaxRank();
     int iter_count = aData.GetMleIterations();
     auto kernel_name = aConfigurations.GetKernelName();
-    int num_params = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[kernel_name];
+    int num_params = aKernel.GetParametersNumbers();
     int acc = aConfigurations.GetAccuracy();
 
     if (iter_count == 0) {
@@ -132,7 +132,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     auto *CHAM_descZ = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                 DescriptorName::DESCRIPTOR_Z).chameleon_desc;
     auto *CHAM_descZcpy = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                DescriptorName::DESCRIPTOR_Z_COPY).chameleon_desc;
+                                                                   DescriptorName::DESCRIPTOR_Z_COPY).chameleon_desc;
     auto *HICMA_descZcpy = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
                                                                     DescriptorName::DESCRIPTOR_Z_COPY).hicma_desc;
     auto *HICMA_desc_det = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
@@ -255,20 +255,29 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     if (aConfigurations.GetLogger()) {
         fprintf(aConfigurations.GetFileLogPath(), ")----> LogLi: %.18f\n", loglik);
     }
+
     LOGGER(" ---- Facto Time: " << time_facto)
+    LOGGER(" ---- Log Determent Time: " << logdet_calculate)
+    LOGGER(" ---- dtrsm Time: " << time_solve)
     LOGGER(" ---- Matrix Generation Time: " << matrix_gen_time)
-    LOGGER(" ---- Total Time: " << matrix_gen_time + time_facto + logdet_calculate + time_solve)
+    LOGGER(" ---- Total Time: " << time_facto + logdet_calculate + time_solve)
+    LOGGER(" ---- Gflop/s: " << flops / 1e9 / (time_facto + time_solve))
 
     aData.SetMleIterations(aData.GetMleIterations() + 1);
-    // for experiments
-    if (Configurations::GetVerbosity() == DETAILED_MODE) {
-        avg_executed_time_per_iteration += +time_facto + logdet_calculate + time_solve;
-        avg_flops_per_iter += flops / 1e9 / (time_facto + time_solve);
-    }
+
+    // for experiments and benchmarking
+    accumulated_executed_time =
+            results::Results::GetInstance()->GetTotalModelingExecutionTime() + time_facto + logdet_calculate +
+            time_solve;
+    results::Results::GetInstance()->SetTotalModelingExecutionTime(accumulated_executed_time);
+    accumulated_flops =
+            results::Results::GetInstance()->GetTotalModelingFlops() + (flops / 1e9 / (time_facto + time_solve));
+    results::Results::GetInstance()->SetTotalModelingFlops(accumulated_flops);
 
     results::Results::GetInstance()->SetMLEIterations(iter_count + 1);
     results::Results::GetInstance()->SetMaximumTheta(vector<double>(theta, theta + num_params));
     results::Results::GetInstance()->SetLogLikValue(loglik);
+
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
     return loglik;
 }
@@ -284,8 +293,8 @@ void HicmaImplementation<T>::ExaGeoStatLapackCopyTile(const UpperLower &aUpperLo
 
 template<typename T>
 void
-HicmaImplementation<T>::ExaGeoStatOptionsInit(void *apOptoins, void *apContext, void *apSequence, void *apRequest) {
-    HICMA_RUNTIME_options_init((HICMA_option_t *) apOptoins, (HICMA_context_t *) apContext,
+HicmaImplementation<T>::ExaGeoStatOptionsInit(void *apOptions, void *apContext, void *apSequence, void *apRequest) {
+    HICMA_RUNTIME_options_init((HICMA_option_t *) apOptions, (HICMA_context_t *) apContext,
                                (HICMA_sequence_t *) apSequence, (HICMA_request_t *) apRequest);
 }
 
@@ -315,10 +324,10 @@ void HicmaImplementation<T>::ExaGeoStatOptionsFinalize(void *apOptions, void *ap
 }
 
 template<typename T>
-void HicmaImplementation<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aDiagThick,
+void HicmaImplementation<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand,
                                                  void *apCD, void *apCrk, const int &aMaxRank, const int &aAcc) {
     int status = HICMA_dpotrf_Tile(EXAGEOSTAT_LOWER, (HICMA_desc_t *) apA, (HICMA_desc_t *) apCD,
-                                   (HICMA_desc_t *) apCrk, aDiagThick, aMaxRank, pow(10, -1.0 * aAcc));
+                                   (HICMA_desc_t *) apCrk, aBand, aMaxRank, pow(10, -1.0 * aAcc));
     if (status != HICMA_SUCCESS) {
         throw std::runtime_error("HICMA_dpotrf_Tile Failed, Matrix is not positive definite");
     }
@@ -329,6 +338,7 @@ template<typename T>
 void HicmaImplementation<T>::ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
                                                 const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha,
                                                 void *apA, void *apCD, void *apCrk, void *apZ, const int &aMaxRank) {
+
     int status = HICMA_dtrsmd_Tile(aSide, aUpperLower, aTrans, aDiag, aAlpha, (HICMA_desc_t *) apA,
                                    (HICMA_desc_t *) apCD, (HICMA_desc_t *) apCrk, (HICMA_desc_t *) apZ, aMaxRank);
     if (status != HICMA_SUCCESS) {
@@ -349,23 +359,23 @@ int HicmaImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *a
     this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
 
     int m;
-    int tempmm;
+    int temp;
     auto Z = (HICMA_desc_t *) apDescA;
     auto det = (HICMA_desc_t *) apDescDet;
     struct starpu_codelet *cl = &this->cl_dmdet;
 
     for (m = 0; m < Z->mt; m++) {
-        tempmm = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
+        temp = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
         starpu_insert_task(cl,
-                           STARPU_VALUE, &tempmm, sizeof(int),
-                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &temp, sizeof(int),
+                           STARPU_VALUE, &temp, sizeof(int),
                            STARPU_R, ExaGeoStatDataGetAddr(Z, m, 0),
                            STARPU_RW, ExaGeoStatDataGetAddr(det, 0, 0),
                            0);
     }
     this->ExaGeoStatOptionsFree(&options);
-    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t * )
-    this->mpContext);
+    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t *)
+            this->mpContext);
     return HICMA_SUCCESS;
 }
 

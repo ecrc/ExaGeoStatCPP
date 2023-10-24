@@ -25,71 +25,69 @@
 #include <set>
 #include <functional>
 
-namespace exageostat {
-    namespace plugins {
+namespace exageostat::plugins {
+    /**
+     * @brief Template class for registering and creating plugins.
+     * @tparam T Data Type: float or double
+     *
+     */
+    template<typename T>
+    class PluginRegistry {
+    public:
         /**
-         * @brief Template class for registering and creating plugins.
-         * @tparam T Data Type: float or double
+         * @brief Function type that returns a pointer to an instance of T.
          *
          */
-        template<typename T>
-        class PluginRegistry {
-        public:
-            /**
-             * @brief Function type that returns a pointer to an instance of T.
-             *
-             */
-            typedef std::function<T *()> FactoryFunction;
+        typedef std::function<T *()> FactoryFunction;
 
-            /**
-             * @brief Unordered map that maps plugin names to their corresponding factory functions.
-             *
-             */
-            typedef std::unordered_map<std::string, FactoryFunction> FactoryMap;
+        /**
+         * @brief Unordered map that maps plugin names to their corresponding factory functions.
+         *
+         */
+        typedef std::unordered_map<std::string, FactoryFunction> FactoryMap;
 
-            /**
-             * @brief Adds a factory function to the FactoryMap under the given plugin name.
-             * @param[in] name The name of the plugin to be added.
-             * @param[in] fac The factory function to be added.
-             * @return true if the factory function was successfully added, false otherwise.
-             *
-             */
-            static bool Add(const std::string &name, FactoryFunction fac) {
-                auto map = GetFactoryMap();
-                if (map.find(name) != map.end()) {
-                    return false;
-                }
-                GetFactoryMap()[name] = fac;
-                return true;
+        /**
+         * @brief Adds a factory function to the FactoryMap under the given plugin name.
+         * @param[in] name The name of the plugin to be added.
+         * @param[in] fac The factory function to be added.
+         * @return true if the factory function was successfully added, false otherwise.
+         *
+         */
+        static bool Add(const std::string &name, FactoryFunction fac) {
+            auto map = GetFactoryMap();
+            if (map.find(name) != map.end()) {
+                return false;
             }
+            GetFactoryMap()[name] = fac;
+            return true;
+        }
 
-            /**
-             * @brief Creates an instance of the plugin with the given name.
-             * @param[in] name The name of the plugin to be created.
-             * @return A pointer to the created plugin, or nullptr if the plugin could not be created.
-             *
-             */
-            static T *Create(const std::string &aName) {
-                auto map = GetFactoryMap();
+        /**
+         * @brief Creates an instance of the plugin with the given name.
+         * @param[in] name The name of the plugin to be created.
+         * @return A pointer to the created plugin, or nullptr if the plugin could not be created.
+         *
+         */
+        static T *Create(const std::string &aName) {
+            auto map = GetFactoryMap();
 
-                if (map.find(aName) == map.end()) {
-                    return nullptr;
-                }
-                return map[aName]();
+            if (map.find(aName) == map.end()) {
+                return nullptr;
             }
+            return map[aName]();
+        }
 
-        private:
-            /**
-             * @brief Returns a reference to the FactoryMap singleton.
-             * @return A reference to the FactoryMap singleton.
-             *
-             */
-            static FactoryMap &GetFactoryMap() {
-                static FactoryMap mSelfRegisteringMap;
-                return mSelfRegisteringMap;
-            }
-        };
-    }//namespace plugins
+    private:
+        /**
+         * @brief Returns a reference to the FactoryMap singleton.
+         * @return A reference to the FactoryMap singleton.
+         *
+         */
+        static FactoryMap &GetFactoryMap() {
+            static FactoryMap mSelfRegisteringMap;
+            return mSelfRegisteringMap;
+        }
+    };
 }//namespace exageostat
 
 #endif //EXAGEOSTATCPP_PLUGINREGISTRY_HPP

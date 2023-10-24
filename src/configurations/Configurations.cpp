@@ -42,7 +42,7 @@ Configurations::Configurations() {
 #ifdef EXAGEOSTAT_USE_HICMA
     SetLowTileSize(0);
 #endif
-    SetDiagThick(0);
+    SetBand(0);
     SetLoggerPath("");
     SetIsSynthetic(true);
     vector<double> theta;
@@ -62,7 +62,7 @@ Configurations::Configurations() {
     SetIsMSPE(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
-    SetDistanceMetric(common::EUCLIDIAN_DISTANCE);
+    SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
     SetAccuracy(0);
 }
 
@@ -147,14 +147,13 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                       argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
                       argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
-                      argument_name == "--iterations" ||
-                      argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
-                      argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
-                      argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
-                      argument_name == "--log_file_name" || argument_name == "--logFileName" ||
-                      argument_name == "--DiagThick" || argument_name == "--diag_thick" ||
-                      argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts" ||
-                      argument_name == "--acc" || argument_name == "--Acc")) {
+                      argument_name == "--iterations" || argument_name == "--Iterations" ||
+                      argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
+                      argument_name == "--tolerance" || argument_name == "--distanceMetric" ||
+                      argument_name == "--distance_metric" || argument_name == "--log_file_name" ||
+                      argument_name == "--logFileName" || argument_name == "--Band" ||
+                      argument_name == "--band" || argument_name == "--LTS" || argument_name == "--lts" ||
+                      argument_name == "--Lts" || argument_name == "--acc" || argument_name == "--Acc")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -201,7 +200,6 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
         //initlog
         InitLog();
     }
-
     this->PrintSummary();
 }
 
@@ -287,8 +285,8 @@ void Configurations::InitializeDataModelingArguments() {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
             } else if (argument_name == "--tolerance") {
                 SetTolerance(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--DiagThick" || argument_name == "--diag_thick") {
-                SetDiagThick(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Band" || argument_name == "--band") {
+                SetBand(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--acc" || argument_name == "--Acc") {
@@ -303,8 +301,8 @@ void Configurations::InitializeDataModelingArguments() {
         }
     }
     if (GetComputation() == DIAGONAL_APPROX) {
-        if (GetDiagThick() == 0) {
-            throw domain_error("You need to set the tile diagonal thickness, before starting");
+        if (GetBand() == 0) {
+            throw domain_error("You need to set the tile band thickness, before starting");
         }
     }
     if (GetComputation() == TILE_LOW_RANK) {
@@ -578,7 +576,7 @@ int Configurations::CheckUnknownObservationsValue(const string &aValue) {
 
 void Configurations::ParseDistanceMetric(const std::string &aDistanceMetric) {
     if (aDistanceMetric == "eg" || aDistanceMetric == "EG") {
-        SetDistanceMetric(EUCLIDIAN_DISTANCE);
+        SetDistanceMetric(EUCLIDEAN_DISTANCE);
     } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD") {
         SetDistanceMetric(GREAT_CIRCLE_DISTANCE);
     } else {
@@ -631,23 +629,24 @@ void Configurations::PrintSummary() {
         LOGGER("#Threads per node: " << this->GetCoresNumber())
         LOGGER("#GPUs: " << this->GetGPUsNumbers())
         if (this->GetPrecision() == 1) {
-            LOGGER("#Double Precision!")
+            LOGGER("#Precision: Double")
         } else if (this->GetPrecision() == 0) {
-            LOGGER("#Single Precision!")
+            LOGGER("#Precision: Single")
         } else if (this->GetPrecision() == 2) {
-            LOGGER("#Single/Double Precision!")
+            LOGGER("#Precision: Single/Double")
         }
         LOGGER("#Dense Tile Size: " << this->GetDenseTileSize())
 #ifdef EXAGEOSTAT_USE_HICMA
         LOGGER("#Low Tile Size: " << this->GetLowTileSize())
 #endif
         if (this->GetComputation() == TILE_LOW_RANK) {
-            LOGGER("Tile Low Rank Computation")
+            LOGGER("#Computation: Tile Low Rank")
         } else if (this->GetComputation() == EXACT_DENSE) {
-            LOGGER("Exact Dense Computation")
+            LOGGER("#Computation: Exact")
         } else if (this->GetComputation() == DIAGONAL_APPROX) {
-            LOGGER("Diagonal Approx Computation")
+            LOGGER("#Computation: Diagonal Approx")
         }
+        LOGGER("#Kernel: " << this->GetKernelName())
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
         LOGGER("*************************************************")
 #if defined(CHAMELEON_USE_MPI)

@@ -76,6 +76,5 @@ int main(int argc, char **argv) {
         }
         LOGGER("\n")
     }
-
     return 0;
 }

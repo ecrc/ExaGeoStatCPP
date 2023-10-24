@@ -27,25 +27,22 @@ if (NOT TARGET STARPU)
         message("   Found StarPU: ${STARPU_LIBRARIES}")
         # If not found, install it.
     else ()
-        set(STARPU_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/)
         # Set the flags to be passed to the build command.
         set(ISCMAKE OFF)
         set(ISGIT ON)
         set(AUTO_GEN ON)
 
         if (USE_CUDA AND USE_MPI)
-            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
+            set(FLAGS \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
         elseif(USE_CUDA)
-            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
+            set(FLAGS  \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
         elseif(USE_MPI)
-            set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
+            set(FLAGS  \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
         else()
-                    set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/STARPU/  \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
-
+            set(FLAGS \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
 	endif()
 
         BuildDependency(STARPU "https://gitlab.inria.fr/starpu/starpu.git" "starpu-1.3.9"  ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-
         # Clear the flags.
         set(FLAGS "")
         # Find StarPU after installation.

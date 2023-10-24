@@ -24,64 +24,62 @@
 
 #include <kernels/Kernel.hpp>
 
-namespace exageostat {
-    namespace kernels {
+namespace exageostat::kernels {
+
+    /**
+     * @class UnivariateMaternStationary
+     * @brief A class representing a Univariate Matern Stationary kernel.
+     * @details This class represents a Univariate Matern Stationary, which is a subclass of the Kernel class.
+     * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
+     *
+     */
+    template<typename T>
+    class UnivariateMaternStationary : public Kernel<T> {
+
+    public:
 
         /**
-         * @class UnivariateMaternStationary
-         * @brief A class representing a Univariate Matern Stationary kernel.
-         * @details This class represents a Univariate Matern Stationary, which is a subclass of the Kernel class.
-         * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
-         *
+         * @brief Constructs a new UnivariateMaternStationary object.
+         * @details Initializes a new UnivariateMaternStationary object with default values.
          */
-        template<typename T>
-        class UnivariateMaternStationary : public Kernel<T> {
-
-        public:
-
-            /**
-             * @brief Constructs a new UnivariateMaternStationary object.
-             * @details Initializes a new UnivariateMaternStationary object with default values.
-             */
-            UnivariateMaternStationary();
-
-            /**
-             * @brief Virtual destructor to allow calls to the correct concrete destructor.
-             *
-             */
-            ~UnivariateMaternStationary() override = default;
-
-            /**
-             * @brief Generates a covariance matrix using a set of locations and kernel parameters.
-             * @copydoc Kernel::GenerateCovarianceMatrix()
-             */
-            void GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
-                                          const int &aRowOffset, const int &aColumnOffset,
-                                          dataunits::Locations<T> &aLocation1, dataunits::Locations<T> &aLocation2,
-                                          dataunits::Locations<T> &aLocation3, T *apLocalTheta,
-                                          const int &aDistanceMetric) override;
-
-            /**
-             * @brief Creates a new UnivariateMaternStationary object.
-             * @details This method creates a new UnivariateMaternStationary object and returns a pointer to it.
-             * @return A pointer to the new UnivariateMaternStationary object.
-             *
-             */
-            static Kernel<T> *Create();
-
-        private:
-            //// Used plugin name for static registration
-            static bool plugin_name;
-        };
+        UnivariateMaternStationary();
 
         /**
-         * @brief Instantiates the Data Generator class for float and double types.
-         * @tparam T Data Type: float or double
+         * @brief Virtual destructor to allow calls to the correct concrete destructor.
          *
          */
-        EXAGEOSTAT_INSTANTIATE_CLASS(UnivariateMaternStationary)
+        ~UnivariateMaternStationary() override = default;
 
-    }//namespace Kernels
+        /**
+         * @brief Generates a covariance matrix using a set of locations and kernel parameters.
+         * @copydoc Kernel::GenerateCovarianceMatrix()
+         */
+        void
+        GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,
+                                 const int &aColumnOffset, dataunits::Locations<T> &aLocation1,
+                                 dataunits::Locations<T> &aLocation2, dataunits::Locations<T> &aLocation3,
+                                 T *apLocalTheta, const int &aDistanceMetric) override;
+
+        /**
+         * @brief Creates a new UnivariateMaternStationary object.
+         * @details This method creates a new UnivariateMaternStationary object and returns a pointer to it.
+         * @return A pointer to the new UnivariateMaternStationary object.
+         *
+         */
+        static Kernel<T> *Create();
+
+    private:
+        //// Used plugin name for static registration
+        static bool plugin_name;
+    };
+
+    /**
+     * @brief Instantiates the Data Generator class for float and double types.
+     * @tparam T Data Type: float or double
+     *
+     */
+    EXAGEOSTAT_INSTANTIATE_CLASS(UnivariateMaternStationary)
+
 }//namespace exageostat
 
 #endif //EXAGEOSTATCPP_UNIVARIATEMATERNSTATIONARY_HPP

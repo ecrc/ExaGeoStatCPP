@@ -20,36 +20,34 @@
 #include <data-units/DescriptorData.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
-namespace exageostat {
-    namespace linearAlgebra {
+namespace exageostat::linearAlgebra {
+
+    /**
+     * @class LinearAlgebraFactory
+     * @brief A class that creates linear algebra solvers based on the input computation type.
+     * @tparam T Data Type: float or double.
+     *
+     */
+    template<typename T>
+    class LinearAlgebraFactory {
+    public:
 
         /**
-         * @class LinearAlgebraFactory
-         * @brief A class that creates linear algebra solvers based on the input computation type.
-         * @tparam T Data Type: float or double.
+         * @brief Creates a linear algebra solver based on the input computation type.
+         * @param[in] aComputation The computation type to create the solver for.
+         * @return Pointer to the created linear algebra solver.
          *
          */
-        template<typename T>
-        class LinearAlgebraFactory {
-        public:
+        static std::unique_ptr<LinearAlgebraMethods<T>> CreateLinearAlgebraSolver(common::Computation aComputation);
+    };
 
-            /**
-             * @brief Creates a linear algebra solver based on the input computation type.
-             * @param[in] aComputation The computation type to create the solver for.
-             * @return Pointer to the created linear algebra solver.
-             *
-             */
-            static std::unique_ptr<LinearAlgebraMethods<T>> CreateLinearAlgebraSolver(common::Computation aComputation);
-        };
+    /**
+    * @brief Instantiates the Linear Algebra factory class for float and double types.
+    * @tparam T Data Type: float or double
+    *
+    */
+    EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraFactory)
 
-        /**
-        * @brief Instantiates the Linear Algebra factory class for float and double types.
-        * @tparam T Data Type: float or double
-        *
-        */
-        EXAGEOSTAT_INSTANTIATE_CLASS(LinearAlgebraFactory)
-
-    }//namespace linearAlgebra
 }//namespace exageostat
 
 #endif //EXAGEOSTATCPP_LINEARALGEBRAFACTORY_HPP

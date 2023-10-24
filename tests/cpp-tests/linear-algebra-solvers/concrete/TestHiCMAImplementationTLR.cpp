@@ -86,7 +86,8 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
-        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),synthetic_data_configurations.GetDimension());
+        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
+                                                           synthetic_data_configurations.GetDimension());
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
 
@@ -101,11 +102,15 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
 
         auto *HICMA_descriptorZ = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
-        auto *HICMA_descriptorZcpy = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,DESCRIPTOR_Z_COPY).hicma_desc;
-        auto *HICMA_descriptorDeterminant = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,DESCRIPTOR_DETERMINANT).hicma_desc;
+        auto *HICMA_descriptorZcpy = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                             DESCRIPTOR_Z_COPY).hicma_desc;
+        auto *HICMA_descriptorDeterminant = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                                    DESCRIPTOR_DETERMINANT).hicma_desc;
         auto *HICMA_descriptorCD = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
-        auto *HICMA_descriptorCUV = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,DESCRIPTOR_CUV).hicma_desc;
-        auto *HICMA_descriptorCrk = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,DESCRIPTOR_CRK).hicma_desc;
+        auto *HICMA_descriptorCUV = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                            DESCRIPTOR_CUV).hicma_desc;
+        auto *HICMA_descriptorCrk = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                            DESCRIPTOR_CRK).hicma_desc;
 
         // Descriptor CD.
         REQUIRE(HICMA_descriptorCD->m == N);

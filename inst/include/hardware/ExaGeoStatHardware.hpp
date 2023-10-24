@@ -17,64 +17,64 @@
 
 #include <common/Definitions.hpp>
 
-namespace exageostat {
-    namespace hardware {
+namespace exageostat::hardware {
+
+    /**
+     * @brief Class representing the hardware configuration for the ExaGeoStat solver.
+     */
+    class ExaGeoStatHardware {
+
+    public:
+        /**
+         * @brief Constructor for ExaGeoStatHardware.
+         * @param[in] aComputation The computation mode for the solver.
+         * @param[in] aCoreNumber The number of CPU cores to use for the solver.
+         * @param[in] aGpuNumber The number of GPUs to use for the solver.
+         *
+         */
+        ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
 
         /**
-         * @brief Class representing the hardware configuration for the ExaGeoStat solver.
+         * @brief Destructor for ExaGeoStatHardware.
          */
-        class ExaGeoStatHardware {
+        virtual ~ExaGeoStatHardware();
 
-        public:
-            /**
-             * @brief Constructor for ExaGeoStatHardware.
-             * @param[in] aComputation The computation mode for the solver.
-             * @param[in] aCoreNumber The number of CPU cores to use for the solver.
-             * @param[in] aGpuNumber The number of GPUs to use for the solver.
-             *
-             */
-            ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
-
-            /**
-             * @brief Destructor for ExaGeoStatHardware.
-             */
-            virtual ~ExaGeoStatHardware();
-
-            /**
-             * @brief Get the Chameleon hardware context.
-             * @return Pointer to the hardware context.
-             *
-             */
-            [[nodiscard]] void *GetChameleonContext() const;
+        /**
+         * @brief Get the Chameleon hardware context.
+         * @return Pointer to the hardware context.
+         *
+         */
+        [[nodiscard]] void *GetChameleonContext() const;
 
 #ifdef EXAGEOSTAT_USE_HICMA
+
 /**
              * @brief Get the Hicma hardware context.
              * @return Pointer to the hardware context.
              *
              */
-            [[nodiscard]] void *GetHicmaContext() const;
+        [[nodiscard]] void *GetHicmaContext() const;
+
 #endif
 
-            /**
-             * @brief Get the hardware context.
-             * @param[in] aComputation Used computation to decide whether to use Hicma or Chameleon context.
-             * @return Pointer to the hardware context.
-             *
-             */
-            [[nodiscard]] void *GetContext(common::Computation aComputation) const;
+        /**
+         * @brief Get the hardware context.
+         * @param[in] aComputation Used computation to decide whether to use Hicma or Chameleon context.
+         * @return Pointer to the hardware context.
+         *
+         */
+        [[nodiscard]] void *GetContext(common::Computation aComputation) const;
 
-        private:
-            //// Used Pointer to the Chameleon hardware context.
-            void *mpChameleonContext = nullptr;
+    private:
+        //// Used Pointer to the Chameleon hardware context.
+        void *mpChameleonContext = nullptr;
 #ifdef EXAGEOSTAT_USE_HICMA
-            //// Used Pointer to the Hicma hardware context.
-            void *mpHicmaContext = nullptr;
+        //// Used Pointer to the Hicma hardware context.
+        void *mpHicmaContext = nullptr;
 #endif
-            //// Used Computation mode for the solver.
-            common::Computation mComputation;
-        };
-    } // namespace hardware
+        //// Used Computation mode for the solver.
+        common::Computation mComputation;
+    };
 } // namespace exageostat
 
 #endif // EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP

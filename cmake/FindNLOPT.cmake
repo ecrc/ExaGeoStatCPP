@@ -43,6 +43,6 @@ set(NLOPT_VERSION ${PC_NLOPT_VERSION})
 # Set (NAME)_FOUND if all the variables and the version are satisfied.
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(NLOPT
-        FAIL_MESSAGE  DEFAULT_MSG
+        FAIL_MESSAGE DEFAULT_MSG
         REQUIRED_VARS NLOPT_INCLUDE_DIRS NLOPT_LIBRARIES
-        VERSION_VAR   NLOPT_VERSION)
+        VERSION_VAR NLOPT_VERSION)
