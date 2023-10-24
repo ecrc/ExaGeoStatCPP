@@ -11,7 +11,7 @@ pipeline {
     }
 
     stages {
-        stage ('Chameleon') {
+        stage ('Chameleon only') {
             steps {
                 sh '''#!/bin/bash -le
                     ####################################################
@@ -27,7 +27,7 @@ pipeline {
                     ####################################################
 
                     set -x
-                    ./config.sh -t -e -C
+                    ./config.sh -t -e
                     ./clean_build.sh
                 '''
             }

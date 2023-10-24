@@ -26,26 +26,24 @@ if (NOT TARGET GSL_FOUND)
 
     # If the GSL library is found, add it to the project's libraries.
     if (GSL_FOUND)
-        message("   Found GSL: ${GSL_LIBDIR}")
-    else()
+        message("   Found GSL: ${GSL_INCLUDE_DIRS}")
+    else ()
 
         # If the GSL library is not found, install it and add it to the project's libraries.
         message("   Can't find GSL, Installing it instead ..")
-        set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/)
+        set(FLAGS "")
         set(ISCMAKE OFF)
         set(ISGIT OFF)
         set(AUTO_GEN OFF)
         BuildDependency(GSL "https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz" "v2.6" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-        set(FLAGS "")
         find_package(GSL REQUIRED)
-    endif()
-else()
+    endif ()
+else ()
     message("   GSL already included")
-endif()
+endif ()
 
 # Add the GSL library to the project's list of libraries.
 list(APPEND LIBS gsl)
-set(ENV{CPATH} "${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/include:$ENV{CPATH}")
 include_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/include)
 link_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/lib)
 

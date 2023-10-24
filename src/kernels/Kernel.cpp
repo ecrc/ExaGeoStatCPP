@@ -12,8 +12,6 @@
  * @date 2023-04-12
 **/
 
-#include <cmath>
-
 extern "C" {
 #include <gsl/gsl_sf_bessel.h>
 }
@@ -77,4 +75,3 @@ template<typename T>
 int Kernel<T>::GetParametersNumbers() const {
     return this->mParametersNumber;
 }
-

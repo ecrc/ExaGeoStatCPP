@@ -15,6 +15,7 @@
 # @param ${FLAGS} Additional flags to pass to the configure/make commands.
 # @param ${ISCMAKE} A boolean flag indicating whether the dependency uses CMake as its build system.
 # @param ${ISGIT} A boolean flag indicating whether the dependency is hosted on a git repository.
+# @param ${AUTO_GEN} A boolean flag indicating whether to use autogen scripts or not.
 
 # This macro fetches the dependency using CMake's FetchContent module, and then builds and installs it.
 # It also sets several environment variables (LD_LIBRARY_PATH, LIBRARY_PATH, CPATH, PKG_CONFIG_PATH,
@@ -29,33 +30,38 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     # Fetch the dependency, depending on whether it's a git repo or not.
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
-    set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/)
+    set(FETCHCONTENT_BASE_DIR ${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/)
     if (ISGIT)
-        FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
-    else()
+        FetchContent_Declare(${name}
+                GIT_REPOSITORY "${url}"
+                GIT_TAG "${tag}"
+                GIT_SHALLOW TRUE
+                GIT_PROGRESS TRUE
+                )
+    else ()
         FetchContent_Declare(${name} URL "${url}")
     endif ()
     FetchContent_Populate(${name})
 
     # Set up build paths and create directory for build artifacts.
-    set(${name}_srcpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name}/${name}-src)
+    set(${name}_srcpath ${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/${name}-src)
     set(${name}_binpath ${${name}_srcpath}/bin)
-    set(${name}_installpath ${PROJECT_SOURCE_DIR}/installdir/_deps/${capital_name})
+    set(${name}_installpath ${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/)
     file(MAKE_DIRECTORY ${${name}_binpath})
 
     # Configure subproject.
     if (ISCMAKE)
-        execute_process(COMMAND ${CMAKE_COMMAND} ${FLAGS}
+        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/ ${FLAGS}
                 ${${name}_srcpath}
                 WORKING_DIRECTORY
                 ${${name}_binpath})
-    else()
+    else ()
         if (AUTO_GEN)
             execute_process(COMMAND ./autogen.sh
                     WORKING_DIRECTORY ${${name}_srcpath}
                     COMMAND_ERROR_IS_FATAL ANY)
-        endif()
-        execute_process(COMMAND ./configure ${FLAGS}
+        endif ()
+        execute_process(COMMAND ./configure --prefix=${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/ ${FLAGS}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
     endif ()
@@ -70,7 +76,7 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         execute_process(COMMAND make install -j ${N}
                 WORKING_DIRECTORY ${${name}_binpath}
                 COMMAND_ERROR_IS_FATAL ANY)
-    else()
+    else ()
         execute_process(COMMAND make -j ${N}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)

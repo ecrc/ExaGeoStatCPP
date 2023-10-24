@@ -101,6 +101,5 @@ int main(int argc, char **argv) {
     }
 
     VERBOSE("VERBOSE ACTIVATED")
-
     return 0;
 }

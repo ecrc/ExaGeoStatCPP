@@ -70,12 +70,11 @@ int main(int argc, char **argv) {
         timeSlot = synthetic_data_configurations.GetTimeSlot();
     }
     for (auto i = 0; i < synthetic_data_configurations.GetProblemSize() * timeSlot; i++) {
-        LOGGER("X: {:.18f} Y: {:.18f}" << data_pointers.x[i] << data_pointers.y[i])
+        LOGGER_PRECISION("X: " << data_pointers.x[i] << " Y: " << data_pointers.y[i], 18)
         if (synthetic_data_configurations.GetDimension() != Dimension2D) {
-            LOGGER(" Z: " << data_pointers.z[i])
+            LOGGER_PRECISION(" Z: " << data_pointers.z[i], 18)
         }
         LOGGER("\n")
     }
-
     return 0;
 }

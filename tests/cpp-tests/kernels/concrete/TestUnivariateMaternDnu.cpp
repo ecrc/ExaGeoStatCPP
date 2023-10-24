@@ -31,7 +31,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDnu() {
         int N = 16;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternDnu");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         int dts = 8;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
@@ -40,7 +39,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDnu() {
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
         //// TODO: Values are missing in the C version.
-#endif
     }
 }
 

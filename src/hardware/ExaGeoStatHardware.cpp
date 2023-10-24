@@ -12,7 +12,6 @@
  * @date 2023-08-07
 **/
 
-
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
@@ -25,64 +24,78 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
 
     this->mComputation = aComputation;
     int tag_width = 31, tag_sep = 26;
+    // Init hardware using Chameleon
+    if (!this->mpChameleonContext) {
+        CHAMELEON_user_tag_size(tag_width, tag_sep);
+        CHAMELEON_Init(aCoreNumber, aGpuNumber)
+        this->mpChameleonContext = chameleon_context_self();
+    }
 
     // Init hardware using Hicma
     if (aComputation == common::TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HICMA
-        if (!this->mpContext) {
+        if (!this->mpHicmaContext) {
             HICMA_user_tag_size(tag_width, tag_sep);
             HICMA_Init(aCoreNumber, aGpuNumber);
-            this->mpContext = hicma_context_self();
+            this->mpHicmaContext = hicma_context_self();
         }
 #else
         throw std::runtime_error("You need to enable Hicma to use TLR computation!");
-#endif
-    } else {
-        // Init hardware using Chameleon
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-        if (!this->mpContext) {
-            CHAMELEON_user_tag_size(tag_width, tag_sep);
-            CHAMELEON_Init(aCoreNumber, aGpuNumber)
-            this->mpContext = chameleon_context_self();
-        }
-#else
-        throw std::runtime_error("You need to enable Chameleon to use Dense or DST computation!");
 #endif
     }
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
-    // Init hardware using Hicma
+    // finalize hardware using Hicma
+    // finalize hardware using Chameleon
+    if (!this->mpChameleonContext) {
+        std::cerr << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
+        exit(1);
+    } else {
+        CHAMELEON_Finalize()
+        this->mpChameleonContext = nullptr;
+    }
     if (this->mComputation == common::TILE_LOW_RANK) {
 #ifdef EXAGEOSTAT_USE_HICMA
-        if (!this->mpContext) {
+        if (!this->mpHicmaContext) {
             std::cout
                     << "No initialized context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'"
                     << std::endl;
         } else {
             HICMA_Finalize();
-            this->mpContext = nullptr;
-        }
-#endif
-    }
-        // Init hardware using Chameleon
-    else {
-#ifdef EXAGEOSTAT_USE_CHAMELEON
-        if (!this->mpContext) {
-            std::cerr << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
-            exit(1);
-        } else {
-            CHAMELEON_Finalize()
-            this->mpContext = nullptr;
+            this->mpHicmaContext = nullptr;
         }
 #endif
     }
     results::Results::GetInstance()->PrintEndSummary();
 }
 
-void *ExaGeoStatHardware::GetContext() const {
-    if (!this->mpContext) {
+#ifdef EXAGEOSTAT_USE_HICMA
+
+void *ExaGeoStatHardware::GetHicmaContext() const {
+    if (!this->mpHicmaContext) {
         throw std::runtime_error("Hardware is not initialized!");
     }
-    return this->mpContext;
+    return this->mpHicmaContext;
+}
+
+#endif
+
+void *ExaGeoStatHardware::GetChameleonContext() const {
+    if (!this->mpChameleonContext) {
+        throw std::runtime_error("Hardware is not initialized!");
+    }
+    return this->mpChameleonContext;
+}
+
+void *ExaGeoStatHardware::GetContext(common::Computation aComputation) const {
+    if (aComputation == common::EXACT_DENSE || aComputation == common::DIAGONAL_APPROX) {
+        return GetChameleonContext();
+    }
+    if (aComputation == common::TILE_LOW_RANK) {
+#ifdef EXAGEOSTAT_USE_HICMA
+        return GetHicmaContext();
+#endif
+    }
+    return nullptr;
 }

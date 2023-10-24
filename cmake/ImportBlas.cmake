@@ -25,15 +25,12 @@ if (NOT TARGET BLAS)
     else ()
         message("   Can't find Blas, Installing it instead ..")
         # Set installation flags
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/BLAS/)
+        set(FLAGS "")
         set(ISCMAKE ON)
         set(ISGIT ON)
         set(AUTO_GEN OFF)
         set(build_tests "false")
-        set(BLAS_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/BLAS)
         BuildDependency(BLAS "https://github.com/xianyi/OpenBLAS" "v0.3.21" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-
-        set(FLAGS "")
         find_package(BLAS REQUIRED)
     endif ()
 

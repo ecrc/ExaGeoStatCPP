@@ -31,17 +31,13 @@ if (NOT TARGET HWLOC)
         message("   Can't find Hwloc, Installing it instead ..")
 
         # Set the flags to be passed to the build command.
-        set(FLAGS --prefix=${PROJECT_SOURCE_DIR}/installdir/_deps/HWLOC/)
+        set(FLAGS "")
         set(ISCMAKE OFF)
         set(ISGIT ON)
         set(AUTO_GEN ON)
 
         # Build Hwloc from source.
-        set(HWLOC_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/HWLOC/)
         BuildDependency(HWLOC "https://github.com/open-mpi/hwloc" "hwloc-2.4.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-
-        # Clear the flags.
-        set(FLAGS "")
 
         # Find Hwloc after installation.
         find_package(HWLOC 1.11.5 REQUIRED)
@@ -51,7 +47,7 @@ else ()
 endif ()
 
 # Include Hwloc libraries in the project.
-list(APPEND LIBS  ${HWLOC_LIBRARIES})
+list(APPEND LIBS ${HWLOC_LIBRARIES})
 link_directories(${HWLOC_LIBRARY_DIRS_DEP})
 
 # Include Hwloc headers in the project.

@@ -24,28 +24,27 @@ if (NOT TARGET NLOPT_FOUND)
     if (NLOPT_FOUND)
         message("   Found NLOPT: ${NLOPT_LIBRARIES}")
         # If not found, install it.
-    else()
+    else ()
         message("   Can't find NLOPT, Installing it instead ..")
 
         # Set installation flags.
-        set(FLAGS -DCMAKE_INSTALL_PREFIX=${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/)
+        set(FLAGS "")
         set(ISCMAKE ON)
         set(ISGIT ON)
         set(AUTO_GEN OFF)
         # Build NLOPT from source.
-        set(NLOPT_DIR  ${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/)
         BuildDependency(NLOPT "https://github.com/stevengj/nlopt" "v2.7.1" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
 
         # Set the location of NLOPT.
-        set(NLOPT_LIBRARY_DIRS= ${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/lib:$NLOPT_LIBRARY_DIRS)
-        set(NLOPT_INCLUDE_DIRS= ${PROJECT_SOURCE_DIR}/installdir/_deps/NLOPT/include:$NLOPT_INCLUDE_DIRS)
+        set(NLOPT_LIBRARY_DIRS= ${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib:$NLOPT_LIBRARY_DIRS)
+        set(NLOPT_INCLUDE_DIRS= ${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/include:$NLOPT_INCLUDE_DIRS)
 
         # Try to find NLOPT again.
         find_package(NLOPT 2.4.2 REQUIRED)
-    endif()
-else()
+    endif ()
+else ()
     message("   NLOPT already included")
-endif()
+endif ()
 
 # Include NLOPT headers.
 include_directories(${NLOPT_INCLUDE_DIRS})

@@ -12,14 +12,11 @@
 **/
 
 #include <catch2/catch_all.hpp>
-#include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
-#include <api/ExaGeoStat.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <api/ExaGeoStat.hpp>
 
 using namespace std;
 
-using namespace exageostat::linearAlgebra::tileLowRank;
-using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
@@ -27,26 +24,40 @@ using namespace exageostat::hardware;
 
 //Test that the function initializes the HICMA_descriptorC descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
+
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+    synthetic_data_configurations.SetMaxMleIterations(1);
+    synthetic_data_configurations.SetTolerance(pow(10, -4));
 
-    SECTION("DOUBLE without NZmiss")
+    vector<double> lb{0.1, 0.1, 0.1};
+    synthetic_data_configurations.SetLowerBounds(lb);
+    synthetic_data_configurations.SetStartingTheta(lb);
+    vector<double> ub{5, 5, 5};
+    synthetic_data_configurations.SetUpperBounds(ub);
+    vector<double> initial_theta{1, 0.1, 0.5};
+    synthetic_data_configurations.SetInitialTheta(initial_theta);
+    vector<double> estimated_theta{-1, -1, -1};
+    synthetic_data_configurations.SetEstimatedTheta(estimated_theta);
+    synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
+    synthetic_data_configurations.SetMaxRank(500);
+    synthetic_data_configurations.SetProblemSize(16);
+    synthetic_data_configurations.SetLowTileSize(8);
+    synthetic_data_configurations.SetDenseTileSize(8);
+
+    SECTION("With Approximation mode ON")
     {
 
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
-
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
-        linearAlgebraSolver->SetContext(hardware.GetContext());
-
-        synthetic_data_configurations.SetProblemSize(20);
-        synthetic_data_configurations.SetLowTileSize(12);
         synthetic_data_configurations.SetApproximationMode(1);
 
-        auto *data = new DescriptorData<double>(hardware);
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
+        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
+                                                           synthetic_data_configurations.GetDimension());
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
 
-        auto *HICMA_descriptorC = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
+        auto *HICMA_descriptorC = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
         int lts = synthetic_data_configurations.GetLowTileSize();
@@ -69,44 +80,37 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
             REQUIRE(HICMA_descriptorC->p == pGrid);
             REQUIRE(HICMA_descriptorC->q == qGrid);
         }
-        delete data;
-        data = new DescriptorData<double>(hardware);
+    }SECTION("With Approximation mode OFF") {
+        synthetic_data_configurations.SetApproximationMode(0);
+
+        // initialize Hardware.
+        auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
+
+        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
+                                                           synthetic_data_configurations.GetDimension());
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
+
+        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int lts = synthetic_data_configurations.GetLowTileSize();
+        int pGrid = synthetic_data_configurations.GetPGrid();
+        int qGrid = synthetic_data_configurations.GetQGrid();
 
         // Re-Run again but with approx mode OFF
-        synthetic_data_configurations.SetApproximationMode(0);
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
-        approximationMode = synthetic_data_configurations.GetApproximationMode();
 
         int maxRank = synthetic_data_configurations.GetMaxRank();
-        int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
-        double meanSquareError = synthetic_data_configurations.GetMeanSquareError();
         string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
-        int nZobs = synthetic_data_configurations.CalculateZObsNumber();
 
-        HICMA_descriptorC = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
-        auto *HICMA_descriptorZ = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
-        auto *HICMA_descriptorZcpy = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY).hicma_desc;
-        auto *HICMA_descriptorDeterminant = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT).hicma_desc;
-        auto *HICMA_descriptorCD = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
-        auto *HICMA_descriptorCUV = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CUV).hicma_desc;
-        auto *HICMA_descriptorCrk = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CRK).hicma_desc;
-
-        if (approximationMode != 1) {
-            // Descriptor C.
-            REQUIRE(HICMA_descriptorC->m == lts);
-            REQUIRE(HICMA_descriptorC->n == lts);
-            REQUIRE(HICMA_descriptorC->mb == 1);
-            REQUIRE(HICMA_descriptorC->nb == 1);
-            REQUIRE(HICMA_descriptorC->bsiz == 1);
-            REQUIRE(HICMA_descriptorC->i == 0);
-            REQUIRE(HICMA_descriptorC->j == 0);
-            REQUIRE(HICMA_descriptorC->mt == lts);
-            REQUIRE(HICMA_descriptorC->nt == lts);
-            REQUIRE(HICMA_descriptorC->lm == lts);
-            REQUIRE(HICMA_descriptorC->ln == lts);
-            REQUIRE(HICMA_descriptorC->p == pGrid);
-            REQUIRE(HICMA_descriptorC->q == qGrid);
-        }
+        auto *HICMA_descriptorZ = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
+        auto *HICMA_descriptorZcpy = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                             DESCRIPTOR_Z_COPY).hicma_desc;
+        auto *HICMA_descriptorDeterminant = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                                    DESCRIPTOR_DETERMINANT).hicma_desc;
+        auto *HICMA_descriptorCD = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
+        auto *HICMA_descriptorCUV = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                            DESCRIPTOR_CUV).hicma_desc;
+        auto *HICMA_descriptorCrk = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                            DESCRIPTOR_CRK).hicma_desc;
 
         // Descriptor CD.
         REQUIRE(HICMA_descriptorCD->m == N);
@@ -124,11 +128,17 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE(HICMA_descriptorCD->q == qGrid);
 
         // Descriptor CUV.
-        int MUV = N / lts * lts + lts;
+        int NBUV = 2 * maxRank;
+        int MUV = -1;
+        int N_over_lts_times_lts = N / lts * lts;
+        if (N_over_lts_times_lts < N) {
+            MUV = N_over_lts_times_lts + lts;
+        } else if (N_over_lts_times_lts == N) {
+            MUV = N_over_lts_times_lts;
+        }
         int expr = MUV / lts;
         int NUV = 2 * expr * maxRank;
-        int NBUV = 2 * maxRank;
-        REQUIRE(HICMA_descriptorCUV->m == MUV);
+        REQUIRE(HICMA_descriptorCUV->m == N);
         REQUIRE(HICMA_descriptorCUV->n == NUV);
         REQUIRE(HICMA_descriptorCUV->mb == lts);
         REQUIRE(HICMA_descriptorCUV->nb == NBUV);
@@ -137,7 +147,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE(HICMA_descriptorCUV->j == 0);
         REQUIRE(HICMA_descriptorCUV->mt == ceil((N * 1.0) / (lts * 1.0)));
         REQUIRE(HICMA_descriptorCUV->nt == ceil((N * 1.0) / (lts * 1.0)));
-        REQUIRE(HICMA_descriptorCUV->lm == MUV);
+        REQUIRE(HICMA_descriptorCUV->lm == N);
         REQUIRE(HICMA_descriptorCUV->ln == NUV);
         REQUIRE(HICMA_descriptorCUV->p == pGrid);
         REQUIRE(HICMA_descriptorCUV->q == qGrid);
@@ -202,189 +212,9 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE(HICMA_descriptorDeterminant->p == pGrid);
         REQUIRE(HICMA_descriptorDeterminant->q == qGrid);
 
-
-        delete data;
-    }
-
-    SECTION("DOUBLE WITH NZmiss")
-    {
-
-        // initialize Hardware.
-        auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 3, 0);
-
-        auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(TILE_LOW_RANK);
-        linearAlgebraSolver->SetContext(hardware.GetContext());
-
-        synthetic_data_configurations.SetProblemSize(8);
-        synthetic_data_configurations.SetLowTileSize(4);
-        synthetic_data_configurations.SetUnknownObservationsNb(3);
-
-        auto *data = new DescriptorData<double>(hardware);
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data);
-
-        auto *HICMA_descriptorZObservations = data->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                  DESCRIPTOR_Z_OBSERVATIONS).hicma_desc;
-        auto *HICMA_descriptorZactual = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z_Actual).hicma_desc;
-        auto *HICMA_descriptorMSE = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_MSE).hicma_desc;
-        auto *HICMA_descriptorC12D = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C12D).hicma_desc;
-        auto *HICMA_descriptorC22D = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C22D).hicma_desc;
-        auto *HICMA_descriptorC12UV = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C12UV).hicma_desc;
-        auto *HICMA_descriptorC22UV = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C22UV).hicma_desc;
-        auto *HICMA_descriptorC12rk = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C12RK).hicma_desc;
-        auto *HICMA_descriptorC22rk = data->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C22RK).hicma_desc;
-
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
-        int lts = synthetic_data_configurations.GetLowTileSize();
-        int pGrid = synthetic_data_configurations.GetPGrid();
-        int qGrid = synthetic_data_configurations.GetQGrid();
-        int maxRank = synthetic_data_configurations.GetMaxRank();
-        int nZmiss = synthetic_data_configurations.GetUnknownObservationsNb();
-        string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
-        int nZobs = synthetic_data_configurations.CalculateZObsNumber();
-
-        if (nZmiss != 0) {
-            if (actualObservationsFilePath.empty()) {
-                // Descriptor ZObservations.
-                REQUIRE(HICMA_descriptorZObservations->m == nZobs);
-                REQUIRE(HICMA_descriptorZObservations->n == 1);
-                REQUIRE(HICMA_descriptorZObservations->mb == lts);
-                REQUIRE(HICMA_descriptorZObservations->nb == lts);
-                REQUIRE(HICMA_descriptorZObservations->bsiz == lts * lts);
-                REQUIRE(HICMA_descriptorZObservations->i == 0);
-                REQUIRE(HICMA_descriptorZObservations->j == 0);
-                REQUIRE(HICMA_descriptorZObservations->mt == ceil((N * 1.0) / (lts * 1.0)));
-                REQUIRE(HICMA_descriptorZObservations->nt == 1);
-                REQUIRE(HICMA_descriptorZObservations->lm == nZobs);
-                REQUIRE(HICMA_descriptorZObservations->ln == 1);
-                REQUIRE(HICMA_descriptorZObservations->p == pGrid);
-                REQUIRE(HICMA_descriptorZObservations->q == qGrid);
-
-                // Descriptor Zactual.
-                REQUIRE(HICMA_descriptorZactual->m == nZmiss);
-                REQUIRE(HICMA_descriptorZactual->n == 1);
-                REQUIRE(HICMA_descriptorZactual->mb == lts);
-                REQUIRE(HICMA_descriptorZactual->nb == lts);
-                REQUIRE(HICMA_descriptorZactual->bsiz == lts * lts);
-                REQUIRE(HICMA_descriptorZactual->i == 0);
-                REQUIRE(HICMA_descriptorZactual->j == 0);
-                REQUIRE(HICMA_descriptorZactual->mt == 1);
-                REQUIRE(HICMA_descriptorZactual->nt == 1);
-                REQUIRE(HICMA_descriptorZactual->lm == nZmiss);
-                REQUIRE(HICMA_descriptorZactual->ln == 1);
-                REQUIRE(HICMA_descriptorZactual->p == pGrid);
-                REQUIRE(HICMA_descriptorZactual->q == qGrid);
-            }
-            // Descriptor C12D.
-            REQUIRE(HICMA_descriptorC12D->m == nZmiss);
-            REQUIRE(HICMA_descriptorC12D->n == lts);
-            REQUIRE(HICMA_descriptorC12D->mb == lts);
-            REQUIRE(HICMA_descriptorC12D->nb == lts);
-            REQUIRE(HICMA_descriptorC12D->bsiz == lts * lts);
-            REQUIRE(HICMA_descriptorC12D->i == 0);
-            REQUIRE(HICMA_descriptorC12D->j == 0);
-            REQUIRE(HICMA_descriptorC12D->mt == 1);
-            REQUIRE(HICMA_descriptorC12D->nt == 1);
-            REQUIRE(HICMA_descriptorC12D->lm == nZmiss);
-            REQUIRE(HICMA_descriptorC12D->ln == lts);
-            REQUIRE(HICMA_descriptorC12D->p == pGrid);
-            REQUIRE(HICMA_descriptorC12D->q == qGrid);
-
-            // Descriptor C12UV.
-            int NBUV = 2 * maxRank;
-            REQUIRE(HICMA_descriptorC12UV->m == lts);
-            REQUIRE(HICMA_descriptorC12UV->n == NBUV);
-            REQUIRE(HICMA_descriptorC12UV->mb == lts);
-            REQUIRE(HICMA_descriptorC12UV->nb == NBUV);
-            REQUIRE(HICMA_descriptorC12UV->bsiz == lts * NBUV);
-            REQUIRE(HICMA_descriptorC12UV->i == 0);
-            REQUIRE(HICMA_descriptorC12UV->j == 0);
-            REQUIRE(HICMA_descriptorC12UV->mt == 1);
-            REQUIRE(HICMA_descriptorC12UV->nt == 1);
-            REQUIRE(HICMA_descriptorC12UV->lm == lts);
-            REQUIRE(HICMA_descriptorC12UV->ln == NBUV);
-            REQUIRE(HICMA_descriptorC12UV->p == pGrid);
-            REQUIRE(HICMA_descriptorC12UV->q == qGrid);
-
-            // Descriptor C12rk.
-            REQUIRE(HICMA_descriptorC12rk->m == 1);
-            REQUIRE(HICMA_descriptorC12rk->n == 1);
-            REQUIRE(HICMA_descriptorC12rk->mb == 1);
-            REQUIRE(HICMA_descriptorC12rk->nb == 1);
-            REQUIRE(HICMA_descriptorC12rk->bsiz == 1);
-            REQUIRE(HICMA_descriptorC12rk->i == 0);
-            REQUIRE(HICMA_descriptorC12rk->j == 0);
-            REQUIRE(HICMA_descriptorC12rk->mt == 1);
-            REQUIRE(HICMA_descriptorC12rk->nt == 1);
-            REQUIRE(HICMA_descriptorC12rk->lm == 1);
-            REQUIRE(HICMA_descriptorC12rk->ln == 1);
-            REQUIRE(HICMA_descriptorC12rk->p == pGrid);
-            REQUIRE(HICMA_descriptorC12rk->q == qGrid);
-
-            // Descriptor C22D.
-            REQUIRE(HICMA_descriptorC22D->m == nZobs);
-            REQUIRE(HICMA_descriptorC22D->n == lts);
-            REQUIRE(HICMA_descriptorC22D->mb == lts);
-            REQUIRE(HICMA_descriptorC22D->nb == lts);
-            REQUIRE(HICMA_descriptorC22D->bsiz == lts * lts);
-            REQUIRE(HICMA_descriptorC22D->i == 0);
-            REQUIRE(HICMA_descriptorC22D->j == 0);
-            REQUIRE(HICMA_descriptorC22D->mt == ceil((N * 1.0) / (lts * 1.0)));
-            REQUIRE(HICMA_descriptorC22D->nt == 1);
-            REQUIRE(HICMA_descriptorC22D->lm == nZobs);
-            REQUIRE(HICMA_descriptorC22D->ln == lts);
-            REQUIRE(HICMA_descriptorC22D->p == pGrid);
-            REQUIRE(HICMA_descriptorC22D->q == qGrid);
-
-            // Descriptor C22UV.
-            REQUIRE(HICMA_descriptorC22UV->m == lts);
-            REQUIRE(HICMA_descriptorC22UV->n == NBUV);
-            REQUIRE(HICMA_descriptorC22UV->mb == lts);
-            REQUIRE(HICMA_descriptorC22UV->nb == NBUV);
-            REQUIRE(HICMA_descriptorC22UV->bsiz == lts * NBUV);
-            REQUIRE(HICMA_descriptorC22UV->i == 0);
-            REQUIRE(HICMA_descriptorC22UV->j == 0);
-            REQUIRE(HICMA_descriptorC22UV->mt == 1);
-            REQUIRE(HICMA_descriptorC22UV->nt == 1);
-            REQUIRE(HICMA_descriptorC22UV->lm == lts);
-            REQUIRE(HICMA_descriptorC22UV->ln == NBUV);
-            REQUIRE(HICMA_descriptorC22UV->p == pGrid);
-            REQUIRE(HICMA_descriptorC22UV->q == qGrid);
-
-            // Descriptor C22rk.
-            REQUIRE(HICMA_descriptorC22rk->m == 1);
-            REQUIRE(HICMA_descriptorC22rk->n == 1);
-            REQUIRE(HICMA_descriptorC22rk->mb == 1);
-            REQUIRE(HICMA_descriptorC22rk->nb == 1);
-            REQUIRE(HICMA_descriptorC22rk->bsiz == 1);
-            REQUIRE(HICMA_descriptorC22rk->i == 0);
-            REQUIRE(HICMA_descriptorC22rk->j == 0);
-            REQUIRE(HICMA_descriptorC22rk->mt == 1);
-            REQUIRE(HICMA_descriptorC22rk->nt == 1);
-            REQUIRE(HICMA_descriptorC22rk->lm == 1);
-            REQUIRE(HICMA_descriptorC22rk->ln == 1);
-            REQUIRE(HICMA_descriptorC22rk->p == pGrid);
-            REQUIRE(HICMA_descriptorC22rk->q == qGrid);
-
-            // Descriptor Determinant.
-            REQUIRE(HICMA_descriptorMSE->m == 1);
-            REQUIRE(HICMA_descriptorMSE->n == 1);
-            REQUIRE(HICMA_descriptorMSE->mb == lts);
-            REQUIRE(HICMA_descriptorMSE->nb == lts);
-            REQUIRE(HICMA_descriptorMSE->bsiz == lts * lts);
-            REQUIRE(HICMA_descriptorMSE->i == 0);
-            REQUIRE(HICMA_descriptorMSE->j == 0);
-            REQUIRE(HICMA_descriptorMSE->mt == 1);
-            REQUIRE(HICMA_descriptorMSE->nt == 1);
-            REQUIRE(HICMA_descriptorMSE->lm == 1);
-            REQUIRE(HICMA_descriptorMSE->ln == 1);
-            REQUIRE(HICMA_descriptorMSE->p == pGrid);
-            REQUIRE(HICMA_descriptorMSE->q == qGrid);
-        }
-        delete data;
     }
 }
 
 TEST_CASE("HiCMA Implementation TLR") {
-TEST_HICMA_DESCRIPTORS_VALUES_TLR();
-
+    TEST_HICMA_DESCRIPTORS_VALUES_TLR();
 }

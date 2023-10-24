@@ -37,13 +37,11 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
         vector<double> initial_theta{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         int dts = 5;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
 
         //// TODO: values are missing in the C version.
-#endif
     }
 }
 

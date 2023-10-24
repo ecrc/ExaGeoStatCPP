@@ -180,8 +180,7 @@ void PredictionHelpers<T>::Shuffle(T *apArray1, T *apArray2, Locations<T> &aLoca
 }
 
 template<typename T>
-void PredictionHelpers<T>::Shuffle(T *apArray1, T *apArray2, T *apArray3, Locations<T> &aLocations,
-                                   int aSize) {
+void PredictionHelpers<T>::Shuffle(T *apArray1, T *apArray2, T *apArray3, Locations<T> &aLocations, int aSize) {
     if (aSize > 1) {
         size_t i;
 
@@ -225,8 +224,8 @@ int PredictionHelpers<T>::SortInplace(int aN, Locations<T> &aLocations, T *apZ) 
     int i;
     int j;//new_j, tmp_j;
     int count = aN;
-    int ndim = 2;
-    T *point = new T[ndim * count];
+    int dimension_number = 2;
+    T *point = new T[dimension_number * count];
     T *ptr1;
     T *minmax; // min is stored in lower part, max is stored in upper part
 
@@ -237,29 +236,29 @@ int PredictionHelpers<T>::SortInplace(int aN, Locations<T> &aLocations, T *apZ) 
 
     minmax = new T[2 * count];
 
-    for (i = 0; i < ndim; i++) {
+    for (i = 0; i < dimension_number; i++) {
         ptr1 = point + i * count; // i-th dimension
         minmax[i] = ptr1[0];
-        minmax[i + ndim] = minmax[i];
+        minmax[i + dimension_number] = minmax[i];
         for (j = 1; j < count; j++) {
             if (minmax[i] > ptr1[j])
                 minmax[i] = ptr1[j];
-            else if (minmax[i + ndim] < ptr1[j])
-                minmax[i + ndim] = ptr1[j];
+            else if (minmax[i + dimension_number] < ptr1[j])
+                minmax[i + dimension_number] = ptr1[j];
         }
     }
 
-    // Now minmax[0:ndim] and minmax[ndim:2*ndim] store minimal and maximal
+    // Now minmax[0:dimension_number] and minmax[dimension_number:2*dimension_number] store minimal and maximal
     // values of coordinates
-    auto uint_point = new uint32_t[ndim * count];
+    auto uint_point = new uint32_t[dimension_number * count];
     uint32_t *uint_ptr1;
     T min, range;
 
-    for (i = 0; i < ndim; i++) {
+    for (i = 0; i < dimension_number; i++) {
         uint_ptr1 = uint_point + i * count;
         ptr1 = point + i * count;
         min = minmax[i];
-        range = minmax[i + ndim] - min;
+        range = minmax[i + dimension_number] - min;
         for (j = 0; j < count; j++)
             uint_ptr1[j] = (ptr1[j] - min) / range * UINT32_MAX;
     }
@@ -274,11 +273,11 @@ int PredictionHelpers<T>::SortInplace(int aN, Locations<T> &aLocations, T *apZ) 
         order[j] = j;
     SortArray(uint_point, count);
 
-    auto new_point = new T[ndim * count];
+    auto new_point = new T[dimension_number * count];
     auto new_z = new T[count];
 
     for (j = 0; j < count; j++) {
-        for (i = 0; i < ndim; i++)
+        for (i = 0; i < dimension_number; i++)
             new_point[count * i + j] = point[count * i + order[j]];
         new_z[j] = apZ[order[j]];
     }

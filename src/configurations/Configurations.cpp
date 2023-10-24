@@ -12,10 +12,6 @@
  * @date 2023-01-31
 **/
 
-#include <iostream>
-#include <algorithm>
-#include <cstring>
-
 #include <configurations/Configurations.hpp>
 #include <kernels/Kernel.hpp>
 #include <common/Utils.hpp>
@@ -42,12 +38,11 @@ Configurations::Configurations() {
     SetDimension(common::Dimension2D);
     SetTimeSlot(1);
     SetProblemSize(0);
-#ifdef EXAGEOSTAT_USE_CHAMELEON
     SetDenseTileSize(0);
-#endif
 #ifdef EXAGEOSTAT_USE_HICMA
     SetLowTileSize(0);
 #endif
+    SetBand(0);
     SetLoggerPath("");
     SetIsSynthetic(true);
     vector<double> theta;
@@ -67,6 +62,8 @@ Configurations::Configurations() {
     SetIsMSPE(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
+    SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
+    SetAccuracy(0);
 }
 
 
@@ -120,8 +117,6 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetGPUsNumbers(CheckNumericalValue(argument_value));
             } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
-                SetLowTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--maxRank" || argument_name == "--maxrank" || argument_name == "--max_rank") {
                 SetMaxRank(CheckNumericalValue(argument_value));
             } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
@@ -152,11 +147,13 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                       argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
                       argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
-                      argument_name == "--iterations" ||
-                      argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
-                      argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
-                      argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
-                      argument_name == "--log_file_name" || argument_name == "--logFileName")) {
+                      argument_name == "--iterations" || argument_name == "--Iterations" ||
+                      argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
+                      argument_name == "--tolerance" || argument_name == "--distanceMetric" ||
+                      argument_name == "--distance_metric" || argument_name == "--log_file_name" ||
+                      argument_name == "--logFileName" || argument_name == "--Band" ||
+                      argument_name == "--band" || argument_name == "--LTS" || argument_name == "--lts" ||
+                      argument_name == "--Lts" || argument_name == "--acc" || argument_name == "--Acc")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -191,16 +188,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
     if (GetProblemSize() == 0) {
         throw domain_error("You need to set the problem size, before starting");
     }
-#ifdef EXAGEOSTAT_USE_CHAMELEON
     if (GetDenseTileSize() == 0) {
         throw domain_error("You need to set the Dense tile size, before starting");
     }
-#endif
-#ifdef EXAGEOSTAT_USE_HICMA
-    if (GetLowTileSize() == 0) {
-        throw domain_error("You need to set the Low tile size, before starting");
-    }
-#endif
     // Throw Errors if any of these arguments aren't given by the user.
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
@@ -210,7 +200,6 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
         //initlog
         InitLog();
     }
-
     this->PrintSummary();
 }
 
@@ -296,6 +285,12 @@ void Configurations::InitializeDataModelingArguments() {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
             } else if (argument_name == "--tolerance") {
                 SetTolerance(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Band" || argument_name == "--band") {
+                SetBand(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
+                SetLowTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--acc" || argument_name == "--Acc") {
+                SetAccuracy(CheckNumericalValue(argument_value));
             } else if (argument_name == "--log_file_name" || argument_name == "--logFileName") {
                 if (!GetLogger()) {
                     throw domain_error(
@@ -304,6 +299,18 @@ void Configurations::InitializeDataModelingArguments() {
                 SetFileLogName(argument_value);
             }
         }
+    }
+    if (GetComputation() == DIAGONAL_APPROX) {
+        if (GetBand() == 0) {
+            throw domain_error("You need to set the tile band thickness, before starting");
+        }
+    }
+    if (GetComputation() == TILE_LOW_RANK) {
+#ifdef EXAGEOSTAT_USE_HICMA
+        if (GetLowTileSize() == 0) {
+            throw domain_error("You need to set the Low tile size, before starting");
+        }
+#endif
     }
 }
 
@@ -357,7 +364,7 @@ void Configurations::InitializeDataPredictionArguments() {
 }
 
 void Configurations::PrintUsage() {
-    LOGGER("\n\t*** Available Arguments For Synthetic Data Configurations***")
+    LOGGER("\n\t*** Available Arguments For ExaGeoStat Configurations ***")
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")
     LOGGER("--dimension=value : Used Dimension.")
@@ -370,6 +377,7 @@ void Configurations::PrintUsage() {
     LOGGER("--gpus=value : Used to set the number of GPUs.")
     LOGGER("--dts=value : Used to set the Dense Tile size.")
     LOGGER("--lts=value : Used to set the Low Tile size.")
+    LOGGER("--diag_thick=value : Used to set the Tile diagonal thickness.")
     LOGGER("--Zmiss=value : Used to set number of unknown observation to be predicted.")
     LOGGER("--observations_file=PATH/TO/File : Used to pass the observations file path.")
     LOGGER("--max_rank=value : Used to the max rank value.")
@@ -390,6 +398,7 @@ void Configurations::PrintUsage() {
     LOGGER("--OOC : Used to enable Out of core technology.")
     LOGGER("--approximation_mode : Used to enable Approximation mode.")
     LOGGER("--log : Enable logging.")
+    LOGGER("--acc : Used to set the accuracy when using tlr.")
     LOGGER("\n\n")
 
     exit(0);
@@ -567,7 +576,7 @@ int Configurations::CheckUnknownObservationsValue(const string &aValue) {
 
 void Configurations::ParseDistanceMetric(const std::string &aDistanceMetric) {
     if (aDistanceMetric == "eg" || aDistanceMetric == "EG") {
-        SetDistanceMetric(EUCLIDIAN_DISTANCE);
+        SetDistanceMetric(EUCLIDEAN_DISTANCE);
     } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD") {
         SetDistanceMetric(GREAT_CIRCLE_DISTANCE);
     } else {
@@ -620,19 +629,24 @@ void Configurations::PrintSummary() {
         LOGGER("#Threads per node: " << this->GetCoresNumber())
         LOGGER("#GPUs: " << this->GetGPUsNumbers())
         if (this->GetPrecision() == 1) {
-            LOGGER("#Double Precision!")
+            LOGGER("#Precision: Double")
         } else if (this->GetPrecision() == 0) {
-            LOGGER("#Single Precision!")
+            LOGGER("#Precision: Single")
         } else if (this->GetPrecision() == 2) {
-            LOGGER("#Single/Double Precision!")
+            LOGGER("#Precision: Single/Double")
         }
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         LOGGER("#Dense Tile Size: " << this->GetDenseTileSize())
-#endif
 #ifdef EXAGEOSTAT_USE_HICMA
-            LOGGER("#Low Tile Size: " << this->GetLowTileSize())
+        LOGGER("#Low Tile Size: " << this->GetLowTileSize())
 #endif
-        LOGGER("#exact computation")
+        if (this->GetComputation() == TILE_LOW_RANK) {
+            LOGGER("#Computation: Tile Low Rank")
+        } else if (this->GetComputation() == EXACT_DENSE) {
+            LOGGER("#Computation: Exact")
+        } else if (this->GetComputation() == DIAGONAL_APPROX) {
+            LOGGER("#Computation: Diagonal Approx")
+        }
+        LOGGER("#Kernel: " << this->GetKernelName())
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
         LOGGER("*************************************************")
 #if defined(CHAMELEON_USE_MPI)

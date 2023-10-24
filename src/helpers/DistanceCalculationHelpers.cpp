@@ -38,15 +38,13 @@ T DistanceCalculationHelpers<T>::DistanceEarth(T &aLatitude1, T &aLongitude1, T 
 template<typename T>
 T DistanceCalculationHelpers<T>::CalculateDistance(exageostat::dataunits::Locations<T> &aLocations1,
                                                    exageostat::dataunits::Locations<T> &aLocations2,
-                                                   const int &aIdxLocation1,
-                                                   const int &aIdxLocation2, const int &aDistanceMetric,
-                                                   const int &aFlagZ) {
+                                                   const int &aIdxLocation1, const int &aIdxLocation2,
+                                                   const int &aDistanceMetric, const int &aFlagZ) {
 
     T x1 = aLocations1.GetLocationX()[aIdxLocation1];
     T y1 = aLocations1.GetLocationY()[aIdxLocation1];
     T x2 = aLocations2.GetLocationX()[aIdxLocation2];
     T y2 = aLocations2.GetLocationY()[aIdxLocation2];
-
     T dx = x2 - x1;
     T dy = y2 - y1;
     T dz;
@@ -67,5 +65,4 @@ T DistanceCalculationHelpers<T>::CalculateDistance(exageostat::dataunits::Locati
         dz = z2 - z1;
         return sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
     }
-
 }

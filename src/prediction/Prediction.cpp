@@ -18,15 +18,26 @@
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
 using namespace exageostat::prediction;
-using namespace exageostat::hardware;
 using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::linearAlgebra;
 
 template<typename T>
-void
-Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
-                                  Configurations &aConfigurations, T *apMeasurementsMatrix) {
+void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
+                                       Configurations &aConfigurations, T *apMeasurementsMatrix,
+                                       const kernels::Kernel<T> &aKernel) {
+
+    bool can_predict = true;
+    int num_params = aKernel.GetParametersNumbers();
+    for (int i = 0; i < num_params; i++) {
+        if (aConfigurations.GetEstimatedTheta()[i] == -1) {
+            can_predict = false;
+            break;
+        }
+    }
+    if (!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE())) {
+        throw std::runtime_error(
+                "Can't predict without an estimated theta, please either pass --etheta or run the modeling module before prediction");
+    }
 
     //If the number of missed locations isn't a positive value, No prediction needed.
     if (aConfigurations.GetUnknownObservationsNb() <= 0) {
@@ -47,21 +58,18 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
     std::vector<T> avg_pred_value(number_of_mspe);
     auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
     auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
-            aConfigurations.GetComputation());
-
+    // We Predict date with only Exact computation. This is a pre-request.
+    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
     InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
                                   *obs_locations, apMeasurementsMatrix);
+
     // MLOE MMOM Auxiliary Function Call
     if (aConfigurations.GetIsMLOEMMOM()) {
         LOGGER("---- Using Auxiliary Function MLOE MMOM ----")
-        double all_time;
-        START_TIMING(all_time);
-        linear_algebra_solver->ExaGeoStatMLEMloeMmomTile(aConfigurations, aData, aHardware,
+        linear_algebra_solver->ExaGeoStatMLETileMLOEMMOM(aConfigurations, aData, aHardware,
                                                          (T *) aConfigurations.GetInitialTheta().data(),
                                                          (T *) aConfigurations.GetEstimatedTheta().data(),
-                                                         *miss_locations, *obs_locations);
-        STOP_TIMING(all_time);
+                                                         *miss_locations, *obs_locations, aKernel);
         LOGGER(" ---- mloe_mmom Time(main): %6.2f seconds")
     }
 
@@ -90,11 +98,11 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
     if (aConfigurations.GetIsMSPE()) {
         LOGGER("---- Using MSPE ----")
         T *prediction_error_mspe = linear_algebra_solver->ExaGeoStatMLEPredictTile(aData,
-                                                                                   (T *) aConfigurations.GetStartingTheta().data(),
+                                                                                   (T *) aConfigurations.GetEstimatedTheta().data(),
                                                                                    z_miss_number, n_z_obs, z_obs,
                                                                                    z_actual, z_miss, aHardware,
                                                                                    aConfigurations, *miss_locations,
-                                                                                   *obs_locations);
+                                                                                   *obs_locations, aKernel);
         for (i = 0; i < number_of_mspe; i++) {
             avg_pred_value[i] += prediction_error_mspe[i];
         }
@@ -115,7 +123,7 @@ Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware, ExaGeoSta
 
 template<typename T>
 void Prediction<T>::InitializePredictionArguments(Configurations &aConfigurations, ExaGeoStatData<T> &aData,
-                                                  std::unique_ptr<LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
+                                                  std::unique_ptr<linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                                   T *apZObs, T *apZActual, Locations<T> &aMissLocation,
                                                   Locations<T> &aObsLocation, T *apMeasurementsMatrix) {
 
@@ -124,6 +132,5 @@ void Prediction<T>::InitializePredictionArguments(Configurations &aConfiguration
 
     aLinearAlgebraSolver->ExaGeoStatGetZObs(aConfigurations, z, N, *aData.GetDescriptorData(), apMeasurementsMatrix);
     PredictionHelpers<T>::PickRandomPoints(aConfigurations, aData, apZObs, apZActual, z, aMissLocation, aObsLocation);
-
     delete[] z;
 }

@@ -9,13 +9,13 @@
 #ifndef EXAGEOSTATCPP_CHAMELEONHEADERS_HPP
 #define EXAGEOSTATCPP_CHAMELEONHEADERS_HPP
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
 extern "C" {
 #include <chameleon.h>
+#include <control/async.h>
+#include <control/descriptor.h>
 #include <control/context.h>
 #include <control/context.h>
 #include <include/chameleon/flops.h>
 }
-#endif
 
 #endif //EXAGEOSTATCPP_CHAMELEONHEADERS_HPP

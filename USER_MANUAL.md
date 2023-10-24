@@ -17,14 +17,7 @@ ExaGeoStat User Manual
 ```commandline
 ./config.sh -h
 ```
-* To Enable support of Chameleon, Use the following argument.
-```commandline
-./config.sh -C
-```
-* To Enable support of HiCMA, Use the following argument.
-```commandline
-./config.sh -H
-```
+* To Enable support of HiCMA add **```-H```**
 * To enable examples add **```-e```**
 
 * To enable tests add **```-t```**
@@ -186,8 +179,8 @@ Supported Covariance Functions/ Kernels:
 3. DESCRIPTOR_PRODUCT_2: Dot product descriptor.
 ### Determinant Descriptors
 1. DESCRIPTOR_DETERMINANT: Determinant descriptor.
-### Mean Square Error Descriptors
-1. DESCRIPTOR_MSE: Mean Square Error descriptor.
+### Mean Square Prediction Error Descriptors
+1. DESCRIPTOR_MSPE: Mean Square Error descriptor.
 ### HiCMA Descriptors
 1. DESCRIPTOR_CRK: HiCMA descCrk descriptor.
 2. DESCRIPTOR_C12RK: HiCMA descCrk descriptor.

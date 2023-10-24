@@ -45,6 +45,7 @@ void Results::PrintEndSummary() {
 
     Verbose temp = exageostat::configurations::Configurations::GetVerbosity();
     exageostat::configurations::Configurations::SetVerbosity(STANDARD_MODE);
+    LOGGER("")
     LOGGER("********************SUMMARY**********************")
 
     auto locations_number = mGeneratedLocationsNumber;
@@ -63,27 +64,33 @@ void Results::PrintEndSummary() {
             }
             LOGGER_PRECISION(mLoggerPath << ").")
         }
+        LOGGER(" #Total Data Generation Execution Time: " << mExecutionTimeDataGeneration)
+        LOGGER(" #Total Data Generation Gflop/s: " << mFlopsDataGeneration)
         LOGGER("")
     }
     if (mMLEIterations > 0) {
         LOGGER("---- Data Modeling Results ----")
         LOGGER(" #Number of MLE Iterations till reach Maximum: " << mMLEIterations)
-        LOGGER(" #Found Maximum Theta at ( ", true)
+        LOGGER(" #Found Maximum Theta at: ", true)
         for (double i: mMaximumTheta) {
             LOGGER_PRECISION(i << " ", 8)
         }
-        LOGGER_PRECISION(").")
         LOGGER("")
-        LOGGER(" #Maximum Log Likelihood value: " << mLogLikValue)
+        LOGGER(" #Final Log Likelihood value: " << mLogLikValue)
+        LOGGER(" #Average Time Modeling per Iteration: " << this->GetAverageModelingExecutionTime())
+        LOGGER(" #Average Flops per Iteration: " << this->GetAverageModelingFlops())
+        LOGGER(" #Total MLE Execution time: " << mTotalModelingExecutionTime)
+        LOGGER(" #Total MLE Gflop/s: " << mTotalModelingFlops)
+        LOGGER("")
     }
     if (mZMiss > 0) {
         LOGGER("---- Data Prediction Results ----")
         LOGGER(" #Number of Missing Observations: " << mZMiss)
         if (mMSPEError > 0) {
             LOGGER(" #MSPE")
-            LOGGER("  # Prediction Execution Time: " << mExecutionTime)
-            LOGGER("  # Flops: " << mFlops)
-            LOGGER("  # Mean Square Error (MSE): " << mMSPEError)
+            LOGGER("  #MSPE Prediction Execution Time: " << mExecutionTimeMSPE)
+            LOGGER("  #MSPE Gflop/s: " << mFlopsMSPE)
+            LOGGER("  #Mean Square Error MSPE: " << mMSPEError)
 
         }
         if (!mIDWError.empty()) {
@@ -99,6 +106,11 @@ void Results::PrintEndSummary() {
             LOGGER(" #MLOE MMOM")
             LOGGER("  #MLOE: " << mMLOE)
             LOGGER("  #MMOM: " << mMMOM)
+            LOGGER("  #MLOE-MMOM Execution Time: " << mExecutionTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Matrix Generation Time: " << mGenerationTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Cholesky Factorization Time: " << mFactoTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Loop Time: " << mLoopTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Number of flops: " << mFlopsMLOEMMOM)
         }
     }
     LOGGER("*************************************************")
@@ -137,12 +149,70 @@ void Results::SetMMOM(double aMMOM) {
     this->mMMOM = aMMOM;
 }
 
-void Results::SetExecutionTime(double aExecutionTime) {
-    this->mExecutionTime = aExecutionTime;
+void Results::SetMSPEExecutionTime(double aTime) {
+    this->mExecutionTimeMSPE = aTime;
 }
 
-void Results::SetFlops(double aFlops) {
-    this->mFlops = aFlops;
+void Results::SetMSPEFlops(double aFlops) {
+    this->mFlopsMSPE = aFlops;
+}
+
+void Results::SetTotalModelingExecutionTime(double aTime) {
+    this->mTotalModelingExecutionTime = aTime;
+}
+
+double Results::GetTotalModelingExecutionTime() const {
+    return this->mTotalModelingExecutionTime;
+}
+
+double Results::GetAverageModelingExecutionTime() const {
+    if (this->mMLEIterations) {
+        return this->mTotalModelingExecutionTime / this->mMLEIterations;
+    }
+    throw std::runtime_error("Number of MLE Iterations is not set!");
+}
+
+double Results::GetAverageModelingFlops() const {
+    if (this->mMLEIterations) {
+        return this->mTotalModelingFlops / this->mMLEIterations;
+    }
+    throw std::runtime_error("Number of MLE Iterations is not set!");
+}
+
+void Results::SetTotalModelingFlops(double aTime) {
+    this->mTotalModelingFlops = aTime;
+}
+
+double Results::GetTotalModelingFlops() const {
+    return this->mTotalModelingFlops;
 }
 
 Results *Results::mpInstance = nullptr;
+
+void Results::SetExecutionTimeMLOEMMOM(double aTime) {
+    this->mExecutionTimeMLOEMMOM = aTime;
+}
+
+void Results::SetMatrixGenerationTimeMLOEMMOM(double aTime) {
+    this->mGenerationTimeMLOEMMOM = aTime;
+}
+
+void Results::SetFactoTimeMLOEMMOM(double aTime) {
+    this->mFactoTimeMLOEMMOM = aTime;
+}
+
+void Results::SetLoopTimeMLOEMMOM(double aTime) {
+    this->mLoopTimeMLOEMMOM = aTime;
+}
+
+void Results::SetFlopsMLOEMMOM(double aFlops) {
+    this->mFlopsMLOEMMOM = aFlops;
+}
+
+void Results::SetTotalDataGenerationExecutionTime(double aTime) {
+    this->mExecutionTimeDataGeneration = aTime;
+}
+
+void Results::SetTotalDataGenerationFlops(double aFlops) {
+    this->mFlopsDataGeneration = aFlops;
+}

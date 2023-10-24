@@ -32,10 +32,10 @@ Example:
 
 function(find_package_message pkg msg details)
     # Avoid printing a message repeatedly for the same find result.
-    if(NOT ${pkg}_FIND_QUIETLY)
+    if (NOT ${pkg}_FIND_QUIETLY)
         string(REPLACE "\n" "" details "${details}")
         set(DETAILS_VAR FIND_PACKAGE_MESSAGE_DETAILS_${pkg})
-        if(NOT "${details}" STREQUAL "${${DETAILS_VAR}}")
+        if (NOT "${details}" STREQUAL "${${DETAILS_VAR}}")
             # The message has not yet been printed.
             message(STATUS "${msg}")
 
@@ -43,6 +43,6 @@ function(find_package_message pkg msg details)
             # message again.
             set("${DETAILS_VAR}" "${details}"
                     CACHE INTERNAL "Details about finding ${pkg}")
-        endif()
-    endif()
+        endif ()
+    endif ()
 endfunction()

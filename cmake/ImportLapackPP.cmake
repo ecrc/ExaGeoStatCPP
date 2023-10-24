@@ -28,7 +28,7 @@ if (NOT TARGET lapackpp)
 
         set(build_tests "${build_tests_save}")
         set(lapackpp_DIR "${CMAKE_BINARY_DIR}/lapackpp")
-    else()
+    else ()
         set(build_tests_save "${build_tests}")
         set(build_tests "false")
 
@@ -41,10 +41,10 @@ if (NOT TARGET lapackpp)
         FetchContent_MakeAvailable(lapackpp)
 
         set(build_tests "${build_tests_save}")
-    endif()
-else()
+    endif ()
+else ()
     message("   LAPACK++ already included")
-endif()
+endif ()
 
 # Add to linking libs.
 set(LIBS
@@ -55,6 +55,6 @@ set(LIBS
 # Add definition indicating version.
 if ("${lapackpp_defines}" MATCHES "LAPACK_ILP64")
     set(COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} -DHCORE_HAVE_LAPACK_WITH_ILP64")
-endif()
+endif ()
 
 message(STATUS "LAPACK++ done")

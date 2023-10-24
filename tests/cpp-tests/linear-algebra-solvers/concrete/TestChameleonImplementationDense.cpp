@@ -41,12 +41,12 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
-        linearAlgebraSolver->SetContext(hardware.GetContext());
+        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
 
         synthetic_data_configurations.SetProblemSize(4);
         synthetic_data_configurations.SetDenseTileSize(1);
 
-        auto *data = new DescriptorData<float>(hardware);
+        auto *data = new DescriptorData<float>();
         linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
@@ -165,12 +165,12 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
-        linearAlgebraSolver->SetContext(hardware.GetContext());
+        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
 
         synthetic_data_configurations.SetProblemSize(64);
         synthetic_data_configurations.SetDenseTileSize(8);
 
-        auto *data = new DescriptorData<double>(hardware);
+        auto *data = new DescriptorData<double>();
         linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;

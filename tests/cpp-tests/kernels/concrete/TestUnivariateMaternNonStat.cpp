@@ -40,7 +40,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
         vector<double> initial_theta{0.04, 1.57, 0.33, -1, 0.8, 0.1, -0.5, 0.5};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         int dts = 3;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
@@ -50,7 +49,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
         int seed = 0;
         srand(seed);
         exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
-                                                           synthetic_data_configurations.GetDimension(), hardware);
+                                                           synthetic_data_configurations.GetDimension());
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
@@ -66,8 +65,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonStat() {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
-
-#endif
     }
 }
 

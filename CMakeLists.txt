@@ -46,7 +46,6 @@ endif ()
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
 
-
 # Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
@@ -87,6 +86,13 @@ if (USE_MPI)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif ()
 
+# Check if no path is set for installation
+if(NOT EXAGEOSTAT_INSTALL_PREFIX)
+    message(FATAL_ERROR "Installation path not set! Please use -DEXAGEOSTAT_INSTALL_PREFIX=path/to/install or use ./config.sh")
+endif()
+# Print installation path of Exageostat.
+message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
+
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
 include(ImportHwloc)
@@ -117,10 +123,7 @@ endif ()
 
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
-if (EXAGEOSTAT_USE_CHAMELEON)
-    add_definitions(-DEXAGEOSTAT_USE_CHAMELEON=TRUE)
-    include(ImportChameleon)
-endif ()
+include(ImportChameleon)
 
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------
@@ -174,7 +177,7 @@ if (${EXAGEOSTAT_BUILD_TESTS})
     include(CTest)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp-tests)
     enable_testing()
-endif()
+endif ()
 
 
 if (EXAGEOSTAT_BUILD_EXAMPLES)
@@ -182,8 +185,6 @@ if (EXAGEOSTAT_BUILD_EXAMPLES)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples)
 endif ()
 
-# Print installation path of Exageostat.
-message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 # Installation actions
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 ## Install cmake find package.
@@ -242,8 +243,8 @@ message(" \n \t ** Configurations of ExaGeoStat and installation of dependence i
 message("\t Export the following line to avoid re-install dependencies each time, This line assume that you haven't changed the installation path. ")
 message("\t If not, Please change the following paths with your installation path. \n")
 message("\t ------------------------------------------------------------------------------------------------------------------------------- ")
-message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/CHAMELEON/lib/pkgconfig:$PWD/installdir/_deps/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/HCORE/lib/pkgconfig:$PWD/installdir/_deps/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/HWLOC/lib/pkgconfig:$PWD/installdir/_deps/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=$PWD/installdir/_deps/STARPU/lib/pkgconfig:$PWD/installdir/_deps/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HCORE/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/STARPU/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")

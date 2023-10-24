@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include <common/Utils.hpp>
 #include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
 
@@ -28,7 +29,7 @@ using namespace exageostat::hardware;
  * @brief Main entry point for the Data Modeling program.
  * @details This example illustrates the process of data modeling using the ExaGeoStat library's CHAMELEON descriptor framework.
  * It involves configuring parameters such as problem size and computation mode, initializing hardware resources, setting up matrices for descriptors,
- * and creating location information. The ExaGeoStatDataModeling function is then called to perform geostatistical analysis. The example showcases
+ * and creating location information. The ExaGeoStatDataModeling function is then called to perform geo statistical analysis. The example showcases
  * the library's efficiency in handling large spatial datasets while efficiently utilizing hardware resources..
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
 
     //Data Setup
     LOGGER("** Create ExaGeoStat data ** ")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
+    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
 
     // Initiating the matrix of the CHAMELEON Descriptor Z.
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,

@@ -30,7 +30,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDbeta() {
         int N = 9;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternDbeta");
-#ifdef EXAGEOSTAT_USE_CHAMELEON
         int dts = 5;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
@@ -40,7 +39,6 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDbeta() {
 
         //// TODO: values are missing in the C version.
 
-#endif
     }
 }
 
