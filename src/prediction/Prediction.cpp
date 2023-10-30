@@ -46,18 +46,6 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
     int n_z_obs = aConfigurations.CalculateZObsNumber();
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
 
-    LOGGER("- Number of Z observations: " << aConfigurations.GetP() * n_z_obs)
-    results::Results::GetInstance()->SetZMiss(aConfigurations.GetP() * n_z_obs);
-    T *z_obs = new T[p * n_z_obs];
-    T *z_miss = new T[p * z_miss_number];
-    T *z_actual = new T[p * z_miss_number];
-    std::vector<T> avg_pred_value(number_of_mspe);
-    auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
-    auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
-    // We Predict date with only Exact computation. This is a pre-request.
-    InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
-                                  *obs_locations, apMeasurementsMatrix);
-
     //FISHER Prediction Function Call
     if (aConfigurations.GetIsFisher()) {
         LOGGER("---- Using Prediction Function Fisher ----")
@@ -83,6 +71,23 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
         LOGGER("")
         delete[] fisher_results;
     }
+
+    if (z_miss_number <= 0){
+        return;
+    }
+
+    LOGGER("- Number of Z observations: " << aConfigurations.GetP() * n_z_obs)
+    results::Results::GetInstance()->SetZMiss(aConfigurations.GetP() * n_z_obs);
+    T *z_obs = new T[p * n_z_obs];
+    T *z_miss = new T[p * z_miss_number];
+    T *z_actual = new T[p * z_miss_number];
+    std::vector<T> avg_pred_value(number_of_mspe);
+    auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
+    auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
+    // We Predict date with only Exact computation. This is a pre-request.
+
+    InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
+                                  *obs_locations, apMeasurementsMatrix);
 
     // MLOE MMOM Auxiliary Function Call
     if (aConfigurations.GetIsMLOEMMOM()) {
