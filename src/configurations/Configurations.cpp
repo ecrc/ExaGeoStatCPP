@@ -60,6 +60,7 @@ Configurations::Configurations() {
     SetRecoveryFile("");
     SetPrecision(common::DOUBLE);
     SetIsMSPE(false);
+    SetIsFisher(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
     SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
@@ -173,9 +174,10 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
             } else {
                 if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
                       argument_name == "--synthetic_data" || argument_name == "--synthetic" ||
-                      argument_name == "--mspe" || argument_name == "--MSPE" || argument_name == "--idw" ||
-                      argument_name == "--IDW" || argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" ||
-                      argument_name == "--mloe_mmom")) {
+                      argument_name == "--mspe" || argument_name == "--MSPE" ||
+                      argument_name == "--idw" || argument_name == "--IDW" ||
+                      argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" || argument_name == "--mloe_mmom" ||
+                      argument_name == "--fisher" || argument_name == "--Fisher")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -359,6 +361,9 @@ void Configurations::InitializeDataPredictionArguments() {
                         "You need to set ZMiss number, as the number of missing values should be positive value");
             }
             SetIsMLOEMMOM(true);
+        } else if (argument_name == "--Fisher" || argument_name == "--fisher") {
+            //Fisher can be performed without zmiss.
+            SetIsFisher(true);
         }
     }
 }
@@ -393,6 +398,7 @@ void Configurations::PrintUsage() {
     LOGGER("--tolerance : MLE tolerance between two iterations.")
     LOGGER("--synthetic_data : Used to enable generating synthetic data.")
     LOGGER("--mspe: Used to enable mean square prediction error.")
+    LOGGER("--fisher: Used to enable fisher tile prediction function.")
     LOGGER("--idw: Used to IDW prediction auxiliary function.")
     LOGGER("--mloe-mmom: Used to enable MLOE MMOM.")
     LOGGER("--OOC : Used to enable Out of core technology.")

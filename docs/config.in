@@ -32,7 +32,7 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = "ExaGeoStat"
+PROJECT_NAME           = "ExaGeoStat CPP"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
@@ -58,7 +58,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = "build"
+OUTPUT_DIRECTORY       = "bin"
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -135,7 +135,7 @@ ABBREVIATE_BRIEF       = "The $name class" \
 # description.
 # The default value is: NO.
 
-ALWAYS_DETAILED_SEC    = NO
+ALWAYS_DETAILED_SEC    = YES
 
 # If the INLINE_INHERITED_MEMB tag is set to YES, doxygen will show all
 # inherited members of a class in the documentation of that class as if those
@@ -150,7 +150,7 @@ INLINE_INHERITED_MEMB  = NO
 # shortest path that makes the file name unique will be used
 # The default value is: YES.
 
-FULL_PATH_NAMES        = YES
+FULL_PATH_NAMES        = NO
 
 # The STRIP_FROM_PATH tag can be used to strip a user-defined part of the path.
 # Stripping is only done if one of the specified strings matches the left-hand
@@ -252,7 +252,7 @@ TCL_SUBST              =
 # members will be omitted, etc.
 # The default value is: NO.
 
-OPTIMIZE_OUTPUT_FOR_C  = YES
+OPTIMIZE_OUTPUT_FOR_C  = NO
 
 # Set the OPTIMIZE_OUTPUT_JAVA tag to YES if your project consists of Java or
 # Python sources only. Doxygen will then generate output that is more tailored
@@ -367,7 +367,7 @@ DISTRIBUTE_GROUP_DOC   = NO
 # is disabled and one has to add nested compounds explicitly via \ingroup.
 # The default value is: NO.
 
-GROUP_NESTED_COMPOUNDS = NO
+GROUP_NESTED_COMPOUNDS = YES
 
 # Set the SUBGROUPING tag to YES to allow class member groups of the same type
 # (for instance a group of public functions) to be put as a subgroup of that
@@ -441,7 +441,7 @@ EXTRACT_ALL            = YES
 # be included in the documentation.
 # The default value is: NO.
 
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 
 # If the EXTRACT_PACKAGE tag is set to YES, all members with package or internal
 # scope will be included in the documentation.
@@ -453,7 +453,7 @@ EXTRACT_PACKAGE        = NO
 # included in the documentation.
 # The default value is: NO.
 
-EXTRACT_STATIC         = NO
+EXTRACT_STATIC         = YES
 
 # If the EXTRACT_LOCAL_CLASSES tag is set to YES, classes (and structs) defined
 # locally in source files will be included in the documentation. If set to NO,
@@ -469,7 +469,7 @@ EXTRACT_LOCAL_CLASSES  = YES
 # included.
 # The default value is: NO.
 
-EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_LOCAL_METHODS  = YES
 
 # If this flag is set to YES, the members of anonymous namespaces will be
 # extracted and appear in the documentation as a namespace called
@@ -790,29 +790,10 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/index.md" \
-     			 "@CMAKE_CURRENT_SOURCE_DIR@/dependencies.md"\
-                   	 "@CMAKE_CURRENT_SOURCE_DIR@/install.md" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/examples.md" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/workflow.md" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/rpackage.md" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/faq.md" \
-			 "@CMAKE_CURRENT_SOURCE_DIR@/../src/compute" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../src/include" \
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_exact/runtime/starpu/codelets"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_exact/runtime/starpu/include"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_exact/src/compute"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_exact/src/include"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_exact/core/compute"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_exact/core/include"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_approx/runtime/starpu/codelets"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_approx/runtime/starpu/include"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_approx/src/compute"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_approx/src/include"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_approx/core/compute"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../exageostat_approx/core/include"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../misc/compute"\
-                         "@CMAKE_CURRENT_SOURCE_DIR@/../misc/include"
+INPUT                  =
+
+
+
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -839,13 +820,15 @@ INPUT_ENCODING         = UTF-8
 
 FILE_PATTERNS          = *.c \
                          *.h \
-                         *.md
+                         *.md \
+                         *.cpp \
+                         *.hpp
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
 # The default value is: NO.
 
-RECURSIVE              = NO
+RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should be
 # excluded from the INPUT source files. This way you can easily exclude a

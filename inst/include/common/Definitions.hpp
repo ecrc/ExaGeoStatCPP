@@ -52,6 +52,11 @@
  */
 #define EARTH_RADIUS 6371.0
 
+/**
+ * Q Norm value.
+ */
+#define Q_NORM 1.959964
+
 namespace exageostat::common {
 
     /**
@@ -172,7 +177,13 @@ namespace exageostat::common {
         DESCRIPTOR_MLOE_MMOM = 42,
         DESCRIPTOR_ALPHA = 43,
         DESCRIPTOR_TRUTH_ALPHA = 44,
-        DESCRIPTOR_TIMATED_ALPHA = 45
+        DESCRIPTOR_TIMATED_ALPHA = 45,
+        DESCRIPTOR_CK = 46,
+        DESCRIPTOR_CJ = 47,
+        DESCRIPTOR_C_TRACE = 48,
+        DESCRIPTOR_C_DIAG = 49,
+        DESCRIPTOR_A = 50,
+        DESCRIPTOR_RESULTS = 51,
     };
 
     /**
