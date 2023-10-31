@@ -28,54 +28,110 @@ option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
-# Select toolchain based on whether CUDA is enabled or not
-if (USE_CUDA)
-    # Enable CUDA and include CudaToolchain
-    add_definitions(-DUSE_CUDA=TRUE)
-    enable_language(CUDA)
-    include(toolchains/CudaToolchain)
-    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
-    set(BLA_VENDOR NVHPC)
-    list(APPEND STARPU_COMPONENT_LIST "CUDA")
-else ()
-    message("-- Build x86 Support")
-    # Include GccToolchain for non-CUDA builds - Gcc
-    include(toolchains/GccToolchain)
-endif ()
-
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
 
 # Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
+
+# Select toolchain based on whether CUDA is enabled or not
+if (USE_CUDA)
+	    # Enable CUDA and include CudaToolchain
+	        add_definitions(-DUSE_CUDA=TRUE)
+		    enable_language(CUDA)
+		        include(toolchains/CudaToolchain)
+			    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
+			        set(BLA_VENDOR NVHPC)
+				    list(APPEND STARPU_COMPONENT_LIST "CUDA")
+			    else ()
+				        message("-- Build x86 Support")
+					    # Include GccToolchain for non-CUDA builds - Gcc
+					        include(toolchains/GccToolchain)
+					endif ()
+
+
 # Enable C++ language
 enable_language(CXX)
 
 add_definitions(
-        -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
-        -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
-)
+	        -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
+		        -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
+			)
+
+
+
+# EXAGEOSTAT depends on CBLAS
+#---------------------------
+find_package(CBLAS COMPONENTS BLASEXT)
+if(BLAS_FOUND)
+	    if (BLAS_LIBRARY_DIRS)
+		            # the RPATH to be used when installing
+			            list(APPEND CMAKE_INSTALL_RPATH "${BLAS_LIBRARY_DIRS}")
+				        endif()
+					    if(BLAS_LINKER_FLAGS)
+						            list(APPEND CMAKE_EXE_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
+							        endif()
+							else()
+								    message(FATAL_ERROR "BLAS library has not been found")
+							    endif()
+							    if(CBLAS_FOUND)
+								        include_directories(${CBLAS_INCLUDE_DIRS})
+									    if(CBLAS_LIBRARY_DIRS)
+										            # the RPATH to be used when installing
+											            list(APPEND CMAKE_INSTALL_RPATH "${CBLAS_LIBRARY_DIRS}")
+												        endif()
+													    if (CBLAS_LIBRARIES)
+														            if (CBLAS_LIBRARIES_DEP)
+																                list(INSERT EXAGEOSTAT_DEP 0 ${CBLAS_LIBRARIES_DEP})
+																		        else()
+																				            list(INSERT EXAGEOSTAT_DEP 0 ${CBLAS_LIBRARIES})
+																					            endif()
+																						        endif()
+																						else()
+																							    if(ECRC_VERBOSE_FIND_PACKAGE)
+																								            if(CBLAS_STANDALONE OR NOT CBLAS_WORKS)
+																										                if (NOT CBLAS_cblas.h_DIRS)
+																													                Print_Find_Header_Status(cblas cblas.h)
+																															            endif ()
+																																                if (NOT CBLAS_cblas_LIBRARY)
+																																			                Print_Find_Library_Status(cblas libcblas)
+																																					            endif ()
+																																						            endif()
+																																							        else()
+																																									        message(WARNING "CBLAS library has not been found and ECRC_VERBOSE_FIND_PACKAGE is set to OFF."
+																																											        " Try to activate ECRC_VERBOSE_FIND_PACKAGE option (-DECRC_VERBOSE_FIND_PACKAGE=ON) to get some hints for the detection")
+																																											    endif()
+																																											        message(FATAL_ERROR "A CBLAS library is required but has not been found")
+																																											endif()
+
+
+																																											find_package(LAPACKE)
+																																											list(APPEND LIBS ${LAPACKE_LIBRARIES})
+																																											link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+																																											include_directories(${LAPACKE_INCLUDE_DIRS})
+
 
 # Add all dependencies for ExaGeoStat PP
-include(ImportGFortran)
-include(ImportOpenMP)
+#include(ImportGFortran)
+#include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
     # Import CuSolver and Lapack libraries
-    include(ImportCuSolver)
-    include(ImportBlasPP)
-    unset(BLA_VENDOR)
+    #    include(ImportCuSolver)
+         include(ImportBlasPP)
+     unset(BLA_VENDOR)
     include(ImportLapack)
 
     set(LIBS
-            LAPACK::LAPACK
-            ${LIBS}
-            )
+           LAPACK::LAPACK
+           ${LIBS}
+           )
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE STRING "none" FORCE)
     unset(BLA_VENDOR)
 endif ()
+
 
 # Add all dependencies for Exageostat
 # EXAGEOSTAT depends on a MPI
@@ -130,12 +186,6 @@ include(ImportChameleon)
 include(ImportBlas)
 include(ImportLapack)
 
-find_package(LAPACKE)
-list(APPEND LIBS ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
-
-
 # EXAGEOSTAT DOCUMENTATIONS
 if (EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
@@ -159,7 +209,7 @@ add_subdirectory(src)
 # Creates a new INTERFACE library target named ${PROJECT_NAME}_INTERFACE.
 # The INTERFACE keyword specifies that this library will not be built, but instead will only be used for its properties.
 add_library(${PROJECT_NAME}_INTERFACE INTERFACE)
-target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME} ${EXAGEOSTAT_DEP})
 # Add linker options to the target
 target_link_options(${PROJECT_NAME}_INTERFACE INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:${PROJECT_NAME}> -Wl,--no-whole-archive")
 
