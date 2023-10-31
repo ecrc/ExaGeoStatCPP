@@ -44,7 +44,8 @@ endif ()
 
 # Add the GSL library to the project's list of libraries.
 list(APPEND LIBS gsl)
-include_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/include)
-link_directories(${PROJECT_SOURCE_DIR}/installdir/_deps/GSL/lib)
+include_directories(${GSL_INCLUDE_DIRS})
+link_directories(${GSL_LIBRARY_DIRS})
+message("${GSL_LIBRARIES}")
 
 message(STATUS "GSL done")
