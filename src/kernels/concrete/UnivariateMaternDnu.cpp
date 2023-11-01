@@ -68,7 +68,7 @@ void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
                                                                      (pow(expr, aLocalTheta[2]) * log(expr) *
                                                                       gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                                                                       pow(expr, aLocalTheta[2]) *
-                                                                      gsl_sf_bessel_Kn(aLocalTheta[2], expr)));
+                                                                      Kernel<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr)));
                 apMatrixA[i + j * aRowsNumber] = sigma_square * nu_expr;
             }
             j0++;
