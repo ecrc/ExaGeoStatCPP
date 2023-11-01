@@ -78,6 +78,9 @@ endif ()
 # Print installation path of Exageostat.
 message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 
+#include(ImportBlasPP)
+#include(ImportLapack)
+
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
 include(ImportHwloc)
@@ -220,7 +223,7 @@ message("\t If not, Please change the following paths with your installation pat
 message("\t ------------------------------------------------------------------------------------------------------------------------------- ")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HCORE/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/STARPU/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")
 

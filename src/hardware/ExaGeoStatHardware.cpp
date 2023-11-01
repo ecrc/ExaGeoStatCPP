@@ -22,11 +22,13 @@ using namespace exageostat::hardware;
 ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber,
                                        const int &aGpuNumber) {
 
-    this->mComputation = aComputation;
+std::cout << "here(1)\n";    
+this->mComputation = aComputation;
     int tag_width = 31, tag_sep = 26;
     // Init hardware using Chameleon
     if (!this->mpChameleonContext) {
         CHAMELEON_user_tag_size(tag_width, tag_sep);
+std::cout << "malek bs ya hbebety\n";
         CHAMELEON_Init(aCoreNumber, aGpuNumber)
         this->mpChameleonContext = chameleon_context_self();
     }

@@ -15,6 +15,7 @@
 #include <common/Utils.hpp>
 #include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
+#include <hardware/ExaGeoStatHardware.hpp>
 
 using namespace std;
 
@@ -39,7 +40,8 @@ int main(int argc, char **argv) {
     LOGGER("** Initialise ExaGeoStat hardware **")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
-    LOGGER("** Create ExaGeoStat data **")
+std::cout << "malek bs ya hbebety\n";
+LOGGER("** Create ExaGeoStat data **")
     ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
     LOGGER("** ExaGeoStat data generation **")
     ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
