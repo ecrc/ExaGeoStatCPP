@@ -45,7 +45,7 @@ add_definitions(
 if (USE_CUDA)
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
-        enable_language(CUDA)
+    enable_language(CUDA)
     include(toolchains/CudaToolchain)
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
@@ -56,36 +56,6 @@ else ()
     include(toolchains/GccToolchain)
 endif ()
 
-
-# EXAGEOSTAT depends on LAPACKE
-#-----------------------------
-find_package(LAPACKE)
-list(APPEND LIBS ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
-
-# Add all dependencies for ExaGeoStat PP
-#include(ImportGFortran)
-#include(ImportOpenMP)
-#if (USE_CUDA)
-#    message("-- Build CUDA Support")
-#    # Import CuSolver and Lapack libraries
-#    include(ImportCuSolver)
-#    include(ImportBlasPP)
-#    unset(BLA_VENDOR)
-#    include(ImportLapack)
-#
-#    set(LIBS
-#            LAPACK::LAPACK
-#            ${LIBS}
-#            )
-#else ()
-#    message("-- Build x86 Support")
-#    set(gpu_backend CACHE STRING "none" FORCE)
-#    unset(BLA_VENDOR)
-#endif ()
-
-# Add all dependencies for Exageostat
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
 if (USE_MPI)
@@ -94,10 +64,17 @@ if (USE_MPI)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif ()
 
+# EXAGEOSTAT depends on LAPACKE
+#-----------------------------
+find_package(LAPACKE)
+list(APPEND LIBS ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
+
 # Check if no path is set for installation
-if(NOT EXAGEOSTAT_INSTALL_PREFIX)
+if (NOT EXAGEOSTAT_INSTALL_PREFIX)
     message(FATAL_ERROR "Installation path not set! Please use -DEXAGEOSTAT_INSTALL_PREFIX=path/to/install or use ./config.sh")
-endif()
+endif ()
 # Print installation path of Exageostat.
 message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 
@@ -133,17 +110,6 @@ endif ()
 # -------------------------------
 include(ImportChameleon)
 
-# EXAGEOSTAT depends on a LAPACKE
-# -------------------------------
-#include(ImportBlas)
-#include(ImportLapack)
-#
-#find_package(LAPACKE)
-#list(APPEND LIBS ${LAPACKE_LIBRARIES})
-#link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-#include_directories(${LAPACKE_INCLUDE_DIRS})
-
-
 # EXAGEOSTAT DOCUMENTATIONS
 if (EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
@@ -167,9 +133,6 @@ add_subdirectory(src)
 # Creates a new INTERFACE library target named ${PROJECT_NAME}_INTERFACE.
 # The INTERFACE keyword specifies that this library will not be built, but instead will only be used for its properties.
 add_library(${PROJECT_NAME}_INTERFACE INTERFACE)
-
-list(REMOVE_DUPLICATES EXAGEOSTAT_DEP)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${EXAGEOSTAT_DEP})
 target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME})
 
 # Add linker options to the target

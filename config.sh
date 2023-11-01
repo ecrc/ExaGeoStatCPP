@@ -21,12 +21,11 @@ BUILDING_TESTS="OFF"
 BUILDING_EXAMPLES="OFF"
 USING_HiCMA="OFF"
 VERBOSE=OFF
-BUILD_TYPE="Release"
 USE_CUDA="OFF"
 USE_MPI="OFF"
 
 # Parse command line options
-while getopts ":tevhHi:dcm" opt; do
+while getopts ":tevhHi:cm" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -55,10 +54,6 @@ while getopts ":tevhHi:dcm" opt; do
     v) ##### printing full output of make #####
       echo -e "${YELLOW}printing make with details.${NC}"
       VERBOSE=ON
-      ;;
-    d)##### Using debug mode to build #####
-      echo -e "${RED}Debug mode enabled ${NC}"
-      BUILD_TYPE="DEBUG"
       ;;
     \?) ##### Error unknown option #####
       echo "Option $OPTARG parameter is unknown, please -h for help"
@@ -102,19 +97,15 @@ if [ -z "$USING_HiCMA" ]; then
    echo -e "${RED}Using HiCMA is disabled.${NC}"
 fi
 
-if [ -z "$BUILD_TYPE" ]; then
-  BUILD_TYPE="Release"
-  echo -e "${GREEN}Building in Release mode${NC}"
-fi
 if [ -z "$USE_CUDA" ]; then
   USE_CUDA="OFF"
   echo -e "${RED}Using CUDA disabled${NC}"
 fi
+
 if [ -z "$USE_MPI" ]; then
   USE_MPI="OFF"
   echo -e "${RED}Using MPI disabled${NC}"
 fi
-
 
 echo ""
 echo -e "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
@@ -122,7 +113,7 @@ echo ""
 rm -rf bin/
 mkdir -p bin/installdir
 
-LDFLAGS="-L/opt/ecrc/cuda/11.4/lib64" cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DEXAGEOSTAT_INSTALL_PREFIX="${INSTALL_PREFIX}" \
   -DEXAGEOSTAT_BUILD_TESTS="${BUILDING_TESTS}" \
   -DEXAGEOSTAT_BUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
