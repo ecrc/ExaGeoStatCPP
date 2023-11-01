@@ -616,7 +616,7 @@ void Configurations::PrintSummary() {
     mVerbosity = STANDARD_MODE;
     if (!mIsPrinted) {
 #if defined(CHAMELEON_USE_MPI)
-        if ( MORSE_My_Mpi_Rank() == 0 )
+        if ( CHAMELEON_My_Mpi_Rank() == 0 )
         {
 #endif
         LOGGER("********************SUMMARY**********************")
