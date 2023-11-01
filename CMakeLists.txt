@@ -78,9 +78,6 @@ endif ()
 # Print installation path of Exageostat.
 message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 
-#include(ImportBlasPP)
-#include(ImportLapack)
-
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
 include(ImportHwloc)
@@ -112,9 +109,6 @@ endif ()
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
 include(ImportChameleon)
-
-include(ImportBlasPP)
-include(ImportLapack)
 
 # EXAGEOSTAT DOCUMENTATIONS
 if (EXAGEOSTAT_BUILD_DOCS)
