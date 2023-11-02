@@ -21,6 +21,7 @@
 #include <string>
 #include <sys/time.h>
 
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 
@@ -33,7 +34,7 @@
 * Verbose macro for logging and debugging mode
 */
 #define VERBOSE(msg) \
-    if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE) \
+    if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && CHAMELEON_My_Mpi_Rank() == 0) \
         std::cout << "\t\t\t " << msg << std::endl;
 
 /**
