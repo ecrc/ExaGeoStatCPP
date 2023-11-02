@@ -12,6 +12,9 @@
  * @date 2023-03-20
 **/
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
 #include <lapacke.h>
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
@@ -319,9 +322,10 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
         pMatrix = new T[n];
+        string path = aConfigurations.GetLoggerPath();
         ExaGeoStatDesc2Lap(pMatrix, n, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
         if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
+            helpers::DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
         }
         delete[] pMatrix;
 #else

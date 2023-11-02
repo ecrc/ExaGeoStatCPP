@@ -59,6 +59,8 @@ endif ()
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
 if (USE_MPI)
+    # Enable MPI and include MPI
+    add_definitions(-DUSE_MPI=TRUE)
     message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
