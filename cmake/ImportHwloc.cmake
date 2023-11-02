@@ -21,7 +21,7 @@ include(macros/BuildDependency)
 if (NOT TARGET HWLOC)
     include(FindPkgConfig)
     find_package(PkgConfig QUIET)
-    find_package(HWLOC 2.4.0 QUIET)
+    find_package(HWLOC 2.4.0 REQUIRED QUIET)
 
     # If Hwloc is found, print its location.
     if (HWLOC_FOUND)
