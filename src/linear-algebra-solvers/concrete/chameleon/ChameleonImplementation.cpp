@@ -13,6 +13,10 @@
  * @date 2023-03-20
 **/
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include <linear-algebra-solvers/concrete/chameleon/ChameleonImplementation.hpp>
 
 using namespace std;

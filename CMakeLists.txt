@@ -83,7 +83,7 @@ message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
 include(ImportHwloc)
-set(STARPU_COMPONENT_LIST "HWLOC")
+list(APPEND STARPU_COMPONENT_LIST "HWLOC")
 
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
