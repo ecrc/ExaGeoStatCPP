@@ -199,7 +199,7 @@ References
     of non-Gaussian space and space-time Tukey g-and-h random field likelihoods and predictions on large-scale systems." 
     Journal of Parallel and Distributed Computing 180 (2023): 104715.
     
-13. Qinglei Cao, Sameh Abdulah, Hatem Ltaief, Marc G. Genton, David E. Keyes, and George Bosilca. "Reducing Data Motion
+12. Qinglei Cao, Sameh Abdulah, Hatem Ltaief, Marc G. Genton, David E. Keyes, and George Bosilca. "Reducing Data Motion
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
    on Cluster Computing (CLUSTER), IEEE, 2023.
 
