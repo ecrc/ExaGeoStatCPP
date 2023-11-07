@@ -12,7 +12,7 @@ state-of-the-art high-performance linear algebra software libraries.
 
 What is ExaGeoStatCPP?
 ====================
-ExaGeoStat++ is a C++ API for ExaGeoStat that aims to offer a user-friendly and efficient API for C++ developers, essentially maintaining traditional practices but also embracing contemporary C++ elements like namespaces, templates, and exceptions to enhance functionality.
+ExaGeoStatCPP is a C++ API for ExaGeoStat that aims to offer a user-friendly and efficient API for C++ developers, essentially maintaining traditional practices but also embracing contemporary C++ elements like namespaces, templates, and exceptions to enhance functionality.
 
 
 
