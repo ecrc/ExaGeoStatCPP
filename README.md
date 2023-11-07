@@ -178,7 +178,7 @@ References
    Systems 32, no. 11 (2021): 2719-2733.
 
 6. Mary Lai O. Salvaña, Sameh Abdulah, Hatem Ltaief, Ying Sun, Marc G. Genton, and David E. Keyes. "Parallel Space-Time
-   Likelihood Optimization for Air Pollution Prediction on Large-Scale Systems." In Proceedings of the Platform for
+   Likelihood Optimization for Air Pollution Prediction on Large-Scale Systems." In the Proceedings of the Platform for
    Advanced Scientific Computing Conference (PASC'22). Association for Computing Machinery, New York, NY, USA, Article
    17, 1–11. ACM, 2022.
 
@@ -192,8 +192,8 @@ References
 
 10. Qinglei Cao, Sameh Abdulah, Rabab Alomairy, Yu Pei, Pratik Nag, George Bosilca, Jack Dongarra et al. "Reshaping
    geostatistical modeling and prediction for extreme-scale environmental applications." In 2022 SC22: International
-   Conference for High-Performance Computing, Networking, Storage and Analysis (SC), pp. 13-24. IEEE Computer Society,
-   2022. (ACM GORDON BELL PRIZE Finalist).
+   Conference for High-Performance Computing, Networking, Storage and Analysis (SC), pp. 13-24. IEEE Computer Society, 2022.
+   (ACM GORDON BELL PRIZE Finalist).
          
 11. Sagnik Mondal, Sameh Abdulah, Hatem Ltaief, Ying Sun, Marc G. Genton, and David E. Keyes. "Tile low-rank approximations
     of non-Gaussian space and space-time Tukey g-and-h random field likelihoods and predictions on large-scale systems." 
