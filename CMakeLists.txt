@@ -28,6 +28,20 @@ option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
+# Select toolchain based on whether CUDA is enabled or not
+if (USE_CUDA)
+    # Enable CUDA and include CudaToolchain
+    add_definitions(-DUSE_CUDA=TRUE)
+    include(toolchains/CudaToolchain)
+    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
+    set(BLA_VENDOR NVHPC)
+    list(APPEND STARPU_COMPONENT_LIST "CUDA")
+else ()
+    message("-- Build x86 Support")
+    # Include GccToolchain for non-CUDA builds - Gcc
+    include(toolchains/GccToolchain)
+endif ()
+
 # Project Name and Version
 project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
 
@@ -41,18 +55,13 @@ add_definitions(
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
 )
 
-# Select toolchain based on whether CUDA is enabled or not
+# Add all dependencies for ExaGeoStat PP
 if (USE_CUDA)
-    # Enable CUDA and include CudaToolchain
-    add_definitions(-DUSE_CUDA=TRUE)
-    include(toolchains/CudaToolchain)
-    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
-    set(BLA_VENDOR NVHPC)
-    list(APPEND STARPU_COMPONENT_LIST "CUDA")
+    message("-- Build CUDA Support")
 else ()
     message("-- Build x86 Support")
-    # Include GccToolchain for non-CUDA builds - Gcc
-    include(toolchains/GccToolchain)
+    set(gpu_backend CACHE STRING "none" FORCE)
+    unset(BLA_VENDOR)
 endif ()
 
 # EXAGEOSTAT depends on a MPI
