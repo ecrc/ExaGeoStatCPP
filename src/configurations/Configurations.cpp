@@ -97,11 +97,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetProblemSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
                 CheckKernelValue(argument_value);
-            } else if (argument_name == "--PGrid" || argument_name == "--pGrid" || argument_name == "--pgrid" ||
-                       argument_name == "--p_grid") {
+            } else if (argument_name == "--P" || argument_name == "--p") {
                 SetPGrid(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid" ||
-                       argument_name == "--q_grid") {
+            } else if (argument_name == "--Q" || argument_name == "--q") {
                 SetQGrid(CheckNumericalValue(argument_value));
             } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot" ||
                        argument_name == "--time_slot") {
@@ -373,8 +371,8 @@ void Configurations::PrintUsage() {
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")
     LOGGER("--dimension=value : Used Dimension.")
-    LOGGER("--p_grid=value : Used P-Grid.")
-    LOGGER("--q_grid=value : Used P-Grid.")
+    LOGGER("--p=value : Used P-Grid.")
+    LOGGER("--q=value : Used P-Grid.")
     LOGGER("--time_slot=value : Time slot value for ST.")
     LOGGER("--computation=value : Used computation.")
     LOGGER("--precision=value : Used precision.")
@@ -621,10 +619,7 @@ void Configurations::PrintSummary() {
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
     if (!mIsPrinted) {
-#if defined(CHAMELEON_USE_MPI)
-        if ( MORSE_My_Mpi_Rank() == 0 )
-        {
-#endif
+
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Dataset")
@@ -655,9 +650,6 @@ void Configurations::PrintSummary() {
         LOGGER("#Kernel: " << this->GetKernelName())
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
         LOGGER("*************************************************")
-#if defined(CHAMELEON_USE_MPI)
-        }
-#endif
         mIsPrinted = true;
     }
     mVerbosity = temp;

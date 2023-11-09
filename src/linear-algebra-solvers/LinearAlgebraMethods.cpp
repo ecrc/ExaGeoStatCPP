@@ -12,6 +12,9 @@
  * @date 2023-03-20
 **/
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
 #include <lapacke.h>
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
@@ -379,9 +382,10 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
         pMatrix = new T[n];
+        string path = aConfigurations.GetLoggerPath();
         ExaGeoStatDesc2Lap(pMatrix, n, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
-        if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
+        if ( CHAMELEON_Comm_rank() == 0 ){
+            helpers::DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
         }
         delete[] pMatrix;
 #else
@@ -550,6 +554,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(ExaGeoStatData<T> &aData, T
     for (i = 0; i < aZMissNumber; i++) {
         LOGGER(" (" << apZActual[i] << ", " << apZMiss[i] << ")")
     }
+
     results::Results::GetInstance()->SetMSPEExecutionTime(time_solve + time_gemm);
     results::Results::GetInstance()->SetMSPEFlops((flops / 1e9 / (time_solve + time_gemm)));
     results::Results::GetInstance()->SetMSPEError(*mspe);
@@ -715,13 +720,7 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
     T total_loop_time = 0.0;
     T loop_time;
     for (p = 0; p < n_z_miss; p++) {
-#if defined(CHAMELEON_USE_MPI)
-        if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
-#if defined(CHAMELEON_USE_MPI)
-        }
-#endif
+
         lmiss->GetLocationX()[0] = aMissLocations.GetLocationX()[p];
         lmiss->GetLocationY()[0] = aMissLocations.GetLocationY()[p];
 
@@ -838,15 +837,7 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
                                        CHAM_desc_mmom, sequence, request);
         this->ExaGeoStatSequenceWait(sequence);
     }
-#if defined(CHAMELEON_USE_MPI)
-    if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
     LOGGER(" ---- MLOE-MMOM Gflop/s: " << flops / 1e9 / (total_loop_time + cholesky1 + cholesky2))
-
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
 
     *mloe /= n_z_miss;
     *mmom /= n_z_miss;
