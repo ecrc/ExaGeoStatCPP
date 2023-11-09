@@ -222,6 +222,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
     //Calculate MLE likelihood
     VERBOSE("Calculating the MLE likelihood function ...")
     ExaGeoStatDoubleDotProduct(CHAM_desc_Z, CHAM_desc_product, pSequence, request_array);
+    ExaGeoStatSequenceWait(pSequence);
     if (kernel_name == "BivariateMaternParsimonious2Profile") {
         loglik =
                 -(n / 2) + (n / 2) * log(n) - (n / 2) * log(dot_product) - 0.5 * logdet - (T) (n / 2.0) * log(2.0 * PI);
