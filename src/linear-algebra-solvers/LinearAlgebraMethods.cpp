@@ -1161,7 +1161,6 @@ LinearAlgebraMethods<T>::ExaGeoStatMLETraceTileAsync(void *apDescA, void *apSequ
         tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
         starpu_insert_task(cl,
                            STARPU_VALUE, &tempmm, sizeof(int),
-                           STARPU_VALUE, &tempmm, sizeof(int),
                            STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescA, m, m),
                            STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescNum, 0, 0),
                            STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescTrace, m, 0),
