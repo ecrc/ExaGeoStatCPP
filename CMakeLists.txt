@@ -32,6 +32,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 if (USE_CUDA)
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
+    enable_language(CUDA)
     include(toolchains/CudaToolchain)
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
