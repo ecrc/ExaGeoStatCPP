@@ -63,6 +63,7 @@ void Results::PrintEndSummary() {
                 mLoggerPath = LOG_PATH;
             }
             LOGGER_PRECISION(mLoggerPath << ").")
+            LOGGER("")
         }
         LOGGER(" #Total Data Generation Execution Time: " << mExecutionTimeDataGeneration)
         LOGGER(" #Total Data Generation Gflop/s: " << mFlopsDataGeneration)
@@ -83,6 +84,7 @@ void Results::PrintEndSummary() {
         LOGGER(" #Total MLE Gflop/s: " << mTotalModelingFlops)
         LOGGER("")
     }
+
     if (mZMiss > 0) {
         LOGGER("---- Data Prediction Results ----")
         LOGGER(" #Number of Missing Observations: " << mZMiss)
@@ -111,7 +113,16 @@ void Results::PrintEndSummary() {
             LOGGER("  #MLOE-MMOM Cholesky Factorization Time: " << mFactoTimeMLOEMMOM)
             LOGGER("  #MLOE-MMOM Loop Time: " << mLoopTimeMLOEMMOM)
             LOGGER("  #MLOE-MMOM Number of flops: " << mFlopsMLOEMMOM)
+            LOGGER("")
         }
+    }
+    if(mFisher00 != 0){
+        LOGGER(" #Fisher")
+        LOGGER("  #Sd For Sigma2: " << mFisher00)
+        LOGGER("  #Sd For Alpha: " << mFisher11)
+        LOGGER("  #Sd For Nu: " << mFisher22)
+        LOGGER("  #Fisher Execution Time: " << mTotalFisherTime)
+        LOGGER("")
     }
     LOGGER("*************************************************")
     exageostat::configurations::Configurations::SetVerbosity(temp);
@@ -215,4 +226,20 @@ void Results::SetTotalDataGenerationExecutionTime(double aTime) {
 
 void Results::SetTotalDataGenerationFlops(double aFlops) {
     this->mFlopsDataGeneration = aFlops;
+}
+
+void Results::SetTotalFisherTime(double aTime) {
+    this->mTotalFisherTime = aTime;
+}
+
+void Results::SetFisher00(double aFisher00) {
+    this->mFisher00 = aFisher00;
+}
+
+void Results::SetFisher11(double aFisher11) {
+    this->mFisher11 = aFisher11;
+}
+
+void Results::SetFisher22(double aFisher22) {
+    this->mFisher22 = aFisher22;
 }

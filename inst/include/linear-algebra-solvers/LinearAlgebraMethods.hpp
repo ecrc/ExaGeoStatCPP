@@ -53,7 +53,7 @@ namespace exageostat::linearAlgebra {
          * @brief Initializes the descriptors necessary for the linear algebra solver.
          * @details This method initializes the descriptors necessary for the linear algebra solver.
          * @param[in] aConfigurations Configurations object containing relevant settings.
-         * @param[in,out] aDescriptorData DescriptorData object to be populated with descriptors and data.
+         * @param[in,out] aDescriptorData Descriptor Data object to be populated with descriptors and data.
          * @param[in] apMeasurementsMatrix Pointer to the measurement matrix.
          * @return void
          *
@@ -62,6 +62,14 @@ namespace exageostat::linearAlgebra {
                                  dataunits::DescriptorData<T> &aDescriptorData, T *apMeasurementsMatrix = nullptr);
 
         /**
+         * @brief Initializes the descriptors necessary for the Fisher prediction function.
+         * @param[in] aConfigurations Configurations object containing relevant settings.
+         * @param[in,out] aDescriptorData Descriptor Data object to be populated with descriptors and data.
+         */
+        void InitiateFisherDescriptors(configurations::Configurations &aConfigurations,
+                                       dataunits::DescriptorData<T> &aDescriptorData);
+
+            /**
          * @brief Initializes the descriptors necessary for the Prediction.
          * @details This method initializes the descriptors necessary for the linear algebra solver.
          * @param[in] aConfigurations Configurations object containing relevant settings.
@@ -147,7 +155,7 @@ namespace exageostat::linearAlgebra {
         /**
          * @brief Calculates the log likelihood value of a given value theta.
          * @param[in] aHardware  ExaGeoStatHardware object representing the hardware.
-         * @param[in] aData MLE_data struct with different MLE inputs.
+         * @param[in,out] aData DescriptorData object to be populated with descriptors and data.
          * @param[in] aConfigurations Configurations object containing relevant settings.
          * @param[in] apTheta Optimization parameter used by NLOPT.
          * @param[in] apMeasurementsMatrix measurements matrix to be stored in DescZ.
@@ -256,6 +264,19 @@ namespace exageostat::linearAlgebra {
                                         void *apA, void *apCD, void *apCrk, void *apZ, const int &aMaxRank) = 0;
 
         /**
+         * @brief Calculate determinant for triangular matrix.
+         * @param[in] apDescA Pointer to the descriptor of the matrix 'descA'.
+         * @param[in] apSequence Pointer to a sequence structure for managing asynchronous execution.
+         * @param[in] apRequest Pointer to a request structure for tracking the operation's status.
+         * @param[out] apDescNum Pointer to the descriptor of the matrix to store the sum of elements.
+         * @param[out] apDescTrace Pointer to the descriptor of the matrix to store the trace.
+         * @return void
+         */
+        void
+        ExaGeoStatMLETraceTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescNum,
+                                    void *apDescTrace);
+
+            /**
          * @brief Calculate determinant for triangular matrix.
          * @param[in] apDescA Exageostat descriptor.
          * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
@@ -370,6 +391,20 @@ namespace exageostat::linearAlgebra {
                                        const exageostat::hardware::ExaGeoStatHardware &aHardware, T *apTruthTheta,
                                        T *apEstimatedTheta, dataunits::Locations<T> &aMissLocations,
                                        dataunits::Locations<T> &aObsLocations, const kernels::Kernel<T> &aKernel);
+
+        /**
+         * @brief Maximum Likelihood Evaluation (MLE) Fisher method.
+         * @param[in] aConfigurations Configurations object containing relevant settings.
+         * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
+         * @param[in] aHardware  ExaGeoStatHardware object representing the hardware.
+         * @param[in] apTheta Pointer containing three parameter (Variance, Range, Smoothness) that is used to to generate the Covariance Matrix.
+         * @param[in] aKernel Reference to the kernel object to use.
+         * @return Fisher Matrix
+         */
+        T *
+        ExaGeoStatFisherTile(configurations::Configurations &aConfigurations, dataunits::ExaGeoStatData<T> &aData,
+                             const hardware::ExaGeoStatHardware &aHardware, T *apTheta,
+                             const kernels::Kernel <T> &aKernel);
 
         /**
          * @brief Perform an asynchronous computation of MLE, MLOE, and MMOM for a tile.
@@ -505,6 +540,15 @@ namespace exageostat::linearAlgebra {
                         .nbuffers     = 1,
                         .modes        = {STARPU_W},
                         .name         = "dcmg"
+                };
+
+        struct starpu_codelet cl_dtrace =
+                {
+                        .where		= STARPU_CPU,
+                        .cpu_funcs	= {CORE_dtrace_starpu},
+                        .nbuffers	= 3,
+                        .modes		= {STARPU_R, STARPU_RW, STARPU_W},
+                        .name		= "dtrace"
                 };
 
         static void CORE_dcmg_starpu(void *apBuffers[], void *apCodeletArguments) {
@@ -702,6 +746,34 @@ namespace exageostat::linearAlgebra {
             } else {
                 *mmom += (expr4_ / expr2_) - 1.0;
             }
+        }
+
+        static void CORE_dtrace_starpu(void *buffers[], void *cl_arg) {
+            int m;
+            double *A;
+            double s = 0;
+            double *sum = &s;
+            double *trace;
+
+            *sum = 0;
+            A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
+            sum = (double *) STARPU_MATRIX_GET_PTR(buffers[1]);
+            trace = (double *) STARPU_MATRIX_GET_PTR(buffers[2]);
+            starpu_codelet_unpack_args(cl_arg, &m);
+
+            double local_s = core_dtrace(A, m, trace);
+            *sum+= local_s;
+        }
+
+        static double core_dtrace (double *A, int m, double* trace) {
+            int i;
+            double res = 0.0;
+            for (i = 0; i < m; i++)
+            {
+                res += A[i + i * m];
+                trace[i] = A[i + i * m];
+            }
+            return res;
         }
 
         bool recover(char *apPath, int aIterationCount, T *apTheta, T *apLogLik, int aNumParams) {

@@ -20,9 +20,8 @@ using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::common;
 
 template<typename T>
-void
-ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const UpperLower &aUpperLower, void *apA, int aBand, void *apCD,
-                                                   void *apCrk, const int &aMaxRank, const int &aAcc) {
+void ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const UpperLower &aUpperLower, void *apA, int aBand, void *apCD,
+                                                        void *apCrk, const int &aMaxRank, const int &aAcc) {
 
     CHAM_context_t *chameleon_context;
     RUNTIME_sequence_t *sequence = nullptr;
@@ -33,15 +32,15 @@ ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const UpperLower &aUpperLower
         throw std::runtime_error("CHAMELEON_dpotrf_diag_Tile() Failed, Hardware not Initialized.");
     }
     chameleon_sequence_create(chameleon_context, &sequence);
-    ExaGeoStatPotrfTileAsync(aUpperLower, apA, aBand, sequence, &request);
+    ExaGeoStatPotrfDiagonalTileAsync(aUpperLower, apA, aBand, sequence, &request);
     CHAMELEON_Desc_Flush((CHAM_desc_t *) apA, sequence);
     chameleon_sequence_wait(chameleon_context, sequence);
     chameleon_sequence_destroy(chameleon_context, sequence);
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExaGeoStatPotrfTileAsync(const common::UpperLower &aUpperLower, void *apA,
-                                                            int aBand, void *apSequence, void *apRequest) {
+int ChameleonImplementationDST<T>::ExaGeoStatPotrfDiagonalTileAsync(const common::UpperLower &aUpperLower, void *apA,
+                                                                    int aBand, void *apSequence, void *apRequest) {
 
     CHAM_context_t *chameleon_context;
     chameleon_context = chameleon_context_self();
@@ -82,14 +81,14 @@ int ChameleonImplementationDST<T>::ExaGeoStatPotrfTileAsync(const common::UpperL
         return chameleon_request_fail((RUNTIME_sequence_t *) apSequence, (RUNTIME_request_t *) apRequest, -1);
     }
     /* Quick return */
-    ExaGeoStatParallelPotrfDiag(aUpperLower, apA, aBand, apSequence, apRequest);
+    ExaGeoStatParallelPotrfDiagonal(aUpperLower, apA, aBand, apSequence, apRequest);
     return CHAMELEON_SUCCESS;
 }
 
 
 template<typename T>
-void ChameleonImplementationDST<T>::ExaGeoStatParallelPotrfDiag(const common::UpperLower &aUpperLower, void *apA,
-                                                                int aBand, void *apSequence, void *apRequest) {
+void ChameleonImplementationDST<T>::ExaGeoStatParallelPotrfDiagonal(const common::UpperLower &aUpperLower, void *apA,
+                                                                    int aBand, void *apSequence, void *apRequest) {
     CHAM_context_t *chameleon_context;
     RUNTIME_option_t options;
 

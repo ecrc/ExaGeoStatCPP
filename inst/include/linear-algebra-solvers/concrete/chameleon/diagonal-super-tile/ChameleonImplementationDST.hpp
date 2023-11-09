@@ -44,9 +44,8 @@ namespace exageostat::linearAlgebra::diagonalSuperTile {
          * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
          * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
          */
-        void
-        ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,
-                            const int &aMaxRank, const int &aAcc) override;
+        void ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,
+                                 const int &aMaxRank, const int &aAcc) override;
 
         /**
          * @brief Computes the parallel Cholesky factorization of a symmetric positive definite diagonal super tile matrix.
@@ -58,8 +57,8 @@ namespace exageostat::linearAlgebra::diagonalSuperTile {
          * @return successful exit.
          */
         void
-        ExaGeoStatParallelPotrfDiag(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apSequence,
-                                    void *apRequest);
+        ExaGeoStatParallelPotrfDiagonal(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apSequence,
+                                        void *apRequest);
 
         /**
          * @brief Computes the Cholesky factorization of a symmetric positive definite diagonal super tile matrix.
@@ -70,8 +69,9 @@ namespace exageostat::linearAlgebra::diagonalSuperTile {
          * @param[in] apRequest The request structure to associate in the options.
          * @return successful exit.
          */
-        int ExaGeoStatPotrfTileAsync(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apSequence,
-                                     void *apRequest);
+        int
+        ExaGeoStatPotrfDiagonalTileAsync(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apSequence,
+                                         void *apRequest);
     };
 
     /**

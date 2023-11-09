@@ -219,6 +219,10 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_CUV";
         case DESCRIPTOR_CRK:
             return "DESCRIPTOR_CRK";
+        case DESCRIPTOR_CK:
+            return "DESCRIPTOR_CK";
+        case DESCRIPTOR_CJ:
+            return "DESCRIPTOR_CJ";
         case DESCRIPTOR_Z_OBSERVATIONS:
             return "DESCRIPTOR_Z_OBSERVATIONS";
         case DESCRIPTOR_Z_Actual:
@@ -277,6 +281,14 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_TIMATED_ALPHA";
         case DESCRIPTOR_MLOE_MMOM :
             return "DESCRIPTOR_MLOE_MMOM";
+        case DESCRIPTOR_A :
+            return "DESCRIPTOR_A";
+        case DESCRIPTOR_RESULTS :
+            return "DESCRIPTOR_RESULTS";
+        case DESCRIPTOR_C_TRACE :
+            return "DESCRIPTOR_C_TRACE";
+        case DESCRIPTOR_C_DIAG :
+            return "DESCRIPTOR_C_DIAG";
         default:
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");
