@@ -132,6 +132,17 @@ namespace exageostat::linearAlgebra {
         ExaGeoStaStrideVectorTileAsync(void *apDescA, void *apDescB, void *apDescC, void *apDescD, void *apSequence,
                                        void *apRequest);
 
+        /**
+         * @brief Computes dot product of A.A.
+         * @param[in] apDescA  A Descriptor
+         * @param[out] apDescProduct Stores the result of A.A.
+         * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+         * @param[in] apRequest Identifies this function call (for exception handling purposes).
+         * @return Returns 0 for success, error code otherwise.
+         */
+        int
+        ExaGeoStatDoubleDotProduct(void *apDescA, void *apDescProduct, void *apSequence, void *apRequest);
+
     };
 
     EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementation)
