@@ -84,6 +84,8 @@ message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 include(ImportHwloc)
 list(APPEND STARPU_COMPONENT_LIST "HWLOC")
 
+string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
+
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
 include(ImportStarPu)
