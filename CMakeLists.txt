@@ -45,7 +45,6 @@ add_definitions(
 if (USE_CUDA)
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
-    enable_language(CUDA)
     include(toolchains/CudaToolchain)
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
@@ -111,9 +110,6 @@ endif ()
 # EXAGEOSTAT depends on CHAMELEON
 # -------------------------------
 include(ImportChameleon)
-
-include(ImportBlasPP)
-include(ImportLapack)
 
 # EXAGEOSTAT DOCUMENTATIONS
 if (EXAGEOSTAT_BUILD_DOCS)
