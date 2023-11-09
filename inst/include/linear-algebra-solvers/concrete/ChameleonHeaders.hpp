@@ -16,6 +16,7 @@ extern "C" {
 #include <control/context.h>
 #include <control/context.h>
 #include <include/chameleon/flops.h>
+#include <coreblas.h>
 }
 
 #endif //EXAGEOSTATCPP_CHAMELEONHEADERS_HPP

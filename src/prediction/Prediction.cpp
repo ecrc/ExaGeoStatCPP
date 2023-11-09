@@ -26,29 +26,55 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
                                        Configurations &aConfigurations, T *apMeasurementsMatrix,
                                        const kernels::Kernel<T> &aKernel) {
 
+    int i, j;
     bool can_predict = true;
     int num_params = aKernel.GetParametersNumbers();
-    for (int i = 0; i < num_params; i++) {
+    for (i = 0; i < num_params; i++) {
         if (aConfigurations.GetEstimatedTheta()[i] == -1) {
             can_predict = false;
             break;
         }
     }
-    if (!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE())) {
+    if (!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE() || aConfigurations.GetIsFisher())) {
         throw std::runtime_error(
                 "Can't predict without an estimated theta, please either pass --etheta or run the modeling module before prediction");
     }
 
-    //If the number of missed locations isn't a positive value, No prediction needed.
-    if (aConfigurations.GetUnknownObservationsNb() <= 0) {
-        return;
-    }
-
-    int i;
     int number_of_mspe = 3;
     int p = aConfigurations.GetP();
     int z_miss_number = aConfigurations.GetUnknownObservationsNb();
     int n_z_obs = aConfigurations.CalculateZObsNumber();
+    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
+
+    //FISHER Prediction Function Call
+    if (aConfigurations.GetIsFisher()) {
+        LOGGER("---- Using Prediction Function Fisher ----")
+        auto fisher_results = linear_algebra_solver->ExaGeoStatFisherTile(aConfigurations, aData, aHardware, (T *) aConfigurations.GetEstimatedTheta().data(), aKernel);
+
+        LOGGER("- Sd of sigma2, alpha, nu: " << sqrt(fisher_results[0]) << " " << sqrt(fisher_results[4]) << " " << sqrt(fisher_results[8]))
+        LOGGER("- CI for sigma2: " <<  aConfigurations.GetEstimatedTheta()[0] - Q_NORM * sqrt(fisher_results[0]) << " " << aConfigurations.GetEstimatedTheta()[0] + Q_NORM * sqrt(fisher_results[0]))
+
+        LOGGER("- CI for alpha: " << aConfigurations.GetEstimatedTheta()[1] - Q_NORM * sqrt(fisher_results[4]) << " " << aConfigurations.GetEstimatedTheta()[1] + Q_NORM * sqrt(fisher_results[4]))
+        LOGGER("- CI for nu: " <<  aConfigurations.GetEstimatedTheta()[2] - Q_NORM * sqrt(fisher_results[8]) << " " << aConfigurations.GetEstimatedTheta()[2] + Q_NORM * sqrt(fisher_results[8]))
+
+        LOGGER("- Fisher Matrix:")
+        for (i = 0; i < num_params; i ++){
+            LOGGER("  ", true)
+            for (j = 0; j < num_params; j++){
+                LOGGER_PRECISION(fisher_results[i * num_params + j] , 18)
+                if (j != num_params - 1) {
+                    LOGGER_PRECISION(", ")
+                }
+            }
+            LOGGER("")
+        }
+        LOGGER("")
+        delete[] fisher_results;
+    }
+
+    if (z_miss_number <= 0){
+        return;
+    }
 
     LOGGER("- Number of Z observations: " << aConfigurations.GetP() * n_z_obs)
     results::Results::GetInstance()->SetZMiss(aConfigurations.GetP() * n_z_obs);
@@ -59,7 +85,7 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
     auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
     auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
     // We Predict date with only Exact computation. This is a pre-request.
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
+
     InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
                                   *obs_locations, apMeasurementsMatrix);
 

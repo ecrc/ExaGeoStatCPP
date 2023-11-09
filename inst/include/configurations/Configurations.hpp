@@ -308,6 +308,10 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(IsMLOEMMOM, bool, "IsMLOEMMOM")
 
+        CREATE_SETTER_FUNCTION(IsFisher, bool, aIsFisher, "IsFisher")
+
+        CREATE_GETTER_FUNCTION(IsFisher, bool, "IsFisher")
+
         /** END OF THE DATA PREDICTION MODULES. **/
 
         /**
