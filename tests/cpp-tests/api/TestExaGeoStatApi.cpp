@@ -157,7 +157,6 @@ void TEST_MODEL_DATA(Computation aComputation) {
 }
 
 void TEST_PREDICTION() {
-
     Configurations configurations;
     configurations.SetUnknownObservationsNb(4);
     int N = 16;
@@ -225,19 +224,27 @@ void TEST_PREDICTION() {
         configurations.SetEstimatedTheta(new_estimated_theta);
         configurations.SetIsMLOEMMOM(true);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+    }SECTION("Test Prediction - FISHER\n") {
+        configurations.SetIsMLOEMMOM(false);
+        configurations.SetIsFisher(true);
+        vector<double> new_estimated_theta{0.9, 0.09, 0.4};
+        configurations.SetEstimatedTheta(new_estimated_theta);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
     }SECTION("Test Prediction - ALL OPERATIONS") {
         vector<double> new_estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(new_estimated_theta);
         configurations.SetIsMSPE(true);
         configurations.SetIsIDW(true);
         configurations.SetIsMLOEMMOM(true);
+        configurations.SetIsFisher(true);
         // Setting Estimated with initial theta will require mloe_mmom to be zero
         configurations.SetEstimatedTheta(initial_theta);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
     }SECTION("Test Prediction - ALL MODULES") {
         configurations.SetIsMSPE(true);
         configurations.SetIsIDW(true);
-        configurations.SetIsMLOEMMOM(false);
+        configurations.SetIsFisher(true);
+        configurations.SetIsMLOEMMOM(true);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
