@@ -227,9 +227,8 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
     //Distribute the values in the case of MPI
 #if defined(CHAMELEON_USE_MPI)
     MPI_Bcast(&loglik, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
 #endif
+
 
     LOGGER(iter_count + 1 << " - Model Parameters (", true)
 
@@ -269,9 +268,6 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
     LOGGER(" ---- Total Time: " << time_facto + logdet_calculate + time_solve)
     LOGGER(" ---- Gflop/s: " << flops / 1e9 / (time_facto  + time_solve))
 
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
     aData.SetMleIterations(aData.GetMleIterations() + 1);
 
     // for experiments and benchmarking
