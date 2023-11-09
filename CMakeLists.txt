@@ -113,7 +113,7 @@ include(ImportChameleon)
 
 # EXAGEOSTAT depends on a LAPACKE
 # -------------------------------
-include(ImportBlas)
+include(ImportBlasPP)
 include(ImportLapack)
 
 # EXAGEOSTAT DOCUMENTATIONS
