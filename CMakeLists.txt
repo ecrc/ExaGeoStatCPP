@@ -113,11 +113,6 @@ endif ()
 # -------------------------------
 include(ImportChameleon)
 
-# EXAGEOSTAT depends on a LAPACKE
-# -------------------------------
-include(ImportBlasPP)
-include(ImportLapack)
-
 # EXAGEOSTAT DOCUMENTATIONS
 if (EXAGEOSTAT_BUILD_DOCS)
     find_package(Doxygen)
