@@ -619,10 +619,7 @@ void Configurations::PrintSummary() {
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
     if (!mIsPrinted) {
-#if defined(CHAMELEON_USE_MPI)
-        if ( CHAMELEON_My_Mpi_Rank() == 0 )
-        {
-#endif
+
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Dataset")
@@ -653,9 +650,6 @@ void Configurations::PrintSummary() {
         LOGGER("#Kernel: " << this->GetKernelName())
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
         LOGGER("*************************************************")
-#if defined(CHAMELEON_USE_MPI)
-        }
-#endif
         mIsPrinted = true;
     }
     mVerbosity = temp;

@@ -401,18 +401,11 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
     VERBOSE("Done Z Vector Generation Phase. (Chameleon Synchronous)")
 
     int total_flops = flops / 1e9 / (time_facto + time_trmm);
-#ifdef CHAMELEON_USE_MPI
-    if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
     LOGGER(" ---- Facto Time: " << time_facto)
     LOGGER(" ---- dtrmm Time: " << time_trmm)
     LOGGER(" ---- Matrix Generation Time: " << matrix_gen_time)
     LOGGER(" ---- Total Time: " << time_facto + time_trmm)
     LOGGER(" ---- Gflop/s: " << total_flops)
-#ifdef CHAMELEON_USE_MPI
-    }
-#endif
 
     results::Results::GetInstance()->SetTotalDataGenerationExecutionTime(time_facto + time_trmm);
     results::Results::GetInstance()->SetTotalDataGenerationFlops(total_flops);
@@ -557,17 +550,10 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(ExaGeoStatData<T> &aData, T
                 "\n\n# of missing observations :%d\n\nPrediction Execution Time: %.8f, ""Flops: %.8f, Mean Square Prediction Error (MSPE): %.8f\n\n",
                 aZMissNumber, (mat_gen_time + time_solve + time_mspe), (flops / 1e9 / (time_solve)), *mspe);
     }
-#ifdef CHAMELEON_USE_MPI
-        if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
     LOGGER("- Z Actual .. Z Miss")
     for (i = 0; i < aZMissNumber; i++) {
         LOGGER(" (" << apZActual[i] << ", " << apZMiss[i] << ")")
     }
-#ifdef CHAMELEON_USE_MPI
-    }
-#endif
 
     results::Results::GetInstance()->SetMSPEExecutionTime(time_solve + time_gemm);
     results::Results::GetInstance()->SetMSPEFlops((flops / 1e9 / (time_solve + time_gemm)));
