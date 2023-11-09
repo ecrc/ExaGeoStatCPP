@@ -29,6 +29,9 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
         CHAMELEON_user_tag_size(tag_width, tag_sep);
         CHAMELEON_Init(aCoreNumber, aGpuNumber)
         this->mpChameleonContext = chameleon_context_self();
+#ifdef USE_MPI
+        #define MPI_INIT
+#endif
     }
 
     // Init hardware using Hicma
