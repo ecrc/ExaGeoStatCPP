@@ -52,14 +52,14 @@ namespace exageostat::generators::synthetic {
                                dataunits::Locations<T> &aLocations);
 
         /**
-         * @brief Creates the Locations data.
-         * @details This method creates the Locations data based on the provided configurations.
-         * @param[in] aConfigurations Reference to the Configurations object.
-         * @return Pointer to the Locations object.
+         * @brief Creates the data by synthetically generating it.
+         * @copydoc DataGenerator::CreateData()
          *
          */
-        dataunits::Locations<T> *
-        CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) override;
+        dataunits::ExaGeoStatData<T> *
+        CreateData(exageostat::configurations::Configurations &aConfigurations,
+                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                   exageostat::kernels::Kernel<T> &aKernel) override;
 
         /**
          * @brief Generate uniform distribution between rangeLow , rangeHigh.

@@ -1,8 +1,8 @@
-Contributing to ExaGeoStatCPP
+Contributing to ExaGeoStat-CPP
 --------------------------------------------------------------------------------
 
 - [Synopsis](#synopsis)
-- [Forking ExaGeoStatCPP](#forking-ExaGeoStatCPP)
+- [Forking ExaGeoStat-CPP](#forking-ExaGeoStat-CPP)
 - [C++ coding style](#c-coding-style)
 - [Developing new features](#developing-new-features)
 - [Developing bug fixes](#developing-bug-fixes)
@@ -12,15 +12,15 @@ Contributing to ExaGeoStatCPP
 Synopsis
 --------------------------------------------------------------------------------
 
-This guide is intended for developers seeking to contribute new functionalities or bug fixes to ExaGeoStatCPP.
-It presumes a basic understanding of the `git` command-line tool and GitHub operations. 
-The document will outline the criteria for a well-formed pull request and detail the requisite tests
-that must be cleared for your contributions to be integrated into ExaGeoStatCPP.
+This document is intended for developers who want to add new features or
+bug fixes to ExaGeoStat-CPP. It assumes you have some familiarity with git and GitHub. It
+will discuss what a good pull request looks like, and the tests that your
+pull request must pass before it can be merged into ExaGeoStat-CPP.
 
 C++ coding style
 --------------------------------------------------------------------------------
 
-Changes to ExaGeoStatCPP C/C++ code should conform to the
+Changes to ExaGeoStat-CPP C/C++ code should conform to the
 [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) and
 the following specific style details:
 
@@ -109,7 +109,7 @@ int mPrivateVariable;
 
 #### Pointers Variables
 
-All pointers variables should start with ```p``` followed by ```PascalCase```.
+All pointers variables should start with ```p```followed by ```PascalCase```.
 
 ```c++
 // Example
@@ -127,7 +127,7 @@ int* mpPrivatePointerVariable;
 
 #### Argument Variables
 
-All argument variables should start with ``a`` followed by ```PascalCase```. <b>If and only if the variable is an object
+All argument variables should start with ``a``followed by ```PascalCase```. <b>If and only if the variable is an object
 or pointer to object</b>
 
 ```c++
@@ -158,24 +158,24 @@ int number_count;
 
 - Default indentation is 4 spaces, and wrapped parameters have 4 spaces indent.
 
-- In ExaGeoStatCPP, we have 4 namespaces, as follows:
-    - `exageostat::api`: This namespace contains the high-level drivers for the ExaGeoStatCPP functionalities that are
-      provided to library users. These functions help users interact with the ExaGeoStatCPP framework and perform
+- In ExaGeoStat-CPP, we have 4 namespaces, as follows:
+    - `exageostat::api`: This namespace contains the high-level drivers for the ExaGeoStat-cpp functionalities that are
+      provided to library users. These functions help users interact with the ExaGeoStat-cpp framework and perform
       various statistical operations.
-    - `exageostat::common`: This namespace contains all ExaGeoStatCPP common functionalities that might be used across
-      the different modules of the ExaGeoStatCPP framework.
-    - `exageostat::configurations`: This namespace contains all ExaGeoStatCPP configurations arguments and parsers.
-      These functions are used to parse and set the configuration parameters for the ExaGeoStatCPP framework.
+    - `exageostat::common`: This namespace contains all ExaGeoStat-cpp common functionalities that might be used across
+      the different modules of the ExaGeoStat-cpp framework.
+    - `exageostat::configurations`: This namespace contains all ExaGeoStat-cpp configurations arguments and parsers.
+      These functions are used to parse and set the configuration parameters for the ExaGeoStat-cpp framework.
     - `exageostat::data-generators`: This namespace is used to generate data sets.
-    - `exageostat::data-units`: This namespace is used for all ExaGeoStatCPP base data structures that the user should
+    - `exageostat::data-units`: This namespace is used for all ExaGeoStat-cpp base data structures that the user should
       utilize and interact with. These data units are used to represent the data and perform operations on it.
     - `exageostat::helpers`: This namespace contains helper functions that can be used across the different modules of
-      the ExaGeoStatCPP framework.
+      the ExaGeoStat-cpp framework.
     - `exageostat::kernels`: These functions provide low-level implementations of the supported kernels offered by the
-      ExaGeoStatCPP framework.
-    - `exageostat::linear-algebra-solvers`: This namespace is used for all ExaGeoStatCPP integrated linear algebra
+      ExaGeoStat-cpp framework.
+    - `exageostat::linear-algebra-solvers`: This namespace is used for all ExaGeoStat-cpp integrated linear algebra
       solvers libraries.
-    - `exageostat::operators`: This namespace contains various operators used by the ExaGeoStatCPP framework. These
+    - `exageostat::operators`: This namespace contains various operators used by the ExaGeoStat-cpp framework. These
       operators are used to perform various mathematical operations on the data sets.
 
 Use `clang-format` to check your C/C++ changes.
@@ -189,20 +189,19 @@ You can check the format of a C/C++ file with the following:
     $ clang-format <path/to/file.cc> --style=google > path/to/file_marked.cc
     $ diff <path/to/file.cc> path/to/file_marked.cc
 
-Forking ExaGeoStatCPP
+Forking ExaGeoStat-CPP
 --------------------------------------------------------------------------------
 
-If you're not affiliated with KAUST, you won't possess the rights to push new branches
-directly to the repository. Your initial step should be to create a fork of the ExaGeoStatCPP repository. 
-This action will generate a version of the repository under your ownership, enabling you to upload your
-changes to GitHub and initiate pull requests.
+If you aren't a HiCMA or HCore developer at KAUST, then you won't have permission to push
+new branches to the repository. First, you should create a fork. This will
+create a copy of the ExaGeoStat repository that you own, and will ensure you can push
+your changes up to GitHub and create pull requests.
 
 Developing new features
 --------------------------------------------------------------------------------
 
-When developing new features, you should base your work on the main branch.
-To begin implementing new functionality, first, make sure your local main branch
-is synchronized with the latest updates:
+New features should be based on the `main` branch. When you want to create a
+new feature, first ensure you have an up-to-date copy of the `main` branch:
 
     $ git checkout main
     $ git pull origin main
@@ -211,39 +210,40 @@ You can now create a new branch to develop your feature on:
 
     $ git checkout -b feature/<name-of-feature>
 
-Begin the development of your feature on this branch, ensuring to include tests that
-validate your new code. If you're introducing new methods or classes, remember to
-provide Doxygen documentation for these additions.
+Proceed to develop your feature on this branch, and add tests that will exercise
+your new code. If you are creating new methods or classes, please add Doxygen
+documentation.
 
-After completing your feature and confirming that your tests succeed, you may push your
-branch to GitHub and initiate a pull request.
+Once your feature is complete and your tests are passing, you can push your
+branch to GitHub and create a pull request.
 
 Developing bug fixes
 --------------------------------------------------------------------------------
 
-Initially, verify whether the modification you're aiming to implement has already been addressed
-in the main branch. If it has, we recommend switching to using the main branch or temporarily
-integrating the fix into your current version of ExaGeoStatCPP.
+First, check if the change you want to make has been fixed in `main`. If so,
+we suggest you either start using the `main` branch, or temporarily apply the
+fix to whichever version of ExaGeoStat-CPP you are using.
 
-If the bug remains unresolved, ensure that you have the most recent version of the main branch:
+Assuming there is an unsolved bug, first make sure you have an up-to-date copy
+of the `main` branch:
 
     $ git checkout main
     $ git pull origin main
 
-Then, create a new branch for your bugfix:
+Then create a new branch for your bugfix:
 
     $ git checkout -b bugfix/<name-of-bug>
 
+First, add a test that reproduces the bug you have found. Then develop your
+bugfix as normal, and add tests to check your changes actually fix the bug.
 
-Begin by adding a test that replicates the bug you've discovered. Proceed with developing
-your bug fix, as usual, incorporates tests that verify your changes have indeed fixed the issue.
-
-Upon completion, push your branch to GitHub and proceed to create a pull request.
+Once you are finished, you can push your branch to GitHub, then create a pull
+request.
 
 Adding new kernel
 --------------------------------------------------------------------------------
-To add a new kernel, base your work on the main branch. Before you start developing the new feature,
-make sure your local main branch is current with the latest updates:
+Adding new kernel should be based on the `main` branch. When you want to create a
+new feature, first ensure you have an up-to-date copy of the `main` branch:
 
     $ git checkout main
     $ git pull origin main
@@ -252,47 +252,47 @@ You can now create a new branch to develop your feature on:
 
     $ git checkout -b kernel/<name-of-kernel>
 
-Proceed to develop your feature on this branch and add tests that will exercise
+Proceed to develop your feature on this branch, and add tests that will exercise
 your new code. If you are creating new methods or classes, please add Doxygen
 documentation.
 
-To add a new kernel, you need to follow these steps.
+To add a new kernel you need to follow these steps.
 
-1. Place your kernel header file in the inst/include/kernels/concrete directory. The file name should match the kernel's name. For instance, if your header file is named UnivariateMaternStationary.hpp, it can be invoked using either univariate_matern_stationary or UnivariateMaternStationary. The naming linkage is handled automatically, so there's no additional setup required on your part.
+1. Add your kernel header file in the inst/include/kernels/concrete, The name of the file must be the same name of the
+   called kernel
+   for example, if the header file name is UnivariateMaternStationary.hpp then users can use this kernel by calling
+   univariate_matern_stationary or UnivariateMaternStationary.
+   This is automatically generated any you don't have to worry about anything.
+2. Inherent the parent class which is kernel.hpp and Implement the needed functions.
+3. Make sure you have the same functions as the other kernels with the same convention in order for your kernel to be
+   supported correctly.
 
-2. Derive from the base class located in kernel.hpp and implement the necessary functions.
-
-3. Ensure your kernel includes all the requisite functions that adhere to the established naming conventions found in other kernels. This will allow for proper support and integration of your new kernel.
-
-After finalizing your feature and confirming that your tests run successfully, 
-you are ready to push your branch to GitHub and submit a pull request.
+Once your feature is complete and your tests are passing, you can push your
+branch to GitHub and create a pull request.
 
 Creating pull requests
 --------------------------------------------------------------------------------
 
 You can create a new pull request
-[here](https://github.com/ecrc/ExaGeoStatCPP-dev/pulls).
-Ensure that your pull request base is the `main` branch of ExaGeoStatCPP.
+[here](https://github.com/ecrc/ExaGeoStat-CPP-dev/pulls).
+Ensure that your pull request base is the `main` branch of ExaGeoStat-CPP.
 
 Add a descriptive title explaining the bug you fixed or the feature you have
 added, and put a longer description of the changes you have made in the comment
 box.
 
-After you have submitted your pull request, it will undergo automated testing
-and also receive a review by members of the HiCMA team. If your branch successfully
-clears both the automated tests and the peer reviews, it will be approved for merging
-into ExaGeoStatCPP.
+Once your pull request has been created, it will be run through our automated
+tests and also be reviewed by HiCMA team members. Providing the branch passes
+both the tests and reviews, it will be merged into ExaGeoStat-CPP.
 
 Tests
 --------------------------------------------------------------------------------
 
-ExaGeoStatCPP employs Jenkins for continuous integration testing. Each pull request 
-automatically triggers our suite of tests, and a prerequisite for merging your pull 
-request is the successful passage of all these tests. When you're working on a bug 
-fix or introducing a new feature, it is crucial to include tests that validate the 
-integrity of your code. Given that ExaGeoStatCPP operates across an array of systems and 
-configurations, introducing new tests is instrumental in guaranteeing that every 
-feature functions correctly in diverse settings.
+ExaGeoStat-CPP uses Jenkins for continuous integration tests. Our tests are automatically
+run against every new pull request, and passing all tests is a requirement for
+merging your pull request. If you are developing a bugfix or a new feature,
+please add a test that checks the correctness of your new code. ExaGeoStat-CPP is used on
+a wide variety of systems with a number of configurations, and adding new tests
+helps ensure that all features work as expected across these environments.
 
-In ExaGeoStatCPP, the tests are organized within the tests directory, with each set 
-of tests categorically divided by component.
+ExaGeoStat-CPP's tests are all in the `tests` directory and are split up by component.

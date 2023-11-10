@@ -26,20 +26,18 @@ using namespace exageostat::dataunits;
 using namespace exageostat::hardware;
 using namespace exageostat::prediction;
 
-
 template<typename T>
-void ExaGeoStat<T>::ExaGeoStatGenerateData(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
-                                           ExaGeoStatData<T> &aData) {
+void ExaGeoStat<T>::ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
+                                       configurations::Configurations &aConfigurations,
+                                       dataunits::ExaGeoStatData<T> &aData) {
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
     // Add the data generation arguments.
     aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
+    //hehe
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
-    aData.SetLocations(*data_generator->CreateLocationsData(aConfigurations));
-    // We Generate date with only Exact computation. This is a pre-request.
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
-    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, aData, *pKernel);
+    aData = *data_generator->CreateData(aConfigurations, aHardware, *pKernel);
     delete pKernel;
 }
 

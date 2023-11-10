@@ -103,14 +103,14 @@ namespace exageostat::configurations {
         void InitializeDataGenerationArguments();
 
         /**
-         * @brief Initialize data Modeling arguments..
+         * @brief Initialize data Modeling arguments.
          * @return void
          *
          */
         void InitializeDataModelingArguments();
 
         /**
-         * @brief Initialize data Prediction arguments..
+         * @brief Initialize data Prediction arguments.
          * @return void
          *
          */
@@ -249,6 +249,14 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(IsSynthetic, bool, aIsSynthetic, "IsSynthetic")
 
         CREATE_GETTER_FUNCTION(IsSynthetic, bool, "IsSynthetic")
+
+        CREATE_SETTER_FUNCTION(IsCSV, bool, aIsCSV, "IsCSV")
+
+        CREATE_GETTER_FUNCTION(IsCSV, bool, "IsCSV")
+
+        CREATE_SETTER_FUNCTION(DataPath, const std::string&, aDataPath, "DataPath")
+
+        CREATE_GETTER_FUNCTION(DataPath, std::string, "DataPath")
 
         /** END OF THE DATA GENERATION MODULES. **/
         /** START OF THE DATA MODELING MODULES. **/

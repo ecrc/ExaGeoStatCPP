@@ -141,8 +141,7 @@ void LinearAlgebraMethods<T>::InitiateFisherDescriptors(configurations::Configur
 
     if (!aDescriptorData.GetIsDescriptorInitiated()) {
         aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C, is_OOC, nullptr, float_point, dts,
-                                      dts,
-                                      dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
+                                      dts, dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
     }
 
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_A, is_OOC, nullptr, float_point, dts,
@@ -162,8 +161,6 @@ void LinearAlgebraMethods<T>::InitiateFisherDescriptors(configurations::Configur
 
     aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_C_DIAG, is_OOC, nullptr, float_point,
                                   dts, dts, dts * dts, n, 1, 0, 0, n, 1, p_grid, q_grid);
-
-
 }
 
 template<typename T>

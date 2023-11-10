@@ -13,11 +13,7 @@
 **/
 
 #include <common/Utils.hpp>
-#include <data-units/ExaGeoStatData.hpp>
-#include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
-
-using namespace std;
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;

@@ -35,13 +35,13 @@ namespace exageostat::api {
          * @brief Generates Data whether it's synthetic data or real.
          * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
-         * @param[out] aData Reference to an ExaGeoStatData<T> object where generated data will be stored
+         * @param[out] aData Reference to an ExaGeoStatData<T> object where generated data will be stored.
          * @return void
          *
          */
-        static void ExaGeoStatGenerateData(const hardware::ExaGeoStatHardware &aHardware,
-                                           configurations::Configurations &aConfigurations,
-                                           dataunits::ExaGeoStatData<T> &aData);
+        static void ExaGeoStatLoadData(const hardware::ExaGeoStatHardware &aHardware,
+                                       configurations::Configurations &aConfigurations,
+                                       dataunits::ExaGeoStatData<T> &aData);
 
         /**
          * @brief Models Data whether it's synthetic data or real.

@@ -51,6 +51,8 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
 
+add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
+
 add_definitions(
         -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
@@ -241,4 +243,3 @@ message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HCORE/lib/pkgcon
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/STARPU/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")
-

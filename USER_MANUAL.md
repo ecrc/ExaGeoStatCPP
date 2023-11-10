@@ -1,10 +1,10 @@
-ExaGeoStatCPP User Manual
+ExaGeoStat User Manual
 ================
 
 # Content
 
 1. Configurations of the software.
-2. Building ExaGeoStatCPP.
+2. Building ExaGeoStat.
 3. Supported Covariance kernels.
 4. Arguments.
 5. List of Descriptors.
@@ -32,22 +32,23 @@ ExaGeoStatCPP User Manual
 
 * To change the installation path of the dependencies use **```-i <installation/path>```**
 
-Please be aware that we currently offer support for either HiCMA or Chameleon, or both.
+Please note, currently we are supporting using only one of the two options of HiCMA or Chameleon.
+
 ## Building
 
 * Run help of clean_build.sh to know the additional arguments options.
 ```commandline
 ./clean_build.sh -h
 ```
-* Run clean_build.sh to clean, Build and Install the project.
+* Run clean_build.sh to clean, Build and Install project.
 ```commandline
 ./clean_build.sh
 ```
-* To enable verbose printing, Run the following command.
+* To enable verbose printing Run the following command.
 ```commandline
 ./clean_build.sh -v
 ```
-* To enable building with a specific number of threads, run the following command.
+* To enable building with specific number of threads Run the following command.
 ```commandline
 ./clean_build.sh -j <thread_number>
 ```
@@ -74,7 +75,7 @@ Supported Covariance Functions/ Kernels:
 17. bivariate_matern_flexible
 18. bivariate_matern_parsimonious
 19. bivariate_spacetime_matern_stationary
-20. trivariate_matern_parsimonious
+20. Trivariate_matern_parsimonious
 
 ## Arguments
 
@@ -84,13 +85,13 @@ Supported Covariance Functions/ Kernels:
 * {Mandatory} To set the kernel
 
         --kernel=<supported_kernel>
-* {Mandatory} To set the dense tile size in the case of Chameleon
+* {Mandatory} To set the dense tile size in case of using Chameleon
 
         --dts=<value>
-* {Mandatory} To set the low tile size in case of  HiCMA
+* {Mandatory} To set the low tile size in case of using HiCMA
 
         --lts=<value>
-* {Optional} To set the dimension, the default is 2D
+* {Optional} To set the dimension, Default is 2D
 
         --dimension=<2D/3D/ST>
 * {Optional} To set the p grid
@@ -99,28 +100,28 @@ Supported Covariance Functions/ Kernels:
 * {Optional} To set the q grid
 
         --q_grid=<value>
-* {Optional} To set the time slot, the default is 1
+* {Optional} To set the time slot, Default is 1
 
         --time_slot=<value>
-* {Optional} To set the computation, the default is dense
+* {Optional} To set the computation, Default is dense
 
         --computation=<dense/tlr/dst>
-* {Optional} To set the precision, the default is double
+* {Optional} To set the precision, Default is double
 
         --precision=<single/double/mix>
-* {Optional} To set the number of cores, the default is 1
+* {Optional} To set the number of cores, Default is 1
 
         --cores=<value>
-* {Optional} To set the number of GPUs, the default is 0
+* {Optional} To set the number of GPUs, Default is 0
 
         --gpus=<value>
-* {Optional} To set the number of unknown observations to be predicted, the default is 0
+* {Optional} To set the number of unknown observation to be predicted, Default is 0
 
         --Zmiss=<value>
-* {Optional} To set the path of the observation file
+* {Optional} To set the path of observation file
 
         --observations_file=<path/to/file>
-* {Optional} To set the max rank, the default is 1
+* {Optional} To set the max rank, Default is 1
 
         --max_rank=<value>
 * {Optional} To set the lower bounds of optimization
@@ -135,25 +136,25 @@ Supported Covariance Functions/ Kernels:
 * {Optional} To set the target theta
 
         --ttheta=<value:value:....:value>
-* {Optional} To set the seed value, the default is 0
+* {Optional} To set the seed value, Default is 0
 
         --seed=<value>
-* {Optional} To set the run mode value, the default is standard
+* {Optional} To set the run mode value, Default is standard
 
         --run_mode=<verbose/standard>
-* {Optional} To set the path of log files to be written, the default is ./exageostat-cpp/synthetic_ds/
+* {Optional} To set the path of log files to be written, Default is ./exageostat-cpp/synthetic_ds/
 
         --log_path=<path/to/file>
-* {Optional} To enable reading a CSV file containing real data, if not entered the default is the generation of synthetic data
+* {Optional} To enable reading a CSV file containing real data, if not entered the default is the generation of synthetic data.
 
         --data_path=<path/to/file>
-* {Optional} To enable out-of-core (OOC), the default is OFF
+* {Optional} To enable Out of core technology, Default is OFF
 
         --OOC 
-* {Optional} To enable approximation mode, the default is ON
+* {Optional} To enable approximation mode, Default is ON
 
         --approximation_mode
-* {Optional} To enable writing log files, the default is OFF
+* {Optional} To enable writing log files, Default is OFF
 
         --log
 
@@ -169,16 +170,13 @@ Supported Covariance Functions/ Kernels:
 2. DESCRIPTOR_Z_COPY: A copy of Measurements Z descriptor.
 3. DESCRIPTOR_Z_OBSERVATIONS: Observed Measurements Z descriptor.
 4. DESCRIPTOR_Z_Actual: Actual Measurements Z descriptor.
-5. DESCRIPTOR_Z_MISS: Missing Measurements Z descriptor.
 ### Measurements Sub-Matrix Descriptors
 1. DESCRIPTOR_Z_1: Measurements Z1 sub-matrix descriptor.
 2. DESCRIPTOR_Z_2: Measurements Z2 sub-matrix descriptor.
-3. DESCRIPTOR_Z_3: Measurements Z3 sub-matrix descriptor.
 ### Dot Product Descriptors
 1. DESCRIPTOR_PRODUCT: Dot product descriptor.
 2. DESCRIPTOR_PRODUCT_1: Dot product descriptor.
 3. DESCRIPTOR_PRODUCT_2: Dot product descriptor.
-4. DESCRIPTOR_PRODUCT_3: Dot product descriptor.
 ### Determinant Descriptors
 1. DESCRIPTOR_DETERMINANT: Determinant descriptor.
 ### Mean Square Prediction Error Descriptors
@@ -196,17 +194,16 @@ Supported Covariance Functions/ Kernels:
 
 
 
-## Supported Operations
+## Supported operations
 
-### Provide Arguments
+### Provide your arguments
 
-To use any operations, you must initially supply the necessary arguments 
-to the operation via the Configurations module. There are two methods available
-for setting your arguments:
+To use any operations, you firstly need to provide your arguments to the operation.
+This is done by the Configurations module. You have two ways to set your arguments.
 
 1. Provide your arguments with the command line.
 ```c++
-    // Create a new configuration object.
+    // Create a new configurations object.
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
@@ -218,34 +215,33 @@ for setting your arguments:
     synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
     synthetic_data_configurations.SetPrecision(exageostat::common::double);
 ```
-### Initialize the Hardware
+### initialize the Hardware
 
-To use any operations, you must initialize the hardware by selecting the number of CPUs and/or GPUs.
+To use any operations you need to initialize the hardware with your selection of number of cores and gpus.
 ```c++
 auto hardware = ExaGeoStatHardware(computation, number of cores, number of gpus);
 ```
 
-### Synthetic and Real Data
+### Data Generation
 
-ExaGeoStatCPP can be used with different types of data, including:
+ExaGeoStat can be used with different types of data, including:
 
 Synthetic data: Synthetic data is generated by the software according to the user arguments.
 
-Real data: ExaGeoStatCPP can also be used with real data, such as data from satellite imagery or weather sensors. Real data
-can be used to train the software to predict the values of new data better.
+Real data: ExaGeoStat can also be used with real data, such as data from satellite imagery or weather sensors. Real data
+can be used to train the software to better predict the values of new data.
 
-##### Synthetic Data Generation
+##### Synthetic data generation
 
-After you provide your arguments with the Configurations module, you must do the following two steps:
+After providing your arguments with the Configurations module, you need to do the following two steps.
 ```c++
-// Create a new ExaGeoStat data that holds the locations and descriptors data.
+// Create a new ExaGeoStat data that holds the locations data and descriptors data.
 ExaGeoStatData<double> data;
-// Generate data by passing your arguments through the configurations, hardware, and
- container of the data, which will be filled with the newly generated data.
+// Generate data by passing your arguments through the configurations, your hardware and your container of the data which will be filled with the new generated data.
 ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
 ```
 
-##### Real Data 
+##### Real data generation
 
 - The Data Path must be passed to Configuration.
 
@@ -258,17 +254,17 @@ ExaGeoStatData<double> data;
 ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
 ```
 
-### Data Modeling
+### Data Modeling.
 
-To use data modeling, you have to do this operation.
+To use data modeling you have to do this operation.
 ```c++
-//You have to pass your arguments through the configurations, your hardware, and your data.
+// you have to pass your arguments through the configurations, your hardware and your data.
 ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
 ```
 
-### Data Prediction
+### Data prediction
 ```c++
-//You have to pass your arguments through the configurations, your hardware, and your data.
+// you have to pass your arguments through the configurations, your hardware and your data.
 ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
 ```
 
