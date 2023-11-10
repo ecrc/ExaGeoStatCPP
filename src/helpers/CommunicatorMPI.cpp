@@ -26,7 +26,7 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
 bool CommunicatorMPI::GetRank() const {
 
     if(!this->mIsHardwareInitialized){
-        return true;
+        return false;
     }
     else{
         if(CHAMELEON_Comm_rank() == 0){
