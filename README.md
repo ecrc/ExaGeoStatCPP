@@ -207,4 +207,3 @@ Handout
 =======
 
 More information can be found in this handout:
-![Handout](docs/handout.jpg)
