@@ -57,7 +57,7 @@ void Results::PrintEndSummary() {
             LOGGER(" #Real Dataset")
         }
         LOGGER("  #Number of Locations: " << locations_number)
-        if (mIsLogger) {
+        if (mIsLogger && mIsSynthetic) {
             LOGGER("  #Data is written to file (", true)
             if (mLoggerPath.empty()) {
                 mLoggerPath = LOG_PATH;

@@ -16,10 +16,8 @@
 
 #include <memory>
 
-#include <data-units/Locations.hpp>
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
-#include <kernels/Kernel.hpp>
 
 namespace exageostat::generators {
 
@@ -35,14 +33,17 @@ namespace exageostat::generators {
     public:
 
         /**
-         * @brief Generates the data locations.
+         * @brief Either generates synthetic data or reads data files.
          * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
-         * @param[in] apConfigurations Pointer to the data configurations.
-         * @return void
+         * @param[in] aConfigurations Reference to the data configurations.
+         * @param[in] aHardware Reference to the used hardware.
+             * @return Pointer to a populated data.
          *
          */
-        virtual dataunits::Locations<T> *
-        CreateLocationsData(exageostat::configurations::Configurations &aConfigurations) = 0;
+        virtual dataunits::ExaGeoStatData<T> *
+        CreateData(exageostat::configurations::Configurations &aConfigurations,
+                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                   exageostat::kernels::Kernel<T> &aKernel) = 0;
 
         /**
          * @brief Factory method for creating a data generator object.
@@ -64,6 +65,8 @@ namespace exageostat::generators {
     protected:
         /// Used bool identifying type of generation.
         static bool mIsSynthetic;
+        /// Used bool identifying type of generation.
+        static bool mIsCSV;
     };
 
     /**

@@ -30,6 +30,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
     {
         // Create a new synthetic_data_configurations object with the provided command line arguments
         Configurations synthetic_data_configurations;
+
         int N = 27;
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("BivariateMaternFlexible");
@@ -48,9 +49,9 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
         int seed = 0;
         srand(seed);
-        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
-                                                           synthetic_data_configurations.GetDimension());
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
+        exageostat::dataunits::ExaGeoStatData<double> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
+                                                                data);
         auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;

@@ -287,6 +287,7 @@ namespace exageostat::linearAlgebra {
          */
         virtual int
         ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescDet) = 0;
+
         /**
          * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
          * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.

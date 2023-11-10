@@ -52,9 +52,9 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
         synthetic_data_configurations.SetApproximationMode(1);
 
-        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
-                                                           synthetic_data_configurations.GetDimension());
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
+        exageostat::dataunits::ExaGeoStatData<double> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
+                                                                data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
 
         auto *HICMA_descriptorC = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
@@ -86,9 +86,9 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
-        exageostat::dataunits::ExaGeoStatData<double> data(synthetic_data_configurations.GetProblemSize(),
-                                                           synthetic_data_configurations.GetDimension());
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, synthetic_data_configurations, data);
+        exageostat::dataunits::ExaGeoStatData<double> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
+                                                                data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
 
         int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();

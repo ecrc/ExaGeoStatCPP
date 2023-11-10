@@ -49,7 +49,8 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
     //FISHER Prediction Function Call
     if (aConfigurations.GetIsFisher()) {
         LOGGER("---- Using Prediction Function Fisher ----")
-        auto fisher_results = linear_algebra_solver->ExaGeoStatFisherTile(aConfigurations, aData, aHardware, (T *) aConfigurations.GetEstimatedTheta().data(), aKernel);
+        auto fisher_results = new T[num_params * num_params];
+        fisher_results = linear_algebra_solver->ExaGeoStatFisherTile(aConfigurations, aData, aHardware, (T *) aConfigurations.GetEstimatedTheta().data(), aKernel);
 
         LOGGER("- Sd of sigma2, alpha, nu: " << sqrt(fisher_results[0]) << " " << sqrt(fisher_results[4]) << " " << sqrt(fisher_results[8]))
         LOGGER("- CI for sigma2: " <<  aConfigurations.GetEstimatedTheta()[0] - Q_NORM * sqrt(fisher_results[0]) << " " << aConfigurations.GetEstimatedTheta()[0] + Q_NORM * sqrt(fisher_results[0]))
