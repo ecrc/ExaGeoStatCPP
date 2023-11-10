@@ -70,7 +70,7 @@ ExaGeoStatData<T> *SyntheticGenerator<T>::CreateData(exageostat::configurations:
 
         CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                DESCRIPTOR_Z).chameleon_desc,  pMatrix, aConfigurations.GetProblemSize());
-        if ( CHAMELEON_My_Mpi_Rank() == 0 ){
+        if ( CHAMELEON_Comm_rank == 0 ){
             DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                                DESCRIPTOR_Z).chameleon_desc->mat),
                                               aConfigurations.GetProblemSize(), aConfigurations.GetP(), path,
