@@ -67,7 +67,6 @@ ExaGeoStatData<T> *SyntheticGenerator<T>::CreateData(exageostat::configurations:
 #ifdef CHAMELEON_USE_MPI
         auto pMatrix = new T[aConfigurations.GetProblemSize()];
         std::string path = aConfigurations.GetLoggerPath();
-        int CHAMELEON_Desc2Lap          ( cham_uplo_t uplo, CHAM_desc_t *A, void *Af77, int LDA );
 
         CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                DESCRIPTOR_Z).chameleon_desc,  pMatrix, aConfigurations.GetProblemSize());

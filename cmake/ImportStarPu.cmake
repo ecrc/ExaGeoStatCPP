@@ -20,7 +20,7 @@ if (NOT TARGET STARPU)
     # Try to find STARPU.
     include(FindPkgConfig)
     find_package(PkgConfig QUIET)
-    find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_STRING})
+    find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_LIST})
 
 
     # If STARPU is found, print its location.
@@ -51,7 +51,7 @@ if (NOT TARGET STARPU)
         # Clear the flags.
         set(FLAGS "")
         # Find StarPU after installation.
-        find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_STRING})
+        find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_LIST})
 
     endif ()
 else ()
