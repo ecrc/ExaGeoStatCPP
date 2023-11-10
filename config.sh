@@ -23,9 +23,10 @@ USING_HiCMA="OFF"
 VERBOSE=OFF
 USE_CUDA="OFF"
 USE_MPI="OFF"
+BLAS_VENDOR=""
 
 # Parse command line options
-while getopts ":tevhHi:cm" opt; do
+while getopts ":tevhHi:cms" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -55,6 +56,10 @@ while getopts ":tevhHi:cm" opt; do
       echo -e "${YELLOW}printing make with details.${NC}"
       VERBOSE=ON
       ;;
+    s) ##### Passing Blas vendor with mkl #####
+      echo -e "${YELLOW}MKL as a Blas vendor${NC}"
+      BLAS_VENDOR="Intel10_64lp"
+      ;;
     \?) ##### Error unknown option #####
       echo "Option $OPTARG parameter is unknown, please -h for help"
       exit 1
@@ -74,6 +79,7 @@ while getopts ":tevhHi:cm" opt; do
       printf "%20s %s\n" "-m :" "to enable using MPI."
       printf "%20s %s\n" "-v :" "to enable verbose printings."
       printf "%20s %s\n" "-d :" "to enable debug mode."
+      printf "%20s %s\n" "-s :" "to manually pass MKL as your blas vendor."
       printf "%20s %s\n" "-h :" "Help."
       echo ""
       exit 1
@@ -121,6 +127,7 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
   -DUSE_CUDA="${USE_CUDA}" \
   -DUSE_MPI="${USE_MPI}" \
+  -DBLA_VENDOR="${BLAS_VENDOR}" \
   -H"${PROJECT_SOURCE_DIR}" \
   -B"${PROJECT_SOURCE_DIR}/bin" \
   -G "Unix Makefiles"

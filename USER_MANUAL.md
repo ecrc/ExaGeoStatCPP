@@ -145,9 +145,9 @@ Supported Covariance Functions/ Kernels:
 * {Optional} To set the path of log files to be written, Default is ./exageostat-cpp/synthetic_ds/
 
         --log_path=<path/to/file>
-* {Optional} To enable generating of synthetic data, Default is ON
+* {Optional} To enable reading a CSV file containing real data, if not entered the default is the generation of synthetic data.
 
-        --synthetic_data
+        --data_path=<path/to/file>
 * {Optional} To enable Out of core technology, Default is OFF
 
         --OOC 
@@ -170,13 +170,16 @@ Supported Covariance Functions/ Kernels:
 2. DESCRIPTOR_Z_COPY: A copy of Measurements Z descriptor.
 3. DESCRIPTOR_Z_OBSERVATIONS: Observed Measurements Z descriptor.
 4. DESCRIPTOR_Z_Actual: Actual Measurements Z descriptor.
+5. DESCRIPTOR_Z_MISS: Missing Measurements Z descriptor.
 ### Measurements Sub-Matrix Descriptors
 1. DESCRIPTOR_Z_1: Measurements Z1 sub-matrix descriptor.
 2. DESCRIPTOR_Z_2: Measurements Z2 sub-matrix descriptor.
+3. DESCRIPTOR_Z_3: Measurements Z3 sub-matrix descriptor.
 ### Dot Product Descriptors
 1. DESCRIPTOR_PRODUCT: Dot product descriptor.
 2. DESCRIPTOR_PRODUCT_1: Dot product descriptor.
 3. DESCRIPTOR_PRODUCT_2: Dot product descriptor.
+4. DESCRIPTOR_PRODUCT_3: Dot product descriptor.
 ### Determinant Descriptors
 1. DESCRIPTOR_DETERMINANT: Determinant descriptor.
 ### Mean Square Prediction Error Descriptors
@@ -236,25 +239,62 @@ can be used to train the software to better predict the values of new data.
 After providing your arguments with the Configurations module, you need to do the following two steps.
 ```c++
 // Create a new ExaGeoStat data that holds the locations data and descriptors data.
-ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension(), hardware);
-// Generate data by passing your arguments throuh the configurations, your hardware and your container of the data which will be filled with the new generated data.
-ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
+ExaGeoStatData<double> data;
+// Generate data by passing your arguments through the configurations, your hardware and your container of the data which will be filled with the new generated data.
+ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
 ```
 
 ##### Real data generation
 
-- Not supported for now.
+- The Data Path must be passed to Configuration.
+
+        --log_path=<path/to/file>
+- Then do the following two steps.
+```c++
+// Create a new ExaGeoStat data that holds the locations data and descriptors data.
+ExaGeoStatData<double> data;
+// Generate data by passing your arguments through the configurations, your hardware and your container of the data which will be filled with the new generated data.
+ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
+```
 
 ### Data Modeling.
 
 To use data modeling you have to do this operation.
 ```c++
-// you have to pass your arguments throuh the configurations, your hardware and your data.
+// you have to pass your arguments through the configurations, your hardware and your data.
 ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
 ```
 
 ### Data prediction
 ```c++
-// you have to pass your arguments throuh the configurations, your hardware and your data.
+// you have to pass your arguments through the configurations, your hardware and your data.
+ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+```
+
+### Fisher Function
+1. Pass the fisher arguments to the Configurations.
+
+        --fisher
+2. Call the Data Prediction function.
+```c++
+// you have to pass your arguments through the configurations, your hardware and your data.
+ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+```
+### MLOE-MMOM Function
+1. Pass the MLOE-MMOM arguments to the Configurations.
+
+        --mloe-mmom
+2. Call the Data Prediction function.
+```c++
+// you have to pass your arguments through the configurations, your hardware and your data.
+ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+```
+### IDW Function
+1. Pass the IDW arguments to the Configurations.
+
+        --idw
+2. Call the Data Prediction function.
+```c++
+// you have to pass your arguments through the configurations, your hardware and your data.
 ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
 ```

@@ -12,10 +12,12 @@
  * @date 2023-03-20
 **/
 
+extern "C" {
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
 #include <lapacke.h>
+}
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
@@ -703,15 +705,15 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 
     //Cholesky factorization for the Co-variance matrix CHAM_desc_K_a
     START_TIMING(cholesky1);
-    VERBOSE("(3)Cholesky factorization of CHAM_desc_K_a (MLOE-MMOM) .....")
+    VERBOSE("Cholesky factorization of CHAM_desc_K_a (MLOE-MMOM) .....")
     ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_K_a, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
     VERBOSE("Done.")
     STOP_TIMING(cholesky1);
     flops = flops + flops_dpotrf(CHAM_desc_K_a->m);
 
     START_TIMING(cholesky2);
-    //(5)Cholesky factorization for the Co-variance matrix CHAM_desc_K_t
-    VERBOSE("(5)Cholesky factorization of CHAM_desc_K_t (MLOE-MMOM) .....")
+    //Cholesky factorization for the Co-variance matrix CHAM_desc_K_t
+    VERBOSE("Cholesky factorization of CHAM_desc_K_t (MLOE-MMOM) .....")
     ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_K_t, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
     VERBOSE("Done.")
     STOP_TIMING(cholesky2);
@@ -719,12 +721,16 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 
     T total_loop_time = 0.0;
     T loop_time;
+    bool verbose;
+    VERBOSE("* Verbose messages are printed every 10 iteration *")
     for (p = 0; p < n_z_miss; p++) {
-
+        verbose = p % 10 == 0;
         lmiss->GetLocationX()[0] = aMissLocations.GetLocationX()[p];
         lmiss->GetLocationY()[0] = aMissLocations.GetLocationY()[p];
 
-        VERBOSE("Generate two vectors k_a and k_t (MLOE-MMOM).....")
+        if (verbose) {
+            VERBOSE("Generate two vectors k_a and k_t (MLOE-MMOM).....")
+        }
         START_TIMING(vecs_gen);
         upper_lower = EXAGEOSTAT_UPPER_LOWER;
         this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_k_t, upper_lower, &aObsLocations, lmiss,
@@ -733,88 +739,123 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
                                       &median_locations, apEstimatedTheta, 0, &aKernel);
         this->ExaGeoStatSequenceWait(sequence);
 
-        //// TODO: @Sameh please re-check all the comments here, verbose, timings.
         STOP_TIMING(vecs_gen);
-        //(6a)Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM)
-        VERBOSE("(6a)Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM).....")
+        //Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM)
+        if (verbose) {
+            VERBOSE("Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM).....")
+        }
         START_TIMING(copy_vecs);
         ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_k_t, CHAM_desc_k_t_tmp);
         ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_k_a, CHAM_desc_k_a_tmp);
         STOP_TIMING(copy_vecs);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
 
         START_TIMING(loop_time);
         START_TIMING(trsm1);
-        //(7) Triangular Solve (TRSM) k_a = TRSM(L_a^-1, k_a)
-        VERBOSE("Solving the linear system k_a = TRSM(l_a^-1, k_a) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_a = TRSM(L_a^-1, k_a)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_a = TRSM(l_a^-1, k_a) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
                            CHAM_desc_K_a, nullptr, nullptr, CHAM_desc_k_a, 0);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_a->m, CHAM_desc_k_a->n);
         STOP_TIMING(trsm1);
 
         START_TIMING(trsm2);
-        //(9) Triangular Solve (TRSM) k_t = TRSM(L_t^-1, k_t)
-        VERBOSE("(9)Solving the linear system k_t = TRSM(L_t^-1, k_t) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_t = TRSM(L_t^-1, k_t)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_t = TRSM(L_t^-1, k_t) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
                            CHAM_desc_K_t, nullptr, nullptr, CHAM_desc_k_t, 0);
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_t->m, CHAM_desc_k_t->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(trsm2);
 
         START_TIMING(trsm3);
-        //(8) Triangular Solve (TRSM) k_a = TRSM(L_a^-T, k_a)
-        VERBOSE("Solving the linear system k_a = TRSM(L_a^-T, k_a) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_a = TRSM(L_a^-T, k_a)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_a = TRSM(L_a^-T, k_a) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_a,
                            nullptr, nullptr, CHAM_desc_k_a, 0);
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_a->m, CHAM_desc_k_a->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(trsm3);
 
 
         START_TIMING(trsm4);
-        //(10) Triangular Solve (TRSM) k_t = TRSM(L_t^-T, k_t)
-        VERBOSE("(10)Solving the linear system k_t = TRSM(L_a^-T, k_t) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_t = TRSM(L_t^-T, k_t)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_t = TRSM(L_a^-T, k_t) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_t,
                            nullptr, nullptr, CHAM_desc_k_t, 0);
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_t->m, CHAM_desc_k_t->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(trsm4);
 
         START_TIMING(gevv2);
-        //(12) Calculate dgemm value= CHAM_desc_k_t^T * CHAM_desc_k_a
-        VERBOSE("(12)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_t^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        // Calculate dgemm value= CHAM_desc_k_t^T * CHAM_desc_k_a
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_t^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_t_tmp, CHAM_desc_k_a, 0, CHAM_desc_expr1);
         flops = flops + flops_dgemm(CHAM_desc_k_t_tmp->m, CHAM_desc_k_a->n, CHAM_desc_expr1->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(gevv2);
         START_TIMING(gevv3);
-        //(13) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_a_tmp
-        VERBOSE("(13)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        // Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_a_tmp
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_a_tmp, CHAM_desc_k_a, 0, CHAM_desc_expr4);
         flops = flops + flops_dgemm(CHAM_desc_k_a_tmp->m, CHAM_desc_k_a->n, CHAM_desc_expr4->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(gevv3);
 
         START_TIMING(gevv1);
-        //(11) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
-        VERBOSE("(11)Calculate dgemm CHAM_desc_expr4 = CHAM_desc_k_a^T * CHAM_desc_k_t... (Prediction Stage)")
+        // Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr4 = CHAM_desc_k_a^T * CHAM_desc_k_t... (Prediction Stage)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_t_tmp, CHAM_desc_k_t, 0, CHAM_desc_expr3);
         flops = flops + flops_dgemm(CHAM_desc_k_t_tmp->m, CHAM_desc_k_t->n, CHAM_desc_expr3->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(gevv1);
 
-        //(14) Calculate dgemm CHAM_desc_k_a= CHAM_desc_K_t * CHAM_desc_k_a (use k_t as k_a)
+        // Calculate dgemm CHAM_desc_k_a= CHAM_desc_K_t * CHAM_desc_k_a (use k_t as k_a)
         START_TIMING(gevv4);
         ExaGeoStatTrmmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_t,
                            CHAM_desc_k_a);
         STOP_TIMING(gevv4);
 
-        //(13) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
-        VERBOSE("(17)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (Prediction Stage)")
+        // Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (Prediction Stage)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_a, CHAM_desc_k_a, 0, CHAM_desc_expr2);
         flops = flops + flops_dgemm(CHAM_desc_k_a_tmp->m, CHAM_desc_k_t->n, CHAM_desc_expr2->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         START_TIMING(gevv5);
         STOP_TIMING(gevv5);
 

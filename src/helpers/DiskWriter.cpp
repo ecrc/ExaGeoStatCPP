@@ -17,7 +17,6 @@
 #include <filesystem>
 
 #include <helpers/DiskWriter.hpp>
-
 using namespace std;
 
 using namespace exageostat::helpers;
