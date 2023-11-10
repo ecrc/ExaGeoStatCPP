@@ -60,6 +60,7 @@ Configurations::Configurations() {
     SetRecoveryFile("");
     SetPrecision(common::DOUBLE);
     SetIsMSPE(false);
+    SetIsFisher(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
     SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
@@ -96,11 +97,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetProblemSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
                 CheckKernelValue(argument_value);
-            } else if (argument_name == "--PGrid" || argument_name == "--pGrid" || argument_name == "--pgrid" ||
-                       argument_name == "--p_grid") {
+            } else if (argument_name == "--P" || argument_name == "--p") {
                 SetPGrid(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid" ||
-                       argument_name == "--q_grid") {
+            } else if (argument_name == "--Q" || argument_name == "--q") {
                 SetQGrid(CheckNumericalValue(argument_value));
             } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot" ||
                        argument_name == "--time_slot") {
@@ -173,9 +172,10 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
             } else {
                 if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
                       argument_name == "--synthetic_data" || argument_name == "--synthetic" ||
-                      argument_name == "--mspe" || argument_name == "--MSPE" || argument_name == "--idw" ||
-                      argument_name == "--IDW" || argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" ||
-                      argument_name == "--mloe_mmom")) {
+                      argument_name == "--mspe" || argument_name == "--MSPE" ||
+                      argument_name == "--idw" || argument_name == "--IDW" ||
+                      argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" || argument_name == "--mloe_mmom" ||
+                      argument_name == "--fisher" || argument_name == "--Fisher")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -359,6 +359,9 @@ void Configurations::InitializeDataPredictionArguments() {
                         "You need to set ZMiss number, as the number of missing values should be positive value");
             }
             SetIsMLOEMMOM(true);
+        } else if (argument_name == "--Fisher" || argument_name == "--fisher") {
+            //Fisher can be performed without zmiss.
+            SetIsFisher(true);
         }
     }
 }
@@ -368,8 +371,8 @@ void Configurations::PrintUsage() {
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")
     LOGGER("--dimension=value : Used Dimension.")
-    LOGGER("--p_grid=value : Used P-Grid.")
-    LOGGER("--q_grid=value : Used P-Grid.")
+    LOGGER("--p=value : Used P-Grid.")
+    LOGGER("--q=value : Used P-Grid.")
     LOGGER("--time_slot=value : Time slot value for ST.")
     LOGGER("--computation=value : Used computation.")
     LOGGER("--precision=value : Used precision.")
@@ -393,6 +396,7 @@ void Configurations::PrintUsage() {
     LOGGER("--tolerance : MLE tolerance between two iterations.")
     LOGGER("--synthetic_data : Used to enable generating synthetic data.")
     LOGGER("--mspe: Used to enable mean square prediction error.")
+    LOGGER("--fisher: Used to enable fisher tile prediction function.")
     LOGGER("--idw: Used to IDW prediction auxiliary function.")
     LOGGER("--mloe-mmom: Used to enable MLOE MMOM.")
     LOGGER("--OOC : Used to enable Out of core technology.")
@@ -615,10 +619,7 @@ void Configurations::PrintSummary() {
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
     if (!mIsPrinted) {
-#if defined(CHAMELEON_USE_MPI)
-        if ( MORSE_My_Mpi_Rank() == 0 )
-        {
-#endif
+
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Dataset")
@@ -649,9 +650,6 @@ void Configurations::PrintSummary() {
         LOGGER("#Kernel: " << this->GetKernelName())
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
         LOGGER("*************************************************")
-#if defined(CHAMELEON_USE_MPI)
-        }
-#endif
         mIsPrinted = true;
     }
     mVerbosity = temp;

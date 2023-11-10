@@ -41,12 +41,30 @@ void UnivariateMaternDdsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, co
                                                                 const int &aColumnOffset, Locations<T> &aLocation1,
                                                                 Locations<T> &aLocation2, Locations<T> &aLocation3,
                                                                 T *aLocalTheta, const int &aDistanceMetric) {
-
     int i, j;
-    //// TODO: Implementation is Empty in the old version!
+    int i0 = aRowOffset;
+    int j0;
+    double expr;
+    double con;
+    con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
+    con = 1.0 / con;
+
     for (i = 0; i < aRowsNumber; i++) {
+        j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {
-            apMatrixA[i + j * aRowsNumber] = 0.0;
+            expr = helpers::DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0,
+                                                                             aDistanceMetric, 0) / aLocalTheta[1];
+            if (expr == 0) {
+                *(apMatrixA + i + j * aRowsNumber) = 1;
+            } else {
+
+                *(apMatrixA + i + j * aRowsNumber) = con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2],
+                                                                                                         expr); // derivative with respect to sigma square
+
+            }
+            j0++;
+
         }
+        i0++;
     }
 }

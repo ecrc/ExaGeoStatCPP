@@ -23,6 +23,7 @@
 
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
+#include <helpers/CommunicatorMPI.hpp>
 
 /**
  * DEFAULT_PRECISION the value of the default C++ std::cout number of precision.
@@ -33,21 +34,22 @@
 * Verbose macro for logging and debugging mode
 */
 #define VERBOSE(msg) \
-    if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE) \
+    if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) \
         std::cout << "\t\t\t " << msg << std::endl;
 
 /**
  * LOGGER_1 macro for logging outputs with double taps and new line at the end.
  */
+
 #define LOGGER_1(msg) \
-    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE)) \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) \
         std::cout << "\t\t " << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg << std::endl;
 
 /**
  * LOGGER_2 macro for logging outputs with double taps and without new line at the end.
  */
 #define LOGGER_2(msg, A) \
-    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE)) \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) \
         std::cout << "\t\t " << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;
 
 /**
@@ -67,15 +69,15 @@
 * LOGGER_PRECISION_1 macro for logging outputs without any taps, without new line at the end and with customized precision.
 */
 #define LOGGER_PRECISION_1(msg, precision) \
-    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE)) \
-        std::cout << std::fixed << std::setprecision(precision) << msg;                                          \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) \
+        std::cout << std::fixed << std::setprecision(precision) << msg;
 
 /**
 * LOGGER_PRECISION macro for logging outputs without any taps, without new line at the end and with default C++ precision.
 */
 #define LOGGER_PRECISION_2(msg) \
-    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE)) \
-        std::cout << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;                                          \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) \
+        std::cout << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;
 
 /**
  * LOGGER_CONTROL is The internal macro that simply strips the excess and ends up with the required macro

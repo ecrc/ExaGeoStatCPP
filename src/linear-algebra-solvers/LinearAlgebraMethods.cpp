@@ -12,7 +12,12 @@
  * @date 2023-03-20
 **/
 
+extern "C" {
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
 #include <lapacke.h>
+}
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
@@ -41,9 +46,6 @@ void LinearAlgebraMethods<T>::InitiateDescriptors(Configurations &aConfiguration
     int p_grid = aConfigurations.GetPGrid();
     int q_grid = aConfigurations.GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
-
-    // For distributed system and should be removed
-    T *Zcpy = new T[n];
 
     // Create a Chameleon sequence, if not initialized before through the same descriptors
     if (!aDescriptorData.GetSequence()) {
@@ -98,7 +100,70 @@ void LinearAlgebraMethods<T>::InitiateDescriptors(Configurations &aConfiguration
     //stop gsl error handler
     gsl_set_error_handler_off();
     aDescriptorData.SetIsDescriptorInitiated(true);
-    delete[] Zcpy;
+}
+
+template<typename T>
+void LinearAlgebraMethods<T>::InitiateFisherDescriptors(configurations::Configurations &aConfigurations,
+                                                        dataunits::DescriptorData<T> &aDescriptorData) {
+
+    // Check for initialize the Chameleon context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+
+    // Get the problem size and other configuration parameters
+    int n = aConfigurations.GetProblemSize();
+    int num_params = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
+    int dts = aConfigurations.GetDenseTileSize();
+    int p_grid = aConfigurations.GetPGrid();
+    int q_grid = aConfigurations.GetQGrid();
+    bool is_OOC = aConfigurations.GetIsOOC();
+
+    // Create a Chameleon sequence, if not initialized before through the same descriptors
+    if (!aDescriptorData.GetSequence()) {
+        RUNTIME_sequence_t *pSequence;
+        ExaGeoStatCreateSequence(&pSequence);
+        aDescriptorData.SetSequence(pSequence);
+        RUNTIME_request_t request_array[2] = {RUNTIME_REQUEST_INITIALIZER, RUNTIME_REQUEST_INITIALIZER};
+        aDescriptorData.SetRequest(request_array);
+    }
+
+    // Set the floating point precision based on the template type
+    FloatPoint float_point;
+    if (sizeof(T) == SIZE_OF_FLOAT) {
+        float_point = EXAGEOSTAT_REAL_FLOAT;
+    } else if (sizeof(T) == SIZE_OF_DOUBLE) {
+        float_point = EXAGEOSTAT_REAL_DOUBLE;
+    } else {
+        throw runtime_error("Unsupported for now!");
+    }
+
+    if (!aDescriptorData.GetIsDescriptorInitiated()) {
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C, is_OOC, nullptr, float_point, dts,
+                                      dts,
+                                      dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
+    }
+
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_A, is_OOC, nullptr, float_point, dts,
+                                  dts, dts * dts, num_params, num_params, 0, 0, num_params, num_params, p_grid, q_grid);
+
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_CJ, is_OOC, nullptr, float_point,
+                                  dts, dts, dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
+
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_CK, is_OOC, nullptr, float_point,
+                                  dts, dts, dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
+
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_RESULTS, is_OOC, nullptr,
+                                  float_point, dts, dts, dts * dts, n, n, 0, 0, n, n, p_grid, q_grid);
+
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_C_TRACE, is_OOC, nullptr,
+                                  float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, common::DESCRIPTOR_C_DIAG, is_OOC, nullptr, float_point,
+                                  dts, dts, dts * dts, n, 1, 0, 0, n, 1, p_grid, q_grid);
+
+
 }
 
 template<typename T>
@@ -319,9 +384,10 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
         pMatrix = new T[n];
+        string path = aConfigurations.GetLoggerPath();
         ExaGeoStatDesc2Lap(pMatrix, n, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
-        if ( CHAMELEON_My_Mpi_Rank() == 0 ){
-            DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
+        if ( CHAMELEON_Comm_rank() == 0 ){
+            helpers::DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
         }
         delete[] pMatrix;
 #else
@@ -490,6 +556,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(ExaGeoStatData<T> &aData, T
     for (i = 0; i < aZMissNumber; i++) {
         LOGGER(" (" << apZActual[i] << ", " << apZMiss[i] << ")")
     }
+
     results::Results::GetInstance()->SetMSPEExecutionTime(time_solve + time_gemm);
     results::Results::GetInstance()->SetMSPEFlops((flops / 1e9 / (time_solve + time_gemm)));
     results::Results::GetInstance()->SetMSPEError(*mspe);
@@ -638,15 +705,15 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 
     //Cholesky factorization for the Co-variance matrix CHAM_desc_K_a
     START_TIMING(cholesky1);
-    VERBOSE("(3)Cholesky factorization of CHAM_desc_K_a (MLOE-MMOM) .....")
+    VERBOSE("Cholesky factorization of CHAM_desc_K_a (MLOE-MMOM) .....")
     ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_K_a, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
     VERBOSE("Done.")
     STOP_TIMING(cholesky1);
     flops = flops + flops_dpotrf(CHAM_desc_K_a->m);
 
     START_TIMING(cholesky2);
-    //(5)Cholesky factorization for the Co-variance matrix CHAM_desc_K_t
-    VERBOSE("(5)Cholesky factorization of CHAM_desc_K_t (MLOE-MMOM) .....")
+    //Cholesky factorization for the Co-variance matrix CHAM_desc_K_t
+    VERBOSE("Cholesky factorization of CHAM_desc_K_t (MLOE-MMOM) .....")
     ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_K_t, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
     VERBOSE("Done.")
     STOP_TIMING(cholesky2);
@@ -654,18 +721,16 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 
     T total_loop_time = 0.0;
     T loop_time;
+    bool verbose;
+    VERBOSE("* Verbose messages are printed every 10 iteration *")
     for (p = 0; p < n_z_miss; p++) {
-#if defined(CHAMELEON_USE_MPI)
-        if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
-#if defined(CHAMELEON_USE_MPI)
-        }
-#endif
+        verbose = p % 10 == 0;
         lmiss->GetLocationX()[0] = aMissLocations.GetLocationX()[p];
         lmiss->GetLocationY()[0] = aMissLocations.GetLocationY()[p];
 
-        VERBOSE("Generate two vectors k_a and k_t (MLOE-MMOM).....")
+        if (verbose) {
+            VERBOSE("Generate two vectors k_a and k_t (MLOE-MMOM).....")
+        }
         START_TIMING(vecs_gen);
         upper_lower = EXAGEOSTAT_UPPER_LOWER;
         this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_k_t, upper_lower, &aObsLocations, lmiss,
@@ -674,88 +739,123 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
                                       &median_locations, apEstimatedTheta, 0, &aKernel);
         this->ExaGeoStatSequenceWait(sequence);
 
-        //// TODO: @Sameh please re-check all the comments here, verbose, timings.
         STOP_TIMING(vecs_gen);
-        //(6a)Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM)
-        VERBOSE("(6a)Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM).....")
+        //Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM)
+        if (verbose) {
+            VERBOSE("Copy CHAM_desc_k_a to CHAM_descK_atmp  (MLOE-MMOM).....")
+        }
         START_TIMING(copy_vecs);
         ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_k_t, CHAM_desc_k_t_tmp);
         ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_k_a, CHAM_desc_k_a_tmp);
         STOP_TIMING(copy_vecs);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
 
         START_TIMING(loop_time);
         START_TIMING(trsm1);
-        //(7) Triangular Solve (TRSM) k_a = TRSM(L_a^-1, k_a)
-        VERBOSE("Solving the linear system k_a = TRSM(l_a^-1, k_a) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_a = TRSM(L_a^-1, k_a)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_a = TRSM(l_a^-1, k_a) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
                            CHAM_desc_K_a, nullptr, nullptr, CHAM_desc_k_a, 0);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_a->m, CHAM_desc_k_a->n);
         STOP_TIMING(trsm1);
 
         START_TIMING(trsm2);
-        //(9) Triangular Solve (TRSM) k_t = TRSM(L_t^-1, k_t)
-        VERBOSE("(9)Solving the linear system k_t = TRSM(L_t^-1, k_t) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_t = TRSM(L_t^-1, k_t)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_t = TRSM(L_t^-1, k_t) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
                            CHAM_desc_K_t, nullptr, nullptr, CHAM_desc_k_t, 0);
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_t->m, CHAM_desc_k_t->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(trsm2);
 
         START_TIMING(trsm3);
-        //(8) Triangular Solve (TRSM) k_a = TRSM(L_a^-T, k_a)
-        VERBOSE("Solving the linear system k_a = TRSM(L_a^-T, k_a) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_a = TRSM(L_a^-T, k_a)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_a = TRSM(L_a^-T, k_a) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_a,
                            nullptr, nullptr, CHAM_desc_k_a, 0);
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_a->m, CHAM_desc_k_a->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(trsm3);
 
 
         START_TIMING(trsm4);
-        //(10) Triangular Solve (TRSM) k_t = TRSM(L_t^-T, k_t)
-        VERBOSE("(10)Solving the linear system k_t = TRSM(L_a^-T, k_t) ...(MLOE-MMOM)")
+        // Triangular Solve (TRSM) k_t = TRSM(L_t^-T, k_t)
+        if (verbose) {
+            VERBOSE("Solving the linear system k_t = TRSM(L_a^-T, k_t) ...(MLOE-MMOM)")
+        }
         ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_t,
                            nullptr, nullptr, CHAM_desc_k_t, 0);
         flops = flops + flops_dtrsm(ChamLeft, CHAM_desc_K_t->m, CHAM_desc_k_t->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(trsm4);
 
         START_TIMING(gevv2);
-        //(12) Calculate dgemm value= CHAM_desc_k_t^T * CHAM_desc_k_a
-        VERBOSE("(12)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_t^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        // Calculate dgemm value= CHAM_desc_k_t^T * CHAM_desc_k_a
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_t^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_t_tmp, CHAM_desc_k_a, 0, CHAM_desc_expr1);
         flops = flops + flops_dgemm(CHAM_desc_k_t_tmp->m, CHAM_desc_k_a->n, CHAM_desc_expr1->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(gevv2);
         START_TIMING(gevv3);
-        //(13) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_a_tmp
-        VERBOSE("(13)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        // Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_a_tmp
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (MLOE-MMOM)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_a_tmp, CHAM_desc_k_a, 0, CHAM_desc_expr4);
         flops = flops + flops_dgemm(CHAM_desc_k_a_tmp->m, CHAM_desc_k_a->n, CHAM_desc_expr4->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(gevv3);
 
         START_TIMING(gevv1);
-        //(11) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
-        VERBOSE("(11)Calculate dgemm CHAM_desc_expr4 = CHAM_desc_k_a^T * CHAM_desc_k_t... (Prediction Stage)")
+        // Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr4 = CHAM_desc_k_a^T * CHAM_desc_k_t... (Prediction Stage)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_t_tmp, CHAM_desc_k_t, 0, CHAM_desc_expr3);
         flops = flops + flops_dgemm(CHAM_desc_k_t_tmp->m, CHAM_desc_k_t->n, CHAM_desc_expr3->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         STOP_TIMING(gevv1);
 
-        //(14) Calculate dgemm CHAM_desc_k_a= CHAM_desc_K_t * CHAM_desc_k_a (use k_t as k_a)
+        // Calculate dgemm CHAM_desc_k_a= CHAM_desc_K_t * CHAM_desc_k_a (use k_t as k_a)
         START_TIMING(gevv4);
         ExaGeoStatTrmmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1, CHAM_desc_K_t,
                            CHAM_desc_k_a);
         STOP_TIMING(gevv4);
 
-        //(13) Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
-        VERBOSE("(17)Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (Prediction Stage)")
+        // Calculate dgemm value= CHAM_desc_k_a^T * CHAM_desc_k_t
+        if (verbose) {
+            VERBOSE("Calculate dgemm CHAM_desc_expr1 = CHAM_desc_k_a^T * CHAM_desc_k_a... (Prediction Stage)")
+        }
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_k_a, CHAM_desc_k_a, 0, CHAM_desc_expr2);
         flops = flops + flops_dgemm(CHAM_desc_k_a_tmp->m, CHAM_desc_k_t->n, CHAM_desc_expr2->n);
-        VERBOSE("Done.")
+        if (verbose) {
+            VERBOSE("Done.")
+        }
         START_TIMING(gevv5);
         STOP_TIMING(gevv5);
 
@@ -778,15 +878,7 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
                                        CHAM_desc_mmom, sequence, request);
         this->ExaGeoStatSequenceWait(sequence);
     }
-#if defined(CHAMELEON_USE_MPI)
-    if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
     LOGGER(" ---- MLOE-MMOM Gflop/s: " << flops / 1e9 / (total_loop_time + cholesky1 + cholesky2))
-
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
 
     *mloe /= n_z_miss;
     *mmom /= n_z_miss;
@@ -814,6 +906,186 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 }
 
 template<typename T>
+T *LinearAlgebraMethods<T>::ExaGeoStatFisherTile(configurations::Configurations &aConfigurations,
+                                                 dataunits::ExaGeoStatData<T> &aData,
+                                                 const hardware::ExaGeoStatHardware &aHardware, T *apTheta,
+                                                 const kernels::Kernel<T> &aKernel) {
+
+    this->SetContext(aHardware.GetChameleonContext());
+    this->InitiateFisherDescriptors(aConfigurations, *aData.GetDescriptorData());
+
+    auto *CHAM_desc_A = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                 DescriptorName::DESCRIPTOR_A).chameleon_desc;
+    auto *CHAM_desc_C = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                 DescriptorName::DESCRIPTOR_C).chameleon_desc;
+    auto *CHAM_desc_CJ = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                  DescriptorName::DESCRIPTOR_CJ).chameleon_desc;
+    auto *CHAM_desc_results = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                       DescriptorName::DESCRIPTOR_RESULTS).chameleon_desc;
+    auto *CHAM_desc_CK = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                  DescriptorName::DESCRIPTOR_CK).chameleon_desc;
+    auto *CHAM_desc_C_diag = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                      DescriptorName::DESCRIPTOR_C_DIAG).chameleon_desc;
+    auto *CHAM_desc_C_trace = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                       DescriptorName::DESCRIPTOR_C_TRACE).chameleon_desc;
+
+    auto trace = aData.GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_C_trace);
+    *trace = 0.0;
+
+    RUNTIME_request_t request_array[2] = {RUNTIME_REQUEST_INITIALIZER, RUNTIME_REQUEST_INITIALIZER};
+    RUNTIME_sequence_t *sequence;
+    if (!aData.GetDescriptorData()->GetSequence()) {
+        ExaGeoStatCreateSequence(&sequence);
+        aData.GetDescriptorData()->SetSequence(sequence);
+        aData.GetDescriptorData()->SetRequest(request_array);
+    } else {
+        sequence = (RUNTIME_sequence_t *) aData.GetDescriptorData()->GetSequence();
+    }
+
+    void *request = aData.GetDescriptorData()->GetRequest();
+
+    auto kernel_name = aConfigurations.GetKernelName();
+    int num_params = aKernel.GetParametersNumbers();
+    auto median_locations = Locations<T>(1, aData.GetLocations()->GetDimension());
+    aData.CalculateMedianLocations(kernel_name, median_locations);
+    double time = 0.0;
+
+    START_TIMING(time);
+    VERBOSE("Generate covariance matrix  CHAM_desc_C  (Fisher Matrix Generation).....")
+    this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_C, EXAGEOSTAT_LOWER, aData.GetLocations(),
+                                  aData.GetLocations(), &median_locations, apTheta, aConfigurations.GetDistanceMetric(),
+                                  &aKernel);
+    ExaGeoStatSequenceWait(sequence);
+    VERBOSE("Done.")
+
+    VERBOSE("Calculate Cholesky decomposition  (Fisher Matrix Generation).....")
+    ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_C, 0, nullptr, nullptr, 0, 0);
+    VERBOSE("Done.")
+
+    //Allocate memory for A, and initialize it with 0s.
+    auto A = new T[num_params * num_params]();
+
+    for (int j = 0; j < num_params; j++) {
+
+        if (j == 0) {
+            kernel_name = "UnivariateMaternDdsigmaSquare";
+        } else if (j == 1) {
+            kernel_name = "UnivariateMaternDbeta";
+        } else if (j == 2) {
+            kernel_name = "UnivariateMaternDnu";
+        } else if (j == 3) {
+            kernel_name = "UnivariateMaternNuggetsStationary";
+        }
+
+        auto pKernel_cj = plugins::PluginRegistry<kernels::Kernel<T>>::Create(kernel_name);
+
+        VERBOSE("Generate covariance matrix  CHAM_desc_CJ  (Fisher Matrix Generation).....")
+        this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_CJ, EXAGEOSTAT_UPPER_LOWER,
+                                      aData.GetLocations(), aData.GetLocations(), &median_locations, apTheta,
+                                      aConfigurations.GetDistanceMetric(), pKernel_cj);
+        ExaGeoStatSequenceWait(sequence);
+        VERBOSE("Done.")
+
+        VERBOSE("Compute triangular solve  CHAM_desc_CJ  (Fisher Matrix Generation).....")
+        ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
+                           CHAM_desc_C,
+                           nullptr, nullptr, CHAM_desc_CJ, 0);
+        ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1,
+                           CHAM_desc_C,
+                           nullptr, nullptr, CHAM_desc_CJ, 0);
+        VERBOSE("Done.")
+
+        delete pKernel_cj;
+        for (int k = j; k < num_params; k++) {
+
+            if (k == 0) {
+                kernel_name = "UnivariateMaternDdsigmaSquare";
+            } else if (k == 1) {
+                kernel_name = "UnivariateMaternDbeta";
+            } else if (k == 2) {
+                kernel_name = "UnivariateMaternDnu";
+            } else if (k == 3) {
+                kernel_name = "UnivariateMaternNuggetsStationary";
+            }
+
+            auto pKernel_ck = plugins::PluginRegistry<kernels::Kernel<T>>::Create(kernel_name);
+
+            VERBOSE("Generate covariance matrix  CHAM_desc_CK  (Fisher Matrix Generation).....")
+            this->CovarianceMatrixCodelet(*aData.GetDescriptorData(), CHAM_desc_CK, EXAGEOSTAT_UPPER_LOWER,
+                                          aData.GetLocations(), aData.GetLocations(), &median_locations, apTheta,
+                                          aConfigurations.GetDistanceMetric(), pKernel_ck);
+            ExaGeoStatSequenceWait(sequence);
+            VERBOSE("Done.")
+
+            VERBOSE("Compute tringular solve  CHAM_desc_CK  (Fisher Matrix Generation).....")
+            ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
+                               CHAM_desc_C,
+                               nullptr, nullptr, CHAM_desc_CK, 0);
+            ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_TRANS, EXAGEOSTAT_NON_UNIT, 1,
+                               CHAM_desc_C,
+                               nullptr, nullptr, CHAM_desc_CK, 0);
+            VERBOSE("Done.")
+
+            VERBOSE("Compute matrix-matrix multiplication  CHAM_desc_CK  (Fisher Matrix Generation).....")
+            CHAMELEON_dgemm_Tile(ChamNoTrans, ChamNoTrans, 1, CHAM_desc_CJ, CHAM_desc_CK, 0, CHAM_desc_results);
+            VERBOSE("Done.")
+
+            VERBOSE("Compute the trace/diagonal of CHAM_desc_CK (Fisher Matrix Generation).....")
+            ExaGeoStatMLETraceTileAsync(CHAM_desc_results, sequence, &request_array[0], CHAM_desc_C_trace,
+                                        CHAM_desc_C_diag);
+            ExaGeoStatSequenceWait(sequence);
+            VERBOSE("Done.")
+
+            A[k + num_params * j] = 0.5 * *trace;
+            *trace = 0;
+            delete pKernel_ck;
+        }
+    }
+
+    STOP_TIMING(time);
+
+    VERBOSE("Copy A array to descriptor CHAM_desc_A (Fisher Matrix Generation).....")
+    ExaGeoStatLap2Desc(A, num_params, CHAM_desc_A, EXAGEOSTAT_UPPER_LOWER);
+    VERBOSE("Done.")
+
+    VERBOSE("Calculate Cholesky decomposition  (Fisher Matrix Generation).....")
+    LAPACKE_dpotrf(LAPACK_COL_MAJOR, 'L', num_params, (double *) A, num_params);
+    VERBOSE("Done.")
+    VERBOSE("Generate Identity Matrix (I) (Fisher Matrix Generation).....")
+
+    //Allocate memory for A, and initialize it with 0s.
+    auto I_matrix = new T[num_params * num_params + 1]();
+    LAPACKE_dlaset(LAPACK_COL_MAJOR, 'L', num_params, num_params, 0, 1, (double *) I_matrix, num_params);
+    VERBOSE("Done.")
+
+    cblas_dtrsm(
+            CblasColMajor,
+            CblasLeft,
+            CblasLower,
+            CblasNoTrans,
+            CblasNonUnit,
+            num_params, num_params, 1.0, (double *) A, num_params, (double *) I_matrix, num_params);
+
+    cblas_dtrsm(
+            CblasColMajor,
+            CblasLeft,
+            CblasLower,
+            CblasTrans,
+            CblasNonUnit,
+            num_params, num_params, 1.0, (double *) A, num_params, (double *) I_matrix, num_params);
+
+    I_matrix[num_params * num_params] = time;
+
+    results::Results::GetInstance()->SetTotalFisherTime(time);
+    results::Results::GetInstance()->SetFisher00((double) I_matrix[0]);
+    results::Results::GetInstance()->SetFisher11((double) I_matrix[4]);
+    results::Results::GetInstance()->SetFisher22((double) I_matrix[8]);
+
+    delete[] A;
+    return I_matrix;
+}
+
+template<typename T>
 void
 LinearAlgebraMethods<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *apZ, const int &aSize,
                                            DescriptorData<T> &aDescData, T *apMeasurementsMatrix) {
@@ -836,7 +1108,6 @@ LinearAlgebraMethods<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *a
         } else {
             throw runtime_error("Unsupported for now!");
         }
-
         aDescData.SetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, apMeasurementsMatrix, float_point, dts,
                                 dts, dts * dts, n, 1, 0, 0, n, 1, p_grid, q_grid);
         z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY).chameleon_desc;
@@ -898,6 +1169,38 @@ void LinearAlgebraMethods<T>::CovarianceMatrixCodelet(DescriptorData<T> &aDescri
 
     RUNTIME_options_ws_free(&options);
     RUNTIME_options_finalize(&options, (CHAM_context_t *) this->mpContext);
+}
+
+template<typename T>
+void
+LinearAlgebraMethods<T>::ExaGeoStatMLETraceTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescNum,
+                                                     void *apDescTrace) {
+    // Check for initialize the Chameleon context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+
+    RUNTIME_option_t options;
+    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
+    int m, m0, n0;
+    int tempmm;
+    auto A = *((CHAM_desc_t *) apDescA);
+    struct starpu_codelet *cl = &this->cl_dtrace;
+
+    for (m = 0; m < A.mt; m++) {
+        tempmm = m == A.mt - 1 ? A.m - m * A.mb : A.mb;
+        starpu_insert_task(cl,
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescA, m, m),
+                           STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescNum, 0, 0),
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescTrace, m, 0),
+                           0);
+    }
+
+    this->ExaGeoStatOptionsFree(&options);
+    this->ExaGeoStatOptionsFinalize(&options, this->mpContext);
 }
 
 template<typename T>

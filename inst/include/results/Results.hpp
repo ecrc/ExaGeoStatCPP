@@ -22,6 +22,7 @@ namespace exageostat::results {
     class Results {
 
     public:
+
         /**
          * @brief Get a pointer to the singleton instance of the Results class.
          * @return A pointer to the instance of the Results class.
@@ -191,6 +192,30 @@ namespace exageostat::results {
         void SetFlopsMLOEMMOM(double aFlops);
 
         /**
+         * @brief Set The total execution time of the fisher tile computation.
+         * @param[in] aTime The total execution time for fisher tile computation.
+         */
+        void SetTotalFisherTime (double aTime);
+
+        /**
+         * @brief Set the element 00 of the fisher matrix.
+         * @param aFisher00 Element 00 of the fisher matrix.
+         */
+        void SetFisher00(double aFisher00);
+
+        /**
+         * @brief Set the element 11 of the fisher matrix.
+         * @param aFisher11 element 11 of the fisher matrix.
+         */
+        void SetFisher11(double aFisher11);
+
+        /**
+         * @brief Set the element 22 of the fisher matrix.
+         * @param aFisher22 element 22 of the fisher matrix.
+         */
+        void SetFisher22(double aFisher22);
+
+        /**
          * @brief Print the end summary of the results.
          */
         void PrintEndSummary();
@@ -212,7 +237,6 @@ namespace exageostat::results {
         double mExecutionTimeDataGeneration = 0;
         /// Used Data Generation flops.
         double mFlopsDataGeneration = 0;
-
         /// Used MLE number of iterations.
         int mMLEIterations = 0;
         /// Used MAX theta.
@@ -247,6 +271,14 @@ namespace exageostat::results {
         double mTotalModelingExecutionTime = 0;
         /// Used Data Modeling Number of Flops.
         double mTotalModelingFlops = 0;
+        /// Used Total Fisher Time.
+        double mTotalFisherTime = 0;
+        /// Fisher matrix element 00.
+        double mFisher00 = 0;
+        /// Fisher matrix element 11.
+        double mFisher11 = 0;
+        /// Fisher matrix element 22.
+        double mFisher22 = 0;
     };
 
 }//namespace exageostat

@@ -21,11 +21,11 @@ include(macros/BuildDependency)
 if (NOT TARGET HWLOC)
     include(FindPkgConfig)
     find_package(PkgConfig QUIET)
-    find_package(HWLOC 1.11.5 QUIET)
+    find_package(HWLOC 2.4.0 REQUIRED QUIET)
 
     # If Hwloc is found, print its location.
     if (HWLOC_FOUND)
-        message("   Found HWLOC: ${HWLOC_LIBRARIES}")
+        message("   Found HWLOC: ${HWLOC_INCLUDE_DIRS}")
         # If not found, install it.
     else ()
         message("   Can't find Hwloc, Installing it instead ..")
@@ -40,7 +40,7 @@ if (NOT TARGET HWLOC)
         BuildDependency(HWLOC "https://github.com/open-mpi/hwloc" "hwloc-2.4.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
 
         # Find Hwloc after installation.
-        find_package(HWLOC 1.11.5 REQUIRED)
+        find_package(HWLOC 2.4.0 REQUIRED)
     endif ()
 else ()
     message("   HWLOC already included")
