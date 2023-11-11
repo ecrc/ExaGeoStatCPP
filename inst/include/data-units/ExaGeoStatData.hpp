@@ -39,6 +39,11 @@ namespace exageostat::dataunits {
         ExaGeoStatData(const int &aSize, const exageostat::common::Dimension &aDimension);
 
         /**
+         * @brief Default constructor for ExaGeoStatData.
+         */
+        ExaGeoStatData() = default;
+
+        /**
          * @brief Destructor for ExaGeoStatData.
          */
         ~ExaGeoStatData();

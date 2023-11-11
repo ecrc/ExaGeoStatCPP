@@ -13,13 +13,15 @@
 **/
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <configurations/Configurations.hpp>
 
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
+using namespace exageostat::hardware;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
 using namespace exageostat::kernels;
+using namespace exageostat::helpers;
+using namespace exageostat::linearAlgebra;
 
 template<typename T>
 SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
@@ -31,31 +33,64 @@ SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
 }
 
 template<typename T>
-Locations<T> *SyntheticGenerator<T>::CreateLocationsData(Configurations &aConfigurations) {
+ExaGeoStatData<T> *SyntheticGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
+                                                     const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                                                     exageostat::kernels::Kernel<T> &aKernel) {
+
+    auto *data = new ExaGeoStatData<T>(aConfigurations.GetProblemSize(), aConfigurations.GetDimension());
 
     // Allocated new Locations object.
     auto *locations = new Locations<T>((aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot()),
                                        aConfigurations.GetDimension());
 
-    // Register and create a kernel object
-    Kernel<T> *kernel = exageostat::plugins::PluginRegistry<Kernel<T>>::Create(aConfigurations.GetKernelName());
-
     // Set some kernel and arguments values.
-    kernel->SetPValue(aConfigurations.GetTimeSlot());
-    aConfigurations.SetProblemSize(aConfigurations.GetProblemSize() * kernel->GetPValue());
-    aConfigurations.SetP(kernel->GetPValue());
-    int parameters_number = kernel->GetParametersNumbers();
+    aKernel.SetPValue(aConfigurations.GetTimeSlot());
+    int N = aConfigurations.GetProblemSize();
+    aConfigurations.SetProblemSize(
+            aConfigurations.GetProblemSize() * aKernel.GetPValue() / aConfigurations.GetTimeSlot());
+
+    aConfigurations.SetP(aKernel.GetPValue());
+    int parameters_number = aKernel.GetParametersNumbers();
 
     // Set initial theta values.
     Configurations::InitTheta(aConfigurations.GetInitialTheta(), parameters_number);
     aConfigurations.SetInitialTheta(aConfigurations.GetInitialTheta());
 
-    // Generate Locations.
-    int N = aConfigurations.GetProblemSize() / kernel->GetPValue();
     GenerateLocations(N, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(), *locations);
+    data->SetLocations(*locations);
 
-    delete kernel;
-    return locations;
+    auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, *data, aKernel);
+
+    if (aConfigurations.GetLogger()) {
+        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
+#ifdef CHAMELEON_USE_MPI
+        auto pMatrix = new T[aConfigurations.GetProblemSize()];
+        std::string path = aConfigurations.GetLoggerPath();
+
+        CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                               DESCRIPTOR_Z).chameleon_desc,  pMatrix, aConfigurations.GetProblemSize());
+        if ( CHAMELEON_Comm_rank == 0 ){
+            DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                                               DESCRIPTOR_Z).chameleon_desc->mat),
+                                              aConfigurations.GetProblemSize(), aConfigurations.GetP(), path,
+                                              *data->GetLocations());
+        }
+        delete[] pMatrix;
+#else
+        std::string path = aConfigurations.GetLoggerPath();
+        DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                                           DESCRIPTOR_Z).chameleon_desc->mat),
+                                          aConfigurations.GetProblemSize(), aConfigurations.GetP(), path,
+                                          *data->GetLocations());
+#endif
+        VERBOSE("Done.")
+    }
+    results::Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize());
+    results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
+    results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
+
+    return data;
 }
 
 template<typename T>

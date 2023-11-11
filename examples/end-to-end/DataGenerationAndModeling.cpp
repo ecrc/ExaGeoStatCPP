@@ -5,7 +5,7 @@
 
 /**
  * @file DataGenerationAndModeling.cpp
- * @brief This program generates synthetic data then performs data modeling on generated data using the ExaGeoStat library.
+ * @brief This program either generates synthetic data using the ExaGeoStat library, or reads an CSV file.
  * @details The program takes command line arguments to configure the data generation.
  * @version 1.0.0
  * @author Mahmoud ElKarargy
@@ -13,10 +13,7 @@
 **/
 
 #include <common/Utils.hpp>
-#include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
-
-using namespace std;
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;
@@ -25,7 +22,7 @@ using namespace exageostat::dataunits;
 
 /**
  * @brief Main entry point for the Data Generation & Data Modeling program.
- * @details This function generates synthetic data using the ExaGeoStat library and models it.
+ * @details This function either generates synthetic data using the ExaGeoStat library, or reads an CSV file, then models the loaded data.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
  * @return An integer indicating the success or failure of the program.
@@ -38,11 +35,11 @@ int main(int argc, char **argv) {
     configurations.InitializeArguments(argc, argv);
     LOGGER("** initialize ExaGeoStat hardware ** ")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers()); // Or you could use configurations.GetComputation().
-    LOGGER("** Create ExaGeoStat data ** ")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
+                                       configurations.GetGPUsNumbers());
+    LOGGER("** Create ExaGeoStat data **")
+    ExaGeoStatData<double> data;
     LOGGER("** ExaGeoStat data generation ** ")
-    ExaGeoStat<double>::ExaGeoStatGenerateData(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
     LOGGER("** ExaGeoStat data Modeling ** ")
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
     LOGGER("** All example stages have been completed successfully ** ")

@@ -51,52 +51,52 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
 
+add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
+
 add_definitions(
         -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
 )
 
 # Add all dependencies for ExaGeoStat PP
-include(ImportGFortran)
-include(ImportOpenMP)
 if (USE_CUDA)
     message("-- Build CUDA Support")
-    # Import CuSolver and Lapack libraries
-    include(ImportCuSolver)
-    include(ImportBlasPP)
-    unset(BLA_VENDOR)
-    include(ImportLapack)
-
-    set(LIBS
-            LAPACK::LAPACK
-            ${LIBS}
-            )
 else ()
     message("-- Build x86 Support")
     set(gpu_backend CACHE STRING "none" FORCE)
     unset(BLA_VENDOR)
 endif ()
 
-# Add all dependencies for Exageostat
 # EXAGEOSTAT depends on a MPI
 # -------------------------------
 if (USE_MPI)
+    # Enable MPI and include MPI
+    add_definitions(-DUSE_MPI=TRUE)
     message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif ()
 
+# EXAGEOSTAT depends on LAPACKE
+#-----------------------------
+find_package(LAPACKE)
+list(APPEND LIBS ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
+
 # Check if no path is set for installation
-if(NOT EXAGEOSTAT_INSTALL_PREFIX)
+if (NOT EXAGEOSTAT_INSTALL_PREFIX)
     message(FATAL_ERROR "Installation path not set! Please use -DEXAGEOSTAT_INSTALL_PREFIX=path/to/install or use ./config.sh")
-endif()
+endif ()
 # Print installation path of Exageostat.
 message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
 
 # EXAGEOSTAT depends on a Hwloc
 # -------------------------------
 include(ImportHwloc)
-set(STARPU_COMPONENT_LIST "HWLOC")
+list(APPEND STARPU_COMPONENT_LIST "HWLOC")
+
+string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
 
 # EXAGEOSTAT depends on a runtime
 # -------------------------------
@@ -125,16 +125,10 @@ endif ()
 # -------------------------------
 include(ImportChameleon)
 
-# EXAGEOSTAT depends on a LAPACKE
+# EXAGEOSTAT depends on a LAPACK/BLASPP
 # -------------------------------
-include(ImportBlas)
+include(ImportBlasPP)
 include(ImportLapack)
-
-find_package(LAPACKE)
-list(APPEND LIBS ${LAPACKE_LIBRARIES})
-link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
-include_directories(${LAPACKE_INCLUDE_DIRS})
-
 
 # EXAGEOSTAT DOCUMENTATIONS
 if (EXAGEOSTAT_BUILD_DOCS)
@@ -160,6 +154,7 @@ add_subdirectory(src)
 # The INTERFACE keyword specifies that this library will not be built, but instead will only be used for its properties.
 add_library(${PROJECT_NAME}_INTERFACE INTERFACE)
 target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME})
+
 # Add linker options to the target
 target_link_options(${PROJECT_NAME}_INTERFACE INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:${PROJECT_NAME}> -Wl,--no-whole-archive")
 
@@ -245,6 +240,6 @@ message("\t If not, Please change the following paths with your installation pat
 message("\t ------------------------------------------------------------------------------------------------------------------------------- ")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HCORE/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/STARPU/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")

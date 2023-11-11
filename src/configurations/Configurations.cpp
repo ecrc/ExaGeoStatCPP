@@ -45,6 +45,7 @@ Configurations::Configurations() {
     SetBand(0);
     SetLoggerPath("");
     SetIsSynthetic(true);
+    SetIsCSV(false);
     vector<double> theta;
     SetInitialTheta(theta);
     SetLowerBounds(theta);
@@ -63,6 +64,7 @@ Configurations::Configurations() {
     SetIsFisher(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
+    SetDataPath("");
     SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
     SetAccuracy(0);
 }
@@ -97,11 +99,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetProblemSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
                 CheckKernelValue(argument_value);
-            } else if (argument_name == "--PGrid" || argument_name == "--pGrid" || argument_name == "--pgrid" ||
-                       argument_name == "--p_grid") {
+            } else if (argument_name == "--P" || argument_name == "--p") {
                 SetPGrid(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--QGrid" || argument_name == "--qGrid" || argument_name == "--qgrid" ||
-                       argument_name == "--q_grid") {
+            } else if (argument_name == "--Q" || argument_name == "--q") {
                 SetQGrid(CheckNumericalValue(argument_value));
             } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot" ||
                        argument_name == "--time_slot") {
@@ -148,13 +148,16 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                       argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
                       argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
-                      argument_name == "--iterations" || argument_name == "--Iterations" ||
-                      argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
-                      argument_name == "--tolerance" || argument_name == "--distanceMetric" ||
-                      argument_name == "--distance_metric" || argument_name == "--log_file_name" ||
-                      argument_name == "--logFileName" || argument_name == "--Band" ||
-                      argument_name == "--band" || argument_name == "--LTS" || argument_name == "--lts" ||
-                      argument_name == "--Lts" || argument_name == "--acc" || argument_name == "--Acc")) {
+                      argument_name == "--iterations" ||
+                      argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
+                      argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
+                      argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
+                      argument_name == "--log_file_name" || argument_name == "--logFileName" ||
+                      argument_name == "--Band" || argument_name == "--band" ||
+                      argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts" ||
+                      argument_name == "--DataPath" || argument_name == "--dataPath" ||
+                      argument_name == "--data_path" ||
+                      argument_name == "--acc" || argument_name == "--Acc")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
                             "This argument is undefined, Please use --help to print all available arguments");
@@ -172,9 +175,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
             } else if (argument_name == "--log" || argument_name == "--Log") {
                 SetLogger(true);
             } else {
-                if (!(argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
-                      argument_name == "--synthetic_data" || argument_name == "--synthetic" ||
-                      argument_name == "--mspe" || argument_name == "--MSPE" ||
+                if (!(argument_name == "--mspe" || argument_name == "--MSPE" ||
                       argument_name == "--idw" || argument_name == "--IDW" ||
                       argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" || argument_name == "--mloe_mmom" ||
                       argument_name == "--fisher" || argument_name == "--Fisher")) {
@@ -187,7 +188,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
     }
 
     // Throw Errors if any of these arguments aren't given by the user.
-    if (GetProblemSize() == 0) {
+    if (GetProblemSize() == 0 && GetIsSynthetic()) {
         throw domain_error("You need to set the problem size, before starting");
     }
     if (GetDenseTileSize() == 0) {
@@ -252,13 +253,20 @@ void Configurations::InitializeDataGenerationArguments() {
             if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                 argument_name == "--Dim") {
                 SetDimension(CheckDimensionValue(argument_value));
-            }
-        } else {
-            if (argument_name == "--syntheticData" || argument_name == "--SyntheticData" ||
-                argument_name == "--synthetic_data" || argument_name == "--synthetic") {
-                SetIsSynthetic(true);
+            } else if (argument_name == "--DataPath" || argument_name == "--dataPath" ||
+                       argument_name == "--data_path") {
+                SetDataPath(argument_value);
+                SetIsSynthetic(false);
+                SetIsCSV(true);
             }
         }
+    }
+    if (GetDimension() != DimensionST) {
+        if (GetTimeSlot() > 1) {
+            throw std::runtime_error("Time Slot can only be greater than 1 if the dimensions are set to SpaceTime.");
+        }
+    } else if (GetTimeSlot() < 1) {
+        throw std::runtime_error("Time Slot must be at least 1 if the dimensions are set to SpaceTime.");
     }
 }
 
@@ -373,8 +381,8 @@ void Configurations::PrintUsage() {
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")
     LOGGER("--dimension=value : Used Dimension.")
-    LOGGER("--p_grid=value : Used P-Grid.")
-    LOGGER("--q_grid=value : Used P-Grid.")
+    LOGGER("--p=value : Used P-Grid.")
+    LOGGER("--q=value : Used P-Grid.")
     LOGGER("--time_slot=value : Time slot value for ST.")
     LOGGER("--computation=value : Used computation.")
     LOGGER("--precision=value : Used precision.")
@@ -396,7 +404,7 @@ void Configurations::PrintUsage() {
     LOGGER("--distance_metric=value : Used distance metric either eg or gcd.")
     LOGGER("--max_mle_iterations=value : Maximum number of MLE iterations.")
     LOGGER("--tolerance : MLE tolerance between two iterations.")
-    LOGGER("--synthetic_data : Used to enable generating synthetic data.")
+    LOGGER("--data_path : Used to enter the path to the real data file.")
     LOGGER("--mspe: Used to enable mean square prediction error.")
     LOGGER("--fisher: Used to enable fisher tile prediction function.")
     LOGGER("--idw: Used to IDW prediction auxiliary function.")
@@ -621,10 +629,7 @@ void Configurations::PrintSummary() {
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
     if (!mIsPrinted) {
-#if defined(CHAMELEON_USE_MPI)
-        if ( MORSE_My_Mpi_Rank() == 0 )
-        {
-#endif
+
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Dataset")
@@ -655,9 +660,6 @@ void Configurations::PrintSummary() {
         LOGGER("#Kernel: " << this->GetKernelName())
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
         LOGGER("*************************************************")
-#if defined(CHAMELEON_USE_MPI)
-        }
-#endif
         mIsPrinted = true;
     }
     mVerbosity = temp;

@@ -13,6 +13,12 @@
  * @date 2023-03-20
 **/
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
+#include <cblas.h>
+
 #include <linear-algebra-solvers/concrete/chameleon/ChameleonImplementation.hpp>
 
 using namespace std;
@@ -21,6 +27,38 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
 using namespace exageostat::linearAlgebra;
+
+template<typename T>
+int ChameleonImplementation<T>::ExaGeoStatDoubleDotProduct(void *apDescA, void *apDescProduct, void *apSequence,
+                                                            void *apRequest) {
+    RUNTIME_option_t options;
+    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
+
+    int m, m0;
+    int tempmm;
+    auto A = (CHAM_desc_t *) apDescA;
+
+    struct starpu_codelet *cl=&this->cl_ddotp;
+
+    for (m = 0; m < A->mt; m++) {
+        tempmm = m == A->mt-1 ? A->m - m * A->mb : A->mb;
+
+        m0 = m * A->mb;
+
+
+        starpu_insert_task(cl,
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0,   sizeof(int),
+                           STARPU_RW, ExaGeoStatDataGetAddr(apDescProduct, 0, 0),
+                           STARPU_R, RUNTIME_data_getaddr(A, m, 0),
+                           0);
+    }
+    this->ExaGeoStatOptionsFree(&options);
+    this->ExaGeoStatOptionsFinalize(&options, (CHAM_context_t *) this->mpContext);
+    return CHAMELEON_SUCCESS;
+}
+
 
 template<typename T>
 T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
@@ -184,8 +222,8 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
 
     //Calculate MLE likelihood
     VERBOSE("Calculating the MLE likelihood function ...")
-    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z, CHAM_desc_Z, 0, CHAM_desc_product);
-
+    ExaGeoStatDoubleDotProduct(CHAM_desc_Z, CHAM_desc_product, pSequence, request_array);
+    ExaGeoStatSequenceWait(pSequence);
     if (kernel_name == "BivariateMaternParsimonious2Profile") {
         loglik =
                 -(n / 2) + (n / 2) * log(n) - (n / 2) * log(dot_product) - 0.5 * logdet - (T) (n / 2.0) * log(2.0 * PI);
@@ -223,8 +261,6 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
     //Distribute the values in the case of MPI
 #if defined(CHAMELEON_USE_MPI)
     MPI_Bcast(&loglik, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    if(MORSE_My_Mpi_Rank() == 0)
-    {
 #endif
 
     LOGGER(iter_count + 1 << " - Model Parameters (", true)
@@ -265,9 +301,6 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
     LOGGER(" ---- Total Time: " << time_facto + logdet_calculate + time_solve)
     LOGGER(" ---- Gflop/s: " << flops / 1e9 / (time_facto  + time_solve))
 
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
     aData.SetMleIterations(aData.GetMleIterations() + 1);
 
     // for experiments and benchmarking

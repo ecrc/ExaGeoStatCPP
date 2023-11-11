@@ -16,6 +16,7 @@
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <results/Results.hpp>
+#include <helpers/CommunicatorMPI.hpp>
 
 using namespace exageostat::hardware;
 
@@ -43,6 +44,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
         throw std::runtime_error("You need to enable Hicma to use TLR computation!");
 #endif
     }
+    helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
@@ -67,6 +69,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
         }
 #endif
     }
+    helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
     results::Results::GetInstance()->PrintEndSummary();
 }
 

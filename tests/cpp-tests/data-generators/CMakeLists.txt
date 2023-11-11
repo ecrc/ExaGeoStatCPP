@@ -11,6 +11,7 @@
 set(EXAGEOSTAT_TESTFILES
 
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestSyntheticGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestCSVDataGenerator.cpp
 
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE

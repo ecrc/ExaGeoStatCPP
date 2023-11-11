@@ -15,10 +15,7 @@
 #include <iostream>
 
 #include <common/Utils.hpp>
-#include <configurations/Configurations.hpp>
 #include <api/ExaGeoStat.hpp>
-
-using namespace std;
 
 using namespace exageostat::api;
 using namespace exageostat::dataunits;

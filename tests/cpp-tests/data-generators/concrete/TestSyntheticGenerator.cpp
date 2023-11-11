@@ -28,6 +28,7 @@ using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
+using namespace exageostat::kernels;
 
 void TEST_SPREAD_REVERSED_BITS() {
 
@@ -184,63 +185,77 @@ void TEST_SPREAD_REVERSED_BITS() {
 void TEST_GENERATE_LOCATIONS() {
 
     Configurations synthetic_data_configurations;
-    synthetic_data_configurations.SetProblemSize(8);
+    synthetic_data_configurations.SetProblemSize(16);
+    synthetic_data_configurations.SetDenseTileSize(8);
     synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+    vector<double> initial_theta{1, 0.1, 0.5};
+    synthetic_data_configurations.SetInitialTheta(initial_theta);
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName());
 
+
+    auto hardware = exageostat::hardware::ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
+                                                             synthetic_data_configurations.GetCoresNumber(),
+                                                             synthetic_data_configurations.GetGPUsNumbers());
     SECTION("2D Generation")
     {
-
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
-        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
 
-        double *x = locations->GetLocationX();
-        double *y = locations->GetLocationY();
-        REQUIRE(locations->GetLocationZ() == nullptr);
+        auto *data = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+
+        double *x = data->GetLocations()->GetLocationX();
+        double *y = data->GetLocations()->GetLocationY();
+        REQUIRE(data->GetLocations()->GetLocationZ() == nullptr);
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
         }
-        delete locations;
-    }SECTION("3D Generation")
+        delete data;
+    }
+    SECTION("3D Generation")
     {
         synthetic_data_configurations.SetDimension(Dimension3D);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
-        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
+        auto *data = synthetic_generator->CreateData(synthetic_data_configurations,
+                                                     hardware, *pKernel);
 
-        double *x = locations->GetLocationX();
-        double *y = locations->GetLocationY();
-        double *z = locations->GetLocationZ();
+        double *x = data->GetLocations()->GetLocationX();
+        double *y = data->GetLocations()->GetLocationY();
+        double *z = data->GetLocations()->GetLocationZ();
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
             REQUIRE(z[i] != 0);
         }
-        delete locations;
-    }SECTION("ST Generation")
+        delete data;
+    }
+    SECTION("ST Generation")
     {
         synthetic_data_configurations.SetDimension(DimensionST);
-        synthetic_data_configurations.SetTimeSlot(3);
+        synthetic_data_configurations.SetTimeSlot(2);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
-        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
+        auto *data = synthetic_generator->CreateData(synthetic_data_configurations,
+                                                     hardware, *pKernel);
 
-        double *x = locations->GetLocationX();
-        double *y = locations->GetLocationY();
-        double *z = locations->GetLocationZ();
+        double *x = data->GetLocations()->GetLocationX();
+        double *y = data->GetLocations()->GetLocationY();
+        double *z = data->GetLocations()->GetLocationZ();
 
         for (auto i = 0; i < synthetic_data_configurations.GetProblemSize(); i++) {
             REQUIRE(x[i] != 0.0);
             REQUIRE(y[i] != 0.0);
             REQUIRE(z[i] != 0.0);
         }
-        delete locations;
+        delete data;
     }
+
+    delete pKernel;
 }
 
 void TEST_HELPERS_FUNCTIONS() {
@@ -277,43 +292,52 @@ void TEST_GENERATION() {
         Configurations synthetic_data_configurations;
         synthetic_data_configurations.SetDimension(Dimension2D);
         int N = 9;
+        vector<double> initial_theta{1, 0.1, 0.5};
+        synthetic_data_configurations.SetInitialTheta(initial_theta);
         synthetic_data_configurations.SetProblemSize(N);
+        synthetic_data_configurations.SetDenseTileSize(1);
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
+        auto hardware = exageostat::hardware::ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
+                                                                 synthetic_data_configurations.GetCoresNumber(),
+                                                                 synthetic_data_configurations.GetGPUsNumbers());
+
+        Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName());
 
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         int seed = 0;
         srand(seed);
-        Locations<double> *locations = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
+        auto *data = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
         // The expected output of the locations.
         vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
         vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
 
         for (int i = 0; i < N; i++) {
-            REQUIRE((locations->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
-            REQUIRE((locations->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((data->GetLocations()->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((data->GetLocations()->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
         }
 
         // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
-        Locations<double> *locations1 = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
+        auto *data1 = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
         for (int i = 0; i < N; i++) {
-            REQUIRE((locations1->GetLocationX()[i] - x[i]) != Catch::Approx(0.0).margin(1e-6));
-            REQUIRE((locations1->GetLocationY()[i] - y[i]) != Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((data1->GetLocations()->GetLocationX()[i] - x[i]) != Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((data1->GetLocations()->GetLocationY()[i] - y[i]) != Catch::Approx(0.0).margin(1e-6));
         }
 
         // Now if we modified seed again, we will get the first generated locations again.
         int seed_srand = 0;
         srand(seed_srand);
-        Locations<double> *locations2 = synthetic_generator->CreateLocationsData(synthetic_data_configurations);
+        auto *data2 = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
         for (int i = 0; i < N; i++) {
-            REQUIRE((locations2->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
-            REQUIRE((locations2->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((data2->GetLocations()->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
+            REQUIRE((data2->GetLocations()->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
         }
-        delete locations;
-        delete locations1;
-        delete locations2;
+        delete data;
+        delete data1;
+        delete data2;
+        delete pKernel;
     }
 }
 
@@ -323,5 +347,4 @@ TEST_CASE("Synthetic Data Generation tests") {
     TEST_GENERATE_LOCATIONS();
     TEST_HELPERS_FUNCTIONS();
     TEST_GENERATION();
-
 }

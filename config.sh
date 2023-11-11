@@ -21,12 +21,12 @@ BUILDING_TESTS="OFF"
 BUILDING_EXAMPLES="OFF"
 USING_HiCMA="OFF"
 VERBOSE=OFF
-BUILD_TYPE="Release"
 USE_CUDA="OFF"
 USE_MPI="OFF"
+BLAS_VENDOR=""
 
 # Parse command line options
-while getopts ":tevhHi:dcm" opt; do
+while getopts ":tevhHi:cms" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -56,9 +56,9 @@ while getopts ":tevhHi:dcm" opt; do
       echo -e "${YELLOW}printing make with details.${NC}"
       VERBOSE=ON
       ;;
-    d)##### Using debug mode to build #####
-      echo -e "${RED}Debug mode enabled ${NC}"
-      BUILD_TYPE="DEBUG"
+    s) ##### Passing Blas vendor with mkl #####
+      echo -e "${YELLOW}MKL as a Blas vendor${NC}"
+      BLAS_VENDOR="Intel10_64lp"
       ;;
     \?) ##### Error unknown option #####
       echo "Option $OPTARG parameter is unknown, please -h for help"
@@ -79,6 +79,7 @@ while getopts ":tevhHi:dcm" opt; do
       printf "%20s %s\n" "-m :" "to enable using MPI."
       printf "%20s %s\n" "-v :" "to enable verbose printings."
       printf "%20s %s\n" "-d :" "to enable debug mode."
+      printf "%20s %s\n" "-s :" "to manually pass MKL as your blas vendor."
       printf "%20s %s\n" "-h :" "Help."
       echo ""
       exit 1
@@ -102,19 +103,15 @@ if [ -z "$USING_HiCMA" ]; then
    echo -e "${RED}Using HiCMA is disabled.${NC}"
 fi
 
-if [ -z "$BUILD_TYPE" ]; then
-  BUILD_TYPE="Release"
-  echo -e "${GREEN}Building in Release mode${NC}"
-fi
 if [ -z "$USE_CUDA" ]; then
   USE_CUDA="OFF"
   echo -e "${RED}Using CUDA disabled${NC}"
 fi
+
 if [ -z "$USE_MPI" ]; then
   USE_MPI="OFF"
   echo -e "${RED}Using MPI disabled${NC}"
 fi
-
 
 echo ""
 echo -e "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
@@ -122,8 +119,7 @@ echo ""
 rm -rf bin/
 mkdir -p bin/installdir
 
-cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
-  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DEXAGEOSTAT_INSTALL_PREFIX="${INSTALL_PREFIX}" \
   -DEXAGEOSTAT_BUILD_TESTS="${BUILDING_TESTS}" \
   -DEXAGEOSTAT_BUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
@@ -131,6 +127,7 @@ cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
   -DUSE_CUDA="${USE_CUDA}" \
   -DUSE_MPI="${USE_MPI}" \
+  -DBLA_VENDOR="${BLAS_VENDOR}" \
   -H"${PROJECT_SOURCE_DIR}" \
   -B"${PROJECT_SOURCE_DIR}/bin" \
   -G "Unix Makefiles"

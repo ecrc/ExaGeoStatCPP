@@ -22,6 +22,7 @@ if (NOT TARGET STARPU)
     find_package(PkgConfig QUIET)
     find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_LIST})
 
+
     # If STARPU is found, print its location.
     if (STARPU_FOUND)
         message("   Found StarPU: ${STARPU_LIBRARIES}")
@@ -33,20 +34,25 @@ if (NOT TARGET STARPU)
         set(AUTO_GEN ON)
 
         if (USE_CUDA AND USE_MPI)
+            message(STATUS "Downloading STARPU - MPI CUDA" )
             set(FLAGS \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
         elseif(USE_CUDA)
+            message(STATUS "Downloading STARPU - CUDA" )
             set(FLAGS  \--enable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
         elseif(USE_MPI)
+            message(STATUS "Downloading STARPU - MPI" )
             set(FLAGS  \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--enable-mpi)
         else()
+            message(STATUS "Downloading STARPU - SERIAL" )
             set(FLAGS \--disable-cuda  \--disable-opencl  \--enable-shared  \--disable-build-doc  \--disable-export-dynamic  \--disable-mpi)
-	endif()
+        endif()
 
         BuildDependency(STARPU "https://gitlab.inria.fr/starpu/starpu.git" "starpu-1.3.9"  ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
         # Clear the flags.
         set(FLAGS "")
         # Find StarPU after installation.
         find_package(STARPU 1.3.9 QUIET COMPONENTS ${STARPU_COMPONENT_LIST})
+
     endif ()
 else ()
     message("   STARPU already included")

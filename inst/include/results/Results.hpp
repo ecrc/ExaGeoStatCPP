@@ -22,6 +22,7 @@ namespace exageostat::results {
     class Results {
 
     public:
+
         /**
          * @brief Get a pointer to the singleton instance of the Results class.
          * @return A pointer to the instance of the Results class.

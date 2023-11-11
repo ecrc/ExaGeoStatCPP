@@ -551,6 +551,17 @@ namespace exageostat::linearAlgebra {
                         .name		= "dtrace"
                 };
 
+        struct starpu_codelet cl_ddotp =
+                {
+                        .where		= STARPU_CPU,
+                        .cpu_funcs	= {CORE_ddotp_starpu},
+                        .nbuffers	= 2,
+                        .modes		= {STARPU_RW,STARPU_R},
+                        .name		= "ddotp"
+                };
+
+
+
         static void CORE_dcmg_starpu(void *apBuffers[], void *apCodeletArguments) {
             int m, n, m0, n0;
             exageostat::dataunits::Locations<T> *location1;
@@ -774,6 +785,18 @@ namespace exageostat::linearAlgebra {
                 trace[i] = A[i + i * m];
             }
             return res;
+        }
+
+        static void CORE_ddotp_starpu(void *buffers[], void *cl_arg){
+            int m, m0;
+            double * A;
+            double * dotproduct;
+
+            dotproduct	= (double *)STARPU_MATRIX_GET_PTR(buffers[0]);
+            A		= (double *)STARPU_MATRIX_GET_PTR(buffers[1]);
+            starpu_codelet_unpack_args(cl_arg, &m, &m0);
+            double local_dot=cblas_ddot(m, A, 1, A, 1);
+            *dotproduct += local_dot;
         }
 
         bool recover(char *apPath, int aIterationCount, T *apTheta, T *apLogLik, int aNumParams) {

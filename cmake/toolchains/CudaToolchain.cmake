@@ -11,7 +11,7 @@
 # @date 2023-03-12
 
 # Set CUDA compilation options
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set the CUDA architectures to be targeted
