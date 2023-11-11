@@ -194,7 +194,3 @@ References
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
    on Cluster Computing (CLUSTER), IEEE, 2023.
 
-Contributors
-============
-[![](https://opencollective.com/html-react-parser/contributors.svg?width=890&button=false)](https://github.com/remarkablemark/html-react-parser/graphs/contributors)
-
