@@ -3,7 +3,7 @@ What is ExaGeoStat?
 
 The **Exascale GeoStatistics** project (ExaGeoStat) is a parallel high-performance unified framework for computational
 geostatistics on many-core systems. The project aims to optimize the likelihood function for a given spatial data to
-provide an efficient way to predict missing observations in the context of climate/weather forecasting applications.
+efficiently predict missing observations in the context of climate/weather forecasting applications.
 This machine learning framework proposes a unified simulation code structure to target various hardware architectures,
 from commodity x86 to GPU accelerator-based shared and distributed-memory systems. ExaGeoStat enables statisticians to
 tackle computationally challenging scientific problems at large-scale while abstracting the hardware complexity through
@@ -12,23 +12,14 @@ state-of-the-art high-performance linear algebra software libraries.
 
 What is ExaGeoStatCPP?
 ====================
-ExaGeoStatCPP is a C++ API for ExaGeoStat that aims to offer a user-friendly and efficient API for C++ developers, essentially maintaining traditional practices but also embracing contemporary C++ elements like namespaces, templates, and exceptions to enhance functionality.
-
-
-
-The **Exascale GeoStatistics** project (ExaGeoStat) is a parallel high-performance unified framework for computational
-geostatistics on many-core systems. The project aims to optimize the likelihood function for a given spatial data to
-provide an efficient way to predict missing observations in the context of climate/weather forecasting applications.
-This machine learning framework proposes a unified simulation code structure to target various hardware architectures,
-from commodity x86 to GPU accelerator-based shared and distributed-memory systems. ExaGeoStat enables statisticians to
-tackle computationally challenging scientific problems at large-scale while abstracting the hardware complexity through
-state-of-the-art high-performance linear algebra software libraries.
+ExaGeoStatCPP is a C++ API for ExaGeoStat that aims to offer a user-friendly and efficient API for C++ developers, essentially
+maintaining traditional practices and embracing contemporary C++ elements like namespaces, templates, and exceptions to enhance functionality.
 
 
 Vision of ExaGeoStat/ExaGeoStatCPP
 =================
 
-ExaGeoStat/ExaGeoStatCPP is a collaboration between the KAUST Spatial Statistics group and the Extreme Computing Research
+The ExaGeoStat/ExaGeoStatCPP project is a collaboration between the KAUST Spatial Statistics group and the Extreme Computing Research
 Center (ECRC). Its contribution lies not in a new algorithm nor a new dataset,
 but in demonstrating the routine use of the larger datasets becoming available to geospatial
 statisticians, thanks to the implementation of state-of-the-art statistical algorithms on
@@ -110,12 +101,12 @@ Project Hierarchy
 * **```docs```** A directory contains all the necessary documents.
 * **```examples```** A directory contains a comprehensive collection of demo code that illustrates the framework's application and demonstrates its features and capabilities.
 * **```inst```** A directory contains all the system's header files, mirroring the structure of the src directory.
-* **```prerequisites```** A directory contains all the necessary prerequisites for the project, as well as default scripts for their installation.
+* **```prerequisites```** A directory contains all the necessary prerequisites for the project and default scripts for their installation.
 * **```src```** A directory contains all the source files.
 * **```tests```** A directory contains all the test files and follows the same structure as the src folder.
 * **```clean_build.sh```** A script is designed to compile the software tests once all dependencies are installed, and it is set to build everything by default.
 * **```CMakeLists.txt```** The top-level CMake file to configure the build system.
-* **```config.sh```** Script used to generate the building system inside a 'bin' directory.
+* **```config.sh```** A Script used to generate the building system inside a 'bin' directory.
 
 Installation
 ============
@@ -207,3 +198,4 @@ References
 10. Qinglei Cao, Sameh Abdulah, Hatem Ltaief, Marc G. Genton, David E. Keyes, and George Bosilca. "Reducing Data Motion
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
    on Cluster Computing (CLUSTER), IEEE, 2023.
+   
