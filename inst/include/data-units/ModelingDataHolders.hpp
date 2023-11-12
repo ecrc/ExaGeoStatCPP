@@ -1,0 +1,46 @@
+/**
+ * @file ModelingDataHolders.hpp
+ * @brief This file contains the definition of the mModelingData struct, which contains all the data needed for modeling.
+ * @version 1.0.0
+ * @author Mahmoud ElKarargy
+ * @date 2023-08-24
+**/
+
+#ifndef EXAGEOSTATCPP_MODELINGDATAHOLDERS_HPP
+#define EXAGEOSTATCPP_MODELINGDATAHOLDERS_HPP
+
+namespace exageostat::dataunits {
+
+    /**
+     * @brief Struct containing all the data needed for modeling.
+     * @tparam T The data type of the data.
+     */
+    template<typename T>
+    struct mModelingData {
+        /// ExaGeoStatData<T> object containing needed descriptors, and locations.
+        dataunits::ExaGeoStatData<T> *mpData;
+        /// Configurations object containing user input data.
+        configurations::Configurations *mpConfiguration;
+        /// Hardware configuration for the ExaGeoStat solver.
+        const hardware::ExaGeoStatHardware *mpHardware;
+        /// Used Kernel for ExaGeoStat Modeling Data.
+        const kernels::Kernel<T> *mpKernel;
+
+        /// User Input Measurements Matrix
+        T *mpMeasurementsMatrix;
+
+        /**
+         * @brief Constructor.
+         * @param aData The ExaGeoStatData object.
+         * @param aConfiguration The Configurations object.
+         * @param aHardware The hardware configuration object.
+         * @param aKernel The Kernel object.
+         */
+        mModelingData(dataunits::ExaGeoStatData<T> &aData, configurations::Configurations &aConfiguration,
+                      const hardware::ExaGeoStatHardware &aHardware, T &aMatrix, const kernels::Kernel<T> &aKernel) :
+                mpData(std::move(&aData)), mpConfiguration(&aConfiguration), mpHardware(&aHardware),
+                mpMeasurementsMatrix(&aMatrix), mpKernel(&aKernel) {}
+    };
+
+}//namespace exageostat
+#endif //EXAGEOSTATCPP_MODELINGDATAHOLDERS_HPP
