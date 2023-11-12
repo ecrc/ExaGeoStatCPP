@@ -149,6 +149,11 @@ Using ExaGeoStatCPP
 Please refer to **```USER_MANUAL```** for detailed instructions.
 Please take a look at the end-to-end examples as a reference for using all the operations.
 
+Contribute
+=======
+
+[Contribution Guidelines](CONTRIBUTING.md)
+
 References
 ==========
 
@@ -193,4 +198,4 @@ References
 10. Qinglei Cao, Sameh Abdulah, Hatem Ltaief, Marc G. Genton, David E. Keyes, and George Bosilca. "Reducing Data Motion
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
    on Cluster Computing (CLUSTER), IEEE, 2023.
-
+   
