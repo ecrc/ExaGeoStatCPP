@@ -33,6 +33,7 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateExpNonGaussian.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TrivariateMaternParsimonious.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariateMaternNonStat.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/UnivariatePowExpStationary.cpp
         ${SOURCES}
         PARENT_SCOPE
         )
