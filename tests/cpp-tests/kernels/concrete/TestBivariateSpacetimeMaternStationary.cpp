@@ -41,7 +41,7 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         synthetic_data_configurations.SetInitialTheta(initial_theta);
 
         synthetic_data_configurations.SetDimension(DimensionST);
-        synthetic_data_configurations.SetTimeSlot(5);
+        synthetic_data_configurations.SetTimeSlot(3);
         int dts = 4;
         synthetic_data_configurations.SetDenseTileSize(dts);
         synthetic_data_configurations.SetComputation(EXACT_DENSE);
@@ -51,22 +51,19 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
 
         int seed = 0;
         srand(seed);
-        exageostat::dataunits::ExaGeoStatData<double> data;
+        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
-        auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+        auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
-        double expected_output_data[] = {
-                -1.272336, -2.516013, -1.182511, -2.512958, -1.203093, -2.548053, -1.213645, -2.511269, -1.807922,
-                -2.992990, -2.072972, -3.001448, -1.525724, -3.004085, -1.997874, -2.993439, -1.256771, -2.832258,
-                -1.022281, -2.827732, -0.924332, -2.856855, -1.363071, -2.832165, -1.680104, -3.400946, -1.685995,
-                -3.414854, -1.318928, -3.440336, -1.944915, -3.428945, -1.300296, -3.367150, -1.572847, -3.392844,
-                -1.126261, -3.392112, -1.682665, -3.394862
-        };
+        double expected_output_data[] = {-1.272336, -2.516013, -1.171584, -2.513616, -1.168821, -2.531118, -1.200293,
+                                         -1.960279, -1.919141, -2.005663, -2.279083, -2.006927, -0.807580, -1.719351,
+                                         -1.532754, -1.733719, -0.935139, -1.752957, 0.125841, -1.722780, -0.162095,
+                                         -1.738346, -0.866950, -1.753649};
 
-        for (size_t i = 0; i < N; i++) {
+        for (size_t i = 0; i < N * 3 * 2; i++) {
             double diff = A[i] - expected_output_data[i];
             REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }

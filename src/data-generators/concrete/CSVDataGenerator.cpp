@@ -36,9 +36,11 @@ CSVDataGenerator<T> *CSVDataGenerator<T>::GetInstance() {
 }
 
 template<typename T>
-ExaGeoStatData<T> *CSVDataGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                                                   exageostat::kernels::Kernel<T> &aKernel) {
+unique_ptr<ExaGeoStatData<T>>
+CSVDataGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
+                                const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                                exageostat::kernels::Kernel<T> &aKernel) {
+
     // create vectors that will be populated with read data.
     vector<T> measurements_vector;
     vector<T> x_locations;
@@ -46,21 +48,22 @@ ExaGeoStatData<T> *CSVDataGenerator<T>::CreateData(exageostat::configurations::C
     vector<T> z_locations;
 
     aKernel.SetPValue(aConfigurations.GetTimeSlot());
-    aConfigurations.SetP(aKernel.GetPValue());
-    int p = aConfigurations.GetP();
+    int p = aKernel.GetP();
 
     //Read the data out of the CSV file.
-    ReadData(aConfigurations, measurements_vector, x_locations, y_locations, z_locations);
+    ReadData(aConfigurations, measurements_vector, x_locations, y_locations, z_locations, p);
 
     //create data object
-    auto *data = new ExaGeoStatData<T>(aConfigurations.GetProblemSize() / p, aConfigurations.GetDimension());
+    auto data = std::make_unique<ExaGeoStatData<T>>(aConfigurations.GetProblemSize() / p,
+                                                    aConfigurations.GetDimension());
 
     //Initialize the descriptors.
     auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
     linear_algebra_solver->SetContext(aHardware.GetChameleonContext());
-    linear_algebra_solver->InitiateDescriptors(aConfigurations, *data->GetDescriptorData());
-    linear_algebra_solver->ExaGeoStatLaSetTile(EXAGEOSTAT_UPPER_LOWER, 0, 0, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                                                                      DESCRIPTOR_C).chameleon_desc);
+    linear_algebra_solver->InitiateDescriptors(aConfigurations, *data->GetDescriptorData(), p);
+    linear_algebra_solver->ExaGeoStatLaSetTile(EXAGEOSTAT_UPPER_LOWER, 0, 0,
+                                               data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                                        DESCRIPTOR_C).chameleon_desc);
     //populate data object with read data
     for (int i = 0; i < aConfigurations.GetProblemSize() / p; i++) {
         data->GetLocations()->GetLocationX()[i] = x_locations[i];
@@ -69,12 +72,12 @@ ExaGeoStatData<T> *CSVDataGenerator<T>::CreateData(exageostat::configurations::C
             data->GetLocations()->GetLocationZ()[i] = z_locations[i];
         }
     }
-    for (int i = 0; i < aConfigurations.GetProblemSize(); i++){
+    for (int i = 0; i < aConfigurations.GetProblemSize(); i++) {
         ((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                         DESCRIPTOR_Z).chameleon_desc->mat)[i] = measurements_vector[i];
     }
 
-    results::Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize());
+    results::Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize() / p);
     results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
     results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
 
@@ -83,9 +86,8 @@ ExaGeoStatData<T> *CSVDataGenerator<T>::CreateData(exageostat::configurations::C
 
 template<typename T>
 void
-CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
-                              vector<T> &aMeasurementsMatrix, vector<T> &aXLocations,
-                              vector<T> &aYLocations, vector<T> &aZLocations) {
+CSVDataGenerator<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasurementsMatrix, vector<T> &aXLocations,
+                              vector<T> &aYLocations, vector<T> &aZLocations, const int &aP) {
 
     //Check if the user entered a valid path for the CSV file.
     if (aConfigurations.GetDataPath().empty()) {
@@ -94,7 +96,6 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
 
     string data_path = aConfigurations.GetDataPath();
     Dimension dimension = aConfigurations.GetDimension();
-    int p = aConfigurations.GetP();
     ifstream file;
 
     file.open(data_path, ios::in);
@@ -126,7 +127,7 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
             if (dimension == Dimension2D) {
                 aMeasurementsMatrix.push_back(stod(token));
                 //if p == 2, the third and fourth values of each line are saved in the Measurements Matrix.
-                if (p == 2) {
+                if (aP == 2) {
                     if (getline(iss, token, ',')) {
                         aMeasurementsMatrix.push_back(stod(token));
                     } else {
@@ -134,7 +135,7 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
                                 "The data P in the provided file isn't consistent with the Kernel's P.");
                     }
                 }
-                if (p == 3) {
+                if (aP == 3) {
                     //if p == 3, the third, fourth, and fifth values of each line are saved in the Measurements Matrix.
                     if (getline(iss, token, ',')) {
                         aMeasurementsMatrix.push_back(stod(token));
@@ -155,7 +156,7 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
             if (dimension != Dimension2D) {
                 aMeasurementsMatrix.push_back(stod(token));
                 //if p == 2, the fourth and fifth values of each line are saved in the Measurements Matrix.
-                if (p == 2) {
+                if (aP == 2) {
                     if (getline(iss, token, ',')) {
                         aMeasurementsMatrix.push_back(stod(token));
                     } else {
@@ -163,7 +164,7 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
                                 "The data P in the provided file isn't consistent with the Kernel's P.");
                     }
                 }
-                if (p == 3) {
+                if (aP == 3) {
                     //if p == 3, the fourth, fifth, and sixth values of each line are saved in the Measurements Matrix.
                     if (getline(iss, token, ',')) {
                         aMeasurementsMatrix.push_back(stod(token));
@@ -186,7 +187,7 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations,
     }
 
     //problem size is equal to the number of the CSV lines * P / aConfigurations.GetTimeSlot().
-    aConfigurations.SetProblemSize(index * p / aConfigurations.GetTimeSlot());
+    aConfigurations.SetProblemSize(index * aP / aConfigurations.GetTimeSlot());
 
     file.close();
 }

@@ -239,7 +239,7 @@ can be used to train the software to predict the values of new data better.
 After you provide your arguments with the Configurations module, you must do the following two steps:
 ```c++
 // Create a new ExaGeoStat data that holds the locations and descriptors data.
-ExaGeoStatData<double> data;
+std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
 // Generate data by passing your arguments through the configurations, hardware, and
  container of the data, which will be filled with the newly generated data.
 ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
@@ -253,7 +253,7 @@ ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
 - Then do the following two steps.
 ```c++
 // Create a new ExaGeoStat data that holds the locations data and descriptors data.
-ExaGeoStatData<double> data;
+std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
 // Generate data by passing your arguments through the configurations, your hardware and your container of the data which will be filled with the new generated data.
 ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
 ```

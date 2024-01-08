@@ -48,7 +48,7 @@ UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int 
     const T nu = aLocalTheta[2];
     const T inv_con = sigma_square * (1.0 / (pow(2, (nu - 1)) * tgamma((nu))));
     int i0 = aRowOffset;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
     int j0;
     int i, j;
     T dist;

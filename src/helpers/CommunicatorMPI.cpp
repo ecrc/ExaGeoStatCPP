@@ -25,6 +25,7 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
 
 bool CommunicatorMPI::GetRank() const {
 
+#ifdef USE_MPI
     if(!this->mIsHardwareInitialized){
         return false;
     }
@@ -34,6 +35,9 @@ bool CommunicatorMPI::GetRank() const {
         }
         return false;
     }
+#else
+    return true;
+#endif
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {

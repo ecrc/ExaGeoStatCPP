@@ -46,7 +46,7 @@ namespace exageostat::hardware {
          */
         [[nodiscard]] void *GetChameleonContext() const;
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 
 /**
              * @brief Get the Hicma hardware context.
@@ -68,7 +68,7 @@ namespace exageostat::hardware {
     private:
         //// Used Pointer to the Chameleon hardware context.
         void *mpChameleonContext = nullptr;
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         //// Used Pointer to the Hicma hardware context.
         void *mpHicmaContext = nullptr;
 #endif

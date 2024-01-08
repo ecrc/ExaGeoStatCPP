@@ -47,12 +47,12 @@ void UnivariateMaternDsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con;
+    T expr;
+    T con;
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
         for (j = 0; j < aColumnsNumber; j++) {

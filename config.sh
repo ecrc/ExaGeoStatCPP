@@ -18,15 +18,17 @@ NC='\033[0m'
 INSTALL_PREFIX=$PWD/installdir/_deps
 PROJECT_SOURCE_DIR=$(dirname "$0")
 BUILDING_TESTS="OFF"
+BUILDING_HEAVY_TESTS="OFF"
 BUILDING_EXAMPLES="OFF"
 USING_HiCMA="OFF"
-VERBOSE=OFF
+VERBOSE="OFF"
 USE_CUDA="OFF"
 USE_MPI="OFF"
 BLAS_VENDOR=""
+PACKAGE="OFF"
 
 # Parse command line options
-while getopts ":tevhHi:cms" opt; do
+while getopts ":tevhHi:cmspT" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -35,6 +37,10 @@ while getopts ":tevhHi:cms" opt; do
     t) ##### Building tests enabled #####
       echo -e "${GREEN}Building tests enabled.${NC}"
       BUILDING_TESTS="ON"
+      ;;
+    T) ##### Building heavy tests enabled #####
+      echo -e "${GREEN}Building heavy tests enabled.${NC}"
+      BUILDING_HEAVY_TESTS="ON"
       ;;
     e) ##### Building examples enabled #####
       echo -e "${GREEN}Building examples enabled.${NC}"
@@ -53,12 +59,16 @@ while getopts ":tevhHi:cms" opt; do
         USE_MPI=ON
         ;;
     v) ##### printing full output of make #####
-      echo -e "${YELLOW}printing make with details.${NC}"
+      echo -e "${GREEN}printing make with details.${NC}"
       VERBOSE=ON
       ;;
     s) ##### Passing Blas vendor with mkl #####
-      echo -e "${YELLOW}MKL as a Blas vendor${NC}"
+      echo -e "${GREEN}MKL as a Blas vendor${NC}"
       BLAS_VENDOR="Intel10_64lp"
+      ;;
+    p) ##### Enabling packaging system for distribution #####
+      echo -e "${GREEN}CPACK enabled${NC}"
+      PACKAGE=ON
       ;;
     \?) ##### Error unknown option #####
       echo "Option $OPTARG parameter is unknown, please -h for help"
@@ -73,6 +83,7 @@ while getopts ":tevhHi:cms" opt; do
       echo ""
       printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
       printf "%20s %s\n" "-t :" "to enable building tests."
+      printf "%20s %s\n" "-T :" "to enable building heavy tests."
       printf "%20s %s\n" "-e :" "to enable building examples."
       printf "%20s %s\n" "-H :" "to enable using HiCMA."
       printf "%20s %s\n" "-c :" "to enable using CUDA."
@@ -80,6 +91,7 @@ while getopts ":tevhHi:cms" opt; do
       printf "%20s %s\n" "-v :" "to enable verbose printings."
       printf "%20s %s\n" "-d :" "to enable debug mode."
       printf "%20s %s\n" "-s :" "to manually pass MKL as your blas vendor."
+      printf "%20s %s\n" "-p :" "to enable a packaging system for distribution."
       printf "%20s %s\n" "-h :" "Help."
       echo ""
       exit 1
@@ -120,14 +132,16 @@ rm -rf bin/
 mkdir -p bin/installdir
 
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-  -DEXAGEOSTAT_INSTALL_PREFIX="${INSTALL_PREFIX}" \
-  -DEXAGEOSTAT_BUILD_TESTS="${BUILDING_TESTS}" \
-  -DEXAGEOSTAT_BUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
-  -DEXAGEOSTAT_USE_HICMA="${USING_HiCMA}" \
+  -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+  -DBUILD_TESTS="${BUILDING_TESTS}" \
+  -DBUILD_HEAVY_TESTS="${BUILDING_HEAVY_TESTS}" \
+  -DBUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
+  -DUSE_HICMA="${USING_HiCMA}" \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
   -DUSE_CUDA="${USE_CUDA}" \
   -DUSE_MPI="${USE_MPI}" \
   -DBLA_VENDOR="${BLAS_VENDOR}" \
+  -DCREATE_PACKAGE="${PACKAGE}" \
   -H"${PROJECT_SOURCE_DIR}" \
   -B"${PROJECT_SOURCE_DIR}/bin" \
   -G "Unix Makefiles"

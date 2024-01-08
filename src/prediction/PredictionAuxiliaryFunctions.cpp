@@ -57,8 +57,9 @@ void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *ap
     apMSPE[1] = error1 / (aZMissNumber / 2);
     apMSPE[2] = error2 / (aZMissNumber / 2);
 
-    LOGGER("- Z Actual .. Z Miss")
-    for (int index = 0; index < aZMissNumber; index++)
-        LOGGER(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
+    VERBOSE("- Z Actual .. Z Miss")
+    for (int index = 0; index < aZMissNumber; index++) {
+        VERBOSE(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
+    }
     LOGGER("- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
 }

@@ -206,10 +206,6 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(Logger, bool, "Logger")
 
-        CREATE_SETTER_FUNCTION(P, int, aP, "P")
-
-        CREATE_GETTER_FUNCTION(P, int, "P")
-
         CREATE_SETTER_FUNCTION(MeanSquareError, double, aMeanSquareError, "MeanSquareError")
 
         CREATE_GETTER_FUNCTION(MeanSquareError, double, "MeanSquareError")
@@ -229,6 +225,10 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(StartingTheta, std::vector<double> &, apTheta, "StartingTheta")
 
         CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
+
+        CREATE_SETTER_FUNCTION(IsNonGaussian, bool, aIsNonGaussian, "IsNonGaussian")
+
+        CREATE_GETTER_FUNCTION(IsNonGaussian, bool, "IsNonGaussian")
 
         /**
          * @brief Getter for the verbosity.
@@ -392,9 +392,6 @@ namespace exageostat::configurations {
 
 
     private:
-
-        /// static bool to make sure that print summary is only performed once.
-        static bool mIsPrinted;
 
         /**
          * @brief Checks the run mode and sets the verbosity level.

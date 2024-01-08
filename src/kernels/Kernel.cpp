@@ -59,16 +59,17 @@ T Kernel<T>::CalculateSecondDerivativeBesselNuInput(const T &aOrder, const T &aI
 }
 
 template<typename T>
-int Kernel<T>::GetPValue() const {
-    return this->mP;
+int Kernel<T>::GetP() const {
+    return this->mCalculatedP;
 }
 
 template<typename T>
-void Kernel<T>::SetPValue(int aP) {
-    // Each kernel has its own initial P value, But in case of used spacetime kernels then aP won't be equal to 1.
+void Kernel<T>::SetPValue(int aTimeSlot) {
+    // Each kernel has its own initial P value, But in case of used spacetime kernels then Time Slot won't be equal to 1.
     // In case of uni-variate spacetime P = 1 * time slot
     // In case of Bi-variate spacetime P = 2 * time slot
-    this->mP = this->mP * aP;
+    // P and timeslot will be constant with each created kernel, overriding the Calculated P value to handle case of calling the function multiple times.
+    this->mCalculatedP = this->mP * aTimeSlot;
 }
 
 template<typename T>

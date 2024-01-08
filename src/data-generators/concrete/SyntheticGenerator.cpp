@@ -33,34 +33,29 @@ SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
 }
 
 template<typename T>
-ExaGeoStatData<T> *SyntheticGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                                     const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                                                     exageostat::kernels::Kernel<T> &aKernel) {
+std::unique_ptr<ExaGeoStatData<T>>
+SyntheticGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
+                                  const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                                  exageostat::kernels::Kernel<T> &aKernel) {
 
-    auto *data = new ExaGeoStatData<T>(aConfigurations.GetProblemSize(), aConfigurations.GetDimension());
-
+    int n = aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot();
+    auto data = std::make_unique<ExaGeoStatData<T>>(n, aConfigurations.GetDimension());
     // Allocated new Locations object.
-    auto *locations = new Locations<T>((aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot()),
-                                       aConfigurations.GetDimension());
+    auto *locations = new Locations<T>(n, aConfigurations.GetDimension());
 
-    // Set some kernel and arguments values.
-    aKernel.SetPValue(aConfigurations.GetTimeSlot());
-    int N = aConfigurations.GetProblemSize();
-    aConfigurations.SetProblemSize(
-            aConfigurations.GetProblemSize() * aKernel.GetPValue() / aConfigurations.GetTimeSlot());
-
-    aConfigurations.SetP(aKernel.GetPValue());
     int parameters_number = aKernel.GetParametersNumbers();
 
     // Set initial theta values.
     Configurations::InitTheta(aConfigurations.GetInitialTheta(), parameters_number);
     aConfigurations.SetInitialTheta(aConfigurations.GetInitialTheta());
 
-    GenerateLocations(N, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(), *locations);
+    // Generate Locations phase
+    GenerateLocations(n, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(), *locations);
     data->SetLocations(*locations);
 
+    // Generate Descriptors phase
     auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
-    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, *data, aKernel);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, data, aKernel);
 
     if (aConfigurations.GetLogger()) {
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
@@ -81,12 +76,12 @@ ExaGeoStatData<T> *SyntheticGenerator<T>::CreateData(exageostat::configurations:
         std::string path = aConfigurations.GetLoggerPath();
         DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                            DESCRIPTOR_Z).chameleon_desc->mat),
-                                          aConfigurations.GetProblemSize(), aConfigurations.GetP(), path,
+                                          aConfigurations.GetProblemSize(), aKernel.GetP(), path,
                                           *data->GetLocations());
 #endif
         VERBOSE("Done.")
     }
-    results::Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize());
+    results::Results::GetInstance()->SetGeneratedLocationsNumber(n);
     results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
     results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
 
@@ -115,7 +110,7 @@ void SyntheticGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlo
         grid[i] = i + 1;
     }
 
-    double range_low = -0.4, range_high = 0.4;
+    T range_low = -0.4, range_high = 0.4;
 
     for (auto i = 0; i < rootN && index < aN; i++) {
         for (auto j = 0; j < rootN && index < aN; j++) {
@@ -143,20 +138,18 @@ void SyntheticGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlo
     if (aDimension != DimensionST) {
         SortLocations(aN, aDimension, aLocations);
     } else {
-        for (auto j = 1; j < aTimeSlot; j++) {
-            for (auto i = 0; i < aN; i++) {
-                aLocations.GetLocationX()[i + j * aN] = aLocations.GetLocationX()[i];
-                aLocations.GetLocationY()[i + j * aN] = aLocations.GetLocationY()[i];
-                aLocations.GetLocationZ()[i + j * aN] = (double) (j + 1);
-            }
+        for (auto i = 0; i < aN; i++) {
+            aLocations.GetLocationX()[i] = aLocations.GetLocationX()[i];
+            aLocations.GetLocationY()[i] = aLocations.GetLocationY()[i];
+            aLocations.GetLocationZ()[i] = (T) (i / aTimeSlot + 1);
         }
     }
 }
 
 template<typename T>
-double SyntheticGenerator<T>::UniformDistribution(const double &aRangeLow, const double &aRangeHigh) {
-    double myRand = (double) rand() / (double) (1.0 + RAND_MAX);
-    double range = aRangeHigh - aRangeLow;
+T SyntheticGenerator<T>::UniformDistribution(const T &aRangeLow, const T &aRangeHigh) {
+    T myRand = (T) rand() / (T) (1.0 + RAND_MAX);
+    T range = aRangeHigh - aRangeLow;
     return (myRand * range) + aRangeLow;
 }
 

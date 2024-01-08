@@ -25,6 +25,8 @@
 #include <set>
 #include <functional>
 
+#include <configurations/Configurations.hpp>
+
 namespace exageostat::plugins {
     /**
      * @brief Template class for registering and creating plugins.
@@ -68,13 +70,17 @@ namespace exageostat::plugins {
          * @return A pointer to the created plugin, or nullptr if the plugin could not be created.
          *
          */
-        static T *Create(const std::string &aName) {
+        static T *Create(const std::string &aName, const int& aTimeSlot) {
             auto map = GetFactoryMap();
 
             if (map.find(aName) == map.end()) {
                 return nullptr;
             }
-            return map[aName]();
+            // Get the object from the map.
+            T* object = map[aName]();
+            // Automatically set the new P value which will get updated with the user input of P.
+            object->SetPValue(aTimeSlot);
+            return object;
         }
 
     private:

@@ -17,12 +17,14 @@
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <results/Results.hpp>
 #include <helpers/CommunicatorMPI.hpp>
+#include <common/Utils.hpp>
 
 using namespace exageostat::hardware;
 
 ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber,
                                        const int &aGpuNumber) {
 
+    LOGGER("** Initialise ExaGeoStat hardware **")
     this->mComputation = aComputation;
     int tag_width = 31, tag_sep = 26;
     // Init hardware using Chameleon
@@ -34,7 +36,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
 
     // Init hardware using Hicma
     if (aComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         if (!this->mpHicmaContext) {
             HICMA_user_tag_size(tag_width, tag_sep);
             HICMA_Init(aCoreNumber, aGpuNumber);
@@ -58,7 +60,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
         this->mpChameleonContext = nullptr;
     }
     if (this->mComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         if (!this->mpHicmaContext) {
             std::cout
                     << "No initialized context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'"
@@ -73,7 +75,7 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
     results::Results::GetInstance()->PrintEndSummary();
 }
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 
 void *ExaGeoStatHardware::GetHicmaContext() const {
     if (!this->mpHicmaContext) {
@@ -96,7 +98,7 @@ void *ExaGeoStatHardware::GetContext(common::Computation aComputation) const {
         return GetChameleonContext();
     }
     if (aComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         return GetHicmaContext();
 #endif
     }

@@ -14,7 +14,7 @@ set(EXAGEOSTAT_TESTFILES
         ${EXAGEOSTAT_TESTFILES}
         )
 
-if (EXAGEOSTAT_USE_HICMA)
+if (USE_HICMA)
     list(APPEND EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
             )

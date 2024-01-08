@@ -33,14 +33,12 @@ int main(int argc, char **argv) {
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    LOGGER("** initialize ExaGeoStat hardware ** ")
+    // Initialize the ExaGeoStat Hardware
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
-    LOGGER("** Create ExaGeoStat data **")
-    ExaGeoStatData<double> data;
-    LOGGER("** Generate ExaGeoStat data ** ")
+    // Load data by either read from file or create synthetic data.
+    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
-    LOGGER("** All example stages have been completed successfully ** ")
 
     return 0;
 }

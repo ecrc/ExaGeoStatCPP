@@ -22,9 +22,9 @@ CHAM_desc_t *ChameleonDescriptor<T>::CreateChameleonDescriptor(void *apDescripto
                                                                const int &aNB, const int &aSize, const int &aLM,
                                                                const int &aLN, const int &aI, const int &aJ,
                                                                const int &aM, const int &aN, const int &aP,
-                                                               const int &aQ) {
+                                                               const int &aQ, const bool &aValidOOC) {
     auto chameleon_desc = (CHAM_desc_t *) apDescriptor;
-    if (aIsOOC && apMatrix == nullptr && aMB != 1 && aNB != 1) {
+    if (aIsOOC && apMatrix == nullptr && aMB != 1 && aNB != 1 && aValidOOC) {
         CHAMELEON_Desc_Create_OOC(&chameleon_desc, (cham_flttype_t) aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
                                   aN, aP, aQ);
     } else {

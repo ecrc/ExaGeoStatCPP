@@ -4,51 +4,30 @@
 
 # @file ImportBlasPP.cmake
 # @brief This file searches for the BLAS++ library and includes it if not already included.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
-# @author Sameh Abdulah
 # @date 2023-03-12
 
-# search for BLAS library, if not already included
-message("")
-message("---------------------------------------- BLAS++")
-message(STATUS "Checking for BLAS++")
+include(ImportBlas)
 
-if (NOT TARGET blaspp)
-
-    include(FindPkgConfig)
-    find_package(PkgConfig QUIET)
-    include(ImportBlas)
-
-    find_package(blaspp QUIET)
-
-    if (blaspp_FOUND)
-        message("Found BLAS++: ${blaspp_DIR}")
-    elseif (EXISTS "${CMAKE_SOURCE_DIR}/blaspp/CMakeLists.txt")
-        set(build_tests_save "${build_tests}")
-        set(build_tests "false")
-        add_subdirectory("blaspp")
-
-        set(build_tests "${build_tests_save}")
-        set(blaspp_DIR "${CMAKE_BINARY_DIR}/blaspp")
-    else ()
-        set(build_tests_save "${build_tests}")
-        set(build_tests "false")
-        set(url "https://github.com/icl-utk-edu/blaspp")
-        set(tag "v2023.01.00")
-        message(STATUS "Fetching BLAS++ ${tag} from ${url}")
-        include(FetchContent)
-        FetchContent_Declare(
-                blaspp GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
-        FetchContent_MakeAvailable(blaspp)
-        set(build_tests "${build_tests_save}")
-    endif ()
-else ()
-    message("   BLAS++ already included")
+#Configurations
+set(name blaspp)
+string(TOUPPER ${name} capital_name)
+set(tag "v2023.01.00")
+# Set installation flags
+if (USE_CUDA)
+    set(flag "-Dgpu_backend=cuda")
+else()
+    set(flag "-Dgpu_backend=")
 endif ()
 
-set(LIBS
-        blaspp
-        ${LIBS}
-        )
-message(STATUS "BLAS++ done")
+set(version "2023.01.00")
+set(is_cmake ON)
+set(is_git ON)
+set(auto_gen OFF)
+set(url "https://github.com/icl-utk-edu/blaspp")
+
+set(${name}_DIR "${CMAKE_INSTALL_PREFIX}/${capital_name}/lib/cmake/${name}")
+include(macros/ImportDependency)
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+message(STATUS "${name} done")

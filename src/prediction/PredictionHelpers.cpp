@@ -21,23 +21,23 @@ using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 
 template<typename T>
-void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations, ExaGeoStatData<T> &aData, T *apZObs,
+void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations,
+                                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apZObs,
                                             T *apZActual, T *apZ, Locations<T> &aMissLocation,
-                                            Locations<T> &aObsLocation) {
+                                            Locations<T> &aObsLocation, const int &aP) {
 
     int i;
     int j;
-    int N = aConfigurations.GetProblemSize();
+    int full_problem_size = aConfigurations.GetProblemSize() * aP;
     int z_miss_number = aConfigurations.GetUnknownObservationsNb();
     int z_obs_number = aConfigurations.CalculateZObsNumber();
-    auto l = new Locations<T>(N, aData.GetLocations()->GetDimension());
-
-    int p = aConfigurations.GetP();
     bool is_shuffle = true;
+    int p = aP;
+    auto l = new Locations<T>(aConfigurations.GetProblemSize(), aData->GetLocations()->GetDimension());
 
-    if (aConfigurations.GetIsMLOEMMOM() && aConfigurations.GetP() == 2) {
+    if (aConfigurations.GetIsMLOEMMOM() && aP == 2) {
         p = 1;
-        N /= 2;
+        full_problem_size /= 2;
         is_shuffle = false;
     }
 
@@ -45,30 +45,35 @@ void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations, Exa
     T **Z_parts = new T *[p];
     // Allocate memory for each row of the 2D array
     for (i = 0; i < p; i++) {
-        Z_parts[i] = new T[N / p];
+        Z_parts[i] = new T[full_problem_size / p];
     }
 
     if (p > 1) {
         // Partition Z into p parts
         for (i = 0; i < p; i++) {
-            for (j = 0; j < N; j += p) {
-                Z_parts[i][j] = apZ[i + j];
+            int m = 0;
+            for (j = 0; j < full_problem_size; j += p) {
+                Z_parts[i][m] = apZ[i + j];
+                m++;
             }
         }
     }
 
-    for (i = 0; i < N / p; i++) {
-        l->GetLocationX()[i] = aData.GetLocations()->GetLocationX()[i];
-        l->GetLocationY()[i] = aData.GetLocations()->GetLocationY()[i];
+    for (i = 0; i < full_problem_size / p; i++) {
+        l->GetLocationX()[i] = aData->GetLocations()->GetLocationX()[i];
+        l->GetLocationY()[i] = aData->GetLocations()->GetLocationY()[i];
+        if (aConfigurations.GetDimension() != common::Dimension2D) {
+            l->GetLocationZ()[i] = aData->GetLocations()->GetLocationZ()[i];
+        }
     }
 
     if (is_shuffle) {
         if (p == 1) {
-            Shuffle(apZ, *l, N);
+            Shuffle(apZ, *l, full_problem_size);
         } else if (p == 2) {
-            Shuffle(Z_parts[0], Z_parts[1], *l, N);
+            Shuffle(Z_parts[0], Z_parts[1], *l, full_problem_size / p);
         } else if (p == 3) {
-            Shuffle(Z_parts[0], Z_parts[1], Z_parts[2], *l, N);
+            Shuffle(Z_parts[0], Z_parts[1], Z_parts[2], *l, full_problem_size / p);
         }
     }
 
@@ -107,11 +112,17 @@ void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations, Exa
     for (i = 0; i < z_miss_number; i++) {
         aMissLocation.GetLocationX()[i] = l->GetLocationX()[i];
         aMissLocation.GetLocationY()[i] = l->GetLocationY()[i];
+        if (aConfigurations.GetDimension() != common::Dimension2D) {
+            aMissLocation.GetLocationZ()[i] = l->GetLocationZ()[i];
+        }
     }
 
     for (i = 0; i < z_obs_number; i++) {
         aObsLocation.GetLocationX()[i] = l->GetLocationX()[z_miss_number + i];
         aObsLocation.GetLocationY()[i] = l->GetLocationY()[z_miss_number + i];
+        if (aConfigurations.GetDimension() != common::Dimension2D) {
+            aObsLocation.GetLocationZ()[i] = l->GetLocationZ()[z_miss_number + i];
+        }
     }
 
     if (p == 1) {
@@ -146,6 +157,12 @@ void PredictionHelpers<T>::Shuffle(T *apArray, Locations<T> &aLocations, int aSi
             aLocations.GetLocationY()[j] = aLocations.GetLocationY()[i];
             aLocations.GetLocationY()[i] = y_temp;
 
+            if (aLocations.GetDimension() != common::Dimension2D) {
+                T z_temp = aLocations.GetLocationZ()[j];
+                aLocations.GetLocationZ()[j] = aLocations.GetLocationZ()[i];
+                aLocations.GetLocationZ()[i] = z_temp;
+            }
+
         }
     }
 }
@@ -173,6 +190,12 @@ void PredictionHelpers<T>::Shuffle(T *apArray1, T *apArray2, Locations<T> &aLoca
             T y_temp = aLocations.GetLocationY()[j];
             aLocations.GetLocationY()[j] = aLocations.GetLocationY()[i];
             aLocations.GetLocationY()[i] = y_temp;
+
+            if (aLocations.GetDimension() != common::Dimension2D) {
+                T z_temp = aLocations.GetLocationZ()[j];
+                aLocations.GetLocationZ()[j] = aLocations.GetLocationZ()[i];
+                aLocations.GetLocationZ()[i] = z_temp;
+            }
 
         }
     }
@@ -207,6 +230,11 @@ void PredictionHelpers<T>::Shuffle(T *apArray1, T *apArray2, T *apArray3, Locati
             aLocations.GetLocationY()[j] = aLocations.GetLocationY()[i];
             aLocations.GetLocationY()[i] = y_temp;
 
+            if (aLocations.GetDimension() != common::Dimension2D) {
+                T z_temp = aLocations.GetLocationZ()[j];
+                aLocations.GetLocationZ()[j] = aLocations.GetLocationZ()[i];
+                aLocations.GetLocationZ()[i] = z_temp;
+            }
         }
     }
 

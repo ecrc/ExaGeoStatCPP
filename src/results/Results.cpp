@@ -48,80 +48,80 @@ void Results::PrintEndSummary() {
     LOGGER("")
     LOGGER("********************SUMMARY**********************")
 
-    auto locations_number = mGeneratedLocationsNumber;
+    auto locations_number = this->mGeneratedLocationsNumber;
     if (locations_number > 0) {
         LOGGER("---- Data Generation Results ----")
-        if (mIsSynthetic) {
+        if (this->mIsSynthetic) {
             LOGGER(" #Synthetic Dataset")
         } else {
             LOGGER(" #Real Dataset")
         }
         LOGGER("  #Number of Locations: " << locations_number)
-        if (mIsLogger && mIsSynthetic) {
+        if (this->mIsLogger && this->mIsSynthetic) {
             LOGGER("  #Data is written to file (", true)
-            if (mLoggerPath.empty()) {
-                mLoggerPath = LOG_PATH;
+            if (this->mLoggerPath.empty()) {
+                this->mLoggerPath = LOG_PATH;
             }
-            LOGGER_PRECISION(mLoggerPath << ").")
+            LOGGER_PRECISION(this->mLoggerPath << ").")
             LOGGER("")
         }
-        LOGGER(" #Total Data Generation Execution Time: " << mExecutionTimeDataGeneration)
-        LOGGER(" #Total Data Generation Gflop/s: " << mFlopsDataGeneration)
+        LOGGER(" #Total Data Generation Execution Time: " << this->mExecutionTimeDataGeneration)
+        LOGGER(" #Total Data Generation Gflop/s: " << this->mFlopsDataGeneration)
         LOGGER("")
     }
-    if (mMLEIterations > 0) {
+    if (this->mMLEIterations > 0) {
         LOGGER("---- Data Modeling Results ----")
-        LOGGER(" #Number of MLE Iterations till reach Maximum: " << mMLEIterations)
+        LOGGER(" #Number of MLE Iterations till reach Maximum: " << this->mMLEIterations)
         LOGGER(" #Found Maximum Theta at: ", true)
-        for (double i: mMaximumTheta) {
+        for (double i: this->mMaximumTheta) {
             LOGGER_PRECISION(i << " ", 8)
         }
         LOGGER("")
-        LOGGER(" #Final Log Likelihood value: " << mLogLikValue)
+        LOGGER(" #Final Log Likelihood value: " << this->mLogLikValue)
         LOGGER(" #Average Time Modeling per Iteration: " << this->GetAverageModelingExecutionTime())
         LOGGER(" #Average Flops per Iteration: " << this->GetAverageModelingFlops())
-        LOGGER(" #Total MLE Execution time: " << mTotalModelingExecutionTime)
-        LOGGER(" #Total MLE Gflop/s: " << mTotalModelingFlops)
+        LOGGER(" #Total MLE Execution time: " << this->mTotalModelingExecutionTime)
+        LOGGER(" #Total MLE Gflop/s: " << this->mTotalModelingFlops)
         LOGGER("")
     }
 
-    if (mZMiss > 0) {
+    if (this->mZMiss > 0) {
         LOGGER("---- Data Prediction Results ----")
-        LOGGER(" #Number of Missing Observations: " << mZMiss)
-        if (mMSPEError > 0) {
+        LOGGER(" #Number of Missing Observations: " << this->mZMiss)
+        if (this->mMSPEError > 0) {
             LOGGER(" #MSPE")
-            LOGGER("  #MSPE Prediction Execution Time: " << mExecutionTimeMSPE)
-            LOGGER("  #MSPE Gflop/s: " << mFlopsMSPE)
-            LOGGER("  #Mean Square Error MSPE: " << mMSPEError)
+            LOGGER("  #MSPE Prediction Execution Time: " << this->mExecutionTimeMSPE)
+            LOGGER("  #MSPE Gflop/s: " << this->mFlopsMSPE)
+            LOGGER("  #Mean Square Error MSPE: " << this->mMSPEError)
 
         }
-        if (!mIDWError.empty()) {
+        if (!this->mIDWError.empty()) {
             LOGGER(" #IDW")
             LOGGER("  #IDW Error: ( ", true)
             for (int i = 0; i < 3; i++) {
-                LOGGER_PRECISION(mIDWError[i] << " ", 8)
+                LOGGER_PRECISION(this->mIDWError[i] << " ", 8)
             }
             LOGGER_PRECISION(").")
             LOGGER("")
         }
-        if (mMLOE > 0 || mMMOM > 0) {
+        if (this->mMLOE > 0 || this->mMMOM > 0) {
             LOGGER(" #MLOE MMOM")
-            LOGGER("  #MLOE: " << mMLOE)
-            LOGGER("  #MMOM: " << mMMOM)
-            LOGGER("  #MLOE-MMOM Execution Time: " << mExecutionTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Matrix Generation Time: " << mGenerationTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Cholesky Factorization Time: " << mFactoTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Loop Time: " << mLoopTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Number of flops: " << mFlopsMLOEMMOM)
+            LOGGER("  #MLOE: " << this->mMLOE)
+            LOGGER("  #MMOM: " << this->mMMOM)
+            LOGGER("  #MLOE-MMOM Execution Time: " << this->mExecutionTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Matrix Generation Time: " << this->mGenerationTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Cholesky Factorization Time: " << this->mFactoTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Loop Time: " << this->mLoopTimeMLOEMMOM)
+            LOGGER("  #MLOE-MMOM Number of flops: " << this->mFlopsMLOEMMOM)
             LOGGER("")
         }
     }
-    if(mFisher00 != 0){
+    if(this->mFisher00 != 0){
         LOGGER(" #Fisher")
-        LOGGER("  #Sd For Sigma2: " << mFisher00)
-        LOGGER("  #Sd For Alpha: " << mFisher11)
-        LOGGER("  #Sd For Nu: " << mFisher22)
-        LOGGER("  #Fisher Execution Time: " << mTotalFisherTime)
+        LOGGER("  #Sd For Sigma2: " << this->mFisher00)
+        LOGGER("  #Sd For Alpha: " << this->mFisher11)
+        LOGGER("  #Sd For Nu: " << this->mFisher22)
+        LOGGER("  #Fisher Execution Time: " << this->mTotalFisherTime)
         LOGGER("")
     }
     LOGGER("*************************************************")

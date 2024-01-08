@@ -18,14 +18,14 @@
 
 using namespace exageostat::helpers;
 
-//convert degree to radian
-static double DegreeToRadian(double aDegree) {
+template<typename T>
+T DistanceCalculationHelpers<T>::DegreeToRadian(T aDegree) {
     return (aDegree * PI / 180);
 }
 
 template<typename T>
 T DistanceCalculationHelpers<T>::DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2) {
-    double lat1r, lon1r, lat2r, lon2r, u, v;
+    T lat1r, lon1r, lat2r, lon2r, u, v;
     lat1r = DegreeToRadian(aLatitude1);
     lon1r = DegreeToRadian(aLongitude1);
     lat2r = DegreeToRadian(aLatitude2);

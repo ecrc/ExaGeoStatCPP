@@ -56,7 +56,7 @@ namespace exageostat::generators::synthetic {
          * @copydoc DataGenerator::CreateData()
          *
          */
-        dataunits::ExaGeoStatData<T> *
+        std::unique_ptr<dataunits::ExaGeoStatData<T>>
         CreateData(exageostat::configurations::Configurations &aConfigurations,
                    const exageostat::hardware::ExaGeoStatHardware &aHardware,
                    exageostat::kernels::Kernel<T> &aKernel) override;
@@ -68,7 +68,7 @@ namespace exageostat::generators::synthetic {
          * @return The scaled uniform distribution between the two bounds.
          *
          */
-        static double UniformDistribution(const double &aRangeLow, const double &aRangeHigh);
+        static T UniformDistribution(const T &aRangeLow, const T &aRangeHigh);
 
         /**
          * @brief Sort locations in Morton order (input points must be in [0;1]x[0;1] square]).

@@ -44,8 +44,8 @@ void UnivariateMaternDdsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, co
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con;
+    T expr;
+    T con;
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
 

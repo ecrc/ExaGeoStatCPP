@@ -52,6 +52,14 @@ namespace exageostat::helpers {
          */
         static T DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2);
 
+        /**
+         * @brief Converts an angle from degrees to radians.
+         * @details This function converts an angle from degrees to radians using the conversion factor π/180.
+         * @param[in] aDegree The angle in degrees.
+         * @return The angle converted to radians.
+         */
+        static T DegreeToRadian(T aDegree);
+
     };
     /**
       * @brief Instantiates the PredictionHelpers class for float and double types.

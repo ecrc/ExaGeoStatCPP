@@ -43,15 +43,17 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @brief Set the modeling descriptors for HiCMA implementation.
          * @param[in,out] aData Reference to the ExaGeoStatData object.
          * @param[in] aConfigurations Reference to the Configurations object.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          */
-        void
-        SetModelingDescriptors(dataunits::ExaGeoStatData<T> &aData, configurations::Configurations &aConfigurations);
+        void SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                    configurations::Configurations &aConfigurations, const int &aP);
 
         /**
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
         */
-        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &apHardware, dataunits::ExaGeoStatData<T> &aData,
+        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &apHardware,
+                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                             configurations::Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 
@@ -116,16 +118,24 @@ namespace exageostat::linearAlgebra::tileLowRank {
         int ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescDet) override;
 
         /**
-         * @brief Copy Lapack matrix to Descriptor Matrix
-         * @copydoc LinearAlgebraMethods::ExaGeoStatLap2Desc()
-         */
-        void ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower) override;
-
-        /**
          * @brief Get the pointer to the data or the runtime handler associated to the piece of data (m, n) in desc.
          * @copydoc LinearAlgebraMethods::ExaGeoStatDataGetAddr()
          */
         void *ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) override;
+
+        /**
+        * @brief Calculate the loglikelihood of non-Gaussian MLE.
+        * @copydoc LinearAlgebraMethods::ExaGeoStatNonGaussianLogLikeTileAsync()
+        */
+        int ExaGeoStatNonGaussianLogLikeTileAsync(void *apDescZ, void *apDescSum, const T *apTheta,
+                                                  void *apSequence, void *apRequest) override;
+
+        /**
+        * @brief Calculate the loglikelihood of non-Gaussian MLE.
+        * @copydoc LinearAlgebraMethods::ExaGeoStatNonGaussianTransformTileAsync()
+        */
+        int ExaGeoStatNonGaussianTransformTileAsync(void *apDescZ, void *apDescFlag, const T *apTheta,
+                                                    void *apSequence, void *apRequest) override;
     };
 
     /**

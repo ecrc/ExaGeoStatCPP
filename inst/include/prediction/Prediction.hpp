@@ -49,7 +49,7 @@ namespace exageostat::prediction {
         * @return
         */
         void PredictMissingData(const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                                exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                 exageostat::configurations::Configurations &aConfigurations, T *apMeasurementsMatrix,
                                 const kernels::Kernel<T> &aKernel);
 
@@ -63,13 +63,15 @@ namespace exageostat::prediction {
          * @param[out] aMissLocation Location object to be filled with missed locations.
          * @param[out] aObsLocation Location object to be filled with missed locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          */
         void InitializePredictionArguments(exageostat::configurations::Configurations &aConfigurations,
-                                           exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                           std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                            std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                            T *apZObs, T *apZActual, exageostat::dataunits::Locations<T> &aMissLocation,
-                                           exageostat::dataunits::Locations<T> &aObsLocation, T *apMeasurementsMatrix);
+                                           exageostat::dataunits::Locations<T> &aObsLocation, T *apMeasurementsMatrix,
+                                           const int &aP);
 
     };
 

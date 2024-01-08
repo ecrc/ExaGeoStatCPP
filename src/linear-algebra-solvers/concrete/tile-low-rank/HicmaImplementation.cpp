@@ -24,15 +24,15 @@ using namespace exageostat::helpers;
 using namespace exageostat::hardware;
 using namespace exageostat::configurations;
 
-//// TODO: These variables are required to avoid undefined reference to HiCMA global variables.
 int store_only_diagonal_tiles = 1;
 int use_scratch = 1;
 int global_check = 0;  //used to create dense matrix for accuracy check
 
 template<typename T>
-void HicmaImplementation<T>::SetModelingDescriptors(ExaGeoStatData<T> &aData, Configurations &aConfigurations) {
+void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                                    Configurations &aConfigurations, const int &aP) {
 
-    int N = aConfigurations.GetProblemSize();
+    int full_problem_size = aConfigurations.GetProblemSize() * aP;
     int lts = aConfigurations.GetLowTileSize();
     int p_grid = aConfigurations.GetPGrid();
     int q_grid = aConfigurations.GetQGrid();
@@ -51,55 +51,69 @@ void HicmaImplementation<T>::SetModelingDescriptors(ExaGeoStatData<T> &aData, Co
 
     int MBD = lts;
     int NBD = lts;
-    int MD = N;
+    int MD = full_problem_size;
     int ND = MBD;
-    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point, MBD,
-                                             NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point,
+                                              MBD,
+                                              NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
     int MBUV = lts;
     int NBUV = 2 * max_rank;
     int MUV;
-    int N_over_lts_times_lts = N / lts * lts;
-    if (N_over_lts_times_lts < N) {
+    int N_over_lts_times_lts = full_problem_size / lts * lts;
+    if (N_over_lts_times_lts < full_problem_size) {
         MUV = N_over_lts_times_lts + lts;
-    } else if (N_over_lts_times_lts == N) {
+    } else if (N_over_lts_times_lts == full_problem_size) {
         MUV = N_over_lts_times_lts;
     } else {
         throw runtime_error("This case can't happens, N need to be >= lts*lts");
     }
     int expr = MUV / lts;
     int NUV = 2 * expr * max_rank;
-    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CUV, is_OOC, nullptr, float_point,
-                                             MBUV, NBUV, MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, p_grid, q_grid);
-    auto *HICMA_descCUV = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_CUV).hicma_desc;
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CUV, is_OOC, nullptr, float_point,
+                                              MBUV, NBUV, MBUV * NBUV, MUV, NUV, 0, 0, MUV, NUV, p_grid, q_grid);
+    auto *HICMA_descCUV = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                    DescriptorName::DESCRIPTOR_CUV).hicma_desc;
     int MBrk = 1;
     int NBrk = 1;
     int Mrk = HICMA_descCUV->mt;
     int Nrk = HICMA_descCUV->mt;
-    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CRK, is_OOC, nullptr, float_point,
-                                             MBrk, NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
-    aData.GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point,
-                                             lts, lts, lts * lts, N, 1, 0, 0, N, 1, p_grid, q_grid);
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CRK, is_OOC, nullptr, float_point,
+                                              MBrk, NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
+
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, nullptr, float_point,
+                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid, q_grid);
+
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point,
+                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid, q_grid);
+    if (aConfigurations.GetIsNonGaussian()) {
+        aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_PRODUCT, is_OOC, nullptr,
+                                                  float_point,
+                                                  lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+        aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_SUM, is_OOC, nullptr,
+                                                  float_point,
+                                                  lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+    }
 }
 
 template<typename T>
-T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
+T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware,
+                                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                             Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix, const Kernel<T> &aKernel) {
 
     this->SetContext(aHardware.GetContext(aConfigurations.GetComputation()));
-    if (!aData.GetDescriptorData()->GetIsDescriptorInitiated()) {
-        this->InitiateDescriptors(aConfigurations, *aData.GetDescriptorData(), apMeasurementsMatrix);
+    if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
+        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(),aKernel.GetP(), apMeasurementsMatrix);
     }
     // Create a Hicma sequence, if not initialized before through the same descriptors
     RUNTIME_request_t request_array[2] = {HICMA_REQUEST_INITIALIZER, HICMA_REQUEST_INITIALIZER};
-    if (!aData.GetDescriptorData()->GetSequence()) {
+    if (!aData->GetDescriptorData()->GetSequence()) {
         HICMA_sequence_t *sequence;
         this->ExaGeoStatCreateSequence(&sequence);
-        aData.GetDescriptorData()->SetSequence(sequence);
-        aData.GetDescriptorData()->SetRequest(request_array);
+        aData->GetDescriptorData()->SetSequence(sequence);
+        aData->GetDescriptorData()->SetRequest(request_array);
     }
-    auto pSequence = (HICMA_sequence_t *) aData.GetDescriptorData()->GetSequence();
+    auto pSequence = (HICMA_sequence_t *) aData->GetDescriptorData()->GetSequence();
 
     //Initialization
     T loglik, logdet, test_time, variance, variance1 = 1, variance2 = 1, variance3, dot_product, dot_product1, dot_product2, dot_product3, dzcpy_time, time_facto, time_solve, logdet_calculate, matrix_gen_time;
@@ -111,52 +125,54 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     int N;
     int lts;
     int max_rank = aConfigurations.GetMaxRank();
-    int iter_count = aData.GetMleIterations();
+    int iter_count = aData->GetMleIterations();
     auto kernel_name = aConfigurations.GetKernelName();
     int num_params = aKernel.GetParametersNumbers();
     int acc = aConfigurations.GetAccuracy();
 
     if (iter_count == 0) {
-        this->SetModelingDescriptors(aData, aConfigurations);
+        this->SetModelingDescriptors(aData, aConfigurations, aKernel.GetP());
     }
-    auto *HICMA_descCUV = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_CUV).hicma_desc;
-    auto *HICMA_descC = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                 DescriptorName::DESCRIPTOR_C).hicma_desc;
-    auto *HICMA_descCD = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                  DescriptorName::DESCRIPTOR_CD).hicma_desc;
-    auto *HICMA_descCrk = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_CRK).hicma_desc;
-    auto *HICMA_descZ = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                 DescriptorName::DESCRIPTOR_Z).hicma_desc;
-    auto *CHAM_descZ = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                DescriptorName::DESCRIPTOR_Z).chameleon_desc;
-    auto *CHAM_descZcpy = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_Z_COPY).chameleon_desc;
-    auto *HICMA_descZcpy = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                    DescriptorName::DESCRIPTOR_Z_COPY).hicma_desc;
-    auto *HICMA_desc_det = aData.GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                    DescriptorName::DESCRIPTOR_DETERMINANT).hicma_desc;
-    auto *CHAM_desc_product = aData.GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                       DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
-
+    auto *HICMA_descCUV = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                    DescriptorName::DESCRIPTOR_CUV).hicma_desc;
+    auto *HICMA_descC = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                  DescriptorName::DESCRIPTOR_C).hicma_desc;
+    auto *HICMA_descCD = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                   DescriptorName::DESCRIPTOR_CD).hicma_desc;
+    auto *HICMA_descCrk = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                    DescriptorName::DESCRIPTOR_CRK).hicma_desc;
+    auto *HICMA_descZ = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                  DescriptorName::DESCRIPTOR_Z).hicma_desc;
+    auto *CHAM_descZ = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                 DescriptorName::DESCRIPTOR_Z).chameleon_desc;
+    auto *CHAM_descZcpy = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                    DescriptorName::DESCRIPTOR_Z_COPY).chameleon_desc;
+    auto *HICMA_descZcpy = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                     DescriptorName::DESCRIPTOR_Z_COPY).hicma_desc;
+    auto *HICMA_desc_det = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                     DescriptorName::DESCRIPTOR_DETERMINANT).hicma_desc;
+    auto *CHAM_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                        DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
+    auto *HICMA_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                         DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
+    auto *HICMA_desc_sum = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
+                                                                     DescriptorName::DESCRIPTOR_SUM).chameleon_desc;
     N = HICMA_descCUV->m;
     NRHS = HICMA_descZ->n;
     lts = HICMA_descZ->mb;
 
-    T *determinant = aData.GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_det);
+    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_det);
     *determinant = 0;
-    T *product = aData.GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_product);
+    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_product);
     *product = 0;
+    T *sum;
 
     string recovery_file = aConfigurations.GetRecoveryFile();
     if (recovery_file.empty() ||
         !(this->recover((char *) (recovery_file.c_str()), iter_count, (T *) theta, &loglik, num_params))) {
         if (iter_count == 0) {
-            auto *z = new T[N];
-            this->ExaGeoStatDesc2Lap(z, N, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
-            this->ExaGeoStatLap2Desc(z, N, HICMA_descZ, EXAGEOSTAT_UPPER_LOWER);
-            delete[] z;
+            // Copy dense matrix Z into tile low rank Z.
+            this->CopyDescriptors(CHAM_descZ, HICMA_descZ, N, CHAMELEON_TO_HICMA);
             // Save a copy of descZ into descZcpy for restoring each iteration
             this->ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, HICMA_descZ, HICMA_descZcpy);
             // Save another copy into descZcpy for chameleon, This is in case of other operations after Modeling. ex: Prediction.
@@ -175,7 +191,14 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     hicma_problem.kernel_type =
             aConfigurations.GetDistanceMetric() == common::GREAT_CIRCLE_DISTANCE ? STARSH_SPATIAL_MATERN2_GCD
                                                                                  : STARSH_SPATIAL_MATERN2_SIMD;
-    HICMA_zgenerate_problem(HICMA_STARSH_PROB_GEOSTAT, 'S', 0, N, lts, HICMA_descCUV->mt, HICMA_descCUV->nt,
+    int hicma_data_type;
+    if (aConfigurations.GetIsNonGaussian()) {
+        hicma_data_type = HICMA_STARSH_PROB_GEOSTAT_NON_GAUSSIAN;
+    } else {
+        hicma_data_type = HICMA_STARSH_PROB_GEOSTAT;
+    }
+
+    HICMA_zgenerate_problem(hicma_data_type, 'S', 0, N, lts, HICMA_descCUV->mt, HICMA_descCUV->nt,
                             &hicma_problem);
     int compress_diag = 0;
     HICMA_zgytlr_Tile(EXAGEOSTAT_LOWER, HICMA_descCUV, HICMA_descCD, HICMA_descCrk, 0, max_rank, pow(10, -1.0 * acc),
@@ -194,7 +217,8 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     //Calculate Cholesky Factorization (C=LL-1)
     VERBOSE("LR: Cholesky factorization of Sigma...")
     START_TIMING(time_facto);
-    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, HICMA_descCUV, 0, HICMA_descCD, HICMA_descCrk, max_rank, acc);
+    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, HICMA_descCUV, 0, HICMA_descCD, HICMA_descCrk, max_rank,
+                              pow(10, -1.0 * acc));
 
     STOP_TIMING(time_facto);
     flops = flops + flops_dpotrf(N);
@@ -210,6 +234,32 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     STOP_TIMING(logdet_calculate);
     VERBOSE("Done.")
 
+    if (aConfigurations.GetIsNonGaussian()) {
+        VERBOSE("Transform Z vector to Gaussian field ...")
+        this->ExaGeoStatNonGaussianTransformTileAsync(HICMA_descZ, HICMA_desc_product, (T *) theta, pSequence,
+                                                      &request_array[0]);
+        ExaGeoStatSequenceWait(pSequence);
+
+        VERBOSE(" Done.")
+        sum = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_sum);
+        *sum = 0;
+
+        VERBOSE("LR:Calculating dot product...")
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_descZ, CHAM_descZ, 0, CHAM_desc_product);
+        VERBOSE(" Done.")
+
+        double global_sum;
+#if defined(CHAMELEON_USE_MPI)
+        MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#else
+        global_sum = *product;
+#endif
+        this->ExaGeoStatNonGaussianLogLikeTileAsync(HICMA_descZ, HICMA_desc_sum, (T *) theta, pSequence,
+                                                    &request_array[0]);
+        ExaGeoStatSequenceWait(pSequence);
+        VERBOSE(" Done.")
+    }
+
     //Solving Linear System (L*X=Z)--->inv(L)*Z
     VERBOSE("LR:Solving the linear system ...")
     START_TIMING(time_solve);
@@ -220,10 +270,18 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     flops = flops + flops_dtrsm(ChamLeft, N, NRHS);
     VERBOSE("Done.")
 
+    VERBOSE("Copy to chameleon")
+    this->CopyDescriptors(HICMA_descZ, CHAM_descZ, N, HICMA_TO_CHAMELEON);
+
     VERBOSE("LR:Calculating dot product...")
     CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_descZ, CHAM_descZ, 0, CHAM_desc_product);
     dot_product = *product;
-    loglik = -0.5 * dot_product - 0.5 * logdet - (double) (N / 2.0) * log(2.0 * PI);
+    loglik = -0.5 * dot_product - 0.5 * logdet;
+    if (aConfigurations.GetIsNonGaussian()) {
+        loglik = loglik - *sum - N * log(theta[3]) - (double) (N / 2.0) * log(2.0 * PI);
+    } else {
+        loglik = loglik - (double) (N / 2.0) * log(2.0 * PI);
+    }
     VERBOSE("Done.")
 
     LOGGER(iter_count + 1 << " - Model Parameters (", true)
@@ -263,7 +321,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     LOGGER(" ---- Total Time: " << time_facto + logdet_calculate + time_solve)
     LOGGER(" ---- Gflop/s: " << flops / 1e9 / (time_facto + time_solve))
 
-    aData.SetMleIterations(aData.GetMleIterations() + 1);
+    aData->SetMleIterations(aData->GetMleIterations() + 1);
 
     // for experiments and benchmarking
     accumulated_executed_time =
@@ -379,17 +437,98 @@ int HicmaImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *a
     return HICMA_SUCCESS;
 }
 
-
-template<typename T>
-void HicmaImplementation<T>::ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA, const UpperLower &aUpperLower) {
-    int status = HICMA_Lapack_to_Tile(apA, aLDA, (HICMA_desc_t *) apDescA);
-    if (status != HICMA_SUCCESS) {
-        throw std::runtime_error("HICMA_Lapack_to_Tile Failed!");
-    }
-}
-
 template<typename T>
 void *HicmaImplementation<T>::ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) {
     return HICMA_RUNTIME_data_getaddr((HICMA_desc_t *) apA, aAm, aAn);
 
+}
+
+template<typename T>
+int
+HicmaImplementation<T>::ExaGeoStatNonGaussianLogLikeTileAsync(void *apDescZ, void *apDescSum, const T *apTheta,
+                                                              void *apSequence,
+                                                              void *apRequest) {
+    // Check for initialize the Hicma context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+    HICMA_option_t options;
+    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
+    int m, m0;
+    int tempmm;
+    auto Z = (HICMA_desc_t *) apDescZ;
+
+    struct starpu_codelet *cl = &this->cl_non_gaussian_loglike_lr;
+
+
+    for (m = 0; m < Z->mt; m++) {
+        tempmm = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
+
+        m0 = m * Z->mb;
+
+        starpu_insert_task(cl,
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_R, ExaGeoStatDataGetAddr(apDescZ, m, 0),
+                           STARPU_RW, ExaGeoStatDataGetAddr(apDescSum, 0, 0),
+                           STARPU_VALUE, &apTheta[0], sizeof(double),
+                           STARPU_VALUE, &apTheta[1], sizeof(double),
+                           STARPU_VALUE, &apTheta[2], sizeof(double),
+                           STARPU_VALUE, &apTheta[3], sizeof(double),
+                           STARPU_VALUE, &apTheta[4], sizeof(double),
+                           STARPU_VALUE, &apTheta[5], sizeof(double),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "non_gaussian_loglike_lr",
+#endif
+                           0);
+    }
+
+    this->ExaGeoStatOptionsFree(&options);
+    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t *)
+            this->mpContext);
+    return HICMA_SUCCESS;
+}
+
+
+template<typename T>
+int HicmaImplementation<T>::ExaGeoStatNonGaussianTransformTileAsync(void *apDescZ, void *apDescFlag, const T *apTheta,
+                                                                    void *apSequence, void *apRequest) {
+    // Check for initialize the Hicma context.
+    if (!this->mpContext) {
+        throw std::runtime_error(
+                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
+    }
+    HICMA_option_t options;
+    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
+
+    int m, m0;
+    int tempmm;
+    auto Z = (HICMA_desc_t *) apDescZ;
+    struct starpu_codelet *cl = &this->cl_non_gaussian_transform_lr;
+
+
+    for (m = 0; m < Z->mt; m++) {
+        tempmm = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
+        m0 = m * Z->mb;
+        starpu_insert_task(cl,
+                           STARPU_VALUE, &tempmm, sizeof(int),
+                           STARPU_VALUE, &m0, sizeof(int),
+                           STARPU_RW, ExaGeoStatDataGetAddr(apDescZ, m, 0),
+                           STARPU_VALUE, &apTheta[0], sizeof(double),
+                           STARPU_VALUE, &apTheta[1], sizeof(double),
+                           STARPU_VALUE, &apTheta[2], sizeof(double),
+                           STARPU_VALUE, &apTheta[3], sizeof(double),
+                           STARPU_VALUE, &apTheta[4], sizeof(double),
+                           STARPU_VALUE, &apTheta[5], sizeof(double),
+#if defined(CHAMELEON_CODELETS_HAVE_NAME)
+                STARPU_NAME, "non_gaussian_transform_lr",
+#endif
+                           0);
+    }
+    this->ExaGeoStatOptionsFree(&options);
+    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t *)
+            this->mpContext);
+    return HICMA_SUCCESS;
 }

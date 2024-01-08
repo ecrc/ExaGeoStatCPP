@@ -19,7 +19,7 @@ set(SOURCES
         ${SOURCES}
         )
 
-if (EXAGEOSTAT_USE_HICMA)
+if (USE_HICMA)
     list(APPEND SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/tile-low-rank/HicmaImplementation.cpp
             )

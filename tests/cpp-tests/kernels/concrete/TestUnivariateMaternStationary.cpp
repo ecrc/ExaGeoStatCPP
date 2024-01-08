@@ -49,11 +49,11 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
         int seed = 0;
         srand(seed);
-        exageostat::dataunits::ExaGeoStatData<double> data;
+        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
 
-        auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
+        auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output

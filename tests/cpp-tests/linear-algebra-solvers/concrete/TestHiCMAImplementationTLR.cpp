@@ -52,14 +52,14 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
         synthetic_data_configurations.SetApproximationMode(1);
 
-        exageostat::dataunits::ExaGeoStatData<double> data;
+        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
 
-        auto *HICMA_descriptorC = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
+        auto *HICMA_descriptorC = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int lts = synthetic_data_configurations.GetLowTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();
@@ -86,12 +86,12 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
-        exageostat::dataunits::ExaGeoStatData<double> data;
+        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
 
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int lts = synthetic_data_configurations.GetLowTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();
@@ -101,15 +101,15 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         int maxRank = synthetic_data_configurations.GetMaxRank();
         string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
 
-        auto *HICMA_descriptorZ = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
-        auto *HICMA_descriptorZcpy = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+        auto *HICMA_descriptorZ = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
+        auto *HICMA_descriptorZcpy = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
                                                                              DESCRIPTOR_Z_COPY).hicma_desc;
-        auto *HICMA_descriptorDeterminant = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+        auto *HICMA_descriptorDeterminant = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
                                                                                     DESCRIPTOR_DETERMINANT).hicma_desc;
-        auto *HICMA_descriptorCD = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
-        auto *HICMA_descriptorCUV = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+        auto *HICMA_descriptorCD = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
+        auto *HICMA_descriptorCUV = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
                                                                             DESCRIPTOR_CUV).hicma_desc;
-        auto *HICMA_descriptorCrk = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+        auto *HICMA_descriptorCrk = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
                                                                             DESCRIPTOR_CRK).hicma_desc;
 
         // Descriptor CD.

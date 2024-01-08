@@ -40,10 +40,9 @@ namespace exageostat::generators::csv {
          * @copydoc DataGenerator::CreateData()
          *
          */
-        dataunits::ExaGeoStatData<T> *
-        CreateData(exageostat::configurations::Configurations &,
-                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                   exageostat::kernels::Kernel<T> &aKernel) override;
+        std::unique_ptr<dataunits::ExaGeoStatData<T>> CreateData(exageostat::configurations::Configurations &,
+                                                                 const exageostat::hardware::ExaGeoStatHardware &aHardware,
+                                                                 exageostat::kernels::Kernel<T> &aKernel) override;
 
         /**
          * @brief Reads CSV files containing 2D, 3D, or ST locations, and measurements vector.
@@ -52,12 +51,12 @@ namespace exageostat::generators::csv {
          * @param aXLocations Reference to the location's x coordinates matrix to be filled with read data.
          * @param aYLocations Reference to the location's y coordinates matrix to be filled with read data.
          * @param aZLocations Reference to the location's z coordinates matrix to be filled with read data.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          */
-        void
-        ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
-                 std::vector<T> &aXLocations,
-                 std::vector<T> &aYLocations, std::vector<T> &aZLocations);
+        void ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+                      std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
+                      const int &aP);
 
         /**
          * @brief Release the singleton instance of the CSVDataGenerator class.

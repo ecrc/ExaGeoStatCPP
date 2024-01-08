@@ -14,7 +14,7 @@
 
 #include <data-units/descriptor/concrete/ChameleonDescriptor.hpp>
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>
 
@@ -27,19 +27,19 @@ using namespace exageostat::dataunits::descriptor;
 
 template<typename T>
 void *
-ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, const DescriptorType &aDescriptorType, const bool &aIsOOC,
-                                          void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
-                                          const int &aNB, const int &aSize, const int &aLM, const int &aLN,
-                                          const int &aI, const int &aJ, const int &aM, const int &aN, const int &aP,
-                                          const int &aQ) {
+ExaGeoStatDescriptor<T>::CreateDescriptor(void *apDescriptor, const common::DescriptorType &aDescriptorType,
+                                          const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint,
+                                          const int &aMB, const int &aNB, const int &aSize, const int &aLM,
+                                          const int &aLN, const int &aI, const int &aJ, const int &aM,
+                                          const int &aN, const int &aP, const int &aQ, const bool &aValidOOC) {
 
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
         return ChameleonDescriptor<T>::CreateChameleonDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB,
-                                                                 aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ);
+                                                                 aSize, aLM, aLN, aI, aJ, aM, aN, aP, aQ, aValidOOC);
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         return HicmaDescriptor<T>::CreateHicmaDescriptor(apDescriptor, aIsOOC, apMatrix, aFloatPoint, aMB, aNB, aSize,
-                                                         aLM, aLN, aI, aJ, aM, aN, aP, aQ);
+                                                         aLM, aLN, aI, aJ, aM, aN, aP, aQ, aValidOOC);
 #endif
     }
     std::cerr << "Error, please select the correct descriptor type!" << std::endl;
@@ -51,7 +51,7 @@ int ExaGeoStatDescriptor<T>::DestroyDescriptor(const DescriptorType &aDescriptor
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
         return ChameleonDescriptor<T>::DestroyChameleonDescriptor(apDesc);
     } else if (aDescriptorType == HICMA_DESCRIPTOR) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         return HicmaDescriptor<T>::DestroyHicmaDescriptor(apDesc);
 #endif
     }

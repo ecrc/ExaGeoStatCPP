@@ -46,8 +46,8 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con1, con2, con3, con12, con13, con23, rho12, rho13, rho23, nu12, nu13, nu23;
+    T expr;
+    T con1, con2, con3, con12, con13, con23, rho12, rho13, rho23, nu12, nu13, nu23;
 
     con1 = pow(2, (aLocalTheta[4] - 1)) * tgamma(aLocalTheta[4]);
     con1 = 1.0 / con1;
@@ -88,13 +88,13 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     i0 /= 3;
     int matrix_size = aRowsNumber * aColumnsNumber;
     int index;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
             expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
-                                                                    flag) / aLocalTheta[3];
+                                                                    0) / aLocalTheta[3];
 
             if (expr == 0) {
 

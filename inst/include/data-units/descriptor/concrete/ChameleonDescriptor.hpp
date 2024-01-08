@@ -47,6 +47,7 @@ namespace exageostat::dataunits::descriptor {
          * @param[in] aN The number of columns of the sub-matrix.
          * @param[in] aP The number of rows of the 2D distribution grid.
          * @param[in] aQ The number of columns of the 2D distribution grid.
+         * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not.
          * @return A pointer to the newly created CHAM_desc_t descriptor.
          *
          */
@@ -54,7 +55,7 @@ namespace exageostat::dataunits::descriptor {
                                                       const common::FloatPoint &aFloatPoint, const int &aMB,
                                                       const int &aNB, const int &aSize, const int &aLM, const int &aLN,
                                                       const int &aI, const int &aJ, const int &aM, const int &aN,
-                                                      const int &aP, const int &aQ);
+                                                      const int &aP, const int &aQ, const bool &aValidOOC);
 
         /**
          * @brief destroys and finalize a descriptor

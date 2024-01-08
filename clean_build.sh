@@ -12,9 +12,10 @@
 # Define variables.
 verbose=""
 num_proc="-j $(nproc)"  # Use the number of available processors by default.
+installation=0
 
 # Parse command-line arguments.
-while getopts "vj:h" opt; do
+while getopts "vj:hi" opt; do
   case $opt in
     v)
       verbose="VERBOSE=1"
@@ -24,6 +25,9 @@ while getopts "vj:h" opt; do
       num_proc="-j $OPTARG"
       echo "Using $OPTARG threads to build"
       ;;
+    i)
+      installation=1
+      ;;
     h)
       # Print help information and exit.
       echo "Usage: $(basename "$0") [-v] [-j <thread_number>] [-h]"
@@ -31,8 +35,9 @@ while getopts "vj:h" opt; do
       echo ""
       echo "Options:"
       echo "  -v                 Use verbose output."
-      echo "  -j <thread_number> Build with a specific number of threads."
+      echo "  -i                 To install the software"
       echo "  -h                 Show this help message."
+      echo "  -j <thread_number> Build with a specific number of threads."
       exit 0
       ;;
     *)
@@ -50,5 +55,15 @@ cd bin/ || {
 }
 
 # Clean the directory and build the code with the specified options.
-make clean
-make all $num_proc $verbose
+cmake --build . $num_proc $verbose
+
+# Install the software if the -i option is provided.
+if [ "$installation" -eq 1 ]; then
+  cmake --install .
+fi
+
+# Check the value of EXAGEOSTAT_PACKAGE variable in CMakeCache.txt
+if grep -q "EXAGEOSTAT_PACKAGE:BOOL=ON" CMakeCache.txt; then
+  echo "CPack is enabled. Packaging the project."
+  cpack
+fi

@@ -41,7 +41,7 @@ namespace exageostat::api {
          */
         static void ExaGeoStatLoadData(const hardware::ExaGeoStatHardware &aHardware,
                                        configurations::Configurations &aConfigurations,
-                                       dataunits::ExaGeoStatData<T> &aData);
+                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData);
 
         /**
          * @brief Models Data whether it's synthetic data or real.
@@ -54,7 +54,7 @@ namespace exageostat::api {
          */
         static T ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,
                                         configurations::Configurations &aConfigurations,
-                                        exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix = nullptr);
 
 
@@ -77,7 +77,7 @@ namespace exageostat::api {
          */
         static void ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
                                          configurations::Configurations &aConfigurations,
-                                         exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                          T *apMeasurementsMatrix = nullptr);
 
     private:

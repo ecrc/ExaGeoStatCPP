@@ -46,10 +46,10 @@ void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double nu_expr;
-    double sigma_square = aLocalTheta[0];
-    int flag = 0;
+    T expr;
+    T nu_expr;
+    T sigma_square = aLocalTheta[0];
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;

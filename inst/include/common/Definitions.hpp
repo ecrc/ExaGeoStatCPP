@@ -184,6 +184,9 @@ namespace exageostat::common {
         DESCRIPTOR_C_DIAG = 49,
         DESCRIPTOR_A = 50,
         DESCRIPTOR_RESULTS = 51,
+        DESCRIPTOR_SUM = 52,
+        DESCRIPTOR_R = 53,
+        DESCRIPTOR_R_COPY = 54,
     };
 
     /**
@@ -244,6 +247,16 @@ namespace exageostat::common {
         EXAGEOSTAT_UPPER = 121, /**< Use lower triangle of A */
         EXAGEOSTAT_LOWER = 122, /**< Use upper triangle of A */
         EXAGEOSTAT_UPPER_LOWER = 123  /**< Use the full A */
+    };
+
+    /**
+     * @enum CopyDirection
+     * @brief Enum denoting the copy descriptors flow
+     *
+     */
+    enum CopyDirection : int {
+        CHAMELEON_TO_HICMA = 0,
+        HICMA_TO_CHAMELEON = 1
     };
 
     /**

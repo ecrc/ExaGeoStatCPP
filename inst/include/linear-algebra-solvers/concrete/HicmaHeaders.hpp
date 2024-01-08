@@ -9,7 +9,7 @@
 #ifndef EXAGEOSTATCPP_HICMAHEADERS_HPP
 #define EXAGEOSTATCPP_HICMAHEADERS_HPP
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 extern "C" {
 #include <hicma_struct.h>
 #include <starsh-spatial.h>

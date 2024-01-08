@@ -51,10 +51,10 @@ UnivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, c
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double z0, z1;
-    double expr, expr2, expr3, expr4;
-    double con;
-    double sigma_square = aLocalTheta[0];
+    T z0, z1;
+    T expr, expr2, expr3, expr4;
+    T con;
+    T sigma_square = aLocalTheta[0];
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;

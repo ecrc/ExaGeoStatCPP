@@ -140,15 +140,15 @@ namespace exageostat::kernels {
          * @return The value of P.
          *
          */
-        [[nodiscard]] int GetPValue() const;
+        [[nodiscard]] int GetP() const;
 
         /**
          * @brief Sets the value of the parameter P used by the kernel function.
-         * @param[in] aP Value to set `mP` with.
+         * @param[in] aTimeSlot Value to set `mP` with.
          * @return void
          *
          */
-        void SetPValue(int aP);
+        void SetPValue(int aTimeSlot);
 
         /**
          * @brief Returns the number of the parameters used by the kernel function.
@@ -160,6 +160,8 @@ namespace exageostat::kernels {
     protected:
         //// Used P.
         int mP = 1;
+        //// Used P multiplied by timeslot
+        int mCalculatedP = 1;
         //// Used number of parameters.
         int mParametersNumber = 3;
     };

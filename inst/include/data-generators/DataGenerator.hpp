@@ -37,10 +37,11 @@ namespace exageostat::generators {
          * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
          * @param[in] aConfigurations Reference to the data configurations.
          * @param[in] aHardware Reference to the used hardware.
-             * @return Pointer to a populated data.
+         * @param[in] aKernel Reference to the used Kernel.
+         * @return unique Pointer to a populated data.
          *
          */
-        virtual dataunits::ExaGeoStatData<T> *
+        virtual std::unique_ptr<dataunits::ExaGeoStatData<T>>
         CreateData(exageostat::configurations::Configurations &aConfigurations,
                    const exageostat::hardware::ExaGeoStatHardware &aHardware,
                    exageostat::kernels::Kernel<T> &aKernel) = 0;

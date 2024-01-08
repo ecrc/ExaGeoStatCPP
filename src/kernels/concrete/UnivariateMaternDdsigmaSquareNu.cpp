@@ -46,9 +46,9 @@ void UnivariateMaternDdsigmaSquareNu<T>::GenerateCovarianceMatrix(T *apMatrixA, 
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double nu_expr;
-    int flag = 0;
+    T expr;
+    T nu_expr;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;

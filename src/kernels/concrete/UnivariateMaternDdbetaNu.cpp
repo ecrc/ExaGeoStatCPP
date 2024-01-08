@@ -47,14 +47,14 @@ UnivariateMaternDdbetaNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con;
-    double nu_expr;
-    double nu_expr_prime;
-    double sigma_square = aLocalTheta[0];
+    T expr;
+    T con;
+    T nu_expr;
+    T nu_expr_prime;
+    T sigma_square = aLocalTheta[0];
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;

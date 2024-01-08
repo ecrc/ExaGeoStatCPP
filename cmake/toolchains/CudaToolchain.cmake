@@ -19,5 +19,4 @@ set(CUDA_ARCHITECTURES "35;50;72")
 
 # Find the CUDA toolkit
 find_package(CUDAToolkit REQUIRED)
-# TODO: Cuda linking
 set(ENV{LDFLAGS} "-L$ENV{CUDA_DIR}/lib64")

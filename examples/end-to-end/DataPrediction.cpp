@@ -44,13 +44,11 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    LOGGER("** Initialise ExaGeoStat hardware **")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    LOGGER("** Create ExaGeoStat data **")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
@@ -75,15 +73,15 @@ int main(int argc, char **argv) {
                                    0.971213790000161170, 0.538973474182433021, -0.752828466476077041,
                                    0.290822066007430102};
 
-    data.GetLocations()->SetLocationX(*location_x, N);
-    data.GetLocations()->SetLocationY(*location_y, N);
+    data->GetLocations()->SetLocationX(*location_x, N);
+    data->GetLocations()->SetLocationY(*location_y, N);
 
-    LOGGER("** ExaGeoStat data Prediction **")
+    // Prediction module
     ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
-    LOGGER("** All example stages have been completed successfully **")
 
     delete[] location_x;
     delete[] location_y;
     delete[] z_matrix;
+
     return 0;
 }
