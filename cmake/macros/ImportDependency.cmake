@@ -24,7 +24,7 @@
 # If the package is found, it prints a message. If not, it calls the BuildDependency macro to fetch,
 # configure, build, and install the dependency. Finally, it attempts to find the package again to validate the installation.
 
-macro(ImportDependency name tag version url flag is_cmake is_git auto_gen)
+macro(ImportDependency name tag version url flag components is_cmake is_git auto_gen)
 
     # First, Check if no path is set for installation.
     if (CMAKE_INSTALL_PREFIX MATCHES "/usr/")
@@ -44,7 +44,7 @@ macro(ImportDependency name tag version url flag is_cmake is_git auto_gen)
     IF (NOT TARGET ${name})
         include(FindPkgConfig)
         find_package(PkgConfig QUIET)
-        find_package(${name} ${version} QUIET)
+        find_package(${name} ${version} QUIET COMPONENTS ${components})
 
         # If the package is found, print a message
         if (${name}_FOUND)
@@ -53,7 +53,7 @@ macro(ImportDependency name tag version url flag is_cmake is_git auto_gen)
             # If the package is not found, install it using BuildDependency
             message("   Can't find ${capital_name}, Installing it instead ..")
             BuildDependency(${name} ${url} ${tag} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
-            find_package(${name} ${version} REQUIRED)
+            find_package(${name} ${version} REQUIRED COMPONENTS ${components})
         endif ()
     else ()
         message(STATUS "${capital_name} already included")

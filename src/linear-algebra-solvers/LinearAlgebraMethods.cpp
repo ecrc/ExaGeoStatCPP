@@ -6,7 +6,7 @@
 /**
  * @file LinearAlgebraMethods.cpp
  * @brief Implementation of linear algebra methods.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
@@ -322,7 +322,7 @@ void LinearAlgebraMethods<T>::GenerateSyntheticData(configurations::Configuratio
                                                     const kernels::Kernel<T> &aKernel) {
 
     this->mpContext = aHardware.GetChameleonContext();
-    this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetP());
+    this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetVariablesNumber());
     auto median_locations = Locations<T>(1, aData->GetLocations()->GetDimension());
     this->GenerateObservationsVector(aConfigurations, aData, aData->GetLocations(), aData->GetLocations(),
                                      &median_locations, aConfigurations.GetDistanceMetric(), aKernel);
@@ -340,7 +340,7 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
     }
-    const int P = aKernel.GetP();
+    const int P = aKernel.GetVariablesNumber();
     const int full_problem_size = aConfigurations.GetProblemSize() * P;
     int seed = aConfigurations.GetSeed();
     int initial_seed[4] = {seed, seed, seed, 1};
@@ -454,7 +454,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(std::unique_ptr<dataunits::
 
     int i;
     this->SetContext(aHardware.GetChameleonContext());
-    this->InitiatePredictionDescriptors(aConfiguration, aData, aKernel.GetP());
+    this->InitiatePredictionDescriptors(aConfiguration, aData, aKernel.GetVariablesNumber());
 
     double time_solve, mat_gen_time, time_gemm, time_mspe = 0.0, flops = 0.0;
     int num_params;
@@ -609,7 +609,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<
 
     int i;
     this->SetContext(aHardware.GetChameleonContext());
-    this->InitiatePredictionDescriptors(aConfiguration, aData, aKernel.GetP());
+    this->InitiatePredictionDescriptors(aConfiguration, aData, aKernel.GetVariablesNumber());
 
     double time_solve, mat_gen_time, time_mse, mat_gen_time_2, dposv_time, gemms_time, time_trsm, time_gemm, time_mspe = 0.0, flops = 0.0;
     int num_params;
@@ -807,7 +807,7 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
                                                         const kernels::Kernel<T> &aKernel) {
 
     this->SetContext(aHardware.GetChameleonContext());
-    this->InitiateMLOEMMOMDescriptors(aConfigurations, aData, aKernel.GetP());
+    this->InitiateMLOEMMOMDescriptors(aConfigurations, aData, aKernel.GetVariablesNumber());
     auto kernel_name = aConfigurations.GetKernelName();
     auto median_locations = Locations<T>(1, aData->GetLocations()->GetDimension());
     aData->CalculateMedianLocations(kernel_name, median_locations);

@@ -6,7 +6,7 @@
 /**
  * @file Kernel.cpp
  * @brief implementation file for the Kernels class, which contains the main kernel functions.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-12
@@ -22,18 +22,6 @@ using namespace std;
 
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
-
-template<typename T>
-T Kernel<T>::CalculateDerivativeBesselInputNu(const T &aOrder, const T &aInputValue) {
-    if (aOrder < 1) {
-        T nu_new = abs(aOrder - 1);
-        return (-0.5 * (-CalculateDerivativeBesselNu(nu_new, aInputValue) +
-                        CalculateDerivativeBesselNu(abs(aOrder + 1), aInputValue)));
-    } else {
-        return (-0.5 * (CalculateDerivativeBesselNu(aOrder - 1, aInputValue) +
-                        CalculateDerivativeBesselNu(abs(aOrder + 1), aInputValue)));
-    }
-}
 
 template<typename T>
 T Kernel<T>::CalculateDerivativeBesselNu(const T &aOrder, const T &aInputValue) {
@@ -59,8 +47,8 @@ T Kernel<T>::CalculateSecondDerivativeBesselNuInput(const T &aOrder, const T &aI
 }
 
 template<typename T>
-int Kernel<T>::GetP() const {
-    return this->mCalculatedP;
+int Kernel<T>::GetVariablesNumber() const {
+    return this->mVariablesNumber;
 }
 
 template<typename T>
@@ -69,7 +57,7 @@ void Kernel<T>::SetPValue(int aTimeSlot) {
     // In case of uni-variate spacetime P = 1 * time slot
     // In case of Bi-variate spacetime P = 2 * time slot
     // P and timeslot will be constant with each created kernel, overriding the Calculated P value to handle case of calling the function multiple times.
-    this->mCalculatedP = this->mP * aTimeSlot;
+    this->mVariablesNumber = this->mP * aTimeSlot;
 }
 
 template<typename T>

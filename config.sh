@@ -4,7 +4,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file config.sh
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @date 2023-01-30
 
@@ -62,8 +62,8 @@ while getopts ":tevhHi:cmspT" opt; do
       echo -e "${GREEN}printing make with details.${NC}"
       VERBOSE=ON
       ;;
-    s) ##### Passing Blas vendor with mkl #####
-      echo -e "${GREEN}MKL as a Blas vendor${NC}"
+    s) ##### Passing BLA vendor with mkl #####
+      echo -e "${GREEN}MKL as a BLA vendor${NC}"
       BLAS_VENDOR="Intel10_64lp"
       ;;
     p) ##### Enabling packaging system for distribution #####
@@ -90,7 +90,7 @@ while getopts ":tevhHi:cmspT" opt; do
       printf "%20s %s\n" "-m :" "to enable using MPI."
       printf "%20s %s\n" "-v :" "to enable verbose printings."
       printf "%20s %s\n" "-d :" "to enable debug mode."
-      printf "%20s %s\n" "-s :" "to manually pass MKL as your blas vendor."
+      printf "%20s %s\n" "-s :" "to manually pass MKL as your bla vendor."
       printf "%20s %s\n" "-p :" "to enable a packaging system for distribution."
       printf "%20s %s\n" "-h :" "Help."
       echo ""

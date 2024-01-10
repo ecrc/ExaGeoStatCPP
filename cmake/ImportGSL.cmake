@@ -21,7 +21,7 @@ set(auto_gen OFF)
 set(url "https://ftp.gnu.org/gnu/gsl/gsl-2.7.1.tar.gz")
 
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
 # Add the GSL library to the project's list of libraries.
 list(APPEND LIBS gsl)

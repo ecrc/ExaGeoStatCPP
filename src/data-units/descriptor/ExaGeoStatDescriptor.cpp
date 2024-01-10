@@ -6,7 +6,7 @@
 /**
  * @file ExaGeoStatDescriptor.cpp
  * @brief Implementation of creating matrix descriptors used in CHAMELEON and HiCMA libraries.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-17

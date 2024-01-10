@@ -7,7 +7,7 @@
  * @file DataPrediction.cpp
  * @brief This program predicts missing measurements using the ExaGeoStat library.
  * @details The program takes command line arguments to configure the data prediction module.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-09-11
 **/

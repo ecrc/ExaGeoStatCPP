@@ -4,7 +4,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ExaGeoStatCPPConfig.cmake.in
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @date 2023-01-30
 
@@ -117,7 +117,7 @@ include(ImportChameleon)
 
 # EXAGEOSTAT depends on a LAPACK/BLASPP
 # -------------------------------
-include(ImportBlasPP)
+include(ImportBLASPP)
 include(ImportLapack)
 
 # Add all dependencies for ExaGeoStatCPP

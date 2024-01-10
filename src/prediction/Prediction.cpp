@@ -6,7 +6,7 @@
 /**
  * @file Prediction.cpp
  * @brief Contains the implementation of the Prediction class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -43,7 +43,7 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
     }
 
     int number_of_mspe = 3;
-    int p = aKernel.GetP();
+    int p = aKernel.GetVariablesNumber();
     int z_miss_number = aConfigurations.GetUnknownObservationsNb();
     int n_z_obs = aConfigurations.CalculateZObsNumber();
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);

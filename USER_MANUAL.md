@@ -3,45 +3,43 @@ ExaGeoStatCPP User Manual
 
 # Content
 
-1. Configurations of the software.
-2. Building ExaGeoStatCPP.
-3. Supported Covariance kernels.
-4. Arguments.
-5. List of Descriptors.
-6. Supported operations.
-7. Contributing
+1. [Configurations of the software](#configurations)
+2. [Building ExaGeoStatCPP](#building)
+3. [Supported Covariance kernels](#supported-covariance-functions-kernels-)
+4. [Arguments](#arguments)
+5. [List of Descriptors](#list-of-descriptors)
+6. [Supported operations](#supported-operations)
+7. [Contributing](#contributing)
 
 ## Configurations
 
-* Run help of config.sh to know the needed arguments to run with your specific options.
+* Run the help of `config.sh` to know the needed arguments for your specific options.
+
 ```commandline
 ./config.sh -h
 ```
-* To Enable support of HiCMA add **```-H```**
-* To enable examples add **```-e```**
 
-* To enable tests add **```-t```**
+* To Enable support of HiCMA, add `-H`.
+* To enable examples, add `-e`.
+* To enable tests, add `-t`.
+* To enable heavy tests, add `-T`.
+* To enable CUDA, add `-c`.
+* To enable MPI, add `-m`.
+* To enable verbose output, add `-v`.
+* To change the installation path of the dependencies, use `-i <installation/path>`.
+* To enable manually passing mkl as BLA vendor, add `-s`.
+* To enable  packaging system for distribution, add `-p`.
 
-* To enable CUDA add **```-c```**
-
-* To enable MPI add **```-m```**
-
-* To enable Verbose add **```-v```**
-
-* To enable debug mode add **```-d```**
-
-* To change the installation path of the dependencies use **```-i <installation/path>```**
-
-Please be aware that we currently offer support for either HiCMA or Chameleon, or both.
 ## Building
 
-* Run help of clean_build.sh to know the additional arguments options.
+* Run the help of `clean_build.sh` to know additional argument options.
+
 ```commandline
 ./clean_build.sh -h
 ```
 * Run clean_build.sh to clean, Build and Install the project.
 ```commandline
-./clean_build.sh
+./clean_build.sh -i
 ```
 * To enable verbose printing, Run the following command.
 ```commandline
@@ -67,14 +65,12 @@ Supported Covariance Functions/ Kernels:
 10. univariate_matern_dnu
 11. univariate_matern_dsigma_square
 12. univariate_matern_non_gaussian
-13. univariate_matern_non_sta
-14. univariate_matern_non_stationary
-15. univariate_matern_nuggets_stationary
-16. univariate_spacetime_matern_stationary
-17. bivariate_matern_flexible
-18. bivariate_matern_parsimonious
-19. bivariate_spacetime_matern_stationary
-20. trivariate_matern_parsimonious
+13. univariate_matern_nuggets_stationary
+14. univariate_spacetime_matern_stationary
+15. bivariate_matern_flexible
+16. bivariate_matern_parsimonious
+17. bivariate_spacetime_matern_stationary
+18. trivariate_matern_parsimonious
 
 ## Arguments
 
@@ -87,18 +83,18 @@ Supported Covariance Functions/ Kernels:
 * {Mandatory} To set the dense tile size in the case of Chameleon
 
         --dts=<value>
-* {Mandatory} To set the low tile size in case of  HiCMA
+* {Mandatory} To set the low tile size in case of HiCMA
 
         --lts=<value>
 * {Optional} To set the dimension, the default is 2D
 
         --dimension=<2D/3D/ST>
-* {Optional} To set the p grid
+* {Optional} To set the p grid, the default is 1
 
-        --p_grid=<value>
-* {Optional} To set the q grid
+        --p=<value>
+* {Optional} To set the q grid, the default is 1
 
-        --q_grid=<value>
+        --q=<value>
 * {Optional} To set the time slot, the default is 1
 
         --time_slot=<value>
@@ -107,7 +103,7 @@ Supported Covariance Functions/ Kernels:
         --computation=<dense/tlr/dst>
 * {Optional} To set the precision, the default is double
 
-        --precision=<single/double/mix>
+        --precision=<single/double>
 * {Optional} To set the number of cores, the default is 1
 
         --cores=<value>
@@ -135,12 +131,15 @@ Supported Covariance Functions/ Kernels:
 * {Optional} To set the target theta
 
         --ttheta=<value:value:....:value>
+* {Optional} To set the estimated theta
+
+        --etheta=<value:value:....:value>
 * {Optional} To set the seed value, the default is 0
 
         --seed=<value>
-* {Optional} To set the run mode value, the default is standard
+* {Optional} To set the verbose value, the default is standard
 
-        --run_mode=<verbose/standard>
+        --verbose=<quiet/standard/detailed>
 * {Optional} To set the path of log files to be written, the default is ./exageostat-cpp/synthetic_ds/
 
         --log_path=<path/to/file>
@@ -299,3 +298,6 @@ ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matri
 // you have to pass your arguments through the configurations, your hardware and your data.
 ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
 ```
+
+## Contributing
+[Contribution Guidelines](CONTRIBUTING.md)

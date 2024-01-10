@@ -5,7 +5,7 @@
 
 # @file CMakeLists.txt
 # @brief This file contains the CMake configuration for the kernels directory.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-04-11

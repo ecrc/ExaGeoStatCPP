@@ -21,6 +21,6 @@ set(auto_gen ON)
 set(url "https://github.com/open-mpi/hwloc")
 
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
 message(STATUS "${name} done")

@@ -6,7 +6,7 @@
 /**
  * @file Configurations.cpp
  * @brief This file defines the Configurations class which stores the configuration parameters for ExaGeoStat.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-01-31

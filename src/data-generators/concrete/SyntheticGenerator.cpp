@@ -6,7 +6,7 @@
 /**
  * @file SyntheticGenerator.cpp
  * @brief Implementation of the SyntheticGenerator class
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -76,7 +76,7 @@ SyntheticGenerator<T>::CreateData(exageostat::configurations::Configurations &aC
         std::string path = aConfigurations.GetLoggerPath();
         DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                            DESCRIPTOR_Z).chameleon_desc->mat),
-                                          aConfigurations.GetProblemSize(), aKernel.GetP(), path,
+                                          aConfigurations.GetProblemSize(), aKernel.GetVariablesNumber(), path,
                                           *data->GetLocations());
 #endif
         VERBOSE("Done.")

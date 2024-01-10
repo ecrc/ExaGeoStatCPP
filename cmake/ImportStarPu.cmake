@@ -31,6 +31,7 @@ set(auto_gen ON)
 set(url "https://gitlab.inria.fr/starpu/starpu.git")
 
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+message(" ${STARPU_COMPONENT_LIST}")
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${STARPU_COMPONENT_LIST} ${is_cmake} ${is_git} ${auto_gen})
 
 message(STATUS "${name} done")

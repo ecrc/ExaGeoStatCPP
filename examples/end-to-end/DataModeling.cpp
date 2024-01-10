@@ -7,7 +7,7 @@
  * @file DataModeling.cpp
  * @brief This program models data using the ExaGeoStat library.
  * @details The program takes command line arguments and example variables to configure the data modeling.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/

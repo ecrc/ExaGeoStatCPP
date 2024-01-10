@@ -25,7 +25,6 @@ pipeline {
                     ####################################################
                     module load mkl/2020.0.166
                     ####################################################
-
                     set -x
                     ./config.sh -t -e
                     ./clean_build.sh
@@ -66,7 +65,6 @@ pipeline {
                     ####################################################
                     module load mkl/2020.0.166
                     ####################################################
-
                     set -x
                     ./config.sh -t -e -H
                     ./clean_build.sh
@@ -88,7 +86,6 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    module load gsl/2.6-gcc-10.2.0
                     cd bin/
                     ctest --no-compress-output --verbose
                     '''
@@ -105,8 +102,7 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    module load gsl/2.6-gcc-10.2.0
-                    ./config.sh -t -e
+                    ./config.sh -e
                     ./clean_build.sh
                     cd bin
                     make docs

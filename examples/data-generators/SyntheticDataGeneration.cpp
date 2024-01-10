@@ -6,7 +6,7 @@
 /**
  * @file SyntheticLocationsGeneration.cpp
  * @brief This file contains the main function for generating synthetic Locations for ExaGeoStat
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-03-04
 **/

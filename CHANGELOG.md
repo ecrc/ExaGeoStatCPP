@@ -14,19 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automated the process of adding a new kernel.
 - Improved packaging of software with CPack.
 - Addressed installation issues.
-- Fixed bivariate and trivariate kernel functionality.
+- Fixed bivariate and trivariate kernels functionality.
 - Corrected time-space kernel issues.
 
 ### Changed
 - Updated the installation process for dependencies.
 - Modified the calculation of P for all kernels.
 - Adjusted CMake variables.
-- Revised the process of finding BlasPP and Catch2 libraries.
+- Revised the process of finding BLASPP and Catch2 libraries.
 - Updated doxygen documentation.
 
 ### Removed
 - Eliminated non-stationary kernel support.
-- Removed Find OpenMP, LapackPP, and CuSolver.
+- Removed Find OpenMP, LAPACKPP, and CuSOLVER.
 
 ## [1.0.0] - 2023-11-12
 ### Added

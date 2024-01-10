@@ -21,7 +21,7 @@ set(auto_gen OFF)
 set(url "https://github.com/ecrc/hicma.git")
 
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
 # Include HiCMA headers in the project.
 include_directories(${HICMA_LIBDIR}/../hicma-src/hicma_ext)

@@ -150,7 +150,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardwa
 
     this->SetContext(aHardware.GetContext(aConfigurations.GetComputation()));
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
-        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetP(), apMeasurementsMatrix);
+        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetVariablesNumber(), apMeasurementsMatrix);
     }
     // Create a Chameleon sequence, if not initialized before through the same descriptors
     RUNTIME_request_t request_array[2] = {RUNTIME_REQUEST_INITIALIZER, RUNTIME_REQUEST_INITIALIZER};

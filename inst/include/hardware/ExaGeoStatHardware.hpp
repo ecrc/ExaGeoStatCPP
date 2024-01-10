@@ -6,7 +6,7 @@
 /**
  * @file ExaGeoStatHardware.hpp
  * @brief Contains the definition of the ExaGeoStatHardware class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-08-07

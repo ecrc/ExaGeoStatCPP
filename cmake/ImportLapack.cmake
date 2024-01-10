@@ -21,6 +21,6 @@ set(auto_gen OFF)
 set(url "https://github.com/xianyi/OpenBLAS")
 
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
 message(STATUS "${name} done")

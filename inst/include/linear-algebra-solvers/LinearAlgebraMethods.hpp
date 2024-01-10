@@ -6,7 +6,7 @@
 /**
  * @file LinearAlgebraMethods.hpp
  * @brief Header file for the LinearAlgebraMethods class, which defines the interface for linear algebra solvers.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20

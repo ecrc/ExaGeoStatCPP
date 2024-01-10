@@ -21,7 +21,7 @@ set(auto_gen OFF)
 set(url "https://gitlab.inria.fr/solverstack/chameleon.git")
 
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
 include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
 include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)

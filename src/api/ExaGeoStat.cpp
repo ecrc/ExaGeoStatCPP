@@ -6,7 +6,7 @@
 /**
  * @file ExaGeoStat.cpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-05-30
 **/

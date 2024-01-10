@@ -6,7 +6,7 @@
 /**
  * @file UnivariateSpacetimeMaternStationary.cpp
  * @brief Implementation of the UnivariateSpacetimeMaternStationary kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14

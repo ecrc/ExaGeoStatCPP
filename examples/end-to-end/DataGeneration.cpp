@@ -7,7 +7,7 @@
  * @file DataGeneration.cpp
  * @brief This program either generates synthetic data using the ExaGeoStat library, or reads an CSV file containing real data.
  * @details The program takes command line arguments to configure the data generation.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-05-30
 **/

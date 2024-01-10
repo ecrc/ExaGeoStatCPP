@@ -23,7 +23,7 @@ option(USE_MPI "Use MPI, if available" false)
 option(BUILD_TESTS "Option to enable building tests" OFF)
 option(BUILD_HEAVY_TESTS "Option to enable building heavy tests, This may take a lot of time" OFF)
 option(BUILD_EXAMPLES "Option to enable building examples" ON)
-option(BUILD_DOCS "Build documentation in docs directory" OFF)
+option(BUILD_DOCS "Build documentation in docs directory" ON)
 option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Cmake Module Paths
@@ -125,9 +125,9 @@ endif ()
 # -------------------------------
 include(ImportChameleon)
 
-# ExaGeoStatCPP depends on a LAPACK/BlasPP
+# ExaGeoStatCPP depends on a LAPACK/BLASPP
 # -------------------------------
-include(ImportBlasPP)
+include(ImportBLASPP)
 include(ImportLapack)
 
 # ExaGeoStatCPP Documentation

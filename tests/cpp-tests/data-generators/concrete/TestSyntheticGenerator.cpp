@@ -9,7 +9,7 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the SyntheticGenerator class
  * in the ExaGeoStat software package. The tests cover various aspects of data generation, including spreading
  * and reversing bits, generating locations for different dimensions, and testing helper functions.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-03-08
 **/

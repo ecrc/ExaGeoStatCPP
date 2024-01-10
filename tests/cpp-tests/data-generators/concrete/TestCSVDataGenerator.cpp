@@ -9,7 +9,7 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the CSVDataGenerator class
  * in the ExaGeoStat software package. The tests cover various aspects of data generation, including spreading
  * and reversing bits, generating locations for different dimensions, and testing helper functions.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-03-08
 **/
@@ -199,7 +199,7 @@ void TEST_CSV_P_2() {
     configurations.SetDataPath(read_path);
 
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
-    int p = pKernel->GetP();
+    int p = pKernel->GetVariablesNumber();
 
     auto hardware = exageostat::hardware::ExaGeoStatHardware(configurations.GetComputation(),
                                                              configurations.GetCoresNumber(),
@@ -373,7 +373,7 @@ void TEST_CSV_P_3() {
     configurations.SetInitialTheta(initial_theta);
 
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
-    int p = pKernel->GetP();
+    int p = pKernel->GetVariablesNumber();
 
     auto hardware = exageostat::hardware::ExaGeoStatHardware(configurations.GetComputation(),
                                                              configurations.GetCoresNumber(),

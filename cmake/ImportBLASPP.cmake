@@ -2,13 +2,13 @@
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
-# @file ImportBlasPP.cmake
+# @file ImportBLASPP.cmake
 # @brief This file searches for the BLAS++ library and includes it if not already included.
 # @version 1.0.1
 # @author Mahmoud ElKarargy
 # @date 2023-03-12
 
-include(ImportBlas)
+include(ImportBLAS)
 
 #Configurations
 set(name blaspp)
@@ -29,5 +29,5 @@ set(url "https://github.com/icl-utk-edu/blaspp")
 
 set(${name}_DIR "${CMAKE_INSTALL_PREFIX}/${capital_name}/lib/cmake/${name}")
 include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 message(STATUS "${name} done")

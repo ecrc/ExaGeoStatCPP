@@ -6,7 +6,7 @@
 /**
  * @file CSVDataGenerator.hpp
  * @brief A class for generating synthetic data.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14

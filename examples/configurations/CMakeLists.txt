@@ -5,7 +5,7 @@
 
 # @file CMakeLists.txt
 # @brief Defines an executable and links it with the ExaGeoStat library and other libraries.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @date 2023-01-31
 

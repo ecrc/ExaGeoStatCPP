@@ -6,7 +6,7 @@
 /**
  * @file CSVDataGenerator.cpp
  * @brief Implementation of the CSVDataGenerator class
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -48,7 +48,7 @@ CSVDataGenerator<T>::CreateData(exageostat::configurations::Configurations &aCon
     vector<T> z_locations;
 
     aKernel.SetPValue(aConfigurations.GetTimeSlot());
-    int p = aKernel.GetP();
+    int p = aKernel.GetVariablesNumber();
 
     //Read the data out of the CSV file.
     ReadData(aConfigurations, measurements_vector, x_locations, y_locations, z_locations, p);

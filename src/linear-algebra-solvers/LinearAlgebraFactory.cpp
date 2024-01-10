@@ -8,7 +8,7 @@
  * @brief Implementation of the LinearAlgebraFactory class for creating linear algebra solvers for different computations using HiCMA or Chameleon libraries.
  * The factory creates a unique pointer to a concrete implementation of the LinearAlgebraMethods class based on the computation specified.
  * If the required library is not enabled, it throws a runtime_error exception.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-03-20
 **/

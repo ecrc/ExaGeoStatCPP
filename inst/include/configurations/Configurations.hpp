@@ -5,7 +5,7 @@
 
 /**
 * @file Configurations.hpp
-* @version 1.0.0
+* @version 1.0.1
 * @brief Contains the declaration of the Configurations class and its member functions.
 * @author Sameh Abdulah
 * @author Mahmoud ElKarargy
