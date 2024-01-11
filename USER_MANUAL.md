@@ -19,16 +19,16 @@ ExaGeoStatCPP User Manual
 ./config.sh -h
 ```
 
-* To Enable support of HiCMA, add `-H`.
-* To enable examples, add `-e`.
-* To enable tests, add `-t`.
-* To enable heavy tests, add `-T`.
-* To enable CUDA, add `-c`.
-* To enable MPI, add `-m`.
-* To enable verbose output, add `-v`.
-* To change the installation path of the dependencies, use `-i <installation/path>`.
-* To enable manually passing mkl as BLA vendor, add `-s`.
-* To enable  packaging system for distribution, add `-p`.
+* To Enable support of HiCMA, add `-H` disabled by default.
+* To enable examples, add `-e` enabled by default.
+* To enable tests, add `-t` disabled by default.
+* To enable heavy tests, add `-T` disabled by default.
+* To enable CUDA, add `-c` disabled by default.
+* To enable MPI, add `-m` disabled by default.
+* To enable verbose output, add `-v` disabled by default.
+* To change the installation path of the dependencies, use `-i <installation/path>` project_path/installdir/_deps/ by default on Unix systems.
+* To enable manually passing mkl as BLA vendor, add `-s` MKL by default.
+* To enable packaging system for distribution, add `-p` disabled by default.
 
 ## Building
 
