@@ -17,7 +17,7 @@ set(tag "v2023.01.00")
 # Set installation flags
 if (USE_CUDA)
     set(flag "-Dgpu_backend=cuda")
-else()
+else ()
     set(flag "-Dgpu_backend=")
 endif ()
 
@@ -30,4 +30,6 @@ set(url "https://github.com/icl-utk-edu/blaspp")
 set(${name}_DIR "${CMAKE_INSTALL_PREFIX}/${capital_name}/lib/cmake/${name}")
 include(macros/ImportDependency)
 ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
+
+set(LIBS blaspp ${LIBS})
 message(STATUS "${name} done")

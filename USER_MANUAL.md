@@ -37,11 +37,15 @@ ExaGeoStatCPP User Manual
 ```commandline
 ./clean_build.sh -h
 ```
-* Run clean_build.sh to clean, Build and Install the project.
+* Run clean_build.sh to build the project.
+```commandline
+./clean_build.sh
+```
+* To build and install the project, Run the following command.
 ```commandline
 ./clean_build.sh -i
 ```
-* To enable verbose printing, Run the following command.
+* To build and enable verbose printing, Run the following command.
 ```commandline
 ./clean_build.sh -v
 ```
