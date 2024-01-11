@@ -103,7 +103,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
 
     this->SetContext(aHardware.GetContext(aConfigurations.GetComputation()));
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
-        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(),aKernel.GetP(), apMeasurementsMatrix);
+        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(),aKernel.GetVariablesNumber(), apMeasurementsMatrix);
     }
     // Create a Hicma sequence, if not initialized before through the same descriptors
     RUNTIME_request_t request_array[2] = {HICMA_REQUEST_INITIALIZER, HICMA_REQUEST_INITIALIZER};
@@ -131,7 +131,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     int acc = aConfigurations.GetAccuracy();
 
     if (iter_count == 0) {
-        this->SetModelingDescriptors(aData, aConfigurations, aKernel.GetP());
+        this->SetModelingDescriptors(aData, aConfigurations, aKernel.GetVariablesNumber());
     }
     auto *HICMA_descCUV = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
                                                                     DescriptorName::DESCRIPTOR_CUV).hicma_desc;

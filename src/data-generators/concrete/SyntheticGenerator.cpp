@@ -68,7 +68,7 @@ SyntheticGenerator<T>::CreateData(exageostat::configurations::Configurations &aC
         if ( CHAMELEON_Comm_rank == 0 ){
             DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                                DESCRIPTOR_Z).chameleon_desc->mat),
-                                              aConfigurations.GetProblemSize(), aConfigurations.GetP(), path,
+                                              aConfigurations.GetProblemSize(), aConfigurations.GetVariablesNumber(), path,
                                               *data->GetLocations());
         }
         delete[] pMatrix;
