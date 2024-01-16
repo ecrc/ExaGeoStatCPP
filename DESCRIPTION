@@ -7,7 +7,7 @@ Author: Mahmoud ElKarargy [aut, cph], Sameh Abdulah [cre, cph], KAUST King Abdul
 Maintainer: Sameh Abdulah <sameh.abdulah@kaust.edu.sa>, Mahmoud ElKarargy <mahmoud.elkarargy@brightskiesinc.com>
 Description: An R-wrapper for ExaGeoStatCPP: a parallel high performance unified framework for geostatistics on  manycore systems. Its abbreviation stands for Exascale Geostatistics. The framework aims at optimizing the likelihood function for a given spatial data to provide an efficient way to predict missing observations. The framework targets many-core systems: clusters of CPUs and GPUs.
 License: GPL (>= 3)
-Imports: assertthat (>= 0.2.1), MASS
+Imports: assertthat (>= 0.2.1), MASS, methods, Rcpp (>= 1.0.9)
 Depends: R (>= 3.5.0), assertthat (>= 0.2.1), MASS
 RoxygenNote: 7.2.3
 SystemRequirements: CMake (>=3.20), C++ (>= 11), nlopt (>= 2.4.2 http://ab-initio.mit.edu), lapacke (https://github.com/xianyi/OpenBLAS/releases), blas (https://github.com/xianyi/OpenBLAS/releases), hwloc (>=1.11.5 https://www.open-mpi.org), gsl (>= 2.4 https://ftp.gnu.org)
