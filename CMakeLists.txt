@@ -8,7 +8,7 @@
 # The project is a parallel high performance unified framework for geographical statistics on manycore systems.
 # The file sets up variables and finds dependencies required for the project.
 # It also provides options to enable building tests, building examples, building documentation, and enabling a packaging system for distribution.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-01-30
@@ -24,6 +24,7 @@ option(BUILD_TESTS "Option to enable building tests" OFF)
 option(BUILD_HEAVY_TESTS "Option to enable building heavy tests, This may take a lot of time" OFF)
 option(BUILD_EXAMPLES "Option to enable building examples" ON)
 option(BUILD_DOCS "Build documentation in docs directory" ON)
+option(USE_R "Enable the use of R and Rcpp in the project" OFF)
 option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Cmake Module Paths
@@ -31,6 +32,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
+    message("")
+    message("---------------------------------------- CUDA")
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
     enable_language(CUDA)
@@ -59,6 +62,18 @@ add_definitions(
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
 )
 
+if (USE_R)
+    message("")
+    message("---------------------------------------- Rcpp")
+    # Find R and Rcpp using FindR Module
+    find_package(R REQUIRED)
+    if (${R_FOUND})
+        message(STATUS "Using R technology")
+        list(APPEND LIBS "R")
+        add_definitions(-DUSING_R)
+    endif ()
+endif ()
+
 # ExaGeoStatCPP depends on a CUDA
 # -------------------------------
 if (USE_CUDA)
@@ -72,6 +87,8 @@ endif ()
 # ExaGeoStatCPP depends on a MPI
 # -------------------------------
 if (USE_MPI)
+    message("")
+    message("---------------------------------------- MPI")
     # Enable MPI and include MPI
     add_definitions(-DUSE_MPI=TRUE)
     message(STATUS "Trying to find MPI")
@@ -83,6 +100,8 @@ endif ()
 
 # ExaGeoStatCPP depends on LAPACKE
 #-----------------------------
+message("")
+message("---------------------------------------- LAPACKE")
 find_package(LAPACKE)
 list(APPEND LIBS ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})

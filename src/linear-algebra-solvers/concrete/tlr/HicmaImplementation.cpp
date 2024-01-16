@@ -6,13 +6,13 @@
 /**
  * @file HicmaImplementation.cpp
  * @brief Sets up the HiCMA descriptors needed for the tile low rank computations in ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-26
 **/
 
-#include <linear-algebra-solvers/concrete/hicma/tile-low-rank/HicmaImplementation.hpp>
+#include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
 
 using namespace std;
 

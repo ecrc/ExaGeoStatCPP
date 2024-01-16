@@ -4,14 +4,14 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-01-31
 
 add_subdirectory(api)
 add_subdirectory(linear-algebra-solvers)
 add_subdirectory(data-generators)
-add_subdirectory(configurations/data-generation)
+add_subdirectory(configurations)
 add_subdirectory(kernels)
 add_subdirectory(helpers)
 

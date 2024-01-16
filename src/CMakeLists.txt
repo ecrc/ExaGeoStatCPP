@@ -27,7 +27,7 @@ set(LIB_NAME ${PROJECT_NAME})
 
 # Create the library with the specified source files and linking libraries.
 add_library(${LIB_NAME}
-        STATIC
+        SHARED
         ${SOURCES}
         )
 target_compile_definitions(${LIB_NAME} PUBLIC ${COMPILE_DEFINITIONS})
@@ -50,4 +50,4 @@ install(TARGETS ${LIB_NAME}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib
         )
 
-    install(EXPORT ${LIB_NAME}CoreConfig DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/cmake/)
+install(EXPORT ${LIB_NAME}CoreConfig DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/cmake/)

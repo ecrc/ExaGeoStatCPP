@@ -1,0 +1,71 @@
+#! /bin/bash
+# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# All rights reserved.
+# ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
+# @file config.sh
+# @version 1.1.0
+# @author David Helmy
+# @author Mahmoud ElKarargy
+# @date 2024-01-15
+
+cd "$(dirname "$0")"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  ABSOLUTE_PATH=$([[ $1 == /* ]] && echo "$1" || echo "$PWD/${1#./}")
+else
+  ABSOLUTE_PATH=$(dirname $(realpath "$0"))
+fi
+
+INSTALL_PREFIX=$PWD/installdir/_deps
+BUILDING_TESTS="OFF"
+BUILDING_HEAVY_TESTS="OFF"
+BUILDING_EXAMPLES="OFF"
+USING_HiCMA="OFF"
+VERBOSE="OFF"
+USE_CUDA="OFF"
+USE_MPI="OFF"
+BLAS_VENDOR=""
+PACKAGE="OFF"
+COMPILE_FLAGS="-Wl,--no-as-needed -w"
+DEVELOPER_WARNINGS="-Wno-dev"
+
+rm -rf bin/
+mkdir bin/
+
+cmake $DEVELOPER_WARNINGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DCMAKE_BUILD_TYPE=RELEASE \
+  -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+  -DBUILD_TESTS="${BUILDING_TESTS}" \
+  -DBUILD_HEAVY_TESTS="${BUILDING_HEAVY_TESTS}" \
+  -DBUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
+  -DUSE_HICMA="${USING_HiCMA}" \
+  -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
+  -DUSE_CUDA="${USE_CUDA}" \
+  -DUSE_MPI="${USE_MPI}" \
+  -DBLA_VENDOR="${BLAS_VENDOR}" \
+  -DCREATE_PACKAGE="${PACKAGE}" \
+  -H"${ABSOLUTE_PATH}" \
+  -B"${ABSOLUTE_PATH}/bin" \
+  -G "Unix Makefiles" \
+  -DCMAKE_CXX_FLAGS_DEBUG="$COMPILE_FLAGS" \
+  -DCMAKE_CXX_FLAGS_RELEASE="$COMPILE_FLAGS"
+
+# Change to the bin directory, or exit if it doesn't exist.
+cd bin/ || {
+  echo "Error: bin directory not found."
+  exit 1
+}
+
+# Clean the directory and build the code with the specified options.
+cmake --build . -j $(nproc)
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.dylib" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.dylib -> src"
+else
+  echo "f eh??"
+  cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.so" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.so -> src"
+  ls ${ABSOLUTE_PATH}/src/
+fi
+
+rm -rf "${ABSOLUTE_PATH}/bin/"

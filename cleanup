@@ -1,0 +1,27 @@
+#! /bin/sh
+
+# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# All rights reserved.
+# ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
+# @file cleanup
+# @brief This file is intended to be used during 'R CMD build' command to delete all unnecessary files to match to CRAN policies.
+# @version 1.1.0
+# @author David Helmy
+# @author Mahmoud Elkarargy
+# @date 2024-01-15
+
+rm -rf ./src/*.so*
+rm -rf ./src/*.d
+rm -rf ./src/*.dll
+rm -rf ./.idea/
+rm -rf ./cmake-build-debug
+rm -rf ./bin/
+rm -rf ./.git/
+rm -rf ./config.sh
+rm -rf ./clean_build.sh
+rm -rf ./..Rcheck/
+rm -rf ./scripts/
+rm -rf ./installdir/
+
+mv ./LICENSE.md ./LICENSE

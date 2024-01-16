@@ -7,14 +7,14 @@
  * @file ChameleonImplementationDST.hpp
  * @brief This file contains the declaration of ChameleonImplementationDST class.
  * @details ChameleonImplementationDST is a concrete implementation of LinearAlgebraMethods class for diagonal super tile matrices.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-26
 **/
 
-#ifndef EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDST_HPP
-#define EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDST_HPP
+#ifndef EXAGEOSTATCPP_CHAMELEONDST_HPP
+#define EXAGEOSTATCPP_CHAMELEONDST_HPP
 
 #include <linear-algebra-solvers/concrete/chameleon/ChameleonImplementation.hpp>
 
@@ -26,19 +26,19 @@ namespace exageostat::linearAlgebra::diagonalSuperTile {
      *
      */
     template<typename T>
-    class ChameleonImplementationDST : public ChameleonImplementation<T> {
+    class ChameleonDST : public ChameleonImplementation<T> {
 
     public:
 
         /**
          * @brief Default constructor.
          */
-        explicit ChameleonImplementationDST() = default;
+        explicit ChameleonDST() = default;
 
         /**
          * @brief Virtual destructor to allow calls to the correct concrete destructor.
          */
-        ~ChameleonImplementationDST() override = default;
+        ~ChameleonDST() override = default;
 
         /**
          * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -79,8 +79,8 @@ namespace exageostat::linearAlgebra::diagonalSuperTile {
     * @tparam T Data Type: float or double
     *
     */
-    EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementationDST)
+    EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonDST)
 
 }//namespace exageostat
 
-#endif //EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDST_HPP
+#endif //EXAGEOSTATCPP_CHAMELEONDST_HPP

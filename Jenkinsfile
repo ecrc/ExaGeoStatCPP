@@ -20,7 +20,6 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
-		    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
@@ -43,7 +42,6 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
-	 	    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
@@ -62,7 +60,6 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
-		    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
@@ -85,7 +82,6 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
-		    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
@@ -102,7 +98,6 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
-		    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################

@@ -4,21 +4,21 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
-* @file synthetic_data.cpp
-* @brief Unit tests for the Configurations class in the ExaGeoStat software package.
-* @details This file contains Catch2 unit tests that validate the functionality of the Configurations class
-* in the ExaGeoStat software package. The tests cover various setters, getters, and value checks
-* for configuration parameters such as dimensions, P-GRID, kernel name, problem size, precision, and more.
-* Additionally, the tests include a copy-constructor test for the Configurations class.
-* @version 1.0.0
-* @author Mahmoud ElKarargy
-* @date 2023-01-31
+ * @file synthetic_data.cpp
+ * @brief Unit tests for the Configurations class in the ExaGeoStat software package.
+ * @details This file contains Catch2 unit tests that validate the functionality of the Configurations class
+ * in the ExaGeoStat software package. The tests cover various setters, getters, and value checks
+ * for configuration parameters such as dimensions, P-GRID, kernel name, problem size, precision, and more.
+ * Additionally, the tests include a copy-constructor test for the Configurations class.
+ * @version 1.1.0
+ * @author Mahmoud ElKarargy
+ * @date 2023-01-31
 **/
 
 #include <iostream>
 
 #include <catch2/catch_all.hpp>
-#include <configurations/Configurations.hpp>
+#include "configurations/Configurations.hpp"
 
 using namespace std;
 
