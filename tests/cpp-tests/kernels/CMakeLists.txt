@@ -30,6 +30,7 @@ set(EXAGEOSTAT_TESTFILES
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateExpNonGaussian.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestTrivariateMaternParsimonious.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonStat.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariatePowExpStationary.cpp
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
         )
