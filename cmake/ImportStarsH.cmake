@@ -14,7 +14,7 @@
 set(name "STARSH")
 set(tag "v0.3.1")
 set(version "0.3.1")
-set(flag \-DSTARPU=OFF \-DMPI=${USE_MPI})
+set(flag \-DSTARPU=OFF \-DMPI=${USE_MPI} \-DCMAKE_C_FLAGS=-fPIC)
 set(is_cmake ON)
 set(is_git ON)
 set(auto_gen OFF)
