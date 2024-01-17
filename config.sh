@@ -26,9 +26,12 @@ USE_CUDA="OFF"
 USE_MPI="OFF"
 BLAS_VENDOR=""
 PACKAGE="OFF"
+SHOW_WARNINGS="OFF"
+COMPILE_FLAGS="-Wl,--no-as-needed"
+DEVELOPER_WARNINGS="-Wno-dev"
 
 # Parse command line options
-while getopts ":tevhHi:cmspT" opt; do
+while getopts ":tevhHi:cmspTw" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -52,15 +55,15 @@ while getopts ":tevhHi:cmspT" opt; do
       ;;
     c)##### Using cuda enabled #####
         echo -e "${GREEN}Cuda enabled ${NC}"
-        USE_CUDA=ON
+        USE_CUDA="ON"
         ;;
     m)##### Using MPI enabled #####
         echo -e "${GREEN}MPI enabled ${NC}"
-        USE_MPI=ON
+        USE_MPI="ON"
         ;;
     v) ##### printing full output of make #####
       echo -e "${GREEN}printing make with details.${NC}"
-      VERBOSE=ON
+      VERBOSE="ON"
       ;;
     s) ##### Passing BLA vendor with mkl #####
       echo -e "${GREEN}MKL as a BLA vendor${NC}"
@@ -69,6 +72,10 @@ while getopts ":tevhHi:cmspT" opt; do
     p) ##### Enabling packaging system for distribution #####
       echo -e "${GREEN}CPACK enabled${NC}"
       PACKAGE=ON
+      ;;
+    w) ##### Enable showing all the warnings #####
+      echo -e "${GREEN}Showing Warnings is enabled${NC}"
+      SHOW_WARNINGS="ON"
       ;;
     \?) ##### Error unknown option #####
       echo "Option $OPTARG parameter is unknown, please -h for help"
@@ -125,13 +132,21 @@ if [ -z "$USE_MPI" ]; then
   echo -e "${RED}Using MPI disabled${NC}"
 fi
 
+if [ "$SHOW_WARNINGS" = "ON" ]; then
+  COMPILE_FLAGS+=" -W"
+  DEVELOPER_WARNINGS=""
+elif [ "$SHOW_WARNINGS" = "OFF" ]; then
+  COMPILE_FLAGS+=" -w"
+fi
+
 echo ""
 echo -e "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
 echo ""
 rm -rf bin/
-mkdir -p bin/installdir
+mkdir -p bin/
 
-cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+cmake $DEVELOPER_WARNINGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DCMAKE_BUILD_TYPE=RELEASE \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
   -DBUILD_TESTS="${BUILDING_TESTS}" \
   -DBUILD_HEAVY_TESTS="${BUILDING_HEAVY_TESTS}" \
@@ -144,4 +159,6 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCREATE_PACKAGE="${PACKAGE}" \
   -H"${PROJECT_SOURCE_DIR}" \
   -B"${PROJECT_SOURCE_DIR}/bin" \
-  -G "Unix Makefiles"
+  -G "Unix Makefiles" \
+  -DCMAKE_CXX_FLAGS_DEBUG="$COMPILE_FLAGS"\
+  -DCMAKE_CXX_FLAGS_RELEASE="$COMPILE_FLAGS"

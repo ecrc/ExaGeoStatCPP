@@ -6,13 +6,13 @@
 /**
  * @file ChameleonImplementationDST.cpp
  * @brief Diagonal Super Tile implementation of linear algebra methods.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
 **/
 
-#include <linear-algebra-solvers/concrete/chameleon/diagonal-super-tile/ChameleonImplementationDST.hpp>
+#include <linear-algebra-solvers/concrete/chameleon/dst/ChameleonDST.hpp>
 
 using namespace std;
 
@@ -20,8 +20,8 @@ using namespace exageostat::linearAlgebra::diagonalSuperTile;
 using namespace exageostat::common;
 
 template<typename T>
-void ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const UpperLower &aUpperLower, void *apA, int aBand, void *apCD,
-                                                        void *apCrk, const int &aMaxRank, const int &aAcc) {
+void ChameleonDST<T>::ExaGeoStatPotrfTile(const UpperLower &aUpperLower, void *apA, int aBand, void *apCD,
+                                          void *apCrk, const int &aMaxRank, const int &aAcc) {
 
     CHAM_context_t *chameleon_context;
     RUNTIME_sequence_t *sequence = nullptr;
@@ -39,8 +39,8 @@ void ChameleonImplementationDST<T>::ExaGeoStatPotrfTile(const UpperLower &aUpper
 }
 
 template<typename T>
-int ChameleonImplementationDST<T>::ExaGeoStatPotrfDiagonalTileAsync(const common::UpperLower &aUpperLower, void *apA,
-                                                                    int aBand, void *apSequence, void *apRequest) {
+int ChameleonDST<T>::ExaGeoStatPotrfDiagonalTileAsync(const common::UpperLower &aUpperLower, void *apA,
+                                                      int aBand, void *apSequence, void *apRequest) {
 
     CHAM_context_t *chameleon_context;
     chameleon_context = chameleon_context_self();
@@ -87,8 +87,8 @@ int ChameleonImplementationDST<T>::ExaGeoStatPotrfDiagonalTileAsync(const common
 
 
 template<typename T>
-void ChameleonImplementationDST<T>::ExaGeoStatParallelPotrfDiagonal(const common::UpperLower &aUpperLower, void *apA,
-                                                                    int aBand, void *apSequence, void *apRequest) {
+void ChameleonDST<T>::ExaGeoStatParallelPotrfDiagonal(const common::UpperLower &aUpperLower, void *apA,
+                                                      int aBand, void *apSequence, void *apRequest) {
     CHAM_context_t *chameleon_context;
     RUNTIME_option_t options;
 

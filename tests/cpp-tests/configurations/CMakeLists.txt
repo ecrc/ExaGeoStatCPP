@@ -4,13 +4,13 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @date 2023-01-31
 
 set(EXAGEOSTAT_TESTFILES
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestSyntheticDataConfigurations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestConfigurations.cpp
 
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE

@@ -12,7 +12,7 @@
  * @date 2023-03-26
 **/
 
-#include <linear-algebra-solvers/concrete/hicma/tile-low-rank/HicmaImplementation.hpp>
+#include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
 
 using namespace std;
 

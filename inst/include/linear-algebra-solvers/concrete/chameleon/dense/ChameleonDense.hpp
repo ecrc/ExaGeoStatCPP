@@ -7,14 +7,14 @@
  * @file ChameleonImplementationDense.hpp
  * @brief This file contains the declaration of ChameleonImplementationDense class.
  * @details ChameleonImplementationDense is a concrete implementation of ChameleonImplementation class for dense matrices.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
 **/
 
-#ifndef EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDENSE_HPP
-#define EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDENSE_HPP
+#ifndef EXAGEOSTATCPP_CHAMELEONDENSE_HPP
+#define EXAGEOSTATCPP_CHAMELEONDENSE_HPP
 
 #include <linear-algebra-solvers/concrete/chameleon/ChameleonImplementation.hpp>
 
@@ -26,18 +26,18 @@ namespace exageostat::linearAlgebra::dense {
      *
      */
     template<typename T>
-    class ChameleonImplementationDense : public ChameleonImplementation<T> {
+    class ChameleonDense : public ChameleonImplementation<T> {
     public:
 
         /**
          * @brief Default constructor.
          */
-        explicit ChameleonImplementationDense() = default;
+        explicit ChameleonDense() = default;
 
         /**
          * @brief Virtual destructor to allow calls to the correct concrete destructor.
          */
-        ~ChameleonImplementationDense() override = default;
+        ~ChameleonDense() override = default;
 
         /**
          * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
@@ -54,8 +54,8 @@ namespace exageostat::linearAlgebra::dense {
     * @tparam T Data Type: float or double
     *
     */
-    EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementationDense)
+    EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonDense)
 
 }//namespace exageostat
 
-#endif //EXAGEOSTATCPP_CHAMELEONIMPLEMENTATIONDENSE_HPP
+#endif //EXAGEOSTATCPP_CHAMELEONDENSE_HPP

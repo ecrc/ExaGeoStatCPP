@@ -12,24 +12,13 @@ include(ImportBLAS)
 
 #Configurations
 set(name blaspp)
-string(TOUPPER ${name} capital_name)
 set(tag "v2023.01.00")
-# Set installation flags
-if (USE_CUDA)
-    set(flag "-Dgpu_backend=cuda")
-else ()
-    set(flag "-Dgpu_backend=")
-endif ()
-
-set(version "2023.01.00")
-set(is_cmake ON)
-set(is_git ON)
-set(auto_gen OFF)
 set(url "https://github.com/icl-utk-edu/blaspp")
-
 set(${name}_DIR "${CMAKE_INSTALL_PREFIX}/${capital_name}/lib/cmake/${name}")
-include(macros/ImportDependency)
-ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
-set(LIBS blaspp ${LIBS})
+include(FetchContent)
+FetchContent_Declare(${name} GIT_REPOSITORY "${url}" GIT_TAG "${tag}")
+FetchContent_MakeAvailable(${name})
+
+set(LIBS ${name} ${LIBS})
 message(STATUS "${name} done")

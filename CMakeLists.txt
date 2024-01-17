@@ -31,6 +31,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
+    message("")
+    message("---------------------------------------- CUDA")
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
     enable_language(CUDA)
@@ -59,6 +61,8 @@ add_definitions(
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
 )
 
+
+
 # ExaGeoStatCPP depends on a CUDA
 # -------------------------------
 if (USE_CUDA)
@@ -72,6 +76,8 @@ endif ()
 # ExaGeoStatCPP depends on a MPI
 # -------------------------------
 if (USE_MPI)
+    message("")
+    message("---------------------------------------- MPI")
     # Enable MPI and include MPI
     add_definitions(-DUSE_MPI=TRUE)
     message(STATUS "Trying to find MPI")
@@ -83,6 +89,8 @@ endif ()
 
 # ExaGeoStatCPP depends on LAPACKE
 #-----------------------------
+message("")
+message("---------------------------------------- LAPACKE")
 find_package(LAPACKE)
 list(APPEND LIBS ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
