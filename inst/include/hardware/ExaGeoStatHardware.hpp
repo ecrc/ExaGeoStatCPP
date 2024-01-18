@@ -33,6 +33,7 @@ namespace exageostat::hardware {
          *
          */
         ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+        ExaGeoStatHardware(const int &aCoreNumber, const int &aGpuNumber);
 
         /**
          * @brief Destructor for ExaGeoStatHardware.

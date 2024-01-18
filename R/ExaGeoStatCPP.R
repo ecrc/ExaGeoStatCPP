@@ -1,0 +1,2 @@
+
+  loadModule("ExaGeoStatCPP", TRUE)

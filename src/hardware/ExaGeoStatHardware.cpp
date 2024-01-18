@@ -104,3 +104,7 @@ void *ExaGeoStatHardware::GetContext(common::Computation aComputation) const {
     }
     return nullptr;
 }
+
+ExaGeoStatHardware::ExaGeoStatHardware(const int &aCoreNumber, const int &aGpuNumber) {
+
+}

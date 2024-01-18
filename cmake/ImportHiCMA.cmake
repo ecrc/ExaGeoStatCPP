@@ -14,7 +14,7 @@
 set(name "HICMA")
 set(tag "v1.0.0")
 set(version "1.0.0")
-set(flag -DHICMA_USE_MPI=${USE_MPI} \-DCMAKE_C_FLAGS=-fPIC)
+set(flag -DHICMA_USE_MPI=${USE_MPI})
 set(is_cmake ON)
 set(is_git ON)
 set(auto_gen OFF)

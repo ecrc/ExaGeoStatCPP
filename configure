@@ -27,7 +27,7 @@ USE_CUDA="OFF"
 USE_MPI="OFF"
 BLAS_VENDOR=""
 PACKAGE="OFF"
-COMPILE_FLAGS="-Wl,--no-as-needed -w"
+COMPILE_FLAGS="-Wl,--no-as-needed -w -fpic"
 DEVELOPER_WARNINGS="-Wno-dev"
 
 rm -rf bin/
@@ -43,8 +43,10 @@ cmake $DEVELOPER_WARNINGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
   -DUSE_CUDA="${USE_CUDA}" \
   -DUSE_MPI="${USE_MPI}" \
+  -DUSE_R=ON \
   -DBLA_VENDOR="${BLAS_VENDOR}" \
   -DCREATE_PACKAGE="${PACKAGE}" \
+  -DBUILD_SHARED_LIBS=OFF \
   -H"${ABSOLUTE_PATH}" \
   -B"${ABSOLUTE_PATH}/bin" \
   -G "Unix Makefiles" \
@@ -63,9 +65,7 @@ cmake --build . -j $(nproc)
 if [[ "$OSTYPE" == "darwin"* ]]; then
   cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.dylib" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.dylib -> src"
 else
-  echo "f eh??"
   cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.so" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.so -> src"
-  ls ${ABSOLUTE_PATH}/src/
 fi
 
 rm -rf "${ABSOLUTE_PATH}/bin/"

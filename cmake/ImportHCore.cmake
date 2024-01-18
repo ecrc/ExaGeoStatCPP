@@ -14,7 +14,7 @@
 set(name "HCORE")
 set(tag "v0.1.3")
 set(version "0.1.3")
-set(flag -DCMAKE_C_FLAGS=-fPIC)
+set(flag "")
 set(is_cmake ON)
 set(is_git ON)
 set(auto_gen OFF)

@@ -62,17 +62,7 @@ add_definitions(
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
 )
 
-if (USE_R)
-    message("")
-    message("---------------------------------------- Rcpp")
-    # Find R and Rcpp using FindR Module
-    find_package(R REQUIRED)
-    if (${R_FOUND})
-        message(STATUS "Using R technology")
-        list(APPEND LIBS "R")
-        add_definitions(-DUSING_R)
-    endif ()
-endif ()
+
 
 # ExaGeoStatCPP depends on a CUDA
 # -------------------------------
@@ -164,6 +154,25 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
 set(MY_LOGGER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DMY_LOGGER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+
+if (${BUILD_SHARED_LIBS})
+    set(BLA_STATIC OFF)
+else ()
+    set(BLA_STATIC ON)
+endif ()
+
+if (USE_R)
+    message("")
+    message("---------------------------------------- Rcpp")
+    # Find R and Rcpp using FindR Module
+    find_package(R REQUIRED)
+    if (${R_FOUND})
+        message(STATUS "Using R technology")
+        list(APPEND LIBS R)
+        add_definitions(-DUSING_R)
+    endif ()
+endif ()
+
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)

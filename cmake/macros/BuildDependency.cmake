@@ -59,7 +59,7 @@ macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_ge
 
     # Configure subproject.
     if (${is_using_cmake})
-        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
+        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} -DCMAKE_C_FLAGS=-fPIC ${flags}
                 ${${name}_srcpath}
                 WORKING_DIRECTORY ${${name}_binpath})
     else ()
