@@ -134,7 +134,7 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
     arguments_vector.push_back("--cores=" + to_string(cpu_size_distribution(gen)));
     // TODO: Till fixing cuda error with multiple devices.
 #ifdef USE_CUDA
-    arguments_vector.push_back("--gpus=1");
+    arguments_vector.push_back("--gpus=2");
 #endif
 
     arguments_vector.push_back("--kernel=" + aKernelName);
