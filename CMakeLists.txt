@@ -28,7 +28,6 @@ option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
     message("")
@@ -48,7 +47,6 @@ endif ()
 
 # Project Name and Version
 project(ExaGeoStatCPP VERSION 1.0.0 DESCRIPTION "ExaGeoStatCPP is a parallel high performance unified framework for geostatistics on manycore systems.")
-
 # Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
@@ -60,8 +58,6 @@ add_definitions(
         -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
         -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
 )
-
-
 
 # ExaGeoStatCPP depends on a CUDA
 # -------------------------------
@@ -86,6 +82,14 @@ if (USE_MPI)
     list(APPEND LIBS ${MPI_LIBRARIES})
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif ()
+
+# Since doxygen is needed by many dependence in ExaGeoStatCPP, So it's required to be found.
+include(ImportDoxygen)
+
+# ExaGeoStatCPP depends on a LAPACK/BLASPP
+# -------------------------------
+include(ImportBLASPP)
+include(ImportLapack)
 
 # ExaGeoStatCPP depends on LAPACKE
 #-----------------------------
@@ -132,11 +136,6 @@ endif ()
 # ExaGeoStatCPP depends on Chameleon
 # -------------------------------
 include(ImportChameleon)
-
-# ExaGeoStatCPP depends on a LAPACK/BLASPP
-# -------------------------------
-include(ImportBLASPP)
-include(ImportLapack)
 
 # ExaGeoStatCPP Documentation
 if (BUILD_DOCS)
