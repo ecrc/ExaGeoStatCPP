@@ -53,9 +53,6 @@ macro(ImportDependency name tag version url flag components is_cmake is_git auto
             # If the package is not found, install it using BuildDependency
             message("   Can't find ${capital_name}, Installing it instead ..")
             BuildDependency(${name} ${url} ${tag} "${flag}" ${is_cmake} ${is_git} ${auto_gen})
-            if(${name} STREQUAL "Doxygen")
-                set(DOXYGEN_EXECUTABLE "${CMAKE_INSTALL_PREFIX}/DOXYGEN/bin/doxygen")
-            endif()
             find_package(${name} ${version} REQUIRED COMPONENTS ${components})
         endif ()
     else ()
