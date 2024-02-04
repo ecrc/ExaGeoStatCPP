@@ -48,9 +48,8 @@ void TEST_KERNEL_GENERATION_BivariateMaternParsimonious() {
 
         int seed = 0;
         srand(seed);
-        std::unique_ptr<ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
+        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;

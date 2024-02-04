@@ -77,7 +77,7 @@ public:
      * @brief Virtual destructor to allow calls to the correct concrete destructor.
      *
      */
-    ~Configurations();
+    ~Configurations() = default;
 
     /**
      * @brief Initialize the module arguments.

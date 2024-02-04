@@ -66,14 +66,6 @@ Configurations::Configurations() {
     SetIsNonGaussian(false);
 }
 
-Configurations::~Configurations() {
-
-    for (int i = 0; i < this->mArgC; ++i) {
-        delete[] this->mpArgV[i];
-    }
-    delete[] this->mpArgV;
-}
-
 void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
 
     this->mArgC = aArgC;

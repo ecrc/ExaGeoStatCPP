@@ -18,6 +18,7 @@
 using namespace std;
 
 using namespace exageostat::common;
+using namespace exageostat::dataunits;
 
 void TEST_GENERATE_DATA() {
     SECTION("Data generation - Observations")
