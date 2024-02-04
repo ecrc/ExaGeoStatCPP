@@ -5,7 +5,7 @@
 
 /**
  * @file Definitions.hpp
- * @version 1.0.1
+ * @version 1.1.0
  * @brief This file contains common definitions used in ExaGeoStat software package.
  * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
  * A macro for instantiating template classes with supported types; and a set of available kernels.

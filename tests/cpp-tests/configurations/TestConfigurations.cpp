@@ -18,12 +18,11 @@
 #include <iostream>
 
 #include <catch2/catch_all.hpp>
-#include "configurations/Configurations.hpp"
+#include <configurations/Configurations.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 

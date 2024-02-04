@@ -6,7 +6,7 @@
 /**
  * @file SyntheticGenerator.hpp
  * @brief A class for generating synthetic data.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -57,8 +57,8 @@ namespace exageostat::generators::synthetic {
          *
          */
         std::unique_ptr<dataunits::ExaGeoStatData<T>>
-        CreateData(exageostat::configurations::Configurations &aConfigurations,
-                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
+        CreateData(Configurations &aConfigurations,
+                   const ExaGeoStatHardware &aHardware,
                    exageostat::kernels::Kernel<T> &aKernel) override;
 
         /**

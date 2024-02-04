@@ -7,10 +7,10 @@
  * @file ChameleonImplementation.cpp
  * @brief This file contains the declaration of ChameleonImplementation class.
  * @details ChameleonImplementation is a concrete implementation of LinearAlgebraMethods class for dense or diagonal-super tile matrices..
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-03-20
+ * @date 2024-02-04
 **/
 
 #ifdef USE_MPI
@@ -25,7 +25,6 @@ using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
-using namespace exageostat::configurations;
 using namespace exageostat::linearAlgebra;
 
 template<typename T>
@@ -144,7 +143,7 @@ ChameleonImplementation<T>::ExaGeoStatNonGaussianTransformTileAsync(void *apDesc
 }
 
 template<typename T>
-T ChameleonImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware, std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                 Configurations &aConfigurations, const double *theta,
                                                 T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) {
 

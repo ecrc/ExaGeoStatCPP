@@ -6,7 +6,7 @@
 /**
  * @file UnivariateExpNonGaussian.cpp
  * @brief Implementation of the UnivariateExpNonGaussian kernel.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14

@@ -6,9 +6,9 @@
 /**
  * @file ExaGeoStat.cpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-05-30
+ * @date 2024-02-04
 **/
 
 #include <api/ExaGeoStat.hpp>
@@ -20,15 +20,13 @@ using namespace std;
 using namespace nlopt;
 
 using namespace exageostat::api;
-using namespace exageostat::configurations;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
 using namespace exageostat::prediction;
 
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
-                                       configurations::Configurations &aConfigurations,
+                                       Configurations &aConfigurations,
                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData) {
 
     LOGGER("** ExaGeoStat data generation **")
@@ -95,7 +93,7 @@ ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vect
 
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
-                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                         std::unique_ptr<ExaGeoStatData<T>> &aData,
                                          T *apMeasurementsMatrix) {
 
     LOGGER("** ExaGeoStat data Prediction **")

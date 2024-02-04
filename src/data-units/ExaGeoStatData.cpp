@@ -6,13 +6,14 @@
 /**
  * @file ExaGeoStatData.cpp
  * @brief Contains the implementation of the ExaGeoStatData class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-07-21
+ * @date 2024-02-04
 **/
 
 #include <data-units/ExaGeoStatData.hpp>
+#include <utilities/EnumStringParser.hpp>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
@@ -20,6 +21,13 @@ using namespace exageostat::common;
 template<typename T>
 ExaGeoStatData<T>::ExaGeoStatData(const int &aSize, const Dimension &aDimension) {
     this->mpLocations = new Locations<T>(aSize, aDimension);
+    this->mpDescriptorData = new DescriptorData<T>();
+}
+
+template<typename T>
+ExaGeoStatData<T>::ExaGeoStatData(const int &aSize, const std::string &aDimension) {
+
+    this->mpLocations = new Locations<T>(aSize, GetInputDimension(aDimension));
     this->mpDescriptorData = new DescriptorData<T>();
 }
 
@@ -70,7 +78,7 @@ void ExaGeoStatData<T>::CalculateMedianLocations(const std::string &aKernelName,
 
         T x_min = this->mpLocations->GetLocationX()[0], x_max = this->mpLocations->GetLocationX()[0], y_min = this->mpLocations->GetLocationY()[0], y_max = this->mpLocations->GetLocationY()[0], z_min, z_max;
 
-        if (this->mpLocations->GetDimension() != common::Dimension2D) {
+        if (this->mpLocations->GetDimension() != Dimension2D) {
             z_min = this->mpLocations->GetLocationZ()[0];
             z_max = this->mpLocations->GetLocationZ()[0];
         }
@@ -84,7 +92,7 @@ void ExaGeoStatData<T>::CalculateMedianLocations(const std::string &aKernelName,
             y_min = (y < y_min) ? y : y_min;
             y_max = (y > y_max) ? y : y_max;
 
-            if (this->mpLocations->GetDimension() != common::Dimension2D) {
+            if (this->mpLocations->GetDimension() != Dimension2D) {
                 T z = this->mpLocations->GetLocationX()[i];
                 z_min = (z < z_min) ? z : z_min;
                 z_max = (z > z_max) ? z : z_max;
@@ -93,13 +101,13 @@ void ExaGeoStatData<T>::CalculateMedianLocations(const std::string &aKernelName,
 
         aLocations.GetLocationX()[0] = x_min + (x_max - x_min) / 2;
         aLocations.GetLocationY()[0] = y_min + (y_max - y_min) / 2;
-        if (this->mpLocations->GetDimension() != common::Dimension2D) {
+        if (this->mpLocations->GetDimension() != Dimension2D) {
             aLocations.GetLocationZ()[0] = z_min + (z_max - z_min) / 2;
         }
     } else {
         aLocations.GetLocationX()[0] = 0.5;
         aLocations.GetLocationY()[0] = 0.5;
-        if (this->mpLocations->GetDimension() != common::Dimension2D) {
+        if (this->mpLocations->GetDimension() != Dimension2D) {
             aLocations.GetLocationY()[0] = 0.5;
         }
     }

@@ -6,10 +6,10 @@
 /**
  * @file CSVDataGenerator.cpp
  * @brief Implementation of the CSVDataGenerator class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-02-14
+ * @date 2024-02-04
 **/
 
 #include <fstream>
@@ -19,8 +19,6 @@
 using namespace std;
 
 using namespace exageostat::generators::csv;
-using namespace exageostat::configurations;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 using namespace exageostat::common;
@@ -37,8 +35,8 @@ CSVDataGenerator<T> *CSVDataGenerator<T>::GetInstance() {
 
 template<typename T>
 unique_ptr<ExaGeoStatData<T>>
-CSVDataGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                const exageostat::hardware::ExaGeoStatHardware &aHardware,
+CSVDataGenerator<T>::CreateData(Configurations &aConfigurations,
+                                const ExaGeoStatHardware &aHardware,
                                 exageostat::kernels::Kernel<T> &aKernel) {
 
     // create vectors that will be populated with read data.

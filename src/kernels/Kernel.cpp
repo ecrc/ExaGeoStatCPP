@@ -6,7 +6,7 @@
 /**
  * @file Kernel.cpp
  * @brief implementation file for the Kernels class, which contains the main kernel functions.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-12

@@ -7,7 +7,7 @@
  * @file ChameleonImplementation.hpp
  * @brief This file contains the declaration of ChameleonImplementation class.
  * @details ChameleonImplementation is a concrete implementation of the LinearAlgebraMethods class for the common functionality implementation shared between dense and diagonal-super tile matrices.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
@@ -33,8 +33,8 @@ namespace exageostat::linearAlgebra {
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
          */
-        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                            configurations::Configurations &aConfigurations, const double *theta,
+        T ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware, std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                            Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 
         /**

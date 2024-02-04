@@ -5,13 +5,13 @@
 
 # @file CMakeLists.txt
 # @version 1.1.0
-# @brief CMake build script for the adapters library.
 # @author Mahmoud ElKarargy
-# @date 2023-01-16
+# @date 2024-01-29
 
-# Define the sources for the library
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/HardwareAdapter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/FunctionsAdapter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RcppExports.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/RcppModules.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

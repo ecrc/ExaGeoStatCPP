@@ -6,13 +6,13 @@
 /**
  * @file Results.cpp
  * @brief Defines the Results class for storing and accessing result data.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-09-14
+ * @date 2024-02-04
 **/
 
 #include <results/Results.hpp>
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace exageostat::results;
 using namespace exageostat::common;
@@ -43,8 +43,8 @@ void Results::SetLoggerPath(const std::string &aLoggerPath) {
 
 void Results::PrintEndSummary() {
 
-    Verbose temp = exageostat::configurations::Configurations::GetVerbosity();
-    exageostat::configurations::Configurations::SetVerbosity(STANDARD_MODE);
+    Verbose temp = Configurations::GetVerbosity();
+    Configurations::SetVerbosity(STANDARD_MODE);
     LOGGER("")
     LOGGER("********************SUMMARY**********************")
 
@@ -125,7 +125,7 @@ void Results::PrintEndSummary() {
         LOGGER("")
     }
     LOGGER("*************************************************")
-    exageostat::configurations::Configurations::SetVerbosity(temp);
+    Configurations::SetVerbosity(temp);
 }
 
 void Results::SetMLEIterations(int aIterationsNumber) {

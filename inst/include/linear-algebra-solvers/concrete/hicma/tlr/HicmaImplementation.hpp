@@ -46,15 +46,15 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @param[in] aP the P value of the kernel multiplied by time slot.
          */
         void SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                                    configurations::Configurations &aConfigurations, const int &aP);
+                                    Configurations &aConfigurations, const int &aP);
 
         /**
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
         */
-        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &apHardware,
+        T ExaGeoStatMLETile(const ExaGeoStatHardware &apHardware,
                             std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                            configurations::Configurations &aConfigurations, const double *theta,
+                            Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 
         /**

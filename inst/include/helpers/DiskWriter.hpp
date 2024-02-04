@@ -6,7 +6,7 @@
 /**
  * @file DiskWriter.hpp
  * @brief Contains the definition of the DiskWriter class for writing data to disk.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08

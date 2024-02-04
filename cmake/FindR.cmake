@@ -167,7 +167,6 @@ set_target_properties(R
         IMPORTED_LOCATION ${RCPP_LIB}
         )
 
-message("${RCPP_INCLUDE_DIRS}")
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(R DEFAULT_MSG
         R_INCLUDE R_LIBRARIES)

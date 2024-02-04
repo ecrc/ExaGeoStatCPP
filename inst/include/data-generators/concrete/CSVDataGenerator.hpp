@@ -6,7 +6,7 @@
 /**
  * @file CSVDataGenerator.hpp
  * @brief A class for generating synthetic data.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -40,8 +40,8 @@ namespace exageostat::generators::csv {
          * @copydoc DataGenerator::CreateData()
          *
          */
-        std::unique_ptr<dataunits::ExaGeoStatData<T>> CreateData(exageostat::configurations::Configurations &,
-                                                                 const exageostat::hardware::ExaGeoStatHardware &aHardware,
+        std::unique_ptr<dataunits::ExaGeoStatData<T>> CreateData(Configurations &,
+                                                                 const ExaGeoStatHardware &aHardware,
                                                                  exageostat::kernels::Kernel<T> &aKernel) override;
 
         /**
@@ -54,7 +54,7 @@ namespace exageostat::generators::csv {
          * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          */
-        void ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+        void ReadData(Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
                       std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
                       const int &aP);
 

@@ -9,7 +9,7 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the SyntheticGenerator class
  * in the ExaGeoStat software package. The tests cover various aspects of data generation, including spreading
  * and reversing bits, generating locations for different dimensions, and testing helper functions.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-03-08
 **/
@@ -27,7 +27,6 @@ using namespace exageostat::generators::synthetic;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::kernels;
 
 void TEST_SPREAD_REVERSED_BITS() {
@@ -194,7 +193,7 @@ void TEST_GENERATE_LOCATIONS() {
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
 
 
-    auto hardware = exageostat::hardware::ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
+    auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
                                                              synthetic_data_configurations.GetCoresNumber(),
                                                              synthetic_data_configurations.GetGPUsNumbers());
     SECTION("2D Generation")
@@ -297,7 +296,7 @@ void TEST_GENERATION() {
         synthetic_data_configurations.SetDenseTileSize(1);
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
-        auto hardware = exageostat::hardware::ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
+        auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
                                                                  synthetic_data_configurations.GetCoresNumber(),
                                                                  synthetic_data_configurations.GetGPUsNumbers());
 

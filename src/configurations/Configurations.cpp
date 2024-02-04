@@ -6,19 +6,18 @@
 /**
  * @file Configurations.cpp
  * @brief This file defines the Configurations class which stores the configuration parameters for ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-01-31
+ * @date 2024-02-04
 **/
 
 #include <configurations/Configurations.hpp>
 #include <kernels/Kernel.hpp>
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::common;
 
 Verbose Configurations::mVerbosity = Verbose::STANDARD_MODE;
@@ -27,7 +26,7 @@ bool Configurations::mIsThetaInit = false;
 Configurations::Configurations() {
 
     // Set default values for arguments!
-    SetComputation(common::EXACT_DENSE);
+    SetComputation(EXACT_DENSE);
     SetCoresNumber(1);
     SetGPUsNumbers(0);
     SetPGrid(1);
@@ -35,7 +34,7 @@ Configurations::Configurations() {
     SetMaxRank(1);
     SetIsOOC(false);
     SetKernelName("");
-    SetDimension(common::Dimension2D);
+    SetDimension(Dimension2D);
     SetTimeSlot(1);
     SetProblemSize(0);
     SetDenseTileSize(0);
@@ -45,7 +44,6 @@ Configurations::Configurations() {
     SetBand(0);
     SetLoggerPath("");
     SetIsSynthetic(true);
-    SetIsCSV(false);
     vector<double> theta;
     SetInitialTheta(theta);
     SetLowerBounds(theta);
@@ -54,21 +52,27 @@ Configurations::Configurations() {
     SetSeed(0);
     SetLogger(false);
     SetUnknownObservationsNb(0);
-    SetMeanSquareError(0.0);
     SetApproximationMode(1);
     SetActualObservationsFilePath("");
     SetRecoveryFile("");
-    SetPrecision(common::DOUBLE);
+    SetPrecision(DOUBLE);
     SetIsMSPE(false);
     SetIsFisher(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);
     SetDataPath("");
-    SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
+    SetDistanceMetric(EUCLIDEAN_DISTANCE);
     SetAccuracy(0);
     SetIsNonGaussian(false);
 }
 
+Configurations::~Configurations() {
+
+    for (int i = 0; i < this->mArgC; ++i) {
+        delete[] this->mpArgV[i];
+    }
+    delete[] this->mpArgV;
+}
 
 void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
 
@@ -223,7 +227,7 @@ void Configurations::InitializeAllTheta() {
 
     if (!mIsThetaInit) {
 
-        int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[this->GetKernelName()];
+        int parameters_number = exageostat::kernels::KernelsConfigurations::GetParametersNumberKernelMap()[this->GetKernelName()];
         InitTheta(GetInitialTheta(), parameters_number);
         SetInitialTheta(GetInitialTheta());
 
@@ -275,7 +279,6 @@ void Configurations::InitializeDataGenerationArguments() {
                 argument_name == "--data_path") {
                 SetDataPath(argument_value);
                 SetIsSynthetic(false);
-                SetIsCSV(true);
             }
         }
     }
@@ -695,3 +698,4 @@ void Configurations::PrintSummary() {
 int Configurations::CalculateZObsNumber() {
     return (this->GetProblemSize()) - this->GetUnknownObservationsNb();
 }
+

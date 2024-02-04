@@ -1,2 +1,1 @@
-
-  loadModule("ExaGeoStatCPP", TRUE)
+loadModule("ExaGeoStatCPP", TRUE)

@@ -11,7 +11,7 @@
 # @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
-# @date 2023-01-30
+# @date 2024-02-04
 
 # Set the minimum CMake version required to 3.20
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
@@ -29,6 +29,12 @@ option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+if (${BUILD_SHARED_LIBS})
+    set(BLA_STATIC OFF)
+else ()
+    set(BLA_STATIC ON)
+endif ()
 
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
@@ -154,12 +160,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
 set(MY_LOGGER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DMY_LOGGER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
-
-if (${BUILD_SHARED_LIBS})
-    set(BLA_STATIC OFF)
-else ()
-    set(BLA_STATIC ON)
-endif ()
 
 if (USE_R)
     message("")

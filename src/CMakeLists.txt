@@ -5,10 +5,10 @@
 
 # @file CMakeLists.txt
 # @brief This file contains the CMake configuration for the ExaGeoStat library.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
-# @date 2023-01-30
+# @date 2024-02-04
 
 # Add subdirectories for configurations, data-generators, data-units, and linear-algebra-solvers.
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
@@ -21,15 +21,9 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/helpers)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/hardware)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/prediction)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/results)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/adapters)
 
 if (USE_R)
-    set(
-        SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/DataTypeModule.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/RcppExports.cpp
-        ${SOURCES}
-    )
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Rcpp-adapters)
 endif ()
 
 # Set the name of the library to be created.

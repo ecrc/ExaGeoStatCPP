@@ -6,7 +6,7 @@
 /**
  * @file DataGenerator.hpp
  * @brief Contains definition for abstract Data Generator Class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-02-14
 **/
@@ -42,8 +42,8 @@ namespace exageostat::generators {
          *
          */
         virtual std::unique_ptr<dataunits::ExaGeoStatData<T>>
-        CreateData(exageostat::configurations::Configurations &aConfigurations,
-                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
+        CreateData(Configurations &aConfigurations,
+                   const ExaGeoStatHardware &aHardware,
                    exageostat::kernels::Kernel<T> &aKernel) = 0;
 
         /**
@@ -54,7 +54,7 @@ namespace exageostat::generators {
          *
          */
         static std::unique_ptr<DataGenerator>
-        CreateGenerator(exageostat::configurations::Configurations &aConfigurations);
+        CreateGenerator(Configurations &aConfigurations);
 
         /**
          * @brief Destructor for the data generator object.
@@ -66,8 +66,6 @@ namespace exageostat::generators {
     protected:
         /// Used bool identifying type of generation.
         static bool mIsSynthetic;
-        /// Used bool identifying type of generation.
-        static bool mIsCSV;
     };
 
     /**

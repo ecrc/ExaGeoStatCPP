@@ -6,10 +6,10 @@
 /**
  * @file ExaGeoStatData.hpp
  * @brief Contains the definition of the ExaGeoStatData class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-07-19
+ * @date 2024-02-04
 **/
 
 #ifndef EXAGEOSTATCPP_EXAGEOSTATDATA_HPP
@@ -37,6 +37,13 @@ namespace exageostat::dataunits {
          * @param[in] aDimension The dimension of the data.
          */
         ExaGeoStatData(const int &aSize, const exageostat::common::Dimension &aDimension);
+
+        /**
+         * @brief Constructor for ExaGeoStatData.
+         * @param[in] aSize The size of the data.
+         * @param[in] aDimension The dimension of the data.
+         */
+        ExaGeoStatData(const int &aSize, const std::string &aDimension);
 
         /**
          * @brief Default constructor for ExaGeoStatData.

@@ -9,7 +9,7 @@
  * @details This file contains Catch2 unit tests that validate the functionality of the CSVDataGenerator class
  * in the ExaGeoStat software package. The tests cover various aspects of data generation, including spreading
  * and reversing bits, generating locations for different dimensions, and testing helper functions.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-03-08
 **/
@@ -25,7 +25,6 @@ using namespace std;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::kernels;
 
 void TEST_CSV_P_1() {
@@ -36,7 +35,6 @@ void TEST_CSV_P_1() {
     read_path = read_path + +"tests/cpp-tests/data-generators/concrete/synthetic_ds/SYN_16_1";
 
     Configurations configurations;
-    configurations.SetIsCSV(true);
     configurations.SetIsSynthetic(false);
     configurations.SetProblemSize(16);
     configurations.SetDenseTileSize(8);
@@ -49,7 +47,7 @@ void TEST_CSV_P_1() {
 
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
 
-    auto hardware = exageostat::hardware::ExaGeoStatHardware(configurations.GetComputation(),
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(),
                                                              configurations.GetCoresNumber(),
                                                              configurations.GetGPUsNumbers());
 
@@ -190,7 +188,6 @@ void TEST_CSV_P_2() {
     read_path = read_path + +"tests/cpp-tests/data-generators/concrete/synthetic_ds/SYN_16_1";
 
     Configurations configurations;
-    configurations.SetIsCSV(true);
     configurations.SetIsSynthetic(false);
     configurations.SetProblemSize(16);
     configurations.SetDenseTileSize(8);
@@ -201,7 +198,7 @@ void TEST_CSV_P_2() {
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
     int p = pKernel->GetVariablesNumber();
 
-    auto hardware = exageostat::hardware::ExaGeoStatHardware(configurations.GetComputation(),
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(),
                                                              configurations.GetCoresNumber(),
                                                              configurations.GetGPUsNumbers());
 
@@ -362,7 +359,6 @@ void TEST_CSV_P_3() {
     read_path = read_path + +"tests/cpp-tests/data-generators/concrete/synthetic_ds/SYN_16_1";
 
     Configurations configurations;
-    configurations.SetIsCSV(true);
     configurations.SetIsSynthetic(false);
     configurations.SetProblemSize(16);
     configurations.SetDenseTileSize(3);
@@ -375,7 +371,7 @@ void TEST_CSV_P_3() {
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
     int p = pKernel->GetVariablesNumber();
 
-    auto hardware = exageostat::hardware::ExaGeoStatHardware(configurations.GetComputation(),
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(),
                                                              configurations.GetCoresNumber(),
                                                              configurations.GetGPUsNumbers());
 

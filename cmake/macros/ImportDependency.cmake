@@ -4,8 +4,9 @@
 
 # @file ImportDependency.cmake
 # @brief CMake script for importing and building external dependencies.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
+# @author Amr Nasr
 # @date 2023-12-28
 
 # ImportDependency Macro:

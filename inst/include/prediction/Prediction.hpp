@@ -6,7 +6,7 @@
 /**
  * @file Prediction.hpp
  * @brief Contains the definition of the Prediction class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -48,9 +48,9 @@ namespace exageostat::prediction {
         * @param[in] aKernel Reference to the kernel object to use.
         * @return
         */
-        void PredictMissingData(const exageostat::hardware::ExaGeoStatHardware &aHardware,
+        void PredictMissingData(const ExaGeoStatHardware &aHardware,
                                 std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                                exageostat::configurations::Configurations &aConfigurations, T *apMeasurementsMatrix,
+                                Configurations &aConfigurations, T *apMeasurementsMatrix,
                                 const kernels::Kernel<T> &aKernel);
 
         /**
@@ -66,7 +66,7 @@ namespace exageostat::prediction {
          * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          */
-        void InitializePredictionArguments(exageostat::configurations::Configurations &aConfigurations,
+        void InitializePredictionArguments(Configurations &aConfigurations,
                                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                            std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                            T *apZObs, T *apZActual, exageostat::dataunits::Locations<T> &aMissLocation,

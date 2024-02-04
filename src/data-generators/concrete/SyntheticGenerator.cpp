@@ -6,19 +6,17 @@
 /**
  * @file SyntheticGenerator.cpp
  * @brief Implementation of the SyntheticGenerator class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-02-14
+ * @date 2024-02-04
 **/
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::kernels;
 using namespace exageostat::helpers;
 using namespace exageostat::linearAlgebra;
@@ -34,15 +32,15 @@ SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
 
 template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
-SyntheticGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                  const exageostat::hardware::ExaGeoStatHardware &aHardware,
+SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
+                                  const ExaGeoStatHardware &aHardware,
                                   exageostat::kernels::Kernel<T> &aKernel) {
 
     int n = aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot();
     auto data = std::make_unique<ExaGeoStatData<T>>(n, aConfigurations.GetDimension());
+
     // Allocated new Locations object.
     auto *locations = new Locations<T>(n, aConfigurations.GetDimension());
-
     int parameters_number = aKernel.GetParametersNumbers();
 
     // Set initial theta values.

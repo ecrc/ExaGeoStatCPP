@@ -27,7 +27,6 @@
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 
 template<typename T>
 std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {

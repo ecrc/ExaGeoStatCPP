@@ -6,9 +6,9 @@
 /**
  * @file ExaGeoStat.hpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-05-30
+ * @date 2024-02-04
 **/
 
 #ifndef EXAGEOSTATCPP_EXAGEOSTAT_HPP
@@ -39,8 +39,8 @@ namespace exageostat::api {
          * @return void
          *
          */
-        static void ExaGeoStatLoadData(const hardware::ExaGeoStatHardware &aHardware,
-                                       configurations::Configurations &aConfigurations,
+        static void ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
+                                       Configurations &aConfigurations,
                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData);
 
         /**
@@ -52,8 +52,8 @@ namespace exageostat::api {
          * @return void
          *
          */
-        static T ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,
-                                        configurations::Configurations &aConfigurations,
+        static T ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware,
+                                        Configurations &aConfigurations,
                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix = nullptr);
 
@@ -75,8 +75,8 @@ namespace exageostat::api {
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
          * @return void
          */
-        static void ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
-                                         configurations::Configurations &aConfigurations,
+        static void ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware,
+                                         Configurations &aConfigurations,
                                          std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                          T *apMeasurementsMatrix = nullptr);
 

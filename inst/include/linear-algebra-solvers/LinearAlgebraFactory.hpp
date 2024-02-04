@@ -6,7 +6,7 @@
 /**
  * @file LinearAlgebraFactory.hpp
  * @brief Header file for the LinearAlgebraFactory class, which creates linear algebra solvers based on the input computation type.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-03-20
 **/

@@ -6,7 +6,7 @@
 /**
  * @file Results.hpp
  * @brief Defines the Results class for storing and accessing result data.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-09-14
 **/

@@ -6,7 +6,7 @@
 /**
  * @file PluginRegistry.hpp
  * @brief Defines a template class for registering and creating plugins.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-30
 **/

@@ -4,9 +4,10 @@
 
 # @file BuildDependency.cmake
 # @brief Fetches, builds, and installs a dependency.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
-# @date 2023-03-12
+# @author Amr Nasr
+# @date 2024-02-04
 
 # After building and installing the dependency, the macro installs the lib, include, and share directories
 # in the current directory.
