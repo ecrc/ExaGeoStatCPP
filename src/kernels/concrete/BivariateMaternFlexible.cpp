@@ -13,7 +13,7 @@
 **/
 
 #include <kernels/concrete/BivariateMaternFlexible.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;

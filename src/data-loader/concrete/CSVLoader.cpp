@@ -14,80 +14,30 @@
 
 #include <fstream>
 
-#include <data-generators/concrete/CSVDataGenerator.hpp>
+#include <data-loader/concrete/CSVLoader.hpp>
 
 using namespace std;
 
-using namespace exageostat::generators::csv;
 using namespace exageostat::configurations;
 using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 using namespace exageostat::common;
 using namespace exageostat::linearAlgebra;
+using namespace exageostat::dataLoader::csv;
 
 template<typename T>
-CSVDataGenerator<T> *CSVDataGenerator<T>::GetInstance() {
+CSVLoader<T> *CSVLoader<T>::GetInstance() {
 
     if (mpInstance == nullptr) {
-        mpInstance = new CSVDataGenerator<T>();
+        mpInstance = new CSVLoader<T>();
     }
     return mpInstance;
 }
 
 template<typename T>
-unique_ptr<ExaGeoStatData<T>>
-CSVDataGenerator<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                                exageostat::kernels::Kernel<T> &aKernel) {
-
-    // create vectors that will be populated with read data.
-    vector<T> measurements_vector;
-    vector<T> x_locations;
-    vector<T> y_locations;
-    vector<T> z_locations;
-
-    aKernel.SetPValue(aConfigurations.GetTimeSlot());
-    int p = aKernel.GetVariablesNumber();
-
-    //Read the data out of the CSV file.
-    ReadData(aConfigurations, measurements_vector, x_locations, y_locations, z_locations, p);
-
-    //create data object
-    auto data = std::make_unique<ExaGeoStatData<T>>(aConfigurations.GetProblemSize() / p,
-                                                    aConfigurations.GetDimension());
-
-    //Initialize the descriptors.
-    auto linear_algebra_solver = LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
-    linear_algebra_solver->SetContext(aHardware.GetChameleonContext());
-    linear_algebra_solver->InitiateDescriptors(aConfigurations, *data->GetDescriptorData(), p);
-    linear_algebra_solver->ExaGeoStatLaSetTile(EXAGEOSTAT_UPPER_LOWER, 0, 0,
-                                               data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                                        DESCRIPTOR_C).chameleon_desc);
-    //populate data object with read data
-    for (int i = 0; i < aConfigurations.GetProblemSize() / p; i++) {
-        data->GetLocations()->GetLocationX()[i] = x_locations[i];
-        data->GetLocations()->GetLocationY()[i] = y_locations[i];
-        if (aConfigurations.GetDimension() != Dimension2D) {
-            data->GetLocations()->GetLocationZ()[i] = z_locations[i];
-        }
-    }
-    for (int i = 0; i < aConfigurations.GetProblemSize(); i++) {
-        ((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                        DESCRIPTOR_Z).chameleon_desc->mat)[i] = measurements_vector[i];
-    }
-
-    results::Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize() / p);
-    results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
-    results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
-
-    return data;
-}
-
-template<typename T>
-void
-CSVDataGenerator<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasurementsMatrix, vector<T> &aXLocations,
-                              vector<T> &aYLocations, vector<T> &aZLocations, const int &aP) {
+void CSVLoader<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasurementsMatrix, vector<T> &aXLocations,
+                           vector<T> &aYLocations, vector<T> &aZLocations, const int &aP) {
 
     //Check if the user entered a valid path for the CSV file.
     if (aConfigurations.GetDataPath().empty()) {
@@ -121,9 +71,9 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasu
             aYLocations.push_back(stod(token));
         }
         if (getline(iss, token, ',')) {
-            //If it's a 2D locations data, the last values of the lines should be the measurement values.
-            //If it's 3D locations data, the third value of the line should be the Z coordinate.
-            //If it's ST location data, the third value of the line should be the Time coordinate
+            //If its a 2D locations' data, the last values of the lines should be the measurement values.
+            //If its 3D locations' data, the third value of the line should be the Z coordinate.
+            //If its ST location data, the third value of the line should be the Time coordinate
             if (dimension == Dimension2D) {
                 aMeasurementsMatrix.push_back(stod(token));
                 //if p == 2, the third and fourth values of each line are saved in the Measurements Matrix.
@@ -193,10 +143,10 @@ CSVDataGenerator<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasu
 }
 
 template<typename T>
-void CSVDataGenerator<T>::ReleaseInstance() {
+void CSVLoader<T>::ReleaseInstance() {
     if (mpInstance != nullptr) {
         mpInstance = nullptr;
     }
 }
 
-template<typename T> CSVDataGenerator<T> *CSVDataGenerator<T>::mpInstance = nullptr;
+template<typename T> CSVLoader<T> *CSVLoader<T>::mpInstance = nullptr;

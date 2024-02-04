@@ -99,12 +99,11 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware, Co
                                          T *apMeasurementsMatrix) {
 
     LOGGER("** ExaGeoStat data Prediction **")
-    Prediction<T> predictor;
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
     // Add the data prediction arguments.
     aConfigurations.InitializeDataPredictionArguments();
-    predictor.PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix, *pKernel);
+    Prediction<T>::PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix, *pKernel);
     delete pKernel;
 }

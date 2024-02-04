@@ -13,7 +13,7 @@
 **/
 
 #include <kernels/concrete/BivariateMaternParsimonious.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;

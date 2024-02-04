@@ -75,10 +75,10 @@ namespace exageostat::configurations {
         Configurations();
 
         /**
-         * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         * @brief destructor to allow calls to the correct concrete destructor.
          *
          */
-        virtual ~Configurations() = default;
+        ~Configurations() = default;
 
         /**
          * @brief Initialize the module arguments.

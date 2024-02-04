@@ -13,28 +13,39 @@
 
 #include <data-generators/DataGenerator.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
-#include <data-generators/concrete/CSVDataGenerator.hpp>
+#include <data-loader/concrete/CSVLoader.hpp>
 #include <results/Results.hpp>
 
 using namespace exageostat::generators;
+using namespace exageostat::dataLoader::csv;
 using namespace exageostat::generators::synthetic;
-using namespace exageostat::generators::csv;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+using namespace exageostat::common;
 
 template<typename T>
 std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configurations &apConfigurations) {
 
     // Check the used Data generation method, whether it's synthetic or real.
-    mIsSynthetic = apConfigurations.GetIsSynthetic();
-    mIsCSV = apConfigurations.GetIsCSV();
-    results::Results::GetInstance()->SetIsSynthetic(mIsSynthetic);
+    if(apConfigurations.GetIsSynthetic() && apConfigurations.GetIsCSV()){
+        throw std::domain_error("Please activate either the synthetic or the CSV file for data generation, but not both.");
+    }
+    if(!apConfigurations.GetIsSynthetic() && !apConfigurations.GetIsCSV()){
+        throw std::domain_error("Please activate either the synthetic or the CSV file for data generation");
+    }
+    if(apConfigurations.GetIsSynthetic()){
+        aDataGeneratorType = SYNTHETIC;
+    }
+    else if(apConfigurations.GetIsCSV()){
+        aDataGeneratorType = CSV_FILE;
+    }
+    results::Results::GetInstance()->SetIsSynthetic(apConfigurations.GetIsSynthetic());
 
     // Return DataGenerator unique pointer of Synthetic type
-    if (mIsSynthetic) {
+    if (aDataGeneratorType == SYNTHETIC) {
         return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
-    } else if (mIsCSV) {
-        return std::unique_ptr<DataGenerator<T>>(CSVDataGenerator<T>::GetInstance());
+    } else if (aDataGeneratorType == CSV_FILE) {
+        return std::unique_ptr<DataGenerator<T>>(CSVLoader<T>::GetInstance());
     } else {
         throw std::runtime_error("Data Loading for this file type is unsupported for now");
     }
@@ -43,15 +54,14 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configuratio
 template<typename T>
 DataGenerator<T>::~DataGenerator() {
     // Return DataGenerator unique pointer of Synthetic type
-    if (mIsSynthetic) {
+    if (aDataGeneratorType == SYNTHETIC) {
         SyntheticGenerator<T>::GetInstance()->ReleaseInstance();
-    } else if (mIsCSV) {
-        CSVDataGenerator<T>::GetInstance()->ReleaseInstance();
+    } else if (aDataGeneratorType == CSV_FILE) {
+        CSVLoader<T>::GetInstance()->ReleaseInstance();
     } else {
         std::cerr << "Data Loading for this file type is unsupported for now" << std::endl;
         std::exit(1);
     }
 }
 
-template<typename T> bool DataGenerator<T>::mIsSynthetic = true;
-template<typename T> bool DataGenerator<T>::mIsCSV = false;
+template<typename T> DataGeneratorType DataGenerator<T>::aDataGeneratorType = common::SYNTHETIC;

@@ -67,6 +67,7 @@ Configurations::Configurations() {
     SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
     SetAccuracy(0);
     SetIsNonGaussian(false);
+    mIsThetaInit = false;
 }
 
 

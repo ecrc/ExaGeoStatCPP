@@ -29,16 +29,6 @@ namespace exageostat::prediction {
     public:
 
         /**
-         * @brief Default constructor for PredictionAuxiliaryFunctions
-         */
-        PredictionAuxiliaryFunctions() = default;
-
-        /**
-         * @brief Default destructor for PredictionAuxiliaryFunctions
-         */
-        ~PredictionAuxiliaryFunctions() = default;
-
-        /**
          * @brief  implements the Inverse Distance Weighting (IDW) interpolation method
          * for predicting missing values based on available observed values.
          * @param[in] apZMiss Pointer to the missed measurements.

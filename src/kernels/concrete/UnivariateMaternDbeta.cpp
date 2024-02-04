@@ -13,7 +13,7 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDbeta.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;

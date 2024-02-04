@@ -4,19 +4,14 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @brief CMake configuration file for Data Generators module
-# @version 1.0.0
+# @brief CMake configuration file for the data loader module
+# @version 1.0.1
 # @author Mahmoud ElKarargy
-# @author Sameh Abdulah
-# @date 2024-02-04
-
-# Add subdirectories for concrete implementations
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
+# @date 2023-02-14
 
 # Add source files to the parent scope
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/DataGenerator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/LocationGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/CSVLoader.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

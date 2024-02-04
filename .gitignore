@@ -10,6 +10,7 @@ installdir/
 # R files
 .Rhistory
 .RData
+.RDataTmp
 
 # tar.gz files
 *.tar.gz

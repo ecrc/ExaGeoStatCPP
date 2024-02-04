@@ -30,8 +30,20 @@ SHOW_WARNINGS="OFF"
 COMPILE_FLAGS="-Wl,--no-as-needed"
 DEVELOPER_WARNINGS="-Wno-dev"
 
+
+for arg in "$@"
+do
+    case $arg in
+        --use-mkl)
+          echo -e "${GREEN}MKL as a BLA vendor${NC}"
+          BLAS_VENDOR="Intel10_64lp"
+          shift # Remove --use-mkl from processing
+          ;;
+    esac
+done
+
 # Parse command line options
-while getopts ":tevhHi:cmspTw" opt; do
+while getopts ":tevhHi:cmpTw" opt; do
   case $opt in
     i) ##### Define installation path  #####
        echo -e "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -64,10 +76,6 @@ while getopts ":tevhHi:cmspTw" opt; do
     v) ##### printing full output of make #####
       echo -e "${GREEN}printing make with details.${NC}"
       VERBOSE="ON"
-      ;;
-    s) ##### Passing BLA vendor with mkl #####
-      echo -e "${GREEN}MKL as a BLA vendor${NC}"
-      BLAS_VENDOR="Intel10_64lp"
       ;;
     p) ##### Enabling packaging system for distribution #####
       echo -e "${GREEN}CPACK enabled${NC}"
@@ -145,7 +153,7 @@ echo ""
 rm -rf bin/
 mkdir -p bin/
 
-cmake $DEVELOPER_WARNINGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+cmake "$DEVELOPER_WARNINGS" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_BUILD_TYPE=RELEASE \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
   -DBUILD_TESTS="${BUILDING_TESTS}" \

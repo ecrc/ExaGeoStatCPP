@@ -21,6 +21,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/helpers)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/hardware)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/prediction)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/results)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-loader)
 
 # Set the name of the library to be created.
 set(LIB_NAME ${PROJECT_NAME})

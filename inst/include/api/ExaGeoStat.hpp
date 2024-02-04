@@ -49,7 +49,7 @@ namespace exageostat::api {
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
-         * @return void
+         * @return the last optimum value of MLE.
          *
          */
         static T ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,

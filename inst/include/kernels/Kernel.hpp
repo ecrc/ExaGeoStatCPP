@@ -30,6 +30,7 @@ extern "C" {
 #include <common/PluginRegistry.hpp>
 #include <data-units/Locations.hpp>
 #include <helpers/DistanceCalculationHelpers.hpp>
+#include <helpers/BasselFunction.hpp>
 
 /**
  * @def EARTH_RADIUS
@@ -99,33 +100,6 @@ namespace exageostat::kernels {
                                  const int &aColumnOffset, dataunits::Locations<T> &aLocation1,
                                  dataunits::Locations<T> &aLocation2, dataunits::Locations<T> &aLocation3,
                                  T *apLocalTheta, const int &aDistanceMetric) = 0;
-
-        /**
-         * @brief Calculates the derivative of the modified Bessel function of the second kind (K_nu) with respect to its order, evaluated at input_value and order aOrder.
-         * @param[in] aOrder The order of the Bessel function.
-         * @param[in] aInputValue The input value at which to evaluate the derivative.
-         * @return The value of the derivative of K_nu with respect to its order, evaluated at input_value and order aOrder.
-         *
-         */
-        static T CalculateDerivativeBesselNu(const T &aOrder, const T &aInputValue);
-
-        /**
-         * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
-         * @param[in] aOrder The order of the Bessel function.
-         * @param[in] aInputValue The input value at which to evaluate the second derivative.
-         * @return The value of the second derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
-         *
-         */
-        static T CalculateSecondDerivativeBesselNu(const T &aOrder, const T &aInputValue);
-
-        /**
-         * @brief Calculates the second derivative of the modified Bessel function of the second kind (K_nu) with respect to its input, evaluated at input_value and order aOrder.
-         * @param[in] aOrder The order of the Bessel function.
-         * @param[in] aInputValue The input value at which to evaluate the derivative.
-         * @return The value of the derivative of K_nu with respect to its input, evaluated at input_value and order aOrder.
-         *
-         */
-        static T CalculateSecondDerivativeBesselNuInput(const T &aOrder, const T &aInputValue);
 
         /**
          * @brief Returns the value of the parameter P used by the kernel function.

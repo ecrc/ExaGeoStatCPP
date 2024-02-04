@@ -37,7 +37,7 @@ namespace exageostat::hardware {
         /**
          * @brief Destructor for ExaGeoStatHardware.
          */
-        virtual ~ExaGeoStatHardware();
+        ~ExaGeoStatHardware();
 
         /**
          * @brief Get the Chameleon hardware context.

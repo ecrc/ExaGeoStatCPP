@@ -4,10 +4,10 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
-* @file ConfigurationsMain.cpp
+* @file SetupConfigurations.cpp
 * @brief Demonstrates how to use the Configurations class from the ExaGeoStat software package.
 * @details This file demonstrates how to use the Configurations class from the ExaGeoStat software package
-* to obtain user-defined configurations for generating synthetic data.
+* to obtain user-defined configurations.
 * @version 1.0.0
 * @author Mahmoud ElKarargy
 * @date 2023-01-31
@@ -27,8 +27,8 @@ using namespace exageostat::configurations;
 /**
  * @brief The main function of the program.
  *
- * This function demonstrates how to use the SyntheticDataConfigurations class from the ExaGeoStat software package
- * to obtain user-defined configurations for generating synthetic data.
+ * This function demonstrates how to use the Configurations class from the ExaGeoStat software package
+ * to obtain user-defined configurations.
  *
  * @param[in] argc The number of command line arguments.
  * @param[in] argv The command line arguments.
@@ -36,12 +36,11 @@ using namespace exageostat::configurations;
  */
 int main(int argc, char **argv) {
 
-    // Create an instance of the SyntheticDataConfigurations class with user-defined configurations.
+    // Create an instance of the Configurations class with user-defined configurations.
     Configurations configurations;
     configurations.InitializeArguments(argc, argv);
 
     LOGGER("** These are some examples of the common arguments needed between all modules of ExaGeoStat **")
-
     // Obtain user-defined configurations and print them to the console.
     int n = configurations.GetProblemSize();
     if (n != 0) {
@@ -101,5 +100,6 @@ int main(int argc, char **argv) {
     }
 
     VERBOSE("VERBOSE ACTIVATED")
+
     return 0;
 }

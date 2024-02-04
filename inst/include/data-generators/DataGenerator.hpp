@@ -14,8 +14,6 @@
 #ifndef EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 #define EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 
-#include <memory>
-
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
@@ -64,10 +62,8 @@ namespace exageostat::generators {
         virtual ~DataGenerator();
 
     protected:
-        /// Used bool identifying type of generation.
-        static bool mIsSynthetic;
-        /// Used bool identifying type of generation.
-        static bool mIsCSV;
+        /// Used enum for data generators types.
+        static common::DataGeneratorType aDataGeneratorType;
     };
 
     /**
