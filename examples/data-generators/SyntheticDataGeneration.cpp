@@ -6,7 +6,7 @@
 /**
  * @file SyntheticLocationsGeneration.cpp
  * @brief This file contains the main function for generating synthetic Locations for ExaGeoStat
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-03-04
 **/
@@ -43,14 +43,15 @@ int main(int argc, char **argv) {
                                        synthetic_data_configurations.GetCoresNumber(),
                                        synthetic_data_configurations.GetGPUsNumbers());
 
-    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName());
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+            synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
 
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
             synthetic_data_configurations);
 
     // Initialize the locations of the generated data
-    auto data = *synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+    auto data = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
     // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
     struct DataPointers {
         double *x;
@@ -59,9 +60,9 @@ int main(int argc, char **argv) {
     } data_pointers{};
 
     // Set the pointers in the DataPointers struct to the location coordinates of the generated data
-    data_pointers.x = data.GetLocations()->GetLocationX();
-    data_pointers.y = data.GetLocations()->GetLocationY();
-    data_pointers.z = data.GetLocations()->GetLocationZ();
+    data_pointers.x = data->GetLocations()->GetLocationX();
+    data_pointers.y = data->GetLocations()->GetLocationY();
+    data_pointers.z = data->GetLocations()->GetLocationZ();
 
     // Print the generated location coordinates
     LOGGER("Generated Data ...")
@@ -76,7 +77,9 @@ int main(int argc, char **argv) {
         if (synthetic_data_configurations.GetDimension() != Dimension2D) {
             LOGGER_PRECISION(" Z: " << data_pointers.z[i], 18)
         }
-        LOGGER_PRECISION(" Measurements: " << ((double *)data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR, exageostat::common::DESCRIPTOR_Z).chameleon_desc->mat)[i] << "\n" , 18)
+        LOGGER_PRECISION(" Measurements: " << ((double *) data->GetDescriptorData()->GetDescriptor(
+                exageostat::common::CHAMELEON_DESCRIPTOR, exageostat::common::DESCRIPTOR_Z).chameleon_desc->mat)[i]
+                                           << "\n", 18)
     }
 
     delete pKernel;

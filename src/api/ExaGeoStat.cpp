@@ -6,7 +6,7 @@
 /**
  * @file ExaGeoStat.cpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-05-30
 **/
@@ -29,24 +29,28 @@ using namespace exageostat::prediction;
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
                                        configurations::Configurations &aConfigurations,
-                                       dataunits::ExaGeoStatData<T> &aData) {
+                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData) {
+
+    LOGGER("** ExaGeoStat data generation **")
     // Register and create a kernel object
-    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
+    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
+                                                                                      aConfigurations.GetTimeSlot());
     // Add the data generation arguments.
     aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
-    //hehe
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
-    aData = *data_generator->CreateData(aConfigurations, aHardware, *pKernel);
+    aData = data_generator->CreateData(aConfigurations, aHardware, *pKernel);
     delete pKernel;
 }
 
 template<typename T>
 T ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
-                                        ExaGeoStatData<T> &aData, T *apMeasurementsMatrix) {
+                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apMeasurementsMatrix) {
 
+    LOGGER("** ExaGeoStat data Modeling **")
     // Register and create a kernel object
-    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
+    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
+                                                                                      aConfigurations.GetTimeSlot());
     // Add the data modeling arguments.
     aConfigurations.InitializeDataModelingArguments();
 
@@ -66,6 +70,7 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, Con
     optimizing_function.set_max_objective(ExaGeoStatMLETileAPI, (void *) modeling_data);
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
+    aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
 
     delete pKernel;
     delete modeling_data;
@@ -90,13 +95,15 @@ ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vect
 
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
-                                         ExaGeoStatData<T> &aData, T *apMeasurementsMatrix) {
+                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                         T *apMeasurementsMatrix) {
 
-    Prediction<T> predictor;
+    LOGGER("** ExaGeoStat data Prediction **")
     // Register and create a kernel object
-    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName());
+    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
+                                                                                      aConfigurations.GetTimeSlot());
     // Add the data prediction arguments.
     aConfigurations.InitializeDataPredictionArguments();
-    predictor.PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix, *pKernel);
+    Prediction<T>::PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix, *pKernel);
     delete pKernel;
 }

@@ -7,7 +7,7 @@
  * @file DataGenerationAndModeling.cpp
  * @brief This program either generates synthetic data using the ExaGeoStat library, or reads an CSV file.
  * @details The program takes command line arguments to configure the data generation.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/
@@ -33,16 +33,14 @@ int main(int argc, char **argv) {
     Configurations configurations;
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    LOGGER("** initialize ExaGeoStat hardware ** ")
+    // Initialize the ExaGeoStat Hardware
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
-    LOGGER("** Create ExaGeoStat data **")
-    ExaGeoStatData<double> data;
-    LOGGER("** ExaGeoStat data generation ** ")
+    // Load data by either read from file or create synthetic data.
+    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
-    LOGGER("** ExaGeoStat data Modeling ** ")
+    // Modeling module.
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
-    LOGGER("** All example stages have been completed successfully ** ")
 
     return 0;
 }

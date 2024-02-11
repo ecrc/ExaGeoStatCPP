@@ -6,7 +6,7 @@
 /**
  * @file LinearAlgebraMethods.hpp
  * @brief Header file for the LinearAlgebraMethods class, which defines the interface for linear algebra solvers.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
@@ -54,12 +54,14 @@ namespace exageostat::linearAlgebra {
          * @details This method initializes the descriptors necessary for the linear algebra solver.
          * @param[in] aConfigurations Configurations object containing relevant settings.
          * @param[in,out] aDescriptorData Descriptor Data object to be populated with descriptors and data.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          * @param[in] apMeasurementsMatrix Pointer to the measurement matrix.
          * @return void
          *
          */
         void InitiateDescriptors(configurations::Configurations &aConfigurations,
-                                 dataunits::DescriptorData<T> &aDescriptorData, T *apMeasurementsMatrix = nullptr);
+                                 dataunits::DescriptorData<T> &aDescriptorData,
+                                 const int &aP, T *apMeasurementsMatrix = nullptr);
 
         /**
          * @brief Initializes the descriptors necessary for the Fisher prediction function.
@@ -69,27 +71,29 @@ namespace exageostat::linearAlgebra {
         void InitiateFisherDescriptors(configurations::Configurations &aConfigurations,
                                        dataunits::DescriptorData<T> &aDescriptorData);
 
-            /**
+        /**
          * @brief Initializes the descriptors necessary for the Prediction.
          * @details This method initializes the descriptors necessary for the linear algebra solver.
          * @param[in] aConfigurations Configurations object containing relevant settings.
          * @param[in,out] aData DescriptorData object to be populated with descriptors and data.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          *
          */
         void InitiatePredictionDescriptors(configurations::Configurations &aConfigurations,
-                                           dataunits::ExaGeoStatData<T> &aData);
+                                           std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, const int &aP);
 
         /**
          * @brief Initializes the descriptors necessary for the Prediction Auxiliary function MLE-MLOE-MMOM.
          * @details This method initializes the descriptors necessary for the linear algebra solver.
          * @param[in] aConfigurations Configurations object containing relevant settings.
          * @param[in,out] aData DescriptorData object to be populated with descriptors and data.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          *
          */
         void InitiateMLOEMMOMDescriptors(configurations::Configurations &aConfigurations,
-                                         dataunits::ExaGeoStatData<T> &aData);
+                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, const int &aP);
 
         /**
          * @brief Generates synthetic data.
@@ -101,7 +105,8 @@ namespace exageostat::linearAlgebra {
          *
          */
         void GenerateSyntheticData(configurations::Configurations &aConfigurations,
-                                   const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &aData,
+                                   const hardware::ExaGeoStatHardware &aHardware,
+                                   std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                    const kernels::Kernel<T> &aKernel);
 
         /**
@@ -147,7 +152,8 @@ namespace exageostat::linearAlgebra {
          *
          */
         void
-        GenerateObservationsVector(configurations::Configurations &aConfigurations, dataunits::ExaGeoStatData<T> &aData,
+        GenerateObservationsVector(configurations::Configurations &aConfigurations,
+                                   std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                    dataunits::Locations<T> *apLocation1, dataunits::Locations<T> *apLocation2,
                                    dataunits::Locations<T> *apLocation3, const int &aDistanceMetric,
                                    const kernels::Kernel<T> &aKernel);
@@ -163,7 +169,8 @@ namespace exageostat::linearAlgebra {
          * @return log likelihood value
          *
          */
-        virtual T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &aData,
+        virtual T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware,
+                                    std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                     configurations::Configurations &aConfigurations, const double *apTheta,
                                     T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) = 0;
 
@@ -276,7 +283,7 @@ namespace exageostat::linearAlgebra {
         ExaGeoStatMLETraceTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescNum,
                                     void *apDescTrace);
 
-            /**
+        /**
          * @brief Calculate determinant for triangular matrix.
          * @param[in] apDescA Exageostat descriptor.
          * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
@@ -307,7 +314,7 @@ namespace exageostat::linearAlgebra {
          * @return Returns 0 for success, error code otherwise.
          */
         int ExaGeoStatMLEMSPETileAsync(void *apDescZPredict, void *apDescZMiss, void *apDescError, void *apSequence,
-                                      void *apRequest);
+                                       void *apRequest);
 
         /**
          * Predict missing values base on a set of given values and covariance matrix/
@@ -325,12 +332,39 @@ namespace exageostat::linearAlgebra {
          * @param[in] aKernel Reference to the kernel object to use.
          * @return the prediction Mean Square Error (MSPE).
          */
-        T * ExaGeoStatMLEPredictTile(exageostat::dataunits::ExaGeoStatData<T> &aData, T *apTheta, const int &aZMissNumber,
-                                     const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
-                                     const hardware::ExaGeoStatHardware &aHardware,
-                                     configurations::Configurations &aConfiguration,
-                                     exageostat::dataunits::Locations<T> &aMissLocations,
-                                     exageostat::dataunits::Locations<T> &aObsLocations, const kernels::Kernel<T> &aKernel);
+        T *ExaGeoStatMLEPredictTile(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apTheta,
+                                    const int &aZMissNumber,
+                                    const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
+                                    const hardware::ExaGeoStatHardware &aHardware,
+                                    configurations::Configurations &aConfiguration,
+                                    exageostat::dataunits::Locations<T> &aMissLocations,
+                                    exageostat::dataunits::Locations<T> &aObsLocations,
+                                    const kernels::Kernel<T> &aKernel);
+
+        /**
+         * Predict missing values base on a set of given values and Non-Gaussian covariance matrix/
+         * @param[in] aData Reference to Data containing different MLE inputs.
+         * @param[in] apTheta theta Vector with three parameter (Variance, Range, Smoothness) that is used to to generate the Covariance Matrix.
+         * @param[in] aZMissNumber number of missing values (unknown observations).
+         * @param[in] aZObsNumber number of observed values (known observations).
+         * @param[in] apZObs observed values vector (known observations).
+         * @param[in] apZActual actual missing values vector (in the case of testing MSPE).
+         * @param[in] apZMiss missing values vector (unknown observations).
+         * @param[in] aHardware  ExaGeoStatHardware object representing the hardware.
+         * @param[in] aConfigurations Configurations object containing relevant settings.
+         * @param[in] aMissLocations Reference to Locations object containing missed locations.
+         * @param[in] aObsLocations Reference to Locations object containing observed locations.
+         * @param[in] aKernel Reference to the kernel object to use.
+         * @return the prediction Mean Square Error (MSPE).
+         */
+        T *ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apTheta,
+                                               const int &aZMissNumber,
+                                               const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
+                                               const hardware::ExaGeoStatHardware &aHardware,
+                                               configurations::Configurations &aConfiguration,
+                                               exageostat::dataunits::Locations<T> &aMissLocations,
+                                               exageostat::dataunits::Locations<T> &aObsLocations,
+                                               const kernels::Kernel<T> &aKernel);
 
         /**
          * @brief Copy Lapack matrix to Descriptor Matrix.
@@ -340,8 +374,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aUpperLower Specifies Specifies whether the upper or lower triangular part of the covariance matrix is stored.
          * @return void
          */
-        virtual void
-        ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower) = 0;
+        void ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower);
 
         /**
          * @brief Copy Descriptor Matrix to Lapack matrix.
@@ -352,6 +385,21 @@ namespace exageostat::linearAlgebra {
          * @return void
          */
         void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower);
+
+#ifdef USE_HICMA
+
+        /**
+         * @brief Copy Descriptor Matrix to another Descriptor matrix.
+         * @param[out] apSourceDesc Descriptor matrix to be copied
+         * @param[out] apDestinationDesc Descriptor matrix to be copied to.
+         * @param[in] aSize Size of matrix to be copied.
+         * @param[in] aDirection Specifies the type of Descriptors to be copied.
+         * @return void
+         */
+        void CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
+                             const common::CopyDirection &aDirection);
+
+#endif
 
         /**
          * @brief Sets the values of all or part of a two-dimensional Tile.
@@ -368,9 +416,10 @@ namespace exageostat::linearAlgebra {
          * @param[out] apZ Pointer to an array to copy Z matrix into.
          * @param[in] aSize Size of the matrix.
          * @param[in] aDescData Descriptor data containing required Z matrix Descriptor.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
          */
         void ExaGeoStatGetZObs(exageostat::configurations::Configurations &aConfigurations, T *apZ, const int &aSize,
-                               exageostat::dataunits::DescriptorData<T> &aDescData, T *apMeasurementsMatrix);
+                               exageostat::dataunits::DescriptorData<T> &aDescData, T *apMeasurementsMatrix, const int &aP);
 
         /**
          * @brief Predict missing values based on a set of given values and covariance matrix.
@@ -387,7 +436,7 @@ namespace exageostat::linearAlgebra {
          * @return void
          */
         void ExaGeoStatMLETileMLOEMMOM(exageostat::configurations::Configurations &aConfigurations,
-                                       exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                        const exageostat::hardware::ExaGeoStatHardware &aHardware, T *apTruthTheta,
                                        T *apEstimatedTheta, dataunits::Locations<T> &aMissLocations,
                                        dataunits::Locations<T> &aObsLocations, const kernels::Kernel<T> &aKernel);
@@ -402,9 +451,10 @@ namespace exageostat::linearAlgebra {
          * @return Fisher Matrix
          */
         T *
-        ExaGeoStatFisherTile(configurations::Configurations &aConfigurations, dataunits::ExaGeoStatData<T> &aData,
+        ExaGeoStatFisherTile(configurations::Configurations &aConfigurations,
+                             std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                              const hardware::ExaGeoStatHardware &aHardware, T *apTheta,
-                             const kernels::Kernel <T> &aKernel);
+                             const kernels::Kernel<T> &aKernel);
 
         /**
          * @brief Perform an asynchronous computation of MLE, MLOE, and MMOM for a tile.
@@ -461,6 +511,47 @@ namespace exageostat::linearAlgebra {
         virtual void *ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) = 0;
 
         /**
+         * @brief Calculate mean square error (MSE) scalar value for Bivariate kernels.
+         * @param[in] apDescZPre Observed measurements descZpre.
+         * @param[in] apDescZMiss Missing measurements descZpre
+         * @param[out] apDescsError1 Mean Square Error (MSE) 1.
+         * @param[out] apDescsError2 Mean Square Error (MSE) 2.
+         * @param[out] apDescsError Mean Square Error (MSE).
+         * @param[in] apSequence Sequence for the computation.
+         * @param[in] apRequest Request for the computation.
+         * @return successful exit
+         */
+        int ExaGeoStatMLEMSPEBivariateTileAsync(void *apDescZPre, void *apDescZMiss, void *apDescsError1,
+                                                void *apDescsError2, void *apDescsError,
+                                                void *apSequence, void *apRequest);
+
+        /**
+         * @brief Transform the measurements vector inside the non-Gaussian MLE function.
+         * @param[in] apDescZ pointer to the Observed Measurements descriptor.
+         * @param[in] apDescFlag Pointer to flag descriptor.
+         * @param[in] apTheta Pointer to Model parameters.
+         * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+         * @param[in] apRequest Identifies this function call (for exception handling purposes).
+         * @return Returns 0 for success, error code otherwise.
+         */
+        virtual int
+        ExaGeoStatNonGaussianTransformTileAsync(void *apDescZ, void *apDescFlag, const T *apTheta, void *apSequence,
+                                                void *apRequest) = 0;
+
+        /**
+         * @brief Calculate the log likelihood of non-Gaussian MLE.
+         * @param[in] apDescZ pointer to the Observed Measurements descriptor.
+         * @param[in] apDescSum The log-likelihood Sum of descriptor Z.
+         * @param[in] apTheta Pointer to Model parameters.
+         * @param[in] apSequence Identifies the sequence of function calls that this call belongs to.
+         * @param[out] apRequest Identifies this function call (for exception handling purposes).
+         * @return Returns 0 for success, error code otherwise.
+         */
+        virtual int
+        ExaGeoStatNonGaussianLogLikeTileAsync(void *apDescZ, void *apDescSum, const T *apTheta, void *apSequence,
+                                              void *apRequest) = 0;
+
+        /**
          * @brief Sets the context.
          * @param[in] apContext The context.
          *
@@ -469,7 +560,7 @@ namespace exageostat::linearAlgebra {
             this->mpContext = apContext;
         }
 
-        //// TODO: Create a Factory for Runtime system. This is a solution fix for now
+        //// TODO: Create a Factory for Runtime system. HiCMAPP Model will be applied.
         struct starpu_codelet cl_gaussian_to_non =
                 {
                         .where        = STARPU_CPU,
@@ -544,102 +635,358 @@ namespace exageostat::linearAlgebra {
 
         struct starpu_codelet cl_dtrace =
                 {
-                        .where		= STARPU_CPU,
-                        .cpu_funcs	= {CORE_dtrace_starpu},
-                        .nbuffers	= 3,
-                        .modes		= {STARPU_R, STARPU_RW, STARPU_W},
-                        .name		= "dtrace"
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_dtrace_starpu},
+                        .nbuffers    = 3,
+                        .modes        = {STARPU_R, STARPU_RW, STARPU_W},
+                        .name        = "dtrace"
                 };
 
         struct starpu_codelet cl_ddotp =
                 {
-                        .where		= STARPU_CPU,
-                        .cpu_funcs	= {CORE_ddotp_starpu},
-                        .nbuffers	= 2,
-                        .modes		= {STARPU_RW,STARPU_R},
-                        .name		= "ddotp"
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_ddotp_starpu},
+                        .nbuffers    = 2,
+                        .modes        = {STARPU_RW, STARPU_R},
+                        .name        = "ddotp"
                 };
 
+        struct starpu_codelet cl_dmse_bivariate =
+                {
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_dmse_bivariate_starpu},
+                        .nbuffers    = 5,
+                        .modes        = {STARPU_RW, STARPU_RW, STARPU_RW, STARPU_R, STARPU_R},
+                        .name        = "dmse_bivariate"
+                };
+        struct starpu_codelet cl_non_gaussian_transform =
+                {
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_non_gaussian_transform_starpu},
+                        .nbuffers    = 2,
+                        .modes        = {STARPU_RW, STARPU_W},
+                        .name        = "non_gaussian_transform"
+                };
 
+        struct starpu_codelet cl_non_gaussian_loglike =
+                {
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_non_gaussian_loglike_starpu},
+                        .nbuffers    = 2,
+                        .modes        = {STARPU_R, STARPU_RW},  //Read access to Z and Read/Write access to the sum.
+                        .name        = "non_gaussian_loglike"
+                };
+
+        struct starpu_codelet cl_non_gaussian_loglike_lr =
+                {
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_non_gaussian_loglike_lr_starpu},
+                        .nbuffers    = 2,
+                        .modes        = {STARPU_R, STARPU_RW},  //Read access to Z and Read/Write access to the sum.
+                        .name        = "non_gaussian_loglike_lr"
+                };
+
+        struct starpu_codelet cl_non_gaussian_transform_lr =
+                {
+                        .where        = STARPU_CPU,
+                        .cpu_funcs    = {CORE_non_gaussian_transform_lr_starpu},
+                        .nbuffers    = 1,
+                        .modes        = {STARPU_RW},
+                        .name        = "non_gaussian_transform_lr"
+                };
 
         static void CORE_dcmg_starpu(void *apBuffers[], void *apCodeletArguments) {
             int m, n, m0, n0;
             exageostat::dataunits::Locations<T> *location1;
             exageostat::dataunits::Locations<T> *location2;
             exageostat::dataunits::Locations<T> *location3;
-            T *theta;
-            T *A;
+            T *pTheta;
+            T *pA;
             int distance_metric;
-            kernels::Kernel<T> *kernel;
+            kernels::Kernel<T> *pKernel;
 
-            A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            starpu_codelet_unpack_args(apCodeletArguments, &m, &n, &m0, &n0, &location1, &location2, &location3, &theta,
-                                       &distance_metric, &kernel);
-            kernel->GenerateCovarianceMatrix(A, m, n, m0, n0, *location1, *location2, *location3, theta,
-                                             distance_metric);
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &n, &m0, &n0, &location1, &location2, &location3,
+                                       &pTheta, &distance_metric, &pKernel);
+            pKernel->GenerateCovarianceMatrix(pA, m, n, m0, n0, *location1, *location2, *location3, pTheta,
+                                              distance_metric);
         }
 
         static void CORE_gaussian_to_non_starpu(void *apBuffers[], void *apCodeletArguments) {
             int m, m0;
-            T *z;
-            T *theta;
-            theta = new T[6];
-            z = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            T *pZ;
+            T *pTheta;
+            pTheta = new T[6];
+            pZ = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
 
-            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0, &theta[0], &theta[1], &theta[2], &theta[3],
-                                       &theta[4], &theta[5]);
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0, &pTheta[0], &pTheta[1], &pTheta[2], &pTheta[3],
+                                       &pTheta[4], &pTheta[5]);
             //core function to convert Z tile from Gaussian to non-Gaussian.
-            core_gaussian_to_non(z, theta, m);
-            delete[] theta;
-        }
-
-        static void core_gaussian_to_non(T *Z, T *apLocalTheta, int aSize) {
-
-            double xi = apLocalTheta[2];
-            double omega = apLocalTheta[3];
-            double g = apLocalTheta[4];
-            double h = apLocalTheta[5];
-
-            int i;
-            if (h < 0) {
-                LOGGER("The kurtosis parameter cannot be negative")
-                return;
-            }
-            if (g == 0) {
-                for (i = 0; i < aSize; i++)
-                    Z[i] = xi + omega * Z[i] * (exp(0.5 * h * pow(Z[i], 2)));
-            } else {
-                for (i = 0; i < aSize; i++)
-                    Z[i] = xi + omega * (exp(g * Z[i]) - 1) * (exp(0.5 * h * pow(Z[i], 2))) / g;
-            }
+            core_gaussian_to_non(pZ, pTheta, m);
+            delete[] pTheta;
         }
 
         static void CORE_dzcpy_Starpu(void *apBuffers[], void *apCodeletArguments) {
             int m;
-            T *A;
+            T *pA;
             int m0;
-            T *r;
+            T *pR;
 
-            A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0, &r);
-            memcpy(A, &r[m0], m * sizeof(T));
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0, &pR);
+            memcpy(pA, &pR[m0], m * sizeof(T));
         }
 
         static void CORE_dmdet_starpu(void *apBuffers[], void *apCodeletArguments) {
             int m;
             int n;
-            T *A;
+            T *pA;
             int m0;
             int n0;
             T det = 0;
-            T *determinant = &det;
+            T *pDeterminant = &det;
 
-            *determinant = 0;
-            A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            determinant = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            *pDeterminant = 0;
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pDeterminant = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
             starpu_codelet_unpack_args(apCodeletArguments, &m, &n, &m0, &n0);
-            T local_det = Core_dmdet(A, m);
-            *determinant += local_det;
+            T local_det = Core_dmdet(pA, m);
+            *pDeterminant += local_det;
+        }
+
+        static void CORE_stride_vector_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m;
+            int temp;
+            T *pA;
+            T *pB;
+            T *pC;
+            int m0;
+            int i;
+            int j = 0;
+
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pB = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            pC = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
+            starpu_codelet_unpack_args(apCodeletArguments, &temp, &m0, &m);
+
+            for (i = 0; i < temp - 1; i += 2) {
+                pB[j] = pA[i];
+                pC[j] = pA[i + 1];
+                j++;
+            }
+        }
+
+        static void CORE_tri_stride_vector_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m;
+            int temp;
+            T *pA;
+            T *pB;
+            T *pC;
+            T *pD;
+            int m0;
+            int i;
+            int j;
+
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pB = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            pC = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
+            pD = (T *) STARPU_MATRIX_GET_PTR(apBuffers[3]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &temp, &m0, &m);
+
+            //accept only temp divided by three (should be optimized)
+            j = 0;
+            for (i = 0; i < temp - 1; i += 3) {
+                pB[j] = pA[i];
+                pC[j] = pA[i + 1];
+                pD[j] = pA[i + 2];
+                j++;
+            }
+        }
+
+        static void CORE_dmse_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0, i;
+            T *pZPredict;
+            T *pZMiss;
+            T *pError;
+            T local_error = 0.0;
+
+            pError = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pZPredict = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            pZMiss = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0);
+            for (i = 0; i < m; i++) {
+                local_error += pow((pZPredict[i] - pZMiss[i]), 2);
+            }
+            *pError += local_error;
+        }
+
+        static void CORE_dmloe_mmom_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m;
+            int n;
+            int i;
+            T *pExpr2;
+            T *pExpr3;
+            T *pExpr4;
+            T *pMloe;
+            T *pMmom;
+            int m0;
+            int n0;
+
+            pExpr2 = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pExpr3 = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            pExpr4 = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
+            pMloe = (T *) STARPU_MATRIX_GET_PTR(apBuffers[3]);
+            pMmom = (T *) STARPU_MATRIX_GET_PTR(apBuffers[4]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &n, &m0, &n0);
+            T expr2_ = 0, expr3_ = 0, expr4_ = 0;
+
+            for (i = 0; i < m * n; i += 2) {
+                expr2_ += pExpr2[i];
+                expr3_ += pExpr3[i];
+                expr4_ += pExpr4[i];
+            }
+
+            if (expr3_ == 0.0) {
+                *pMloe -= 1.0;
+            } else {
+                *pMloe += (expr2_ / expr3_) - 1.0;
+            }
+
+            if (expr2_ == 0.0) {
+                *pMmom -= 1.0;
+            } else {
+                *pMmom += (expr4_ / expr2_) - 1.0;
+            }
+        }
+
+        static void CORE_dtrace_starpu(void *apBuffers[], void *apCodeletArguments) {
+
+            int m;
+            T *pA;
+            T s = 0;
+            T *pSum = &s;
+            T *pTrace;
+
+            *pSum = 0;
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pSum = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            pTrace = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
+            starpu_codelet_unpack_args(apCodeletArguments, &m);
+
+            T local_s = core_dtrace(pA, m, pTrace);
+            *pSum += local_s;
+        }
+
+        static void CORE_ddotp_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0;
+            T *pA;
+            T *pDot_product;
+
+            pDot_product = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0);
+            T local_dot = cblas_ddot(m, (double *) pA, 1, (double *) pA, 1);
+            *pDot_product += local_dot;
+        }
+
+        static void CORE_non_gaussian_transform_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0;
+            T *pZ;
+            T *pTheta;
+            T flag = 0;
+            T *pAll_flags = &flag;
+            *pAll_flags = 0;
+
+            pTheta = new T[6];
+            pZ = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0, /*&flag,*/
+                                       &pTheta[0], &pTheta[1], &pTheta[2],
+                                       &pTheta[3], &pTheta[4], &pTheta[5]);
+
+            //Transform the measurements vector inside the non-Gaussian MLE function.
+            core_non_gaussian_transform(pZ, pTheta, m);
+            delete[] pTheta;
+        }
+
+        static void CORE_non_gaussian_loglike_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0;
+            T *pZ;
+            T sum = 0;
+            T *pA = &sum;
+
+            *pA = 0;
+            auto *pTheta = new T[6];
+            pZ = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0,
+                                       &pTheta[0], &pTheta[1], &pTheta[2],
+                                       &pTheta[3], &pTheta[4], &pTheta[5]);
+
+            T local_sum = core_non_gaussian_loglike(pZ, pTheta, m);
+            *pA += local_sum;
+            delete[] pTheta;
+        }
+
+        static void CORE_non_gaussian_loglike_lr_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0;
+            T *pZ;
+            T *pTheta;
+            T sum;
+            T *pS;
+
+            pTheta = (T *) new T[6];
+            pZ = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pS = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0,
+                                       &pTheta[0], &pTheta[1], &pTheta[2],
+                                       &pTheta[3], &pTheta[4], &pTheta[5]);
+
+            T local_sum = core_non_gaussian_loglike(pZ, pTheta, m);
+            *pS += local_sum;
+        }
+
+        static void CORE_non_gaussian_transform_lr_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0;
+            T *pZ;
+            T *pTheta;
+            T flag = 0;
+            T *pAll_flags = &flag;
+            *pAll_flags = 0;
+
+            pTheta = (T *) new T[6];
+            pZ = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0, /*&flag,*/
+                                       &pTheta[0], &pTheta[1], &pTheta[2],
+                                       &pTheta[3], &pTheta[4], &pTheta[5]);
+
+            //Transform the measurements vector inside the non-Gaussian MLE function.
+            core_non_gaussian_transform(pZ, pTheta, m);
+        }
+
+        static void core_gaussian_to_non(T *pZ, T *apLocalTheta, int aSize) {
+
+            T xi = apLocalTheta[2];
+            T omega = apLocalTheta[3];
+            T g = apLocalTheta[4];
+            T h = apLocalTheta[5];
+
+            int i;
+            if (h < 0) {
+                throw std::runtime_error("The kurtosis parameter cannot be negative");
+            }
+            if (g == 0) {
+                for (i = 0; i < aSize; i++)
+                    pZ[i] = xi + omega * pZ[i] * (exp(0.5 * h * pow(pZ[i], 2)));
+            } else {
+                for (i = 0; i < aSize; i++)
+                    pZ[i] = xi + omega * (exp(g * pZ[i]) - 1) * (exp(0.5 * h * pow(pZ[i], 2))) / g;
+            }
         }
 
         static T Core_dmdet(T *apA, int aSize) {
@@ -653,150 +1000,110 @@ namespace exageostat::linearAlgebra {
             return res;
         }
 
-        static void CORE_stride_vector_starpu(void *apBuffers[], void *apCodeletArguments) {
-            int m;
-            int temp;
-            T *A;
-            T *B;
-            T *C;
-            int m0;
+        static double core_dtrace(T *pA, int m, T *pTrace) {
             int i;
-            int j = 0;
-
-            A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            B = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
-            C = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
-            starpu_codelet_unpack_args(apCodeletArguments, &temp, &m0, &m);
-
-            for (i = 0; i < temp - 1; i += 2) {
-                B[j] = A[i];
-                C[j] = A[i + 1];
-                j++;
-            }
-        }
-
-        static void CORE_tri_stride_vector_starpu(void *apBuffers[], void *apCodeletArguments) {
-            int m;
-            int temp;
-            double *A;
-            double *B;
-            double *C;
-            double *D;
-            int m0;
-            int i;
-            int j;
-
-            A = (double *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            B = (double *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
-            C = (double *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
-            D = (double *) STARPU_MATRIX_GET_PTR(apBuffers[3]);
-
-            starpu_codelet_unpack_args(apCodeletArguments, &temp, &m0, &m);
-
-            //accept only temp divided by three (should be optimized)
-            j = 0;
-            for (i = 0; i < temp - 1; i += 3) {
-                B[j] = A[i];
-                C[j] = A[i + 1];
-                D[j] = A[i + 2];
-                j++;
-            }
-        }
-
-        static void CORE_dmse_starpu(void *apBuffers[], void *apCodeletArguments) {
-            int m, m0, i;
-            double *pZPredict;
-            double *pZMiss;
-            double *pError;
-            double local_error = 0.0;
-
-            pError = (double *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            pZPredict = (double *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
-            pZMiss = (double *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
-
-            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0);
+            T res = 0.0;
             for (i = 0; i < m; i++) {
-                local_error += pow((pZPredict[i] - pZMiss[i]), 2);
-            }
-            *pError += local_error;
-        }
-
-        static void CORE_dmloe_mmom_starpu(void *apBuffers[], void *apCodeletArguments) {
-            int m;
-            int n;
-            int i;
-            double *expr2;
-            double *expr3;
-            double *expr4;
-            double *mloe;
-            double *mmom;
-            int m0;
-            int n0;
-
-            expr2 = (double *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-            expr3 = (double *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
-            expr4 = (double *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
-            mloe = (double *) STARPU_MATRIX_GET_PTR(apBuffers[3]);
-            mmom = (double *) STARPU_MATRIX_GET_PTR(apBuffers[4]);
-            starpu_codelet_unpack_args(apCodeletArguments, &m, &n, &m0, &n0);
-            double expr2_ = 0, expr3_ = 0, expr4_ = 0;
-            for (i = 0; i < m * n; i += 2) {
-                expr2_ += expr2[i];
-                expr3_ += expr3[i];
-                expr4_ += expr4[i];
-            }
-
-            if (expr3_ == 0.0) {
-                *mloe -= 1.0;
-            } else {
-                *mloe += (expr2_ / expr3_) - 1.0;
-            }
-
-            if (expr2_ == 0.0) {
-                *mmom -= 1.0;
-            } else {
-                *mmom += (expr4_ / expr2_) - 1.0;
-            }
-        }
-
-        static void CORE_dtrace_starpu(void *buffers[], void *cl_arg) {
-            int m;
-            double *A;
-            double s = 0;
-            double *sum = &s;
-            double *trace;
-
-            *sum = 0;
-            A = (double *) STARPU_MATRIX_GET_PTR(buffers[0]);
-            sum = (double *) STARPU_MATRIX_GET_PTR(buffers[1]);
-            trace = (double *) STARPU_MATRIX_GET_PTR(buffers[2]);
-            starpu_codelet_unpack_args(cl_arg, &m);
-
-            double local_s = core_dtrace(A, m, trace);
-            *sum+= local_s;
-        }
-
-        static double core_dtrace (double *A, int m, double* trace) {
-            int i;
-            double res = 0.0;
-            for (i = 0; i < m; i++)
-            {
-                res += A[i + i * m];
-                trace[i] = A[i + i * m];
+                res += pA[i + i * m];
+                pTrace[i] = pA[i + i * m];
             }
             return res;
         }
 
-        static void CORE_ddotp_starpu(void *buffers[], void *cl_arg){
-            int m, m0;
-            double * A;
-            double * dotproduct;
+        static double tukeyGHTransfor(T aZ_non, T aZ, T aXi, T aOmega, T aG, T aH) {
+            if (aG == 0)
+                return aZ_non - aXi - aOmega * aZ * exp(0.5 * aH * aZ * aZ);
+            else
+                return aZ_non - aXi - (aOmega * (exp(aG * aZ) - 1) * (exp(0.5 * aH * aZ * aZ)) / aG);
+        }
 
-            dotproduct	= (double *)STARPU_MATRIX_GET_PTR(buffers[0]);
-            A		= (double *)STARPU_MATRIX_GET_PTR(buffers[1]);
-            starpu_codelet_unpack_args(cl_arg, &m, &m0);
-            double local_dot=cblas_ddot(m, A, 1, A, 1);
-            *dotproduct += local_dot;
+        static double tukeyGHDiferencial(T aZ, T aOmega, T aG, T aH) {
+            if (aG == 0)
+                return -aOmega * exp((aH * aZ * aZ) / 2.0) - aOmega * aH * aZ * aZ * exp((aH * aZ * aZ) / 2.0);
+            else
+                return -aOmega * exp(aG * aZ) * exp((aH * aZ * aZ) / 2.0) -
+                       (aH * aZ * exp((aH * aZ * aZ) / 2.0) * (aOmega * exp(aG * aZ) - aOmega)) / aG;
+        }
+
+        static double newton_raphson(T aZ, T aXi, T aOmega, T aG, T aH, T aEps) {
+            int itr, max_itr;
+            T x0, x1, all_err;
+            x0 = 0;
+            T diff;
+            all_err = aEps;
+            max_itr = 1000;
+            for (itr = 1; itr <= max_itr; itr++) {
+                diff = tukeyGHTransfor(aZ, x0, aXi, aOmega, aG, aH) / tukeyGHDiferencial(x0, aOmega, aG, aH);
+                x1 = x0 - diff;
+                if (fabs(diff) < all_err)
+                    return x1;
+                x0 = x1;
+            }
+
+            return x1;
+        }
+
+        static void core_non_gaussian_transform(T *apZ, T *apLocalTheta, int m) {
+
+            T xi = apLocalTheta[2];
+            T omega = apLocalTheta[3];
+            T g = apLocalTheta[4];
+            T h = apLocalTheta[5];
+
+            T eps = 1.0e-5;
+            for (int i = 0; i < m; i++)
+                apZ[i] = newton_raphson(apZ[i], xi, omega, g, h, eps);
+        }
+
+        static double core_non_gaussian_loglike(T *apZ, T *apLocalTheta, int m) {
+            T g = apLocalTheta[4];
+            T h = apLocalTheta[5];
+
+            int i;
+            T sum = 0.0;
+            if (h < 0) {
+                throw std::runtime_error("The kurtosis parameter cannot be negative");
+
+            }
+            for (i = 0; i < m; i++) {
+                if (g == 0)
+                    sum += log(1 + h * pow(apZ[i], 2)) + 0.5 * h * pow(apZ[i], 2);
+                else {
+                    sum += log(exp(g * apZ[i]) + (exp(g * apZ[i]) - 1) * h * apZ[i] / g) + 0.5 * h * pow(apZ[i], 2);
+                }
+            }
+            return sum;
+        }
+
+        static void CORE_dmse_bivariate_starpu(void *apBuffers[], void *apCodeletArguments) {
+            int m, m0, i;
+            T *pZpre;
+            T *pZmiss;
+            T *pSerror1;
+            T *pSerror2;
+            T *pSerror;
+            T local_serror1 = 0.0;
+            T local_serror2 = 0.0;
+            T local_serror = 0.0;
+
+            pSerror1 = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
+            pSerror2 = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
+            pSerror = (T *) STARPU_MATRIX_GET_PTR(apBuffers[2]);
+            pZpre = (T *) STARPU_MATRIX_GET_PTR(apBuffers[3]);
+            pZmiss = (T *) STARPU_MATRIX_GET_PTR(apBuffers[4]);
+
+            starpu_codelet_unpack_args(apCodeletArguments, &m, &m0);
+
+            for (i = 0; i < m; i++) {
+                if (i % 2 == 0) {
+                    local_serror1 += pow((pZpre[i] - pZmiss[i]), 2);
+                } else
+                    local_serror2 += pow((pZpre[i] - pZmiss[i]), 2);
+                local_serror += pow((pZpre[i] - pZmiss[i]), 2);
+            }
+            *pSerror1 += local_serror1;
+            *pSerror2 += local_serror2;
+            *pSerror += local_serror;
         }
 
         bool recover(char *apPath, int aIterationCount, T *apTheta, T *apLogLik, int aNumParams) {
@@ -809,8 +1116,7 @@ namespace exageostat::linearAlgebra {
             char *pch;
             fp = fopen(apPath, "r");
             if (fp == nullptr) {
-                LOGGER("cannot open observations file\n")
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("Cannot open observations file");
             }
             while (getline(&line, &len, fp) != -1) {
                 pch = strtok(line, " ");

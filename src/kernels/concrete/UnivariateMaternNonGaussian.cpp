@@ -6,14 +6,14 @@
 /**
  * @file UnivariateMaternNonGaussian.cpp
  * @brief Implementation of the UnivariateMaternNonGaussian kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/UnivariateMaternNonGaussian.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -46,14 +46,14 @@ void UnivariateMaternNonGaussian<T>::GenerateCovarianceMatrix(T *apMatrixA, cons
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con;
-    double sigma_square = 1;
+    T expr;
+    T con;
+    T sigma_square = 1;
 
     con = pow(2, (aLocalTheta[1] - 1)) * tgamma(aLocalTheta[1]);
     con = 1.0 / con;
     con = sigma_square * con;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;

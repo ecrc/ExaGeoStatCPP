@@ -6,14 +6,14 @@
 /**
  * @file BivariateMaternParsimonious.cpp
  * @brief Implementation of the BivariateMaternParsimonious kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/BivariateMaternParsimonious.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -46,8 +46,8 @@ void BivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, cons
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con1, con2, con12, rho, nu12;
+    T expr;
+    T con1, con2, con12, rho, nu12;
 
     con1 = pow(2, (aLocalTheta[3] - 1)) * tgamma(aLocalTheta[3]);
     con1 = 1.0 / con1;
@@ -66,13 +66,13 @@ void BivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, cons
     con12 = rho * sqrt(aLocalTheta[0] * aLocalTheta[1]) * con12;
 
     i0 /= 2;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;
         for (j = 0; j < aColumnsNumber; j += 2) {
             expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
-                                                                    flag) / aLocalTheta[2];
+                                                                    0) / aLocalTheta[2];
             if (expr == 0) {
                 apMatrixA[i + j * aRowsNumber] = aLocalTheta[0];
 

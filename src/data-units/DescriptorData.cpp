@@ -6,7 +6,7 @@
 /**
  * @file DescriptorData.cpp
  * @brief Contains the definition of the DescriptorData class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-18
@@ -29,7 +29,7 @@ DescriptorData<T>::~DescriptorData() {
         const std::string &key = pair.first;
         if (key.find("CHAMELEON") != std::string::npos && pair.second != nullptr) {
             exaGeoStatDescriptor.DestroyDescriptor(common::CHAMELEON_DESCRIPTOR, pair.second);
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
             // Since there are converted descriptors from Chameleon to Hicma, which have the same memory address.
             // So, by deleting the owner which is Chameleon, no need to delete hicma. Therefore, we remove the row of that descriptor.
             std::string converted_chameleon = key.substr(0, key.length() - chameleon.length());
@@ -70,7 +70,7 @@ void *DescriptorData<T>::GetRequest() {
     return this->mpRequest;
 }
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 
 template<typename T>
 HICMA_desc_t *DescriptorData<T>::ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc) {
@@ -115,7 +115,7 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
         descriptor.chameleon_desc = (CHAM_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) +
                                                                       "_CHAMELEON"];
     } else {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_HICMA") != this->mDictionary.end()) {
             descriptor.hicma_desc = (HICMA_desc_t *)
                     this->mDictionary[GetDescriptorName(aDescriptorName) + "_HICMA"];
@@ -132,7 +132,7 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
             descriptor.hicma_desc = nullptr;
         }
 #else
-        throw std::runtime_error("To use HiCMA descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
+        throw std::runtime_error("To use HiCMA descriptor you need to enable USE_HICMA!");
 #endif
     }
     return descriptor;
@@ -143,7 +143,7 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
                                       const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint,
                                       const int &aMB, const int &aNB, const int &aSize, const int &aLM, const int &aLN,
                                       const int &aI, const int &aJ, const int &aM, const int &aN, const int &aP,
-                                      const int &aQ) {
+                                      const int &aQ, const bool &aValidOOC) {
 
     void *descriptor;
     std::string type;
@@ -151,17 +151,17 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
         descriptor = exaGeoStatDescriptor.CreateDescriptor((CHAM_desc_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
-                                                           aN, aP, aQ);
+                                                           aN, aP, aQ, aValidOOC);
         type = "_CHAMELEON";
 
     } else {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
-                                                           aN, aP, aQ);
+                                                           aN, aP, aQ, aValidOOC);
         type = "_HICMA";
 #else
-        throw std::runtime_error("To create HiCMA descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
+        throw std::runtime_error("To create HiCMA descriptor you need to enable USE_HICMA!");
 #endif
     }
 
@@ -173,10 +173,10 @@ T *DescriptorData<T>::GetDescriptorMatrix(const common::DescriptorType &aDescrip
     if (aDescriptorType == common::CHAMELEON_DESCRIPTOR) {
         return (T *) ((CHAM_desc_t *) apDesc)->mat;
     } else {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         return (T *) ((HICMA_desc_t *) apDesc)->mat;
 #else
-        throw std::runtime_error("To use Hicma descriptor you need to enable EXAGEOSTAT_USE_HICMA!");
+        throw std::runtime_error("To use Hicma descriptor you need to enable USE_HICMA!");
 #endif
     }
 }
@@ -289,6 +289,12 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_C_TRACE";
         case DESCRIPTOR_C_DIAG :
             return "DESCRIPTOR_C_DIAG";
+        case DESCRIPTOR_SUM :
+            return "DESCRIPTOR_SUM";
+        case DESCRIPTOR_R :
+            return "DESCRIPTOR_R";
+        case DESCRIPTOR_R_COPY :
+            return "DESCRIPTOR_R_COPY";
         default:
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");

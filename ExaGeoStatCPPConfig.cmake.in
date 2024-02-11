@@ -1,0 +1,142 @@
+
+# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# All rights reserved.
+# ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
+# @file ExaGeoStatCPPConfig.cmake.in
+# @version 1.0.1
+# @author Mahmoud ElKarargy
+# @date 2023-01-30
+
+
+# relocatable package
+@PACKAGE_INIT@
+
+# defined since 2.8.3
+if (CMAKE_VERSION VERSION_LESS 2.8.3)
+    get_filename_component(CMAKE_CURRENT_LIST_DIR ${CMAKE_CURRENT_LIST_FILE} PATH)
+endif ()
+
+include("${CMAKE_CURRENT_LIST_DIR}/lib/cmake/ExaGeoStatCPPCoreConfig.cmake")
+# Compute the installation prefix relative to this file.
+get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
+if (_IMPORT_PREFIX STREQUAL "/")
+    set(_IMPORT_PREFIX "")
+endif ()
+
+
+# Cmake Module Paths
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/Modules/cmake)
+
+set(ENV{PKG_CONFIG_PATH} "${_IMPORT_PREFIX}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+include_directories(${_IMPORT_PREFIX}/include)
+link_directories(${_IMPORT_PREFIX}/lib)
+set(BLA_PREFER_PKGCONFIG "ON")
+
+set(EXAGEOSTATCPP_LIBRARIES ExaGeoStatCPP)
+set(EXAGEOSTATCPP_LIBRARY_DIRS "${_IMPORT_PREFIX}/lib")
+set(EXAGEOSTATCPP_INCLUDE_DIRS "${_IMPORT_PREFIX}/include")
+
+set(USE_CUDA "@USE_CUDA@")
+
+# Select toolchain based on whether CUDA is enabled or not
+if (USE_CUDA)
+    # Enable CUDA and include CudaToolchain
+    add_definitions(-DUSE_CUDA=TRUE)
+    enable_language(CUDA)
+    include(toolchains/CudaToolchain)
+    # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
+    set(BLA_VENDOR NVHPC)
+    list(APPEND STARPU_COMPONENT_LIST "CUDA")
+else ()
+    message("-- Build x86 Support")
+    # Include GccToolchain for non-CUDA builds - Gcc
+    include(toolchains/GccToolchain)
+endif ()
+
+add_definitions(
+    -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
+    -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
+)
+
+
+# EXAGEOSTAT depends on a MPI
+# -------------------------------
+if (USE_MPI)
+    # Enable MPI and include MPI
+    add_definitions(-DUSE_MPI=TRUE)
+    message(STATUS "Trying to find MPI")
+    find_package(MPI REQUIRED)
+    include_directories(${MPI_INCLUDE_PATH})
+    list(APPEND LIBS ${MPI_LIBRARIES})
+    list(APPEND STARPU_COMPONENT_LIST "MPI")
+endif ()
+
+# EXAGEOSTAT depends on LAPACKE
+#-----------------------------
+find_package(LAPACKE)
+list(APPEND LIBS ${LAPACKE_LIBRARIES})
+link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
+include_directories(${LAPACKE_INCLUDE_DIRS})
+
+
+# EXAGEOSTAT depends on a Hwloc
+# -------------------------------
+include(ImportHwloc)
+list(APPEND STARPU_COMPONENT_LIST "HWLOC")
+
+string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
+
+# EXAGEOSTAT depends on a runtime
+# -------------------------------
+include(ImportStarPu)
+
+# EXAGEOSTAT depends on a GSL
+# -------------------------------
+include(ImportGSL)
+
+# EXAGEOSTAT depends on a NLOPT
+# -------------------------------
+include(ImportNLOPT)
+
+
+# EXAGEOSTAT depends on HiCMA
+# -------------------------------
+if (USE_HICMA)
+    add_definitions(-DUSE_HICMA=TRUE)
+    message(STATUS "Add Hcore, Dependency needed for HiCMA")
+    include(ImportHCore)
+    message(STATUS "Add StarsH, Dependency needed for HiCMA")
+    include(ImportStarsH)
+    include(ImportHiCMA)
+endif ()
+
+# EXAGEOSTAT depends on CHAMELEON
+# -------------------------------
+include(ImportChameleon)
+
+# EXAGEOSTAT depends on a LAPACK/BLASPP
+# -------------------------------
+include(ImportBLASPP)
+include(ImportLapack)
+
+# Add all dependencies for ExaGeoStatCPP
+if (USE_CUDA)
+    message("-- Build CUDA Support")
+else ()
+    message("-- Build x86 Support")
+    set(gpu_backend CACHE STRING "none" FORCE)
+    unset(BLA_VENDOR)
+endif ()
+
+find_package_handle_standard_args(ExaGeoStatCPP
+      NAME_MISMATCHED
+      REQUIRED_VARS EXAGEOSTATCPP_INCLUDE_DIRS EXAGEOSTATCPP_LIBRARY_DIRS EXAGEOSTATCPP_LIBRARIES
+      VERSION_VAR EXAGEOSTATCPP_VERSION
+    )
+
+# Cleanup temporary variables.
+set(_IMPORT_PREFIX)
+if (CMAKE_VERSION VERSION_LESS 2.8.3)
+    set(CMAKE_CURRENT_LIST_DIR)
+endif ()
