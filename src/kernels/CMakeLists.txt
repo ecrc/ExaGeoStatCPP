@@ -13,7 +13,7 @@
 # Automatically add all kernels in the concrete directory.
 file(GLOB ALL_KERNELS ${CMAKE_CURRENT_SOURCE_DIR}/concrete/*.cpp)
 
-# Add the Configurations.cpp file to the list of source files.
+# Add the kernel.cpp file to the list with other kernels.
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Kernel.cpp
         ${ALL_KERNELS}

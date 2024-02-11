@@ -260,7 +260,7 @@ To add a new kernel, you need to follow these steps.
 
 1. Place your kernel header file in the inst/include/kernels/concrete directory. The file name should match the kernel's name. For instance, if your header file is named UnivariateMaternStationary.hpp, it can be invoked using either univariate_matern_stationary or UnivariateMaternStationary. The naming linkage is handled automatically, so there's no additional setup required on your part.
 
-2. Derive from the base class located in kernel.hpp and implement the necessary functions.
+2. Derive from the base class located in Kernel.hpp and implement the necessary functions.
 
 3. Ensure your kernel includes all the requisite functions that adhere to the established naming conventions found in other kernels. This will allow for proper support and integration of your new kernel.
 
