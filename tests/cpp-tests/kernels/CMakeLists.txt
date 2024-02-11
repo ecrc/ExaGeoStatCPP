@@ -8,26 +8,11 @@
 # @author Mahmoud ElKarargy
 # @date 2023-04-29
 
-set(EXAGEOSTAT_TESTFILES
+# Automatically add all kernels tests in the concrete directory.
+file(GLOB ALL_KERNELS ${CMAKE_CURRENT_SOURCE_DIR}/concrete/*.cpp)
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternStationary.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternFlexible.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDsigmaSquare.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateMaternParsimonious.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNuggetsStationary.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateSpacetimeMaternStationary.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDnu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDbeta.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdsigmaSquare.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdsigmaSquareBeta.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdsigmaSquareNu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdbetaBeta.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdbetaNu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternDdnuNu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestBivariateSpacetimeMaternStationary.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateMaternNonGaussian.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestUnivariateExpNonGaussian.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestTrivariateMaternParsimonious.cpp
+set(SOURCES
+        ${ALL_KERNELS}
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
         )
