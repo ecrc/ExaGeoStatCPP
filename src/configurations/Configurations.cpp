@@ -22,6 +22,7 @@ using namespace exageostat::common;
 
 Verbose Configurations::mVerbosity = Verbose::STANDARD_MODE;
 bool Configurations::mIsThetaInit = false;
+bool Configurations::mHeapAllocated = false;
 
 Configurations::Configurations() {
 
@@ -64,12 +65,15 @@ Configurations::Configurations() {
     SetDistanceMetric(EUCLIDEAN_DISTANCE);
     SetAccuracy(0);
     SetIsNonGaussian(false);
+    mIsThetaInit = false;
 }
 
-void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
+void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR) {
 
     this->mArgC = aArgC;
     this->mpArgV = apArgV;
+    mHeapAllocated = aEnableR;
+
     // Get the example name
     string example_name = apArgV[0];
     // Remove the './'
@@ -689,5 +693,15 @@ void Configurations::PrintSummary() {
 
 int Configurations::CalculateZObsNumber() {
     return (this->GetProblemSize()) - this->GetUnknownObservationsNb();
+}
+
+Configurations::~Configurations() {
+    if (mHeapAllocated) {
+        for (size_t i = 0; i < this->mArgC; ++i) {
+            delete[] this->mpArgV[i];  // Delete each string
+        }
+        delete[] this->mpArgV;  // Delete the array of pointers
+    }
+    this->mpArgV = nullptr;
 }
 

@@ -47,7 +47,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
         int seed = 0;
         srand(seed);
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
 

@@ -9,7 +9,7 @@
 # @version 1.1.0
 # @author David Helmy
 # @author Mahmoud Elkarargy
-# @date 2024-01-15
+# @date 2024-02-09
 
 rm -rf ./src/*.so*
 rm -rf ./src/*.d
@@ -21,7 +21,12 @@ rm -rf ./.git/
 rm -rf ./config.sh
 rm -rf ./clean_build.sh
 rm -rf ./..Rcheck/
+rm -rf ./benchmarks/
+rm -rf ./doxygen_config
+rm -rf ./prerequisites/
 rm -rf ./scripts/
 rm -rf ./installdir/
 
 mv ./LICENSE.md ./LICENSE
+mv ./cmake/ ./src/cmake/
+mv ./CMakeLists.txt ./src/CMakeLists_inv.txt

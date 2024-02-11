@@ -5,13 +5,13 @@
 # @file CMakeLists.txt
 # @version 1.1.0
 # @author Mahmoud ElKarargy
-# @author Sameh Abdulah
-# @date 2023-12-08
+# @date 2024-01-24
 
 set(EXAGEOSTAT_TESTFILES
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/TestPredictionHelpers.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestDiskWriter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestDistanceCalculationHelpers.cpp
 
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
-        )
+)

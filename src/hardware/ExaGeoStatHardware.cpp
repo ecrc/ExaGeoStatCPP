@@ -20,91 +20,90 @@
 #include <utilities/Logger.hpp>
 #include <utilities/EnumStringParser.hpp>
 
-ExaGeoStatHardware::ExaGeoStatHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber,
+using namespace exageostat::common;
+
+ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber,
                                        const int &aGpuNumber) {
-    this->InitHardware(aComputation, aCoreNumber, aGpuNumber);
+    InitHardware(aComputation, aCoreNumber, aGpuNumber);
 }
 
 // Constructor for R
 ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber) {
 
-    this->InitHardware(GetInputComputation(aComputation), aCoreNumber, aGpuNumber);
+    InitHardware(GetInputComputation(aComputation), aCoreNumber, aGpuNumber);
 }
 
-void ExaGeoStatHardware::InitHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber,
+void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber,
                                       const int &aGpuNumber) {
     LOGGER("** Initialise ExaGeoStat hardware **")
     int tag_width = 31, tag_sep = 26;
+
     // Init hardware using Chameleon
-    if (!this->mpChameleonContext) {
+    if (!mpChameleonContext) {
         CHAMELEON_user_tag_size(tag_width, tag_sep);
         CHAMELEON_Init(aCoreNumber, aGpuNumber)
-        this->mpChameleonContext = chameleon_context_self();
+        mpChameleonContext = chameleon_context_self();
     }
 
     // Init hardware using HiCMA
-    if (aComputation == exageostat::common::TILE_LOW_RANK) {
+    if (aComputation == TILE_LOW_RANK) {
 #ifdef USE_HICMA
-        if (!this->mpHicmaContext) {
+        if (!mpHicmaContext) {
             HICMA_user_tag_size(tag_width, tag_sep);
             HICMA_Init(aCoreNumber, aGpuNumber);
-            this->mpHicmaContext = hicma_context_self();
+            mpHicmaContext = hicma_context_self();
         }
 #else
-        throw std::runtime_error("You need to enable Hicma to use TLR computation!");
+        throw std::runtime_error("You need to enable HiCMA to use TLR computation!");
 #endif
     }
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
 }
 
+void ExaGeoStatHardware::FinalizeHardware(){
+    this->~ExaGeoStatHardware();
+}
+
 ExaGeoStatHardware::~ExaGeoStatHardware() {
-    // finalize hardware using HiCMA
     // finalize hardware using Chameleon
-    if (!this->mpChameleonContext) {
-        std::cerr << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
-        exit(1);
-    } else {
+    if (mpChameleonContext) {
         CHAMELEON_Finalize()
-        this->mpChameleonContext = nullptr;
+        mpChameleonContext = nullptr;
     }
+    // finalize hardware using HiCMA
 #ifdef USE_HICMA
-    // In case of HiCMA, It may be enabled but without initialize the hardware. aka: dense or dst computation.
-    if (this->mpHicmaContext) {
-        HICMA_Finalize();
-        this->mpHicmaContext = nullptr;
-    }
+        if (mpHicmaContext) {
+            HICMA_Finalize();
+            mpHicmaContext = nullptr;
+        }
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
     exageostat::results::Results::GetInstance()->PrintEndSummary();
 }
 
-#ifdef USE_HICMA
-
-void *ExaGeoStatHardware::GetHicmaContext() const {
-    if (!this->mpHicmaContext) {
-        throw std::runtime_error("Hardware is not initialized!");
+void *ExaGeoStatHardware::GetHicmaContext() {
+    if (!mpHicmaContext) {
+        throw std::runtime_error("HiCMA Hardware is not initialized!");
     }
-    return this->mpHicmaContext;
+    return mpHicmaContext;
 }
 
-#endif
-
-void *ExaGeoStatHardware::GetChameleonContext() const {
-    if (!this->mpChameleonContext) {
-        throw std::runtime_error("Hardware is not initialized!");
+void *ExaGeoStatHardware::GetChameleonContext() {
+    if (!mpChameleonContext) {
+        throw std::runtime_error("Chameleon Hardware is not initialized!");
     }
-    return this->mpChameleonContext;
+    return mpChameleonContext;
 }
 
-void *ExaGeoStatHardware::GetContext(exageostat::common::Computation aComputation) const {
-    if (aComputation == exageostat::common::EXACT_DENSE || aComputation == exageostat::common::DIAGONAL_APPROX) {
+void *ExaGeoStatHardware::GetContext(Computation aComputation) {
+    if (aComputation == EXACT_DENSE || aComputation == DIAGONAL_APPROX) {
         return GetChameleonContext();
     }
-    if (aComputation == exageostat::common::TILE_LOW_RANK) {
-#ifdef USE_HICMA
+    if (aComputation == TILE_LOW_RANK) {
         return GetHicmaContext();
-#endif
     }
     return nullptr;
 }
 
+void * ExaGeoStatHardware::mpChameleonContext = nullptr;
+void * ExaGeoStatHardware::mpHicmaContext = nullptr;

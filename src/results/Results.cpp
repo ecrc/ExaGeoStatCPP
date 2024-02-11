@@ -116,7 +116,7 @@ void Results::PrintEndSummary() {
             LOGGER("")
         }
     }
-    if(this->mFisher00 != 0){
+    if (this->mFisher00 != 0) {
         LOGGER(" #Fisher")
         LOGGER("  #Sd For Sigma2: " << this->mFisher00)
         LOGGER("  #Sd For Alpha: " << this->mFisher11)
@@ -243,3 +243,34 @@ void Results::SetFisher11(double aFisher11) {
 void Results::SetFisher22(double aFisher22) {
     this->mFisher22 = aFisher22;
 }
+
+
+double Results::GetMLOE() const {
+    return this->mMLOE;
+}
+
+double Results::GetMSPEError() const {
+    return this->mMSPEError;
+}
+
+std::vector<double> Results::GetIDWError() const {
+    return this->mIDWError;
+}
+
+double Results::GetMMOM() const {
+    return this->mMMOM;
+}
+
+double Results::GetFisher00() const {
+    return this->mFisher00;
+}
+
+
+double Results::GetFisher11() const {
+    return this->mFisher11;
+}
+
+double Results::GetFisher22() const {
+    return this->mFisher22;
+}
+

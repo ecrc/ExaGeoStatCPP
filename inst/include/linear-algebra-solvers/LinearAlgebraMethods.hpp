@@ -81,7 +81,7 @@ namespace exageostat::linearAlgebra {
          *
          */
         void InitiatePredictionDescriptors(Configurations &aConfigurations,
-                                           std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, const int &aP);
+                                           std::unique_ptr<ExaGeoStatData<T>> &aData, const int &aP);
 
         /**
          * @brief Initializes the descriptors necessary for the Prediction Auxiliary function MLE-MLOE-MMOM.
@@ -93,7 +93,7 @@ namespace exageostat::linearAlgebra {
          *
          */
         void InitiateMLOEMMOMDescriptors(Configurations &aConfigurations,
-                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, const int &aP);
+                                         std::unique_ptr<ExaGeoStatData<T>> &aData, const int &aP);
 
         /**
          * @brief Generates synthetic data.
@@ -106,7 +106,7 @@ namespace exageostat::linearAlgebra {
          */
         void GenerateSyntheticData(Configurations &aConfigurations,
                                    const ExaGeoStatHardware &aHardware,
-                                   std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                   std::unique_ptr<ExaGeoStatData<T>> &aData,
                                    const kernels::Kernel<T> &aKernel);
 
         /**
@@ -153,7 +153,7 @@ namespace exageostat::linearAlgebra {
          */
         void
         GenerateObservationsVector(Configurations &aConfigurations,
-                                   std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                   std::unique_ptr<ExaGeoStatData<T>> &aData,
                                    dataunits::Locations<T> *apLocation1, dataunits::Locations<T> *apLocation2,
                                    dataunits::Locations<T> *apLocation3, const int &aDistanceMetric,
                                    const kernels::Kernel<T> &aKernel);
@@ -170,7 +170,7 @@ namespace exageostat::linearAlgebra {
          *
          */
         virtual T ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware,
-                                    std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                    std::unique_ptr<ExaGeoStatData<T>> &aData,
                                     Configurations &aConfigurations, const double *apTheta,
                                     T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) = 0;
 
@@ -332,7 +332,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aKernel Reference to the kernel object to use.
          * @return the prediction Mean Square Error (MSPE).
          */
-        T *ExaGeoStatMLEPredictTile(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apTheta,
+        T *ExaGeoStatMLEPredictTile(std::unique_ptr<ExaGeoStatData<T>> &aData, T *apTheta,
                                     const int &aZMissNumber,
                                     const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
                                     const ExaGeoStatHardware &aHardware,
@@ -357,7 +357,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aKernel Reference to the kernel object to use.
          * @return the prediction Mean Square Error (MSPE).
          */
-        T *ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apTheta,
+        T *ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<ExaGeoStatData<T>> &aData, T *apTheta,
                                                const int &aZMissNumber,
                                                const int &aZObsNumber, T *apZObs, T *apZActual, T *apZMiss,
                                                const ExaGeoStatHardware &aHardware,
@@ -436,7 +436,7 @@ namespace exageostat::linearAlgebra {
          * @return void
          */
         void ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigurations,
-                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                       std::unique_ptr<ExaGeoStatData<T>> &aData,
                                        const ExaGeoStatHardware &aHardware, T *apTruthTheta,
                                        T *apEstimatedTheta, dataunits::Locations<T> &aMissLocations,
                                        dataunits::Locations<T> &aObsLocations, const kernels::Kernel<T> &aKernel);
@@ -452,7 +452,7 @@ namespace exageostat::linearAlgebra {
          */
         T *
         ExaGeoStatFisherTile(Configurations &aConfigurations,
-                             std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                             std::unique_ptr<ExaGeoStatData<T>> &aData,
                              const ExaGeoStatHardware &aHardware, T *apTheta,
                              const kernels::Kernel<T> &aKernel);
 

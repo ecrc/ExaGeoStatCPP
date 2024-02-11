@@ -16,6 +16,35 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+INSTALL_PREFIX=$PWD/installdir/_deps
+
+# Function to install CMake from source
+install_cmake() {
+  echo "CMake not found. Installing CMake from source..."
+
+  # Create a temporary directory for building CMake
+  temp_dir=$(mktemp -d)
+  cd "$temp_dir" || exit 1
+
+  # Download CMake source code
+  wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz
+
+  # Extract the source code
+  tar -xzvf cmake-3.28.1.tar.gz
+
+  # Enter the extracted directory
+  cd cmake-3.28.1 || exit 1
+
+  # Configure, build, and install CMake to the specified location
+  ./bootstrap --prefix="$INSTALL_PREFIX" --parallel=2 -- -DCMAKE_USE_OPENSSL=OFF
+  make -j 2
+  sudo make install
+
+  # Clean up
+  cd "$temp_dir" || exit 1
+  rm -rf "$temp_dir"
+}
+
 # shellcheck disable=SC2164
 cd "$(dirname "$0")"
 # Get the operating system type using uname
@@ -27,7 +56,7 @@ else
   ABSOLUTE_PATH=$(dirname "$(realpath "$0")")
 fi
 
-INSTALL_PREFIX=$PWD/installdir/_deps
+
 BUILDING_TESTS="OFF"
 BUILDING_HEAVY_TESTS="OFF"
 BUILDING_EXAMPLES="OFF"
@@ -37,11 +66,23 @@ USE_CUDA="OFF"
 USE_MPI="OFF"
 BLAS_VENDOR=""
 PACKAGE="OFF"
+SHOW_WARNINGS="OFF"
 COMPILE_FLAGS="-Wl,--no-as-needed -w -fpic"
 DEVELOPER_WARNINGS="-Wno-dev"
 
+for arg in "$@"
+do
+    case $arg in
+        --use-mkl)
+          echo "${GREEN}MKL as a BLA vendor${NC}"
+          BLAS_VENDOR="Intel10_64lp"
+          shift # Remove --use-mkl from processing
+          ;;
+    esac
+done
+
 # Parse command line options
-while getopts ":tevhHi:cmspTwr" opt; do
+while getopts ":tevhHi:cmpTwr" opt; do
   case $opt in
   i) ##### Define installation path  #####
     echo "${YELLOW}Installation path set to $OPTARG.${NC}"
@@ -75,10 +116,6 @@ while getopts ":tevhHi:cmspTwr" opt; do
     echo "${GREEN}printing make with details.${NC}"
     VERBOSE="ON"
     ;;
-  s) ##### Passing BLA vendor with mkl #####
-    echo "${GREEN}MKL as a BLA vendor${NC}"
-    BLAS_VENDOR="Intel10_64lp"
-    ;;
   p) ##### Enabling packaging system for distribution #####
     echo "${GREEN}CPACK enabled${NC}"
     PACKAGE=ON
@@ -111,7 +148,8 @@ while getopts ":tevhHi:cmspTwr" opt; do
     printf "%20s %s\n" "-m :" "to enable using MPI."
     printf "%20s %s\n" "-v :" "to enable verbose printings."
     printf "%20s %s\n" "-d :" "to enable debug mode."
-    printf "%20s %s\n" "-s :" "to manually pass MKL as your bla vendor."
+    printf "%20s %s\n" "-r :" "to enable Rcpp support."
+    printf "%20s %s\n" "--use-mkl :" "to force the use of mkl as your bla vendor."
     printf "%20s %s\n" "-p :" "to enable a packaging system for distribution."
     printf "%20s %s\n" "-h :" "Help."
     echo ""
@@ -166,7 +204,25 @@ echo ""
 rm -rf bin/
 mkdir bin/
 
-cmake "$DEVELOPER_WARNINGS" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+# Check if cmake is installed
+if command -v cmake /dev/null 2>&1; then
+  # Save the installation directory to the variable
+  cmake_install_dir=$(command -v cmake | xargs dirname)
+  echo "CMake is installed in: $cmake_install_dir"
+  cmake_command_bin=cmake
+elif [ -x "/Applications/CMake.app/Contents/bin/cmake" ]; then
+  echo "CMake found in /Applications/CMake.app/Contents/bin/cmake."
+  cmake_install_dir="/Applications/CMake.app/Contents/bin"
+  cmake_command_bin="${cmake_install_dir}/cmake"
+else
+  echo "Installing CMake from source"
+  mkdir "${ABSOLUTE_PATH}/inst/_deps/"
+  install_dir="${ABSOLUTE_PATH}/inst/_deps/"
+  install_cmake "$install_dir"
+  cmake_command_bin="${ABSOLUTE_PATH}/inst/_deps/bin/cmake"
+fi
+
+"$cmake_command_bin" "$DEVELOPER_WARNINGS" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_BUILD_TYPE=RELEASE \
   -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
   -DBUILD_TESTS="${BUILDING_TESTS}" \
@@ -194,13 +250,15 @@ if [ "$USE_R" = "ON" ]; then
   }
 
   # Clean the directory and build the code with the specified options.
-  cmake --build . -j "$(nproc)"
+  "$cmake_command_bin" --build . -j 2
 
   if [ "$OS_TYPE" = "darwin"* ]; then
     cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.dylib" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.dylib -> src"
   else
     cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.so" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.so -> src"
   fi
+
+  "${R_HOME}"/bin/Rscript "${ABSOLUTE_PATH}/cmake/CreateSymbolTable.R" "${ABSOLUTE_PATH}/bin/" "${ABSOLUTE_PATH}/src/symbols.rds"
 
   rm -rf "${ABSOLUTE_PATH:?}/bin/"*
 

@@ -13,7 +13,6 @@
 **/
 
 #include <kernels/concrete/UnivariateMaternDdbetaNu.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -98,7 +97,7 @@ UnivariateMaternDdbetaNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
                                                                                                        aLocalTheta[2] +
                                                                                                        1, expr)) +
                                                                                   pow(expr, aLocalTheta[2]) *
-                                                                                  this->CalculateSecondDerivativeBesselNuInput(
+                                                                                  BasselFunction<T>::CalculateSecondDerivativeBesselNuInput(
                                                                                           aLocalTheta[2], expr)));
                 apMatrixA[i + j * aRowsNumber] = (-1 / aLocalTheta[1] * (con * pow(expr, aLocalTheta[2]) *
                                                                          gsl_sf_bessel_Knu(aLocalTheta[2], expr)) -

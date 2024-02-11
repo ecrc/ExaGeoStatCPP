@@ -128,6 +128,15 @@ namespace exageostat::common {
     };
 
     /**
+     * @enum Data source Type
+     * @brief Enum denoting the data source Type.
+     */
+    enum DataSourceType {
+        SYNTHETIC = 0,
+        CSV_FILE = 1
+    };
+
+    /**
      * @enum Descriptor Name
      * @brief Enum denoting all Descriptors Names.
      */

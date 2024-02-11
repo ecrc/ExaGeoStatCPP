@@ -33,7 +33,7 @@ namespace exageostat::linearAlgebra {
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
          */
-        T ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware, std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+        T ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware, std::unique_ptr<ExaGeoStatData<T>> &aData,
                             Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 

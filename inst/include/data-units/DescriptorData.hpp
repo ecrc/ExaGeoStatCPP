@@ -49,7 +49,7 @@ namespace exageostat::dataunits {
         /**
          * @brief Destructor for DescriptorData.
          */
-        virtual ~DescriptorData();
+        ~DescriptorData();
 
         /**
          * @brief Get the base descriptor.

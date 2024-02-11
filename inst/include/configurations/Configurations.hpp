@@ -74,19 +74,20 @@ public:
     Configurations();
 
     /**
-     * @brief Virtual destructor to allow calls to the correct concrete destructor.
+     * @brief destructor to allow calls to the correct concrete destructor.
      *
      */
-    ~Configurations() = default;
+    ~Configurations();
 
     /**
      * @brief Initialize the module arguments.
      * @param[in] aArgC The number of arguments being passed into the program from the command line.
      * @param[in] apArgV The array of arguments.
+     * @param[in] aEnableR check if R is enabled
      * @details This method initializes the command line arguments and set default values for unused args.
      *
      */
-    void InitializeArguments(const int &aArgC, char **apArgV);
+    void InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR = false);
 
     /**
      * @brief Initialize the module arguments.
@@ -435,7 +436,8 @@ private:
     static exageostat::common::Verbose mVerbosity;
     //// Used bool for init theta
     static bool mIsThetaInit;
-
+    //// Used bool for R allocated memory on heap
+    static bool mHeapAllocated;
 };
 
 #endif //EXAGEOSTAT_CPP_CONFIGURATIONS_HPP

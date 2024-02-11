@@ -6,14 +6,25 @@
 # @file CMakeLists.txt
 # @version 1.1.0
 # @author Mahmoud ElKarargy
-# @date 2023-01-31
+# @date 2024-01-24
 
 add_subdirectory(api)
-add_subdirectory(linear-algebra-solvers)
-add_subdirectory(data-generators)
 add_subdirectory(configurations)
-add_subdirectory(kernels)
+add_subdirectory(data-generators)
+add_subdirectory(hardware)
 add_subdirectory(helpers)
+add_subdirectory(kernels)
+add_subdirectory(linear-algebra-solvers)
+add_subdirectory(prediction)
+add_subdirectory(results)
+
+if(USE_HICMA)
+    add_subdirectory(data-units)
+endif ()
+
+if (USE_R)
+    add_subdirectory(Rcpp-adapters)
+endif ()
 
 enable_testing()
 add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})

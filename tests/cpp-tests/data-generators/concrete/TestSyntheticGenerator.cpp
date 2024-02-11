@@ -20,6 +20,8 @@
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-generators/DataGenerator.hpp>
 #include <configurations/Configurations.hpp>
+#include <helpers/ByteHandler.hpp>
+#include <data-generators/LocationGenerator.hpp>
 
 using namespace std;
 
@@ -28,6 +30,7 @@ using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::kernels;
+using namespace exageostat::helpers;
 
 void TEST_SPREAD_REVERSED_BITS() {
 
@@ -40,7 +43,7 @@ void TEST_SPREAD_REVERSED_BITS() {
     {
         uint16_t randomByte = INT16_MAX;
         REQUIRE(randomByte == 0x7FFF);
-        uint64_t returnedByte = SyntheticGenerator<double>::SpreadBits(randomByte);
+        uint64_t returnedByte = SpreadBits(randomByte);
         // This because 7FFF will first be 16 hex = 64 bits
         // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- 7FFF
         // 7FFF to bits is 0111111111111111
@@ -50,7 +53,7 @@ void TEST_SPREAD_REVERSED_BITS() {
     }SECTION("Reverse Spread Bytes")
     {
         uint64_t randomByte = 0x0111111111111111;
-        uint16_t returnedByte = SyntheticGenerator<double>::ReverseSpreadBits(randomByte);
+        uint16_t returnedByte = ReverseSpreadBits(randomByte);
         REQUIRE(returnedByte == 0x7FFF);
     }SECTION("Spread & reverse 3D")
     {
@@ -60,7 +63,7 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z = INT16_MAX;
         uint64_t vectorZ;
 
-        vectorZ = (SyntheticGenerator<double>::SpreadBits(z) << 2);
+        vectorZ = (SpreadBits(z) << 2);
         // vector Z will be
         // ---- ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1 ---1
         // After shifting by 2
@@ -69,7 +72,7 @@ void TEST_SPREAD_REVERSED_BITS() {
         REQUIRE(vectorZ == 0x0444444444444444);
 
         // Do the same for Y
-        vectorZ += (SyntheticGenerator<double>::SpreadBits(y) << 1);
+        vectorZ += (SpreadBits(y) << 1);
         // If vector Z was empty it will be
         // ---- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1-
         // But sine vectorZ is already contains Z. then by adding both we get
@@ -78,16 +81,16 @@ void TEST_SPREAD_REVERSED_BITS() {
         REQUIRE(vectorZ == 0x0666666666666666);
 
         // Lastly, Adding X
-        vectorZ += SyntheticGenerator<double>::SpreadBits(x);
+        vectorZ += SpreadBits(x);
         // Adding X without shifting will result in
         // ---- -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111 -111
         // Since 0111 is equal to 7 in hex then expected to be 0x0777777777777777
         REQUIRE(vectorZ == 0x0777777777777777);
 
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x = ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y = ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z = ReverseSpreadBits(vectorZ >> 2);
 
         // What we reversed is what we send.
         REQUIRE(reversed_x == INT16_MAX);
@@ -106,13 +109,13 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z_random = 22222;
 
         //Spreading
-        vectorZ = (SyntheticGenerator<double>::SpreadBits(z_random) << 2) +
-                  (SyntheticGenerator<double>::SpreadBits(y_random) << 1) +
-                  SyntheticGenerator<double>::SpreadBits(x_random);
+        vectorZ = (SpreadBits(z_random) << 2) +
+                  (SpreadBits(y_random) << 1) +
+                  SpreadBits(x_random);
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x_random = ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y_random = ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z_random = ReverseSpreadBits(vectorZ >> 2);
 
         REQUIRE(x_random == reversed_x_random);
         REQUIRE(y_random == reversed_y_random);
@@ -127,28 +130,28 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z = 0;
         uint64_t vectorZ;
 
-        vectorZ = (SyntheticGenerator<double>::SpreadBits(z) << 2);
+        vectorZ = (SpreadBits(z) << 2);
         // vector Z will be zeros
         REQUIRE(vectorZ == 0x0000000000000000);
 
         // Do the same for Y
-        vectorZ += (SyntheticGenerator<double>::SpreadBits(y) << 1);
+        vectorZ += (SpreadBits(y) << 1);
         // vector Z after shift by one will be
         // ---- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1- --1-
         // Since 0010 is equal to 2 in hex then expected to be 0x022222222222222
         REQUIRE(vectorZ == 0x0222222222222222);
 
         // Lastly, Adding X
-        vectorZ += SyntheticGenerator<double>::SpreadBits(x);
+        vectorZ += SpreadBits(x);
         // Adding X without shifting will result in
         // ---- --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11 --11
         // Since 0011 is equal to 3 in hex then expected to be 0x0333333333333333
         REQUIRE(vectorZ == 0x0333333333333333);
 
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x = ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y = ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z = ReverseSpreadBits(vectorZ >> 2);
 
         // What we reversed is what we send.
         REQUIRE(reversed_x == INT16_MAX);
@@ -167,13 +170,13 @@ void TEST_SPREAD_REVERSED_BITS() {
         uint16_t z_random = 0;
 
         //Spreading
-        vectorZ = (SyntheticGenerator<double>::SpreadBits(z_random) << 2) +
-                  (SyntheticGenerator<double>::SpreadBits(y_random) << 1) +
-                  SyntheticGenerator<double>::SpreadBits(x_random);
+        vectorZ = (SpreadBits(z_random) << 2) +
+                  (SpreadBits(y_random) << 1) +
+                  SpreadBits(x_random);
         // Spreading is Done, Now reversing.
-        uint16_t reversed_x_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 0);
-        uint16_t reversed_y_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 1);
-        uint16_t reversed_z_random = SyntheticGenerator<double>::ReverseSpreadBits(vectorZ >> 2);
+        uint16_t reversed_x_random = ReverseSpreadBits(vectorZ >> 0);
+        uint16_t reversed_y_random = ReverseSpreadBits(vectorZ >> 1);
+        uint16_t reversed_z_random = ReverseSpreadBits(vectorZ >> 2);
 
         REQUIRE(x_random == reversed_x_random);
         REQUIRE(y_random == reversed_y_random);
@@ -267,7 +270,7 @@ void TEST_HELPERS_FUNCTIONS() {
     {
         double lowerRange = -0.4;
         double higherRange = 0.4;
-        double uniformed_num = SyntheticGenerator<double>::UniformDistribution(lowerRange, higherRange);
+        double uniformed_num = LocationGenerator<double>::UniformDistribution(lowerRange, higherRange);
         REQUIRE(uniformed_num > lowerRange);
         REQUIRE(uniformed_num < 1);
     }
@@ -275,9 +278,9 @@ void TEST_HELPERS_FUNCTIONS() {
     SECTION("Compare Uint32")
     {
         uint32_t num1 = 16;
-        REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1) == false);
-        REQUIRE(SyntheticGenerator<double>::CompareUint64(num1, num1 + num1) == true);
-        REQUIRE(SyntheticGenerator<double>::CompareUint64(num1 + num1, num1) == false);
+        REQUIRE(CompareUint64(num1, num1) == false);
+        REQUIRE(CompareUint64(num1, num1 + num1) == true);
+        REQUIRE(CompareUint64(num1 + num1, num1) == false);
         SyntheticGenerator<double>::ReleaseInstance();
     }
 }

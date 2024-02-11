@@ -25,7 +25,6 @@
 #   R_LIB_PATH          ... if set, the Rcpp libraries are exclusively searched
 #                              under this path
 
-
 if (DEFINED ENV{R_HOME})
     set(R_ROOT_PATH "$ENV{R_HOME}")
 
@@ -67,18 +66,17 @@ if (R_ROOT_PATH)
 
     if (APPLE)
         find_library(
-                R_LIB
-                REQUIRED
+                R_DYN_LIB
                 NAMES "libR.dylib"
                 PATHS ${R_ROOT_PATH}
                 PATH_SUFFIXES "lib" "lib64" "bin"
                 NO_DEFAULT_PATH
         )
+
     else ()
         #find libs
         find_library(
-                R_LIB
-                REQUIRED
+                R_DYN_LIB
                 NAMES "libR.so"
                 PATHS ${R_ROOT_PATH}
                 PATH_SUFFIXES "lib" "lib64" "bin"
@@ -86,6 +84,15 @@ if (R_ROOT_PATH)
         )
 
     endif ()
+
+    if (R_DYN_LIB MATCHES R_DYN_LIB-NOTFOUND)
+        set(R_DYN_LIB "")
+        message("R is built with no dynamic library support")
+    endif ()
+
+    set(R_LIB
+            ${R_DYN_LIB}
+            )
 
 else ()
     error("R is not installed ")
@@ -105,7 +112,6 @@ if (R_INCLUDE_PATH)
 endif ()
 
 if (RCPP_LIB_PATH)
-
     #find libs
     find_library(
             RCPP_LIB
@@ -128,31 +134,8 @@ if (RCPP_LIB_PATH)
 
 
 else ()
-
-    #find libs
-    find_library(
-            RCPP_LIB
-            REQUIRED
-            NAMES "Rcpp.so"
-            PATHS ${LIB_INSTALL_DIR}
-    )
-
-    #find includes
-    find_path(
-            RCPP_INCLUDE_DIRS
-            REQUIRED
-            NAMES "Rcpp.h"
-            PATHS ${INCLUDE_INSTALL_DIR}
-    )
-
+    message("Rcpp is not installed ...")
 endif (RCPP_LIB_PATH)
-
-
-set(R_LIBRARIES
-        ${R_LIBRARIES}
-        ${R_LIB}
-        )
-
 
 set(R_INCLUDE
         ${R_INCLUDE}
@@ -161,15 +144,29 @@ set(R_INCLUDE
         )
 
 add_library(R INTERFACE IMPORTED)
-set_target_properties(R
-        PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${R_INCLUDE}"
-        INTERFACE_LINK_LIBRARIES "${R_LIBRARIES}"
-        IMPORTED_LOCATION ${RCPP_LIB}
-        )
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(R DEFAULT_MSG
-        R_INCLUDE R_LIBRARIES)
+if (R_LIB)
+    set_target_properties(R
+            PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${R_INCLUDE}"
+            INTERFACE_LINK_LIBRARIES "${R_LIB}"
+            IMPORTED_LOCATION ${RCPP_LIB}
+            )
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(R DEFAULT_MSG
+            R_INCLUDE R_LIB)
 
-include_directories(${R_INCLUDE})
-mark_as_advanced(R_INCLUDE R_INCLUDE_DIRS RCPP_INCLUDE_DIRS R_LIBRARIES R_LIB RCPP_LIB)
+    include_directories(${R_INCLUDE})
+    mark_as_advanced(R_INCLUDE R_INCLUDE_DIRS RCPP_INCLUDE_DIRS R_LIB RCPP_LIB)
+
+else ()
+    set_target_properties(R
+            PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${R_INCLUDE}"
+            IMPORTED_LOCATION ${RCPP_LIB}
+            )
+    include(FindPackageHandleStandardArgs)
+    find_package_handle_standard_args(R DEFAULT_MSG
+            R_INCLUDE)
+
+    include_directories(${R_INCLUDE})
+    mark_as_advanced(R_INCLUDE R_INCLUDE_DIRS RCPP_INCLUDE_DIRS RCPP_LIB)
+endif ()

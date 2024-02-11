@@ -3,6 +3,7 @@
 
 # synthetic data for testing
 tests/cpp-tests/data-generators/concrete/synthetic_ds
+synthetic_ds/
 
 # intallation directory
 installdir/
@@ -11,6 +12,7 @@ installdir/
 .Rhistory
 .RData
 .RDataTmp
+src/symbols.rds
 
 # tar.gz files
 *.tar.gz
@@ -672,7 +674,6 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 # Sesimic Toolbox Results Specifics
-results/
 *.trace
 *.segy
 *.sgy

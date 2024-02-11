@@ -42,7 +42,7 @@ namespace exageostat::prediction {
         * @return void
         */
         static void PickRandomPoints(Configurations &aConfigurations,
-                                     std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apZObs, T *apZActual, T *apZ,
+                                     std::unique_ptr<ExaGeoStatData<T>> &aData, T *apZObs, T *apZActual, T *apZ,
                                      exageostat::dataunits::Locations<T> &aMissLocation,
                                      exageostat::dataunits::Locations<T> &aObsLocation, const int &aP);
 

@@ -9,7 +9,7 @@
  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-01-20
+ * @date 2024-01-24
 **/
 
 #ifndef EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP
@@ -30,7 +30,7 @@ public:
      * @param[in] aGpuNumber The number of GPUs to use for the solver.
      *
      */
-    ExaGeoStatHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+    explicit ExaGeoStatHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
 
     /**
      * @brief Constructor for ExaGeoStatHardware.
@@ -38,12 +38,18 @@ public:
      * @param[in] aCoreNumber The number of CPU cores to use for the solver.
      * @param[in] aGpuNumber The number of GPUs to use for the solver.
      */
-    ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+    explicit ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+
+    /**
+     * @brief A Finalize caller for Hardware.
+     * @return void.
+     */
+    void FinalizeHardware();
 
     /**
      * @brief Destructor for ExaGeoStatHardware.
      */
-    virtual ~ExaGeoStatHardware();
+    ~ExaGeoStatHardware();
 
     /**
      * @brief Initializes hardware configuration.
@@ -51,25 +57,21 @@ public:
      * @param[in] aCoreNumber The number of CPU cores to use for the solver.
      * @param[in] aGpuNumber The number of GPUs to use for the solver.
      */
-    void InitHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+    static void InitHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
 
     /**
      * @brief Get the Chameleon hardware context.
      * @return Pointer to the hardware context.
      *
      */
-    [[nodiscard]] void *GetChameleonContext() const;
+    [[nodiscard]] static void *GetChameleonContext();
 
-#ifdef USE_HICMA
-
-/**
-             * @brief Get the Hicma hardware context.
-             * @return Pointer to the hardware context.
-             *
-             */
-    [[nodiscard]] void *GetHicmaContext() const;
-
-#endif
+    /**
+     * @brief Get the HiCMA hardware context.
+     * @return Pointer to the hardware context.
+     *
+     */
+    [[nodiscard]] static void *GetHicmaContext();
 
     /**
      * @brief Get the hardware context.
@@ -77,13 +79,13 @@ public:
      * @return Pointer to the hardware context.
      *
      */
-    [[nodiscard]] void *GetContext(exageostat::common::Computation aComputation) const;
+    [[nodiscard]] static void *GetContext(exageostat::common::Computation aComputation);
 
-private:
-    //// Used Pointer to the Chameleon hardware context.
-    void *mpChameleonContext = nullptr;
-    //// Used Pointer to the Hicma hardware context.
-    void *mpHicmaContext = nullptr;
-};
+    private:
+        //// Used Pointer to the Chameleon hardware context.
+        static void *mpChameleonContext;
+        //// Used Pointer to the Hicma hardware context.
+        static void *mpHicmaContext;
+    };
 
 #endif // EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP

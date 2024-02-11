@@ -8,7 +8,7 @@
 # @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
-# @date 2023-02-14
+# @date 2024-02-04
 
 # Add subdirectories for concrete implementations
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
@@ -16,6 +16,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
 # Add source files to the parent scope
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/DataGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/LocationGenerator.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -13,6 +13,8 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/DiskWriter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DistanceCalculationHelpers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommunicatorMPI.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ByteHandler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/BasselFunction.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -41,7 +41,7 @@ namespace exageostat::api {
          */
         static void ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
                                        Configurations &aConfigurations,
-                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData);
+                                       std::unique_ptr<ExaGeoStatData<T>> &aData);
 
         /**
          * @brief Models Data whether it's synthetic data or real.
@@ -49,12 +49,12 @@ namespace exageostat::api {
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
-         * @return void
+         * @return the last optimum value of MLE.
          *
          */
         static T ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware,
                                         Configurations &aConfigurations,
-                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                        std::unique_ptr<ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix = nullptr);
 
 
@@ -77,7 +77,7 @@ namespace exageostat::api {
          */
         static void ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware,
                                          Configurations &aConfigurations,
-                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                         std::unique_ptr<ExaGeoStatData<T>> &aData,
                                          T *apMeasurementsMatrix = nullptr);
 
     private:

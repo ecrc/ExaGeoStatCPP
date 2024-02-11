@@ -17,7 +17,7 @@
 #include <gsl/gsl_sf_bessel.h>
 
 #include <kernels/concrete/UnivariateSpacetimeMaternStationary.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;

@@ -27,7 +27,7 @@ using namespace exageostat::prediction;
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
                                        Configurations &aConfigurations,
-                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData) {
+                                       std::unique_ptr<ExaGeoStatData<T>> &aData) {
 
     LOGGER("** ExaGeoStat data generation **")
     // Register and create a kernel object
@@ -43,7 +43,7 @@ void ExaGeoStat<T>::ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
 
 template<typename T>
 T ExaGeoStat<T>::ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware, Configurations &aConfigurations,
-                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apMeasurementsMatrix) {
+                                        std::unique_ptr<ExaGeoStatData<T>> &aData, T *apMeasurementsMatrix) {
 
     LOGGER("** ExaGeoStat data Modeling **")
     // Register and create a kernel object
@@ -97,12 +97,11 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware, Co
                                          T *apMeasurementsMatrix) {
 
     LOGGER("** ExaGeoStat data Prediction **")
-    Prediction<T> predictor;
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
     // Add the data prediction arguments.
     aConfigurations.InitializeDataPredictionArguments();
-    predictor.PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix, *pKernel);
+    Prediction<T>::PredictMissingData(aHardware, aData, aConfigurations, apMeasurementsMatrix, *pKernel);
     delete pKernel;
 }

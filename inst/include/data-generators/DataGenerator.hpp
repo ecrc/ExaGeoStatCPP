@@ -14,8 +14,6 @@
 #ifndef EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 #define EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 
-#include <memory>
-
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
@@ -41,7 +39,7 @@ namespace exageostat::generators {
          * @return unique Pointer to a populated data.
          *
          */
-        virtual std::unique_ptr<dataunits::ExaGeoStatData<T>>
+        virtual std::unique_ptr<ExaGeoStatData<T>>
         CreateData(Configurations &aConfigurations,
                    const ExaGeoStatHardware &aHardware,
                    exageostat::kernels::Kernel<T> &aKernel) = 0;
@@ -64,8 +62,8 @@ namespace exageostat::generators {
         virtual ~DataGenerator();
 
     protected:
-        /// Used bool identifying type of generation.
-        static bool mIsSynthetic;
+        /// Used enum for data generators types.
+        static common::DataSourceType aDataSourceType;
     };
 
     /**

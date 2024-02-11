@@ -51,11 +51,11 @@ inline Dimension GetInputDimension(std::string aDimension) {
     std::transform(aDimension.begin(), aDimension.end(),
                    aDimension.begin(), ::tolower);
 
-    if (aDimension == "2D" || aDimension == "2d") {
+    if (aDimension == "2d") {
         return Dimension2D;
-    } else if (aDimension == "3D" || aDimension == "3d") {
+    } else if (aDimension == "3d") {
         return Dimension3D;
-    } else if (aDimension == "ST" || aDimension == "st") {
+    } else if (aDimension == "st") {
         return DimensionST;
     } else {
         const std::string msg = "Error in Initialization : Unknown computation Value" + std::string(aDimension);

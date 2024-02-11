@@ -12,39 +12,11 @@
  * @date 2023-04-12
 **/
 
-extern "C" {
-#include <gsl/gsl_sf_bessel.h>
-}
-
 #include <kernels/Kernel.hpp>
 
 using namespace std;
 
-using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
-
-template<typename T>
-T Kernel<T>::CalculateDerivativeBesselNu(const T &aOrder, const T &aInputValue) {
-    if (aOrder == 0) {
-        return 0;
-    } else {
-        // Use a small step size to calculate the derivative numerically
-        const T step_size = 0.000000001;
-        return (gsl_sf_bessel_Knu(aOrder + step_size, aInputValue) - gsl_sf_bessel_Knu(aOrder, aInputValue)) /
-               step_size;
-    }
-}
-
-template<typename T>
-T Kernel<T>::CalculateSecondDerivativeBesselNu(const T &aOrder, const T &aInputValue) {
-    return (-0.5 * (CalculateSecondDerivativeBesselNuInput(aOrder - 1, aInputValue) +
-                    CalculateSecondDerivativeBesselNuInput(aOrder + 1, aInputValue)));
-}
-
-template<typename T>
-T Kernel<T>::CalculateSecondDerivativeBesselNuInput(const T &aOrder, const T &aInputValue) {
-    return (aOrder / aInputValue * gsl_sf_bessel_Knu(aOrder, aInputValue) - gsl_sf_bessel_Knu(aOrder + 1, aInputValue));
-}
 
 template<typename T>
 int Kernel<T>::GetVariablesNumber() const {

@@ -45,7 +45,7 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @param[in] aConfigurations Reference to the Configurations object.
          * @param[in] aP the P value of the kernel multiplied by time slot.
          */
-        void SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+        void SetModelingDescriptors(std::unique_ptr<ExaGeoStatData<T>> &aData,
                                     Configurations &aConfigurations, const int &aP);
 
         /**
@@ -53,7 +53,7 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
         */
         T ExaGeoStatMLETile(const ExaGeoStatHardware &apHardware,
-                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                            std::unique_ptr<ExaGeoStatData<T>> &aData,
                             Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 

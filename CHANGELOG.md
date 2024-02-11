@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implemented a new changelog.
 - Introduced a benchmarking script.
-- .gitignore file
+- .gitignore file.
+- More examples.
+- Add tests for all src files.
 
 ### Fixed
 - Resolved issues with MPI installation.
@@ -24,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adjusted CMake variables.
 - Revised the process of finding BLASPP and Catch2 libraries.
 - Updated doxygen documentation.
+- Split the synthetic generator functions into BitHelper class and Locations generator class.
+- Created a Bassel Function helper for kernels.
+- Cleaned the code base for better readability.
 
 ### Removed
 - Eliminated non-stationary kernel support.
