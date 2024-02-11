@@ -5,7 +5,7 @@
 
 # @file CMakeLists.txt
 # @brief This file contains the CMake configuration for the ExaGeoStat library.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-01-30
@@ -21,6 +21,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/helpers)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/hardware)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/prediction)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/results)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-loader)
 
 # Set the name of the library to be created.
 set(LIB_NAME ${PROJECT_NAME})
@@ -46,7 +47,8 @@ target_include_directories(${LIB_NAME}
         )
 install(TARGETS ${LIB_NAME}
         EXPORT ${LIB_NAME}CoreConfig
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib
         )
-install(EXPORT ${LIB_NAME}CoreConfig DESTINATION lib/cmake/${PROJECT_NAME})
+
+install(EXPORT ${LIB_NAME}CoreConfig DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/cmake/)

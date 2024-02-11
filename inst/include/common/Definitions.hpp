@@ -5,7 +5,7 @@
 
 /**
  * @file Definitions.hpp
- * @version 1.0.0
+ * @version 1.0.1
  * @brief This file contains common definitions used in ExaGeoStat software package.
  * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
  * A macro for instantiating template classes with supported types; and a set of available kernels.
@@ -128,6 +128,15 @@ namespace exageostat::common {
     };
 
     /**
+     * @enum Data source Type
+     * @brief Enum denoting the data source Type.
+     */
+    enum DataSourceType {
+        SYNTHETIC = 0,
+        CSV_FILE = 1
+    };
+
+    /**
      * @enum Descriptor Name
      * @brief Enum denoting all Descriptors Names.
      */
@@ -184,6 +193,9 @@ namespace exageostat::common {
         DESCRIPTOR_C_DIAG = 49,
         DESCRIPTOR_A = 50,
         DESCRIPTOR_RESULTS = 51,
+        DESCRIPTOR_SUM = 52,
+        DESCRIPTOR_R = 53,
+        DESCRIPTOR_R_COPY = 54,
     };
 
     /**
@@ -244,6 +256,16 @@ namespace exageostat::common {
         EXAGEOSTAT_UPPER = 121, /**< Use lower triangle of A */
         EXAGEOSTAT_LOWER = 122, /**< Use upper triangle of A */
         EXAGEOSTAT_UPPER_LOWER = 123  /**< Use the full A */
+    };
+
+    /**
+     * @enum CopyDirection
+     * @brief Enum denoting the copy descriptors flow
+     *
+     */
+    enum CopyDirection : int {
+        CHAMELEON_TO_HICMA = 0,
+        HICMA_TO_CHAMELEON = 1
     };
 
     /**

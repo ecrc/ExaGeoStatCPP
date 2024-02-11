@@ -96,6 +96,48 @@ namespace exageostat::results {
         [[nodiscard]] double GetTotalModelingExecutionTime() const;
 
         /**
+         * @brief Get the MLOE.
+         * @return The MLOE.
+         */
+        [[nodiscard]] double GetMLOE() const;
+
+        /**
+        * @brief Get the MSPEError.
+        * @return The MSPEError.
+        */
+        [[nodiscard]] double GetMSPEError() const;
+
+        /**
+        * @brief Get the IDW error.
+        * @return The the IDW error vector.
+        */
+        [[nodiscard]] std::vector<double> GetIDWError() const;
+
+        /**
+        * @brief Get the MMOM.
+        * @return The MMOM.
+        */
+        [[nodiscard]] double GetMMOM() const;
+
+        /**
+         * @brief Get the Fisher matrix element 00.
+         * @return the Fisher matrix element 00.
+         */
+        [[nodiscard]] double GetFisher00() const;
+
+        /**
+         * @brief Get the Fisher matrix element 11.
+         * @return the Fisher matrix element 11.
+         */
+        [[nodiscard]] double GetFisher11() const;
+
+        /**
+         * @brief Get the Fisher matrix element 22.
+         * @return the Fisher matrix element 22.
+         */
+        [[nodiscard]] double GetFisher22() const;
+
+        /**
          * @brief Set the total modeling FLOPs.
          * @param[in] aTime The total number of FLOPs for data modeling.
          */

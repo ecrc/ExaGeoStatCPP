@@ -6,7 +6,7 @@
 /**
  * @file CommunicatorMPI.cpp
  * @brief Defines the CommunicatorMPI class for MPI rank communication.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Sameh Abdulah
  * @date 2023-11-10
 **/
@@ -25,6 +25,7 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
 
 bool CommunicatorMPI::GetRank() const {
 
+#ifdef USE_MPI
     if(!this->mIsHardwareInitialized){
         return false;
     }
@@ -34,6 +35,9 @@ bool CommunicatorMPI::GetRank() const {
         }
         return false;
     }
+#else
+    return true;
+#endif
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {

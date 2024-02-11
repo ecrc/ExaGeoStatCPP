@@ -6,7 +6,7 @@
 /**
  * @file Prediction.cpp
  * @brief Contains the implementation of the Prediction class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -22,7 +22,8 @@ using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 
 template<typename T>
-void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHardware, ExaGeoStatData<T> &aData,
+void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHardware,
+                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                        Configurations &aConfigurations, T *apMeasurementsMatrix,
                                        const kernels::Kernel<T> &aKernel) {
 
@@ -35,34 +36,42 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
             break;
         }
     }
-    if (!can_predict && (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE() || aConfigurations.GetIsFisher())) {
+
+    if (!can_predict &&
+        (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE() || aConfigurations.GetIsFisher())) {
         throw std::runtime_error(
                 "Can't predict without an estimated theta, please either pass --etheta or run the modeling module before prediction");
     }
 
     int number_of_mspe = 3;
-    int p = aConfigurations.GetP();
+    int p = aKernel.GetVariablesNumber();
     int z_miss_number = aConfigurations.GetUnknownObservationsNb();
     int n_z_obs = aConfigurations.CalculateZObsNumber();
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
 
-    //FISHER Prediction Function Call
+    // FISHER Prediction Function Call
     if (aConfigurations.GetIsFisher()) {
         LOGGER("---- Using Prediction Function Fisher ----")
-        auto fisher_results = new T[num_params * num_params];
-        fisher_results = linear_algebra_solver->ExaGeoStatFisherTile(aConfigurations, aData, aHardware, (T *) aConfigurations.GetEstimatedTheta().data(), aKernel);
+        T *fisher_results;
+        fisher_results = linear_algebra_solver->ExaGeoStatFisherTile(aConfigurations, aData, aHardware,
+                                                                     (T *) aConfigurations.GetEstimatedTheta().data(),
+                                                                     aKernel);
 
-        LOGGER("- Sd of sigma2, alpha, nu: " << sqrt(fisher_results[0]) << " " << sqrt(fisher_results[4]) << " " << sqrt(fisher_results[8]))
-        LOGGER("- CI for sigma2: " <<  aConfigurations.GetEstimatedTheta()[0] - Q_NORM * sqrt(fisher_results[0]) << " " << aConfigurations.GetEstimatedTheta()[0] + Q_NORM * sqrt(fisher_results[0]))
+        LOGGER("- Sd of sigma2, alpha, nu: " << sqrt(fisher_results[0]) << " " << sqrt(fisher_results[4]) << " "
+                                             << sqrt(fisher_results[8]))
+        LOGGER("- CI for sigma2: " << aConfigurations.GetEstimatedTheta()[0] - Q_NORM * sqrt(fisher_results[0]) << " "
+                                   << aConfigurations.GetEstimatedTheta()[0] + Q_NORM * sqrt(fisher_results[0]))
 
-        LOGGER("- CI for alpha: " << aConfigurations.GetEstimatedTheta()[1] - Q_NORM * sqrt(fisher_results[4]) << " " << aConfigurations.GetEstimatedTheta()[1] + Q_NORM * sqrt(fisher_results[4]))
-        LOGGER("- CI for nu: " <<  aConfigurations.GetEstimatedTheta()[2] - Q_NORM * sqrt(fisher_results[8]) << " " << aConfigurations.GetEstimatedTheta()[2] + Q_NORM * sqrt(fisher_results[8]))
+        LOGGER("- CI for alpha: " << aConfigurations.GetEstimatedTheta()[1] - Q_NORM * sqrt(fisher_results[4]) << " "
+                                  << aConfigurations.GetEstimatedTheta()[1] + Q_NORM * sqrt(fisher_results[4]))
+        LOGGER("- CI for nu: " << aConfigurations.GetEstimatedTheta()[2] - Q_NORM * sqrt(fisher_results[8]) << " "
+                               << aConfigurations.GetEstimatedTheta()[2] + Q_NORM * sqrt(fisher_results[8]))
 
         LOGGER("- Fisher Matrix:")
-        for (i = 0; i < num_params; i ++){
+        for (i = 0; i < num_params; i++) {
             LOGGER("  ", true)
-            for (j = 0; j < num_params; j++){
-                LOGGER_PRECISION(fisher_results[i * num_params + j] , 18)
+            for (j = 0; j < num_params; j++) {
+                LOGGER_PRECISION(fisher_results[i * num_params + j], 18)
                 if (j != num_params - 1) {
                     LOGGER_PRECISION(", ")
                 }
@@ -73,22 +82,26 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
         delete[] fisher_results;
     }
 
-    if (z_miss_number <= 0){
+    if (z_miss_number <= 0) {
         return;
     }
 
-    LOGGER("- Number of Z observations: " << aConfigurations.GetP() * n_z_obs)
-    results::Results::GetInstance()->SetZMiss(aConfigurations.GetP() * n_z_obs);
-    T *z_obs = new T[p * n_z_obs];
-    T *z_miss = new T[p * z_miss_number];
-    T *z_actual = new T[p * z_miss_number];
-    std::vector<T> avg_pred_value(number_of_mspe);
-    auto miss_locations = new Locations<T>(z_miss_number, aData.GetLocations()->GetDimension());
-    auto obs_locations = new Locations<T>(n_z_obs, aData.GetLocations()->GetDimension());
-    // We Predict date with only Exact computation. This is a pre-request.
+    LOGGER("- Total number of Z: " << aConfigurations.GetProblemSize())
+    LOGGER("- Number of Z Miss: " << z_miss_number)
+    LOGGER("- Number of Z observations: " << n_z_obs)
 
+    results::Results::GetInstance()->SetZMiss(z_miss_number);
+    T *z_obs = new T[n_z_obs * p];
+    T *z_miss = new T[z_miss_number];
+    T *z_actual = new T[z_miss_number * p];
+    std::vector<T> avg_pred_value(number_of_mspe);
+    auto miss_locations = new Locations<T>(z_miss_number, aConfigurations.GetDimension());
+    // Prediction is only supported with 2D.
+    auto obs_locations = new Locations<T>(n_z_obs, aConfigurations.GetDimension());
+
+    // We Predict date with only Exact computation. This is a pre-request.
     InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
-                                  *obs_locations, apMeasurementsMatrix);
+                                  *obs_locations, apMeasurementsMatrix, p);
 
     // MLOE MMOM Auxiliary Function Call
     if (aConfigurations.GetIsMLOEMMOM()) {
@@ -97,7 +110,6 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
                                                          (T *) aConfigurations.GetInitialTheta().data(),
                                                          (T *) aConfigurations.GetEstimatedTheta().data(),
                                                          *miss_locations, *obs_locations, aKernel);
-        LOGGER(" ---- mloe_mmom Time(main): %6.2f seconds")
     }
 
     // IDW Auxiliary Function Call
@@ -124,15 +136,29 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
     // MSPE Prediction Function Call
     if (aConfigurations.GetIsMSPE()) {
         LOGGER("---- Using MSPE ----")
-        T *prediction_error_mspe = linear_algebra_solver->ExaGeoStatMLEPredictTile(aData,
-                                                                                   (T *) aConfigurations.GetEstimatedTheta().data(),
-                                                                                   z_miss_number, n_z_obs, z_obs,
-                                                                                   z_actual, z_miss, aHardware,
-                                                                                   aConfigurations, *miss_locations,
-                                                                                   *obs_locations, aKernel);
+        T *prediction_error_mspe;
+        if (aConfigurations.GetIsNonGaussian()) {
+            prediction_error_mspe = linear_algebra_solver->ExaGeoStatMLENonGaussianPredictTile(aData,
+                                                                                               (T *) aConfigurations.GetEstimatedTheta().data(),
+                                                                                               z_miss_number, n_z_obs,
+                                                                                               z_obs,
+                                                                                               z_actual, z_miss,
+                                                                                               aHardware,
+                                                                                               aConfigurations,
+                                                                                               *miss_locations,
+                                                                                               *obs_locations, aKernel);
+        } else {
+            prediction_error_mspe = linear_algebra_solver->ExaGeoStatMLEPredictTile(aData,
+                                                                                    (T *) aConfigurations.GetEstimatedTheta().data(),
+                                                                                    z_miss_number, n_z_obs, z_obs,
+                                                                                    z_actual, z_miss, aHardware,
+                                                                                    aConfigurations, *miss_locations,
+                                                                                    *obs_locations, aKernel);
+        }
         for (i = 0; i < number_of_mspe; i++) {
             avg_pred_value[i] += prediction_error_mspe[i];
         }
+        LOGGER("- MSPE: " << avg_pred_value[0])
         LOGGER("- Average prediction Error (mspe): ", true)
         for (i = 0; i < number_of_mspe; i++) {
             LOGGER_PRECISION(avg_pred_value[i] << "\t", 8)
@@ -149,15 +175,18 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
 }
 
 template<typename T>
-void Prediction<T>::InitializePredictionArguments(Configurations &aConfigurations, ExaGeoStatData<T> &aData,
+void Prediction<T>::InitializePredictionArguments(Configurations &aConfigurations,
+                                                  std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                                   std::unique_ptr<linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                                   T *apZObs, T *apZActual, Locations<T> &aMissLocation,
-                                                  Locations<T> &aObsLocation, T *apMeasurementsMatrix) {
+                                                  Locations<T> &aObsLocation, T *apMeasurementsMatrix, const int &aP) {
 
-    int N = aConfigurations.GetProblemSize();
-    T *z = new T[N];
+    int full_problem_size = aConfigurations.GetProblemSize() * aP;
+    T *z = new T[full_problem_size];
 
-    aLinearAlgebraSolver->ExaGeoStatGetZObs(aConfigurations, z, N, *aData.GetDescriptorData(), apMeasurementsMatrix);
-    PredictionHelpers<T>::PickRandomPoints(aConfigurations, aData, apZObs, apZActual, z, aMissLocation, aObsLocation);
+    aLinearAlgebraSolver->ExaGeoStatGetZObs(aConfigurations, z, full_problem_size, *aData->GetDescriptorData(),
+                                            apMeasurementsMatrix, aP);
+    PredictionHelpers<T>::PickRandomPoints(aConfigurations, aData, apZObs, apZActual, z, aMissLocation, aObsLocation,
+                                           aP);
     delete[] z;
 }

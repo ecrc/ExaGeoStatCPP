@@ -7,7 +7,7 @@
  * @file DataModeling.cpp
  * @brief This program models data using the ExaGeoStat library.
  * @details The program takes command line arguments and example variables to configure the data modeling.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-06-21
 **/
@@ -47,13 +47,11 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    LOGGER("** initialize ExaGeoStat hardware ** ")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    LOGGER("** Create ExaGeoStat data ** ")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
 
     // Initiating the matrix of the CHAMELEON Descriptor Z.
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
@@ -77,15 +75,16 @@ int main(int argc, char **argv) {
                                      0.573571374074921758, 0.568657969024185528, 0.935835812924391552,
                                      0.942824444953078489};
 
-    data.GetLocations()->SetLocationX(*location_x, N);
-    data.GetLocations()->SetLocationY(*location_y, N);
+    data->GetLocations()->SetLocationX(*location_x, N);
+    data->GetLocations()->SetLocationY(*location_y, N);
 
-    LOGGER("** ExaGeoStat Data Modeling ** ")
+    // Modeling module.
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
-    LOGGER("** All example stages have been completed successfully ** ")
+
     // Freeing the allocated memory.
     delete[] z_matrix;
     delete[] location_x;
     delete[] location_y;
+
     return 0;
 }

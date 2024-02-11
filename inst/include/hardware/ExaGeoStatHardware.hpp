@@ -6,10 +6,10 @@
 /**
  * @file ExaGeoStatHardware.hpp
  * @brief Contains the definition of the ExaGeoStatHardware class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-08-07
+ * @date 2024-01-24
 **/
 
 #ifndef EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP
@@ -37,25 +37,21 @@ namespace exageostat::hardware {
         /**
          * @brief Destructor for ExaGeoStatHardware.
          */
-        virtual ~ExaGeoStatHardware();
+        ~ExaGeoStatHardware();
 
         /**
          * @brief Get the Chameleon hardware context.
          * @return Pointer to the hardware context.
          *
          */
-        [[nodiscard]] void *GetChameleonContext() const;
+        [[nodiscard]] static void *GetChameleonContext() ;
 
-#ifdef EXAGEOSTAT_USE_HICMA
-
-/**
-             * @brief Get the Hicma hardware context.
-             * @return Pointer to the hardware context.
-             *
-             */
-        [[nodiscard]] void *GetHicmaContext() const;
-
-#endif
+        /**
+         * @brief Get the Hicma hardware context.
+         * @return Pointer to the hardware context.
+         *
+         */
+        [[nodiscard]] static void *GetHicmaContext();
 
         /**
          * @brief Get the hardware context.
@@ -63,15 +59,13 @@ namespace exageostat::hardware {
          * @return Pointer to the hardware context.
          *
          */
-        [[nodiscard]] void *GetContext(common::Computation aComputation) const;
+        [[nodiscard]] static void *GetContext(common::Computation aComputation) ;
 
     private:
         //// Used Pointer to the Chameleon hardware context.
-        void *mpChameleonContext = nullptr;
-#ifdef EXAGEOSTAT_USE_HICMA
+        static void *mpChameleonContext;
         //// Used Pointer to the Hicma hardware context.
-        void *mpHicmaContext = nullptr;
-#endif
+        static void *mpHicmaContext;
         //// Used Computation mode for the solver.
         common::Computation mComputation;
     };

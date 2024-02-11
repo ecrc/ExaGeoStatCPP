@@ -6,7 +6,7 @@
 /**
  * @file TestChameleonImplementationDST.cpp
  * @brief Unit tests for the Diagonal Super Tile computation in the ExaGeoStat software package.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -34,7 +34,7 @@ using namespace exageostat::hardware;
 void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 
     Configurations synthetic_data_configurations;
-
+    int p = 1;
     SECTION("SINGLE")
     {
         // initialize Hardware.
@@ -47,7 +47,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         synthetic_data_configurations.SetDenseTileSize(16);
 
         auto *data = new DescriptorData<float>();
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, p, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -55,7 +55,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto *CHAM_descriptorDeterminant = data->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                DESCRIPTOR_DETERMINANT).chameleon_desc;
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();
@@ -171,7 +171,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         synthetic_data_configurations.SetDenseTileSize(16);
 
         auto *data = new DescriptorData<double>();
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, p, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -181,7 +181,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
         auto *CHAM_descriptorProduct_1 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1).chameleon_desc;
         auto *CHAM_descriptorProduct_2 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2).chameleon_desc;
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();

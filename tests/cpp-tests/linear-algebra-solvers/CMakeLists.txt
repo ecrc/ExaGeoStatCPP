@@ -4,7 +4,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
 # @date 2023-04-06
 
@@ -14,7 +14,7 @@ set(EXAGEOSTAT_TESTFILES
         ${EXAGEOSTAT_TESTFILES}
         )
 
-if (EXAGEOSTAT_USE_HICMA)
+if (USE_HICMA)
     list(APPEND EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
             )

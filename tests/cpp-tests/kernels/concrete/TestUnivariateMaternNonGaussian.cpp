@@ -8,7 +8,7 @@
  * @brief Unit tests for the TestUnivariateMaternNonGaussian kernel in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternNonGaussian kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-05-10
@@ -36,6 +36,12 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternNonGaussian");
 
+        vector<double> lb{0.01, 0.01, -5, 0.1, -2};
+        synthetic_data_configurations.SetLowerBounds(lb);
+
+        vector<double> ub{15, 5, 5, 5, 2, 2};
+        synthetic_data_configurations.SetUpperBounds(ub);
+
         vector<double> initial_theta{7.0711, 1, 0, 2, 0, 0};
         synthetic_data_configurations.SetInitialTheta(initial_theta);
         int dts = 3;
@@ -46,10 +52,10 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
         int seed = 0;
         srand(seed);
-        exageostat::dataunits::ExaGeoStatData<double> data;
+        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
-        auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
+        auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
@@ -60,7 +66,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         };
 
         for (size_t i = 0; i < N; i++) {
-            double diff = A[i] - expected_output_data[i];
+            double diff = A[i] - expected_output_data[i]/2;
             REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
     }

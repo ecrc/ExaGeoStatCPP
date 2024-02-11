@@ -4,7 +4,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @version 1.0.0
+# @version 1.0.1
 # @brief CMake build script for the descriptors library, which includes the concrete implementations of the
 # Descriptors class based on the enabled libraries (HiCMA or Chameleon).
 # @author Mahmoud ElKarargy
@@ -17,7 +17,7 @@ set(SOURCES
         ${SOURCES}
         )
 
-if (EXAGEOSTAT_USE_HICMA)
+if (USE_HICMA)
     list(APPEND SOURCES
             ${CMAKE_CURRENT_SOURCE_DIR}/HicmaDescriptor.cpp
             )
