@@ -34,17 +34,18 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configuratio
         throw std::domain_error("Please activate either the synthetic or the CSV file for data generation");
     }
     if(apConfigurations.GetIsSynthetic()){
-        aDataGeneratorType = SYNTHETIC;
+        aDataSourceType = SYNTHETIC;
     }
     else if(apConfigurations.GetIsCSV()){
-        aDataGeneratorType = CSV_FILE;
+        aDataSourceType = CSV_FILE;
     }
     results::Results::GetInstance()->SetIsSynthetic(apConfigurations.GetIsSynthetic());
 
     // Return DataGenerator unique pointer of Synthetic type
-    if (aDataGeneratorType == SYNTHETIC) {
+    //// TODO: In case of other file support, Then we can create another layer for the factory creation depending on the file size.
+    if (aDataSourceType == SYNTHETIC) {
         return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
-    } else if (aDataGeneratorType == CSV_FILE) {
+    } else if (aDataSourceType == CSV_FILE) {
         return std::unique_ptr<DataGenerator<T>>(CSVLoader<T>::GetInstance());
     } else {
         throw std::runtime_error("Data Loading for this file type is unsupported for now");
@@ -54,9 +55,9 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configuratio
 template<typename T>
 DataGenerator<T>::~DataGenerator() {
     // Return DataGenerator unique pointer of Synthetic type
-    if (aDataGeneratorType == SYNTHETIC) {
+    if (aDataSourceType == SYNTHETIC) {
         SyntheticGenerator<T>::GetInstance()->ReleaseInstance();
-    } else if (aDataGeneratorType == CSV_FILE) {
+    } else if (aDataSourceType == CSV_FILE) {
         CSVLoader<T>::GetInstance()->ReleaseInstance();
     } else {
         std::cerr << "Data Loading for this file type is unsupported for now" << std::endl;
@@ -64,4 +65,4 @@ DataGenerator<T>::~DataGenerator() {
     }
 }
 
-template<typename T> DataGeneratorType DataGenerator<T>::aDataGeneratorType = common::SYNTHETIC;
+template<typename T> DataSourceType DataGenerator<T>::aDataSourceType = common::SYNTHETIC;

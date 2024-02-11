@@ -63,7 +63,7 @@ namespace exageostat::generators {
 
     protected:
         /// Used enum for data generators types.
-        static common::DataGeneratorType aDataGeneratorType;
+        static common::DataSourceType aDataSourceType;
     };
 
     /**

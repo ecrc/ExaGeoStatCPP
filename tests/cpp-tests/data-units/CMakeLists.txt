@@ -8,10 +8,7 @@
 # @date 2024-01-24
 
 set(EXAGEOSTAT_TESTFILES
-
-        ${CMAKE_CURRENT_SOURCE_DIR}/TestDiskWriter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/TestDistanceCalculationHelpers.cpp
-
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestDescriptorData.cpp
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
-)
+        )

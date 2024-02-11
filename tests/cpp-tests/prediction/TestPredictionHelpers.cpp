@@ -4,7 +4,7 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file TestPrediction.cpp
+ * @file TestPredictionHelpers.cpp
  * @brief Unit tests for the TestPrediction class in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestPrediction class
  * @version 1.0.0

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Introduced a benchmarking script.
 - .gitignore file.
 - More examples.
+- Add tests for all src files.
 
 ### Fixed
 - Resolved issues with MPI installation.

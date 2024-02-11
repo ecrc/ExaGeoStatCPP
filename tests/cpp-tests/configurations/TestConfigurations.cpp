@@ -25,6 +25,74 @@ using namespace std;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
 
+void TEST_ARGUMENT_INITIALIZATION(){
+
+    const int argc = 17;
+    char* argv[] = {
+            const_cast<char*>("program_name"),
+            const_cast<char*>("--N=16"),
+            const_cast<char*>("--dts=8"),
+            const_cast<char*>("--kernel=univariate_matern_stationary"),
+            const_cast<char*>("--computation=exact"),
+            const_cast<char*>("--precision=double"),
+            const_cast<char*>("--initial_theta=1:0.1:0.5"),
+            const_cast<char*>("--ub=5:5:5"),
+            const_cast<char*>("--lb=0.1:0.1:0.1"),
+            const_cast<char*>("--max_mle_iterations=5"),
+            const_cast<char*>("--tolerance=4"),
+            const_cast<char*>("--ZMiss=6"),
+            const_cast<char*>("--mspe"),
+            const_cast<char*>("--idw"),
+            const_cast<char*>("--mloe-mmom"),
+            const_cast<char*>("--fisher"),
+            const_cast<char*>("--data_path=./dummy-path")
+    };
+
+    Configurations configurations;
+
+    // Initialize configuration dictionary with only common arguments
+    configurations.InitializeArguments(argc, argv);
+
+    REQUIRE(configurations.GetProblemSize() == 16);
+    REQUIRE(configurations.GetKernelName() == "UnivariateMaternStationary");
+    REQUIRE(configurations.GetDenseTileSize() == 8);
+    REQUIRE(configurations.GetPrecision() == DOUBLE);
+
+    // No data generation arguments initialized
+    REQUIRE(configurations.GetDataPath() == string(""));
+
+    // No data modeling arguments initialized
+    REQUIRE_THROWS(configurations.GetMaxMleIterations());
+    REQUIRE_THROWS(configurations.GetTolerance());
+
+    // No data prediction arguments initialized
+    REQUIRE(configurations.GetIsMSPE() == false);
+    REQUIRE(configurations.GetIsIDW() == false);
+    REQUIRE(configurations.GetIsFisher() == false);
+    REQUIRE(configurations.GetIsMLOEMMOM() == false);
+    REQUIRE(configurations.GetUnknownObservationsNb() == 0);
+
+    // Data generation arguments initialized
+    configurations.InitializeDataGenerationArguments();
+
+    REQUIRE(configurations.GetDataPath() == string("./dummy-path"));
+
+    // Data modelling arguments initialized
+    configurations.InitializeDataModelingArguments();
+
+    REQUIRE(configurations.GetMaxMleIterations() == 5);
+    REQUIRE(configurations.GetTolerance() == 4);
+
+    // Data prediction arguments initialized
+    configurations.InitializeDataPredictionArguments();
+
+    REQUIRE(configurations.GetIsMSPE() == true);
+    REQUIRE(configurations.GetIsIDW() == true);
+    REQUIRE(configurations.GetIsFisher() == true);
+    REQUIRE(configurations.GetIsMLOEMMOM() == true);
+    REQUIRE(configurations.GetUnknownObservationsNb() == 6);
+
+}
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
     Configurations synthetic_data_configurations;
@@ -113,7 +181,8 @@ void TEST_COPY_CONSTRUCTOR() {
     }
 }
 
-TEST_CASE("Synthetic Data Configurations") {
+TEST_CASE("Configurations Tests") {
     TEST_SYNTHETIC_CONFIGURATIONS();
     TEST_COPY_CONSTRUCTOR();
+    TEST_ARGUMENT_INITIALIZATION();
 }

@@ -9,9 +9,10 @@
 
 set(EXAGEOSTAT_TESTFILES
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/TestDiskWriter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/TestDistanceCalculationHelpers.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestPrediction.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestPredictionHelpers.cpp
 
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
 )
+

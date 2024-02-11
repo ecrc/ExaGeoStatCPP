@@ -36,6 +36,7 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
             break;
         }
     }
+
     if (!can_predict &&
         (aConfigurations.GetIsMLOEMMOM() || aConfigurations.GetIsMSPE() || aConfigurations.GetIsFisher())) {
         throw std::runtime_error(
@@ -48,7 +49,7 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
     int n_z_obs = aConfigurations.CalculateZObsNumber();
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
 
-    //FISHER Prediction Function Call
+    // FISHER Prediction Function Call
     if (aConfigurations.GetIsFisher()) {
         LOGGER("---- Using Prediction Function Fisher ----")
         T *fisher_results;
