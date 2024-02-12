@@ -23,7 +23,7 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
     return mpInstance;
 }
 
-int CommunicatorMPI::GetRank() {
+int CommunicatorMPI::GetRank() const{
 #ifdef USE_MPI
     if(!mIsHardwareInitialized){
         return 0;

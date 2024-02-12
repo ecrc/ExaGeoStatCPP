@@ -7,6 +7,7 @@ Contributing to ExaGeoStatCPP
 - [Developing new features](#developing-new-features)
 - [Developing bug fixes](#developing-bug-fixes)
 - [Creating pull requests](#creating-pull-requests)
+- [Adding new Kernel](#adding-new-kernel)
 - [Tests](#tests)
 
 Synopsis
@@ -263,6 +264,8 @@ To add a new kernel, you need to follow these steps.
 2. Derive from the base class located in Kernel.hpp and implement the necessary functions.
 
 3. Ensure your kernel includes all the requisite functions that adhere to the established naming conventions found in other kernels. This will allow for proper support and integration of your new kernel.
+
+4. Test your kernel, create a test file for your kernel in tests/cpp-tests/kernels/concrete The file name should match the kernel's name. Also, The naming linkage is handled automatically, so there's no additional setup required on your part.
 
 After finalizing your feature and confirming that your tests run successfully, 
 you are ready to push your branch to GitHub and submit a pull request.

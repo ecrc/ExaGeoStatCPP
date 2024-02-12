@@ -35,7 +35,7 @@ namespace exageostat::helpers {
          * @return The rank of the MPI process.
          *
          */
-        [[nodiscard]] int GetRank() ;
+        [[nodiscard]] int GetRank() const;
 
         /**
          * @brief Set the hardware initialization flag.

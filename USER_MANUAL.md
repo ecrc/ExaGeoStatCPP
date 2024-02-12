@@ -27,7 +27,7 @@ ExaGeoStatCPP User Manual
 * To enable MPI, add `-m` disabled by default.
 * To enable verbose output, add `-v` disabled by default.
 * To change the installation path of the dependencies, use `-i <installation/path>` project_path/installdir/_deps/ by default on Unix systems.
-* To enable manually passing mkl as BLA vendor, add `-s` MKL by default.
+* To enable manually passing mkl as BLA vendor, add `--use-mkl` MKL by default.
 * To enable packaging system for distribution, add `-p` disabled by default.
 
 ## Building
@@ -76,6 +76,7 @@ Supported Covariance Functions/ Kernels:
 17. bivariate_spacetime_matern_stationary
 18. trivariate_matern_parsimonious
 
+* To add your kernel, please refer to [Contribution Guidelines](CONTRIBUTING.md)
 ## Arguments
 
 * {Mandatory} To set the problem size (N)
