@@ -78,7 +78,7 @@ namespace exageostat::configurations {
          * @brief destructor to allow calls to the correct concrete destructor.
          *
          */
-        ~Configurations() = default;
+        ~Configurations();
 
         /**
          * @brief Initialize the module arguments.
@@ -382,7 +382,7 @@ namespace exageostat::configurations {
          * @brief print the summary of MLE inputs.
          * @return void
          */
-        inline void PrintSummary();
+        inline void PrintSummary(int aRank = 0);
 
         /**
          * @brief Calculates the number of observed measurements.

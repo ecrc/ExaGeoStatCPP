@@ -35,7 +35,7 @@ namespace exageostat::helpers {
          * @return The rank of the MPI process.
          *
          */
-        [[nodiscard]] bool GetRank() const;
+        [[nodiscard]] int GetRank() ;
 
         /**
          * @brief Set the hardware initialization flag.
@@ -56,13 +56,17 @@ namespace exageostat::helpers {
     private:
 
         /**
+         * @brief Prevent Class Instantiation for Communicator MPI Class.
+         */
+        CommunicatorMPI() = default;
+
+        /**
          * @brief Pointer to the singleton instance of the CommunicatorMPI class.
          *
          */
         static CommunicatorMPI *mpInstance;
-
         /// Used boolean to check if hardware is initialized.
-        bool mIsHardwareInitialized = false;
+        bool mIsHardwareInitialized;
     };
 }
 #endif //EXAGEOSTATCPP_COMMUNICATORMPI_HPP

@@ -23,29 +23,24 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
     return mpInstance;
 }
 
-bool CommunicatorMPI::GetRank() const {
-
+int CommunicatorMPI::GetRank() {
 #ifdef USE_MPI
-    if(!this->mIsHardwareInitialized){
-        return false;
+    if(!mIsHardwareInitialized){
+        return 0;
     }
     else{
-        if(CHAMELEON_Comm_rank() == 0){
-            return true;
-        }
-        return false;
+        return CHAMELEON_Comm_rank();
     }
 #else
-    return true;
+    return 0;
 #endif
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {
-    this->mIsHardwareInitialized = true;
+    mIsHardwareInitialized = true;
+}
+void CommunicatorMPI::RemoveHardwareInitialization() {
+    mIsHardwareInitialized = false;
 }
 
 CommunicatorMPI *CommunicatorMPI::mpInstance = nullptr;
-
-void CommunicatorMPI::RemoveHardwareInitialization() {
-    this->mIsHardwareInitialized = false;
-}

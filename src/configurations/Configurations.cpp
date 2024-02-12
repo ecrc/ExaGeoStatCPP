@@ -12,6 +12,10 @@
  * @date 2023-01-31
 **/
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include <configurations/Configurations.hpp>
 #include <kernels/Kernel.hpp>
 #include <common/Utils.hpp>
@@ -75,11 +79,20 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
 
     this->mArgC = aArgC;
     this->mpArgV = apArgV;
+
+    int rank = 0;
+#ifdef USE_MPI
+    MPI_Init(&this->mArgC,&this->mpArgV);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
+
     // Get the example name
     string example_name = apArgV[0];
     // Remove the './'
     example_name.erase(0, 2);
-    LOGGER("Running " + example_name)
+    if(!rank){
+        LOGGER("Running " + example_name)
+    }
     string argument;
     string argument_name;
     string argument_value;
@@ -216,7 +229,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
         //initlog
         InitLog();
     }
-    this->PrintSummary();
+    this->PrintSummary(rank);
 
 }
 
@@ -639,60 +652,70 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
     }
 }
 
-void Configurations::PrintSummary() {
+void Configurations::PrintSummary(int aRank) {
 
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
 
-    LOGGER("********************SUMMARY**********************")
-    if (this->GetIsSynthetic()) {
-        LOGGER("#Synthetic Dataset")
-    } else {
-        LOGGER("#Real Dataset")
-    }
-    LOGGER("#Number of Locations: " << this->GetProblemSize())
-    LOGGER("#Threads per node: " << this->GetCoresNumber())
-    LOGGER("#GPUs: " << this->GetGPUsNumbers())
-    if (this->GetPrecision() == 1) {
-        LOGGER("#Precision: Double")
-    } else if (this->GetPrecision() == 0) {
-        LOGGER("#Precision: Single")
-    } else if (this->GetPrecision() == 2) {
-        LOGGER("#Precision: Single/Double")
-    }
-    LOGGER("#Dense Tile Size: " << this->GetDenseTileSize())
-#ifdef USE_HICMA
-    LOGGER("#Low Tile Size: " << this->GetLowTileSize())
-#endif
-    if (this->GetComputation() == TILE_LOW_RANK) {
-        LOGGER("#Computation: Tile Low Rank")
-    } else if (this->GetComputation() == EXACT_DENSE) {
-        LOGGER("#Computation: Exact")
-    } else if (this->GetComputation() == DIAGONAL_APPROX) {
-        LOGGER("#Computation: Diagonal Approx")
-    }
+    if (!aRank) {
 
-    if (this->GetDimension() == Dimension2D) {
-        LOGGER("#Dimension: 2D")
-    } else if (this->GetDimension() == Dimension3D) {
-        LOGGER("#Dimension: 3D")
-    } else if (this->GetDimension() == DimensionST) {
-        LOGGER("#Dimension: ST")
+        LOGGER("********************SUMMARY**********************")
+        if (this->GetIsSynthetic()) {
+            LOGGER("#Synthetic Dataset")
+        } else {
+            LOGGER("#Real Dataset")
+        }
+        LOGGER("#Number of Locations: " << this->GetProblemSize())
+        LOGGER("#Threads per node: " << this->GetCoresNumber())
+        LOGGER("#GPUs: " << this->GetGPUsNumbers())
+        if (this->GetPrecision() == 1) {
+            LOGGER("#Precision: Double")
+        } else if (this->GetPrecision() == 0) {
+            LOGGER("#Precision: Single")
+        } else if (this->GetPrecision() == 2) {
+            LOGGER("#Precision: Single/Double")
+        }
+        LOGGER("#Dense Tile Size: " << this->GetDenseTileSize())
+#ifdef USE_HICMA
+        LOGGER("#Low Tile Size: " << this->GetLowTileSize())
+#endif
+        if (this->GetComputation() == TILE_LOW_RANK) {
+            LOGGER("#Computation: Tile Low Rank")
+        } else if (this->GetComputation() == EXACT_DENSE) {
+            LOGGER("#Computation: Exact")
+        } else if (this->GetComputation() == DIAGONAL_APPROX) {
+            LOGGER("#Computation: Diagonal Approx")
+        }
+
+        if (this->GetDimension() == Dimension2D) {
+            LOGGER("#Dimension: 2D")
+        } else if (this->GetDimension() == Dimension3D) {
+            LOGGER("#Dimension: 3D")
+        } else if (this->GetDimension() == DimensionST) {
+            LOGGER("#Dimension: ST")
+        }
+        LOGGER("#Kernel: " << this->GetKernelName())
+        if (this->GetDistanceMetric() == EUCLIDEAN_DISTANCE) {
+            LOGGER("#Distance Metric: Euclidean distance")
+        } else {
+            LOGGER("#Distance Metric: Great Circle Distance")
+        }
+        LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
+        if (this->GetIsOOC()) {
+            LOGGER("#Out Of Core (OOC) technology is enabled")
+        }
+        LOGGER("*************************************************")
+        mVerbosity = temp;
     }
-    LOGGER("#Kernel: " << this->GetKernelName())
-    if (this->GetDistanceMetric() == EUCLIDEAN_DISTANCE) {
-        LOGGER("#Distance Metric: Euclidean distance")
-    } else {
-        LOGGER("#Distance Metric: Great Circle Distance")
-    }
-    LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
-    if (this->GetIsOOC()) {
-        LOGGER("#Out Of Core (OOC) technology is enabled")
-    }
-    LOGGER("*************************************************")
-    mVerbosity = temp;
 }
 
 int Configurations::CalculateZObsNumber() {
     return (this->GetProblemSize()) - this->GetUnknownObservationsNb();
+}
+
+Configurations::~Configurations() {
+#ifdef USE_MPI
+    // Finalize the MPI environment.
+    MPI_Finalize();
+#endif
 }

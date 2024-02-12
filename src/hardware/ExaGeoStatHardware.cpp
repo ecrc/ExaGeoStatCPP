@@ -23,7 +23,6 @@ using namespace exageostat::hardware;
 
 ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber,
                                        const int &aGpuNumber) {
-    LOGGER("** Initialise ExaGeoStat hardware **")
     this->mComputation = aComputation;
     int tag_width = 31, tag_sep = 26;
 
@@ -47,9 +46,12 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
 #endif
     }
     helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
+    LOGGER("** Initialized ExaGeoStat hardware **")
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
+
+    results::Results::GetInstance()->PrintEndSummary();
     // finalize hardware using Chameleon
     if (mpChameleonContext) {
         CHAMELEON_Finalize()
@@ -65,7 +67,6 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
 #endif
     }
     helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
-    results::Results::GetInstance()->PrintEndSummary();
 }
 
 void *ExaGeoStatHardware::GetHicmaContext() {
