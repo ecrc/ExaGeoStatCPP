@@ -29,7 +29,7 @@ TEST_CASE("EXAMPLES") {
     path currentPath = current_path().parent_path().parent_path() / "examples";
 
     SECTION("Configuration"){
-        path configurations_example = currentPath / "configurations/Example_Configurations ";
+        path configurations_example = currentPath / "configurations/Example_Configurations_Setup ";
         string arguments_string = "--N=10 --dts=8 --kernel=univariate_matern_stationary";
         cout << "Running Configurations example with arguments: " + arguments_string << endl << flush;
 
@@ -95,3 +95,4 @@ TEST_CASE("EXAMPLES") {
         }
     }
 }
+
