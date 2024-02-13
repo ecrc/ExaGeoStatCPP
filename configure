@@ -258,8 +258,6 @@ if [ "$USE_R" = "ON" ]; then
     cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.so" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.so -> src"
   fi
 
-  "${R_HOME}"/bin/Rscript "${ABSOLUTE_PATH}/cmake/CreateSymbolTable.R" "${ABSOLUTE_PATH}/bin/" "${ABSOLUTE_PATH}/src/symbols.rds"
-
   rm -rf "${ABSOLUTE_PATH:?}/bin/"*
 
 fi

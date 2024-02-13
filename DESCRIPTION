@@ -10,7 +10,7 @@ License: GPL (>= 3)
 Imports: assertthat (>= 0.2.1), MASS, methods, Rcpp (>= 1.0.9)
 Depends: R (>= 3.5.0), assertthat (>= 0.2.1), MASS
 RoxygenNote: 7.2.3
-SystemRequirements: C++ (>= 11), lapacke (https://github.com/xianyi/OpenBLAS/releases), blas (https://github.com/xianyi/OpenBLAS/releases)
+SystemRequirements: C++ (>= 11), lapacke (https://github.com/xianyi/OpenBLAS/releases)
 NeedsCompilation: yes
 OS_type: unix
 Authors@R: c(

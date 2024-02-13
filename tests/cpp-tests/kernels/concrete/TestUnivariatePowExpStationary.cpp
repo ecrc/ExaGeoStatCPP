@@ -51,10 +51,10 @@ void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations, data);
 
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
-        double expected_output_data[] = { -1.272336, -2.362813, 0.616384, -0.072468, 0.401498, -1.559690, 0.211848, 
+        double expected_output_data[] = { -1.272336, -2.362813, 0.616384, -0.072468, 0.401498, -1.559690, 0.211848,
                                           0.776627, -1.524810};
 
         for (size_t i = 0; i < N; i++) {

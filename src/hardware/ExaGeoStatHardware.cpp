@@ -61,7 +61,18 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
 }
 
 void ExaGeoStatHardware::FinalizeHardware(){
-    this->~ExaGeoStatHardware();
+    // finalize hardware using Chameleon
+    if (mpChameleonContext) {
+        CHAMELEON_Finalize()
+        mpChameleonContext = nullptr;
+    }
+    // finalize hardware using HiCMA
+#ifdef USE_HICMA
+    if (mpHicmaContext) {
+        HICMA_Finalize();
+        mpHicmaContext = nullptr;
+    }
+#endif
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {

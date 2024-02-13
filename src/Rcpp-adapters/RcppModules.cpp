@@ -54,6 +54,6 @@ RCPP_MODULE(ExaGeoStatCPP) {
                           _["mle_itr"] = 0, _["tol"] = 4, _["prediction"] = IntegerVector::create(0, 0, 0, 0, 0)));
 
     function("simulate_data", &exageostat::adapters::R_ExaGeoStatLoadData, List::create(_["hardware"], _["config"], _["data"]));
-    function("model_data", &exageostat::adapters::R_ExaGeoStatModelData, List::create(_["hardware"], _["config"], _["data"]));
-    function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData, List::create(_["hardware"], _["config"], _["data"]));
+    function("model_data", &exageostat::adapters::R_ExaGeoStatModelData, List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue, _["y"] = R_NilValue, _["z"] = R_NilValue));
+    function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData, List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue, _["y"] = R_NilValue, _["z"] = R_NilValue));
 }

@@ -18,6 +18,7 @@
 #include <api/ExaGeoStat.hpp>
 
 using namespace std;
+using namespace Rcpp;
 
 using namespace exageostat::dataunits;
 using namespace exageostat::api;
@@ -117,16 +118,90 @@ namespace exageostat::adapters {
     }
 
     ExaGeoStatData<double> *R_ExaGeoStatModelData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                  ExaGeoStatData<double> *apData) {
+                                                  ExaGeoStatData<double> *apData,
+                                                  Nullable <NumericMatrix> aMeasurementsMatrix,
+                                                  Nullable <NumericMatrix> aLocationsX,
+                                                  Nullable <NumericMatrix> aLocationsY,
+                                                  Nullable <NumericMatrix> aLocationsZ) {
+
         std::unique_ptr<ExaGeoStatData<double>> apDataPtr(apData);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(*apHardware, *apConfigurations, apDataPtr);
+        double* pMeasurementsMatrixPtr = nullptr;
+        if (aMeasurementsMatrix == nullptr || aMeasurementsMatrix.isNull()){
+            // This was the only way to pass C++ tests, if we checked for aMeasurementsMatrix != nullptr a seg fault occurs
+        }
+        else{
+
+            NumericMatrix mat(aMeasurementsMatrix.get());
+            pMeasurementsMatrixPtr = &mat[0]; // Get the raw pointer to the matrix data
+
+            if (!aLocationsX.isNull()) {
+                double *pLocationsXPtr;
+                NumericMatrix mat_location(aLocationsX.get());
+                pLocationsXPtr = &mat_location[0]; // Get the raw pointer to the matrix data
+                apData->GetLocations()->SetLocationX(*pLocationsXPtr, mat_location.ncol());
+            }
+
+            if (aLocationsY.isNotNull()) {
+                double *pLocationsYPtr;
+                NumericMatrix mat_location(aLocationsY.get());
+                pLocationsYPtr = &mat_location[0]; // Get the raw pointer to the matrix data
+                apData->GetLocations()->SetLocationY(*pLocationsYPtr, mat_location.ncol());
+
+            }
+
+            if (aLocationsZ == nullptr || aLocationsZ.isNotNull()) {
+                double *pLocationsZPtr;
+                NumericMatrix mat_location(aLocationsZ.get());
+                pLocationsZPtr = &mat_location[0]; // Get the raw pointer to the matrix data
+                apData->GetLocations()->SetLocationZ(*pLocationsZPtr, mat_location.ncol());
+            }
+        }
+
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(*apHardware, *apConfigurations, apDataPtr, pMeasurementsMatrixPtr);
         return apDataPtr.release();
     }
 
     ExaGeoStatData<double> *R_ExaGeoStatPredictData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                    ExaGeoStatData<double> *apData) {
+                                                    ExaGeoStatData<double> *apData,
+                                                    Nullable <NumericMatrix> aMeasurementsMatrix,
+                                                    Nullable <NumericMatrix> aLocationsX,
+                                                    Nullable <NumericMatrix> aLocationsY,
+                                                    Nullable <NumericMatrix> aLocationsZ) {
+
         std::unique_ptr<ExaGeoStatData<double>> apDataPtr(apData);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(*apHardware, *apConfigurations, apDataPtr);
+        double* pMeasurementsMatrixPtr = nullptr;
+        if (aMeasurementsMatrix == nullptr || aMeasurementsMatrix.isNull()){
+            // This was the only way to pass C++ tests, if we checked for aMeasurementsMatrix != nullptr a seg fault occurs
+        }
+        else{
+
+            NumericMatrix mat(aMeasurementsMatrix.get());
+            pMeasurementsMatrixPtr = &mat[0]; // Get the raw pointer to the matrix data
+
+            if (!aLocationsX.isNull()) {
+                double *pLocationsXPtr;
+                NumericMatrix mat_location(aLocationsX.get());
+                pLocationsXPtr = &mat_location[0]; // Get the raw pointer to the matrix data
+                apData->GetLocations()->SetLocationX(*pLocationsXPtr, mat_location.ncol());
+            }
+
+            if (aLocationsY.isNotNull()) {
+                double *pLocationsYPtr;
+                NumericMatrix mat_location(aLocationsY.get());
+                pLocationsYPtr = &mat_location[0]; // Get the raw pointer to the matrix data
+                apData->GetLocations()->SetLocationY(*pLocationsYPtr, mat_location.ncol());
+
+            }
+
+            if (aLocationsZ.isNotNull()) {
+                double *pLocationsZPtr;
+                NumericMatrix mat_location(aLocationsZ.get());
+                pLocationsZPtr = &mat_location[0]; // Get the raw pointer to the matrix data
+                apData->GetLocations()->SetLocationZ(*pLocationsZPtr, mat_location.ncol());
+            }
+        }
+
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(*apHardware, *apConfigurations, apDataPtr, pMeasurementsMatrixPtr);
         return apDataPtr.release();
     }
 }

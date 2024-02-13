@@ -15,6 +15,7 @@
 #ifndef EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP
 #define EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP
 
+#include <Rcpp.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -74,19 +75,25 @@ namespace exageostat::adapters {
      */
     ExaGeoStatData<double> *R_ExaGeoStatLoadData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
                                                  ExaGeoStatData<double> *apData);
-
-    /**
+     /**
      * @brief Function to model ExaGeoStat data.
      * @details This function applies the model configurations specified in apConfigurations to the data stored in apData, using the hardware setup specified by apHardware.
      * It prepares the ExaGeoStatData object for statistical analysis and prediction tasks, adjusting the internal data representations and parameters as needed.
      * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
      * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
-     * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data will be stored.
-     * @return A pointer to an ExaGeoStatData object containing the loaded data.
-     *
+     * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
+     * @param[in] aMeasurementsMatrix An optional Rcpp::Nullable object containing a matrix of measurements. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a matrix of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a matrix of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a matrix of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
      */
     ExaGeoStatData<double> *R_ExaGeoStatModelData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                  ExaGeoStatData<double> *apData);
+                                                  ExaGeoStatData<double> *apData,
+                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aMeasurementsMatrix = R_NilValue,
+                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsX = R_NilValue,
+                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsY = R_NilValue,
+                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsZ = R_NilValue);
 
     /**
      * @brief Function to predict using ExaGeoStat data.
@@ -94,12 +101,19 @@ namespace exageostat::adapters {
      * It utilizes the hardware configuration and computational settings defined by apHardware and apConfigurations, respectively, to execute prediction algorithms on the data stored in apData.
      * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
      * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
-     * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data will be stored.
-     * @return A pointer to an ExaGeoStatData object containing the loaded data.
-     *
+     * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
+     * @param[in] aMeasurementsMatrix An optional Rcpp::Nullable object containing a matrix of measurements. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a matrix of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a matrix of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a matrix of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
      */
     ExaGeoStatData<double> *R_ExaGeoStatPredictData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                    ExaGeoStatData<double> *apData);
+                                                    ExaGeoStatData<double> *apData,
+                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aMeasurementsMatrix = R_NilValue,
+                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsX = R_NilValue,
+                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsY = R_NilValue,
+                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsZ = R_NilValue);
 
 }
 #endif //EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP

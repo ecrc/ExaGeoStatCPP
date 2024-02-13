@@ -26,7 +26,3 @@ rm -rf ./doxygen_config
 rm -rf ./prerequisites/
 rm -rf ./scripts/
 rm -rf ./installdir/
-
-mv ./LICENSE.md ./LICENSE
-mv ./cmake/ ./src/cmake/
-mv ./CMakeLists.txt ./src/CMakeLists_inv.txt

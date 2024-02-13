@@ -28,7 +28,7 @@ void TEST_ALL_R_METHODS() {
 
         auto configurations = R_InitializeArguments(16, "univariate_matern_stationary", {8, 0}, {1, 1}, 1, "exact", "double", {1, 0}, 0, 1, {1,0.1,0.5}, { {0.1,0.1,0.1}, {5,5,5}}, {-1,-1,-1}, "standard", "2D", 10, 4, {5,1,1,1,1});
         auto hardware = ExaGeoStatHardware("exact", 1, 0);
-        auto data_source = new ExaGeoStatData<double>(10, "2D");
+        auto data_source = new ExaGeoStatData<double>(16, "2D");
         auto exageostat_data = R_ExaGeoStatLoadData(&hardware, configurations, data_source);
         R_ExaGeoStatModelData(&hardware, configurations, exageostat_data);
         R_ExaGeoStatPredictData(&hardware, configurations, exageostat_data);
