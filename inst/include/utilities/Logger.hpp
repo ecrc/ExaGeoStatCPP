@@ -38,7 +38,7 @@
  */
 #define VERBOSE(msg) \
     if(Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && \
-       exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) { \
+       !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) { \
         std::ostringstream oss; \
         oss << "\t\t\t " << msg << std::endl; \
         EXAGEOSTAT_PRINTER(oss.str()); \
@@ -49,7 +49,7 @@
  * @brief LOGGER_1 macro for logging outputs with double taps and new line at the end.
  */
 #define LOGGER_1(msg) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
+    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
         std::ostringstream oss; \
         oss << "\t\t " << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg << std::endl; \
         EXAGEOSTAT_PRINTER(oss.str());                                                                                                                                        \
@@ -60,7 +60,7 @@
  * @brief LOGGER_2 macro for logging outputs with double taps and without new line at the end.
  */
 #define LOGGER_2(msg, A) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
+    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
         std::ostringstream oss;                                                                                                                                                     \
         oss << "\t\t " << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;                 \
         EXAGEOSTAT_PRINTER(oss.str()); \
@@ -85,7 +85,7 @@
  * @brief LOGGER_PRECISION_1 macro for logging outputs without any taps, without new line at the end, and with customized precision.
  */
 #define LOGGER_PRECISION_1(msg, precision) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
+    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
         std::ostringstream oss;                                                                                                                                                     \
         oss << std::fixed << std::setprecision(precision) << msg;                                   \
         EXAGEOSTAT_PRINTER(oss.str()); \
@@ -96,7 +96,7 @@
  * @brief LOGGER_PRECISION_2 macro for logging outputs without any taps, without new line at the end, and with default C++ precision.
  */
 #define LOGGER_PRECISION_2(msg) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) {\
+    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) {\
         std::ostringstream oss;                                                                                                                                                     \
         oss << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;                                   \
         EXAGEOSTAT_PRINTER(oss.str()); \

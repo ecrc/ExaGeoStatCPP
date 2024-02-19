@@ -47,13 +47,20 @@ RCPP_MODULE(ExaGeoStatCPP) {
 
     /** Configurations Function **/
     function("configurations_init", &exageostat::adapters::R_InitializeArguments,
-             List::create(_["n"], _["kernel"], _["tile_size"], _["p_q"] = IntegerVector::create(1, 1), _["time_slot"] = 1,
-                          _["computation"] = "exact", _["precision"] = "double", _["cores_gpus"] = IntegerVector::create(1, 0),
-                          _["band"] = 1, _["max_rank"] = 500, _["iTheta"], _["lb_ub"],
-                          _["eTheta"]=IntegerVector::create(-1,-1,-1), _["verbose"] = "standard", _["dimension"] = "2D",
-                          _["mle_itr"] = 0, _["tol"] = 4, _["prediction"] = IntegerVector::create(0, 0, 0, 0, 0)));
+             List::create(_["n"], _["kernel"], _["tile_size"], _["p_q"] = IntegerVector::create(1, 1),
+                          _["time_slot"] = 1, _["computation"] = "exact", _["precision"] = "double",
+                          _["cores_gpus"] = IntegerVector::create(1, 0), _["band"] = 1, _["max_rank"] = 500,
+                          _["iTheta"], _["lb_ub"], _["eTheta"] = IntegerVector::create(-1, -1, -1),
+                          _["verbose"] = "standard", _["dimension"] = "2D", _["mle_itr"] = 0, _["tol"] = 4,
+                          _["prediction"] = IntegerVector::create(0, 0, 0, 0, 0),
+                          _["paths"] = StringVector::create("", "", "", ""), _["save_data"] = 0));
 
-    function("simulate_data", &exageostat::adapters::R_ExaGeoStatLoadData, List::create(_["hardware"], _["config"], _["data"]));
-    function("model_data", &exageostat::adapters::R_ExaGeoStatModelData, List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue, _["y"] = R_NilValue, _["z"] = R_NilValue));
-    function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData, List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue, _["y"] = R_NilValue, _["z"] = R_NilValue));
+    function("simulate_data", &exageostat::adapters::R_ExaGeoStatLoadData,
+             List::create(_["hardware"], _["config"], _["data"]));
+    function("model_data", &exageostat::adapters::R_ExaGeoStatModelData,
+             List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue,
+                          _["y"] = R_NilValue, _["z"] = R_NilValue));
+    function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData,
+             List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue,
+                          _["y"] = R_NilValue, _["z"] = R_NilValue));
 }

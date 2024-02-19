@@ -76,6 +76,8 @@ void ExaGeoStatHardware::FinalizeHardware(){
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
+
+    exageostat::results::Results::GetInstance()->PrintEndSummary();
     // finalize hardware using Chameleon
     if (mpChameleonContext) {
         CHAMELEON_Finalize()
@@ -89,7 +91,6 @@ ExaGeoStatHardware::~ExaGeoStatHardware() {
         }
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
-    exageostat::results::Results::GetInstance()->PrintEndSummary();
 }
 
 void *ExaGeoStatHardware::GetHicmaContext() {

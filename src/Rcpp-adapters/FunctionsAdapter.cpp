@@ -32,7 +32,7 @@ namespace exageostat::adapters {
                           const int &aMaxRank, const vector<double> &aInitialTheta,
                           const vector <vector<double>> &aLowerUpperBounds, const vector<double> &aEstimatedTheta,
                           const string &aVerbose, const string &aDimension, const int &aMaxMleIterations,
-                          const double &aTolerance, const vector<int> &aPrediction) {
+                          const double &aTolerance, const vector<int> &aPrediction, const std::vector<std::string> &aPath, const bool &aSaveData) {
 
         vector<string> argStrings;
 
@@ -66,7 +66,21 @@ namespace exageostat::adapters {
         argStrings.push_back("--dimension=" + aDimension);
         argStrings.push_back("--max_mle_iterations=" + to_string(aMaxMleIterations));
         argStrings.push_back("--tolerance=" + to_string(aTolerance));
-
+        if(!aPath[0].empty()){
+            argStrings.push_back("--log_path=" + aPath[0]);
+        }
+        if(!aPath[1].empty()){
+            argStrings.push_back("--data_path=" + aPath[1]);
+        }
+        if(!aPath[2].empty()){
+            argStrings.push_back("--observations_file=" + aPath[2]);
+        }
+        if(!aPath[3].empty()){
+            argStrings.push_back("--recovery_file=" + aPath[3]);
+        }
+        if(aSaveData){
+            argStrings.emplace_back("--log");
+        }
         // This means that ZMiss > 0, which means prediction is activated
         if (aPrediction[0] > 0) {
             argStrings.push_back("--ZMiss=" + to_string(aPrediction[0]));

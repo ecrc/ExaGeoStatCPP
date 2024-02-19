@@ -138,6 +138,7 @@ void CSVLoader<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasure
     aConfigurations.SetProblemSize(index * aP / aConfigurations.GetTimeSlot());
 
     file.close();
+    LOGGER("Data is read from " << data_path << " successfully.")
 }
 
 template<typename T>

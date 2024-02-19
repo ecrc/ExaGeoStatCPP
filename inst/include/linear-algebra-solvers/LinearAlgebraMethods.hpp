@@ -739,17 +739,14 @@ namespace exageostat::linearAlgebra {
 
         static void CORE_dmdet_starpu(void *apBuffers[], void *apCodeletArguments) {
             int m;
-            int n;
             T *pA;
-            int m0;
-            int n0;
             T det = 0;
             T *pDeterminant = &det;
 
             *pDeterminant = 0;
             pA = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
             pDeterminant = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);
-            starpu_codelet_unpack_args(apCodeletArguments, &m, &n, &m0, &n0);
+            starpu_codelet_unpack_args(apCodeletArguments, &m);
             T local_det = Core_dmdet(pA, m);
             *pDeterminant += local_det;
         }

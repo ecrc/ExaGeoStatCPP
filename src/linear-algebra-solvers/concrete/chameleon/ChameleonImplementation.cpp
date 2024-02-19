@@ -368,7 +368,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardw
     VERBOSE("Done.")
 
     //Distribute the values in the case of MPI
-#if defined(CHAMELEON_USE_MPI)
+#ifdef USE_MPI
     MPI_Bcast(&loglik, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
 #endif
 

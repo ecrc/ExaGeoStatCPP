@@ -409,11 +409,11 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
         T *pMatrix;
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
 #ifdef CHAMELEON_USE_MPI
-        pMatrix = new T[n];
+        pMatrix = new T[full_problem_size];
         string path = aConfigurations.GetLoggerPath();
-        ExaGeoStatDesc2Lap(pMatrix, n, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
+        ExaGeoStatDesc2Lap(pMatrix, full_problem_size, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
         if ( CHAMELEON_Comm_rank() == 0 ){
-            helpers::DiskWriter<T>::WriteVectorsToDisk(*pMatrix, n, P, path, *apLocation1);
+            helpers::DiskWriter<T>::WriteVectorsToDisk(*pMatrix, full_problem_size, P, path, *apLocation1);
         }
         delete[] pMatrix;
 #else
@@ -764,28 +764,23 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<
         *mspe = -1;
     }
 
-#if defined(CHAMELEON_USE_MPI)
-    if(CHAMELEON_My_Mpi_Rank() == 0)
-    {
-#endif
-    if (aConfiguration.GetLogger()) {
-        fprintf(aConfiguration.GetFileLogPath(),
-                "\n\n# of missing observations :%d\n\nPrediction Execution Time: %.8f, ""Flops: %.8f, Mean Square Prediction Error (MSPE): %.8f\n\n",
-                aZMissNumber, (mat_gen_time + mat_gen_time_2 + time_solve + time_mspe), (flops / 1e9 / (time_solve)),
-                *mspe);
-    }
-    VERBOSE("- Z Actual .. Z Miss")
-    for (i = 0; i < aZMissNumber; i++) {
-        VERBOSE(" (" << apZActual[i] << ", " << apZMiss[i] << ")")
-    }
+    if(helpers::CommunicatorMPI::GetInstance()->GetRank() == 0) {
+        if (aConfiguration.GetLogger()) {
+            fprintf(aConfiguration.GetFileLogPath(),
+                    "\n\n# of missing observations :%d\n\nPrediction Execution Time: %.8f, ""Flops: %.8f, Mean Square Prediction Error (MSPE): %.8f\n\n",
+                    aZMissNumber, (mat_gen_time + mat_gen_time_2 + time_solve + time_mspe),
+                    (flops / 1e9 / (time_solve)),
+                    *mspe);
+        }
+        VERBOSE("- Z Actual .. Z Miss")
+        for (i = 0; i < aZMissNumber; i++) {
+            VERBOSE(" (" << apZActual[i] << ", " << apZMiss[i] << ")")
+        }
 
-    results::Results::GetInstance()->SetMSPEExecutionTime(time_solve + time_gemm + time_trsm);
-    results::Results::GetInstance()->SetMSPEFlops((flops / 1e9 / (time_solve + time_gemm)));
-    results::Results::GetInstance()->SetMSPEError(*mspe);
-
-#if defined(CHAMELEON_USE_MPI)
+        results::Results::GetInstance()->SetMSPEExecutionTime(time_solve + time_gemm + time_trsm);
+        results::Results::GetInstance()->SetMSPEFlops((flops / 1e9 / (time_solve + time_gemm)));
+        results::Results::GetInstance()->SetMSPEError(*mspe);
     }
-#endif
 
     T *all_mspe = new T[3];
     all_mspe[0] = *mspe;

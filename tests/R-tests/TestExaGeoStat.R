@@ -29,12 +29,43 @@ exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_sou
 model_data(hardware=hardware, config=config, data=exageostat_data)
 predict_data(hardware=hardware, config=config, data=exageostat_data)
 
-paste("---------------------------------------------------------------")
-hardware$finalize_hardware()
-paste("ExaGeoStat with data Modeling only")
-ncores <- 5
+paste("---------------------------------------------------------------------------------------------")
+paste("ExaGeoStat with Data Generation - saving data with default path")
 
-hardware <- new(Hardware, computation, ncores, ngpus)
+save_data <- TRUE
+# if you didn't change the log_path it will be saved in the default path of project_path/synthetic_ds
+log_path <- ""
+# data path is where to read data from
+data_path <- ""
+# observations file path is where to read observation file
+observations_file <- ""
+# recovery file path is where to read recovery file
+recovery_file <- ""
+config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1), paths=c(log_path, data_path, observations_file, recovery_file), save_data=save_data)
+data_source <- new(Data, problem_size, "2D")
+exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
+
+
+paste("---------------------------------------------------------------------------------------------")
+paste("ExaGeoStat with Data Generation - Reading Data")
+
+save_data <- FALSE
+log_path <- ""
+# data path is where to read data from
+data_path <- "./synthetic_ds/SYN_16_1"
+# observations file path is where to read observation file
+observations_file <- ""
+# recovery file path is where to read recovery file
+recovery_file <- ""
+
+config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1), paths=c(log_path, data_path, observations_file, recovery_file), save_data=save_data)
+data_source <- new(Data, problem_size, "2D")
+exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
+
+
+paste("---------------------------------------------------------------------------------------------")
+paste("ExaGeoStat with data Modeling only")
+
 config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=10)
 exageostat_data <- new(Data, problem_size, "2D")
 numbers <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
@@ -63,19 +94,6 @@ locations_y = matrix(numbers, nrow = 1, ncol = 16, byrow = TRUE)
 model_data(hardware=hardware, config=config, data=exageostat_data, matrix=z_value, x=locations_x, y=locations_y)
 
 paste("---------------------------------------------------------------")
-paste("ExaGeoStat with data Prediction only - using mspe only")
-
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), eTheta=c(0.9, 0.09, 0.4), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), prediction=c(5,1,0,0,0))
-predict_data(hardware=hardware, config=config, data=exageostat_data, matrix=z_value, x=locations_x, y=locations_y)
-
-paste("---------------------------------------------------------------")
-paste("ExaGeoStat with data Prediction only - using idw only")
-
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), eTheta=c(0.9, 0.09, 0.4), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), prediction=c(5,0,1,0,0))
-predict_data(hardware=hardware, config=config, data=exageostat_data, matrix=z_value, x=locations_x, y=locations_y)
-
-paste("---------------------------------------------------------------")
-paste("ExaGeoStat with data Prediction only - using MLOE_MMOM only")
-
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), eTheta=c(0.9, 0.09, 0.4), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), prediction=c(5,0,0,0,1))
+paste("ExaGeoStat with data Prediction only - all prediction functions")
+config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), eTheta=c(0.9, 0.09, 0.4), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), prediction=c(5,1,1,1,1))
 predict_data(hardware=hardware, config=config, data=exageostat_data, matrix=z_value, x=locations_x, y=locations_y)

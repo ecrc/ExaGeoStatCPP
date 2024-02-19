@@ -14,7 +14,7 @@
 #ifndef EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 #define EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 
-//// TODO: This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+// This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
 #ifdef min
 #undef min
 #endif

@@ -61,10 +61,10 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
 
         CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                DESCRIPTOR_Z).chameleon_desc,  pMatrix, aConfigurations.GetProblemSize());
-        if ( CHAMELEON_Comm_rank == 0 ){
+        if (helpers::CommunicatorMPI::GetInstance()->GetRank() == 0){
             helpers::DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                                DESCRIPTOR_Z).chameleon_desc->mat),
-                                              aConfigurations.GetProblemSize(), aConfigurations.GetVariablesNumber(), path,
+                                              aConfigurations.GetProblemSize(), parameters_number, path,
                                               *data->GetLocations());
         }
         delete[] pMatrix;

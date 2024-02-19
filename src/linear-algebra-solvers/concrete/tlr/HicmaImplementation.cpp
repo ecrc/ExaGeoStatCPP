@@ -12,6 +12,10 @@
  * @date 2024-02-04
 **/
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
 
 using namespace std;
@@ -99,7 +103,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware,
                                             Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix, const Kernel<T> &aKernel) {
 
-    this->SetContext(aHardware.GetContext(aConfigurations.GetComputation()));
+    this->SetContext(ExaGeoStatHardware::GetContext(aConfigurations.GetComputation()));
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
         this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(),aKernel.GetVariablesNumber(), apMeasurementsMatrix);
     }
@@ -247,7 +251,8 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware,
         VERBOSE(" Done.")
 
         double global_sum;
-#if defined(CHAMELEON_USE_MPI)
+        double local_sum = *product;
+#ifdef USE_MPI
         MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #else
         global_sum = *product;

@@ -370,11 +370,12 @@ public:
      */
     static void InitTheta(std::vector<double> &aTheta, const int &aSize);
 
-    /**
-     * @brief print the summary of MLE inputs.
-     * @return void
-     */
-    inline void PrintSummary();
+        /**
+         * @brief print the summary of MLE inputs.
+         * @param[in] aRank A MPI Rank variable
+         * @return void
+         */
+        inline void PrintSummary(int aRank = 0);
 
     /**
      * @brief Calculates the number of observed measurements.
