@@ -52,16 +52,57 @@ namespace exageostat::adapters {
         argStrings.push_back("--gpus=" + to_string(aCoresGPUsNumber[1]));
         argStrings.push_back("--band=" + to_string(aBand));
         argStrings.push_back("--max_rank=" + to_string(aMaxRank));
-        argStrings.push_back("--iTheta=" + to_string(aInitialTheta[0]) + ":" + to_string(aInitialTheta[1]) + ":" +
-                             to_string(aInitialTheta[2]));
-        argStrings.push_back(
-                "--lb=" + to_string(aLowerUpperBounds[0][0]) + ":" + to_string(aLowerUpperBounds[0][1]) + ":" +
-                to_string(aLowerUpperBounds[0][2]));
-        argStrings.push_back(
-                "--ub=" + to_string(aLowerUpperBounds[1][0]) + ":" + to_string(aLowerUpperBounds[1][1]) + ":" +
-                to_string(aLowerUpperBounds[1][2]));
-        argStrings.push_back("--eTheta=" + to_string(aEstimatedTheta[0]) + ":" + to_string(aEstimatedTheta[1]) + ":" +
-                             to_string(aEstimatedTheta[2]));
+
+        string initial_theta = "--iTheta=";
+        for(int i = 0; i < aInitialTheta.size(); i++){
+            if (i != aInitialTheta.size() - 1){
+                initial_theta += to_string(aInitialTheta[i]) + ":";
+            } else{
+                initial_theta += to_string(aInitialTheta[i]);
+            }
+        }
+        argStrings.push_back(initial_theta);
+        string lower_bound = "--lb=";
+        string upper_bound = "--ub=";
+        for(int i = 0; i < aLowerUpperBounds[0].size(); i++){
+            if (i != aLowerUpperBounds[0].size() - 1) {
+                lower_bound += to_string(aLowerUpperBounds[0][i]) + ":";
+            }
+            else{
+                lower_bound += to_string(aLowerUpperBounds[0][i]);
+            }
+        }
+        for(int i = 0; i < aLowerUpperBounds[1].size(); i++){
+            if (i != aLowerUpperBounds[1].size() - 1) {
+                upper_bound += to_string(aLowerUpperBounds[1][i]) + ":";
+            }
+            else{
+                upper_bound += to_string(aLowerUpperBounds[1][i]);
+            }
+        }
+        argStrings.push_back(lower_bound);
+        argStrings.push_back(upper_bound);
+
+        string estimated_theta = "--eTheta=";
+        for(int i = 0; i < aInitialTheta.size(); i++){
+            if (i != aInitialTheta.size() - 1) {
+                if(i < aEstimatedTheta.size()){
+                    estimated_theta += to_string(aEstimatedTheta[i]) + ":";
+                }
+                else{
+                    estimated_theta += "-1:";
+                }
+            }
+            else{
+                if(i < aEstimatedTheta.size()) {
+                    estimated_theta += to_string(aEstimatedTheta[i]);
+                }
+                else{
+                    estimated_theta += "-1";
+                }
+            }
+        }
+        argStrings.push_back(estimated_theta);
         argStrings.push_back("--verbose=" + aVerbose);
         argStrings.push_back("--dimension=" + aDimension);
         argStrings.push_back("--max_mle_iterations=" + to_string(aMaxMleIterations));
