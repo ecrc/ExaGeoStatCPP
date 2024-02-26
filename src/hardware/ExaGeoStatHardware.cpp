@@ -35,7 +35,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const in
 
 void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber,
                                       const int &aGpuNumber) {
-    LOGGER("** Initialise ExaGeoStat hardware **")
+    LOGGER("** Initialize ExaGeoStat hardware **")
     int tag_width = 31, tag_sep = 26;
 
     // Init hardware using Chameleon

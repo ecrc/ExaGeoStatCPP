@@ -1474,7 +1474,7 @@ template<typename T>
 int LinearAlgebraMethods<T>::ExaGeoStatMLEMSPETileAsync(void *apDescZPredict, void *apDescZMiss,
                                                         void *apDescError, void *apSequence,
                                                         void *apRequest) {
-    // Check for Initialise the Chameleon context.
+    // Check for Initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
@@ -1513,7 +1513,7 @@ int LinearAlgebraMethods<T>::ExaGeoStatMLETileAsyncMLOEMMOM(void *apDescExpr2, v
                                                             void *apDescMLOE, void *apDescMMOM, void *apSequence,
                                                             void *apRequest) {
 
-    // Check for Initialise the Chameleon context.
+    // Check for Initialize the Chameleon context.
     if (!this->mpContext) {
         throw std::runtime_error(
                 "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
