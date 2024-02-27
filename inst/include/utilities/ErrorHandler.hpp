@@ -85,7 +85,7 @@ public:
         {
 #ifdef USING_R
             std::string s="GPU Assert:  "+std::string(cudaGetErrorString(aCode));
-            Rcpp::stop(s);
+//            Rcpp::stop(s);
 #else
             char s[200];
             sprintf((char*)s,"GPU Assert: %s %s %d\n", cudaGetErrorString(aCode), aFile, aLine);

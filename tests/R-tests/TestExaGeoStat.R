@@ -22,7 +22,7 @@ lts <- 0
 computation <- "exact"
 
 hardware <- new(Hardware, computation, ncores, ngpus)
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1))
+config <- configurations_init(n=problem_size, cores_gpus=c(ncores, ngpus), kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1))
 data_source <- new(Data, problem_size, "2D")
 
 exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
@@ -41,7 +41,7 @@ data_path <- ""
 observations_file <- ""
 # recovery file path is where to read recovery file
 recovery_file <- ""
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1), paths=c(log_path, data_path, observations_file, recovery_file), save_data=save_data)
+config <- configurations_init(n=problem_size, cores_gpus=c(ncores, ngpus), kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1), paths=c(log_path, data_path, observations_file, recovery_file), save_data=save_data)
 data_source <- new(Data, problem_size, "2D")
 exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
 
@@ -58,7 +58,7 @@ observations_file <- ""
 # recovery file path is where to read recovery file
 recovery_file <- ""
 
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1), paths=c(log_path, data_path, observations_file, recovery_file), save_data=save_data)
+config <- configurations_init(n=problem_size, cores_gpus=c(ncores, ngpus), kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(5,1,1,1,1), paths=c(log_path, data_path, observations_file, recovery_file), save_data=save_data)
 data_source <- new(Data, problem_size, "2D")
 exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
 
@@ -66,7 +66,7 @@ exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_sou
 paste("---------------------------------------------------------------------------------------------")
 paste("ExaGeoStat with data Modeling only")
 
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=10)
+config <- configurations_init(n=problem_size, cores_gpus=c(ncores, ngpus), kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=10)
 exageostat_data <- new(Data, problem_size, "2D")
 numbers <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
              -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
@@ -95,5 +95,5 @@ model_data(hardware=hardware, config=config, data=exageostat_data, matrix=z_valu
 
 paste("---------------------------------------------------------------")
 paste("ExaGeoStat with data Prediction only - all prediction functions")
-config <- configurations_init(n=problem_size, kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), eTheta=c(0.9, 0.09, 0.4), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), prediction=c(5,1,1,1,1))
+config <- configurations_init(n=problem_size, cores_gpus=c(ncores, ngpus), kernel="univariate_matern_stationary", computation=computation, tile_size=c(8,lts), eTheta=c(0.9, 0.09, 0.4), iTheta=c(1,0.1,0.5), max_rank = 500, lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), prediction=c(5,1,1,1,1))
 predict_data(hardware=hardware, config=config, data=exageostat_data, matrix=z_value, x=locations_x, y=locations_y)
