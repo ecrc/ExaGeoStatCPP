@@ -13,8 +13,6 @@
 # Add source files to the parent scope
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/CSVDataGenerator.cpp
-
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -6,7 +6,7 @@
 /**
  * @file PredictionHelpers.hpp
  * @brief Contains the definition of the PredictionHelpers.hpp class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -38,12 +38,13 @@ namespace exageostat::prediction {
         * @param[in] apZ Pointer to a copy of the measurements matrix.
         * @param[out] aMissLocation Location object to be filled with missed locations.
         * @param[out] aObsLocation Location object to be filled with missed locations.
+        * @param[in] aP the P value of the kernel multiplied by time slot.
         * @return void
         */
         static void PickRandomPoints(exageostat::configurations::Configurations &aConfigurations,
-                                     exageostat::dataunits::ExaGeoStatData<T> &aData, T *apZObs, T *apZActual, T *apZ,
+                                     std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apZObs, T *apZActual, T *apZ,
                                      exageostat::dataunits::Locations<T> &aMissLocation,
-                                     exageostat::dataunits::Locations<T> &aObsLocation);
+                                     exageostat::dataunits::Locations<T> &aObsLocation, const int &aP);
 
         /**
          * @brief Shuffle array.

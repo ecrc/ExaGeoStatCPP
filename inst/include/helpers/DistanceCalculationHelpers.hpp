@@ -6,7 +6,7 @@
 /**
  * @file DistanceCalculationHelpers.hpp
  * @brief Contains the definition of the DistanceCalculationHelpers class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -51,6 +51,14 @@ namespace exageostat::helpers {
          * @return The distance between the two points in kilometers.
          */
         static T DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2);
+
+        /**
+         * @brief Converts an angle from degrees to radians.
+         * @details This function converts an angle from degrees to radians using the conversion factor π/180.
+         * @param[in] aDegree The angle in degrees.
+         * @return The angle converted to radians.
+         */
+        static T DegreeToRadian(T aDegree);
 
     };
     /**

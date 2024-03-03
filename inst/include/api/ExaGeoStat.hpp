@@ -6,7 +6,7 @@
 /**
  * @file ExaGeoStat.hpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-05-30
 **/
@@ -41,7 +41,7 @@ namespace exageostat::api {
          */
         static void ExaGeoStatLoadData(const hardware::ExaGeoStatHardware &aHardware,
                                        configurations::Configurations &aConfigurations,
-                                       dataunits::ExaGeoStatData<T> &aData);
+                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData);
 
         /**
          * @brief Models Data whether it's synthetic data or real.
@@ -49,12 +49,12 @@ namespace exageostat::api {
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
-         * @return void
+         * @return the last optimum value of MLE.
          *
          */
         static T ExaGeoStatDataModeling(const hardware::ExaGeoStatHardware &aHardware,
                                         configurations::Configurations &aConfigurations,
-                                        exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix = nullptr);
 
 
@@ -77,7 +77,7 @@ namespace exageostat::api {
          */
         static void ExaGeoStatPrediction(const hardware::ExaGeoStatHardware &aHardware,
                                          configurations::Configurations &aConfigurations,
-                                         exageostat::dataunits::ExaGeoStatData<T> &aData,
+                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                                          T *apMeasurementsMatrix = nullptr);
 
     private:

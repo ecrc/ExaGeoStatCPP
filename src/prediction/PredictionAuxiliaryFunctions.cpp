@@ -6,7 +6,7 @@
 /**
  * @file PredictionAuxiliaryFunctions.cpp
  * @brief Contains the implementation of the PredictionAuxiliaryFunctions class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -57,8 +57,9 @@ void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *ap
     apMSPE[1] = error1 / (aZMissNumber / 2);
     apMSPE[2] = error2 / (aZMissNumber / 2);
 
-    LOGGER("- Z Actual .. Z Miss")
-    for (int index = 0; index < aZMissNumber; index++)
-        LOGGER(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
+    VERBOSE("- Z Actual .. Z Miss")
+    for (int index = 0; index < aZMissNumber; index++) {
+        VERBOSE(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
+    }
     LOGGER("- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
 }

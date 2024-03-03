@@ -6,15 +6,13 @@
 /**
  * @file DataGenerator.hpp
  * @brief Contains definition for abstract Data Generator Class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-02-14
 **/
 
 #ifndef EXAGEOSTAT_CPP_DATAGENERATOR_HPP
 #define EXAGEOSTAT_CPP_DATAGENERATOR_HPP
-
-#include <memory>
 
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
@@ -37,10 +35,11 @@ namespace exageostat::generators {
          * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
          * @param[in] aConfigurations Reference to the data configurations.
          * @param[in] aHardware Reference to the used hardware.
-             * @return Pointer to a populated data.
+         * @param[in] aKernel Reference to the used Kernel.
+         * @return unique Pointer to a populated data.
          *
          */
-        virtual dataunits::ExaGeoStatData<T> *
+        virtual std::unique_ptr<dataunits::ExaGeoStatData<T>>
         CreateData(exageostat::configurations::Configurations &aConfigurations,
                    const exageostat::hardware::ExaGeoStatHardware &aHardware,
                    exageostat::kernels::Kernel<T> &aKernel) = 0;
@@ -63,10 +62,8 @@ namespace exageostat::generators {
         virtual ~DataGenerator();
 
     protected:
-        /// Used bool identifying type of generation.
-        static bool mIsSynthetic;
-        /// Used bool identifying type of generation.
-        static bool mIsCSV;
+        /// Used enum for data generators types.
+        static common::DataSourceType aDataSourceType;
     };
 
     /**

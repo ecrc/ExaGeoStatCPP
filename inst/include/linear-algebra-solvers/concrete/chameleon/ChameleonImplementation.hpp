@@ -33,15 +33,9 @@ namespace exageostat::linearAlgebra {
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
          */
-        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, dataunits::ExaGeoStatData<T> &aData,
+        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware, std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
                             configurations::Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
-
-        /**
-         * @brief Copy Lapack matrix to Descriptor Matrix
-         * @copydoc LinearAlgebraMethods::ExaGeoStatLap2Desc()
-         */
-        void ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower) override;
 
         /**
          * @brief Copies a matrix in the tile layout from source to destination
@@ -142,6 +136,22 @@ namespace exageostat::linearAlgebra {
          */
         int
         ExaGeoStatDoubleDotProduct(void *apDescA, void *apDescProduct, void *apSequence, void *apRequest);
+
+        /**
+         * @brief Calculate the loglikelihood of non-Gaussian MLE.
+         * @copydoc LinearAlgebraMethods::ExaGeoStatNonGaussianLogLikeTileAsync()
+         */
+        int
+        ExaGeoStatNonGaussianLogLikeTileAsync(void *apDescZ, void *apDescSum, const T *apTheta, void *apSequence,
+                                     void *apRequest) override;
+
+        /**
+         * @brief Calculate the loglikelihood of non-Gaussian MLE.
+         * @copydoc LinearAlgebraMethods::ExaGeoStatNonGaussianLogLikeTileAsync()
+         */
+        int
+        ExaGeoStatNonGaussianTransformTileAsync(void *apDescZ, void *apDescFlag, const T *apTheta, void *apSequence,
+                                       void *apRequest) override;
 
     };
 

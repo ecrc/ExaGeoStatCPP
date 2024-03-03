@@ -6,14 +6,14 @@
 /**
  * @file UnivariateMaternDnu.cpp
  * @brief Implementation of the UnivariateMaternDnu kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/UnivariateMaternDnu.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -46,10 +46,10 @@ void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double nu_expr;
-    double sigma_square = aLocalTheta[0];
-    int flag = 0;
+    T expr;
+    T nu_expr;
+    T sigma_square = aLocalTheta[0];
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;
@@ -68,7 +68,7 @@ void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
                                                                      (pow(expr, aLocalTheta[2]) * log(expr) *
                                                                       gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                                                                       pow(expr, aLocalTheta[2]) *
-                                                                      Kernel<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr)));
+                                                                      BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr)));
                 apMatrixA[i + j * aRowsNumber] = sigma_square * nu_expr;
             }
             j0++;

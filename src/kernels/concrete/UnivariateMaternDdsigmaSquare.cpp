@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDdsigmaSquare.cpp
  * @brief Implementation of the UnivariateMaternDdsigmaSquare kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -44,8 +44,8 @@ void UnivariateMaternDdsigmaSquare<T>::GenerateCovarianceMatrix(T *apMatrixA, co
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con;
+    T expr;
+    T con;
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
 

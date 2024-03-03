@@ -5,11 +5,14 @@
 
 # @file CMakeLists.txt
 # @brief Includes subdirectories for different modules of the ExaGeoStat software package.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
-# @date 2023-01-31
+# @date 2024-02-24
 
 # Include subdirectories for end-to-end module, configurations module and data-generators module.
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/end-to-end)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-loader)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptors)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/end-to-end)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/hardware)

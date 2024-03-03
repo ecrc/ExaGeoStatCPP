@@ -4,25 +4,31 @@
 
 # @file BuildDependency.cmake
 # @brief Fetches, builds, and installs a dependency.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
-# @author Sameh Abdulah
 # @date 2023-03-12
 
-# @param raw_name The name of the dependency.
-# @param url The URL from which to fetch the dependency.
-# @param tag The version or tag of the dependency to fetch.
-# @param ${FLAGS} Additional flags to pass to the configure/make commands.
-# @param ${ISCMAKE} A boolean flag indicating whether the dependency uses CMake as its build system.
-# @param ${ISGIT} A boolean flag indicating whether the dependency is hosted on a git repository.
-# @param ${AUTO_GEN} A boolean flag indicating whether to use autogen scripts or not.
+# After building and installing the dependency, the macro installs the lib, include, and share directories
+# in the current directory.
 
-# This macro fetches the dependency using CMake's FetchContent module, and then builds and installs it.
-# It also sets several environment variables (LD_LIBRARY_PATH, LIBRARY_PATH, CPATH, PKG_CONFIG_PATH,
-# and ${capital_name}_DIR) and includes and links to the installation directory of the dependency.
+# BuildDependency Macro:
+# This macro is designed to fetch, configure, build, and install a dependency.
+# It takes the following parameters:
+# - raw_name: The name of the dependency.
+# - url: The URL of the repository or source tarball.
+# - tag: The version or tag of the dependency to fetch.
+# - flags: Additional flags to pass to the configure/make commands.
+# - is_using_cmake: A boolean flag indicating whether the dependency uses CMake as its build system.
+# - is_using_git: A boolean flag indicating whether the dependency is hosted on a git repository.
+# - auto_generation: A boolean flag indicating whether to use autogen scripts or not.
 
-# After building and installing the dependency, the macro installs the lib, include, and share directories  in the current directory.
-macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
+# The macro fetches the dependency using CMake's FetchContent module, depending on whether it's a git repo or not.
+# It sets up build paths and creates a directory for build artifacts. The subproject is then configured using
+# CMake or autotools, and finally, it's built and installed. Environment variables are set, and the dependency's
+# lib, include, and share directories are installed in the current directory.
+
+macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_generation)
+
     # Set the name of the dependency.
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
@@ -30,8 +36,9 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     # Fetch the dependency, depending on whether it's a git repo or not.
     message(STATUS "Fetching ${name} ${tag} from ${url}")
     include(FetchContent)
-    set(FETCHCONTENT_BASE_DIR ${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/)
-    if (ISGIT)
+    set(FETCHCONTENT_BASE_DIR ${CMAKE_INSTALL_PREFIX}/${capital_name})
+
+    if (${is_using_git})
         FetchContent_Declare(${name}
                 GIT_REPOSITORY "${url}"
                 GIT_TAG "${tag}"
@@ -41,27 +48,27 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     else ()
         FetchContent_Declare(${name} URL "${url}")
     endif ()
+
     FetchContent_Populate(${name})
 
-    # Set up build paths and create directory for build artifacts.
-    set(${name}_srcpath ${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/${name}-src)
+    # Set up build paths and create a directory for build artifacts.
+    set(${name}_srcpath ${CMAKE_INSTALL_PREFIX}/${capital_name}/${name}-src)
     set(${name}_binpath ${${name}_srcpath}/bin)
-    set(${name}_installpath ${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/)
+    set(${name}_installpath ${CMAKE_INSTALL_PREFIX}/${capital_name})
     file(MAKE_DIRECTORY ${${name}_binpath})
 
     # Configure subproject.
-    if (ISCMAKE)
-        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/ ${FLAGS}
+    if (${is_using_cmake})
+        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
                 ${${name}_srcpath}
-                WORKING_DIRECTORY
-                ${${name}_binpath})
+                WORKING_DIRECTORY ${${name}_binpath})
     else ()
-        if (AUTO_GEN)
+        if (${auto_generation})
             execute_process(COMMAND ./autogen.sh
                     WORKING_DIRECTORY ${${name}_srcpath}
                     COMMAND_ERROR_IS_FATAL ANY)
         endif ()
-        execute_process(COMMAND ./configure --prefix=${EXAGEOSTAT_INSTALL_PREFIX}/${capital_name}/ ${FLAGS}
+        execute_process(COMMAND ./configure --prefix=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)
     endif ()
@@ -69,7 +76,7 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     # Build and install subproject.
     include(ProcessorCount)
     ProcessorCount(N)
-    if (ISCMAKE)
+    if (${is_using_cmake})
         execute_process(COMMAND make -j ${N}
                 WORKING_DIRECTORY ${${name}_binpath}
                 COMMAND_ERROR_IS_FATAL ANY)
@@ -90,7 +97,8 @@ macro(BuildDependency raw_name url tag ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")
     set(ENV{PKG_CONFIG_PATH} "${${name}_installpath}/lib/pkgconfig:${${name}_installpath}/lib64/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-    set(${capital_name}_DIR "${${name}_installpath}")
+
+    # Include and link to the installation directory of the dependency
     include_directories(${${name}_installpath}/include)
     link_directories(${${name}_installpath}/lib)
 

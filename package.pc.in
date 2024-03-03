@@ -8,4 +8,4 @@ Description: @CMAKE_PROJECT_DESCRIPTION@
 Version: @PROJECT_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -l@PROJECT_NAME@
-URL: http://github.com/ecrc/exageostat-cpp
+URL: https://github.com/ecrc/ExaGeoStatCPP

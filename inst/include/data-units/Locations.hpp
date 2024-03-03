@@ -43,10 +43,10 @@ namespace exageostat::dataunits {
         Locations(const Locations<T> &aLocations) = default;
 
         /**
-         * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         * @brief destructor for Locations.
          *
          */
-        virtual ~Locations();
+        ~Locations();
 
         /**
          * @brief Setter for LocationX.

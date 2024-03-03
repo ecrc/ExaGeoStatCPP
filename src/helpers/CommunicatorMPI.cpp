@@ -6,7 +6,7 @@
 /**
  * @file CommunicatorMPI.cpp
  * @brief Defines the CommunicatorMPI class for MPI rank communication.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Sameh Abdulah
  * @date 2023-11-10
 **/
@@ -23,25 +23,24 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
     return mpInstance;
 }
 
-bool CommunicatorMPI::GetRank() const {
-
-    if(!this->mIsHardwareInitialized){
-        return false;
+int CommunicatorMPI::GetRank() const{
+#ifdef USE_MPI
+    if(!mIsHardwareInitialized){
+        return 0;
     }
     else{
-        if(CHAMELEON_Comm_rank() == 0){
-            return true;
-        }
-        return false;
+        return CHAMELEON_Comm_rank();
     }
+#else
+    return 0;
+#endif
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {
-    this->mIsHardwareInitialized = true;
+    mIsHardwareInitialized = true;
+}
+void CommunicatorMPI::RemoveHardwareInitialization() {
+    mIsHardwareInitialized = false;
 }
 
 CommunicatorMPI *CommunicatorMPI::mpInstance = nullptr;
-
-void CommunicatorMPI::RemoveHardwareInitialization() {
-    this->mIsHardwareInitialized = false;
-}

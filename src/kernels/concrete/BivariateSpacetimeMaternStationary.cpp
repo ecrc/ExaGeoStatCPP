@@ -6,14 +6,14 @@
 /**
  * @file BivariateSpacetimeMaternStationary.cpp
  * @brief Implementation of the BivariateSpacetimeMaternStationary kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/BivariateSpacetimeMaternStationary.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -47,9 +47,9 @@ BivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, co
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double z0, z1;
-    double expr, expr2, expr3, expr4;
-    double con1, con2, con12, rho, nu12;
+    T z0, z1;
+    T expr, expr2, expr3, expr4;
+    T con1, con2, con12, rho, nu12;
 
     con1 = pow(2, (aLocalTheta[3] - 1)) * tgamma(aLocalTheta[3]);
     con1 = 1.0 / con1;

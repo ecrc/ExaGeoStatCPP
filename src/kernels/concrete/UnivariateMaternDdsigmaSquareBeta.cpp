@@ -6,14 +6,14 @@
 /**
  * @file UnivariateMaternDdsigmaSquareBeta.cpp
  * @brief Implementation of the UnivariateMaternDdsigmaSquareBeta kernel.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/UnivariateMaternDdsigmaSquareBeta.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -46,12 +46,12 @@ void UnivariateMaternDdsigmaSquareBeta<T>::GenerateCovarianceMatrix(T *apMatrixA
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con;
-    double beta_expr;
+    T expr;
+    T con;
+    T beta_expr;
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i++) {
         j0 = aColumnOffset;

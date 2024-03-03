@@ -8,7 +8,7 @@
  * @brief Implementation of the LinearAlgebraFactory class for creating linear algebra solvers for different computations using HiCMA or Chameleon libraries.
  * The factory creates a unique pointer to a concrete implementation of the LinearAlgebraMethods class based on the computation specified.
  * If the required library is not enabled, it throws a runtime_error exception.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-03-20
 **/
@@ -16,12 +16,12 @@
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
 
-#include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonImplementationDense.hpp>
-#include <linear-algebra-solvers/concrete/chameleon/diagonal-super-tile/ChameleonImplementationDST.hpp>
+#include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonDense.hpp>
+#include <linear-algebra-solvers/concrete/chameleon/dst/ChameleonDST.hpp>
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 
-#include <linear-algebra-solvers/concrete/hicma/tile-low-rank/HicmaImplementation.hpp>
+#include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
 
 #endif
 
@@ -35,19 +35,19 @@ std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAl
     // Check the used Linear Algebra solver library, whether it's HiCMA or Chameleon.
     if (aComputation == EXACT_DENSE) {
 
-        return std::make_unique<dense::ChameleonImplementationDense<T>>();
+        return std::make_unique<dense::ChameleonDense<T>>();
     }
 
         // HiCMA Used
     else if (aComputation == TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         return std::make_unique<tileLowRank::HicmaImplementation<T>>();
 #else
         throw std::runtime_error(
-                "Tile low rank generation isn't supported without enabling HiCMA. Use -DEXAGEOSTAT_USE_HICMA=ON");
+                "Tile low rank generation isn't supported without enabling HiCMA. Use -DUSE_HICMA=ON");
 #endif
     } else if (aComputation == DIAGONAL_APPROX) {
-        return std::make_unique<diagonalSuperTile::ChameleonImplementationDST<T>>();
+        return std::make_unique<diagonalSuperTile::ChameleonDST<T>>();
 
     }
     // Return nullptr if no computation is selected

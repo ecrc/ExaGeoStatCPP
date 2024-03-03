@@ -5,36 +5,20 @@
 
 # @file ImportChameleon.cmake
 # @brief This script checks for Chameleon and includes it in the project if it is not already a target.
-# @version 1.0.0
+# @version 1.0.1
 # @author Mahmoud ElKarargy
-# @author Sameh Abdulah
 # @date 2023-03-13
 
-message("")
-message("---------------------------------------- Catch2")
-message(STATUS "Checking for Catch2")
-include(macros/BuildDependency)
+#Configurations
+set(name "Catch2")
+set(tag "v3.3.2")
+set(version "3.3.2")
+set(flag "")
+set(is_cmake ON)
+set(is_git ON)
+set(auto_gen OFF)
+set(url "https://github.com/catchorg/Catch2.git")
 
-IF (NOT TARGET Catch2)
-    include(FindPkgConfig)
-    find_package(PkgConfig QUIET)
-    find_package(Catch2 QUIET)
-
-    # If Catch2 is not found, fetch and build it
-    if (Catch2_FOUND)
-        message("   Found Catch2")
-    else ()
-        message("   Can't find catch2, Installing it instead ..")
-        include(FetchContent)
-        set(FETCHCONTENT_QUIET OFF)
-        FetchContent_Declare(
-                Catch2
-                GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-                GIT_TAG v3.3.2 # Replace with the version of Catch2 you want to use for v3
-                GIT_SHALLOW TRUE
-        )
-        FetchContent_MakeAvailable(Catch2)
-    endif ()
-else ()
-    message(STATUS "Catch2 already included")
-endif ()
+include(macros/ImportDependency)
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
+message(STATUS "${name} done")

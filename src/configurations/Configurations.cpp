@@ -6,11 +6,15 @@
 /**
  * @file Configurations.cpp
  * @brief This file defines the Configurations class which stores the configuration parameters for ExaGeoStat.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-01-31
 **/
+
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
 
 #include <configurations/Configurations.hpp>
 #include <kernels/Kernel.hpp>
@@ -39,7 +43,7 @@ Configurations::Configurations() {
     SetTimeSlot(1);
     SetProblemSize(0);
     SetDenseTileSize(0);
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
     SetLowTileSize(0);
 #endif
     SetBand(0);
@@ -51,7 +55,6 @@ Configurations::Configurations() {
     SetLowerBounds(theta);
     SetUpperBounds(theta);
     SetEstimatedTheta(theta);
-    SetP(1);
     SetSeed(0);
     SetLogger(false);
     SetUnknownObservationsNb(0);
@@ -67,6 +70,8 @@ Configurations::Configurations() {
     SetDataPath("");
     SetDistanceMetric(common::EUCLIDEAN_DISTANCE);
     SetAccuracy(0);
+    SetIsNonGaussian(false);
+    mIsThetaInit = false;
 }
 
 
@@ -74,11 +79,20 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
 
     this->mArgC = aArgC;
     this->mpArgV = apArgV;
+
+    int rank = 0;
+#ifdef USE_MPI
+    MPI_Init(&this->mArgC,&this->mpArgV);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
+
     // Get the example name
     string example_name = apArgV[0];
     // Remove the './'
     example_name.erase(0, 2);
-    LOGGER("Running " + example_name)
+    if(!rank){
+        LOGGER("Running " + example_name)
+    }
     string argument;
     string argument_name;
     string argument_value;
@@ -103,6 +117,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetPGrid(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Q" || argument_name == "--q") {
                 SetQGrid(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
+                       argument_name == "--Dim") {
+                SetDimension(CheckDimensionValue(argument_value));
             } else if (argument_name == "--TimeSlot" || argument_name == "--timeslot" ||
                        argument_name == "--time_slot") {
                 SetTimeSlot(CheckNumericalValue(argument_value));
@@ -118,6 +135,8 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetGPUsNumbers(CheckNumericalValue(argument_value));
             } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
+            } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
+                SetLowTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--maxRank" || argument_name == "--maxrank" || argument_name == "--max_rank") {
                 SetMaxRank(CheckNumericalValue(argument_value));
             } else if (argument_name == "--initial_theta" || argument_name == "--itheta" ||
@@ -142,19 +161,20 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
                 SetSeed(CheckNumericalValue(argument_value));
             } else if (argument_name == "--verbose" || argument_name == "--Verbose") {
                 ParseVerbose(argument_value);
+            } else if (argument_name == "--distance_metric" || argument_name == "--distanceMetric") {
+                ParseDistanceMetric(argument_value);
             } else if (argument_name == "--logpath" || argument_name == "--log_path" || argument_name == "--logPath") {
                 SetLoggerPath(argument_value);
             } else {
-                if (!(argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
-                      argument_name == "--Dim" || argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
+                if (!(argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
                       argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
                       argument_name == "--iterations" ||
                       argument_name == "--Iterations" || argument_name == "--max_mle_iterations" ||
-                      argument_name == "--maxMleIterations" || argument_name == "--tolerance" ||
+                      argument_name == "--maxMleIterations" || argument_name == "--opt_iters" ||
+                      argument_name == "--tolerance" || argument_name == "--opt_tol" ||
                       argument_name == "--distanceMetric" || argument_name == "--distance_metric" ||
                       argument_name == "--log_file_name" || argument_name == "--logFileName" ||
                       argument_name == "--Band" || argument_name == "--band" ||
-                      argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts" ||
                       argument_name == "--DataPath" || argument_name == "--dataPath" ||
                       argument_name == "--data_path" ||
                       argument_name == "--acc" || argument_name == "--Acc")) {
@@ -167,7 +187,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
             if (argument_name == "--help") {
                 PrintUsage();
             }
-            if (argument_name == "--OOC") {
+            if (argument_name == "--OOC" || argument_name == "--ooc") {
                 SetIsOOC(true);
             } else if (argument_name == "--ApproximationMode" || argument_name == "--approximationmode" ||
                        argument_name == "--approximation_mode") {
@@ -177,7 +197,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
             } else {
                 if (!(argument_name == "--mspe" || argument_name == "--MSPE" ||
                       argument_name == "--idw" || argument_name == "--IDW" ||
-                      argument_name == "--mloe-mmom" || argument_name == "--mloe-mmom" || argument_name == "--mloe_mmom" ||
+                      argument_name == "--mloe-mmom" || argument_name == "--mloe_mmom" ||
                       argument_name == "--fisher" || argument_name == "--Fisher")) {
                     LOGGER("!! " << argument_name << " !!")
                     throw invalid_argument(
@@ -199,19 +219,34 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV) {
         throw domain_error("You need to set the Kernel, before starting");
     }
 
+    size_t found = GetKernelName().find("NonGaussian");
+    // Check if the substring was found
+    if (found != std::string::npos) {
+        SetIsNonGaussian(true);
+    }
+
     if (GetLogger()) {
         //initlog
         InitLog();
     }
-    this->PrintSummary();
+    this->PrintSummary(rank);
+
 }
 
 void Configurations::InitializeAllTheta() {
 
     if (!mIsThetaInit) {
+
         int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[this->GetKernelName()];
         InitTheta(GetInitialTheta(), parameters_number);
         SetInitialTheta(GetInitialTheta());
+
+
+        if (this->GetIsNonGaussian()) {
+            GetInitialTheta()[GetInitialTheta().size() - 1] = 0.2;
+            GetInitialTheta()[GetInitialTheta().size() - 2] = 0.2;
+        }
+
         InitTheta(GetLowerBounds(), parameters_number);
         SetLowerBounds(GetLowerBounds());
         InitTheta(GetUpperBounds(), parameters_number);
@@ -250,11 +285,8 @@ void Configurations::InitializeDataGenerationArguments() {
             argument_value = argument.substr(equal_sign_Idx + 1);
 
             // Check the argument name and set the corresponding value
-            if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
-                argument_name == "--Dim") {
-                SetDimension(CheckDimensionValue(argument_value));
-            } else if (argument_name == "--DataPath" || argument_name == "--dataPath" ||
-                       argument_name == "--data_path") {
+            if (argument_name == "--DataPath" || argument_name == "--dataPath" ||
+                argument_name == "--data_path") {
                 SetDataPath(argument_value);
                 SetIsSynthetic(false);
                 SetIsCSV(true);
@@ -262,7 +294,7 @@ void Configurations::InitializeDataGenerationArguments() {
         }
     }
     if (GetDimension() != DimensionST) {
-        if (GetTimeSlot() > 1) {
+        if (GetTimeSlot() != 1) {
             throw std::runtime_error("Time Slot can only be greater than 1 if the dimensions are set to SpaceTime.");
         }
     } else if (GetTimeSlot() < 1) {
@@ -289,16 +321,13 @@ void Configurations::InitializeDataModelingArguments() {
             argument_value = argument.substr(equal_sign_Idx + 1);
 
             // Check the argument name and set the corresponding value
-            if (argument_name == "--distance_metric" || argument_name == "--distanceMetric") {
-                ParseDistanceMetric(argument_value);
-            } else if (argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations") {
+            if (argument_name == "--max_mle_iterations" || argument_name == "--maxMleIterations" ||
+                argument_name == "--opt_iters") {
                 SetMaxMleIterations(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--tolerance") {
+            } else if (argument_name == "--tolerance" || argument_name == "--opt_tol") {
                 SetTolerance(CheckNumericalValue(argument_value));
             } else if (argument_name == "--Band" || argument_name == "--band") {
                 SetBand(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
-                SetLowTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--acc" || argument_name == "--Acc") {
                 SetAccuracy(CheckNumericalValue(argument_value));
             } else if (argument_name == "--log_file_name" || argument_name == "--logFileName") {
@@ -316,7 +345,7 @@ void Configurations::InitializeDataModelingArguments() {
         }
     }
     if (GetComputation() == TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         if (GetLowTileSize() == 0) {
             throw domain_error("You need to set the Low tile size, before starting");
         }
@@ -352,21 +381,21 @@ void Configurations::InitializeDataPredictionArguments() {
         argument_name = argument.substr(0, equal_sign_Idx);
 
         if (argument_name == "--mspe" || argument_name == "--MSPE") {
-            if (GetUnknownObservationsNb() <= 0) {
+            if (GetUnknownObservationsNb() <= 1) {
                 throw domain_error(
-                        "You need to set ZMiss number, as the number of missing values should be positive value");
+                        "You need to set ZMiss number, as the number of missing values should be bigger than one");
             }
             SetIsMSPE(true);
         } else if (argument_name == "--idw" || argument_name == "--IDW") {
-            if (GetUnknownObservationsNb() <= 0) {
+            if (GetUnknownObservationsNb() <= 1) {
                 throw domain_error(
-                        "You need to set ZMiss number, as the number of missing values should be positive value");
+                        "You need to set ZMiss number, as the number of missing values should be bigger than one");
             }
             SetIsIDW(true);
         } else if (argument_name == "--mloe-mmom" || argument_name == "--MLOE_MMOM" || argument_name == "--mloe_mmom") {
-            if (GetUnknownObservationsNb() <= 0) {
+            if (GetUnknownObservationsNb() <= 1) {
                 throw domain_error(
-                        "You need to set ZMiss number, as the number of missing values should be positive value");
+                        "You need to set ZMiss number, as the number of missing values should be bigger than one");
             }
             SetIsMLOEMMOM(true);
         } else if (argument_name == "--Fisher" || argument_name == "--fisher") {
@@ -390,7 +419,7 @@ void Configurations::PrintUsage() {
     LOGGER("--gpus=value : Used to set the number of GPUs.")
     LOGGER("--dts=value : Used to set the Dense Tile size.")
     LOGGER("--lts=value : Used to set the Low Tile size.")
-    LOGGER("--diag_thick=value : Used to set the Tile diagonal thickness.")
+    LOGGER("--band=value : Used to set the Tile diagonal thickness.")
     LOGGER("--Zmiss=value : Used to set number of unknown observation to be predicted.")
     LOGGER("--observations_file=PATH/TO/File : Used to pass the observations file path.")
     LOGGER("--max_rank=value : Used to the max rank value.")
@@ -490,24 +519,23 @@ void Configurations::CheckKernelValue(const string &aKernel) {
     // Check if the kernel name exists in the availableKernels set.
     if (availableKernels.count(aKernel) <= 0) {
         throw range_error("Invalid value for Kernel. Please check manual.");
-    } else {
-        // Check if the string is already in CamelCase format
-        if (IsCamelCase(aKernel)) {
-            this->SetKernelName(aKernel);
-            return;
-        }
-        string str = aKernel;
-        // Replace underscores with spaces and split the string into words
-        std::replace(str.begin(), str.end(), '_', ' ');
-        std::istringstream iss(str);
-        std::string word, result;
-        while (iss >> word) {
-            // Capitalize the first letter of each word and append it to the result
-            word[0] = static_cast<char>(toupper(word[0]));
-            result += word;
-        }
-        this->SetKernelName(result);
     }
+    // Check if the string is already in CamelCase format
+    if (IsCamelCase(aKernel)) {
+        this->SetKernelName(aKernel);
+        return;
+    }
+    string str = aKernel;
+    // Replace underscores with spaces and split the string into words
+    std::replace(str.begin(), str.end(), '_', ' ');
+    std::istringstream iss(str);
+    std::string word, result;
+    while (iss >> word) {
+        // Capitalize the first letter of each word and append it to the result
+        word[0] = static_cast<char>(toupper(word[0]));
+        result += word;
+    }
+    this->SetKernelName(result);
 }
 
 bool Configurations::IsCamelCase(const std::string &aString) {
@@ -624,11 +652,12 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
     }
 }
 
-void Configurations::PrintSummary() {
+void Configurations::PrintSummary(int aRank) {
 
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
-    if (!mIsPrinted) {
+
+    if (!aRank) {
 
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
@@ -647,7 +676,7 @@ void Configurations::PrintSummary() {
             LOGGER("#Precision: Single/Double")
         }
         LOGGER("#Dense Tile Size: " << this->GetDenseTileSize())
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         LOGGER("#Low Tile Size: " << this->GetLowTileSize())
 #endif
         if (this->GetComputation() == TILE_LOW_RANK) {
@@ -657,16 +686,36 @@ void Configurations::PrintSummary() {
         } else if (this->GetComputation() == DIAGONAL_APPROX) {
             LOGGER("#Computation: Diagonal Approx")
         }
+
+        if (this->GetDimension() == Dimension2D) {
+            LOGGER("#Dimension: 2D")
+        } else if (this->GetDimension() == Dimension3D) {
+            LOGGER("#Dimension: 3D")
+        } else if (this->GetDimension() == DimensionST) {
+            LOGGER("#Dimension: ST")
+        }
         LOGGER("#Kernel: " << this->GetKernelName())
+        if (this->GetDistanceMetric() == EUCLIDEAN_DISTANCE) {
+            LOGGER("#Distance Metric: Euclidean distance")
+        } else {
+            LOGGER("#Distance Metric: Great Circle Distance")
+        }
         LOGGER("#p: " << this->GetPGrid() << "\t\t #q: " << this->GetQGrid())
+        if (this->GetIsOOC()) {
+            LOGGER("#Out Of Core (OOC) technology is enabled")
+        }
         LOGGER("*************************************************")
-        mIsPrinted = true;
+        mVerbosity = temp;
     }
-    mVerbosity = temp;
 }
 
-bool Configurations::mIsPrinted = false;
-
 int Configurations::CalculateZObsNumber() {
-    return this->GetProblemSize() - GetUnknownObservationsNb();
+    return (this->GetProblemSize()) - this->GetUnknownObservationsNb();
+}
+
+Configurations::~Configurations() {
+#ifdef USE_MPI
+    // Finalize the MPI environment.
+    MPI_Finalize();
+#endif
 }

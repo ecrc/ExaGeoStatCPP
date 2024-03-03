@@ -1,7 +1,7 @@
 /**
  * @file ModelingDataHolders.hpp
  * @brief This file contains the definition of the mModelingData struct, which contains all the data needed for modeling.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @date 2023-08-24
 **/
@@ -18,7 +18,7 @@ namespace exageostat::dataunits {
     template<typename T>
     struct mModelingData {
         /// ExaGeoStatData<T> object containing needed descriptors, and locations.
-        dataunits::ExaGeoStatData<T> *mpData;
+        std::unique_ptr<dataunits::ExaGeoStatData<T>> *mpData;
         /// Configurations object containing user input data.
         configurations::Configurations *mpConfiguration;
         /// Hardware configuration for the ExaGeoStat solver.
@@ -36,7 +36,7 @@ namespace exageostat::dataunits {
          * @param aHardware The hardware configuration object.
          * @param aKernel The Kernel object.
          */
-        mModelingData(dataunits::ExaGeoStatData<T> &aData, configurations::Configurations &aConfiguration,
+        mModelingData(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, configurations::Configurations &aConfiguration,
                       const hardware::ExaGeoStatHardware &aHardware, T &aMatrix, const kernels::Kernel<T> &aKernel) :
                 mpData(std::move(&aData)), mpConfiguration(&aConfiguration), mpHardware(&aHardware),
                 mpMeasurementsMatrix(&aMatrix), mpKernel(&aKernel) {}

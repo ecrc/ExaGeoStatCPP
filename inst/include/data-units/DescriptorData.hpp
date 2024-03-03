@@ -6,7 +6,7 @@
 /**
  * @file DescriptorData.hpp
  * @brief Contains the definition of the DescriptorData class.
- * @version 1.0.0
+ * @version 1.0.1
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-18
@@ -26,7 +26,7 @@ namespace exageostat::dataunits {
      */
     union BaseDescriptor {
         CHAM_desc_t *chameleon_desc;
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
         HICMA_desc_t *hicma_desc;
 #endif
     };
@@ -49,14 +49,14 @@ namespace exageostat::dataunits {
         /**
          * @brief Destructor for DescriptorData.
          */
-        virtual ~DescriptorData();
+        ~DescriptorData();
 
         /**
          * @brief Get the base descriptor.
          * @param[in] aDescriptorType The type of the descriptor.
          * @param[in] aDescriptorName The name of the descriptor.
          * @return The base descriptor.
-         * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
+         * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
          */
         BaseDescriptor
         GetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName);
@@ -89,7 +89,7 @@ namespace exageostat::dataunits {
          */
         void SetRequest(void *apRequest);
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 
         /**
          * @brief Converts a CHAMELEON descriptor to a HICMA descriptor.
@@ -118,20 +118,21 @@ namespace exageostat::dataunits {
          * @param[in] aN The number of columns in the sub-matrix.
          * @param[in] aP The number of rows in the complete matrix.
          * @param[in] aQ The number of columns in the complete matrix.
+         * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not, default is true
          * @return void
-         * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
+         * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
          */
         void SetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName,
                            const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
                            const int &aNB, const int &aSize, const int &aLM, const int &aLN, const int &aI,
-                           const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ);
+                           const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ, const bool &aValidOOC = true);
 
         /**
          * @brief Getter for the Descriptor matrix.
          * @param[in] aDescriptorType Type of the descriptor, whether it's CHAMELEON or HiCMA.
          * @param[in] apDescriptor Pointer to the descriptor.
          * @return pointer to the Descriptor matrix.
-         * @throws std::runtime_error if the corresponding library is not enabled (EXAGEOSTAT_USE_CHAMELEON or EXAGEOSTAT_USE_HICMA).
+         * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
          */
         T *GetDescriptorMatrix(const common::DescriptorType &aDescriptorType, void *apDescriptor);
 
