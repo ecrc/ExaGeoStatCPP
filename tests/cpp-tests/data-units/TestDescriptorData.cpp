@@ -7,7 +7,7 @@
  * @brief Tests for CHAMELEON to HICMA descriptor conversion in ExaGeoStat.
  * @details This test case verifies the conversion of matrix descriptors from the CHAMELEON format to the HICMA format.
  * It ensures that key properties of the matrix descriptor, such as dimensions, block sizes, and grid distribution parameters, are preserved during the conversion process.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-04
 **/
@@ -20,9 +20,7 @@ using namespace std;
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
 
 void TEST_CHAM_TO_HICMA_CONV(){
 

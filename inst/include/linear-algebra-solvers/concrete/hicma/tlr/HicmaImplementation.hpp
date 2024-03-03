@@ -7,7 +7,7 @@
  * @file HicmaImplementation.hpp
  * @brief This file contains the declaration of HicmaImplementation class.
  * @details HicmaImplementation is a concrete implementation of LinearAlgebraMethods class for tile low-rank matrices.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-26
@@ -45,16 +45,16 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @param[in] aConfigurations Reference to the Configurations object.
          * @param[in] aP the P value of the kernel multiplied by time slot.
          */
-        void SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                                    configurations::Configurations &aConfigurations, const int &aP);
+        void SetModelingDescriptors(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                    Configurations &aConfigurations, const int &aP);
 
         /**
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
         */
-        T ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &apHardware,
-                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                            configurations::Configurations &aConfigurations, const double *theta,
+        T ExaGeoStatMLETile(const ExaGeoStatHardware &apHardware,
+                            std::unique_ptr<ExaGeoStatData<T>> &aData,
+                            Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 
         /**

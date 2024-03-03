@@ -6,7 +6,7 @@
 /**
  * @file ByteHandler.hpp
  * @brief Implementation of byte manipulation functions for ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-01-24

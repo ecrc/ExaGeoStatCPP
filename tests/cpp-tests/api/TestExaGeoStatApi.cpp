@@ -6,10 +6,10 @@
 /**
  * @file TestExaGeoStatApi.cpp
  * @brief Test suite for the ExaGeoStat APIs data generation functionality.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-08-07
+ * @date 2024-02-04
 **/
 
 #include <catch2/catch_all.hpp>
@@ -18,8 +18,7 @@
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
-using namespace exageostat::hardware;
+using namespace exageostat::dataunits;
 
 void TEST_GENERATE_DATA() {
     SECTION("Data generation - Observations")
@@ -47,7 +46,7 @@ void TEST_GENERATE_DATA() {
 
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
 
@@ -108,7 +107,7 @@ void TEST_MODEL_DATA(Computation aComputation) {
     {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data = std::make_unique<exageostat::dataunits::ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+        std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
 
 
         //initiating the matrix of the CHAMELEON Descriptor Z.
@@ -147,7 +146,7 @@ void TEST_MODEL_DATA(Computation aComputation) {
     {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations,
                                                                 data);
         double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
@@ -181,7 +180,7 @@ void TEST_PREDICTION() {
     Configurations::SetVerbosity(QUIET_MODE);
 
     auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
-    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data = std::make_unique<exageostat::dataunits::ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
 
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
                                    -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,

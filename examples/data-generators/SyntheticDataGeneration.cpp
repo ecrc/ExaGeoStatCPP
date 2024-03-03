@@ -6,9 +6,9 @@
 /**
  * @file SyntheticLocationsGeneration.cpp
  * @brief This file contains the main function for generating synthetic Locations for ExaGeoStat
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-03-04
+ * @date 2024-02-04
 **/
 
 #include <iostream>
@@ -17,10 +17,8 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::generators;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
 using namespace exageostat::kernels;
 
 /**

@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDdbetaBeta.hpp
  * @brief Defines the UnivariateMaternDdbetaBeta class, a Univariate Matern Ddbeta Beta kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

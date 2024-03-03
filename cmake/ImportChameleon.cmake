@@ -5,7 +5,7 @@
 
 # @file ImportChameleon.cmake
 # @brief This script checks for Chameleon and includes it in the project if it is not already a target.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-03-13

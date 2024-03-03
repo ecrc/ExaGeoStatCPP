@@ -7,7 +7,7 @@
  * @file ChameleonImplementationDense.hpp
  * @brief This file contains the declaration of ChameleonImplementationDense class.
  * @details ChameleonImplementationDense is a concrete implementation of ChameleonImplementation class for dense matrices.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20

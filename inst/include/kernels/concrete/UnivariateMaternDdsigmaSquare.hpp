@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDdsigmaSquare.hpp
  * @brief Defines the UnivariateMaternDdsigmaSquare class, a univariate stationary Matern kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

@@ -6,7 +6,7 @@
 /**
  * @file  CSVLoader.hpp
  * @brief A class for generating synthetic data.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-02-04
@@ -41,7 +41,7 @@ namespace exageostat::dataLoader::csv {
          * @copydoc DataLoader::ReadData()
          *
          */
-        void ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+        void ReadData(Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
                       std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
                       const int &aP) override;
 

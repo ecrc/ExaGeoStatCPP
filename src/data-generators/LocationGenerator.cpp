@@ -6,7 +6,7 @@
 /**
  * @file LocationGenerator.cpp
  * @brief Generates and manages spatial locations for ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-04
 **/

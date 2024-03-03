@@ -7,7 +7,7 @@
  * @file TestPredictionHelpers.cpp
  * @brief Unit tests for the TestPrediction class in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestPrediction class
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-12-08
 **/

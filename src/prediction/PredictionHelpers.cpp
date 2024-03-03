@@ -6,7 +6,7 @@
 /**
  * @file PredictionHelpers.cpp
  * @brief Contains the implementation of the PredictionHelpers class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -17,12 +17,11 @@
 #include <prediction/PredictionHelpers.hpp>
 
 using namespace exageostat::prediction;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 
 template<typename T>
 void PredictionHelpers<T>::PickRandomPoints(Configurations &aConfigurations,
-                                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apZObs,
+                                            std::unique_ptr<ExaGeoStatData<T>> &aData, T *apZObs,
                                             T *apZActual, T *apZ, Locations<T> &aMissLocation,
                                             Locations<T> &aObsLocation, const int &aP) {
 

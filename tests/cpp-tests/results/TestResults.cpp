@@ -6,7 +6,7 @@
  * @file TestResults.cpp
  * @brief Unit tests for the Results class in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the Results class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-01-24
 **/

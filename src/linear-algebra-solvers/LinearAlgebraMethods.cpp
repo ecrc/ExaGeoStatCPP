@@ -6,10 +6,10 @@
 /**
  * @file LinearAlgebraMethods.cpp
  * @brief Implementation of linear algebra methods.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-03-20
+ * @date 2024-02-04
 **/
 
 #ifdef USE_MPI
@@ -25,8 +25,6 @@ using namespace std;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
-using namespace exageostat::configurations;
-using namespace exageostat::hardware;
 
 // Define a method to set up the Chameleon descriptors
 template<typename T>
@@ -114,7 +112,7 @@ void LinearAlgebraMethods<T>::InitiateDescriptors(Configurations &aConfiguration
 }
 
 template<typename T>
-void LinearAlgebraMethods<T>::InitiateFisherDescriptors(configurations::Configurations &aConfigurations,
+void LinearAlgebraMethods<T>::InitiateFisherDescriptors(Configurations &aConfigurations,
                                                         dataunits::DescriptorData<T> &aDescriptorData) {
 
     // Check for initialize the Chameleon context.
@@ -181,7 +179,7 @@ void LinearAlgebraMethods<T>::InitiateFisherDescriptors(configurations::Configur
 
 template<typename T>
 void LinearAlgebraMethods<T>::InitiatePredictionDescriptors(
-        Configurations &aConfigurations, std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, const int &aP) {
+        Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData, const int &aP) {
 
     if (!this->mpContext) {
         throw std::runtime_error(
@@ -253,7 +251,7 @@ void LinearAlgebraMethods<T>::InitiatePredictionDescriptors(
 
 template<typename T>
 void LinearAlgebraMethods<T>::InitiateMLOEMMOMDescriptors(Configurations &aConfigurations,
-                                                          std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                                          std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                           const int &aP) {
 
     if (!this->mpContext) {
@@ -316,9 +314,9 @@ void LinearAlgebraMethods<T>::InitiateMLOEMMOMDescriptors(Configurations &aConfi
 }
 
 template<typename T>
-void LinearAlgebraMethods<T>::GenerateSyntheticData(configurations::Configurations &aConfigurations,
-                                                    const hardware::ExaGeoStatHardware &aHardware,
-                                                    std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+void LinearAlgebraMethods<T>::GenerateSyntheticData(Configurations &aConfigurations,
+                                                    const ExaGeoStatHardware &aHardware,
+                                                    std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                     const kernels::Kernel<T> &aKernel) {
 
     this->mpContext = aHardware.GetChameleonContext();
@@ -330,7 +328,7 @@ void LinearAlgebraMethods<T>::GenerateSyntheticData(configurations::Configuratio
 
 template<typename T>
 void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfigurations,
-                                                         std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                                         std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                          Locations<T> *apLocation1, Locations<T> *apLocation2,
                                                          Locations<T> *apLocation3, const int &aDistanceMetric,
                                                          const kernels::Kernel<T> &aKernel) {
@@ -446,7 +444,7 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
 }
 
 template<typename T>
-T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData, T *apTheta,
+T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(std::unique_ptr<ExaGeoStatData<T>> &aData, T *apTheta,
                                                      const int &aZMissNumber, const int &aZObsNumber, T *apZObs,
                                                      T *apZActual, T *apZMiss, const ExaGeoStatHardware &aHardware,
                                                      Configurations &aConfiguration, Locations<T> &aMissLocations,
@@ -597,12 +595,12 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(std::unique_ptr<dataunits::
 }
 
 template<typename T>
-T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                                 T *apTheta, const int &aZMissNumber,
                                                                 const int &aZObsNumber, T *apZObs, T *apZActual,
                                                                 T *apZMiss,
-                                                                const hardware::ExaGeoStatHardware &aHardware,
-                                                                configurations::Configurations &aConfiguration,
+                                                                const ExaGeoStatHardware &aHardware,
+                                                                Configurations &aConfiguration,
                                                                 dataunits::Locations<T> &aMissLocations,
                                                                 dataunits::Locations<T> &aObsLocations,
                                                                 const kernels::Kernel<T> &aKernel) {
@@ -795,7 +793,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<
 
 template<typename T>
 void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigurations,
-                                                        std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                                        std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                         const ExaGeoStatHardware &aHardware, T *apTruthTheta,
                                                         T *apEstimatedTheta, Locations<T> &aMissLocations,
                                                         Locations<T> &aObsLocations,
@@ -1128,9 +1126,9 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 }
 
 template<typename T>
-T *LinearAlgebraMethods<T>::ExaGeoStatFisherTile(configurations::Configurations &aConfigurations,
-                                                 std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                                                 const hardware::ExaGeoStatHardware &aHardware, T *apTheta,
+T *LinearAlgebraMethods<T>::ExaGeoStatFisherTile(Configurations &aConfigurations,
+                                                 std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                                 const ExaGeoStatHardware &aHardware, T *apTheta,
                                                  const kernels::Kernel<T> &aKernel) {
 
     this->SetContext(aHardware.GetChameleonContext());

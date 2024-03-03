@@ -6,10 +6,10 @@
 /**
  * @file HicmaImplementation.cpp
  * @brief Sets up the HiCMA descriptors needed for the tile low rank computations in ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-03-26
+ * @date 2024-02-04
 **/
 
 #ifdef USE_MPI
@@ -25,15 +25,13 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 using namespace exageostat::helpers;
-using namespace exageostat::hardware;
-using namespace exageostat::configurations;
 
 int store_only_diagonal_tiles = 1;
 int use_scratch = 1;
 int global_check = 0;  //used to create dense matrix for accuracy check
 
 template<typename T>
-void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                     Configurations &aConfigurations, const int &aP) {
 
     int full_problem_size = aConfigurations.GetProblemSize() * aP;
@@ -100,12 +98,12 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::E
 }
 
 template<typename T>
-T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware,
-                                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+T HicmaImplementation<T>::ExaGeoStatMLETile(const ExaGeoStatHardware &aHardware,
+                                            std::unique_ptr<ExaGeoStatData<T>> &aData,
                                             Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix, const Kernel<T> &aKernel) {
 
-    this->SetContext(hardware::ExaGeoStatHardware::GetContext(aConfigurations.GetComputation()));
+    this->SetContext(ExaGeoStatHardware::GetContext(aConfigurations.GetComputation()));
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
         this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(),aKernel.GetVariablesNumber(), apMeasurementsMatrix);
     }

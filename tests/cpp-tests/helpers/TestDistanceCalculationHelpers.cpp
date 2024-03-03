@@ -7,7 +7,7 @@
  * @file TestDistanceCalculationHelpers.cpp
  * @brief Unit tests for the DistanceCalculationHelpers.cpp in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the class DistanceCalculationHelpers.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-01-24
 **/

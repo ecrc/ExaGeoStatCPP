@@ -20,10 +20,8 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
 
 void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
 
@@ -49,7 +47,7 @@ void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
 
         int seed = 0;
         srand(seed);
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations, data);
 
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,

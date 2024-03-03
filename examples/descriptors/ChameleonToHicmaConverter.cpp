@@ -11,20 +11,18 @@
  * @date 2024-02-14
 **/
 
-#include <common/Utils.hpp>
 #include <kernels/Kernel.hpp>
 #include <data-units/DescriptorData.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <configurations/Configurations.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::kernels;
 using namespace exageostat::plugins;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
-using namespace exageostat::configurations;
 
 int main(int argc, char **argv) {
 

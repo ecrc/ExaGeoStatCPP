@@ -19,8 +19,6 @@
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
-using namespace exageostat::hardware;
 using namespace exageostat::prediction;
 
 void TEST_PREDICTION_MISSING_DATA() {
@@ -48,7 +46,7 @@ void TEST_PREDICTION_MISSING_DATA() {
 
 
     auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
-    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data = std::make_unique<exageostat::dataunits::ExaGeoStatData<double>>(
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
             configurations.GetProblemSize(), configurations.GetDimension());
 
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
@@ -84,8 +82,6 @@ void TEST_PREDICTION_MISSING_DATA() {
         vector<double> estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(estimated_theta);
 
-        Prediction<double> predictor;
-
         // Register and create a kernel object
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
                 configurations.GetKernelName(),
@@ -93,7 +89,7 @@ void TEST_PREDICTION_MISSING_DATA() {
 
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
-        predictor.PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
+        Prediction<double>::PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
 
         REQUIRE(exageostat::results::Results::GetInstance()->GetMSPEError()== Catch::Approx(0.552448));
         delete pKernel;
@@ -106,9 +102,6 @@ void TEST_PREDICTION_MISSING_DATA() {
 
         vector<double> estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(estimated_theta);
-
-        Prediction<double> predictor;
-
         std::vector<double> idw_error={ 1.18856255, 1.25725881, 1.11986628 };
 
         // Register and create a kernel object
@@ -117,7 +110,7 @@ void TEST_PREDICTION_MISSING_DATA() {
                 configurations.GetTimeSlot());
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
-        predictor.PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
+        Prediction<double>::PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
         for(int i =0;i<3;i++){
             REQUIRE(exageostat::results::Results::GetInstance()->GetIDWError()[i] == Catch::Approx(idw_error[i]));
         }
@@ -132,14 +125,13 @@ void TEST_PREDICTION_MISSING_DATA() {
         vector<double> estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(estimated_theta);
 
-        Prediction<double> predictor;
         // Register and create a kernel object
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
-        predictor.PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
+        Prediction<double>::PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
         REQUIRE(exageostat::results::Results::GetInstance()->GetMLOE() == Catch::Approx(0.004467).margin(0.001));
         REQUIRE(exageostat::results::Results::GetInstance()->GetMMOM() == Catch::Approx(-0.0812376).margin(0.001));
 
@@ -148,7 +140,7 @@ void TEST_PREDICTION_MISSING_DATA() {
         configurations.SetEstimatedTheta(new_estimated_theta1);
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
-        predictor.PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
+        Prediction<double>::PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
         REQUIRE(exageostat::results::Results::GetInstance()->GetMLOE() == Catch::Approx(0).margin(0.001));
         REQUIRE(exageostat::results::Results::GetInstance()->GetMMOM() == Catch::Approx(0).margin(0.001));
         delete pKernel;
@@ -162,14 +154,13 @@ void TEST_PREDICTION_MISSING_DATA() {
 
         vector<double> new_estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(new_estimated_theta);
-        Prediction<double> predictor;
         // Register and create a kernel object
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
-        predictor.PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
+        Prediction<double>::PredictMissingData(hardware, data, configurations, z_matrix, *pKernel);
 
         REQUIRE(exageostat::results::Results::GetInstance()->GetFisher00() == Catch::Approx(0.104589));
         REQUIRE(exageostat::results::Results::GetInstance()->GetFisher11() == Catch::Approx(0.187355));

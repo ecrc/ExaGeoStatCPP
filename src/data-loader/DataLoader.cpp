@@ -6,7 +6,7 @@
 /**
  * @file SyntheticGenerator.cpp
  * @brief Implementation of the SyntheticGenerator class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -22,8 +22,8 @@ using namespace exageostat::common;
 
 template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
-DataLoader<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                  const exageostat::hardware::ExaGeoStatHardware &aHardware,
+DataLoader<T>::CreateData(Configurations &aConfigurations,
+                                  const ExaGeoStatHardware &aHardware,
                                   exageostat::kernels::Kernel<T> &aKernel) {
 
     // create vectors that will be populated with read data.
