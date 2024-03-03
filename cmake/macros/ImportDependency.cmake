@@ -64,7 +64,9 @@ macro(ImportDependency name tag version url flag components is_cmake is_git auto
     link_directories(${${name}_LIBRARY_DIRS})
     include_directories(${${name}_INCLUDE_DIRS})
     include_directories(AFTER ${${name}_INCLUDE_DIRS_DEP})
-    list(APPEND LIBS ${${name}_LIBRARIES})
+    if(NOT ${name} STREQUAL "GSL")
+        list(APPEND LIBS ${${name}_LIBRARIES})
+    endif()
     list(APPEND LIBS ${${name}_LIBRARIES_DEP})
 
 endmacro()

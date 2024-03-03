@@ -55,11 +55,6 @@ message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 enable_language(CXX)
 # Get the current path of the project.
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
-# Add Paths definitions
-add_definitions(
-        -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
-        -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
-)
 
 
 

@@ -57,6 +57,16 @@
  */
 #define Q_NORM 1.959964
 
+/**
+ * Kernel Files Path Definition
+ */
+#define KERNELS_PATH PROJECT_SOURCE_DIR "/inst/include/kernels/concrete/"
+
+/**
+ * Logging Path Definition
+ */
+#define LOG_PATH PROJECT_SOURCE_DIR "/synthetic_ds/"
+
 namespace exageostat::common {
 
     /**
@@ -281,8 +291,6 @@ namespace exageostat::common {
         // This set stores the kernel names.
         std::set<std::string> kernelNames;
         // This string stores the directory path where the kernel files are located.
-        // The path is obtained by using the __FILE__ macro to get the full path of the current source file,
-        // and then navigating two levels up to reach the directory that contains the kernel files.
         const std::string directoryPath = KERNELS_PATH;
         // This loop iterates through all the files in the directory and extracts the kernel names.
         for (const auto &entry: std::filesystem::directory_iterator(directoryPath)) {
