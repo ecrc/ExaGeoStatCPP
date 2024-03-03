@@ -59,7 +59,7 @@ namespace exageostat::adapters {
                           const int &aMaxRank, const std::vector<double> &aInitialTheta,
                           const std::vector<std::vector<double>> &aLowerUpperBounds,
                           const std::vector<double> &aEstimatedTheta, const std::string &aVerbose,
-                          const std::string &aDimension, const int &aMaxMleIterations, const double &aTolerance,
+                          const std::string &aDimension, const int &aMaxMleIterations, const int &aTolerance,
                           const std::vector<int> &aPrediction, const std::vector<std::string> &aPath, const bool &aSaveData
     );
 

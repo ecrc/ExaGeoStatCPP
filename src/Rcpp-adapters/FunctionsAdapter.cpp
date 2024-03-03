@@ -33,7 +33,7 @@ namespace exageostat::adapters {
                           const int &aMaxRank, const vector<double> &aInitialTheta,
                           const vector <vector<double>> &aLowerUpperBounds, const vector<double> &aEstimatedTheta,
                           const string &aVerbose, const string &aDimension, const int &aMaxMleIterations,
-                          const double &aTolerance, const vector<int> &aPrediction, const std::vector<std::string> &aPath, const bool &aSaveData) {
+                          const int &aTolerance, const vector<int> &aPrediction, const std::vector<std::string> &aPath, const bool &aSaveData) {
 
         vector<string> argStrings;
 
