@@ -103,16 +103,19 @@ pipeline {
                     module load gcc/10.2.0
                     module load cmake/3.21.2
                     module load doxygen/1.8.20
-
+                    ####################################################
+                    # BLAS/LAPACK
+                    ####################################################
+                    module load mkl/2020.0.166
+                    ####################################################
+                    # Dependencies
+                    ####################################################
                     module load hwloc/2.4.0-gcc-10.2.0
                     module load openmpi/4.1.0-gcc-10.2.0
                     module load starpu/1.3.9-gcc-10.2.0-mkl-openmpi-4.1.0
                     module load gsl/2.6-gcc-10.2.0
                     module load nlopt/2.7.0-gcc-10.2.0
-                    ####################################################
-                    # BLAS/LAPACK
-                    ####################################################
-                    module load mkl/2020.0.166
+
                     ./configure -e
                     ./clean_build.sh
                     cd bin
