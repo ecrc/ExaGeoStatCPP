@@ -429,7 +429,6 @@ int HicmaImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *a
         temp = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
         starpu_insert_task(cl,
                            STARPU_VALUE, &temp, sizeof(int),
-                           STARPU_VALUE, &temp, sizeof(int),
                            STARPU_R, ExaGeoStatDataGetAddr(Z, m, 0),
                            STARPU_RW, ExaGeoStatDataGetAddr(det, 0, 0),
                            0);
