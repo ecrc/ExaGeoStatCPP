@@ -63,4 +63,13 @@ RCPP_MODULE(ExaGeoStatCPP) {
     function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData,
              List::create(_["hardware"], _["config"], _["data"], _["matrix"] = R_NilValue, _["x"] = R_NilValue,
                           _["y"] = R_NilValue, _["z"] = R_NilValue));
+
+//    function("get_locationsX", &exageostat::adapters::R_GetLocationX, List::create(_["data"]));
+//
+//    function("get_locationsY", &exageostat::adapters::R_GetLocationY, List::create(_["data"]));
+//
+    function("get_locationsZ", &exageostat::adapters::R_GetLocationZ, List::create(_["data"]));
+
+//    function("get_Z_measurement_vector", &exageostat::adapters::R_GetDescZValues, List::create(_["data"], _["type"]));
+
 }

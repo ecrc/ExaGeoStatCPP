@@ -22,6 +22,7 @@ using namespace Rcpp;
 
 using namespace exageostat::dataunits;
 using namespace exageostat::api;
+using namespace exageostat::common;
 
 namespace exageostat::adapters {
 
@@ -160,6 +161,77 @@ namespace exageostat::adapters {
         return configurations;
     }
 
+    NumericVector R_GetLocationX(ExaGeoStatData<double> *apData){
+        // Obtain the pointer to the array of doubles
+        double* data = apData->GetLocations()->GetLocationX();
+        int length = apData->GetLocations()->GetSize();
+        // Create an empty NumericVector of the appropriate length
+        NumericVector vec(length);
+
+        // Copy data from the double array to the NumericVector
+        std::copy(data, data + length, vec.begin());
+
+        return vec;
+    }
+
+    NumericVector R_GetLocationY(ExaGeoStatData<double> *apData){
+
+        // Obtain the pointer to the array of doubles
+        double* data = apData->GetLocations()->GetLocationY();
+        int length = apData->GetLocations()->GetSize();
+        // Create an empty NumericVector of the appropriate length
+        NumericVector vec(length);
+
+        // Copy data from the double array to the NumericVector
+        std::copy(data, data + length, vec.begin());
+
+        return vec;
+    }
+
+    NumericVector R_GetLocationZ(ExaGeoStatData<double> *apData){
+
+        // Obtain the pointer to the array of doubles
+        double* data = apData->GetLocations()->GetLocationZ();
+        int length = apData->GetLocations()->GetSize();
+        // Create an empty NumericVector of the appropriate length
+        NumericVector vec(length);
+
+        // Copy data from the double array to the NumericVector
+        std::copy(data, data + length, vec.begin());
+
+        return vec;
+    }
+
+    NumericVector R_GetDescZValues(ExaGeoStatData<double> *apData, const std::string &aType){
+        DescriptorType descriptorType;
+        void *pDescriptor;
+        if(aType == "chameleon" || aType == "Chameleon"){
+            descriptorType = CHAMELEON_DESCRIPTOR;
+            pDescriptor = apData->GetDescriptorData()->GetDescriptor(descriptorType, DESCRIPTOR_Z).chameleon_desc;
+        }
+        else if (aType == "hicma" || aType == "Hicma" || aType == "HICMA"){
+#ifdef USE_HICMA
+            descriptorType = HICMA_DESCRIPTOR;
+            pDescriptor = apData->GetDescriptorData()->GetDescriptor(descriptorType, DESCRIPTOR_Z).hicma_desc;
+#else
+            throw runtime_error("Please enable HiCMA to use HiCMA descriptors.");
+#endif
+        }
+        else {
+            throw domain_error("Invalid type of descriptor, please use chameleon or hicma.");
+        }
+        // Obtain the pointer to the array of doubles
+        double* data = apData->GetDescriptorData()->GetDescriptorMatrix(descriptorType, pDescriptor);
+        int length = apData->GetLocations()->GetSize();
+        // Create an empty NumericVector of the appropriate length
+        NumericVector vec(length);
+
+        // Copy data from the double array to the NumericVector
+        std::copy(data, data + length, vec.begin());
+
+        return vec;
+    }
+
     ExaGeoStatData<double> *R_ExaGeoStatLoadData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
                                                  ExaGeoStatData<double> *apData) {
 
@@ -174,89 +246,88 @@ namespace exageostat::adapters {
 
     ExaGeoStatData<double> *R_ExaGeoStatModelData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
                                                   ExaGeoStatData<double> *apData,
-                                                  Nullable <NumericMatrix> aMeasurementsMatrix,
-                                                  Nullable <NumericMatrix> aLocationsX,
-                                                  Nullable <NumericMatrix> aLocationsY,
-                                                  Nullable <NumericMatrix> aLocationsZ) {
+                                                  Nullable <NumericVector> aMeasurementsVector,
+                                                  Nullable <NumericVector> aLocationsX,
+                                                  Nullable <NumericVector> aLocationsY,
+                                                  Nullable <NumericVector> aLocationsZ) {
 
         std::unique_ptr<ExaGeoStatData<double>> apDataPtr(apData);
-        double* pMeasurementsMatrixPtr = nullptr;
-        if (aMeasurementsMatrix == nullptr || aMeasurementsMatrix.isNull()){
-            // This was the only way to pass C++ tests, if we checked for aMeasurementsMatrix != nullptr a seg fault occurs
+        double* pMeasurementsVectorPtr = nullptr;
+        if (aMeasurementsVector == nullptr || aMeasurementsVector.isNull()){
+            // This was the only way to pass C++ tests, if we checked for aMeasurementsVector != nullptr a seg fault occurs
         }
         else{
-
-            NumericMatrix mat(aMeasurementsMatrix.get());
-            pMeasurementsMatrixPtr = &mat[0]; // Get the raw pointer to the matrix data
+            NumericVector mat(aMeasurementsVector.get());
+            pMeasurementsVectorPtr = &mat[0]; // Get the raw pointer to the matrix data
 
             if (!aLocationsX.isNull()) {
                 double *pLocationsXPtr;
-                NumericMatrix mat_location(aLocationsX.get());
+                NumericVector mat_location(aLocationsX.get());
                 pLocationsXPtr = &mat_location[0]; // Get the raw pointer to the matrix data
-                apData->GetLocations()->SetLocationX(*pLocationsXPtr, mat_location.ncol());
+                apData->GetLocations()->SetLocationX(*pLocationsXPtr, mat_location.size());
             }
 
             if (aLocationsY.isNotNull()) {
                 double *pLocationsYPtr;
-                NumericMatrix mat_location(aLocationsY.get());
+                NumericVector mat_location(aLocationsY.get());
                 pLocationsYPtr = &mat_location[0]; // Get the raw pointer to the matrix data
-                apData->GetLocations()->SetLocationY(*pLocationsYPtr, mat_location.ncol());
+                apData->GetLocations()->SetLocationY(*pLocationsYPtr, mat_location.size());
 
             }
 
             if (aLocationsZ == nullptr || aLocationsZ.isNotNull()) {
                 double *pLocationsZPtr;
-                NumericMatrix mat_location(aLocationsZ.get());
+                NumericVector mat_location(aLocationsZ.get());
                 pLocationsZPtr = &mat_location[0]; // Get the raw pointer to the matrix data
-                apData->GetLocations()->SetLocationZ(*pLocationsZPtr, mat_location.ncol());
+                apData->GetLocations()->SetLocationZ(*pLocationsZPtr, mat_location.size());
             }
         }
 
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(*apHardware, *apConfigurations, apDataPtr, pMeasurementsMatrixPtr);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(*apHardware, *apConfigurations, apDataPtr, pMeasurementsVectorPtr);
         return apDataPtr.release();
     }
 
     ExaGeoStatData<double> *R_ExaGeoStatPredictData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
                                                     ExaGeoStatData<double> *apData,
-                                                    Nullable <NumericMatrix> aMeasurementsMatrix,
-                                                    Nullable <NumericMatrix> aLocationsX,
-                                                    Nullable <NumericMatrix> aLocationsY,
-                                                    Nullable <NumericMatrix> aLocationsZ) {
+                                                    Nullable <NumericVector> aMeasurementsVector,
+                                                    Nullable <NumericVector> aLocationsX,
+                                                    Nullable <NumericVector> aLocationsY,
+                                                    Nullable <NumericVector> aLocationsZ) {
 
         std::unique_ptr<ExaGeoStatData<double>> apDataPtr(apData);
-        double* pMeasurementsMatrixPtr = nullptr;
-        if (aMeasurementsMatrix == nullptr || aMeasurementsMatrix.isNull()){
-            // This was the only way to pass C++ tests, if we checked for aMeasurementsMatrix != nullptr a seg fault occurs
+        double* pMeasurementsVectorPtr = nullptr;
+        if (aMeasurementsVector == nullptr || aMeasurementsVector.isNull()){
+            // This was the only way to pass C++ tests, if we checked for aMeasurementsVector != nullptr a seg fault occurs
         }
         else{
 
-            NumericMatrix mat(aMeasurementsMatrix.get());
-            pMeasurementsMatrixPtr = &mat[0]; // Get the raw pointer to the matrix data
+            NumericVector mat(aMeasurementsVector.get());
+            pMeasurementsVectorPtr = &mat[0]; // Get the raw pointer to the matrix data
 
             if (!aLocationsX.isNull()) {
                 double *pLocationsXPtr;
-                NumericMatrix mat_location(aLocationsX.get());
+                NumericVector mat_location(aLocationsX.get());
                 pLocationsXPtr = &mat_location[0]; // Get the raw pointer to the matrix data
-                apData->GetLocations()->SetLocationX(*pLocationsXPtr, mat_location.ncol());
+                apData->GetLocations()->SetLocationX(*pLocationsXPtr, mat_location.size());
             }
 
             if (aLocationsY.isNotNull()) {
                 double *pLocationsYPtr;
-                NumericMatrix mat_location(aLocationsY.get());
+                NumericVector mat_location(aLocationsY.get());
                 pLocationsYPtr = &mat_location[0]; // Get the raw pointer to the matrix data
-                apData->GetLocations()->SetLocationY(*pLocationsYPtr, mat_location.ncol());
+                apData->GetLocations()->SetLocationY(*pLocationsYPtr, mat_location.size());
 
             }
 
             if (aLocationsZ.isNotNull()) {
                 double *pLocationsZPtr;
-                NumericMatrix mat_location(aLocationsZ.get());
+                NumericVector mat_location(aLocationsZ.get());
                 pLocationsZPtr = &mat_location[0]; // Get the raw pointer to the matrix data
-                apData->GetLocations()->SetLocationZ(*pLocationsZPtr, mat_location.ncol());
+                apData->GetLocations()->SetLocationZ(*pLocationsZPtr, mat_location.size());
             }
         }
 
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(*apHardware, *apConfigurations, apDataPtr, pMeasurementsMatrixPtr);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(*apHardware, *apConfigurations, apDataPtr, pMeasurementsVectorPtr);
         return apDataPtr.release();
     }
 }

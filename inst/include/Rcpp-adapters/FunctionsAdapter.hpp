@@ -63,6 +63,40 @@ namespace exageostat::adapters {
                           const std::vector<int> &aPrediction, const std::vector<std::string> &aPath, const bool &aSaveData
     );
 
+
+    /**
+     * @brief Retrieves X coordinates of locations from ExaGeoStat data.
+     * @details Extracts and returns the X coordinates of geographical or spatial locations stored in an ExaGeoStatData object, facilitating data manipulation and analysis within the ExaGeoStat framework.
+     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
+     * @return Numeric vector of X coordinates.
+     */
+    Rcpp::NumericVector R_GetLocationX(ExaGeoStatData<double> *apData);
+
+    /**
+     * @brief Retrieves Y coordinates of locations from ExaGeoStat data.
+     * @details Extracts and returns the Y coordinates of geographical or spatial locations stored in an ExaGeoStatData object, supporting various spatial data analyses and operations within the ExaGeoStat software.
+     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
+     * @return Numeric vector of Y coordinates.
+     */
+    Rcpp::NumericVector R_GetLocationY(ExaGeoStatData<double> *apData);
+
+    /**
+     * @brief Retrieves Z coordinates of locations from ExaGeoStat data.
+     * @details Extracts and returns the Z coordinates (elevation or depth) of spatial locations stored in an ExaGeoStatData object, enhancing three-dimensional spatial analysis capabilities within the ExaGeoStat framework.
+     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
+     * @return Numeric vector of Z coordinates.
+     */
+    Rcpp::NumericVector R_GetLocationZ(ExaGeoStatData<double> *apData);
+
+    /**
+     * @brief Retrieves descriptive Z values from ExaGeoStat data based on type.
+     * @details Extracts and returns Z values from an ExaGeoStatData object, aiding in targeted spatial data analysis and visualization within ExaGeoStat.
+     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
+     * @param[in] aType String specifying the type of descriptor value to retrieve (e.g., "Chameleon", "HiCMA").
+     * @return Numeric vector of descriptive Z values.
+     */
+    Rcpp::NumericVector R_GetDescZValues(ExaGeoStatData<double> *apData, const std::string &aType);
+
     /**
      * @brief Function to load ExaGeoStat data.
      * @details This function loads data into an ExaGeoStatData object using the provided hardware configuration and computational settings.
@@ -82,18 +116,18 @@ namespace exageostat::adapters {
      * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
      * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
      * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
-     * @param[in] aMeasurementsMatrix An optional Rcpp::Nullable object containing a matrix of measurements. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a matrix of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a matrix of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a matrix of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aMeasurementsVector An optional Rcpp::Nullable object containing a vector of measurements. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a vector of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a vector of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a vector of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
      * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
      */
     ExaGeoStatData<double> *R_ExaGeoStatModelData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
                                                   ExaGeoStatData<double> *apData,
-                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aMeasurementsMatrix = R_NilValue,
-                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsX = R_NilValue,
-                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsY = R_NilValue,
-                                                  Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsZ = R_NilValue);
+                                                  Rcpp::Nullable<Rcpp::NumericVector> aMeasurementsVector = R_NilValue,
+                                                  Rcpp::Nullable<Rcpp::NumericVector> aLocationsX = R_NilValue,
+                                                  Rcpp::Nullable<Rcpp::NumericVector> aLocationsY = R_NilValue,
+                                                  Rcpp::Nullable<Rcpp::NumericVector> aLocationsZ = R_NilValue);
 
     /**
      * @brief Function to predict using ExaGeoStat data.
@@ -102,18 +136,18 @@ namespace exageostat::adapters {
      * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
      * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
      * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
-     * @param[in] aMeasurementsMatrix An optional Rcpp::Nullable object containing a matrix of measurements. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a matrix of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a matrix of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a matrix of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aMeasurementsVector An optional Rcpp::Nullable object containing a vector of measurements. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a vector of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a vector of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
+     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a vector of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
      * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
      */
     ExaGeoStatData<double> *R_ExaGeoStatPredictData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
                                                     ExaGeoStatData<double> *apData,
-                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aMeasurementsMatrix = R_NilValue,
-                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsX = R_NilValue,
-                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsY = R_NilValue,
-                                                    Rcpp::Nullable<Rcpp::NumericMatrix> aLocationsZ = R_NilValue);
+                                                    Rcpp::Nullable<Rcpp::NumericVector> aMeasurementsVector = R_NilValue,
+                                                    Rcpp::Nullable<Rcpp::NumericVector> aLocationsX = R_NilValue,
+                                                    Rcpp::Nullable<Rcpp::NumericVector> aLocationsY = R_NilValue,
+                                                    Rcpp::Nullable<Rcpp::NumericVector> aLocationsZ = R_NilValue);
 
 }
 #endif //EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP

@@ -418,15 +418,6 @@ private:
      */
     void ParseDistanceMetric(const std::string &aDistanceMetric);
 
-    /**
-     * @brief Initializes the log file.
-     * @details This function attempts to open a log file with the name returned by GetFileLogName(),
-     * and sets the file log path accordingly. If an exception occurs during the file opening,
-     * a default log file named "log_file" is created.
-     * @return void
-     */
-    void InitLog();
-
     /// Used Dictionary
     std::unordered_map<std::string, std::any> mDictionary;
     /// Used Argument counter
