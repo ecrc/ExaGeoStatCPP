@@ -1335,6 +1335,10 @@ LinearAlgebraMethods<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *a
                                 dts, dts * dts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid, q_grid);
         z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY).chameleon_desc;
     }
+    double epsilon = 1e-8;
+    if (abs(((T *)z_desc->mat)[0]) < epsilon) {
+        z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
+    }
     this->ExaGeoStatDesc2Lap(apZ, aSize, z_desc, UpperLower::EXAGEOSTAT_UPPER_LOWER);
 }
 
