@@ -250,7 +250,7 @@ if [ "$USE_R" = "ON" ]; then
   }
 
   # Clean the directory and build the code with the specified options.
-  "$cmake_command_bin" --build . -j 2
+  "$cmake_command_bin" --build . -j 6
 
   if [ "$OS_TYPE" = "darwin"* ]; then
     cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.dylib" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.dylib -> src"
