@@ -32,7 +32,7 @@ inline Computation GetInputComputation(std::string aComputation) {
 
     if (aComputation == "exact" || aComputation == "dense") {
         return EXACT_DENSE;
-    } else if (aComputation == "dst" || aComputation == "diagonal_super_tile") {
+    } else if (aComputation == "dst" || aComputation == "diag_approx") {
         return DIAGONAL_APPROX;
     } else if (aComputation == "tlr" || aComputation == "tile_low_rank") {
         return TILE_LOW_RANK;
