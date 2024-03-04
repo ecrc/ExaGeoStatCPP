@@ -10,7 +10,7 @@
  * in the ExaGeoStat software package. The tests cover various setters, getters, and value checks
  * for configuration parameters such as dimensions, P-GRID, kernel name, problem size, precision, and more.
  * Additionally, the tests include a copy-constructor test for the Configurations class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-01-31
 **/
@@ -23,7 +23,6 @@
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 
 void TEST_ARGUMENT_INITIALIZATION(){
 

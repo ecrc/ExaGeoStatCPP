@@ -7,7 +7,7 @@
  * @file TestExaGeoStatHardware.cpp
  * @brief Unit tests for the ExaGeoStatHardware class in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the ExaGeoStatHardware class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-01-24
 **/
@@ -16,9 +16,7 @@
 
 #include <hardware/ExaGeoStatHardware.hpp>
 
-using namespace exageostat::hardware;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
 
 void TEST_HARDWARE_CONSTRUCTION() {
 

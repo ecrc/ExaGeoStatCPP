@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDsigmaSquare.cpp
  * @brief Implementation of the UnivariateMaternDsigmaSquare kernel.
-  * @version 1.0.1
+  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

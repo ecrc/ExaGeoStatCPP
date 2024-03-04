@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternNuggetsStationary.hpp
  * @brief Defines the UnivariateMaternNuggetsStationary class, a Univariate Matern Nuggets Stationary kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

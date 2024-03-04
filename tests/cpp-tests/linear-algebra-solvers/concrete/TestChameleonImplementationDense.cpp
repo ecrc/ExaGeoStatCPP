@@ -6,7 +6,7 @@
 /**
  * @file TestChameleonImplmentationDense.cpp
  * @brief Unit tests for the Dense computation in the ExaGeoStat software package.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-06
 **/
@@ -25,9 +25,7 @@ using namespace std;
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
 void TEST_CHAMELEON_DESCRIPTORS_VALUES() {

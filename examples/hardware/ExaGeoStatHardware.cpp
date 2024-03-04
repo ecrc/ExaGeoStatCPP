@@ -6,20 +6,19 @@
 /**
  * @file TestExaGeoStatHardware.cpp
  * @briefExample for the ExaGeoStatHardware class in the ExaGeoStat software package.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-14
 **/
 
-#include <common/Utils.hpp>
 #include <configurations/Configurations.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace exageostat::common;
-using namespace exageostat::hardware;
-using namespace exageostat::configurations;
 
 int main(int argc, char **argv) {
+
     LOGGER("** Example of Hardware **")
 
     // Initialize Configuration

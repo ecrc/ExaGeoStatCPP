@@ -27,7 +27,7 @@ pipeline {
                     module load mkl/2020.0.166
                     ####################################################
                     set -x
-                    ./config.sh -t -e
+                    ./configure -t -e
                     ./clean_build.sh
                 '''
             }
@@ -69,7 +69,7 @@ pipeline {
                     module load mkl/2020.0.166
                     ####################################################
                     set -x
-                    ./config.sh -t -e -H
+                    ./configure -t -e -H
                     ./clean_build.sh
                 '''
             }
@@ -107,7 +107,14 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    ./config.sh -e
+                    ####################################################
+                    # Dependencies
+                    ####################################################
+                    module load hwloc/2.4.0-gcc-10.2.0
+                    module load openmpi/4.1.0-gcc-10.2.0
+                    module load starpu/1.3.9-gcc-10.2.0-mkl-openmpi-4.1.0
+
+                    ./configure -e
                     ./clean_build.sh
                     cd bin
                     make docs

@@ -5,7 +5,7 @@
 
 # @file CMakeLists.txt
 # @brief CMake configuration file for the data loader module
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-02-14
 

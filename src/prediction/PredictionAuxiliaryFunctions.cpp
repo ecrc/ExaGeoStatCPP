@@ -6,7 +6,7 @@
 /**
  * @file PredictionAuxiliaryFunctions.cpp
  * @brief Contains the implementation of the PredictionAuxiliaryFunctions class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -16,7 +16,7 @@
 
 #include <prediction/PredictionAuxiliaryFunctions.hpp>
 #include <helpers/DistanceCalculationHelpers.hpp>
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace exageostat::prediction;
 using namespace exageostat::dataunits;

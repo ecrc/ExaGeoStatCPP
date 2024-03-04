@@ -6,7 +6,7 @@
 /**
  * @file CSVLoader.cpp
  * @brief Example of the CSVLoader class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-18
 **/
@@ -17,10 +17,8 @@
 using namespace std;
 
 using namespace exageostat::kernels;
-using namespace exageostat::hardware;
 using namespace exageostat::common;
 using namespace exageostat::generators;
-using namespace exageostat::configurations;
 using namespace exageostat::dataLoader::csv;
 
 int main(int argc, char **argv) {
@@ -44,7 +42,6 @@ int main(int argc, char **argv) {
 
     // Create a unique pointer to a DataGenerator object and generate data
     configurations.SetIsSynthetic(true);
-    configurations.SetIsCSV(false);
     unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(configurations);
     auto data = synthetic_generator->CreateData(configurations, hardware, *kernel);
 

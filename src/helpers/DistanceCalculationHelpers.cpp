@@ -6,7 +6,7 @@
 /**
  * @file DistanceCalculationHelpers.cpp
  * @brief Contains the implementation of the DistanceCalculationHelpers class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08

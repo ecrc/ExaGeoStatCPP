@@ -6,7 +6,7 @@
 /**
  * @file DataLoader.hpp
  * @brief Manages data loading operations for ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-02-04
@@ -35,10 +35,9 @@ namespace exageostat::dataLoader {
          * @copydoc DataGenerator::CreateData()
          *
          */
-        std::unique_ptr<dataunits::ExaGeoStatData<T>>
-        CreateData(exageostat::configurations::Configurations &aConfigurations,
-                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                   exageostat::kernels::Kernel<T> &aKernel) override;
+        std::unique_ptr<ExaGeoStatData<T>>
+        CreateData(Configurations &aConfigurations, const ExaGeoStatHardware &aHardware,
+                   kernels::Kernel<T> &aKernel) override;
 
         /**
          * @brief Reads data from external sources into ExaGeoStat format.
@@ -50,9 +49,8 @@ namespace exageostat::dataLoader {
          * @param aP Partition index for distributed data loading.
          */
         virtual void
-        ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
-                 std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
-                 const int &aP) = 0;
+        ReadData(Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix, std::vector<T> &aXLocations,
+                 std::vector<T> &aYLocations, std::vector<T> &aZLocations, const int &aP) = 0;
 
     };
 
@@ -62,6 +60,7 @@ namespace exageostat::dataLoader {
      *
      */
     EXAGEOSTAT_INSTANTIATE_CLASS(DataLoader)
+
 } // namespace exageostat
 
 #endif //EXAGEOSTATCPP_DATALOADER_HPP

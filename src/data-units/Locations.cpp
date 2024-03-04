@@ -6,7 +6,7 @@
 /**
  * @file Locations.cpp
  * @brief Implementation of the Locations class
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-27

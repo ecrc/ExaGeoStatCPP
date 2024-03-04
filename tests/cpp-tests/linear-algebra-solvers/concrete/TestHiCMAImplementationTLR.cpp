@@ -6,7 +6,7 @@
 /**
  * @file TestHiCMAImplementationTLR.cpp
  * @brief Unit tests for the Tile Low Rank computation in the ExaGeoStat software package.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -18,9 +18,7 @@
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
 
 //Test that the function initializes the HICMA_descriptorC descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
@@ -52,7 +50,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
         synthetic_data_configurations.SetApproximationMode(1);
 
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
@@ -86,7 +84,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);

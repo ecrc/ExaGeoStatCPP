@@ -6,7 +6,7 @@
 /**
  * @file DescriptorData.hpp
  * @brief Contains the definition of the DescriptorData class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-18

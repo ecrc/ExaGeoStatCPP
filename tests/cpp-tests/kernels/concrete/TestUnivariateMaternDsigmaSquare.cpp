@@ -8,7 +8,7 @@
  * @brief Unit tests for the TestUnivariateMaternDdsigmaSquare kernel in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternDdsigmaSquare kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-29
@@ -19,7 +19,6 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
 using namespace exageostat::common;
 

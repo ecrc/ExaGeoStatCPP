@@ -8,7 +8,7 @@
  * @brief Unit tests for the TestUnivariateMaternStationary kernel in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternStationary kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-29
@@ -20,10 +20,8 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
@@ -49,7 +47,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
 
         int seed = 0;
         srand(seed);
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+        std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
                                                                 data);
 

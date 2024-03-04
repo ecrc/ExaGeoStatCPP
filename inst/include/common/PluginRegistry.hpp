@@ -6,7 +6,7 @@
 /**
  * @file PluginRegistry.hpp
  * @brief Defines a template class for registering and creating plugins.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-30
 **/
@@ -14,7 +14,7 @@
 #ifndef EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 #define EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 
-//// TODO: This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+// This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
 #ifdef min
 #undef min
 #endif

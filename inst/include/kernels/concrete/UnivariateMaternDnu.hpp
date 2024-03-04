@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDnu.hpp
  * @brief Defines the UnivariateMaternDnu class, a Univariate Matern Dnu kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

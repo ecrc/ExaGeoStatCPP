@@ -7,17 +7,15 @@
  * @file DataGenerationModelingAndPrediction.cpp
  * @brief This program This program either generates synthetic data using the ExaGeoStat library, or reads an CSV file containing real data, performs data modeling on loaded data, then predicts missing measurements using the ExaGeoStat library.
  * @details The program takes command line arguments to configure the data generation.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-06-21
+ * @date 2024-02-04
 **/
 
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
 #include <api/ExaGeoStat.hpp>
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 
 /**
@@ -37,7 +35,7 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
     // Load data by either read from file or create synthetic data.
-    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+    std::unique_ptr<ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
     // Modeling module.
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);

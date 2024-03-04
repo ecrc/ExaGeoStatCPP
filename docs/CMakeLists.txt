@@ -5,7 +5,7 @@
 
 # @file CMakeLists.txt
 # @brief Configures and generates documentation using Doxygen.
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-03-12

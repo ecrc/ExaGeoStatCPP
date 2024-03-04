@@ -5,7 +5,7 @@
 
 # @file ImportGSL.cmake
 # @brief Checks for the GSL library and includes it in the project if it is not already present.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-03-16

@@ -6,10 +6,10 @@
 /**
  * @file Prediction.cpp
  * @brief Contains the implementation of the Prediction class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-06-08
+ * @date 2024-02-04
 **/
 
 #include <prediction/Prediction.hpp>
@@ -18,12 +18,11 @@
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
 using namespace exageostat::prediction;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 
 template<typename T>
-void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHardware,
-                                       std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+void Prediction<T>::PredictMissingData(const ExaGeoStatHardware &aHardware,
+                                       std::unique_ptr<ExaGeoStatData<T>> &aData,
                                        Configurations &aConfigurations, T *apMeasurementsMatrix,
                                        const kernels::Kernel<T> &aKernel) {
 
@@ -176,7 +175,7 @@ void Prediction<T>::PredictMissingData(const hardware::ExaGeoStatHardware &aHard
 
 template<typename T>
 void Prediction<T>::InitializePredictionArguments(Configurations &aConfigurations,
-                                                  std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
+                                                  std::unique_ptr<ExaGeoStatData<T>> &aData,
                                                   std::unique_ptr<linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                                   T *apZObs, T *apZActual, Locations<T> &aMissLocation,
                                                   Locations<T> &aObsLocation, T *apMeasurementsMatrix, const int &aP) {

@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDdbetaNu.hpp
  * @brief Defines the UnivariateMaternDdbetaNu class, a Univariate Matern Ddbeta Nu kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternNonGaussian.hpp
  * @brief Defines the UnivariateMaternNonGaussian class, a Univariate Matern Non Gaussian kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

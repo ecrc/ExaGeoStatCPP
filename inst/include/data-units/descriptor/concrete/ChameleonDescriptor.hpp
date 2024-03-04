@@ -6,7 +6,7 @@
 /**
  * @file ChameleonDescriptor.hpp
  * @brief Defines the ChameleonDescriptor class for creating matrix descriptors using the CHAMELEON library.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-08-15

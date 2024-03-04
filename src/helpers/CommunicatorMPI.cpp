@@ -6,7 +6,7 @@
 /**
  * @file CommunicatorMPI.cpp
  * @brief Defines the CommunicatorMPI class for MPI rank communication.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Sameh Abdulah
  * @date 2023-11-10
 **/

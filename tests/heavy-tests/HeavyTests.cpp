@@ -6,7 +6,7 @@
 /**
  * @file TestExaGeoStatApi.cpp
  * @brief Test suite for the ExaGeoStat APIs data generation functionality.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-12-20
 **/
@@ -25,7 +25,6 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 using namespace exageostat::api;
 using namespace exageostat::kernels;

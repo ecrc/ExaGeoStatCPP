@@ -6,17 +6,15 @@
 /**
  * @file RunningWithDifferentConfigurations.cpp
  * @brief Demonstrates running ExaGeoStat with various configurations.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-01-04
 **/
 
-#include <common/Utils.hpp>
 #include <api/ExaGeoStat.hpp>
+#include <utilities/Logger.hpp>
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 
 /**
@@ -47,7 +45,7 @@ int main() {
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
     // Load data by either read from file or create synthetic data.
-    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
+    std::unique_ptr<ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
     // Modeling module.
     ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);

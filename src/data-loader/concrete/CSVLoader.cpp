@@ -6,7 +6,7 @@
 /**
  * @file CSVDataGenerator.cpp
  * @brief Implementation of the CSVDataGenerator class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-14
@@ -18,8 +18,6 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 using namespace exageostat::common;
@@ -140,6 +138,7 @@ void CSVLoader<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasure
     aConfigurations.SetProblemSize(index * aP / aConfigurations.GetTimeSlot());
 
     file.close();
+    LOGGER("Data is read from " << data_path << " successfully.")
 }
 
 template<typename T>

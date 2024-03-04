@@ -7,7 +7,7 @@
  * @file ChameleonImplementationDST.hpp
  * @brief This file contains the declaration of ChameleonImplementationDST class.
  * @details ChameleonImplementationDST is a concrete implementation of LinearAlgebraMethods class for diagonal super tile matrices.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-26

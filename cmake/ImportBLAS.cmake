@@ -4,7 +4,7 @@
 
 # @file ImportBLAS.cmake
 # @brief This file searches for the BLAS library and includes it if not already included.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-03-12
 

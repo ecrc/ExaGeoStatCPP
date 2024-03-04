@@ -4,9 +4,10 @@
 
 # @file BuildDependency.cmake
 # @brief Fetches, builds, and installs a dependency.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
-# @date 2023-03-12
+# @author Amr Nasr
+# @date 2024-02-04
 
 # After building and installing the dependency, the macro installs the lib, include, and share directories
 # in the current directory.
@@ -59,7 +60,7 @@ macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_ge
 
     # Configure subproject.
     if (${is_using_cmake})
-        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
+        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} -DCMAKE_C_FLAGS=-fPIC ${flags}
                 ${${name}_srcpath}
                 WORKING_DIRECTORY ${${name}_binpath})
     else ()

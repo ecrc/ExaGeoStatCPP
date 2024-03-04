@@ -5,7 +5,7 @@
 
 # @file CMakeLists.txt
 # @brief Includes subdirectories for different modules of the ExaGeoStat software package.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2024-02-24
 

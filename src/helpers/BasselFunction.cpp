@@ -6,7 +6,7 @@
 /**
  * @file BasselFunction
  * @brief This file contains the BasselFunction class which provides methods for computing derivatives of the modified Bessel function of the second kind. These functions are crucial in statistical and mathematical computations, especially in fields such as geostatistics and spatial analysis.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-01-24

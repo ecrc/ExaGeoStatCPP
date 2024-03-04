@@ -12,6 +12,8 @@ installdir/
 .Rhistory
 .RData
 .RDataTmp
+..Rcheck
+src/symbols.rds
 
 # tar.gz files
 *.tar.gz
