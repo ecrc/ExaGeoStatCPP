@@ -6,7 +6,7 @@
 /**
  * @file CSVLoader.cpp
  * @brief Example of the CSVLoader class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-18
 **/

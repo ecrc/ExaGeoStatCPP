@@ -6,7 +6,7 @@
 /**
  * @file UnivariatePowExpStationary.cpp
  * @brief Implementation of the UnivariatePowExpStationary kernel.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2023-04-14

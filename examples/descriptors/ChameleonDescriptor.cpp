@@ -6,7 +6,7 @@
 /**
  * @file ChameleonDescriptor.cpp
  * @brief Example file for the Chameleon descriptor.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-14
 **/

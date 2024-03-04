@@ -6,7 +6,7 @@
 /**
  * @file HicmaDescriptor.cpp
  * @brief Example file for the Hicma descriptor.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-14
 **/

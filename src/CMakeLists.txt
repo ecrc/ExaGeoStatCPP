@@ -11,17 +11,17 @@
 # @date 2024-02-04
 
 # Add subdirectories for configurations, data-generators, data-units, and linear-algebra-solvers.
+add_subdirectory(api)
 add_subdirectory(configurations)
 add_subdirectory(data-generators)
+add_subdirectory(data-loader)
 add_subdirectory(data-units)
-add_subdirectory(linear-algebra-solvers)
-add_subdirectory(kernels)
-add_subdirectory(api)
-add_subdirectory(helpers)
 add_subdirectory(hardware)
+add_subdirectory(helpers)
+add_subdirectory(kernels)
+add_subdirectory(linear-algebra-solvers)
 add_subdirectory(prediction)
 add_subdirectory(results)
-add_subdirectory(data-loader)
 
 if (USE_R)
     add_subdirectory(Rcpp-adapters)
