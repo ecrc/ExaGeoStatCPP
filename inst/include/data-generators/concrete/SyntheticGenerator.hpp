@@ -44,8 +44,7 @@ namespace exageostat::generators::synthetic {
          *
          */
         std::unique_ptr<ExaGeoStatData<T>>
-        CreateData(Configurations &aConfigurations,
-                   const ExaGeoStatHardware &aHardware,
+        CreateData(configurations::Configurations &aConfigurations,
                    exageostat::kernels::Kernel<T> &aKernel) override;
 
         /**

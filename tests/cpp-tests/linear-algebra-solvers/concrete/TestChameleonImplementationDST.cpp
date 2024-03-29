@@ -26,6 +26,7 @@ using namespace std;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
@@ -39,8 +40,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
-
         synthetic_data_configurations.SetProblemSize(64);
         synthetic_data_configurations.SetDenseTileSize(16);
 
@@ -163,8 +162,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 2, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
-
         synthetic_data_configurations.SetProblemSize(32);
         synthetic_data_configurations.SetDenseTileSize(16);
 

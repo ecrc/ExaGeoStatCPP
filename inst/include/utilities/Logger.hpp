@@ -19,16 +19,14 @@
 #include <iostream>
 #include <string>
 #include <sys/time.h>
-#include <sstream>
 
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 #include <helpers/CommunicatorMPI.hpp>
-#include <utilities/Printer.hpp>
 
 /**
  * @def DEFAULT_PRECISION
- * @brief The value of the default C++ std::cout number of precision.
+ * @brief The value of the default C++ std::std::cout number of precision.
  */
 #define DEFAULT_PRECISION 6
 
@@ -37,11 +35,11 @@
  * @brief Verbose macro for logging and debugging mode.
  */
 #define VERBOSE(msg) \
-    if(Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && \
+    if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && \
        !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) { \
         std::ostringstream oss; \
         oss << "\t\t\t " << msg << std::endl; \
-        EXAGEOSTAT_PRINTER(oss.str()); \
+        std::cout << oss.str(); \
     }
 
 /**
@@ -49,10 +47,10 @@
  * @brief LOGGER_1 macro for logging outputs with double taps and new line at the end.
  */
 #define LOGGER_1(msg) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
         std::ostringstream oss; \
         oss << "\t\t " << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg << std::endl; \
-        EXAGEOSTAT_PRINTER(oss.str());                                                                                                                                        \
+        std::cout << oss.str();                                                                                                                                        \
     }
 
 /**
@@ -60,10 +58,10 @@
  * @brief LOGGER_2 macro for logging outputs with double taps and without new line at the end.
  */
 #define LOGGER_2(msg, A) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
         std::ostringstream oss;                                                                                                                                                     \
         oss << "\t\t " << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;                 \
-        EXAGEOSTAT_PRINTER(oss.str()); \
+        std::cout << oss.str(); \
 }
 /**
  * @def LOGGER_CONTROL(x, A, B, FUNC, ...)
@@ -85,10 +83,10 @@
  * @brief LOGGER_PRECISION_1 macro for logging outputs without any taps, without new line at the end, and with customized precision.
  */
 #define LOGGER_PRECISION_1(msg, precision) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()){ \
         std::ostringstream oss;                                                                                                                                                     \
         oss << std::fixed << std::setprecision(precision) << msg;                                   \
-        EXAGEOSTAT_PRINTER(oss.str()); \
+        std::cout << oss.str(); \
     }
 
 /**
@@ -96,10 +94,10 @@
  * @brief LOGGER_PRECISION_2 macro for logging outputs without any taps, without new line at the end, and with default C++ precision.
  */
 #define LOGGER_PRECISION_2(msg) \
-    if(!(Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) {\
+    if(!(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::QUIET_MODE) && !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) {\
         std::ostringstream oss;                                                                                                                                                     \
         oss << std::fixed << std::setprecision(DEFAULT_PRECISION) << msg;                                   \
-        EXAGEOSTAT_PRINTER(oss.str()); \
+        std::cout << oss.str(); \
     }
 /**
  * @def LOGGER_PRECISION_CONTROL

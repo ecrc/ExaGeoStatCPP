@@ -16,10 +16,11 @@
 #include <catch2/catch_all.hpp>
 
 #include <common/Definitions.hpp>
-#include <helpers/DiskWriter.hpp>
+#include <data-loader/concrete/CSVLoader.hpp>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
+using namespace exageostat::dataLoader::csv;
 
 void TEST_3D_VECTORS_WRITING() {
     // Initialize data vectors
@@ -51,7 +52,7 @@ void TEST_3D_VECTORS_WRITING() {
     std::string expectedFilePath = write_path + "/synthetic_ds/SYN_" + std::to_string(N / p) + "_1";
 
     // Write the data into file
-    exageostat::helpers::DiskWriter<double>::WriteVectorsToDisk(*measurements_matrix, N, p, write_path, locations);
+    CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N, p, write_path, locations);
     REQUIRE(std::filesystem::exists(expectedFilePath));
 
     std::ifstream file(expectedFilePath);

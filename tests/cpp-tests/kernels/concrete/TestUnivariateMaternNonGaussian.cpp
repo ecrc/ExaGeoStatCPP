@@ -21,6 +21,7 @@ using namespace std;
 
 using namespace exageostat::api;
 using namespace exageostat::common;
+using namespace exageostat::configurations;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
@@ -51,8 +52,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         int seed = 0;
         srand(seed);
         std::unique_ptr<ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;

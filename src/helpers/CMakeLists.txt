@@ -10,7 +10,6 @@
 # @date 2023-06-08
 
 set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/DiskWriter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DistanceCalculationHelpers.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommunicatorMPI.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ByteHandler.cpp

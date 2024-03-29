@@ -22,6 +22,7 @@
 
 using namespace std;
 
+using namespace exageostat::configurations;
 using namespace exageostat::common;
 
 Verbose Configurations::mVerbosity = Verbose::STANDARD_MODE;
@@ -230,7 +231,7 @@ void Configurations::InitializeAllTheta() {
 
     if (!mIsThetaInit) {
 
-        int parameters_number = exageostat::kernels::KernelsConfigurations::GetParametersNumberKernelMap()[this->GetKernelName()];
+        int parameters_number = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[this->GetKernelName()];
         InitTheta(GetInitialTheta(), parameters_number);
         SetInitialTheta(GetInitialTheta());
 
@@ -609,9 +610,9 @@ int Configurations::CheckUnknownObservationsValue(const string &aValue) {
 }
 
 void Configurations::ParseDistanceMetric(const std::string &aDistanceMetric) {
-    if (aDistanceMetric == "eg" || aDistanceMetric == "EG") {
+    if (aDistanceMetric == "eg" || aDistanceMetric == "EG" || aDistanceMetric == "euclidean") {
         SetDistanceMetric(EUCLIDEAN_DISTANCE);
-    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD") {
+    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD"|| aDistanceMetric == "great_circle") {
         SetDistanceMetric(GREAT_CIRCLE_DISTANCE);
     } else {
         throw range_error("Invalid value. Please use eg or gcd values only.");
@@ -643,9 +644,9 @@ void Configurations::PrintSummary(int aRank) {
 
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
-            LOGGER("#Synthetic Dataset")
+            LOGGER("#Synthetic Data generation")
         } else {
-            LOGGER("#Real Dataset")
+            LOGGER("#Real Data loader")
         }
         LOGGER("#Number of Locations: " << this->GetProblemSize())
         LOGGER("#Threads per node: " << this->GetCoresNumber())
@@ -707,4 +708,8 @@ Configurations::~Configurations() {
         delete[] this->mpArgV;  // Delete the array of pointers
     }
     this->mpArgV = nullptr;
+}
+
+void Configurations::SetTolerance(double aTolerance) {
+    mDictionary["Tolerance"] = pow(10, -1 * aTolerance);
 }

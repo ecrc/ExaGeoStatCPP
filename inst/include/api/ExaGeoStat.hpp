@@ -19,7 +19,6 @@
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 #include <data-units/ExaGeoStatData.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
 
 namespace exageostat::api {
     /**
@@ -33,27 +32,23 @@ namespace exageostat::api {
 
         /**
          * @brief Generates Data whether it's synthetic data or real.
-         * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[out] aData Reference to an ExaGeoStatData<T> object where generated data will be stored.
          * @return void
          *
          */
-        static void ExaGeoStatLoadData(const ExaGeoStatHardware &aHardware,
-                                       Configurations &aConfigurations,
+        static void ExaGeoStatLoadData(configurations::Configurations &aConfigurations,
                                        std::unique_ptr<ExaGeoStatData<T>> &aData);
 
         /**
          * @brief Models Data whether it's synthetic data or real.
-         * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
          * @return the last optimum value of MLE.
          *
          */
-        static T ExaGeoStatDataModeling(const ExaGeoStatHardware &aHardware,
-                                        Configurations &aConfigurations,
+        static T ExaGeoStatDataModeling(configurations::Configurations &aConfigurations,
                                         std::unique_ptr<ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix = nullptr);
 
@@ -69,16 +64,15 @@ namespace exageostat::api {
 
         /**
          * @brief Predict missing measurements values.
-         * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
          * @return void
          */
-        static void ExaGeoStatPrediction(const ExaGeoStatHardware &aHardware,
-                                         Configurations &aConfigurations,
-                                         std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                         T *apMeasurementsMatrix = nullptr);
+        static void ExaGeoStatPrediction(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                         T *apMeasurementsMatrix = nullptr,
+                                         dataunits::Locations<T> *apTrainLocations = nullptr,
+                                         dataunits::Locations<T> *apTestLocations = nullptr);
 
     private:
         /**

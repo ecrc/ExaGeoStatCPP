@@ -31,6 +31,7 @@ using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::kernels;
 using namespace exageostat::helpers;
+using namespace exageostat::configurations;
 
 void TEST_SPREAD_REVERSED_BITS() {
 
@@ -205,7 +206,7 @@ void TEST_GENERATE_LOCATIONS() {
                 synthetic_data_configurations);
         synthetic_data_configurations.SetDimension(Dimension2D);
 
-        auto data = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+        auto data = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
 
         double *x = data->GetLocations()->GetLocationX();
         double *y = data->GetLocations()->GetLocationY();
@@ -221,8 +222,7 @@ void TEST_GENERATE_LOCATIONS() {
         synthetic_data_configurations.SetDimension(Dimension3D);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
-        auto data = synthetic_generator->CreateData(synthetic_data_configurations,
-                                                     hardware, *pKernel);
+        auto data = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
 
         double *x = data->GetLocations()->GetLocationX();
         double *y = data->GetLocations()->GetLocationY();
@@ -241,8 +241,7 @@ void TEST_GENERATE_LOCATIONS() {
         synthetic_data_configurations.SetTimeSlot(2);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);
-        auto data = synthetic_generator->CreateData(synthetic_data_configurations,
-                                                     hardware, *pKernel);
+        auto data = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
 
         double *x = data->GetLocations()->GetLocationX();
         double *y = data->GetLocations()->GetLocationY();
@@ -310,7 +309,7 @@ void TEST_GENERATION() {
         // Initialize the seed manually with zero, to get the first generated seeded numbers.
         int seed = 0;
         srand(seed);
-        auto data = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+        auto data = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
         // The expected output of the locations.
         vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
         vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
@@ -321,7 +320,7 @@ void TEST_GENERATION() {
         }
 
         // Now test re-generating locations again, but without modifying seed manually which will results in completely new locations values
-        auto data1 = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+        auto data1 = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
         for (int i = 0; i < N; i++) {
             REQUIRE((data1->GetLocations()->GetLocationX()[i] - x[i]) != Catch::Approx(0.0).margin(1e-6));
             REQUIRE((data1->GetLocations()->GetLocationY()[i] - y[i]) != Catch::Approx(0.0).margin(1e-6));
@@ -330,7 +329,7 @@ void TEST_GENERATION() {
         // Now if we modified seed again, we will get the first generated locations again.
         int seed_srand = 0;
         srand(seed_srand);
-        auto data2 = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+        auto data2 = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
         for (int i = 0; i < N; i++) {
             REQUIRE((data2->GetLocations()->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
             REQUIRE((data2->GetLocations()->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));

@@ -11,22 +11,20 @@
  * @date 2024-02-04
 **/
 
-#include <iostream>
-
 #include <data-generators/DataGenerator.hpp>
-
-using namespace std;
 
 using namespace exageostat::generators;
 using namespace exageostat::common;
 using namespace exageostat::kernels;
+using namespace exageostat::configurations;
 
 /**
  * @brief The main function of the program.
  * @details This function generates synthetic data for ExaGeoStat using the provided command line arguments.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv The command line arguments.
- * @return The status code of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 
 int main(int argc, char **argv) {
@@ -45,11 +43,11 @@ int main(int argc, char **argv) {
             synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
 
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+    std::unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
             synthetic_data_configurations);
 
     // Initialize the locations of the generated data
-    auto data = synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+    auto data = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
     // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
     struct DataPointers {
         double *x;
@@ -81,6 +79,5 @@ int main(int argc, char **argv) {
     }
 
     delete pKernel;
-
     return 0;
 }

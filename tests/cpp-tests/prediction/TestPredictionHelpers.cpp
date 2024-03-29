@@ -243,7 +243,7 @@ void TEST_SORT_HELPER_FUNCTION() {
     }
 }
 
-TEST_CASE("Prediction tests") {
+TEST_CASE("Test Prediction Helpers") {
     TEST_SHUFFLE_HELPER_FUNCTIONS();
 
     TEST_SORT_HELPER_FUNCTION();

@@ -15,12 +15,14 @@
 #include <utilities/Logger.hpp>
 
 using namespace exageostat::api;
-using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 /**
  * @brief Main entry point for the Data Generation & Data Modeling program.
- * @details
- * @return An integer indicating the success or failure of the program.
+ * @details Initializes configuration settings, loads data, and performs data modeling with ExaGeoStat.
+ * The program demonstrates running ExaGeoStat with two different sets of configurations to showcase the software's capability in handling various statistical models and computational settings.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main() {
 
@@ -46,9 +48,9 @@ int main() {
                                        configurations.GetGPUsNumbers());
     // Load data by either read from file or create synthetic data.
     std::unique_ptr<ExaGeoStatData<double>> data;
-    ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
     // Modeling module.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
 
     LOGGER("")
     LOGGER("ANOTHER CONFIGURATIONS\n")
@@ -65,9 +67,9 @@ int main() {
     configurations2.SetInitialTheta(initial_theta);
 
     // Load data by either read from file or create synthetic data.
-    ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations2, data);
+    ExaGeoStat<double>::ExaGeoStatLoadData(configurations2, data);
     // Modeling module.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations2, data);
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations2, data);
 
     return 0;
 }

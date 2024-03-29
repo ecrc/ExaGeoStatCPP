@@ -41,9 +41,18 @@ namespace exageostat::dataLoader::csv {
          * @copydoc DataLoader::ReadData()
          *
          */
-        void ReadData(Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+        void ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
                       std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
                       const int &aP) override;
+
+        /**
+        * @brief Writes a matrix of vectors to disk.
+        * @copydoc DataLoader::WriteData()
+        *
+        */
+        void
+        WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
+                  exageostat::dataunits::Locations<T> &aLocations) override;
 
         /**
          * @brief Release the singleton instance of the  CSVLoader class.

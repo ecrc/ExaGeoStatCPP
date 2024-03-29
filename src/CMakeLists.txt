@@ -22,6 +22,7 @@ add_subdirectory(kernels)
 add_subdirectory(linear-algebra-solvers)
 add_subdirectory(prediction)
 add_subdirectory(results)
+add_subdirectory(runtime)
 
 if (USE_R)
     add_subdirectory(Rcpp-adapters)

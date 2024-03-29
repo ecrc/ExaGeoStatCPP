@@ -13,18 +13,18 @@
 **/
 
 #include <data-loader/DataLoader.hpp>
+#include <results/Results.hpp>
 
 using namespace std;
 
 using namespace exageostat::dataLoader;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
+using namespace exageostat::results;
 
 template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
-DataLoader<T>::CreateData(Configurations &aConfigurations,
-                                  const ExaGeoStatHardware &aHardware,
-                                  exageostat::kernels::Kernel<T> &aKernel) {
+DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel) {
 
     // create vectors that will be populated with read data.
     vector<T> measurements_vector;
@@ -44,7 +44,6 @@ DataLoader<T>::CreateData(Configurations &aConfigurations,
 
     //Initialize the descriptors.
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
-    linear_algebra_solver->SetContext(aHardware.GetChameleonContext());
     linear_algebra_solver->InitiateDescriptors(aConfigurations, *data->GetDescriptorData(), p);
     linear_algebra_solver->ExaGeoStatLaSetTile(EXAGEOSTAT_UPPER_LOWER, 0, 0,
                                                data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
@@ -62,9 +61,9 @@ DataLoader<T>::CreateData(Configurations &aConfigurations,
                                                         DESCRIPTOR_Z).chameleon_desc->mat)[i] = measurements_vector[i];
     }
 
-    results::Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize() / p);
-    results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
-    results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
+    Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize() / p);
+    Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
+    Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
 
     return data;
 }

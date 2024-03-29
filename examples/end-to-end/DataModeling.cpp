@@ -12,13 +12,10 @@
  * @date 2024-02-04
 **/
 
-#include <iostream>
-
-#include <utilities/Logger.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::api;
-using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 /**
  * @brief Main entry point for the Data Modeling program.
@@ -28,14 +25,15 @@ using namespace exageostat::dataunits;
  * the library's efficiency in handling large spatial datasets while efficiently utilizing hardware resources..
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
- * @return An integer indicating the success or failure of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main(int argc, char **argv) {
     // Create a new data_modeling_configurations object with the provided command line arguments and example variables
     Configurations configurations;
     configurations.InitializeArguments(argc, argv);
     /**
-     * Since this example is currently relying on user inputs instead of reading files, The following points are important to know:
+     * Since this example is relying on user inputs, The following points are important to know:
      * The N and dts have to match with the Location X, Y and Z_values you're going to provide.
      * You have to provide Locations and Z values in order to use Modeling without generation.
      */
@@ -77,7 +75,7 @@ int main(int argc, char **argv) {
     data->GetLocations()->SetLocationY(*location_y, N);
 
     // Modeling module.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data, z_matrix);
 
     // Freeing the allocated memory.
     delete[] z_matrix;

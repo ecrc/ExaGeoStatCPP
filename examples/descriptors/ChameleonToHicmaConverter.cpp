@@ -13,16 +13,25 @@
 
 #include <kernels/Kernel.hpp>
 #include <data-units/DescriptorData.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
-#include <configurations/Configurations.hpp>
 #include <utilities/Logger.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::kernels;
-using namespace exageostat::plugins;
 using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
+
+/**
+ * @brief Main entry point for the Chameleon to Hicma descriptor conversion example.
+ * @details Demonstrates the process of initializing ExaGeoStat configurations, setting up hardware, creating and initializing a kernel, and then generating and setting up a
+ * Chameleon descriptor. The example then showcases the conversion of the Chameleon descriptor to a Hicma descriptor, detailing the changes and continuity in descriptor
+ * attributes and matrix data through the conversion process.
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
+ */
 
 int main(int argc, char **argv) {
 
@@ -36,7 +45,7 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
                                        configuration.GetGPUsNumbers());
     unique_ptr<DescriptorData<double>> data = make_unique<DescriptorData<double>>();
-    Kernel<double> *kernel = PluginRegistry<Kernel<double>>::Create(
+    Kernel<double> *kernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             configuration.GetKernelName(), configuration.GetTimeSlot());
 
     // Get arguments for Descriptors Initialization
@@ -117,4 +126,5 @@ int main(int argc, char **argv) {
 
     delete kernel;
     delete HICMA_descriptorC;
+    return 0;
 }

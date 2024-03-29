@@ -59,316 +59,311 @@ type Get##name()                                                                
     return std::any_cast<type>(mDictionary[dictionary_name]);                                               \
 }
 
-/**
- * @class Configurations
- * @brief Contains methods to set and get.
- *
- */
-class Configurations {
-public:
-
+namespace exageostat::configurations {
     /**
-     * @brief Constructor initializing a Configuration object with default values.
+     * @class Configurations
+     * @brief Contains methods to set and get.
      *
      */
-    Configurations();
+    class Configurations {
+    public:
 
-    /**
-     * @brief destructor to allow calls to the correct concrete destructor.
-     *
-     */
-    ~Configurations();
+        /**
+         * @brief Constructor initializing a Configuration object with default values.
+         *
+         */
+        Configurations();
 
-    /**
-     * @brief Initialize the module arguments.
-     * @param[in] aArgC The number of arguments being passed into the program from the command line.
-     * @param[in] apArgV The array of arguments.
-     * @param[in] aEnableR check if R is enabled
-     * @details This method initializes the command line arguments and set default values for unused args.
-     *
-     */
-    void InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR = false);
+        /**
+         * @brief destructor to allow calls to the correct concrete destructor.
+         *
+         */
+        ~Configurations();
 
-    /**
-     * @brief Initialize the module arguments.
-     * @param[in] aArgC The number of arguments being passed into the program from the command line.
-     * @param[in] apArgV The array of arguments.
-     * @details This method initializes the command line arguments and set default values for unused args.
-     *
-     */
+        /**
+         * @brief Initialize the module arguments.
+         * @param[in] aArgC The number of arguments being passed into the program from the command line.
+         * @param[in] apArgV The array of arguments.
+         * @param[in] aEnableR check if R is enabled
+         * @details This method initializes the command line arguments and set default values for unused args.
+         *
+         */
+        void InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR = false);
 
-    /**
-     * @brief Initialize the all theta arguments.
-     * @return void
-     */
-    void InitializeAllTheta();
+        /**
+         * @brief Initialize the all theta arguments.
+         * @return void
+         */
+        void InitializeAllTheta();
 
-    /**
-     * @brief Initialize data generation arguments..
-     * @return void
-     *
-     */
-    void InitializeDataGenerationArguments();
+        /**
+         * @brief Initialize data generation arguments..
+         * @return void
+         *
+         */
+        void InitializeDataGenerationArguments();
 
-    /**
-     * @brief Initialize data Modeling arguments.
-     * @return void
-     *
-     */
-    void InitializeDataModelingArguments();
+        /**
+         * @brief Initialize data Modeling arguments.
+         * @return void
+         *
+         */
+        void InitializeDataModelingArguments();
 
-    /**
-     * @brief Initialize data Prediction arguments.
-     * @return void
-     *
-     */
-    void InitializeDataPredictionArguments();
+        /**
+         * @brief Initialize data Prediction arguments.
+         * @return void
+         *
+         */
+        void InitializeDataPredictionArguments();
 
-    /**
-     * @brief Print the usage and accepted Arguments.
-     * @return void
-     *
-     */
-    static void PrintUsage();
+        /**
+         * @brief Print the usage and accepted Arguments.
+         * @return void
+         *
+         */
+        static void PrintUsage();
 
-    /** START OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
+        /** START OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
 
-    CREATE_SETTER_FUNCTION(ProblemSize, int, aProblemSize, "ProblemSize")
+        CREATE_SETTER_FUNCTION(ProblemSize, int, aProblemSize, "ProblemSize")
 
-    CREATE_GETTER_FUNCTION(ProblemSize, int, "ProblemSize")
+        CREATE_GETTER_FUNCTION(ProblemSize, int, "ProblemSize")
 
-    CREATE_SETTER_FUNCTION(KernelName, const std::string&, aKernel, "Kernel")
+        CREATE_SETTER_FUNCTION(KernelName, const std::string&, aKernel, "Kernel")
 
-    CREATE_GETTER_FUNCTION(KernelName, const std::string&, "Kernel")
+        CREATE_GETTER_FUNCTION(KernelName, const std::string&, "Kernel")
 
-    CREATE_SETTER_FUNCTION(PGrid, int, aPGrid, "PGrid")
+        CREATE_SETTER_FUNCTION(PGrid, int, aPGrid, "PGrid")
 
-    CREATE_GETTER_FUNCTION(PGrid, int, "PGrid")
+        CREATE_GETTER_FUNCTION(PGrid, int, "PGrid")
 
-    CREATE_SETTER_FUNCTION(QGrid, int, aQGrid, "QGrid")
+        CREATE_SETTER_FUNCTION(QGrid, int, aQGrid, "QGrid")
 
-    CREATE_GETTER_FUNCTION(QGrid, int, "QGrid")
+        CREATE_GETTER_FUNCTION(QGrid, int, "QGrid")
 
-    CREATE_SETTER_FUNCTION(TimeSlot, int, aTimeSlot, "TimeSlot")
+        CREATE_SETTER_FUNCTION(TimeSlot, int, aTimeSlot, "TimeSlot")
 
-    CREATE_GETTER_FUNCTION(TimeSlot, int, "TimeSlot")
+        CREATE_GETTER_FUNCTION(TimeSlot, int, "TimeSlot")
 
-    CREATE_SETTER_FUNCTION(Computation, exageostat::common::Computation, aComputation, "Computation")
+        CREATE_SETTER_FUNCTION(Computation, common::Computation, aComputation, "Computation")
 
-    CREATE_GETTER_FUNCTION(Computation, exageostat::common::Computation, "Computation")
+        CREATE_GETTER_FUNCTION(Computation, common::Computation, "Computation")
 
-    CREATE_SETTER_FUNCTION(Precision, exageostat::common::Precision, aPrecision, "Precision")
+        CREATE_SETTER_FUNCTION(Precision, common::Precision, aPrecision, "Precision")
 
-    CREATE_GETTER_FUNCTION(Precision, exageostat::common::Precision, "Precision")
+        CREATE_GETTER_FUNCTION(Precision, common::Precision, "Precision")
 
-    CREATE_SETTER_FUNCTION(CoresNumber, int, aCoresNumbers, "CoresNumbers")
+        CREATE_SETTER_FUNCTION(CoresNumber, int, aCoresNumbers, "CoresNumbers")
 
-    CREATE_GETTER_FUNCTION(CoresNumber, int, "CoresNumbers")
+        CREATE_GETTER_FUNCTION(CoresNumber, int, "CoresNumbers")
 
-    CREATE_SETTER_FUNCTION(GPUsNumbers, int, aGPUsNumber, "GPUsNumbers")
+        CREATE_SETTER_FUNCTION(GPUsNumbers, int, aGPUsNumber, "GPUsNumbers")
 
-    CREATE_GETTER_FUNCTION(GPUsNumbers, int, "GPUsNumbers")
+        CREATE_GETTER_FUNCTION(GPUsNumbers, int, "GPUsNumbers")
 
-    CREATE_SETTER_FUNCTION(DenseTileSize, int, aTileSize, "DTS")
+        CREATE_SETTER_FUNCTION(DenseTileSize, int, aTileSize, "DTS")
 
-    CREATE_GETTER_FUNCTION(DenseTileSize, int, "DTS")
+        CREATE_GETTER_FUNCTION(DenseTileSize, int, "DTS")
 
-    CREATE_SETTER_FUNCTION(LowTileSize, int, aTileSize, "LTS")
+        CREATE_SETTER_FUNCTION(LowTileSize, int, aTileSize, "LTS")
 
-    CREATE_GETTER_FUNCTION(LowTileSize, int, "LTS")
+        CREATE_GETTER_FUNCTION(LowTileSize, int, "LTS")
 
-    CREATE_SETTER_FUNCTION(Band, int, aBand, "Band")
+        CREATE_SETTER_FUNCTION(Band, int, aBand, "Band")
 
-    CREATE_GETTER_FUNCTION(Band, int, "Band")
+        CREATE_GETTER_FUNCTION(Band, int, "Band")
 
-    CREATE_SETTER_FUNCTION(MaxRank, int, aMaxRank, "MaxRank")
+        CREATE_SETTER_FUNCTION(MaxRank, int, aMaxRank, "MaxRank")
 
-    CREATE_GETTER_FUNCTION(MaxRank, int, "MaxRank")
+        CREATE_GETTER_FUNCTION(MaxRank, int, "MaxRank")
 
-    CREATE_SETTER_FUNCTION(ActualObservationsFilePath, const std::string &, aActualObservationsFilePath,
-                           "ActualObservationsFilePath")
+        CREATE_SETTER_FUNCTION(ActualObservationsFilePath, const std::string &, aActualObservationsFilePath,
+                               "ActualObservationsFilePath")
 
-    CREATE_GETTER_FUNCTION(ActualObservationsFilePath, std::string, "ActualObservationsFilePath")
+        CREATE_GETTER_FUNCTION(ActualObservationsFilePath, std::string, "ActualObservationsFilePath")
 
-    CREATE_SETTER_FUNCTION(Seed, int, aSeed, "Seed")
+        CREATE_SETTER_FUNCTION(Seed, int, aSeed, "Seed")
 
-    CREATE_GETTER_FUNCTION(Seed, int, "Seed")
+        CREATE_GETTER_FUNCTION(Seed, int, "Seed")
 
-    CREATE_SETTER_FUNCTION(LoggerPath, const std::string&, aLoggerPath, "LoggerPath")
+        CREATE_SETTER_FUNCTION(LoggerPath, const std::string&, aLoggerPath, "LoggerPath")
 
-    CREATE_GETTER_FUNCTION(LoggerPath, std::string, "LoggerPath")
+        CREATE_GETTER_FUNCTION(LoggerPath, std::string, "LoggerPath")
 
-    CREATE_SETTER_FUNCTION(InitialTheta, std::vector<double> &, apTheta, "InitialTheta")
+        CREATE_SETTER_FUNCTION(InitialTheta, const std::vector<double> &, apTheta, "InitialTheta")
 
-    CREATE_GETTER_FUNCTION(InitialTheta, std::vector<double> &, "InitialTheta")
+        CREATE_GETTER_FUNCTION(InitialTheta, std::vector<double> &, "InitialTheta")
 
-    CREATE_SETTER_FUNCTION(IsOOC, bool, aIsOOC, "OOC")
+        CREATE_SETTER_FUNCTION(IsOOC, bool, aIsOOC, "OOC")
 
-    CREATE_GETTER_FUNCTION(IsOOC, bool, "OOC")
+        CREATE_GETTER_FUNCTION(IsOOC, bool, "OOC")
 
-    CREATE_SETTER_FUNCTION(ApproximationMode, int, aApproximationMode, "ApproximationMode")
+        CREATE_SETTER_FUNCTION(ApproximationMode, int, aApproximationMode, "ApproximationMode")
 
-    CREATE_GETTER_FUNCTION(ApproximationMode, int, "ApproximationMode")
+        CREATE_GETTER_FUNCTION(ApproximationMode, int, "ApproximationMode")
 
-    CREATE_SETTER_FUNCTION(Logger, bool, aLogger, "Logger")
+        CREATE_SETTER_FUNCTION(Logger, bool, aLogger, "Logger")
 
-    CREATE_GETTER_FUNCTION(Logger, bool, "Logger")
+        CREATE_GETTER_FUNCTION(Logger, bool, "Logger")
 
-    CREATE_SETTER_FUNCTION(LowerBounds, std::vector<double> &, apTheta, "LowerBounds")
+        CREATE_SETTER_FUNCTION(LowerBounds, const std::vector<double> &, apTheta, "LowerBounds")
 
-    CREATE_GETTER_FUNCTION(LowerBounds, std::vector<double> &, "LowerBounds")
+        CREATE_GETTER_FUNCTION(LowerBounds, std::vector<double> &, "LowerBounds")
 
-    CREATE_SETTER_FUNCTION(UpperBounds, std::vector<double> &, apTheta, "UpperBounds")
+        CREATE_SETTER_FUNCTION(UpperBounds, const std::vector<double> &, apTheta, "UpperBounds")
 
-    CREATE_GETTER_FUNCTION(UpperBounds, std::vector<double> &, "UpperBounds")
+        CREATE_GETTER_FUNCTION(UpperBounds, std::vector<double> &, "UpperBounds")
 
-    CREATE_SETTER_FUNCTION(EstimatedTheta, std::vector<double> &, apTheta, "EstimatedTheta")
+        CREATE_SETTER_FUNCTION(EstimatedTheta, const std::vector<double> &, apTheta, "EstimatedTheta")
 
-    CREATE_GETTER_FUNCTION(EstimatedTheta, std::vector<double> &, "EstimatedTheta")
+        CREATE_GETTER_FUNCTION(EstimatedTheta, std::vector<double> &, "EstimatedTheta")
 
-    CREATE_SETTER_FUNCTION(StartingTheta, std::vector<double> &, apTheta, "StartingTheta")
+        CREATE_SETTER_FUNCTION(StartingTheta, const std::vector<double> &, apTheta, "StartingTheta")
 
-    CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
+        CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
 
-    CREATE_SETTER_FUNCTION(IsNonGaussian, bool, aIsNonGaussian, "IsNonGaussian")
+        CREATE_SETTER_FUNCTION(IsNonGaussian, bool, aIsNonGaussian, "IsNonGaussian")
 
-    CREATE_GETTER_FUNCTION(IsNonGaussian, bool, "IsNonGaussian")
+        CREATE_GETTER_FUNCTION(IsNonGaussian, bool, "IsNonGaussian")
 
-    /**
-     * @brief Getter for the verbosity.
-     * @return The verbosity mode.
-     *
-     */
-    static exageostat::common::Verbose GetVerbosity();
+        /**
+         * @brief Getter for the verbosity.
+         * @return The verbosity mode.
+         *
+         */
+        static exageostat::common::Verbose GetVerbosity();
 
-    static void SetVerbosity(const exageostat::common::Verbose &aVerbose);
+        static void SetVerbosity(const common::Verbose &aVerbose);
 
-    /** END OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
-    /** START OF THE DATA GENERATION MODULES. **/
+        /** END OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
+        /** START OF THE DATA GENERATION MODULES. **/
 
-    CREATE_SETTER_FUNCTION(Dimension, exageostat::common::Dimension, aDimension, "Dimension")
+        CREATE_SETTER_FUNCTION(Dimension, exageostat::common::Dimension, aDimension, "Dimension")
 
-    CREATE_GETTER_FUNCTION(Dimension, exageostat::common::Dimension, "Dimension")
+        CREATE_GETTER_FUNCTION(Dimension, exageostat::common::Dimension, "Dimension")
 
-    CREATE_SETTER_FUNCTION(IsSynthetic, bool, aIsSynthetic, "IsSynthetic")
+        CREATE_SETTER_FUNCTION(IsSynthetic, bool, aIsSynthetic, "IsSynthetic")
 
-    CREATE_GETTER_FUNCTION(IsSynthetic, bool, "IsSynthetic")
+        CREATE_GETTER_FUNCTION(IsSynthetic, bool, "IsSynthetic")
 
-    CREATE_SETTER_FUNCTION(DataPath, const std::string&, aDataPath, "DataPath")
+        CREATE_SETTER_FUNCTION(DataPath, const std::string&, aDataPath, "DataPath")
 
-    CREATE_GETTER_FUNCTION(DataPath, std::string, "DataPath")
+        CREATE_GETTER_FUNCTION(DataPath, std::string, "DataPath")
 
-    /** END OF THE DATA GENERATION MODULES. **/
-    /** START OF THE DATA MODELING MODULES. **/
+        /** END OF THE DATA GENERATION MODULES. **/
+        /** START OF THE DATA MODELING MODULES. **/
 
-    CREATE_SETTER_FUNCTION(RecoveryFile, const std::string&, aRecoveryFile, "RecoveryFile")
+        CREATE_SETTER_FUNCTION(RecoveryFile, const std::string&, aRecoveryFile, "RecoveryFile")
 
-    CREATE_GETTER_FUNCTION(RecoveryFile, std::string, "RecoveryFile")
+        CREATE_GETTER_FUNCTION(RecoveryFile, std::string, "RecoveryFile")
 
-    CREATE_SETTER_FUNCTION(FileLogPath, FILE *, apFileLogPath, "FileLogPath")
+        CREATE_SETTER_FUNCTION(FileLogPath, FILE *, apFileLogPath, "FileLogPath")
 
-    CREATE_GETTER_FUNCTION(FileLogPath, FILE *, "FileLogPath")
+        CREATE_GETTER_FUNCTION(FileLogPath, FILE *, "FileLogPath")
 
-    CREATE_SETTER_FUNCTION(FileLogName, const std::string&, aFileLogName, "FileLogName")
+        CREATE_SETTER_FUNCTION(FileLogName, const std::string&, aFileLogName, "FileLogName")
 
-    CREATE_GETTER_FUNCTION(FileLogName, std::string, "FileLogName")
+        CREATE_SETTER_FUNCTION(DistanceMetric, common::DistanceMetric, aDistanceMetric, "DistanceMetric")
 
-    CREATE_SETTER_FUNCTION(DistanceMetric, exageostat::common::DistanceMetric, aDistanceMetric, "DistanceMetric")
+        CREATE_GETTER_FUNCTION(DistanceMetric, common::DistanceMetric, "DistanceMetric")
 
-    CREATE_GETTER_FUNCTION(DistanceMetric, exageostat::common::DistanceMetric, "DistanceMetric")
+        CREATE_SETTER_FUNCTION(MaxMleIterations, int, aMaxMleIterations, "MaxMleIterations")
 
-    CREATE_SETTER_FUNCTION(MaxMleIterations, int, aMaxMleIterations, "MaxMleIterations")
+        CREATE_GETTER_FUNCTION(MaxMleIterations, int, "MaxMleIterations")
 
-    CREATE_GETTER_FUNCTION(MaxMleIterations, int, "MaxMleIterations")
+        CREATE_SETTER_FUNCTION(Accuracy, int, aAccuracy, "Accuracy")
 
-    CREATE_SETTER_FUNCTION(Accuracy, int, aAccuracy, "Accuracy")
+        CREATE_GETTER_FUNCTION(Accuracy, int, "Accuracy")
 
-    CREATE_GETTER_FUNCTION(Accuracy, int, "Accuracy")
+        void SetTolerance(double aTolerance);
 
-    CREATE_SETTER_FUNCTION(Tolerance, double, aTolerance, "Tolerance")
+        CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")
 
-    CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")
+        /** END OF THE DATA MODELING MODULES. **/
+        /** START OF THE DATA PREDICTION MODULES. **/
 
-    /** END OF THE DATA MODELING MODULES. **/
-    /** START OF THE DATA PREDICTION MODULES. **/
+        CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
 
-    CREATE_SETTER_FUNCTION(UnknownObservationsNb, int, aUnknownObservationsNumber, "UnknownObservationsNb")
+        CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
 
-    CREATE_GETTER_FUNCTION(UnknownObservationsNb, int, "UnknownObservationsNb")
+        CREATE_SETTER_FUNCTION(IsMSPE, bool, aIsMSPE, "IsMSPE")
 
-    CREATE_SETTER_FUNCTION(IsMSPE, bool, aIsMSPE, "IsMSPE")
+        CREATE_GETTER_FUNCTION(IsMSPE, bool, "IsMSPE")
 
-    CREATE_GETTER_FUNCTION(IsMSPE, bool, "IsMSPE")
+        CREATE_SETTER_FUNCTION(IsIDW, bool, aIsIDW, "IsIDW")
 
-    CREATE_SETTER_FUNCTION(IsIDW, bool, aIsIDW, "IsIDW")
+        CREATE_GETTER_FUNCTION(IsIDW, bool, "IsIDW")
 
-    CREATE_GETTER_FUNCTION(IsIDW, bool, "IsIDW")
+        CREATE_SETTER_FUNCTION(IsMLOEMMOM, bool, aIsMLOEMMOM, "IsMLOEMMOM")
 
-    CREATE_SETTER_FUNCTION(IsMLOEMMOM, bool, aIsMLOEMMOM, "IsMLOEMMOM")
+        CREATE_GETTER_FUNCTION(IsMLOEMMOM, bool, "IsMLOEMMOM")
 
-    CREATE_GETTER_FUNCTION(IsMLOEMMOM, bool, "IsMLOEMMOM")
+        CREATE_SETTER_FUNCTION(IsFisher, bool, aIsFisher, "IsFisher")
 
-    CREATE_SETTER_FUNCTION(IsFisher, bool, aIsFisher, "IsFisher")
+        CREATE_GETTER_FUNCTION(IsFisher, bool, "IsFisher")
 
-    CREATE_GETTER_FUNCTION(IsFisher, bool, "IsFisher")
+        CREATE_SETTER_FUNCTION(ObservationNumber, int, aObservationsNumber, "ObservationNumber")
 
-    /** END OF THE DATA PREDICTION MODULES. **/
+        CREATE_GETTER_FUNCTION(ObservationNumber, int, "ObservationNumber")
 
-    /**
-     * @brief Check if input value is numerical.
-     * @param[in] aValue The input from the user side.
-     * @return The int casted value.
-     *
-     */
-    static int CheckNumericalValue(const std::string &aValue);
+        /** END OF THE DATA PREDICTION MODULES. **/
 
-    /**
-     * @brief Checks the value of the dimension parameter.
-     * @param[in] aDimension A string representing the dimension.
-     * @return The corresponding dimension value.
-     *
-     */
-    static exageostat::common::Dimension CheckDimensionValue(const std::string &aDimension);
+        /**
+         * @brief Check if input value is numerical.
+         * @param[in] aValue The input from the user side.
+         * @return The int casted value.
+         *
+         */
+        static int CheckNumericalValue(const std::string &aValue);
 
-    /**
-     * @brief Checks if the kernel value is valid.
-     * @param[in] aKernel The kernel to check.
-     * @return void
-     *
-     */
-    void CheckKernelValue(const std::string &aKernel);
+        /**
+         * @brief Checks the value of the dimension parameter.
+         * @param[in] aDimension A string representing the dimension.
+         * @return The corresponding dimension value.
+         *
+         */
+        static exageostat::common::Dimension CheckDimensionValue(const std::string &aDimension);
 
-    /**
-    * @brief Check input computation value.
-    * @param[in] aValue The input from the user side.
-    * @return Enum with the selected computation, Error if not exist.
-    *
-    */
-    static exageostat::common::Computation CheckComputationValue(const std::string &aValue);
+        /**
+         * @brief Checks if the kernel value is valid.
+         * @param[in] aKernel The kernel to check.
+         * @return void
+         *
+         */
+        void CheckKernelValue(const std::string &aKernel);
 
-    /**
-     * @brief Check input precision value.
-     * @param[in] aValue The input from the user side.
-     * @return Enum with the selected Precision, Error if not exist.
-     *
-     */
-    static exageostat::common::Precision CheckPrecisionValue(const std::string &aValue);
+        /**
+        * @brief Check input computation value.
+        * @param[in] aValue The input from the user side.
+        * @return Enum with the selected computation, Error if not exist.
+        *
+        */
+        static common::Computation CheckComputationValue(const std::string &aValue);
 
-    /**
-     * @brief Checks the value of the unknown observations parameter.
-     * @param[in] aValue A string representing the number of unknown observations.
-     * @return The corresponding integer value.
-     */
-    int CheckUnknownObservationsValue(const std::string &aValue);
+        /**
+         * @brief Check input precision value.
+         * @param[in] aValue The input from the user side.
+         * @return Enum with the selected Precision, Error if not exist.
+         *
+         */
+        static common::Precision CheckPrecisionValue(const std::string &aValue);
 
-    /**
-     * @brief Initialize a vector with a given size to contain zeros.
-     * @param[in, out] aTheta A reference to the vector to initialize.
-     * @param[in] aSize The size of the vector to initialize.
-     * @return void.
-     *
-     */
-    static void InitTheta(std::vector<double> &aTheta, const int &aSize);
+        /**
+         * @brief Checks the value of the unknown observations parameter.
+         * @param[in] aValue A string representing the number of unknown observations.
+         * @return The corresponding integer value.
+         */
+        int CheckUnknownObservationsValue(const std::string &aValue);
+
+        /**
+         * @brief Initialize a vector with a given size to contain zeros.
+         * @param[in, out] aTheta A reference to the vector to initialize.
+         * @param[in] aSize The size of the vector to initialize.
+         * @return void.
+         *
+         */
+        static void InitTheta(std::vector<double> &aTheta, const int &aSize);
 
         /**
          * @brief print the summary of MLE inputs.
@@ -377,60 +372,61 @@ public:
          */
         inline void PrintSummary(int aRank = 0);
 
-    /**
-     * @brief Calculates the number of observed measurements.
-     * @return number of observed measurements.
-     */
-    int CalculateZObsNumber();
+        /**
+         * @brief Calculates the number of observed measurements.
+         * @return number of observed measurements.
+         */
+        int CalculateZObsNumber();
+
+        /**
+         * @brief Parses a string of theta values and returns an array of doubles.
+         * @param[in] aInputValues The input string of theta values.
+         * @return A vector of parsed theta values.
+         *
+         */
+        static std::vector<double> ParseTheta(const std::string &aInputValues);
 
 
-private:
+        /**
+         * @brief parse user's input to distance metric.
+         * @param[in] aDistanceMetric string specifying the used distance metric.
+         * @return void
+         */
+        void ParseDistanceMetric(const std::string &aDistanceMetric);
 
-    /**
-     * @brief Checks the run mode and sets the verbosity level.
-     * @param[in] aVerbosity A string representing the desired run mode ("verbose" or "standard").
-     * @throws std::range_error if the input string is not "verbose" or "standard".
-     * @return void
-     *
-     */
-    static void ParseVerbose(const std::string &aVerbosity);
+    private:
 
-    /**
-     * @brief Checks if a given string is in camel case format.
-     * @param[in] aString The string to check.
-     * @return true if the string is in camel case format, false otherwise.
-     *
-     */
-    static bool IsCamelCase(const std::string &aString);
+        /**
+         * @brief Checks the run mode and sets the verbosity level.
+         * @param[in] aVerbosity A string representing the desired run mode ("verbose" or "standard").
+         * @throws std::range_error if the input string is not "verbose" or "standard".
+         * @return void
+         *
+         */
+        static void ParseVerbose(const std::string &aVerbosity);
 
-    /**
-     * @brief Parses a string of theta values and returns an array of doubles.
-     * @param[in] aInputValues The input string of theta values.
-     * @return A vector of parsed theta values.
-     *
-     */
-    static std::vector<double> ParseTheta(const std::string &aInputValues);
+        /**
+         * @brief Checks if a given string is in camel case format.
+         * @param[in] aString The string to check.
+         * @return true if the string is in camel case format, false otherwise.
+         *
+         */
+        static bool IsCamelCase(const std::string &aString);
 
-    /**
-     * @brief parse user's input to distance metric.
-     * @param[in] aDistanceMetric string specifying the used distance metric.
-     * @return void
-     */
-    void ParseDistanceMetric(const std::string &aDistanceMetric);
-
-    /// Used Dictionary
-    std::unordered_map<std::string, std::any> mDictionary;
-    /// Used Argument counter
-    int mArgC = 0;
-    /// Used Argument vectors
-    char **mpArgV = nullptr;
-    //// Used run mode
-    static exageostat::common::Verbose mVerbosity;
-    //// Used bool for init theta
-    static bool mIsThetaInit;
-    //// Used bool for R allocated memory on heap
-    static bool mHeapAllocated;
-};
+        /// Used Dictionary
+        std::unordered_map<std::string, std::any> mDictionary;
+        /// Used Argument counter
+        int mArgC = 0;
+        /// Used Argument vectors
+        char **mpArgV = nullptr;
+        //// Used run mode
+        static exageostat::common::Verbose mVerbosity;
+        //// Used bool for init theta
+        static bool mIsThetaInit;
+        //// Used bool for R allocated memory on heap
+        static bool mHeapAllocated;
+    };
+}//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
 

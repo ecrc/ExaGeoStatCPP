@@ -19,6 +19,7 @@ using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 void TEST_GENERATE_DATA() {
     SECTION("Data generation - Observations")
@@ -47,8 +48,7 @@ void TEST_GENERATE_DATA() {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0); // Or you could use configurations.GetComputation().
         std::unique_ptr<ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
 
         // Define the expected output for desk Z
         double expected_output_data[] = {-1.272336, -2.590700, 0.512143, -0.163880, 0.313504, -1.474411, 0.161705,
@@ -79,7 +79,7 @@ void TEST_MODEL_DATA(Computation aComputation) {
     configurations.SetDenseTileSize(dts);
     configurations.SetComputation(aComputation);
     configurations.SetMaxMleIterations(3);
-    configurations.SetTolerance(pow(10, -4));
+    configurations.SetTolerance(4);
 
     vector<double> lb{0.1, 0.1, 0.1};
     configurations.SetLowerBounds(lb);
@@ -135,8 +135,7 @@ void TEST_MODEL_DATA(Computation aComputation) {
         data->GetLocations()->SetLocationX(*location_x, N);
         data->GetLocations()->SetLocationY(*location_y, N);
 
-        double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
-                                                                                            data, z_matrix);
+        double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data, z_matrix);
         REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
 
         delete[] location_x;
@@ -147,10 +146,8 @@ void TEST_MODEL_DATA(Computation aComputation) {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
         std::unique_ptr<ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations,
-                                                                data);
-        double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations,
-                                                                                            data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
+        double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
         REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
     }
 }
@@ -166,7 +163,7 @@ void TEST_PREDICTION() {
     configurations.SetDenseTileSize(dts);
     configurations.SetComputation(EXACT_DENSE);
     configurations.SetMaxMleIterations(3);
-    configurations.SetTolerance(pow(10, -4));
+    configurations.SetTolerance(4);
 
     vector<double> lb{0.1, 0.1, 0.1};
     configurations.SetLowerBounds(lb);
@@ -210,25 +207,25 @@ void TEST_PREDICTION() {
         vector<double> new_estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(new_estimated_theta);
         configurations.SetIsMSPE(true);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 
     }SECTION("Test Prediction - IDW ONLY") {
         configurations.SetIsMSPE(false);
         configurations.SetIsIDW(true);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
     }SECTION("Test Prediction - MLOE_MMOM ONLY") {
         configurations.SetIsMSPE(false);
         configurations.SetIsIDW(false);
         vector<double> new_estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(new_estimated_theta);
         configurations.SetIsMLOEMMOM(true);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
     }SECTION("Test Prediction - FISHER\n") {
         configurations.SetIsMLOEMMOM(false);
         configurations.SetIsFisher(true);
         vector<double> new_estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(new_estimated_theta);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
     }SECTION("Test Prediction - ALL OPERATIONS") {
         vector<double> new_estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(new_estimated_theta);
@@ -238,16 +235,15 @@ void TEST_PREDICTION() {
         configurations.SetIsFisher(true);
         // Setting Estimated with initial theta will require mloe_mmom to be zero
         configurations.SetEstimatedTheta(initial_theta);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
     }SECTION("Test Prediction - ALL MODULES") {
         configurations.SetIsMSPE(true);
         configurations.SetIsIDW(true);
         configurations.SetIsFisher(true);
         configurations.SetIsMLOEMMOM(true);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(configurations,data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
     }
     delete[] location_x;
     delete[] location_y;

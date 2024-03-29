@@ -11,12 +11,21 @@
  * @date 2024-02-14
 **/
 
-#include <configurations/Configurations.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <utilities/Logger.hpp>
 
-using namespace exageostat::common;
+using namespace exageostat::configurations;
 
+/**
+ * @brief Main entry point for demonstrating the ExaGeoStatHardware class usage.
+ * @details This program demonstrates how to initialize the ExaGeoStatHardware class using configuration settings derived from command-line arguments.
+ * It showcases the initialization process for hardware configurations, including the computation mode, number of cores, and number of GPUs,
+ * highlighting the simplicity and effectiveness of managing hardware resources in ExaGeoStat.
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
+ */
 int main(int argc, char **argv) {
 
     LOGGER("** Example of Hardware **")
@@ -27,4 +36,6 @@ int main(int argc, char **argv) {
 
     // Initialize Hardware
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(), configuration.GetGPUsNumbers());
+
+    return 0;
 }

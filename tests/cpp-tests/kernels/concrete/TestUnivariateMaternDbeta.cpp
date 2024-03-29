@@ -20,6 +20,7 @@
 using namespace std;
 
 using namespace exageostat::common;
+using namespace exageostat::configurations;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternDbeta() {
 

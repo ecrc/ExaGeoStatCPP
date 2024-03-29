@@ -17,6 +17,7 @@
 #include <prediction/PredictionHelpers.hpp>
 
 using namespace exageostat::prediction;
+using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
 
 template<typename T>

@@ -21,6 +21,7 @@ using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::api;
+using namespace exageostat::configurations;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquare() {
 

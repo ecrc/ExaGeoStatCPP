@@ -19,6 +19,7 @@ using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 //Test that the function initializes the HICMA_descriptorC descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
@@ -26,7 +27,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
     synthetic_data_configurations.SetMaxMleIterations(1);
-    synthetic_data_configurations.SetTolerance(pow(10, -4));
+    synthetic_data_configurations.SetTolerance(4);
 
     vector<double> lb{0.1, 0.1, 0.1};
     synthetic_data_configurations.SetLowerBounds(lb);
@@ -51,9 +52,8 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         synthetic_data_configurations.SetApproximationMode(1);
 
         std::unique_ptr<ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(synthetic_data_configurations, data);
 
         auto *HICMA_descriptorC = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
@@ -85,9 +85,8 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
         std::unique_ptr<ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(synthetic_data_configurations, data);
 
         int N = synthetic_data_configurations.GetProblemSize();
         int lts = synthetic_data_configurations.GetLowTileSize();

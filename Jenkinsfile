@@ -108,11 +108,6 @@ pipeline {
                     ####################################################
                     module load mkl/2020.0.166
                     ####################################################
-                    # Dependencies
-                    ####################################################
-                    module load hwloc/2.4.0-gcc-10.2.0
-                    module load openmpi/4.1.0-gcc-10.2.0
-                    module load starpu/1.3.9-gcc-10.2.0-mkl-openmpi-4.1.0
 
                     ./configure -e
                     ./clean_build.sh

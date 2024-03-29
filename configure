@@ -3,7 +3,7 @@
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
-# @file config.sh
+# @file configure
 # @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author David Helmy
@@ -56,7 +56,6 @@ else
   ABSOLUTE_PATH=$(dirname "$(realpath "$0")")
 fi
 
-
 BUILDING_TESTS="OFF"
 BUILDING_HEAVY_TESTS="OFF"
 BUILDING_EXAMPLES="OFF"
@@ -66,6 +65,7 @@ USE_CUDA="OFF"
 USE_MPI="OFF"
 BLAS_VENDOR=""
 PACKAGE="OFF"
+RUNTIME_TYPE="starpu"
 SHOW_WARNINGS="OFF"
 COMPILE_FLAGS="-Wl,--no-as-needed -w -fpic"
 DEVELOPER_WARNINGS="-Wno-dev"
@@ -76,10 +76,20 @@ do
         --use-mkl)
           echo "${GREEN}MKL as a BLA vendor${NC}"
           BLAS_VENDOR="Intel10_64lp"
-          shift # Remove --use-mkl from processing
+          ;;
+        --use-parsec)
+          echo "${GREEN}Parsec as a runtime${NC}"
+          RUNTIME_TYPE="parsec"
+          ;;
+        *)
+          # Collect non-option arguments as a space-delimited string
+          params="$params $arg"
           ;;
     esac
 done
+
+# Reset positional parameters to collected non-option arguments
+eval set -- $params
 
 # Parse command line options
 while getopts ":tevhHi:cmpTwr" opt; do
@@ -139,6 +149,8 @@ while getopts ":tevhHi:cmpTwr" opt; do
   h) ##### Prints the help #####
     echo "Usage of $(basename "$0"):"
     echo ""
+    printf "%20s %s\n" "--use-mkl :" "to use MKL as a BLA vendor."
+    printf "%20s %s\n" "--use-parsec :" "to use parsec runtime."
     printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
     printf "%20s %s\n" "-t :" "to enable building tests."
     printf "%20s %s\n" "-T :" "to enable building heavy tests."
@@ -147,10 +159,8 @@ while getopts ":tevhHi:cmpTwr" opt; do
     printf "%20s %s\n" "-c :" "to enable using CUDA."
     printf "%20s %s\n" "-m :" "to enable using MPI."
     printf "%20s %s\n" "-v :" "to enable verbose printings."
-    printf "%20s %s\n" "-d :" "to enable debug mode."
-    printf "%20s %s\n" "-r :" "to enable Rcpp support."
-    printf "%20s %s\n" "--use-mkl :" "to force the use of mkl as your bla vendor."
     printf "%20s %s\n" "-p :" "to enable a packaging system for distribution."
+    printf "%20s %s\n" "-w :" "to enable showing warnings."
     printf "%20s %s\n" "-h :" "Help."
     echo ""
     exit 1
@@ -167,8 +177,6 @@ if [ -z "$BUILDING_EXAMPLES" ]; then
   BUILDING_EXAMPLES="OFF"
   echo "${RED}Building examples disabled.${NC}"
 fi
-
-echo "${BLUE}Installation path set to $INSTALL_PREFIX.${NC}"
 
 if [ -z "$USING_HiCMA" ]; then
   echo "${RED}Using HiCMA is disabled.${NC}"
@@ -196,6 +204,7 @@ if [ -z "$USE_R" ]; then
   echo "${RED}Using R is disabled${NC}"
 fi
 
+echo "${BLUE}Installation path set to $INSTALL_PREFIX.${NC}"
 echo ""
 echo "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
 echo ""
@@ -235,6 +244,7 @@ fi
   -DUSE_R="${USE_R}" \
   -DBLA_VENDOR="${BLAS_VENDOR}" \
   -DCREATE_PACKAGE="${PACKAGE}" \
+  -DRUNTIME_TYPE="${RUNTIME_TYPE}" \
   -DBUILD_SHARED_LIBS=OFF \
   -H"${ABSOLUTE_PATH}" \
   -B"${ABSOLUTE_PATH}/bin" \
@@ -250,7 +260,7 @@ if [ "$USE_R" = "ON" ]; then
   }
 
   # Clean the directory and build the code with the specified options.
-  "$cmake_command_bin" --build . -j 6
+  "$cmake_command_bin" --build . -j 10
 
   if [ "$OS_TYPE" = "darwin"* ]; then
     cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.dylib" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.dylib -> src"

@@ -46,15 +46,14 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @param[in] aP the P value of the kernel multiplied by time slot.
          */
         void SetModelingDescriptors(std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                    Configurations &aConfigurations, const int &aP);
+                                    configurations::Configurations &aConfigurations, const int &aP);
 
         /**
          * @brief Calculates the log likelihood value of a given value theta.
          * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
         */
-        T ExaGeoStatMLETile(const ExaGeoStatHardware &apHardware,
-                            std::unique_ptr<ExaGeoStatData<T>> &aData,
-                            Configurations &aConfigurations, const double *theta,
+        T ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                            configurations::Configurations &aConfigurations, const double *theta,
                             T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
 
         /**
@@ -62,25 +61,6 @@ namespace exageostat::linearAlgebra::tileLowRank {
          * @copydoc LinearAlgebraMethods::ExaGeoStatLapackCopyTile()
          */
         void ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA, void *apB) override;
-
-        /**
-         * @brief Initialize the runtime option structure for HiCMA
-         * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsInit()
-         */
-        void
-        ExaGeoStatOptionsInit(void *apOptions, void *apContext, void *apSequence, void *apRequest) override;
-
-        /**
-         * @brief Submit the release of the workspaces associated to the options structure.
-         * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFree()
-         */
-        void ExaGeoStatOptionsFree(void *apOptions) override;
-
-        /**
-         * @brief Finalize the runtime option structure for HiCMA.
-         * @copydoc LinearAlgebraMethods::ExaGeoStatOptionsFinalize()
-         */
-        void ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) override;
 
         /**
          * @brief Wait for the completion of a sequence.
@@ -111,31 +91,6 @@ namespace exageostat::linearAlgebra::tileLowRank {
                                 const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha, void *apA,
                                 void *apCD, void *apCrk, void *apZ, const int &aMaxRank) override;
 
-        /**
-         * @brief Calculate determinant for triangular matrix.
-         * @copydoc LinearAlgebraMethods::ExaGeoStatMeasureDetTileAsync()
-         */
-        int ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest, void *apDescDet) override;
-
-        /**
-         * @brief Get the pointer to the data or the runtime handler associated to the piece of data (m, n) in desc.
-         * @copydoc LinearAlgebraMethods::ExaGeoStatDataGetAddr()
-         */
-        void *ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) override;
-
-        /**
-        * @brief Calculate the loglikelihood of non-Gaussian MLE.
-        * @copydoc LinearAlgebraMethods::ExaGeoStatNonGaussianLogLikeTileAsync()
-        */
-        int ExaGeoStatNonGaussianLogLikeTileAsync(void *apDescZ, void *apDescSum, const T *apTheta,
-                                                  void *apSequence, void *apRequest) override;
-
-        /**
-        * @brief Calculate the loglikelihood of non-Gaussian MLE.
-        * @copydoc LinearAlgebraMethods::ExaGeoStatNonGaussianTransformTileAsync()
-        */
-        int ExaGeoStatNonGaussianTransformTileAsync(void *apDescZ, void *apDescFlag, const T *apTheta,
-                                                    void *apSequence, void *apRequest) override;
     };
 
     /**

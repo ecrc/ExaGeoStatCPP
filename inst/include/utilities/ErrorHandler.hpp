@@ -15,8 +15,6 @@
 #ifndef EXAGEOSTATCPP_ERRORHANDLER_HPP
 #define EXAGEOSTATCPP_ERRORHANDLER_HPP
 
-#include <utilities/Printer.hpp>
-
 #ifdef USE_CUDA
 #include <cuda_runtime.h>
 #endif

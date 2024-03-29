@@ -6,7 +6,7 @@
 /**
  * @file UnivariatePowExpStationary.hpp
  * @brief Defines the UnivariatePowExpStationary class, a univariate stationary PowExp kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar

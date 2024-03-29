@@ -12,18 +12,18 @@
  * @date 2024-02-04
 **/
 
-#include <utilities/Logger.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::api;
-using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 /**
  * @brief Main entry point for the Data Generation & Data Modeling program.
  * @details This function either generates synthetic data using the ExaGeoStat library, or reads an CSV file, then models the loaded data.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
- * @return An integer indicating the success or failure of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main(int argc, char **argv) {
 
@@ -36,9 +36,9 @@ int main(int argc, char **argv) {
                                        configurations.GetGPUsNumbers());
     // Load data by either read from file or create synthetic data.
     std::unique_ptr<ExaGeoStatData<double>> data;
-    ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
     // Modeling module.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
 
     return 0;
 }

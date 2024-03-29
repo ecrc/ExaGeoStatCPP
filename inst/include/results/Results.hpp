@@ -120,22 +120,16 @@ namespace exageostat::results {
         [[nodiscard]] double GetMMOM() const;
 
         /**
-         * @brief Get the Fisher matrix element 00.
-         * @return the Fisher matrix element 00.
+         * @brief Get the Fisher matrix elements.
+         * @return the Fisher matrix.
          */
-        [[nodiscard]] double GetFisher00() const;
+        [[nodiscard]] std::vector<double> GetFisherMatrix() const;
 
         /**
-         * @brief Get the Fisher matrix element 11.
-         * @return the Fisher matrix element 11.
+         * @brief Get the Predicted Missed Z matrix elements.
+         * @return the Z Predicted matrix.
          */
-        [[nodiscard]] double GetFisher11() const;
-
-        /**
-         * @brief Get the Fisher matrix element 22.
-         * @return the Fisher matrix element 22.
-         */
-        [[nodiscard]] double GetFisher22() const;
+        [[nodiscard]] std::vector<double> GetPredictedMissedValues() const;
 
         /**
          * @brief Set the total modeling FLOPs.
@@ -240,22 +234,16 @@ namespace exageostat::results {
         void SetTotalFisherTime (double aTime);
 
         /**
-         * @brief Set the element 00 of the fisher matrix.
-         * @param aFisher00 Element 00 of the fisher matrix.
+         * @brief Set the elements of the fisher matrix.
+         * @param aFisherMatrix Elements of the fisher matrix.
          */
-        void SetFisher00(double aFisher00);
+        void SetFisherMatrix(std::vector<double> aFisherMatrix);
 
         /**
-         * @brief Set the element 11 of the fisher matrix.
-         * @param aFisher11 element 11 of the fisher matrix.
+         * @brief Set the elements of the Z missed matrix.
+         * @param aPredictedValues Elements of the Predicted Z missed matrix.
          */
-        void SetFisher11(double aFisher11);
-
-        /**
-         * @brief Set the element 22 of the fisher matrix.
-         * @param aFisher22 element 22 of the fisher matrix.
-         */
-        void SetFisher22(double aFisher22);
+        void SetPredictedMissedValues(std::vector<double> aPredictedValues);
 
         /**
          * @brief Print the end summary of the results.
@@ -315,12 +303,10 @@ namespace exageostat::results {
         double mTotalModelingFlops = 0;
         /// Used Total Fisher Time.
         double mTotalFisherTime = 0;
-        /// Fisher matrix element 00.
-        double mFisher00 = 0;
-        /// Fisher matrix element 11.
-        double mFisher11 = 0;
-        /// Fisher matrix element 22.
-        double mFisher22 = 0;
+        /// Fisher matrix
+        std::vector<double> mFisherMatrix;
+        /// Z miss values
+        std::vector<double> mPredictedMissedValues;
     };
 
 }//namespace exageostat

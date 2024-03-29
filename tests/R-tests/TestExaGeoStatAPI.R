@@ -21,25 +21,27 @@ dts <- 8
 lts <- 0
 computation <- "exact"
 dimension = "2D"
+kernel <- "univariate_matern_stationary"
+initial_theta <- c(1,0.1,0.5)
+lower_bound <- c(0.1,0.1,0.1)
+upper_bound <- c(5,5,5)
 
 hardware <- new(Hardware, computation, ncores, ngpus)
-config <- configurations_init(n=problem_size, cores_gpus=c(ncores, ngpus), kernel="univariate_matern_stationary", computation=computation, tile_size=c(dts,lts), iTheta=c(1,0.1,0.5), lb_ub=list(c(0.1,0.1,0.1),c(5,5,5)), mle_itr=5, prediction=c(6,1,1,1,1), dimension=dimension)
-data_source <- new(Data, problem_size, dimension)
 
-exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
-model_data(hardware=hardware, config=config, data=exageostat_data)
-predict_data(hardware=hardware, config=config, data=exageostat_data)
+exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
+estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
+
+test_x <- c(0.2, 0.330)
+test_y <- c(0.104, 0.14)
+predict_data(train_data=list(get_locationsX(data=exageostat_data), get_locationsY(data=exageostat_data), get_Z_measurement_vector(data=exageostat_data, type="chameleon")), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 
 paste("---------------------------------------------------------------------------------------------")
 paste("ExaGeoStat with Data Generation only")
-
-data_source <- new(Data, problem_size, dimension)
-new_exageostat_data <- simulate_data(hardware=hardware, config=config, data=data_source)
+new_exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
 
 paste("---------------------------------------------------------------------------------------------")
 paste("ExaGeoStat with data Modeling only")
 
-exageostat_data_modeling <- new(Data, problem_size, dimension)
 z_value <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
              -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
              0.161705025505231914, 0.623389205185149065, -1.341858445399783495,
@@ -61,4 +63,13 @@ locations_y <- c(0.103883421072709245, 0.135790035858701447, 0.43468375677119097
             0.573571374074921758, 0.568657969024185528, 0.935835812924391552,
             0.942824444953078489)
 
-model_data(hardware=hardware, config=config, data=exageostat_data_modeling, matrix=z_value, x=locations_x, y=locations_y)
+empty_data <- new(Data, problem_size, "2D")
+estimated_theta <- model_data(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
+
+paste("---------------------------------------------------------------------------------------------")
+paste("ExaGeoStat with data Prediction only")
+
+test_x <- c(0.2, 0.330)
+test_y <- c(0.104, 0.14)
+
+predict_data(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)

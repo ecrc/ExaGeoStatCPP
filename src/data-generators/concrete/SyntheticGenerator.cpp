@@ -14,10 +14,13 @@
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-generators/LocationGenerator.hpp>
+#include <data-loader/concrete/CSVLoader.hpp>
 
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
+using namespace exageostat::configurations;
+using namespace exageostat::results;
 
 template<typename T>
 SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
@@ -31,7 +34,6 @@ SyntheticGenerator<T> *SyntheticGenerator<T>::GetInstance() {
 template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
 SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
-                                  const ExaGeoStatHardware &aHardware,
                                   exageostat::kernels::Kernel<T> &aKernel) {
 
     int n = aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot();
@@ -51,18 +53,18 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
 
     // Generate Descriptors phase
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
-    linear_algebra_solver->GenerateSyntheticData(aConfigurations, aHardware, data, aKernel);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, data, aKernel);
 
     if (aConfigurations.GetLogger()) {
         VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
-#ifdef CHAMELEON_USE_MPI
+#ifdef USE_MPI
         auto pMatrix = new T[aConfigurations.GetProblemSize()];
         std::string path = aConfigurations.GetLoggerPath();
 
         CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                DESCRIPTOR_Z).chameleon_desc,  pMatrix, aConfigurations.GetProblemSize());
         if (helpers::CommunicatorMPI::GetInstance()->GetRank() == 0){
-            helpers::DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+            dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                                DESCRIPTOR_Z).chameleon_desc->mat),
                                               aConfigurations.GetProblemSize(), parameters_number, path,
                                               *data->GetLocations());
@@ -70,16 +72,16 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
         delete[] pMatrix;
 #else
         std::string path = aConfigurations.GetLoggerPath();
-        helpers::DiskWriter<T>::WriteVectorsToDisk(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+        dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                                            DESCRIPTOR_Z).chameleon_desc->mat),
                                           aConfigurations.GetProblemSize(), aKernel.GetVariablesNumber(), path,
                                           *data->GetLocations());
 #endif
         VERBOSE("Done.")
     }
-    results::Results::GetInstance()->SetGeneratedLocationsNumber(n);
-    results::Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
-    results::Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
+    Results::GetInstance()->SetGeneratedLocationsNumber(n);
+    Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
+    Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
 
     return data;
 }

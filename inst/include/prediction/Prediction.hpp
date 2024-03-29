@@ -31,17 +31,16 @@ namespace exageostat::prediction {
 
         /**
         * @brief Takes care of calling the MSPE function, and the appropriate auxiliary function.
-        * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
         * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
         * @param[in] aConfigurations Reference to Configurations object containing user input data.
         * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
         * @param[in] aKernel Reference to the kernel object to use.
         * @return
         */
-        static void PredictMissingData(const ExaGeoStatHardware &aHardware,
-                                       std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                       Configurations &aConfigurations,
-                                       T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel);
+        static void PredictMissingData(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations,
+                                       T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel,
+                                       dataunits::Locations<T> *apTrainLocations = nullptr,
+                                       dataunits::Locations<T> *apTestLocations = nullptr);
 
         /**
          * @brief Initializes needed pointers for prediction.
@@ -56,13 +55,13 @@ namespace exageostat::prediction {
          * @param[in] aP the P value of the kernel multiplied by time slot.
          * @return void
          */
-        static void InitializePredictionArguments(Configurations &aConfigurations,
-                                                  std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                                  std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
-                                                  T *apZObs, T *apZActual,
-                                                  exageostat::dataunits::Locations<T> &aMissLocation,
-                                                  exageostat::dataunits::Locations<T> &aObsLocation,
-                                                  T *apMeasurementsMatrix, const int &aP);
+        static void
+        InitializePredictionArguments(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                      std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
+                                      T *apZObs, T *apZActual, exageostat::dataunits::Locations<T> &aMissLocation,
+                                      exageostat::dataunits::Locations<T> &aObsLocation, T *apMeasurementsMatrix,
+                                      const int &aP, dataunits::Locations<T> *apTrainLocations,
+                                      dataunits::Locations<T> *apTestLocations);
 
     };
 

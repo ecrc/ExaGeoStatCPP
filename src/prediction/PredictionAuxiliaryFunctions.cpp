@@ -61,5 +61,5 @@ void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *ap
     for (int index = 0; index < aZMissNumber; index++) {
         VERBOSE(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
     }
-    LOGGER("- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
+    LOGGER("\t\t- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
 }

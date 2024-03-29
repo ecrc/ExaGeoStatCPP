@@ -23,6 +23,7 @@
 using namespace std;
 
 using namespace exageostat::common;
+using namespace exageostat::configurations;
 
 void TEST_ARGUMENT_INITIALIZATION(){
 
@@ -80,7 +81,7 @@ void TEST_ARGUMENT_INITIALIZATION(){
     configurations.InitializeDataModelingArguments();
 
     REQUIRE(configurations.GetMaxMleIterations() == 5);
-    REQUIRE(configurations.GetTolerance() == 4);
+    REQUIRE(configurations.GetTolerance() == pow(10, -4));
 
     // Data prediction arguments initialized
     configurations.InitializeDataPredictionArguments();

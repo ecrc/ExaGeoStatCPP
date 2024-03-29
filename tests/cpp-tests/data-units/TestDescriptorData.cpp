@@ -21,6 +21,7 @@ using namespace std;
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
 using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 void TEST_CHAM_TO_HICMA_CONV(){
 
@@ -33,7 +34,6 @@ void TEST_CHAM_TO_HICMA_CONV(){
     int p = 1;
     auto hardware = ExaGeoStatHardware(EXACT_DENSE, 1, 0);
     auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
-    linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
     auto *data = new DescriptorData<float>();
     linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, p);
 

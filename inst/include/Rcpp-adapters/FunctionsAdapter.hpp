@@ -21,7 +21,6 @@
 #include <vector>
 
 #include <configurations/Configurations.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
 #include <data-units/ExaGeoStatData.hpp>
 
 namespace exageostat::adapters {
@@ -52,17 +51,6 @@ namespace exageostat::adapters {
      * @return A pointer to a Configurations object containing the initialized settings.
      *
      */
-    Configurations *
-    R_InitializeArguments(const int &aProblemSize, const std::string &aKernelName, const std::vector<int> &aTileSize,
-                          const std::vector<int> &aP_QGrid, const int &aTimeSlot, const std::string &aComputation,
-                          const std::string &aPrecision, const std::vector<int> &aCoresGPUsNumber, const int &aBand,
-                          const int &aMaxRank, const std::vector<double> &aInitialTheta,
-                          const std::vector<std::vector<double>> &aLowerUpperBounds,
-                          const std::vector<double> &aEstimatedTheta, const std::string &aVerbose,
-                          const std::string &aDimension, const int &aMaxMleIterations, const int &aTolerance,
-                          const std::vector<int> &aPrediction, const std::vector<std::string> &aPath, const bool &aSaveData
-    );
-
 
     /**
      * @brief Retrieves X coordinates of locations from ExaGeoStat data.
@@ -99,41 +87,46 @@ namespace exageostat::adapters {
 
     /**
      * @brief Function to load ExaGeoStat data.
-     * @details This function loads data into an ExaGeoStatData object using the provided hardware configuration and computational settings.
+     * @details This function loads data into an ExaGeoStatData object using the provided configuration and computational settings.
      * It is designed to initialize the data structure necessary for subsequent statistical model operations within the ExaGeoStat framework.
-     * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
-     * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
      * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data will be stored.
      * @return A pointer to an ExaGeoStatData object containing the loaded data.
      *
      */
-    ExaGeoStatData<double> *R_ExaGeoStatLoadData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                 ExaGeoStatData<double> *apData);
-     /**
-     * @brief Function to model ExaGeoStat data.
-     * @details This function applies the model configurations specified in apConfigurations to the data stored in apData, using the hardware setup specified by apHardware.
-     * It prepares the ExaGeoStatData object for statistical analysis and prediction tasks, adjusting the internal data representations and parameters as needed.
-     * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
-     * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
-     * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
-     * @param[in] aMeasurementsVector An optional Rcpp::Nullable object containing a vector of measurements. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsX An optional Rcpp::Nullable object containing a vector of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsY An optional Rcpp::Nullable object containing a vector of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a vector of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
-     * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
-     */
-    ExaGeoStatData<double> *R_ExaGeoStatModelData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                  ExaGeoStatData<double> *apData,
-                                                  Rcpp::Nullable<Rcpp::NumericVector> aMeasurementsVector = R_NilValue,
-                                                  Rcpp::Nullable<Rcpp::NumericVector> aLocationsX = R_NilValue,
-                                                  Rcpp::Nullable<Rcpp::NumericVector> aLocationsY = R_NilValue,
-                                                  Rcpp::Nullable<Rcpp::NumericVector> aLocationsZ = R_NilValue);
+    ExaGeoStatData<double> *
+    R_ExaGeoStatLoadData(const std::string &aKernelName, const std::vector<double> &aInitialTheta,
+                         const std::string &aDistanceMatrix, const int &aProblemSize, const int &aSeed,
+                         const int &aDenseTileSize, const int &aLowTileSize, const std::string &aDimension,
+                         const std::string &aLogPath, const std::string &aDataPath,
+                         const std::string &aRecoveryFilePath, const std::string &aObservationsFilePath);
+
+    /**
+    * @brief Function to model ExaGeoStat data.
+    * @details This function applies the model configurations specified in apConfigurations to the data stored in apData.
+    * It prepares the ExaGeoStatData object for statistical analysis and prediction tasks, adjusting the internal data representations and parameters as needed.
+    * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
+    * @param[in] aMeasurementsVector An optional Rcpp::Nullable object containing a vector of measurements. If provided, it is used to enhance the data modeling process.
+    * @param[in] aLocationsX An optional Rcpp::Nullable object containing a vector of X coordinates for the locations. If provided, it is used to enhance the data modeling process.
+    * @param[in] aLocationsY An optional Rcpp::Nullable object containing a vector of Y coordinates for the locations. If provided, it is used to enhance the data modeling process.
+    * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a vector of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
+    * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
+    */
+    std::vector<double> R_ExaGeoStatModelData(const std::string &aComputation, const std::string &aKernelName,
+                                              const std::string &aDistanceMatrix,
+                                              const std::vector<double> &aLowerBound,
+                                              const std::vector<double> &aUpperBound, const int &aTolerance,
+                                              const int &aMleIterations, const int &aDenseTileSize,
+                                              const int &aLowTileSize, const std::string &aDimension, const int &aBand, const int &aMaxRank,
+                                              SEXP apData,
+                                              Rcpp::Nullable<Rcpp::NumericVector> aMeasurementsVector = R_NilValue,
+                                              Rcpp::Nullable<Rcpp::NumericVector> aLocationsX = R_NilValue,
+                                              Rcpp::Nullable<Rcpp::NumericVector> aLocationsY = R_NilValue,
+                                              Rcpp::Nullable<Rcpp::NumericVector> aLocationsZ = R_NilValue);
 
     /**
      * @brief Function to predict using ExaGeoStat data.
      * @details This function performs predictions based on the modeled ExaGeoStatData object.
-     * It utilizes the hardware configuration and computational settings defined by apHardware and apConfigurations, respectively, to execute prediction algorithms on the data stored in apData.
-     * @param[in] apHardware A pointer to an ExaGeoStatHardware object representing the hardware configuration.
+     * It utilizes the configuration and computational settings defined by apConfigurations, respectively, to execute prediction algorithms on the data stored in apData.
      * @param[in] apConfigurations A pointer to a Configurations object containing the computational settings.
      * @param[in] apData A pointer to an ExaGeoStatData object where the loaded data is stored and will be modeled.
      * @param[in] aMeasurementsVector An optional Rcpp::Nullable object containing a vector of measurements. If provided, it is used to enhance the data modeling process.
@@ -142,12 +135,36 @@ namespace exageostat::adapters {
      * @param[in] aLocationsZ An optional Rcpp::Nullable object containing a vector of Z coordinates for the locations. If provided, it is used to enhance the data modeling process.
      * @return A pointer to an ExaGeoStatData object containing the modeled data, ready for statistical analysis and prediction.
      */
-    ExaGeoStatData<double> *R_ExaGeoStatPredictData(ExaGeoStatHardware *apHardware, Configurations *apConfigurations,
-                                                    ExaGeoStatData<double> *apData,
-                                                    Rcpp::Nullable<Rcpp::NumericVector> aMeasurementsVector = R_NilValue,
-                                                    Rcpp::Nullable<Rcpp::NumericVector> aLocationsX = R_NilValue,
-                                                    Rcpp::Nullable<Rcpp::NumericVector> aLocationsY = R_NilValue,
-                                                    Rcpp::Nullable<Rcpp::NumericVector> aLocationsZ = R_NilValue);
+    std::vector<double> R_ExaGeoStatPredictData(const std::string &aKernelName, const std::string &aDistanceMatrix,
+                                 const std::vector<double> &aEstimatedTheta,
+                                 const int &aDenseTileSize, const int &aLowTileSize,
+                                 const std::string &aDimension, std::vector<std::vector<double>> &aTrainData,
+                                 std::vector<std::vector<double>> &aTestData);
+
+    std::vector<double> R_ExaGeoStatMLOE_MMOM(const std::string &aKernelName, const std::string &aDistanceMatrix,
+                                                  const std::vector<double> &aEstimatedTheta,
+                                                  const std::vector<double> &aTrueTheta,
+                                                  const int &aDenseTileSize, const int &aLowTileSize,
+                                                  const std::string &aDimension, std::vector<std::vector<double>> &aTrainData,
+                                              std::vector<std::vector<double>> &aTestData);
+
+    std::vector<double> R_ExaGeoStatFisher(const std::string &aKernelName, const std::string &aDistanceMatrix,
+                                               const std::vector<double> &aEstimatedTheta,
+                                               const int &aDenseTileSize,
+                                               const int &aLowTileSize, const std::string &aDimension,
+                                           std::vector<std::vector<double>> &aTrainData,
+                                           std::vector<std::vector<double>> &aTestData);
+
+    std::vector<double> R_ExaGeoStatIDW(const std::string &aKernelName, const std::string &aDistanceMatrix,
+                                            const std::vector<double> &aEstimatedTheta,
+                                            const int &aDenseTileSize, const int &aLowTileSize,
+                                            const std::string &aDimension,
+                                        std::vector<std::vector<double>> &aTrainData,
+                                        std::vector<std::vector<double>> &aTestData, std::vector<double> &aTestMeasurementsValues);
+
+    double *GetDataFromArguments(Rcpp::Nullable <Rcpp::NumericVector> aMeasurementsVector, Rcpp::Nullable <Rcpp::NumericVector> aLocationsX,Rcpp::Nullable <Rcpp::NumericVector> aLocationsY, Rcpp::Nullable <Rcpp::NumericVector> aLocationsZ, std::unique_ptr<ExaGeoStatData<double>> &aData, configurations::Configurations &aConfigurations,
+                                 const std::string &aKernelName, const std::string &aDistanceMatrix,
+                                 const int &aDenseTileSize, const int &aLowTileSize, const std::string &aDimension, const common::Computation &aComputation);
 
 }
 #endif //EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP

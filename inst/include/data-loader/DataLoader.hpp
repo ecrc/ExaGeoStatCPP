@@ -36,8 +36,7 @@ namespace exageostat::dataLoader {
          *
          */
         std::unique_ptr<ExaGeoStatData<T>>
-        CreateData(Configurations &aConfigurations, const ExaGeoStatHardware &aHardware,
-                   kernels::Kernel<T> &aKernel) override;
+        CreateData(configurations::Configurations &aConfigurations, kernels::Kernel<T> &aKernel) override;
 
         /**
          * @brief Reads data from external sources into ExaGeoStat format.
@@ -49,9 +48,22 @@ namespace exageostat::dataLoader {
          * @param aP Partition index for distributed data loading.
          */
         virtual void
-        ReadData(Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix, std::vector<T> &aXLocations,
+        ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix, std::vector<T> &aXLocations,
                  std::vector<T> &aYLocations, std::vector<T> &aZLocations, const int &aP) = 0;
 
+        /**
+        * @brief Writes a matrix of vectors to disk.
+        * @param[in] aMatrixPointer A Reference to the matrix data.
+        * @param[in] aProblemSize The size of the problem.
+        * @param[in] aP The number of processes.
+        * @param[in] aLoggerPath The path to the logger file.
+        * @param[in] aLocations A Reference to the Locations object.
+        * @return void
+        *
+        */
+        virtual void
+        WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
+                  exageostat::dataunits::Locations<T> &aLocations) = 0;
     };
 
     /**
@@ -60,7 +72,6 @@ namespace exageostat::dataLoader {
      *
      */
     EXAGEOSTAT_INSTANTIATE_CLASS(DataLoader)
-
 } // namespace exageostat
 
 #endif //EXAGEOSTATCPP_DATALOADER_HPP

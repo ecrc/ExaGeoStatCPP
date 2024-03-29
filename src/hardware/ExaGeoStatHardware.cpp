@@ -21,6 +21,7 @@
 #include <utilities/EnumStringParser.hpp>
 
 using namespace exageostat::common;
+using namespace exageostat::results;
 
 ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber,
                                        const int &aGpuNumber) {
@@ -77,7 +78,7 @@ void ExaGeoStatHardware::FinalizeHardware(){
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
 
-    exageostat::results::Results::GetInstance()->PrintEndSummary();
+    Results::GetInstance()->PrintEndSummary();
     // finalize hardware using Chameleon
     if (mpChameleonContext) {
         CHAMELEON_Finalize()

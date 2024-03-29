@@ -37,9 +37,10 @@ void TEST_SETTERS_AND_GETTERS() {
         REQUIRE(results_instacne->GetTotalModelingFlops() == 1.0);
 
     }SECTION("Avg Modeling Execution Time Setter/Getter") {
+        results_instacne->SetMLEIterations(0);
         REQUIRE_THROWS(results_instacne->GetAverageModelingExecutionTime());
 
-        results_instacne->SetMLEIterations(2.0);
+        results_instacne->SetMLEIterations(2);
         results_instacne->SetTotalModelingExecutionTime(4.0);
         REQUIRE(results_instacne->GetAverageModelingExecutionTime() == 2.0);
 
@@ -47,7 +48,7 @@ void TEST_SETTERS_AND_GETTERS() {
         results_instacne->SetMLEIterations(0);
         REQUIRE_THROWS(results_instacne->GetAverageModelingFlops());
 
-        results_instacne->SetMLEIterations(2.0);
+        results_instacne->SetMLEIterations(2);
         results_instacne->SetTotalModelingFlops(4.0);
         REQUIRE(results_instacne->GetAverageModelingFlops() == 2.0);
     }
