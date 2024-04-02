@@ -7,25 +7,23 @@
  * @file DataGenerationModelingAndPrediction.cpp
  * @brief This program This program either generates synthetic data using the ExaGeoStat library, or reads an CSV file containing real data, performs data modeling on loaded data, then predicts missing measurements using the ExaGeoStat library.
  * @details The program takes command line arguments to configure the data generation.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-06-21
+ * @date 2024-02-04
 **/
 
-#include <common/Utils.hpp>
 #include <api/ExaGeoStat.hpp>
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
-using namespace exageostat::hardware;
-using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 /**
  * @brief Main entry point for the Data Generation & Data Modeling program.
  * @details This function either generates synthetic data using the ExaGeoStat library, or reads an CSV file containing real data, models it, and predicts missing values.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
- * @return An integer indicating the success or failure of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main(int argc, char **argv) {
 
@@ -37,12 +35,12 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
     // Load data by either read from file or create synthetic data.
-    std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
-    ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
+    std::unique_ptr<ExaGeoStatData<double>> data;
+    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
     // Modeling module.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
     // Prediction module
-    ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data);
+    ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data);
 
     return 0;
 }

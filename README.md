@@ -17,8 +17,7 @@ maintaining traditional practices and embracing contemporary C++ elements like n
 
 
 Vision of ExaGeoStat/ExaGeoStatCPP
-=================
-
+==================================
 The ExaGeoStat/ExaGeoStatCPP project is a collaboration between the KAUST Spatial Statistics group and the Extreme Computing Research
 Center (ECRC). Its contribution lies not in a new algorithm nor a new dataset,
 but in demonstrating the routine use of the larger datasets becoming available to geospatial
@@ -55,9 +54,19 @@ numerical accuracy. This further expands practical problem sizes for
 statisticians with modest computational resources.
 
 
+ExaGeoStatR : R wrapper of ExaGeoStat
+=====================================
+ R is a powerful and versatile tool for scientific computing, offering a wide range of statistical and graphical
+ techniques, strong community support, and the flexibility to integrate with other programming languages. 
+ Its open-source nature and extensive package ecosystem make it an invaluable resource for researchers and data scientists.
+
+ Therefore, we decided to create ExaGeostatR: A wrapper for functionalities provided by ExaGeostat/ExaGeostatCPP to make use of R's various benefits.
+ More details about the exact usage are provided in the **```USER_MANUAL```**.
+
 Current Version of ExaGeoStatCPP: 1.0.0
-======================
-Operations:
+=======================================
+
+- ### Supported Operations:
 
 1. (Data Generation): Generating large geospatial synthetic datasets using  dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques.
 2. (Data Modeling): Modeling large geospatial datasets on dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques through the Maximum likelihood Estimation (MLE) operation.
@@ -65,8 +74,7 @@ Operations:
 4. (MLOE/MMOM): Computing the Mean Loss of Efficiency (MLOE), Mean Misspecification of the Mean Square Error (MMOM), and Root mean square MOM (RMOM) to describe the prediction performance over the whole observation region.
 5. (Fisher Information Matrix (FIM)): Quantifying the information content that a variable x carries about a parameter $\theta$ within a Gaussian distribution.
 
-Supported Covariance Functions:
-======================
+- ### Supported Covariance Functions:
 
 1. Univariate Matérn (Gaussian/Stationary)
 2. Univariate Matérn with Nugget (Gaussian/Stationary)
@@ -78,12 +86,12 @@ Supported Covariance Functions:
 8. Tukey g-and-h Univariate Matérn (non-Gaussian/Stationary)
 9. Tukey g-and-h Univariate Power Exponential (non-Gaussian/Stationary)
 
-Programming models:
+- ### Programming models:
 
 1. MPI
 2. Task-based programming models
 
-External libraries:
+- ### External libraries:
 
 1. NLOPT [https://nlopt.readthedocs.io/en/latest/](https://nlopt.readthedocs.io/en/latest/)
 2. GSL [https://www.gnu.org/software/gsl/](https://www.gnu.org/software/gsl/)
@@ -101,56 +109,86 @@ Project Hierarchy
 * **```docs```** A directory contains all the necessary documents.
 * **```examples```** A directory contains a comprehensive collection of demo code that illustrates the framework's application and demonstrates its features and capabilities.
 * **```inst```** A directory contains all the system's header files, mirroring the structure of the src directory.
-* **```prerequisites```** A directory contains all the necessary prerequisites for the project and default scripts for their installation.
+* **```man```** A directory contains all the R functions documentation.
+* **```scripts```** A directory contains benchmarking scripts.
 * **```src```** A directory contains all the source files.
 * **```tests```** A directory contains all the test files and follows the same structure as the src folder.
 * **```clean_build.sh```** A script is designed to compile the software tests once all dependencies are installed, and it is set to build everything by default.
 * **```CMakeLists.txt```** The top-level CMake file to configure the build system.
-* **```config.sh```** A Script used to generate the building system inside a 'bin' directory.
+* **```configure```** A Script used to generate the building system inside a 'bin' directory.
 
 Installation
 ============
 
-Installation requires at least **CMake of version 3.2**. to build ExaGeoStatCPP,
-please follow these instructions:
+> Note: Installation requires at least **CMake of version 3.2**. to build ExaGeoStatCPP,
 
-1. Get from git repository
+To install the `ExaGeoStat` project locally, run the following commands in your terminal:
 
-       git clone git@github.com:ecrc/exageostatcpp
+1. Clone the project from the remote github repository into your local machine using the following command
 
-   or
+      `git clone git@github.com:ecrc/exageostatcpp`  for using SSH key or
+   
+   
+      `git clone https://github.com/ecrc/exageostatcpp` for using HTTPS
 
-       git clone https://github.com/ecrc/exageostatcpp
+2. Change your current directory by getting into the `ExaGeoStatCPP` project directory
 
-2. Go into the ExaGeoStatCPP folder
+      `cd exageostatcpp`
 
-       cd exageostatcpp
 
-3. Run help of config.sh to know the needed arguments to run with your specific options.
+3. Run `configure` script with the flag `-h` for help, to know the supported options and their corresponding flags.
 
-       ./config.sh --h
+      `./configure -h`
    or check user manual.
 
-4. Run help of clean_build.sh to know the needed arguments to run with your specific options.
 
-       ./clean_build.sh -h
+4. Run `clean_build.sh` script with the flag `-h` for help, to know the needed arguments to run with your specific options.
 
-10. Export the installation paths of the dependencies, e.g.,
+      `./clean_build.sh -h`
 
-        export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH
 
-    to your .bashrc file.
+5. Export the installation paths of the dependencies to your `.bashrc` file, e.g.
+
+      `export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH`
 
 Now, you can use the pkg-config executable to collect compiler and linker flags for
 EXAGEOSTATCPP.
 
+- ## ExaGeoStatR Setup
+Run the following commands in your terminal:
+
+1. Install `R` package using the package manager
+
+      `apt install r-base r-base-dev`
+
+      > `r-base` is the package that provides the base R installation, including the R interpreter, basic R packages, and the R development tools. The `r-base-dev` package, on the other hand, is an additional package that provides development tools for building R packages from source. It includes compilers and other tools necessary for compiling R packages from source code.
+
+2. Open the R prompt window by simply running `R` command in the terminal
+
+3. Inside the prompt, we will install needed packages by running the following commads:
+      - `install.packages(Rcpp)`
+
+      > Rcpp is a package that provides seamless integration between R and C++, allowing R users to write high-performance code in C++ and call it from R
+
+      - `install.packages("assert")`
+
+      > The assert package in R provides assertion functions, which are used to check assumptions in your code.
+
+
+4. Return to the terminal and run the following command, make sure your current path is the ExaGeoStat project directory
+
+      `R CMD INSTALL . --configure-args="-r -e"`
+
+      > This command installs our ExaGeoStat code as a package to be able to run it using R. We pass `-r`to the configuration to enable usage of R
+
+   
 Using ExaGeoStatCPP
-============
+===================
 Please refer to **```USER_MANUAL```** for detailed instructions.
 Please take a look at the end-to-end examples as a reference for using all the operations.
 
 Contribute
-=======
+==========
 
 [Contribution Guidelines](CONTRIBUTING.md)
 
@@ -199,3 +237,4 @@ References
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
    on Cluster Computing (CLUSTER), IEEE, 2023.
    
+![ExaGeoStatCPP-handout.png](docs%2FExaGeoStatCPP-handout.png)

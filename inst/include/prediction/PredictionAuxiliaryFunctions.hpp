@@ -6,7 +6,7 @@
 /**
  * @file PredictionAuxiliaryFunctions.hpp
  * @brief Contains the definition of the PredictionAuxiliaryFunctions.hpp class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -40,6 +40,7 @@ namespace exageostat::prediction {
          * @param[in] aObsLocation Reference to the observed locations.
          * @param[out] apMSPE Pointer to be filled with MSPE value.
          * @return T Array provides insight into the accuracy of the IDW-interpolated predictions for missing values
+         *
          */
         static void PredictIDW(T *apZMiss, T *apZActual, T *apZObs, const int &aZMissNumber, const int &aZObsNumber,
                                exageostat::dataunits::Locations<T> &aMissLocation,

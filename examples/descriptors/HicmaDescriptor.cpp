@@ -6,25 +6,32 @@
 /**
  * @file HicmaDescriptor.cpp
  * @brief Example file for the Hicma descriptor.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-14
 **/
 
-#include <common/Utils.hpp>
 #include <kernels/Kernel.hpp>
 #include <data-units/DescriptorData.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
-#include <configurations/Configurations.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::kernels;
-using namespace exageostat::plugins;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+
+/**
+ * @brief Main entry point for the Hicma descriptor example in ExaGeoStat.
+ * @details Initializes configurations tailored for Hicma usage, sets up hardware, creates a kernel, and demonstrates the creation and initialization of a Hicma descriptor.
+ * The process includes checking for TILE_LOW_RANK computation mode, generating a data matrix, and setting up the Hicma descriptor with this matrix, showcasing how ExaGeoStat
+ * handles hierarchical matrix representations for efficient large-scale computations.
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
+ */
 
 int main(int argc, char **argv) {
 
@@ -44,7 +51,7 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
                                        configuration.GetGPUsNumbers());
     unique_ptr<DescriptorData<double>> data = make_unique<DescriptorData<double>>();
-    Kernel<double> *kernel = PluginRegistry<Kernel<double>>::Create(
+    Kernel<double> *kernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             configuration.GetKernelName(), configuration.GetTimeSlot());
 
     // Get arguments for Descriptors Initialization
@@ -97,4 +104,5 @@ int main(int argc, char **argv) {
     }
 
     delete kernel;
+    return 0;
 }

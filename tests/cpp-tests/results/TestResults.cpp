@@ -6,7 +6,7 @@
  * @file TestResults.cpp
  * @brief Unit tests for the Results class in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the Results class
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-01-24
 **/
@@ -25,9 +25,9 @@ void TEST_SINGLETON_RESULTS() {
 }
 
 void TEST_SETTERS_AND_GETTERS() {
-    
+
     auto results_instacne = Results::GetInstance();
-    
+
     SECTION("Total Modeling Execution Time Setter/Getter") {
         results_instacne->SetTotalModelingExecutionTime(1.0);
         REQUIRE(results_instacne->GetTotalModelingExecutionTime() == 1.0);
@@ -37,9 +37,10 @@ void TEST_SETTERS_AND_GETTERS() {
         REQUIRE(results_instacne->GetTotalModelingFlops() == 1.0);
 
     }SECTION("Avg Modeling Execution Time Setter/Getter") {
+        results_instacne->SetMLEIterations(0);
         REQUIRE_THROWS(results_instacne->GetAverageModelingExecutionTime());
 
-        results_instacne->SetMLEIterations(2.0);
+        results_instacne->SetMLEIterations(2);
         results_instacne->SetTotalModelingExecutionTime(4.0);
         REQUIRE(results_instacne->GetAverageModelingExecutionTime() == 2.0);
 
@@ -47,7 +48,7 @@ void TEST_SETTERS_AND_GETTERS() {
         results_instacne->SetMLEIterations(0);
         REQUIRE_THROWS(results_instacne->GetAverageModelingFlops());
 
-        results_instacne->SetMLEIterations(2.0);
+        results_instacne->SetMLEIterations(2);
         results_instacne->SetTotalModelingFlops(4.0);
         REQUIRE(results_instacne->GetAverageModelingFlops() == 2.0);
     }

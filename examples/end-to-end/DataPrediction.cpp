@@ -7,25 +7,23 @@
  * @file DataPrediction.cpp
  * @brief This program predicts missing measurements using the ExaGeoStat library.
  * @details The program takes command line arguments to configure the data prediction module.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-09-11
+ * @date 2024-02-04
 **/
 
-#include <common/Utils.hpp>
 #include <api/ExaGeoStat.hpp>
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
-using namespace exageostat::hardware;
-using namespace exageostat::dataunits;
+using namespace exageostat::configurations;
 
 /**
  * @brief Main entry point for the Data Prediction program.
  * @details This function predicts missing values.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
- * @return An integer indicating the success or failure of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main(int argc, char **argv) {
 
@@ -34,7 +32,7 @@ int main(int argc, char **argv) {
     //  Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
     /**
-     * Since this example is currently relying on user inputs instead of reading files, The following points are important to know:
+     * Since this example is currently relying on user inputs, The following points are important to know:
      * The N and dts have to match with the Location X, Y and Z_values you're going to provide.
      * You have to provide Locations and Z values in order to use Modeling without generation.
      */
@@ -48,7 +46,8 @@ int main(int argc, char **argv) {
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
+            configurations.GetProblemSize(), configurations.GetDimension());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
@@ -77,7 +76,7 @@ int main(int argc, char **argv) {
     data->GetLocations()->SetLocationY(*location_y, N);
 
     // Prediction module
-    ExaGeoStat<double>::ExaGeoStatPrediction(hardware, configurations, data, z_matrix);
+    ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 
     delete[] location_x;
     delete[] location_y;

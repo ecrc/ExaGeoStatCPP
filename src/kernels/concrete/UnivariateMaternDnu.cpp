@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDnu.cpp
  * @brief Implementation of the UnivariateMaternDnu kernel.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -68,7 +68,8 @@ void UnivariateMaternDnu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &a
                                                                      (pow(expr, aLocalTheta[2]) * log(expr) *
                                                                       gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                                                                       pow(expr, aLocalTheta[2]) *
-                                                                      BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr)));
+                                                                      BasselFunction<T>::CalculateDerivativeBesselNu(
+                                                                              aLocalTheta[2], expr)));
                 apMatrixA[i + j * aRowsNumber] = sigma_square * nu_expr;
             }
             j0++;

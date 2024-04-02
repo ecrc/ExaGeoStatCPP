@@ -10,7 +10,7 @@
  * in the ExaGeoStat software package. The tests cover various setters, getters, and value checks
  * for configuration parameters such as dimensions, P-GRID, kernel name, problem size, precision, and more.
  * Additionally, the tests include a copy-constructor test for the Configurations class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-01-31
 **/
@@ -25,27 +25,27 @@ using namespace std;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
 
-void TEST_ARGUMENT_INITIALIZATION(){
+void TEST_ARGUMENT_INITIALIZATION() {
 
     const int argc = 17;
-    char* argv[] = {
-            const_cast<char*>("program_name"),
-            const_cast<char*>("--N=16"),
-            const_cast<char*>("--dts=8"),
-            const_cast<char*>("--kernel=univariate_matern_stationary"),
-            const_cast<char*>("--computation=exact"),
-            const_cast<char*>("--precision=double"),
-            const_cast<char*>("--initial_theta=1:0.1:0.5"),
-            const_cast<char*>("--ub=5:5:5"),
-            const_cast<char*>("--lb=0.1:0.1:0.1"),
-            const_cast<char*>("--max_mle_iterations=5"),
-            const_cast<char*>("--tolerance=4"),
-            const_cast<char*>("--ZMiss=6"),
-            const_cast<char*>("--mspe"),
-            const_cast<char*>("--idw"),
-            const_cast<char*>("--mloe-mmom"),
-            const_cast<char*>("--fisher"),
-            const_cast<char*>("--data_path=./dummy-path")
+    char *argv[] = {
+            const_cast<char *>("program_name"),
+            const_cast<char *>("--N=16"),
+            const_cast<char *>("--dts=8"),
+            const_cast<char *>("--kernel=univariate_matern_stationary"),
+            const_cast<char *>("--computation=exact"),
+            const_cast<char *>("--precision=double"),
+            const_cast<char *>("--initial_theta=1:0.1:0.5"),
+            const_cast<char *>("--ub=5:5:5"),
+            const_cast<char *>("--lb=0.1:0.1:0.1"),
+            const_cast<char *>("--max_mle_iterations=5"),
+            const_cast<char *>("--tolerance=4"),
+            const_cast<char *>("--ZMiss=6"),
+            const_cast<char *>("--mspe"),
+            const_cast<char *>("--idw"),
+            const_cast<char *>("--mloe-mmom"),
+            const_cast<char *>("--fisher"),
+            const_cast<char *>("--data_path=./dummy-path")
     };
 
     Configurations configurations;
@@ -81,7 +81,7 @@ void TEST_ARGUMENT_INITIALIZATION(){
     configurations.InitializeDataModelingArguments();
 
     REQUIRE(configurations.GetMaxMleIterations() == 5);
-    REQUIRE(configurations.GetTolerance() == 4);
+    REQUIRE(configurations.GetTolerance() == pow(10, -4));
 
     // Data prediction arguments initialized
     configurations.InitializeDataPredictionArguments();
@@ -93,6 +93,7 @@ void TEST_ARGUMENT_INITIALIZATION(){
     REQUIRE(configurations.GetUnknownObservationsNb() == 6);
 
 }
+
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
     Configurations synthetic_data_configurations;

@@ -6,7 +6,7 @@
 /**
  * @file ExaGeoStatDescriptor.hpp
  * @brief Class for creating matrix descriptors used in CHAMELEON and HiCMA libraries.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-16
@@ -14,8 +14,6 @@
 
 #ifndef EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
 #define EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
-
-#include <iostream>
 
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>

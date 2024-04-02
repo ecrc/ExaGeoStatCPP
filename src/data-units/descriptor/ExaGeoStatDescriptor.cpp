@@ -6,12 +6,15 @@
 /**
  * @file ExaGeoStatDescriptor.cpp
  * @brief Implementation of creating matrix descriptors used in CHAMELEON and HiCMA libraries.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-17
 **/
 
+#include <iostream>
+
+#include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <data-units/descriptor/concrete/ChameleonDescriptor.hpp>
 
 #ifdef USE_HICMA
@@ -19,8 +22,6 @@
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>
 
 #endif
-
-#include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 
 using namespace exageostat::common;
 using namespace exageostat::dataunits::descriptor;

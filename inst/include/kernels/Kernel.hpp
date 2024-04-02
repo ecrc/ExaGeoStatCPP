@@ -7,7 +7,7 @@
 /**
  * @file Kernels.hpp
  * @brief Header file for the Kernels class, which contains the main kernel functions.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar
@@ -40,15 +40,6 @@ extern "C" {
  */
 #define EARTH_RADIUS 6371.0
 
-/**
- * @def POW_e
- * @brief The value of e to the power of 1.
- * @details This macro defines the value of e to the power of 1, which is used in some kernel functions.
- *
- */
-#define POW_e (2.71828182845904)
-
-
 namespace exageostat::kernels {
 
     struct KernelsConfigurations {
@@ -78,6 +69,7 @@ namespace exageostat::kernels {
 
         /**
          * Default virtual destructor to be overridden by the the suitable concrete kernel destructor.
+         * 
          */
         virtual ~Kernel() = default;
 
@@ -94,6 +86,7 @@ namespace exageostat::kernels {
          * @param[in] aLocalTheta An array of kernel parameters.
          * @param [in] aDistanceMetric Distance metric to be used (1 = Euclidean, 2 = Manhattan, 3 = Minkowski).
          * @return void
+         *
          */
         virtual void
         GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,

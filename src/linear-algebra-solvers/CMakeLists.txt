@@ -4,7 +4,7 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @version 1.0.0
+# @version 1.1.0
 # @brief CMake build script for the linear-algebra-solvers library, which includes the LinearAlgebraMethods base class and the LinearAlgebraFactory class for creating linear algebra solvers for different computations using HiCMA or Chameleon libraries.
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah

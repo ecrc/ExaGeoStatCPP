@@ -6,7 +6,7 @@
 /**
  * @file TestChameleonImplmentationDense.cpp
  * @brief Unit tests for the Dense computation in the ExaGeoStat software package.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-06
 **/
@@ -25,9 +25,8 @@ using namespace std;
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
 void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
@@ -41,8 +40,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
-        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
-
         synthetic_data_configurations.SetProblemSize(4);
         synthetic_data_configurations.SetDenseTileSize(1);
 
@@ -165,8 +162,6 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 4, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(EXACT_DENSE);
-        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
-
         synthetic_data_configurations.SetProblemSize(64);
         synthetic_data_configurations.SetDenseTileSize(8);
 

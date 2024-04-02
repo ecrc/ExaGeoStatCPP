@@ -27,7 +27,7 @@ pipeline {
                     module load mkl/2020.0.166
                     ####################################################
                     set -x
-                    ./config.sh -t -e
+                    ./configure -t -e
                     ./clean_build.sh
                 '''
             }
@@ -69,7 +69,7 @@ pipeline {
                     module load mkl/2020.0.166
                     ####################################################
                     set -x
-                    ./config.sh -t -e -H
+                    ./configure -t -e -H
                     ./clean_build.sh
                 '''
             }
@@ -107,7 +107,9 @@ pipeline {
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    ./config.sh -e
+                    ####################################################
+
+                    ./configure -e
                     ./clean_build.sh
                     cd bin
                     make docs

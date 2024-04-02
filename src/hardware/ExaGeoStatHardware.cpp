@@ -6,10 +6,10 @@
 /**
  * @file ExaGeoStatHardware.cpp
  * @brief Contains the implementation of the ExaGeoStatHardware class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2024-01-24
+ * @date 2024-02-04
 **/
 
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
@@ -17,13 +17,26 @@
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <results/Results.hpp>
 #include <helpers/CommunicatorMPI.hpp>
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
+#include <utilities/EnumStringParser.hpp>
 
-using namespace exageostat::hardware;
+using namespace exageostat::common;
+using namespace exageostat::results;
 
-ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber,
+ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber,
                                        const int &aGpuNumber) {
-    this->mComputation = aComputation;
+    InitHardware(aComputation, aCoreNumber, aGpuNumber);
+}
+
+// Constructor for R
+ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber) {
+
+    InitHardware(GetInputComputation(aComputation), aCoreNumber, aGpuNumber);
+}
+
+void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber,
+                                      const int &aGpuNumber) {
+    LOGGER("** Initialize ExaGeoStat hardware **")
     int tag_width = 31, tag_sep = 26;
 
     // Init hardware using Chameleon
@@ -33,8 +46,8 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
         mpChameleonContext = chameleon_context_self();
     }
 
-    // Init hardware using Hicma
-    if (aComputation == common::TILE_LOW_RANK) {
+    // Init hardware using HiCMA
+    if (aComputation == TILE_LOW_RANK) {
 #ifdef USE_HICMA
         if (!mpHicmaContext) {
             HICMA_user_tag_size(tag_width, tag_sep);
@@ -45,28 +58,29 @@ ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, 
         throw std::runtime_error("You need to enable HiCMA to use TLR computation!");
 #endif
     }
-    helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
-    LOGGER("** Initialized ExaGeoStat hardware **")
+    exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
 }
 
-ExaGeoStatHardware::~ExaGeoStatHardware() {
-
-    results::Results::GetInstance()->PrintEndSummary();
+void ExaGeoStatHardware::FinalizeHardware() {
     // finalize hardware using Chameleon
     if (mpChameleonContext) {
         CHAMELEON_Finalize()
         mpChameleonContext = nullptr;
     }
     // finalize hardware using HiCMA
-    if (this->mComputation == common::TILE_LOW_RANK) {
 #ifdef USE_HICMA
-        if (mpHicmaContext) {
-            HICMA_Finalize();
-            mpHicmaContext = nullptr;
-        }
-#endif
+    if (mpHicmaContext) {
+        HICMA_Finalize();
+        mpHicmaContext = nullptr;
     }
-    helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
+#endif
+}
+
+ExaGeoStatHardware::~ExaGeoStatHardware() {
+
+    Results::GetInstance()->PrintEndSummary();
+    FinalizeHardware();
+    exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
 void *ExaGeoStatHardware::GetHicmaContext() {
@@ -83,15 +97,15 @@ void *ExaGeoStatHardware::GetChameleonContext() {
     return mpChameleonContext;
 }
 
-void *ExaGeoStatHardware::GetContext(common::Computation aComputation) {
-    if (aComputation == common::EXACT_DENSE || aComputation == common::DIAGONAL_APPROX) {
+void *ExaGeoStatHardware::GetContext(Computation aComputation) {
+    if (aComputation == EXACT_DENSE || aComputation == DIAGONAL_APPROX) {
         return GetChameleonContext();
     }
-    if (aComputation == common::TILE_LOW_RANK) {
+    if (aComputation == TILE_LOW_RANK) {
         return GetHicmaContext();
     }
     return nullptr;
 }
 
-void * ExaGeoStatHardware::mpChameleonContext = nullptr;
-void * ExaGeoStatHardware::mpHicmaContext = nullptr;
+void *ExaGeoStatHardware::mpChameleonContext = nullptr;
+void *ExaGeoStatHardware::mpHicmaContext = nullptr;

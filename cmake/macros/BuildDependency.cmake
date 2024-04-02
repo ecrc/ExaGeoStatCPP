@@ -4,9 +4,10 @@
 
 # @file BuildDependency.cmake
 # @brief Fetches, builds, and installs a dependency.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
-# @date 2023-03-12
+# @author Amr Nasr
+# @date 2024-02-04
 
 # After building and installing the dependency, the macro installs the lib, include, and share directories
 # in the current directory.
@@ -27,72 +28,82 @@
 # CMake or autotools, and finally, it's built and installed. Environment variables are set, and the dependency's
 # lib, include, and share directories are installed in the current directory.
 
+# Define the macro BuildDependency with parameters for handling various aspects of dependency management.
 macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_generation)
 
-    # Set the name of the dependency.
+    # Convert the raw dependency name to lowercase and uppercase for different uses and set them as 'name' and 'capital_name'.
     string(TOLOWER ${raw_name} name)
     string(TOUPPER ${raw_name} capital_name)
 
-    # Fetch the dependency, depending on whether it's a git repo or not.
+    # Log the start of the fetch process for the dependency, including its name, tag, and source URL.
     message(STATUS "Fetching ${name} ${tag} from ${url}")
+    # Include the CMake module for downloading and updating content during the configure step.
     include(FetchContent)
+    # Set the base directory for fetched content to a directory within the install prefix, named after the dependency.
     set(FETCHCONTENT_BASE_DIR ${CMAKE_INSTALL_PREFIX}/${capital_name})
 
+    # Check if the dependency is hosted in a git repository and declare it accordingly with FetchContent, using git-specific options.
     if (${is_using_git})
         FetchContent_Declare(${name}
                 GIT_REPOSITORY "${url}"
                 GIT_TAG "${tag}"
-                GIT_SHALLOW TRUE
-                GIT_PROGRESS TRUE
+                GIT_SHALLOW TRUE  # For a shallow clone, fetching only the history needed for the specified tag
+                GIT_PROGRESS TRUE  # Show progress during the clone
                 )
     else ()
+        # If not using git, declare the dependency for FetchContent using a direct URL (e.g., for a tarball).
         FetchContent_Declare(${name} URL "${url}")
     endif ()
 
+    # Make the content available, effectively downloading it if necessary.
     FetchContent_Populate(${name})
 
-    # Set up build paths and create a directory for build artifacts.
+    # Set variables for the source path, binary (build) path, and installation path of the dependency.
     set(${name}_srcpath ${CMAKE_INSTALL_PREFIX}/${capital_name}/${name}-src)
     set(${name}_binpath ${${name}_srcpath}/bin)
     set(${name}_installpath ${CMAKE_INSTALL_PREFIX}/${capital_name})
+    # Ensure the binary path directory exists.
     file(MAKE_DIRECTORY ${${name}_binpath})
 
-    # Configure subproject.
+    # Configure the project. If using CMake, run cmake command with specified flags and install prefix within the binary path.
     if (${is_using_cmake})
-        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
+        execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/${capital_name} -DCMAKE_C_FLAGS=-fPIC ${flags}
                 ${${name}_srcpath}
                 WORKING_DIRECTORY ${${name}_binpath})
     else ()
+        # For non-CMake projects, run autogen.sh if auto_generation is true, then configure the project with specified flags.
         if (${auto_generation})
             execute_process(COMMAND ./autogen.sh
                     WORKING_DIRECTORY ${${name}_srcpath}
-                    COMMAND_ERROR_IS_FATAL ANY)
+                    COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
         endif ()
         execute_process(COMMAND ./configure --prefix=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
                 WORKING_DIRECTORY ${${name}_srcpath}
-                COMMAND_ERROR_IS_FATAL ANY)
+                COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
     endif ()
 
-    # Build and install subproject.
+    # Include the ProcessorCount module to determine the number of CPUs for parallel build and install commands.
     include(ProcessorCount)
     ProcessorCount(N)
+    # Build the project using make, with parallel jobs based on processor count. This applies to both CMake and non-CMake projects.
     if (${is_using_cmake})
         execute_process(COMMAND make -j ${N}
                 WORKING_DIRECTORY ${${name}_binpath}
-                COMMAND_ERROR_IS_FATAL ANY)
+                COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
+        # Install the built project, also with parallel jobs.
         execute_process(COMMAND make install -j ${N}
                 WORKING_DIRECTORY ${${name}_binpath}
-                COMMAND_ERROR_IS_FATAL ANY)
+                COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
     else ()
         execute_process(COMMAND make -j ${N}
                 WORKING_DIRECTORY ${${name}_srcpath}
-                COMMAND_ERROR_IS_FATAL ANY)
+                COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
         execute_process(COMMAND make install -j ${N}
                 WORKING_DIRECTORY ${${name}_srcpath}
-                COMMAND_ERROR_IS_FATAL ANY)
+                COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
     endif ()
 
-    # Set environment variables and include/link to the installation directory of the dependency.
+    # Set environment variables for dynamic and static linking as well as include paths, pointing to the dependency's installation directory.
     set(ENV{LD_LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LD_LIBRARY_PATH}")
     set(ENV{LIBRARY_PATH} "${${name}_installpath}/lib:${${name}_installpath}/lib64:$ENV{LIBRARY_PATH}")
     set(ENV{CPATH} "${${name}_installpath}/include:$ENV{CPATH}")

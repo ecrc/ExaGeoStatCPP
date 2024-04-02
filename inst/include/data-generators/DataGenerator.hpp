@@ -6,7 +6,7 @@
 /**
  * @file DataGenerator.hpp
  * @brief Contains definition for abstract Data Generator Class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-02-14
 **/
@@ -34,14 +34,12 @@ namespace exageostat::generators {
          * @brief Either generates synthetic data or reads data files.
          * @details This method generates the X, Y, and Z variables used to define the locations of the data points.
          * @param[in] aConfigurations Reference to the data configurations.
-         * @param[in] aHardware Reference to the used hardware.
          * @param[in] aKernel Reference to the used Kernel.
          * @return unique Pointer to a populated data.
          *
          */
-        virtual std::unique_ptr<dataunits::ExaGeoStatData<T>>
-        CreateData(exageostat::configurations::Configurations &aConfigurations,
-                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
+        virtual std::unique_ptr<ExaGeoStatData<T>>
+        CreateData(configurations::Configurations &aConfigurations,
                    exageostat::kernels::Kernel<T> &aKernel) = 0;
 
         /**
@@ -52,7 +50,7 @@ namespace exageostat::generators {
          *
          */
         static std::unique_ptr<DataGenerator>
-        CreateGenerator(exageostat::configurations::Configurations &aConfigurations);
+        CreateGenerator(configurations::Configurations &aConfigurations);
 
         /**
          * @brief Destructor for the data generator object.
@@ -62,6 +60,7 @@ namespace exageostat::generators {
         virtual ~DataGenerator();
 
     protected:
+
         /// Used enum for data generators types.
         static common::DataSourceType aDataSourceType;
     };

@@ -5,7 +5,7 @@
 
 /**
  * @file Definitions.hpp
- * @version 1.0.1
+ * @version 1.1.0
  * @brief This file contains common definitions used in ExaGeoStat software package.
  * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
  * A macro for instantiating template classes with supported types; and a set of available kernels.
@@ -14,27 +14,24 @@
  * @date 2023-03-21
 **/
 
-
 #ifndef EXAGEOSTATCPP_DEFINITIONS_HPP
 #define EXAGEOSTATCPP_DEFINITIONS_HPP
 
-//// TODO: This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+// This is a fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+#ifdef USE_HICMA
 #ifdef min
 #undef min
 #endif
+#endif
 
-#include <iostream>
-#include <string>
-#include <map>
 #include <set>
 #include <filesystem>
-#include <unordered_map>
 
 /**
  * @def EXAGEOSTAT_INSTANTIATE_CLASS
  * @brief Macro definition to instantiate the EXAGEOSTAT template classes with supported types.
+ *
 **/
-
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
@@ -94,6 +91,7 @@ namespace exageostat::common {
     /**
      * @enum Side
      * @brief Enum denoting the side on which the matrix appears in an equation.
+     *
      */
     enum Side {
         EXAGEOSTAT_LEFT = 141,
@@ -103,6 +101,7 @@ namespace exageostat::common {
     /**
      * @enum Trans
      * @brief Enum denoting whether or not to transpose a matrix.
+     *
      */
     enum Trans {
         EXAGEOSTAT_NO_TRANS = 111,
@@ -113,6 +112,7 @@ namespace exageostat::common {
     /**
      * @enum Diag
      * @brief Enum denoting whether the diagonal is unitary.
+     *
      */
     enum Diag {
         EXAGEOSTAT_NON_UNIT = 131,
@@ -122,6 +122,7 @@ namespace exageostat::common {
     /**
      * @enum Distance metric
      * @brief Enum denoting distance metric type.
+     *
      */
     enum DistanceMetric {
         EUCLIDEAN_DISTANCE = 0,
@@ -131,6 +132,7 @@ namespace exageostat::common {
     /**
      * @enum Descriptor Type
      * @brief Enum denoting the Descriptor Type.
+     *
      */
     enum DescriptorType {
         CHAMELEON_DESCRIPTOR = 0,
@@ -140,6 +142,7 @@ namespace exageostat::common {
     /**
      * @enum Data source Type
      * @brief Enum denoting the data source Type.
+     *
      */
     enum DataSourceType {
         SYNTHETIC = 0,
@@ -149,6 +152,7 @@ namespace exageostat::common {
     /**
      * @enum Descriptor Name
      * @brief Enum denoting all Descriptors Names.
+     *
      */
     enum DescriptorName : int {
         DESCRIPTOR_C = 0,
@@ -209,7 +213,9 @@ namespace exageostat::common {
     };
 
     /**
+     * @enum Tile Storage
      * @brief Matrix tile storage
+     *
      */
     typedef enum TileStorage {
         EXAGOSTAT_CM = 101,
@@ -285,6 +291,7 @@ namespace exageostat::common {
      * The set is initialized with a lambda function that iterates through a directory
      * and extracts the kernel names from the filenames. It also adds lowercase versions
      * of the kernel names with underscores before each capital letter.
+     * @return set of all available kernels names
      *
      */
     const static std::set<std::string> availableKernels = []() {

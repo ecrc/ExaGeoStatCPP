@@ -6,46 +6,34 @@
 /**
  * @file DataGenerator.cpp
  * @brief Implementation of DataGenerator class
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-02-14
+ * @date 2024-02-04
 **/
 
 #include <data-generators/DataGenerator.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-loader/concrete/CSVLoader.hpp>
-#include <results/Results.hpp>
 
 using namespace exageostat::generators;
 using namespace exageostat::dataLoader::csv;
 using namespace exageostat::generators::synthetic;
-using namespace exageostat::dataunits;
-using namespace exageostat::configurations;
 using namespace exageostat::common;
+using namespace exageostat::results;
 
 template<typename T>
-std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(Configurations &apConfigurations) {
+std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(configurations::Configurations &apConfigurations) {
 
+    //// TODO: In case of other file support, Then we can create another layer for the factory creation depending on the file size.
     // Check the used Data generation method, whether it's synthetic or real.
-    if(apConfigurations.GetIsSynthetic() && apConfigurations.GetIsCSV()){
-        throw std::domain_error("Please activate either the synthetic or the CSV file for data generation, but not both.");
-    }
-    if(!apConfigurations.GetIsSynthetic() && !apConfigurations.GetIsCSV()){
-        throw std::domain_error("Please activate either the synthetic or the CSV file for data generation");
-    }
-    if(apConfigurations.GetIsSynthetic()){
-        aDataSourceType = SYNTHETIC;
-    }
-    else if(apConfigurations.GetIsCSV()){
-        aDataSourceType = CSV_FILE;
-    }
-    results::Results::GetInstance()->SetIsSynthetic(apConfigurations.GetIsSynthetic());
+    aDataSourceType = apConfigurations.GetIsSynthetic() ? SYNTHETIC : CSV_FILE;
 
     // Return DataGenerator unique pointer of Synthetic type
-    //// TODO: In case of other file support, Then we can create another layer for the factory creation depending on the file size.
     if (aDataSourceType == SYNTHETIC) {
+        Results::GetInstance()->SetIsSynthetic(true);
         return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
     } else if (aDataSourceType == CSV_FILE) {
+        Results::GetInstance()->SetIsSynthetic(false);
         return std::unique_ptr<DataGenerator<T>>(CSVLoader<T>::GetInstance());
     } else {
         throw std::runtime_error("Data Loading for this file type is unsupported for now");
@@ -65,4 +53,4 @@ DataGenerator<T>::~DataGenerator() {
     }
 }
 
-template<typename T> DataSourceType DataGenerator<T>::aDataSourceType = common::SYNTHETIC;
+template<typename T> DataSourceType DataGenerator<T>::aDataSourceType = SYNTHETIC;

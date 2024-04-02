@@ -8,10 +8,10 @@
 # The project is a parallel high performance unified framework for geographical statistics on manycore systems.
 # The file sets up variables and finds dependencies required for the project.
 # It also provides options to enable building tests, building examples, building documentation, and enabling a packaging system for distribution.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
-# @date 2023-01-30
+# @date 2024-02-04
 
 # Set the minimum CMake version required to 3.20
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
@@ -24,10 +24,17 @@ option(BUILD_TESTS "Option to enable building tests" OFF)
 option(BUILD_HEAVY_TESTS "Option to enable building heavy tests, This may take a lot of time" OFF)
 option(BUILD_EXAMPLES "Option to enable building examples" ON)
 option(BUILD_DOCS "Build documentation in docs directory" ON)
+option(USE_R "Enable the use of R and Rcpp in the project" OFF)
 option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
+if (${BUILD_SHARED_LIBS})
+    set(BLA_STATIC OFF)
+else ()
+    set(BLA_STATIC ON)
+endif ()
 
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
@@ -148,6 +155,19 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
 set(MY_LOGGER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DMY_LOGGER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+
+if (USE_R)
+    message("")
+    message("---------------------------------------- Rcpp")
+    # Find R and Rcpp using FindR Module
+    find_package(R REQUIRED)
+    if (${R_FOUND})
+        message(STATUS "Using R technology")
+        list(APPEND LIBS R)
+        add_definitions(-DUSING_R)
+    endif ()
+endif ()
+
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)

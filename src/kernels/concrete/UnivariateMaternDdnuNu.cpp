@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDdnuNu.cpp
  * @brief Implementation of the UnivariateMaternDdnuNu kernel.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -72,20 +72,23 @@ UnivariateMaternDdnuNu<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aRo
                                                                      (pow(expr, aLocalTheta[2]) * log(expr) *
                                                                       gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                                                                       pow(expr, aLocalTheta[2]) *
-                                                                      BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2],
-                                                                                                        expr)));
+                                                                      BasselFunction<T>::CalculateDerivativeBesselNu(
+                                                                              aLocalTheta[2],
+                                                                              expr)));
                 nu_expr_dprime = (1 - aLocalTheta[2]) * 1 / pow(2, aLocalTheta[2]) * 1 / tgamma(aLocalTheta[2]) *
-                                 pow(expr, aLocalTheta[2]) * BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
+                                 pow(expr, aLocalTheta[2]) *
+                                 BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
                                  pow(2, 1 - aLocalTheta[2]) *
                                  (-1 / tgamma(aLocalTheta[2]) * gsl_sf_psi(aLocalTheta[2]) * pow(expr, aLocalTheta[2]) *
-                                  BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr) + 1 / tgamma(aLocalTheta[2]) *
-                                                                                            (pow(expr, aLocalTheta[2]) *
-                                                                                             log(expr) *
-                                                                                             BasselFunction<T>::CalculateDerivativeBesselNu(
-                                                                                                     aLocalTheta[2],
-                                                                                                     expr) +
-                                                                                             pow(expr, aLocalTheta[2]) *
-                                                                                             BasselFunction<T>::CalculateSecondDerivativeBesselNu(aLocalTheta[2],expr)));
+                                  BasselFunction<T>::CalculateDerivativeBesselNu(aLocalTheta[2], expr) +
+                                  1 / tgamma(aLocalTheta[2]) *
+                                  (pow(expr, aLocalTheta[2]) *
+                                   log(expr) *
+                                   BasselFunction<T>::CalculateDerivativeBesselNu(
+                                           aLocalTheta[2],
+                                           expr) +
+                                   pow(expr, aLocalTheta[2]) *
+                                   BasselFunction<T>::CalculateSecondDerivativeBesselNu(aLocalTheta[2], expr)));
                 apMatrixA[i + j * aRowsNumber] =
                         (-0.5 * con * pow(expr, aLocalTheta[2]) * gsl_sf_bessel_Knu(aLocalTheta[2], expr) +
                          (1 - aLocalTheta[2]) / 2 * nu_expr -

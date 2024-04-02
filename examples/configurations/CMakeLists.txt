@@ -4,8 +4,8 @@
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @brief Defines an executable and links it with the ExaGeoStat library and other libraries.
-# @version 1.0.1
+# @brief Defines an executables and links them with the ExaGeoStat library and other libraries.
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-01-31
 

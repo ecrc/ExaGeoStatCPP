@@ -6,7 +6,7 @@
 /**
  * @file TestHiCMAImplementationTLR.cpp
  * @brief Unit tests for the Tile Low Rank computation in the ExaGeoStat software package.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -18,9 +18,8 @@
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 //Test that the function initializes the HICMA_descriptorC descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
@@ -28,7 +27,7 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
     synthetic_data_configurations.SetMaxMleIterations(1);
-    synthetic_data_configurations.SetTolerance(pow(10, -4));
+    synthetic_data_configurations.SetTolerance(4);
 
     vector<double> lb{0.1, 0.1, 0.1};
     synthetic_data_configurations.SetLowerBounds(lb);
@@ -52,10 +51,9 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
         synthetic_data_configurations.SetApproximationMode(1);
 
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
+        std::unique_ptr<ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(synthetic_data_configurations, data);
 
         auto *HICMA_descriptorC = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
@@ -86,10 +84,9 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
 
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
+        std::unique_ptr<ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(synthetic_data_configurations, data);
 
         int N = synthetic_data_configurations.GetProblemSize();
         int lts = synthetic_data_configurations.GetLowTileSize();
@@ -103,14 +100,14 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
 
         auto *HICMA_descriptorZ = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
         auto *HICMA_descriptorZcpy = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                             DESCRIPTOR_Z_COPY).hicma_desc;
+                                                                              DESCRIPTOR_Z_COPY).hicma_desc;
         auto *HICMA_descriptorDeterminant = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                                    DESCRIPTOR_DETERMINANT).hicma_desc;
+                                                                                     DESCRIPTOR_DETERMINANT).hicma_desc;
         auto *HICMA_descriptorCD = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
         auto *HICMA_descriptorCUV = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                            DESCRIPTOR_CUV).hicma_desc;
+                                                                             DESCRIPTOR_CUV).hicma_desc;
         auto *HICMA_descriptorCrk = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                            DESCRIPTOR_CRK).hicma_desc;
+                                                                             DESCRIPTOR_CRK).hicma_desc;
 
         // Descriptor CD.
         REQUIRE(HICMA_descriptorCD->m == N);

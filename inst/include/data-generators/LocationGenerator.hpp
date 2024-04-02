@@ -6,7 +6,7 @@
 /**
  * @file LocationGenerator.hpp
  * @brief Generates and manages spatial locations for ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-04
 **/
@@ -14,7 +14,6 @@
 #ifndef EXAGEOSTATCPP_LOCATIONGENERATOR_HPP
 #define EXAGEOSTATCPP_LOCATIONGENERATOR_HPP
 
-#include <common/Utils.hpp>
 #include <data-units/Locations.hpp>
 
 namespace exageostat::generators {
@@ -40,7 +39,8 @@ namespace exageostat::generators {
          * @return void
          *
          */
-        static void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension, dataunits::Locations <T> &aLocations);
+        static void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension,
+                                      dataunits::Locations<T> &aLocations);
 
         /**
          * @brief Generate uniform distribution between rangeLow , rangeHigh.
@@ -59,7 +59,8 @@ namespace exageostat::generators {
          * @return void
          *
          */
-        static void SortLocations(const int &aN, const common::Dimension &aDimension, dataunits::Locations<T> &aLocations);
+        static void
+        SortLocations(const int &aN, const common::Dimension &aDimension, dataunits::Locations<T> &aLocations);
     };
 
     /**

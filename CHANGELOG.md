@@ -3,13 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - Version 1.0.1 (YYYY-MM-DD)
+## [Unreleased] - Version 1.1.0 (YYYY-MM-DD)
 ### Added
 - Implemented a new changelog.
 - Introduced a benchmarking script.
 - .gitignore file.
 - More examples.
 - Add tests for all src files.
+- Rcpp support.
 
 ### Fixed
 - Resolved issues with MPI installation.

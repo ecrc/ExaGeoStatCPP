@@ -7,7 +7,7 @@
  * @file ChameleonImplementationDense.hpp
  * @brief This file contains the declaration of ChameleonImplementationDense class.
  * @details ChameleonImplementationDense is a concrete implementation of ChameleonImplementation class for dense matrices.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
@@ -31,17 +31,20 @@ namespace exageostat::linearAlgebra::dense {
 
         /**
          * @brief Default constructor.
+         *
          */
         explicit ChameleonDense() = default;
 
         /**
          * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         *
          */
         ~ChameleonDense() override = default;
 
         /**
          * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
          * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
+         *
          */
         void
         ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,

@@ -6,7 +6,7 @@
 /**
  * @file  CSVLoader.hpp
  * @brief A class for generating synthetic data.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-02-04
@@ -15,7 +15,6 @@
 #ifndef EXAGEOSTAT_CPP_CSVDATALOADER_HPP
 #define EXAGEOSTAT_CPP_CSVDATALOADER_HPP
 
-#include <data-generators/DataGenerator.hpp>
 #include <data-loader/DataLoader.hpp>
 
 namespace exageostat::dataLoader::csv {
@@ -41,9 +40,18 @@ namespace exageostat::dataLoader::csv {
          * @copydoc DataLoader::ReadData()
          *
          */
-        void ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+        void ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
                       std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
                       const int &aP) override;
+
+        /**
+        * @brief Writes a matrix of vectors to disk.
+        * @copydoc DataLoader::WriteData()
+        *
+        */
+        void
+        WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
+                  exageostat::dataunits::Locations<T> &aLocations) override;
 
         /**
          * @brief Release the singleton instance of the  CSVLoader class.

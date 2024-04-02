@@ -6,7 +6,7 @@
 /**
  * @file DescriptorData.hpp
  * @brief Contains the definition of the DescriptorData class.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-07-18
@@ -14,6 +14,8 @@
 
 #ifndef EXAGEOSTATCPP_DESCRIPTORDATA_HPP
 #define EXAGEOSTATCPP_DESCRIPTORDATA_HPP
+
+#include <unordered_map>
 
 #include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
@@ -23,6 +25,7 @@ namespace exageostat::dataunits {
     /**
      * @brief Union representing the base descriptor.
      * @details This union is used to store different types of descriptors based on the configuration.
+     *
      */
     union BaseDescriptor {
         CHAM_desc_t *chameleon_desc;
@@ -35,6 +38,7 @@ namespace exageostat::dataunits {
      * @Class DescriptorData
      * @brief Manages geo-statistical descriptor data with functions for retrieving and manipulating descriptors
      * @tparam T Data Type: float or double
+     *
      */
     template<typename T>
     class DescriptorData {
@@ -42,12 +46,14 @@ namespace exageostat::dataunits {
     public:
         /**
          * @brief Default Constructor for DescriptorData.
+         *
          */
 
         explicit DescriptorData() = default;
 
         /**
          * @brief Destructor for DescriptorData.
+         *
          */
         ~DescriptorData();
 
@@ -57,6 +63,7 @@ namespace exageostat::dataunits {
          * @param[in] aDescriptorName The name of the descriptor.
          * @return The base descriptor.
          * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
+         *
          */
         BaseDescriptor
         GetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName);
@@ -71,7 +78,7 @@ namespace exageostat::dataunits {
         /**
          * @brief Set the sequence.
          * @param[in] apSequence Pointer to the sequence.
-         *
+         * @return void
          */
         void SetSequence(void *apSequence);
 
@@ -85,6 +92,7 @@ namespace exageostat::dataunits {
         /**
          * @brief Set the request.
          * @param[in] apRequest Pointer to the request.
+         * @return void
          *
          */
         void SetRequest(void *apRequest);
@@ -95,6 +103,7 @@ namespace exageostat::dataunits {
          * @brief Converts a CHAMELEON descriptor to a HICMA descriptor.
          * @param[in] apChameleonDesc Pointer to the CHAMELEON descriptor to be converted.
          * @return Pointer to the converted HICMA descriptor.
+         *
          */
         HICMA_desc_t *ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc);
 
@@ -121,30 +130,36 @@ namespace exageostat::dataunits {
          * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not, default is true
          * @return void
          * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
+         *
          */
         void SetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName,
                            const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
                            const int &aNB, const int &aSize, const int &aLM, const int &aLN, const int &aI,
-                           const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ, const bool &aValidOOC = true);
+                           const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ,
+                           const bool &aValidOOC = true);
 
         /**
          * @brief Getter for the Descriptor matrix.
          * @param[in] aDescriptorType Type of the descriptor, whether it's CHAMELEON or HiCMA.
-         * @param[in] apDescriptor Pointer to the descriptor.
+         * @param[in] aDescriptorName The name of the descriptor.
          * @return pointer to the Descriptor matrix.
          * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
+         *
          */
-        T *GetDescriptorMatrix(const common::DescriptorType &aDescriptorType, void *apDescriptor);
+        T *GetDescriptorMatrix(const common::DescriptorType &aDescriptorType,
+                               const common::DescriptorName &aDescriptorName);
 
         /**
          * @brief Getter for the mIsDescriptorInitiated field.
          * @return mIsDescriptorInitiated
+         *
          */
         bool GetIsDescriptorInitiated();
 
         /**
          * @brief Setter for mIsDescriptorInitiated field.
          * @param aIsInitiated Boolean for setting the mIsDescriptorInitiated field.
+         *
          */
         void SetIsDescriptorInitiated(bool aIsInitiated);
 
@@ -154,6 +169,7 @@ namespace exageostat::dataunits {
          * @param[in] aDescriptorName The descriptor name.
          * @return The descriptor name as a string.
          * @throws std::invalid_argument if the provided descriptor name is not available.
+         *
          */
         std::string GetDescriptorName(const common::DescriptorName &aDescriptorName);
 

@@ -6,11 +6,13 @@
 /**
  * @file ChameleonImplementationDense.cpp
  * @brief Dense Tile implementation of linear algebra methods.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-03-20
 **/
+
+#include <mkl_service.h>
 
 #include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonDense.hpp>
 
@@ -26,4 +28,6 @@ ChameleonDense<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, vo
     if (status != CHAMELEON_SUCCESS) {
         throw std::runtime_error("CHAMELEON_dpotrf_Tile Failed, Matrix is not positive definite");
     }
+    // Due to a leak in dense mode in Chameleon, We had to free the buffer manually.
+    mkl_free_buffers();
 }

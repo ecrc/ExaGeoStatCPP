@@ -8,15 +8,13 @@
 * @brief Demonstrates how to use the Configurations class from the ExaGeoStat software package.
 * @details This file demonstrates how to use the Configurations class from the ExaGeoStat software package
 * to obtain user-defined configurations.
-* @version 1.0.0
+* @version 1.1.0
 * @author Mahmoud ElKarargy
-* @date 2023-01-31
+* @date 2024-02-04
 *
 **/
 
-#include <iostream>
-
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
 #include <configurations/Configurations.hpp>
 
 using namespace std;
@@ -26,13 +24,12 @@ using namespace exageostat::configurations;
 
 /**
  * @brief The main function of the program.
- *
- * This function demonstrates how to use the Configurations class from the ExaGeoStat software package
+ * @details This example demonstrates how to use the Configurations class from the ExaGeoStat software package
  * to obtain user-defined configurations.
- *
  * @param[in] argc The number of command line arguments.
  * @param[in] argv The command line arguments.
- * @return The status code of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main(int argc, char **argv) {
 

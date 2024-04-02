@@ -6,7 +6,7 @@
 /**
  * @file HicmaDescriptor.hpp
  * @brief Defines the Hicma Descriptor class for creating matrix descriptors using the HICMA library.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-08-15
@@ -16,7 +16,6 @@
 #define EXAGEOSTATCPP_HICMADESCRIPTOR_HPP
 
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
-
 #include <common/Definitions.hpp>
 
 namespace exageostat::dataunits::descriptor {

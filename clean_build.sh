@@ -1,11 +1,11 @@
-#!/bin/bash
+#! /bin/sh
 # Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file clean_build.sh
 # @brief This script cleans and builds a software package called ExaGeoStat.
-# @version 1.0.1
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-01-30
 
@@ -55,7 +55,7 @@ cd bin/ || {
 }
 
 # Clean the directory and build the code with the specified options.
-cmake --build . $num_proc $verbose
+cmake --build . "$num_proc" $verbose
 
 # Install the software if the -i option is provided.
 if [ "$installation" -eq 1 ]; then

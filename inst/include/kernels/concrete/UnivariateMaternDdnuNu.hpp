@@ -6,7 +6,7 @@
 /**
  * @file UnivariateMaternDdnuNu.hpp
  * @brief Defines the UnivariateMaternDdnuNu class, a Univariate Matern Ddnu Nu kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar
@@ -36,6 +36,7 @@ namespace exageostat::kernels {
         /**
          * @brief Constructs a new UnivariateMaternDdnuNu object.
          * @details Initializes a new UnivariateMaternDdnuNu object with default values.
+         *
          */
         UnivariateMaternDdnuNu();
 
@@ -48,6 +49,7 @@ namespace exageostat::kernels {
         /**
          * @brief Generates a covariance matrix using a set of locations and kernel parameters.
          * @copydoc Kernel::GenerateCovarianceMatrix()
+         *
          */
         void
         GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,

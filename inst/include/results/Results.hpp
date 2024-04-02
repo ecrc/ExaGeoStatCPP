@@ -6,7 +6,7 @@
 /**
  * @file Results.hpp
  * @brief Defines the Results class for storing and accessing result data.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-09-14
 **/
@@ -26,239 +26,265 @@ namespace exageostat::results {
         /**
          * @brief Get a pointer to the singleton instance of the Results class.
          * @return A pointer to the instance of the Results class.
+         *
          */
         static Results *GetInstance();
 
         /**
          * @brief Set the flag indicating whether the results are synthetic or not.
          * @param[in] aIsSynthetic True if the results are synthetic, false otherwise.
+         *
          */
         void SetIsSynthetic(bool aIsSynthetic);
 
         /**
          * @brief Set the number of generated locations.
          * @param[in] aNumLocations The number of generated locations.
+         *
          */
         void SetGeneratedLocationsNumber(int aNumLocations);
 
         /**
          * @brief Set the flag indicating whether the logger is active or not.
          * @param[in] aIsLogger True if the logger is active, false otherwise.
+         *
          */
         void SetIsLogger(bool aIsLogger);
 
         /**
          * @brief Set the path for the logger.
          * @param[in] aLoggerPath The path for the logger.
+         *
          */
         void SetLoggerPath(const std::string &aLoggerPath);
 
         /**
          * @brief Set the Total Data Generation execution time.
          * @param[in] aTime The execution time.
+         *
          */
         void SetTotalDataGenerationExecutionTime(double aTime);
 
         /**
          * @brief Set the Data Generation floating-point operations (FLOPs).
          * @param[in] aFlops The number of FLOPs.
+         *
          */
         void SetTotalDataGenerationFlops(double aFlops);
 
         /**
          * @brief Set the log-likelihood value.
          * @param[in] aLogLikValue The log-likelihood value.
+         *
          */
         void SetLogLikValue(double aLogLikValue);
 
         /**
          * @brief Set the number of maximum likelihood estimation (MLE) iterations.
          * @param[in] aIterationsNumber The number of MLE iterations.
+         *
          */
         void SetMLEIterations(int aIterationsNumber);
 
         /**
          * @brief Set the vector of maximum theta values.
          * @param[in] aMaximumTheta The vector of maximum theta values.
+         *
          */
         void SetMaximumTheta(const std::vector<double> &aMaximumTheta);
 
         /**
          * @brief Set the total modeling execution time.
          * @param[in] aTime The total execution time for data modeling.
+         *
          */
         void SetTotalModelingExecutionTime(double aTime);
 
         /**
          * @brief Get the total modeling execution time.
          * @return The total execution time for data modeling.
+         *
          */
         [[nodiscard]] double GetTotalModelingExecutionTime() const;
 
         /**
          * @brief Get the MLOE.
          * @return The MLOE.
+         *
          */
         [[nodiscard]] double GetMLOE() const;
 
         /**
         * @brief Get the MSPEError.
         * @return The MSPEError.
+        *
         */
         [[nodiscard]] double GetMSPEError() const;
 
         /**
         * @brief Get the IDW error.
         * @return The the IDW error vector.
+        *
         */
         [[nodiscard]] std::vector<double> GetIDWError() const;
 
         /**
         * @brief Get the MMOM.
         * @return The MMOM.
+        *
         */
         [[nodiscard]] double GetMMOM() const;
 
         /**
-         * @brief Get the Fisher matrix element 00.
-         * @return the Fisher matrix element 00.
+         * @brief Get the Fisher matrix elements.
+         * @return the Fisher matrix.
+         *
          */
-        [[nodiscard]] double GetFisher00() const;
+        [[nodiscard]] std::vector<double> GetFisherMatrix() const;
 
         /**
-         * @brief Get the Fisher matrix element 11.
-         * @return the Fisher matrix element 11.
+         * @brief Get the Predicted Missed Z matrix elements.
+         * @return the Z Predicted matrix.
+         *
          */
-        [[nodiscard]] double GetFisher11() const;
-
-        /**
-         * @brief Get the Fisher matrix element 22.
-         * @return the Fisher matrix element 22.
-         */
-        [[nodiscard]] double GetFisher22() const;
+        [[nodiscard]] std::vector<double> GetPredictedMissedValues() const;
 
         /**
          * @brief Set the total modeling FLOPs.
          * @param[in] aTime The total number of FLOPs for data modeling.
+         *
          */
         void SetTotalModelingFlops(double aTime);
 
         /**
          * @brief Get the total modeling FLOPs.
          * @return The total number of FLOPs for data modeling.
+         *
          */
         [[nodiscard]] double GetTotalModelingFlops() const;
 
         /**
          * @brief Get the average modeling execution time.
          * @return The average execution time for data modeling.
+         *
          */
         [[nodiscard]] double GetAverageModelingExecutionTime() const;
 
         /**
          * @brief Get the average modeling FLOPs.
          * @return The average number of FLOPs for data modeling.
+         *
          */
         [[nodiscard]] double GetAverageModelingFlops() const;
 
         /**
          * @brief Set the value of ZMiss.
          * @param[in] aZMiss The value of ZMiss.
+         *
          */
         void SetZMiss(int aZMiss);
 
         /**
          * @brief Set the value of MSPEError.
          * @param[in] aMSPEError The value of MSPEError.
+         *
          */
         void SetMSPEError(double aMSPEError);
 
         /**
          * @brief Set the MSPE execution time.
          * @param[in] aTime The execution time.
+         *
          */
         void SetMSPEExecutionTime(double aTime);
 
         /**
          * @brief Set the MSPE number of floating-point operations (FLOPs).
          * @param[in] aFlops The number of FLOPs.
+         *
          */
         void SetMSPEFlops(double aFlops);
 
         /**
          * @brief Set the vector of IDW errors.
          * @param[in] aIDWError The vector of IDW errors.
+         *
          */
         void SetIDWError(const std::vector<double> &aIDWError);
 
         /**
          * @brief Set the value of MLOE.
          * @param[in] aMLOE The value of MLOE.
+         *
          */
         void SetMLOE(double aMLOE);
 
         /**
          * @brief Set the value of MMOM.
          * @param[in] aMMOM The value of MMOM.
+         *
          */
         void SetMMOM(double aMMOM);
 
         /**
          * @brief Set the MLOE-MMOM execution time.
          * @param[in] aTime The execution time.
+         *
          */
         void SetExecutionTimeMLOEMMOM(double aTime);
 
         /**
          * @brief Set the MLOE-MMOM matrix generation time.
          * @param[in] aTime The execution time.
+         *
          */
         void SetMatrixGenerationTimeMLOEMMOM(double aTime);
 
         /**
          * @brief Set the MLOE-MMOM cholesky factorization time.
          * @param[in] aTime The execution time.
+         *
          */
         void SetFactoTimeMLOEMMOM(double aTime);
 
         /**
         * @brief Set the MLOE-MMOM loop time.
         * @param[in] aTime The execution time.
+        *
         */
         void SetLoopTimeMLOEMMOM(double aTime);
 
         /**
          * @brief Set the MLOE-MMOM number of floating-point operations (FLOPs).
          * @param[in] aFlops The number of FLOPs.
+         *
          */
         void SetFlopsMLOEMMOM(double aFlops);
 
         /**
          * @brief Set The total execution time of the fisher tile computation.
          * @param[in] aTime The total execution time for fisher tile computation.
+         *
          */
-        void SetTotalFisherTime (double aTime);
+        void SetTotalFisherTime(double aTime);
 
         /**
-         * @brief Set the element 00 of the fisher matrix.
-         * @param aFisher00 Element 00 of the fisher matrix.
+         * @brief Set the elements of the fisher matrix.
+         * @param aFisherMatrix Elements of the fisher matrix.
+         *
          */
-        void SetFisher00(double aFisher00);
+        void SetFisherMatrix(std::vector<double> aFisherMatrix);
 
         /**
-         * @brief Set the element 11 of the fisher matrix.
-         * @param aFisher11 element 11 of the fisher matrix.
+         * @brief Set the elements of the Z missed matrix.
+         * @param aPredictedValues Elements of the Predicted Z missed matrix.
+         *
          */
-        void SetFisher11(double aFisher11);
-
-        /**
-         * @brief Set the element 22 of the fisher matrix.
-         * @param aFisher22 element 22 of the fisher matrix.
-         */
-        void SetFisher22(double aFisher22);
+        void SetPredictedMissedValues(std::vector<double> aPredictedValues);
 
         /**
          * @brief Print the end summary of the results.
+         *
          */
         void PrintEndSummary();
 
@@ -315,12 +341,10 @@ namespace exageostat::results {
         double mTotalModelingFlops = 0;
         /// Used Total Fisher Time.
         double mTotalFisherTime = 0;
-        /// Fisher matrix element 00.
-        double mFisher00 = 0;
-        /// Fisher matrix element 11.
-        double mFisher11 = 0;
-        /// Fisher matrix element 22.
-        double mFisher22 = 0;
+        /// Fisher matrix
+        std::vector<double> mFisherMatrix;
+        /// Z miss values
+        std::vector<double> mPredictedMissedValues;
     };
 
 }//namespace exageostat

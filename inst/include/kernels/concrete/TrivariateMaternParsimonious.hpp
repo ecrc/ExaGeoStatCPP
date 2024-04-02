@@ -6,7 +6,7 @@
 /**
  * @file TrivariateMaternParsimonious.hpp
  * @brief Defines the TrivariateMaternParsimonious class, a Trivariate Matern Parsimonious kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar
@@ -36,6 +36,7 @@ namespace exageostat::kernels {
         /**
          * @brief Constructs a new TrivariateMaternParsimonious object.
          * @details Initializes a new TrivariateMaternParsimonious object with default values.
+         *
          */
         TrivariateMaternParsimonious();
 
@@ -48,6 +49,7 @@ namespace exageostat::kernels {
         /**
          * @brief Generates a covariance matrix using a set of locations and kernel parameters.
          * @copydoc Kernel::GenerateCovarianceMatrix()
+         *
          */
         void
         GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,

@@ -7,7 +7,7 @@
  * @file TestDiskWriter.cpp
  * @brief Unit tests for the DiskWriter in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the class DiskWriter.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-01-24
 **/
@@ -16,10 +16,11 @@
 #include <catch2/catch_all.hpp>
 
 #include <common/Definitions.hpp>
-#include <helpers/DiskWriter.hpp>
+#include <data-loader/concrete/CSVLoader.hpp>
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
+using namespace exageostat::dataLoader::csv;
 
 void TEST_3D_VECTORS_WRITING() {
     // Initialize data vectors
@@ -51,7 +52,7 @@ void TEST_3D_VECTORS_WRITING() {
     std::string expectedFilePath = write_path + "/synthetic_ds/SYN_" + std::to_string(N / p) + "_1";
 
     // Write the data into file
-    exageostat::helpers::DiskWriter<double>::WriteVectorsToDisk(*measurements_matrix, N, p, write_path, locations);
+    CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N, p, write_path, locations);
     REQUIRE(std::filesystem::exists(expectedFilePath));
 
     std::ifstream file(expectedFilePath);
@@ -64,7 +65,8 @@ void TEST_3D_VECTORS_WRITING() {
 
         std::ostringstream oss;
         oss << std::setprecision(15) << locations.GetLocationX()[i] << ','
-            << locations.GetLocationY()[i] << ',' << locations.GetLocationZ()[i] << ","<< std::setprecision(15) << measurements_matrix[i] ;
+            << locations.GetLocationY()[i] << ',' << locations.GetLocationZ()[i] << "," << std::setprecision(15)
+            << measurements_matrix[i];
         std::string expectedLine = oss.str();
 
         REQUIRE(line == expectedLine);
@@ -75,6 +77,7 @@ void TEST_3D_VECTORS_WRITING() {
     delete[] location_z;
     delete[] measurements_matrix;
 }
-TEST_CASE("Disk Writer Tests"){
+
+TEST_CASE("Disk Writer Tests") {
     TEST_3D_VECTORS_WRITING();
 }

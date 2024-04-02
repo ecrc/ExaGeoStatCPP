@@ -8,7 +8,7 @@
  * @brief Unit tests for the TestUnivariateMaternNonGaussian kernel in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariateMaternNonGaussian kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-05-10
@@ -19,10 +19,9 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
@@ -52,11 +51,10 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
 
         int seed = 0;
         srand(seed);
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
+        std::unique_ptr<ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {
@@ -66,7 +64,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         };
 
         for (size_t i = 0; i < N; i++) {
-            double diff = A[i] - expected_output_data[i]/2;
+            double diff = A[i] - expected_output_data[i] / 2;
             REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
     }

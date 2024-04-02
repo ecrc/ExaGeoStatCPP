@@ -6,26 +6,31 @@
 /**
  * @file ChameleonDescriptor.cpp
  * @brief Example file for the Chameleon descriptor.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-14
 **/
 
-#include <common/Utils.hpp>
 #include <kernels/Kernel.hpp>
 #include <data-units/DescriptorData.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
-#include <configurations/Configurations.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::kernels;
-using namespace exageostat::plugins;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
 
+/**
+ * @brief Main entry point for demonstrating the use of Chameleon Descriptor in ExaGeoStat.
+ * @details Initializes configurations, hardware, data, and kernels. Demonstrates the setup and usage of a Chameleon descriptor for handling matrices, including setting up matrix
+ * dimensions, tile sizes, distribution grids, and memory management. The example showcases how to interact with the descriptor to access and manage data efficiently for computational purposes.
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
+ */
 int main(int argc, char **argv) {
 
     LOGGER("** Example of Chameleon Descriptor **")
@@ -38,7 +43,7 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
                                        configuration.GetGPUsNumbers());
     unique_ptr<DescriptorData<double>> data = make_unique<DescriptorData<double>>();
-    Kernel<double> *kernel = PluginRegistry<Kernel<double>>::Create(
+    Kernel<double> *kernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             configuration.GetKernelName(), configuration.GetTimeSlot());
 
     // Get arguments for Descriptors Initialization
@@ -85,11 +90,12 @@ int main(int argc, char **argv) {
 
     // Print Data Matrix of Descriptor
     LOGGER("** Data in Matrix:")
-    LOGGER_2("",0)
+    LOGGER_2("", 0)
     auto *data_mat = (double *) CHAM_descriptorC->mat;
     for (int i = 0; i < config_problem_size; ++i) {
-            LOGGER_PRECISION_1(" " << data_mat[i],0)
+        LOGGER_PRECISION_1(" " << data_mat[i], 0)
     }
 
     delete kernel;
+    return 0;
 }

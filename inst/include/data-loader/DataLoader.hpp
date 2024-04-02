@@ -6,7 +6,7 @@
 /**
  * @file DataLoader.hpp
  * @brief Manages data loading operations for ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-02-04
@@ -35,10 +35,8 @@ namespace exageostat::dataLoader {
          * @copydoc DataGenerator::CreateData()
          *
          */
-        std::unique_ptr<dataunits::ExaGeoStatData<T>>
-        CreateData(exageostat::configurations::Configurations &aConfigurations,
-                   const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                   exageostat::kernels::Kernel<T> &aKernel) override;
+        std::unique_ptr<ExaGeoStatData<T>>
+        CreateData(configurations::Configurations &aConfigurations, kernels::Kernel<T> &aKernel) override;
 
         /**
          * @brief Reads data from external sources into ExaGeoStat format.
@@ -48,12 +46,27 @@ namespace exageostat::dataLoader {
          * @param aYLocations Vector to store Y coordinates of locations.
          * @param aZLocations Vector to store Z coordinates of locations (if applicable).
          * @param aP Partition index for distributed data loading.
+         * @return void
+         *
          */
         virtual void
-        ReadData(exageostat::configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
-                 std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
-                 const int &aP) = 0;
+        ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+                 std::vector<T> &aXLocations,
+                 std::vector<T> &aYLocations, std::vector<T> &aZLocations, const int &aP) = 0;
 
+        /**
+        * @brief Writes a matrix of vectors to disk.
+        * @param[in] aMatrixPointer A Reference to the matrix data.
+        * @param[in] aProblemSize The size of the problem.
+        * @param[in] aP The number of processes.
+        * @param[in] aLoggerPath The path to the logger file.
+        * @param[in] aLocations A Reference to the Locations object.
+        * @return void
+        *
+        */
+        virtual void
+        WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
+                  exageostat::dataunits::Locations<T> &aLocations) = 0;
     };
 
     /**

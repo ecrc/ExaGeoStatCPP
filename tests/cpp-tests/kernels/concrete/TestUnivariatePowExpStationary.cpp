@@ -8,7 +8,7 @@
  * @brief Unit tests for the TestUnivariatePowExpStationary kernel in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the TestUnivariatePowExpStationary kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Sameh Abdulah
  * @author Mahmoud ElKarargy
  * @date 2024-01-16
@@ -20,10 +20,9 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
 
@@ -49,15 +48,15 @@ void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
 
         int seed = 0;
         srand(seed);
-        std::unique_ptr<exageostat::dataunits::ExaGeoStatData<double>> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations, data);
+        std::unique_ptr<ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
 
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
                                                                           exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
-        double expected_output_data[] = { -1.272336, -2.362813, 0.616384, -0.072468, 0.401498, -1.559690, 0.211848,
-                                          0.776627, -1.524810};
+        double expected_output_data[] = {-1.272336, -2.362813, 0.616384, -0.072468, 0.401498, -1.559690, 0.211848,
+                                         0.776627, -1.524810};
 
         for (size_t i = 0; i < N; i++) {
             double diff = A[i] - expected_output_data[i];

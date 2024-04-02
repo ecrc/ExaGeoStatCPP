@@ -6,14 +6,18 @@
 /**
  * @file HicmaImplementation.cpp
  * @brief Sets up the HiCMA descriptors needed for the tile low rank computations in ExaGeoStat.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-03-26
+ * @date 2024-02-04
 **/
 
+#include <mkl_service.h>
+
 #ifdef USE_MPI
+
 #include <mpi.h>
+
 #endif
 
 #include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
@@ -22,19 +26,19 @@ using namespace std;
 
 using namespace exageostat::linearAlgebra::tileLowRank;
 using namespace exageostat::common;
+using namespace exageostat::runtime;
 using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 using namespace exageostat::helpers;
-using namespace exageostat::hardware;
-using namespace exageostat::configurations;
+using namespace exageostat::results;
 
 int store_only_diagonal_tiles = 1;
 int use_scratch = 1;
 int global_check = 0;  //used to create dense matrix for accuracy check
 
 template<typename T>
-void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                                                    Configurations &aConfigurations, const int &aP) {
+void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                                    configurations::Configurations &aConfigurations, const int &aP) {
 
     int full_problem_size = aConfigurations.GetProblemSize() * aP;
     int lts = aConfigurations.GetLowTileSize();
@@ -58,8 +62,7 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::E
     int MD = full_problem_size;
     int ND = MBD;
     aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point,
-                                              MBD,
-                                              NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
+                                              MBD, NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
     int MBUV = lts;
     int NBUV = 2 * max_rank;
     int MUV;
@@ -85,10 +88,12 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::E
                                               MBrk, NBrk, MBrk * NBrk, Mrk, Nrk, 0, 0, Mrk, Nrk, p_grid, q_grid);
 
     aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, nullptr, float_point,
-                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid, q_grid);
+                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1,
+                                              p_grid, q_grid);
 
     aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point,
-                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid, q_grid);
+                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1,
+                                              p_grid, q_grid);
     if (aConfigurations.GetIsNonGaussian()) {
         aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_PRODUCT, is_OOC, nullptr,
                                                   float_point,
@@ -100,14 +105,13 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<dataunits::E
 }
 
 template<typename T>
-T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &aHardware,
-                                            std::unique_ptr<dataunits::ExaGeoStatData<T>> &aData,
-                                            Configurations &aConfigurations, const double *theta,
+T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                            configurations::Configurations &aConfigurations, const double *theta,
                                             T *apMeasurementsMatrix, const Kernel<T> &aKernel) {
 
-    this->SetContext(hardware::ExaGeoStatHardware::GetContext(aConfigurations.GetComputation()));
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
-        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(),aKernel.GetVariablesNumber(), apMeasurementsMatrix);
+        this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetVariablesNumber(),
+                                  apMeasurementsMatrix);
     }
     // Create a Hicma sequence, if not initialized before through the same descriptors
     RUNTIME_request_t request_array[2] = {HICMA_REQUEST_INITIALIZER, HICMA_REQUEST_INITIALIZER};
@@ -157,23 +161,21 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
                                                                      DescriptorName::DESCRIPTOR_DETERMINANT).hicma_desc;
     auto *CHAM_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                         DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
-    auto *HICMA_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                         DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
     auto *HICMA_desc_sum = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
                                                                      DescriptorName::DESCRIPTOR_SUM).chameleon_desc;
     N = HICMA_descCUV->m;
     NRHS = HICMA_descZ->n;
     lts = HICMA_descZ->mb;
 
-    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_det);
+    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT);
     *determinant = 0;
-    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_product);
+    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT);
     *product = 0;
     T *sum;
 
     string recovery_file = aConfigurations.GetRecoveryFile();
     if (recovery_file.empty() ||
-        !(this->recover((char *) (recovery_file.c_str()), iter_count, (T *) theta, &loglik, num_params))) {
+        !(this->Recover((char *) (recovery_file.c_str()), iter_count, (T *) theta, &loglik, num_params))) {
         if (iter_count == 0) {
             // Copy dense matrix Z into tile low rank Z.
             this->CopyDescriptors(CHAM_descZ, HICMA_descZ, N, CHAMELEON_TO_HICMA);
@@ -231,36 +233,35 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     //Calculate log(|C|) --> log(square(|L|))
     VERBOSE("LR:Calculating the log determinant ...")
     START_TIMING(logdet_calculate);
-    ExaGeoStatMeasureDetTileAsync(HICMA_descCD, pSequence, &request_array[0], HICMA_desc_det);
+    RuntimeFunctions<T>::ExaGeoStatMeasureDetTileAsync(aConfigurations.GetComputation(), HICMA_descCD, pSequence,
+                                                       &request_array[0], HICMA_desc_det);
     ExaGeoStatSequenceWait(pSequence);
-
     logdet = 2 * (*determinant);
     STOP_TIMING(logdet_calculate);
     VERBOSE("Done.")
 
     if (aConfigurations.GetIsNonGaussian()) {
         VERBOSE("Transform Z vector to Gaussian field ...")
-        this->ExaGeoStatNonGaussianTransformTileAsync(HICMA_descZ, HICMA_desc_product, (T *) theta, pSequence,
-                                                      &request_array[0]);
+        RuntimeFunctions<T>::ExaGeoStatNonGaussianTransformTileAsync(aConfigurations.GetComputation(), HICMA_descZ,
+                                                                     (T *) theta, pSequence, &request_array[0]);
         ExaGeoStatSequenceWait(pSequence);
 
         VERBOSE(" Done.")
-        sum = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_sum);
+        sum = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, DESCRIPTOR_SUM);
         *sum = 0;
 
         VERBOSE("LR:Calculating dot product...")
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_descZ, CHAM_descZ, 0, CHAM_desc_product);
         VERBOSE(" Done.")
 
+#ifdef USE_MPI
         double global_sum;
         double local_sum = *product;
-#ifdef USE_MPI
         MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#else
-        global_sum = *product;
 #endif
-        this->ExaGeoStatNonGaussianLogLikeTileAsync(HICMA_descZ, HICMA_desc_sum, (T *) theta, pSequence,
-                                                    &request_array[0]);
+        RuntimeFunctions<T>::ExaGeoStatNonGaussianLogLikeTileAsync(aConfigurations.GetComputation(), HICMA_descZ,
+                                                                   HICMA_desc_sum, (T *) theta, pSequence,
+                                                                   &request_array[0]);
         ExaGeoStatSequenceWait(pSequence);
         VERBOSE(" Done.")
     }
@@ -289,9 +290,9 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
     }
     VERBOSE("Done.")
 
-    LOGGER(iter_count + 1 << " - Model Parameters (", true)
+    LOGGER("\t" << iter_count + 1 << " - Model Parameters (", true)
     if (aConfigurations.GetLogger()) {
-        fprintf(aConfigurations.GetFileLogPath(), " %3d- Model Parameters (", iter_count + 1);
+        fprintf(aConfigurations.GetFileLogPath(), "\t %d- Model Parameters (", iter_count + 1);
     }
     if ((aConfigurations.GetKernelName() == "bivariate_matern_parsimonious_profile") ||
         (aConfigurations.GetKernelName() == "bivariate_matern_parsimonious2_profile")) {
@@ -319,29 +320,32 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(const hardware::ExaGeoStatHardware &
         fprintf(aConfigurations.GetFileLogPath(), ")----> LogLi: %.18f\n", loglik);
     }
 
-    LOGGER(" ---- Facto Time: " << time_facto)
-    LOGGER(" ---- Log Determent Time: " << logdet_calculate)
-    LOGGER(" ---- dtrsm Time: " << time_solve)
-    LOGGER(" ---- Matrix Generation Time: " << matrix_gen_time)
-    LOGGER(" ---- Total Time: " << time_facto + logdet_calculate + time_solve)
-    LOGGER(" ---- Gflop/s: " << flops / 1e9 / (time_facto + time_solve))
+    VERBOSE(" ---- Facto Time: " << time_facto)
+    VERBOSE(" ---- Log Determent Time: " << logdet_calculate)
+    VERBOSE(" ---- dtrsm Time: " << time_solve)
+    VERBOSE(" ---- Matrix Generation Time: " << matrix_gen_time)
+    VERBOSE(" ---- Total Time: " << time_facto + logdet_calculate + time_solve)
+    VERBOSE(" ---- Gflop/s: " << flops / 1e9 / (time_facto + time_solve))
 
     aData->SetMleIterations(aData->GetMleIterations() + 1);
 
     // for experiments and benchmarking
     accumulated_executed_time =
-            results::Results::GetInstance()->GetTotalModelingExecutionTime() + time_facto + logdet_calculate +
+            Results::GetInstance()->GetTotalModelingExecutionTime() + time_facto + logdet_calculate +
             time_solve;
-    results::Results::GetInstance()->SetTotalModelingExecutionTime(accumulated_executed_time);
+    Results::GetInstance()->SetTotalModelingExecutionTime(accumulated_executed_time);
     accumulated_flops =
-            results::Results::GetInstance()->GetTotalModelingFlops() + (flops / 1e9 / (time_facto + time_solve));
-    results::Results::GetInstance()->SetTotalModelingFlops(accumulated_flops);
+            Results::GetInstance()->GetTotalModelingFlops() + (flops / 1e9 / (time_facto + time_solve));
+    Results::GetInstance()->SetTotalModelingFlops(accumulated_flops);
 
-    results::Results::GetInstance()->SetMLEIterations(iter_count + 1);
-    results::Results::GetInstance()->SetMaximumTheta(vector<double>(theta, theta + num_params));
-    results::Results::GetInstance()->SetLogLikValue(loglik);
+    Results::GetInstance()->SetMLEIterations(iter_count + 1);
+    Results::GetInstance()->SetMaximumTheta(vector<double>(theta, theta + num_params));
+    Results::GetInstance()->SetLogLikValue(loglik);
 
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
+    // Due to a leak in HiCMA in ZGEMM, We had to free the buffer manually.
+    mkl_free_buffers();
+
     return loglik;
 }
 
@@ -355,19 +359,6 @@ void HicmaImplementation<T>::ExaGeoStatLapackCopyTile(const UpperLower &aUpperLo
 }
 
 template<typename T>
-void
-HicmaImplementation<T>::ExaGeoStatOptionsInit(void *apOptions, void *apContext, void *apSequence, void *apRequest) {
-    HICMA_RUNTIME_options_init((HICMA_option_t *) apOptions, (HICMA_context_t *) apContext,
-                               (HICMA_sequence_t *) apSequence, (HICMA_request_t *) apRequest);
-}
-
-template<typename T>
-void HicmaImplementation<T>::ExaGeoStatOptionsFree(void *apOptions) {
-    HICMA_RUNTIME_options_ws_free((HICMA_option_t *) apOptions);
-
-}
-
-template<typename T>
 void HicmaImplementation<T>::ExaGeoStatSequenceWait(void *apSequence) {
     HICMA_Sequence_Wait((HICMA_sequence_t *) apSequence);
 }
@@ -378,12 +369,6 @@ void HicmaImplementation<T>::ExaGeoStatCreateSequence(void *apSequence) {
     if (status != HICMA_SUCCESS) {
         throw std::runtime_error("HICMA_Sequence_Create Failed!");
     }
-}
-
-template<typename T>
-void HicmaImplementation<T>::ExaGeoStatOptionsFinalize(void *apOptions, void *apContext) {
-    RUNTIME_options_finalize((RUNTIME_option_t *) apOptions, (CHAM_context_t *) apContext);
-
 }
 
 template<typename T>
@@ -407,133 +392,4 @@ void HicmaImplementation<T>::ExaGeoStatTrsmTile(const common::Side &aSide, const
     if (status != HICMA_SUCCESS) {
         throw std::runtime_error("HICMA_dtrsmd_Tile Failed!");
     }
-}
-
-template<typename T>
-int HicmaImplementation<T>::ExaGeoStatMeasureDetTileAsync(void *apDescA, void *apSequence, void *apRequest,
-                                                          void *apDescDet) {
-
-    // Check for initialize the Hicma context.
-    if (!this->mpContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
-    }
-    HICMA_option_t options;
-    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
-
-    int m;
-    int temp;
-    auto Z = (HICMA_desc_t *) apDescA;
-    auto det = (HICMA_desc_t *) apDescDet;
-    struct starpu_codelet *cl = &this->cl_dmdet;
-
-    for (m = 0; m < Z->mt; m++) {
-        temp = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
-        starpu_insert_task(cl,
-                           STARPU_VALUE, &temp, sizeof(int),
-                           STARPU_VALUE, &temp, sizeof(int),
-                           STARPU_R, ExaGeoStatDataGetAddr(Z, m, 0),
-                           STARPU_RW, ExaGeoStatDataGetAddr(det, 0, 0),
-                           0);
-    }
-    this->ExaGeoStatOptionsFree(&options);
-    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t *)
-            this->mpContext);
-    return HICMA_SUCCESS;
-}
-
-template<typename T>
-void *HicmaImplementation<T>::ExaGeoStatDataGetAddr(void *apA, int aAm, int aAn) {
-    return HICMA_RUNTIME_data_getaddr((HICMA_desc_t *) apA, aAm, aAn);
-
-}
-
-template<typename T>
-int
-HicmaImplementation<T>::ExaGeoStatNonGaussianLogLikeTileAsync(void *apDescZ, void *apDescSum, const T *apTheta,
-                                                              void *apSequence,
-                                                              void *apRequest) {
-    // Check for initialize the Hicma context.
-    if (!this->mpContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
-    }
-    HICMA_option_t options;
-    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
-
-    int m, m0;
-    int tempmm;
-    auto Z = (HICMA_desc_t *) apDescZ;
-
-    struct starpu_codelet *cl = &this->cl_non_gaussian_loglike_lr;
-
-
-    for (m = 0; m < Z->mt; m++) {
-        tempmm = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
-
-        m0 = m * Z->mb;
-
-        starpu_insert_task(cl,
-                           STARPU_VALUE, &tempmm, sizeof(int),
-                           STARPU_VALUE, &m0, sizeof(int),
-                           STARPU_R, ExaGeoStatDataGetAddr(apDescZ, m, 0),
-                           STARPU_RW, ExaGeoStatDataGetAddr(apDescSum, 0, 0),
-                           STARPU_VALUE, &apTheta[0], sizeof(double),
-                           STARPU_VALUE, &apTheta[1], sizeof(double),
-                           STARPU_VALUE, &apTheta[2], sizeof(double),
-                           STARPU_VALUE, &apTheta[3], sizeof(double),
-                           STARPU_VALUE, &apTheta[4], sizeof(double),
-                           STARPU_VALUE, &apTheta[5], sizeof(double),
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-                STARPU_NAME, "non_gaussian_loglike_lr",
-#endif
-                           0);
-    }
-
-    this->ExaGeoStatOptionsFree(&options);
-    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t *)
-            this->mpContext);
-    return HICMA_SUCCESS;
-}
-
-
-template<typename T>
-int HicmaImplementation<T>::ExaGeoStatNonGaussianTransformTileAsync(void *apDescZ, void *apDescFlag, const T *apTheta,
-                                                                    void *apSequence, void *apRequest) {
-    // Check for initialize the Hicma context.
-    if (!this->mpContext) {
-        throw std::runtime_error(
-                "ExaGeoStat hardware is not initialized, please use 'ExaGeoStatHardware(computation, cores_number, gpu_numbers);'.");
-    }
-    HICMA_option_t options;
-    this->ExaGeoStatOptionsInit(&options, this->mpContext, apSequence, apRequest);
-
-    int m, m0;
-    int tempmm;
-    auto Z = (HICMA_desc_t *) apDescZ;
-    struct starpu_codelet *cl = &this->cl_non_gaussian_transform_lr;
-
-
-    for (m = 0; m < Z->mt; m++) {
-        tempmm = m == Z->mt - 1 ? Z->m - m * Z->mb : Z->mb;
-        m0 = m * Z->mb;
-        starpu_insert_task(cl,
-                           STARPU_VALUE, &tempmm, sizeof(int),
-                           STARPU_VALUE, &m0, sizeof(int),
-                           STARPU_RW, ExaGeoStatDataGetAddr(apDescZ, m, 0),
-                           STARPU_VALUE, &apTheta[0], sizeof(double),
-                           STARPU_VALUE, &apTheta[1], sizeof(double),
-                           STARPU_VALUE, &apTheta[2], sizeof(double),
-                           STARPU_VALUE, &apTheta[3], sizeof(double),
-                           STARPU_VALUE, &apTheta[4], sizeof(double),
-                           STARPU_VALUE, &apTheta[5], sizeof(double),
-#if defined(CHAMELEON_CODELETS_HAVE_NAME)
-                STARPU_NAME, "non_gaussian_transform_lr",
-#endif
-                           0);
-    }
-    this->ExaGeoStatOptionsFree(&options);
-    this->ExaGeoStatOptionsFinalize(&options, (HICMA_context_t *)
-            this->mpContext);
-    return HICMA_SUCCESS;
 }

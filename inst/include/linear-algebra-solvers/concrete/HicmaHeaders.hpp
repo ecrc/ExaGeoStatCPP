@@ -1,7 +1,7 @@
 /**
  * @file HicmaHeaders.hpp
  * @brief This file contains the necessary includes for using the Chameleon library.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-08-24
 **/

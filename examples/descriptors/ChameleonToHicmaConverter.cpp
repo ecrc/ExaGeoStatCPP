@@ -6,25 +6,32 @@
 /**
  * @file ChameleonDescriptor.cpp
  * @brief Example file for the Chameleon to Hicma Converter.
- * @version 1.0.1
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2024-02-14
 **/
 
-#include <common/Utils.hpp>
 #include <kernels/Kernel.hpp>
 #include <data-units/DescriptorData.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
-#include <configurations/Configurations.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::kernels;
-using namespace exageostat::plugins;
-using namespace exageostat::hardware;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+
+/**
+ * @brief Main entry point for the Chameleon to Hicma descriptor conversion example.
+ * @details Demonstrates the process of initializing ExaGeoStat configurations, setting up hardware, creating and initializing a kernel, and then generating and setting up a
+ * Chameleon descriptor. The example then showcases the conversion of the Chameleon descriptor to a Hicma descriptor, detailing the changes and continuity in descriptor
+ * attributes and matrix data through the conversion process.
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
+ */
 
 int main(int argc, char **argv) {
 
@@ -38,7 +45,7 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
                                        configuration.GetGPUsNumbers());
     unique_ptr<DescriptorData<double>> data = make_unique<DescriptorData<double>>();
-    Kernel<double> *kernel = PluginRegistry<Kernel<double>>::Create(
+    Kernel<double> *kernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             configuration.GetKernelName(), configuration.GetTimeSlot());
 
     // Get arguments for Descriptors Initialization
@@ -85,10 +92,10 @@ int main(int argc, char **argv) {
 
     // Print Data Matrix of Descriptor
     LOGGER("** Data in Matrix of Chameleon descriptor:")
-    LOGGER_2("",0)
+    LOGGER_2("", 0)
     auto *cham_mat = (double *) CHAM_descriptorC->mat;
     for (int i = 0; i < config_problem_size; ++i) {
-        LOGGER_PRECISION_1(" " << cham_mat[i],0)
+        LOGGER_PRECISION_1(" " << cham_mat[i], 0)
     }
 
     auto *HICMA_descriptorC = data->ConvertChameleonToHicma(CHAM_descriptorC);
@@ -112,11 +119,12 @@ int main(int argc, char **argv) {
     // Print Data Matrix of Descriptor
     LOGGER("** Data in Matrix of Hicma descriptor:")
     auto *hicma_mat = (double *) HICMA_descriptorC->mat;
-    LOGGER_2("",0)
+    LOGGER_2("", 0)
     for (int i = 0; i < config_problem_size; ++i) {
-        LOGGER_PRECISION_1(" " << hicma_mat[i],0)
+        LOGGER_PRECISION_1(" " << hicma_mat[i], 0)
     }
 
     delete kernel;
     delete HICMA_descriptorC;
+    return 0;
 }
