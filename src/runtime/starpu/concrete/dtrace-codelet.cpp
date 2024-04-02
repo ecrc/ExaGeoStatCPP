@@ -56,7 +56,7 @@ void DTRACECodelet<T>::InsertTask(void *apDescA, void *apDescNum, void *apDescTr
 template<typename T>
 void DTRACECodelet<T>::cl_dtrace_function(void *apBuffers[], void *apCodeletArguments) {
     int rows_num;
-    T *pDescriptor_A, *pSum , *pTrace;
+    T *pDescriptor_A, *pSum, *pTrace;
 
     pDescriptor_A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
     pSum = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);

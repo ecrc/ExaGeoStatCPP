@@ -12,12 +12,9 @@
  * @date 2023-02-27
 **/
 
-#include <iostream>
 #include <cstring>
 
 #include <data-units/Locations.hpp>
-
-using namespace std;
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;

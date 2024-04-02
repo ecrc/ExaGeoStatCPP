@@ -14,7 +14,9 @@
 **/
 
 #ifdef USE_MPI
+
 #include <mpi.h>
+
 #endif
 
 #include <cblas.h>
@@ -93,13 +95,13 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T
     auto *CHAM_desc_product3 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                          DescriptorName::DESCRIPTOR_PRODUCT_3).chameleon_desc;
 
-    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_det);
+    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_DETERMINANT);
     *determinant = 0;
-    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_product);
+    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT);
     *product = 0;
     T *sum;
     if (aConfigurations.GetIsNonGaussian()) {
-        sum = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_sum);
+        sum = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_SUM);
         *sum = 0;
     }
     n = CHAM_desc_C->m;
@@ -263,9 +265,9 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T
     }
     VERBOSE("\tDone.")
 
-        //Distribute the values in the case of MPI
+    //Distribute the values in the case of MPI
 #ifdef USE_MPI
-        MPI_Bcast(&loglik, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+    MPI_Bcast(&loglik, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 #endif
 
     LOGGER("\t" << iter_count + 1 << " - Model Parameters (", true)

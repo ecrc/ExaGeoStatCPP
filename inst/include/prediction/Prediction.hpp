@@ -23,8 +23,8 @@ namespace exageostat::prediction {
      * @Class Prediction
      * @brief Class to handle different Prediction Module calls.
      * @tparam T Data Type: float or double.
+     *
      */
-
     template<typename T>
     class Prediction {
     public:
@@ -35,12 +35,16 @@ namespace exageostat::prediction {
         * @param[in] aConfigurations Reference to Configurations object containing user input data.
         * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
         * @param[in] aKernel Reference to the kernel object to use.
-        * @return
+        * @param[in] apTrainLocations (Optional) Pointer to Locations representing training locations. these are used in training phase.
+        * @param[in] apTestLocations (Optional) Pointer to Locations representing test locations. These are used in prediction phase.
+        * @return void
+        *
         */
-        static void PredictMissingData(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations,
-                                       T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel,
-                                       dataunits::Locations<T> *apTrainLocations = nullptr,
-                                       dataunits::Locations<T> *apTestLocations = nullptr);
+        static void
+        PredictMissingData(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations,
+                           T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel,
+                           dataunits::Locations<T> *apTrainLocations = nullptr,
+                           dataunits::Locations<T> *apTestLocations = nullptr);
 
         /**
          * @brief Initializes needed pointers for prediction.
@@ -53,10 +57,14 @@ namespace exageostat::prediction {
          * @param[out] aObsLocation Location object to be filled with missed locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
          * @param[in] aP the P value of the kernel multiplied by time slot.
+         * @param[in] apTrainLocations (Optional) Pointer to Locations representing training locations. these are used in training phase.
+         * @param[in] apTestLocations (Optional) Pointer to Locations representing test locations. These are used in prediction phase.
          * @return void
+         *
          */
         static void
-        InitializePredictionArguments(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
+        InitializePredictionArguments(configurations::Configurations &aConfigurations,
+                                      std::unique_ptr<ExaGeoStatData<T>> &aData,
                                       std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
                                       T *apZObs, T *apZActual, exageostat::dataunits::Locations<T> &aMissLocation,
                                       exageostat::dataunits::Locations<T> &aObsLocation, T *apMeasurementsMatrix,

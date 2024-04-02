@@ -17,8 +17,6 @@
 
 #include <data-units/DescriptorData.hpp>
 #include <data-units/Locations.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
-#include <configurations/Configurations.hpp>
 
 /**
  * @Class ExaGeoStatData
@@ -33,6 +31,7 @@ public:
      * @brief Constructor for ExaGeoStatData.
      * @param[in] aSize The size of the data.
      * @param[in] aDimension The dimension of the data.
+     *
      */
     ExaGeoStatData(const int &aSize, const exageostat::common::Dimension &aDimension);
 
@@ -40,34 +39,41 @@ public:
      * @brief Constructor for ExaGeoStatData.
      * @param[in] aSize The size of the data.
      * @param[in] aDimension The dimension of the data.
+     *
      */
     ExaGeoStatData(const int &aSize, const std::string &aDimension);
 
     /**
      * @brief Default constructor for ExaGeoStatData.
+     *
      */
     ExaGeoStatData() = default;
 
     /**
      * @brief Destructor for ExaGeoStatData.
+     *
      */
     ~ExaGeoStatData();
 
     /**
      * @brief Get the locations.
      * @return Pointer to the Locations object.
+     *
      */
     exageostat::dataunits::Locations<T> *GetLocations();
 
     /**
      * @brief Set the locations.
      * @param[in] aLocation Pointer to the Locations object.
+     * @return void
+     *
      */
     void SetLocations(exageostat::dataunits::Locations<T> &aLocation);
 
     /**
      * @brief Get the descriptor data.
      * @return Pointer to the DescriptorData object.
+     *
      */
     exageostat::dataunits::DescriptorData<T> *GetDescriptorData();
 
@@ -75,12 +81,14 @@ public:
      * @brief Setter for the number of performed MLE iterations.
      * @param[in] aMleIterations number of performed MLE iterations.
      * @return void
+     *
      */
     void SetMleIterations(const int &aMleIterations);
 
     /**
      * @brief Get the number of performed MLE iterations.
      * @return Pointer to the DescriptorData object.
+     *
      */
     int GetMleIterations();
 
@@ -89,9 +97,9 @@ public:
      * @param[in] aKernelName Name of the Kernel used.
      * @param[out] aLocations Location object to save medianLocations in.
      * @return void
+     *
      */
     void CalculateMedianLocations(const std::string &aKernelName, exageostat::dataunits::Locations<T> &aLocations);
-    using MyTemplateClassDouble = ExaGeoStatData<double>;
 
 private:
     //// Used descriptor data.
@@ -101,6 +109,7 @@ private:
     //// Current number of performed MLE iterations.
     int mMleIterations = 0;
 };
+
 /**
  * @brief Instantiates the ExaGeoStatData class for float and double types.
  * @tparam T Data Type: float or double

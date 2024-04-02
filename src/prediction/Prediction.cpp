@@ -13,6 +13,7 @@
 **/
 
 #include <cstring>
+#include <mkl_service.h>
 
 #include <prediction/Prediction.hpp>
 #include <prediction/PredictionHelpers.hpp>
@@ -51,12 +52,11 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
     int p = aKernel.GetVariablesNumber();
     int z_miss_number, n_z_obs;
     T *z_actual;
-    if(!apTrainLocations && !apTestLocations){
+    if (!apTrainLocations && !apTestLocations) {
         z_miss_number = aConfigurations.GetUnknownObservationsNb();
         n_z_obs = aConfigurations.CalculateZObsNumber();
         z_actual = new T[z_miss_number * p];
-    }
-    else{
+    } else {
         z_miss_number = apTestLocations->GetSize();
         n_z_obs = apTrainLocations->GetSize();
         z_actual = nullptr;
@@ -139,7 +139,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
         LOGGER("\t---- Using Auxiliary Function IDW ----")
         T *mspe = new T[number_of_mspe];
 
-        if(!z_actual){
+        if (!z_actual) {
             z_actual = new T[z_miss_number * p];
             memcpy(z_actual, apMeasurementsMatrix + n_z_obs, z_miss_number * sizeof(T));
         }
@@ -186,11 +186,15 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
             z_miss_vector.push_back(z_miss[idx]);
         }
         Results::GetInstance()->SetPredictedMissedValues(z_miss_vector);
-        if(z_actual){
+        if (z_actual) {
             LOGGER("\t\t- MSPE: " << avg_pred_value[0])
         }
         delete[] prediction_error_mspe;
     }
+
+
+    // Due to a leak in Chameleon, exactly trsm We had to free the buffer manually.
+    mkl_free_buffers();
 
     delete[] z_obs;
     delete[] z_miss;
@@ -212,10 +216,10 @@ void Prediction<T>::InitializePredictionArguments(Configurations &aConfiguration
     aLinearAlgebraSolver->ExaGeoStatGetZObs(aConfigurations, z, full_problem_size, *aData->GetDescriptorData(),
                                             apMeasurementsMatrix, aP);
 
-    if(!apTrainLocations && !apTestLocations){
-        PredictionHelpers<T>::PickRandomPoints(aConfigurations, aData, apZObs, apZActual, z, aMissLocation, aObsLocation, aP);
-    }
-    else{
+    if (!apTrainLocations && !apTestLocations) {
+        PredictionHelpers<T>::PickRandomPoints(aConfigurations, aData, apZObs, apZActual, z, aMissLocation,
+                                               aObsLocation, aP);
+    } else {
         for (int i = 0; i < apTrainLocations->GetSize(); ++i) {
             aObsLocation.GetLocationX()[i] = apTrainLocations->GetLocationX()[i];
             aObsLocation.GetLocationY()[i] = apTrainLocations->GetLocationY()[i];

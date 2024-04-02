@@ -27,6 +27,7 @@ namespace exageostat::helpers {
         /**
          * @brief Get a pointer to the singleton instance of the CommunicatorMPI class.
          * @return A pointer to the instance of the CommunicatorMPI class.
+         *
          */
         static CommunicatorMPI *GetInstance();
 
@@ -57,6 +58,7 @@ namespace exageostat::helpers {
 
         /**
          * @brief Prevent Class Instantiation for Communicator MPI Class.
+         *
          */
         CommunicatorMPI() = default;
 

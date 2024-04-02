@@ -12,7 +12,6 @@
  * @date 2023-07-18
 **/
 
-#include <cstring>
 #include <data-units/DescriptorData.hpp>
 
 using namespace exageostat::dataunits;
@@ -28,7 +27,7 @@ DescriptorData<T>::~DescriptorData() {
     for (const auto &pair: this->mDictionary) {
         const std::string &key = pair.first;
         if (key.find("CHAMELEON") != std::string::npos && pair.second != nullptr) {
-            exaGeoStatDescriptor.DestroyDescriptor(common::CHAMELEON_DESCRIPTOR, pair.second);
+            exaGeoStatDescriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR, pair.second);
 #ifdef USE_HICMA
             // Since there are converted descriptors from Chameleon to Hicma, which have the same memory address.
             // So, by deleting the owner which is Chameleon, no need to delete hicma. Therefore, we remove the row of that descriptor.
@@ -41,7 +40,7 @@ DescriptorData<T>::~DescriptorData() {
             }
 #endif
         } else if (key.find("HICMA") != std::string::npos && pair.second != nullptr) {
-            exaGeoStatDescriptor.DestroyDescriptor(common::HICMA_DESCRIPTOR, pair.second);
+            exaGeoStatDescriptor.DestroyDescriptor(HICMA_DESCRIPTOR, pair.second);
         }
     }
     this->mDictionary.clear();
@@ -140,7 +139,7 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
 
 template<typename T>
 void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName,
-                                      const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint,
+                                      const bool &aIsOOC, void *apMatrix, const FloatPoint &aFloatPoint,
                                       const int &aMB, const int &aNB, const int &aSize, const int &aLM, const int &aLN,
                                       const int &aI, const int &aJ, const int &aM, const int &aN, const int &aP,
                                       const int &aQ, const bool &aValidOOC) {
@@ -169,12 +168,13 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
 }
 
 template<typename T>
-T *DescriptorData<T>::GetDescriptorMatrix(const common::DescriptorType &aDescriptorType, void *apDesc) {
-    if (aDescriptorType == common::CHAMELEON_DESCRIPTOR) {
-        return (T *) ((CHAM_desc_t *) apDesc)->mat;
+T *
+DescriptorData<T>::GetDescriptorMatrix(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName) {
+    if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
+        return (T *) (this->GetDescriptor(CHAMELEON_DESCRIPTOR, aDescriptorName).chameleon_desc)->mat;
     } else {
 #ifdef USE_HICMA
-        return (T *) ((HICMA_desc_t *) apDesc)->mat;
+        return (T *) (this->GetDescriptor(HICMA_DESCRIPTOR, aDescriptorName).hicma_desc)->mat;
 #else
         throw std::runtime_error("To use Hicma descriptor you need to enable USE_HICMA!");
 #endif

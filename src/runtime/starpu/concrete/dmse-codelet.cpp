@@ -43,11 +43,13 @@ void DMSECodelet<T>::InsertTask(void *apDescError, void *apDescZPredict, void *a
     auto pDesc_Z_predict = (CHAM_desc_t *) apDescZPredict;
 
     for (row = 0; row < pDesc_Z_predict->mt; row++) {
-        rows_num = row == pDesc_Z_predict->mt - 1 ? pDesc_Z_predict->m - row * pDesc_Z_predict->mb : pDesc_Z_predict->mb;
+        rows_num =
+                row == pDesc_Z_predict->mt - 1 ? pDesc_Z_predict->m - row * pDesc_Z_predict->mb : pDesc_Z_predict->mb;
         starpu_insert_task(&this->cl_dmse,
                            STARPU_VALUE, &rows_num, sizeof(int),
                            STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescError, 0, 0),
-                           STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescZPredict, row, 0),
+                           STARPU_R,
+                           (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescZPredict, row, 0),
                            STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescZMiss, row, 0),
                            0);
     }

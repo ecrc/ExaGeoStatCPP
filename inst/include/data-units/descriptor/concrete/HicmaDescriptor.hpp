@@ -16,7 +16,6 @@
 #define EXAGEOSTATCPP_HICMADESCRIPTOR_HPP
 
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
-
 #include <common/Definitions.hpp>
 
 namespace exageostat::dataunits::descriptor {

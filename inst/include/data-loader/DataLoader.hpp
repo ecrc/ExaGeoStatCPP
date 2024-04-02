@@ -46,9 +46,12 @@ namespace exageostat::dataLoader {
          * @param aYLocations Vector to store Y coordinates of locations.
          * @param aZLocations Vector to store Z coordinates of locations (if applicable).
          * @param aP Partition index for distributed data loading.
+         * @return void
+         *
          */
         virtual void
-        ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix, std::vector<T> &aXLocations,
+        ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
+                 std::vector<T> &aXLocations,
                  std::vector<T> &aYLocations, std::vector<T> &aZLocations, const int &aP) = 0;
 
         /**

@@ -31,17 +31,20 @@ namespace exageostat::linearAlgebra::dense {
 
         /**
          * @brief Default constructor.
+         *
          */
         explicit ChameleonDense() = default;
 
         /**
          * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         *
          */
         ~ChameleonDense() override = default;
 
         /**
          * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
          * @copydoc LinearAlgebraMethods::ExaGeoStatPotrfTile()
+         *
          */
         void
         ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,

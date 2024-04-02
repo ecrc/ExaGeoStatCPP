@@ -14,7 +14,7 @@
 \title{Mean Misspecification of the Mean Square Error (MMOM) and Mean Loss of Efficiency (MLOE) using exact method.}
 
 \usage{
-mloe_mmom(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, estimated_theta=estimated_theta, true_theta=estimated_theta, z_miss=3 )
+mloe_mmom(kernel, distance_matrix="euclidean", estimated_theta, true_theta, dts, lts=0, dimension="2D", train_data, test_data)
 }
 
 \arguments{
@@ -60,15 +60,12 @@ mloe_mmom(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=
   )}
 \item{distance_matrix}{ A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean"}
 \item{estimated_theta}{A list of estimated theta parameters}
+\item{true_theta}{A list of truth theta parameters}
 \item{dts}{A numeric value representing the time step size}
 \item{lts}{A numeric value representing the length step size. Default is 0}
 \item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D"}
-\item{z_miss}{ A numeric value representing the missing value indicator}
-\item{data}{ A list of data vectors}
-\item{matrix}{ A matrix object. Default is `R_NilValue`}
-\item{x}{A numeric vector. Default is `R_NilValue`}
-\item{y}{A numeric vector. Default is `R_NilValue`}
-\item{z}{A numeric vector. Default is `R_NilValue`}
+\item{train_data}{ A numeric vector contains the locations and z measurements for training}
+\item{test_data}{ A numeric vector contains the locations for testing.}
 }
 
 \value{
@@ -83,16 +80,21 @@ This function calculates Mean Misspecification of the Mean Square Error (MMOM) a
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-
 hardware <- new(Hardware, computation, ncores, ngpus)
 
 problem_size <- 4
 dimension = "2D"
 dts <- 2
-z_value <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967, -0.163880452049749520)
-x_locations <- c(0.193041886015106440, 0.330556191348134576, 0.181612878614480805, 0.370473792629892440)
-y_locations <- c(0.103883421072709245, 0.135790035858701447, 0.434683756771190977, 0.400778210116731537)
+kernel <- "univariate_matern_stationary"
+estimated_theta <- c(1,0.1,0.5)
+true_theta <- c(1.1,0.2,0.5)
 
-empty_data <- new(Data, problem_size, dimension)
-mloe_mmom(data=empty_data, matrix=z_value, x=x_locations, y=y_locations, kernel="univariate_matern_stationary", dts = 2, estimated_theta=c(1,0.1,0.5), true_theta=c(1,0.1,0.5), z_miss=3 )
+z_value <- c(-1.272336140360187606, -2.590699695867695773, 0.512142584178685967, -0.163880452049749520)
+locations_x <- c(0.092042420080872822,  0.193041886015106440,  0.330556191348134576, 0.181612878614480805)
+locations_y <- c(0.928648813611047563, 0.103883421072709245,  0.135790035858701447,  0.434683756771190977)
+
+test_x <- c(0.347951, 0.62768)
+test_y <- c(0.806332, 0.105196)
+
+result_mloe_mmom = mloe_mmom(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, true_theta=true_theta)
 }

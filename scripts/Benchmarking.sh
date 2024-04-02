@@ -3,13 +3,13 @@
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
-# @file config.sh
+# @file Benchmarking.sh
 # @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-10-10
 
 # Set the output file name
-output_file="VULTURE_40CORE_EXACT.csv"
+output_file="40CORE_EXACT.csv"
 
 # Create or truncate the output file
 echo "N,computation,kernel,ncores,ngpus,dts,Zmiss,maximum_likelihood,maximum_theta,mspe_value,time_generation,time_modeling,time_prediction,time_modeling_per_iter,Gflops_data_generation,Gflops_data_modeling,Gflops_data_modeling_iter,Gflops_data_mspe" > "$output_file"
@@ -60,8 +60,8 @@ for N in "${desired_N[@]}"; do
     echo "Iteration number $iteration done."
       # Append the values to the output file
       echo '**Results**'
-      echo "$N,$COMPUTATION,$KERNEL,$CORES,$GPUS,$DTS,$(($N/10)),$logli_result,$maximum_theta,$mspe_value,$time_generation,$time_modeling,$time_prediction,$time_modeling_iteration,$flops_generation,$flops_modeling,$flops_modeling_iteration,$flops_mspe"
+      echo "$N,$COMPUTATION,$KERNEL,$CORES,$GPUS,$DTS,$((N/10)),$logli_result,$maximum_theta,$mspe_value,$time_generation,$time_modeling,$time_prediction,$time_modeling_iteration,$flops_generation,$flops_modeling,$flops_modeling_iteration,$flops_mspe"
       echo ''
-      echo "$N,$COMPUTATION,$KERNEL,$CORES,$GPUS,$DTS,$(($N/10)),$logli_result,$maximum_theta,$mspe_value,$time_generation,$time_modeling,$time_prediction,$time_modeling_iteration,$flops_generation,$flops_modeling,$flops_modeling_iteration,$flops_mspe" >> "$output_file"
+      echo "$N,$COMPUTATION,$KERNEL,$CORES,$GPUS,$DTS,$((N/10)),$logli_result,$maximum_theta,$mspe_value,$time_generation,$time_modeling,$time_prediction,$time_modeling_iteration,$flops_generation,$flops_modeling,$flops_modeling_iteration,$flops_mspe" >> "$output_file"
     done
 done

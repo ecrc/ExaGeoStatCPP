@@ -22,7 +22,7 @@ get_Z_measurement_vector(data,type)
 }
 
 \arguments{
-\item{data}{A list of ExaGeoStatData that contains the locations.
+\item{data}{A list of ExaGeoStatData that contains the locations.}
 \item{type}{A string specifying the type of descriptor value to retrieve (e.g., "Chameleon", "HiCMA").}
 }
 
@@ -43,7 +43,6 @@ empty_data <- new(Data, problem_size, dimension)
 dts <- 2
 kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
-
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
 
 Z <- get_Z_measurement_vector(data=exageostat_data, type="chameleon")

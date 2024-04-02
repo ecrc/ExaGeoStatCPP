@@ -14,7 +14,7 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/StarPuHelpersFactory.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/concrete/ChameleonStarPuHelpers.cpp
         ${SOURCES}
-)
+        )
 
 if (USE_HICMA)
     list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/concrete/HicmaStarPuHelpers.cpp)

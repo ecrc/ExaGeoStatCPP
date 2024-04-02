@@ -179,6 +179,7 @@ namespace exageostat::linearAlgebra {
         * @param[in] aMaxRank Maximum rank parameter.
         * @param[in] aAcc Accuracy parameter.
         * @return void
+        *
         */
         virtual void
         ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,
@@ -197,6 +198,7 @@ namespace exageostat::linearAlgebra {
          * @param[in, out] apZ The matrix B of dimension, on exit is overwritten by the solution matrix X.
          * @param[in] aMaxRank Maximum rank parameter.
          * @return void
+         *
          */
         virtual void ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
                                         const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha,
@@ -209,6 +211,7 @@ namespace exageostat::linearAlgebra {
          * @param [in] apA coefficient matrix of the system of linear equations. This matrix is expected to be positive definite.
          * @param [in] apB Pointer to coefficient matrix of the system of linear equations. This matrix is expected to be positive definite.
          * @return void
+         *
          */
         void ExaGeoStatPosvTile(const common::UpperLower &aUpperLower, void *apA, void *apB);
 
@@ -226,6 +229,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aObsLocations Reference to Locations object containing observed locations.
          * @param[in] aKernel Reference to the kernel object to use.
          * @return the prediction Mean Square Error (MSPE).
+         *
          */
         T *ExaGeoStatMLEPredictTile(std::unique_ptr<ExaGeoStatData<T>> &aData, T *apTheta,
                                     const int &aZMissNumber,
@@ -249,6 +253,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aObsLocations Reference to Locations object containing observed locations.
          * @param[in] aKernel Reference to the kernel object to use.
          * @return the prediction Mean Square Error (MSPE).
+         *
          */
         T *ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<ExaGeoStatData<T>> &aData, T *apTheta,
                                                const int &aZMissNumber,
@@ -265,6 +270,7 @@ namespace exageostat::linearAlgebra {
          * @param[out] apDescA Matrix Descriptor.
          * @param[in] aUpperLower Specifies Specifies whether the upper or lower triangular part of the covariance matrix is stored.
          * @return void
+         *
          */
         void ExaGeoStatLap2Desc(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower);
 
@@ -275,6 +281,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] apDescA Matrix Descriptor
          * @param[in] aUpperLower Specifies whether the upper or lower triangular part of the covariance matrix is stored.
          * @return void
+         *
          */
         void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower);
 
@@ -287,6 +294,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aSize Size of matrix to be copied.
          * @param[in] aDirection Specifies the type of Descriptors to be copied.
          * @return void
+         *
          */
         void CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
                              const common::CopyDirection &aDirection);
@@ -300,6 +308,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aBeta All the diagonal array elements are set to aBeta.
          * @param[out] apDescriptor Pointer to matrix descriptor to be set with aAlpha and aBeta.
          * @return void
+         *
          */
         void ExaGeoStatLaSetTile(const common::UpperLower &aUpperLower, T aAlpha, T aBeta, void *apDescriptor);
 
@@ -313,7 +322,8 @@ namespace exageostat::linearAlgebra {
          *
          */
         void ExaGeoStatGetZObs(configurations::Configurations &aConfigurations, T *apZ, const int &aSize,
-                               exageostat::dataunits::DescriptorData<T> &aDescData, T *apMeasurementsMatrix, const int &aP);
+                               exageostat::dataunits::DescriptorData<T> &aDescData, T *apMeasurementsMatrix,
+                               const int &aP);
 
         /**
          * @brief Predict missing values based on a set of given values and covariance matrix.
@@ -327,6 +337,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aObsLocations Locations of observed values.
          * @param[in] aKernel Reference to the kernel object to use.
          * @return void
+         *
          */
         void ExaGeoStatMLETileMLOEMMOM(configurations::Configurations &aConfigurations,
                                        std::unique_ptr<ExaGeoStatData<T>> &aData,
@@ -340,6 +351,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] apTheta Pointer containing three parameter (Variance, Range, Smoothness) that is used to to generate the Covariance Matrix.
          * @param[in] aKernel Reference to the kernel object to use.
          * @return Fisher Matrix
+         *
          */
         T *
         ExaGeoStatFisherTile(configurations::Configurations &aConfigurations,
@@ -355,6 +367,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] aBeta Scaling factor for matrix B.
          * @param[in] apDescB Descriptor for matrix B.
          * @return void
+         *
          */
         void ExaGeoStatGeaddTile(const common::Trans &aTrans, const T &aAlpha, void *apDescA, const T &aBeta,
                                  void *apDescB);
@@ -369,6 +382,7 @@ namespace exageostat::linearAlgebra {
          * @param[in] alpha Scaling factor for the multiplication.
          * @param[in] apDescA Descriptor for matrix A.
          * @param[in] apDescB Descriptor for matrix B.
+         *
          */
         void ExaGeoStatTrmmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
                                 const common::Trans &aTrans, const common::Diag &aDiag, const T &alpha, void *apDescA,

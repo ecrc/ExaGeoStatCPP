@@ -50,7 +50,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNuggetsStationary() {
         std::unique_ptr<ExaGeoStatData<double >> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {

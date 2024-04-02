@@ -13,7 +13,9 @@
 **/
 
 #ifdef USE_MPI
+
 #include <mpi.h>
+
 #endif
 
 #include <configurations/Configurations.hpp>
@@ -81,7 +83,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
 
     int rank = 0;
 #ifdef USE_MPI
-    MPI_Init(&this->mArgC,&this->mpArgV);
+    MPI_Init(&this->mArgC, &this->mpArgV);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #endif
 
@@ -89,7 +91,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     string example_name = apArgV[0];
     // Remove the './'
     example_name.erase(0, 2);
-    if(!rank){
+    if (!rank) {
         LOGGER("Running " + example_name)
     }
     string argument;
@@ -612,7 +614,7 @@ int Configurations::CheckUnknownObservationsValue(const string &aValue) {
 void Configurations::ParseDistanceMetric(const std::string &aDistanceMetric) {
     if (aDistanceMetric == "eg" || aDistanceMetric == "EG" || aDistanceMetric == "euclidean") {
         SetDistanceMetric(EUCLIDEAN_DISTANCE);
-    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD"|| aDistanceMetric == "great_circle") {
+    } else if (aDistanceMetric == "gcd" || aDistanceMetric == "GCD" || aDistanceMetric == "great_circle") {
         SetDistanceMetric(GREAT_CIRCLE_DISTANCE);
     } else {
         throw range_error("Invalid value. Please use eg or gcd values only.");

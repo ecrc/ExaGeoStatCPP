@@ -19,10 +19,7 @@
 using namespace std;
 
 using namespace exageostat::configurations;
-using namespace exageostat::dataunits;
-using namespace exageostat::kernels;
 using namespace exageostat::common;
-using namespace exageostat::linearAlgebra;
 using namespace exageostat::dataLoader::csv;
 
 template<typename T>

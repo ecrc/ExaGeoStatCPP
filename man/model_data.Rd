@@ -14,11 +14,11 @@
 \title{This function models data based on the provided computation method, kernel, distance matrix, and other parameters.}
 
 \usage{
-model_data(computation = "exact", kernel, distance_matrix = "euclidean", lb, ub, tol = 4, mle_itr, dts, lts = 0, dimension = "2D", data, matrix = R_NilValue, x = R_NilValue, y = R_NilValue, z = R_NilValue)
+model_data(computation = "exact", kernel, distance_matrix = "euclidean", lb, ub, tol = 4, mle_itr, dts, lts = 0, dimension = "2D", band = 0, max_rank = 500, data = NULL, matrix = NULL, x = NULL, y = NULL, z = NULL)
 }
 
 \arguments{
-\item{computation}{A string specifying the computation method, either "exact" or another method supported by the package. Default is "exact".}
+\item{computation}{A string specifying the computation method, either "exact" or "dst" or "tlr". Default is "exact".}
 \item{kernel}{A string specifying the kernel to use - available kernels
   (        "BivariateMaternFlexible",
            "BivariateMaternParsimonious",
@@ -67,7 +67,9 @@ model_data(computation = "exact", kernel, distance_matrix = "euclidean", lb, ub,
 \item{dts}{A numeric value representing the time step size.}
 \item{lts}{A numeric value representing the length step size. Default is 0.}
 \item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D".}
-\item{data}{A list of data vectors.}
+\item{band}{A numeric value Bandwidth for band matrices, applicable in certain computational kernels.. Default is 0.}
+\item{max_rank}{A numeric value specifying the Maximum rank for low-rank approximations.. Default is 500.}
+\item{data}{A list of data vectors. Default is `R_NilValue`.}
 \item{matrix}{A matrix object. Default is `R_NilValue`.}
 \item{x}{A numeric vector. Default is `R_NilValue`.}
 \item{y}{A numeric vector. Default is `R_NilValue`.}
@@ -90,7 +92,6 @@ hardware <- new(Hardware, computation, ncores, ngpus)
 
 dimension = "2D"
 problem_size <- 4
-
 empty_data <- new(Data, problem_size, dimension)
 
 dts <- 2
@@ -102,6 +103,5 @@ z_value <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967
 locations_x <- c(0.193041886015106440, 0.330556191348134576, 0.181612878614480805, 0.370473792629892440)
 locations_y <- c(0.103883421072709245, 0.135790035858701447, 0.434683756771190977, 0.400778210116731537)
 
-theta <- model_data(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts,
- dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation)
+theta <- model_data(kernel=kernel, lb=lower_bound, ub=upper_bound, mle_itr=10, dts=dts, matrix=z_value, x=locations_x, y=locations_y)
 }

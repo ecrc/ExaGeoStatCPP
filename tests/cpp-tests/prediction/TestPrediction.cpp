@@ -93,10 +93,9 @@ void TEST_PREDICTION_MISSING_DATA() {
         configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
 
-        REQUIRE(Results::GetInstance()->GetMSPEError()== Catch::Approx(0.552448));
+        REQUIRE(Results::GetInstance()->GetMSPEError() == Catch::Approx(0.552448));
         delete pKernel;
-    }
-    SECTION("Test Prediction - IDW ") {
+    }SECTION("Test Prediction - IDW ") {
         configurations.SetIsMLOEMMOM(false);
         configurations.SetIsFisher(false);
         configurations.SetIsMSPE(false);
@@ -104,7 +103,7 @@ void TEST_PREDICTION_MISSING_DATA() {
 
         vector<double> estimated_theta{0.9, 0.09, 0.4};
         configurations.SetEstimatedTheta(estimated_theta);
-        std::vector<double> idw_error={ 1.18856255, 1.25725881, 1.11986628 };
+        std::vector<double> idw_error = {1.18856255, 1.25725881, 1.11986628};
 
         // Register and create a kernel object
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
@@ -113,12 +112,11 @@ void TEST_PREDICTION_MISSING_DATA() {
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
-        for(int i =0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
             REQUIRE(Results::GetInstance()->GetIDWError()[i] == Catch::Approx(idw_error[i]));
         }
         delete pKernel;
-    }
-    SECTION("Test Prediction - MLOE_MMOM ") {
+    }SECTION("Test Prediction - MLOE_MMOM ") {
         configurations.SetIsMSPE(false);
         configurations.SetIsIDW(false);
         configurations.SetIsMLOEMMOM(true);
@@ -136,10 +134,21 @@ void TEST_PREDICTION_MISSING_DATA() {
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
         REQUIRE(Results::GetInstance()->GetMLOE() == Catch::Approx(0.004467).margin(0.001));
         REQUIRE(Results::GetInstance()->GetMMOM() == Catch::Approx(-0.0812376).margin(0.001));
+        delete pKernel;
+    }SECTION("Test Prediction - MLOE_MMOM with equal estimated theta") {
+        configurations.SetIsMSPE(false);
+        configurations.SetIsIDW(false);
+        configurations.SetIsMLOEMMOM(true);
+        configurations.SetIsFisher(false);
 
+        vector<double> new_estimated_theta{1, 0.1, 0.5};
+        configurations.SetEstimatedTheta(new_estimated_theta);
 
-        vector<double> new_estimated_theta1{1, 0.1, 0.5};
-        configurations.SetEstimatedTheta(new_estimated_theta1);
+        // Register and create a kernel object
+        exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
+                configurations.GetKernelName(),
+                configurations.GetTimeSlot());
+
         // Add the data prediction arguments.
         configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
@@ -164,14 +173,14 @@ void TEST_PREDICTION_MISSING_DATA() {
         configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
 
-        vector<double> required_fisher = {0.1045891821, 0.0005116817, 0.0409307011, 0.0005116817, 0.1873553354, -1.3659618079, 0.0409307011, -1.3659618079, 10.5564826575};
-        for(int i = 0; i < Results::GetInstance()->GetFisherMatrix().size(); i++){
+        vector<double> required_fisher = {0.1045891821, 0.0005116817, 0.0409307011, 0.0005116817, 0.1873553354,
+                                          -1.3659618079, 0.0409307011, -1.3659618079, 10.5564826575};
+        for (int i = 0; i < Results::GetInstance()->GetFisherMatrix().size(); i++) {
             double diff = required_fisher[i] - Results::GetInstance()->GetFisherMatrix()[i];
             REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
         delete pKernel;
-    }
-    SECTION("Test Prediction - Exception"){
+    }SECTION("Test Prediction - Exception") {
         vector<double> new_estimated_theta{-1, -1, -1};
         configurations.SetEstimatedTheta(new_estimated_theta);
         Prediction<double> predictor;

@@ -92,10 +92,10 @@ int main(int argc, char **argv) {
 
     // Print Data Matrix of Descriptor
     LOGGER("** Data in Matrix of Chameleon descriptor:")
-    LOGGER_2("",0)
+    LOGGER_2("", 0)
     auto *cham_mat = (double *) CHAM_descriptorC->mat;
     for (int i = 0; i < config_problem_size; ++i) {
-        LOGGER_PRECISION_1(" " << cham_mat[i],0)
+        LOGGER_PRECISION_1(" " << cham_mat[i], 0)
     }
 
     auto *HICMA_descriptorC = data->ConvertChameleonToHicma(CHAM_descriptorC);
@@ -119,9 +119,9 @@ int main(int argc, char **argv) {
     // Print Data Matrix of Descriptor
     LOGGER("** Data in Matrix of Hicma descriptor:")
     auto *hicma_mat = (double *) HICMA_descriptorC->mat;
-    LOGGER_2("",0)
+    LOGGER_2("", 0)
     for (int i = 0; i < config_problem_size; ++i) {
-        LOGGER_PRECISION_1(" " << hicma_mat[i],0)
+        LOGGER_PRECISION_1(" " << hicma_mat[i], 0)
     }
 
     delete kernel;

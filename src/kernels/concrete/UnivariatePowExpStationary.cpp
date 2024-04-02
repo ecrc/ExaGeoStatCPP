@@ -58,7 +58,8 @@ UnivariatePowExpStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int 
             dist = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
                                                                     flag);
             dist = pow(dist, nu);
-            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0) ? sigma_square : sigma_square * exp(-(dist / aLocalTheta[1])); 
+            *(apMatrixA + i + j * aRowsNumber) = (dist == 0.0) ? sigma_square : sigma_square *
+                                                                                exp(-(dist / aLocalTheta[1]));
             j0++;
         }
         i0++;

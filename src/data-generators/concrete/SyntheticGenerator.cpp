@@ -17,7 +17,6 @@
 #include <data-loader/concrete/CSVLoader.hpp>
 
 using namespace exageostat::generators::synthetic;
-using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
 using namespace exageostat::results;
@@ -40,7 +39,7 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
     auto data = std::make_unique<ExaGeoStatData<T>>(n, aConfigurations.GetDimension());
 
     // Allocated new Locations object.
-    auto *locations = new Locations<T>(n, aConfigurations.GetDimension());
+    auto *locations = new dataunits::Locations<T>(n, aConfigurations.GetDimension());
     int parameters_number = aKernel.GetParametersNumbers();
 
     // Set initial theta values.
@@ -48,7 +47,8 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
     aConfigurations.SetInitialTheta(aConfigurations.GetInitialTheta());
 
     // Generate Locations phase
-    LocationGenerator<T>::GenerateLocations(n, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(), *locations);
+    LocationGenerator<T>::GenerateLocations(n, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(),
+                                            *locations);
     data->SetLocations(*locations);
 
     // Generate Descriptors phase
@@ -62,12 +62,14 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
         std::string path = aConfigurations.GetLoggerPath();
 
         CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                               DESCRIPTOR_Z).chameleon_desc,  pMatrix, aConfigurations.GetProblemSize());
-        if (helpers::CommunicatorMPI::GetInstance()->GetRank() == 0){
-            dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                                               DESCRIPTOR_Z).chameleon_desc->mat),
-                                              aConfigurations.GetProblemSize(), parameters_number, path,
-                                              *data->GetLocations());
+                                                                                    DESCRIPTOR_Z).chameleon_desc,
+                           pMatrix, aConfigurations.GetProblemSize());
+        if (helpers::CommunicatorMPI::GetInstance()->GetRank() == 0) {
+            dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(
+                    *((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                     DESCRIPTOR_Z).chameleon_desc->mat),
+                    aConfigurations.GetProblemSize(), parameters_number, path,
+                    *data->GetLocations());
         }
         delete[] pMatrix;
 #else

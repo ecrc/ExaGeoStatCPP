@@ -21,7 +21,7 @@ set(SOURCES
         ${ALL_CODELETS}
         ${SOURCES}
         PARENT_SCOPE
-)
+        )
 
 # Automatically add new codelets header files to StarPuCodeletsHeaders.hpp
 
@@ -47,9 +47,9 @@ set(GENERATED_INCLUDES "${PATH_TO_CODELETS_HEADERS}/StarPuCodeletsHeaders.hpp")
 file(GLOB_RECURSE HEADER_FILES "${PATH_TO_CODELETS_HEADERS}/concrete/*.hpp")
 file(WRITE ${GENERATED_INCLUDES} ${DOCUMENTATION_STRING})
 
-foreach(HEADER_FILE ${HEADER_FILES})
+foreach (HEADER_FILE ${HEADER_FILES})
     # Construct the include directive by stripping the known base directory part from the full path
     string(REPLACE "${PATH_TO_CODELETS_HEADERS}" "" HEADER_RELATIVE_PATH ${HEADER_FILE})
     # Use angle brackets and the desired base path for the include directive
     file(APPEND ${GENERATED_INCLUDES} "#include <runtime/starpu${HEADER_RELATIVE_PATH}>\n")
-endforeach()
+endforeach ()

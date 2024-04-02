@@ -42,7 +42,6 @@ empty_data <- new(Data, problem_size, dimension)
 dts <- 2
 kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
-
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
 
 z <- get_locationsZ(data=exageostat_data)

@@ -18,7 +18,7 @@ add_subdirectory(linear-algebra-solvers)
 add_subdirectory(prediction)
 add_subdirectory(results)
 
-if(USE_HICMA)
+if (USE_HICMA)
     add_subdirectory(data-units)
 endif ()
 

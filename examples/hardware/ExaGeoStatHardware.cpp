@@ -32,10 +32,11 @@ int main(int argc, char **argv) {
 
     // Initialize Configuration
     Configurations configuration;
-    configuration.InitializeArguments(argc,argv);
+    configuration.InitializeArguments(argc, argv);
 
     // Initialize Hardware
-    auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(), configuration.GetGPUsNumbers());
+    auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
+                                       configuration.GetGPUsNumbers());
 
     return 0;
 }

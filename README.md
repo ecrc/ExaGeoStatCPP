@@ -109,12 +109,13 @@ Project Hierarchy
 * **```docs```** A directory contains all the necessary documents.
 * **```examples```** A directory contains a comprehensive collection of demo code that illustrates the framework's application and demonstrates its features and capabilities.
 * **```inst```** A directory contains all the system's header files, mirroring the structure of the src directory.
-* **```prerequisites```** A directory contains all the necessary prerequisites for the project and default scripts for their installation.
+* **```man```** A directory contains all the R functions documentation.
+* **```scripts```** A directory contains benchmarking scripts.
 * **```src```** A directory contains all the source files.
 * **```tests```** A directory contains all the test files and follows the same structure as the src folder.
 * **```clean_build.sh```** A script is designed to compile the software tests once all dependencies are installed, and it is set to build everything by default.
 * **```CMakeLists.txt```** The top-level CMake file to configure the build system.
-* **```config.sh```** A Script used to generate the building system inside a 'bin' directory.
+* **```configure```** A Script used to generate the building system inside a 'bin' directory.
 
 Installation
 ============
@@ -135,9 +136,9 @@ To install the `ExaGeoStat` project locally, run the following commands in your 
       `cd exageostatcpp`
 
 
-3. Run `config.sh` script with the flag `-h` for help, to know the supported options and their corresponding flags.
+3. Run `configure` script with the flag `-h` for help, to know the supported options and their corresponding flags.
 
-      `./config.sh -h`
+      `./configure -h`
    or check user manual.
 
 
@@ -164,7 +165,6 @@ Run the following commands in your terminal:
 
 2. Open the R prompt window by simply running `R` command in the terminal
 
-
 3. Inside the prompt, we will install needed packages by running the following commads:
       - `install.packages(Rcpp)`
 
@@ -177,7 +177,7 @@ Run the following commands in your terminal:
 
 4. Return to the terminal and run the following command, make sure your current path is the ExaGeoStat project directory
 
-      `R CMD INSTALL . --configure-args="r"`
+      `R CMD INSTALL . --configure-args="-r -e"`
 
       > This command installs our ExaGeoStat code as a package to be able to run it using R. We pass `-r`to the configuration to enable usage of R
 
@@ -237,3 +237,4 @@ References
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
    on Cluster Computing (CLUSTER), IEEE, 2023.
    
+![ExaGeoStatCPP-handout.png](docs%2FExaGeoStatCPP-handout.png)

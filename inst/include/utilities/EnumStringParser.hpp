@@ -19,26 +19,24 @@
 #include <utilities/ErrorHandler.hpp>
 #include <common/Definitions.hpp>
 
-using namespace exageostat::common;
-
 /**
  * @brief Convert a string representation of computation mode to its corresponding enum value.
  * @param[in] aComputation String representation of computation mode.
  * @return Computation enum value.
  */
-inline Computation GetInputComputation(std::string aComputation) {
+inline exageostat::common::Computation GetInputComputation(std::string aComputation) {
     std::transform(aComputation.begin(), aComputation.end(),
                    aComputation.begin(), ::tolower);
 
     if (aComputation == "exact" || aComputation == "dense") {
-        return EXACT_DENSE;
+        return exageostat::common::EXACT_DENSE;
     } else if (aComputation == "dst" || aComputation == "diag_approx") {
-        return DIAGONAL_APPROX;
+        return exageostat::common::DIAGONAL_APPROX;
     } else if (aComputation == "tlr" || aComputation == "tile_low_rank") {
-        return TILE_LOW_RANK;
+        return exageostat::common::TILE_LOW_RANK;
     } else {
         const std::string msg = "Error in Initialization : Unknown computation Value" + std::string(aComputation);
-            throw API_EXCEPTION(msg, INVALID_ARGUMENT_ERROR);
+        throw API_EXCEPTION(msg, INVALID_ARGUMENT_ERROR);
     }
 }
 
@@ -47,16 +45,16 @@ inline Computation GetInputComputation(std::string aComputation) {
  * @param[in] aDimension Dimension as a string.
  * @return Dimension as an enum.
  */
-inline Dimension GetInputDimension(std::string aDimension) {
+inline exageostat::common::Dimension GetInputDimension(std::string aDimension) {
     std::transform(aDimension.begin(), aDimension.end(),
                    aDimension.begin(), ::tolower);
 
     if (aDimension == "2d") {
-        return Dimension2D;
+        return exageostat::common::Dimension2D;
     } else if (aDimension == "3d") {
-        return Dimension3D;
+        return exageostat::common::Dimension3D;
     } else if (aDimension == "st") {
-        return DimensionST;
+        return exageostat::common::DimensionST;
     } else {
         const std::string msg = "Error in Initialization : Unknown computation Value" + std::string(aDimension);
         throw API_EXCEPTION(msg, INVALID_ARGUMENT_ERROR);

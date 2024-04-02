@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
     // Print loaded data
     LOGGER("Data Loaded:")
-    for (int i=0;i<x_locations.size();i++) {
+    for (int i = 0; i < x_locations.size(); i++) {
         LOGGER_PRECISION("X: " << x_locations[i] << " Y: " << y_locations[i], 18)
         if (configurations.GetDimension() != exageostat::common::Dimension2D) {
             LOGGER_PRECISION(" Z: " << z_locations[i], 18)

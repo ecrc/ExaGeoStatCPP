@@ -44,21 +44,26 @@ void DmloeMmomCodelet<T>::InsertTask(void *apDescExpr1, void *apDescExpr2, void 
 
     for (col = 0; col < ((CHAM_desc_t *) apDescExpr1)->nt; col++) {
         cols_num = col == ((CHAM_desc_t *) apDescExpr1)->nt - 1 ? ((CHAM_desc_t *) apDescExpr1)->n -
-                                                               col * ((CHAM_desc_t *) apDescExpr1)->nb
+                                                                  col * ((CHAM_desc_t *) apDescExpr1)->nb
                                                                 : ((CHAM_desc_t *) apDescExpr1)->nb;
         for (row = 0; row < ((CHAM_desc_t *) apDescExpr1)->mt; row++) {
 
             rows_num = row == ((CHAM_desc_t *) apDescExpr1)->mt - 1 ? ((CHAM_desc_t *) apDescExpr1)->m -
-                                                                  row * ((CHAM_desc_t *) apDescExpr1)->mb
+                                                                      row * ((CHAM_desc_t *) apDescExpr1)->mb
                                                                     : ((CHAM_desc_t *) apDescExpr1)->mb;
             starpu_insert_task(&this->cl_dmloe_mmom,
                                STARPU_VALUE, &rows_num, sizeof(int),
                                STARPU_VALUE, &cols_num, sizeof(int),
-                               STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr1, row, col),
-                               STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr2, row, col),
-                               STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr3, row, col),
-                               STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMLOE, row, col),
-                               STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMMOM, row, col),
+                               STARPU_R,
+                               (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr1, row, col),
+                               STARPU_R,
+                               (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr2, row, col),
+                               STARPU_R,
+                               (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr3, row, col),
+                               STARPU_RW,
+                               (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMLOE, row, col),
+                               STARPU_RW,
+                               (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMMOM, row, col),
                                0);
         }
     }

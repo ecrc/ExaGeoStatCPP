@@ -22,7 +22,7 @@ It is initialized with computation mode, and two integers representing number of
  \code{\link{ExaGeoStatHardware}} Creates a new instance of the \code{ExaGeoStatHardware} class.
  \code{ExaGeoStatHardware(computation, num_of_cpus, num_of_gpus)}
  \describe{
- \item{\code{computation}}{A string representing the computation mode.}
+ \item{\code{computation}}{A string specifying the computation method, either "exact" or "dst" or "tlr".}
  \item{\code{num_of_cpus}}{An integer representing number of CPU cores.}
  \item{\code{num_of_gpus}}{An integer representing number of GPU cores.}
 }

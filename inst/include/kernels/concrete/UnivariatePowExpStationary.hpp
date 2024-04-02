@@ -41,6 +41,7 @@ namespace exageostat::kernels {
         /**
          * @brief Constructs a new UnivariatePowExpStationary object.
          * @details Initializes a new UnivariatePowExpStationary object with default values.
+         *
          */
         UnivariatePowExpStationary();
 
@@ -53,6 +54,7 @@ namespace exageostat::kernels {
         /**
          * @brief Generates a covariance matrix using a set of locations and kernel parameters.
          * @copydoc Kernel::GenerateCovarianceMatrix()
+         *
          */
         void
         GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,

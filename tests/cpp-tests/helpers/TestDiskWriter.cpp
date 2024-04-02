@@ -65,7 +65,8 @@ void TEST_3D_VECTORS_WRITING() {
 
         std::ostringstream oss;
         oss << std::setprecision(15) << locations.GetLocationX()[i] << ','
-            << locations.GetLocationY()[i] << ',' << locations.GetLocationZ()[i] << ","<< std::setprecision(15) << measurements_matrix[i] ;
+            << locations.GetLocationY()[i] << ',' << locations.GetLocationZ()[i] << "," << std::setprecision(15)
+            << measurements_matrix[i];
         std::string expectedLine = oss.str();
 
         REQUIRE(line == expectedLine);
@@ -76,6 +77,7 @@ void TEST_3D_VECTORS_WRITING() {
     delete[] location_z;
     delete[] measurements_matrix;
 }
-TEST_CASE("Disk Writer Tests"){
+
+TEST_CASE("Disk Writer Tests") {
     TEST_3D_VECTORS_WRITING();
 }

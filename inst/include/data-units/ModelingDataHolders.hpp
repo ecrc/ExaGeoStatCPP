@@ -33,8 +33,10 @@ namespace exageostat::dataunits {
          * @param aConfiguration The Configurations object.
          * @param aKernel The Kernel object.
          */
-        mModelingData(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfiguration, T &aMatrix, const kernels::Kernel<T> &aKernel) :
-                mpData(std::move(&aData)), mpConfiguration(&aConfiguration), mpMeasurementsMatrix(&aMatrix), mpKernel(&aKernel) {}
+        mModelingData(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfiguration,
+                      T &aMatrix, const kernels::Kernel<T> &aKernel) :
+                mpData(std::move(&aData)), mpConfiguration(&aConfiguration), mpMeasurementsMatrix(&aMatrix),
+                mpKernel(&aKernel) {}
     };
 
 }//namespace exageostat

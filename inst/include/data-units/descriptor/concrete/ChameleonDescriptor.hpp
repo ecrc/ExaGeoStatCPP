@@ -16,7 +16,6 @@
 #define EXAGEOSTATCPP_CHAMELEONDESCRIPTOR_HPP
 
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
-
 #include <common/Definitions.hpp>
 
 namespace exageostat::dataunits::descriptor {

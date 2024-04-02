@@ -47,7 +47,8 @@ int main(int argc, char **argv) {
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
+            configurations.GetProblemSize(), configurations.GetDimension());
 
     // Initiating the matrix of the CHAMELEON Descriptor Z.
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,

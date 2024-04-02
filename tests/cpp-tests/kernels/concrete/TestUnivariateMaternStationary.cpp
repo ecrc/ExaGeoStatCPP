@@ -52,7 +52,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternStationary() {
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
 
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {-1.272336, -2.475473, 0.545850, -0.120985, 0.242569, -1.544215, 0.098647,

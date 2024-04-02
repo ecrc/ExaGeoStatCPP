@@ -78,7 +78,8 @@ void NonGaussianLoglike<T>::cl_non_gaussian_loglike_function(void **apBuffers, v
 }
 
 template<typename T>
-double NonGaussianLoglike<T>::core_non_gaussian_loglike_helper(const T *apDescriptorZ, const T *apLocalTheta, const int &aSize) {
+double NonGaussianLoglike<T>::core_non_gaussian_loglike_helper(const T *apDescriptorZ, const T *apLocalTheta,
+                                                               const int &aSize) {
     T g = apLocalTheta[4];
     T h = apLocalTheta[5];
 
@@ -92,7 +93,8 @@ double NonGaussianLoglike<T>::core_non_gaussian_loglike_helper(const T *apDescri
         if (g == 0)
             sum += log(1 + h * pow(apDescriptorZ[i], 2)) + 0.5 * h * pow(apDescriptorZ[i], 2);
         else {
-            sum += log(exp(g * apDescriptorZ[i]) + (exp(g * apDescriptorZ[i]) - 1) * h * apDescriptorZ[i] / g) + 0.5 * h * pow(apDescriptorZ[i], 2);
+            sum += log(exp(g * apDescriptorZ[i]) + (exp(g * apDescriptorZ[i]) - 1) * h * apDescriptorZ[i] / g) +
+                   0.5 * h * pow(apDescriptorZ[i], 2);
         }
     }
     return sum;

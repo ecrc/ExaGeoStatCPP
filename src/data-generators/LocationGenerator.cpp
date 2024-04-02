@@ -22,7 +22,9 @@ using namespace exageostat::common;
 using namespace exageostat::dataunits;
 using namespace exageostat::helpers;
 
-template<typename T> void LocationGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlot, const Dimension &aDimension, Locations <T> &aLocations) {
+template<typename T>
+void LocationGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlot, const Dimension &aDimension,
+                                             Locations<T> &aLocations) {
 
     aLocations.SetSize(aN);
     int index = 0;
@@ -88,7 +90,7 @@ T LocationGenerator<T>::UniformDistribution(const T &aRangeLow, const T &aRangeH
 
 template<typename T>
 void
-LocationGenerator<T>::SortLocations(const int &aN, const Dimension &aDimension, Locations <T> &aLocations) {
+LocationGenerator<T>::SortLocations(const int &aN, const Dimension &aDimension, Locations<T> &aLocations) {
 
     // Some sorting, required by spatial statistics code
     uint16_t x, y, z;
@@ -96,10 +98,10 @@ LocationGenerator<T>::SortLocations(const int &aN, const Dimension &aDimension, 
 
     // Encode data into vector z
     for (auto i = 0; i < aN; i++) {
-        x = (uint16_t)(aLocations.GetLocationX()[i] * (double) UINT16_MAX + .5);
-        y = (uint16_t)(aLocations.GetLocationY()[i] * (double) UINT16_MAX + .5);
+        x = (uint16_t) (aLocations.GetLocationX()[i] * (double) UINT16_MAX + .5);
+        y = (uint16_t) (aLocations.GetLocationY()[i] * (double) UINT16_MAX + .5);
         if (aDimension != Dimension2D) {
-            z = (uint16_t)(aLocations.GetLocationZ()[i] * (double) UINT16_MAX + .5);
+            z = (uint16_t) (aLocations.GetLocationZ()[i] * (double) UINT16_MAX + .5);
         } else {
             z = (uint16_t) 0.0;
         }

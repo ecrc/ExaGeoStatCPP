@@ -39,7 +39,8 @@ namespace exageostat::generators {
          * @return void
          *
          */
-        static void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension, dataunits::Locations <T> &aLocations);
+        static void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension,
+                                      dataunits::Locations<T> &aLocations);
 
         /**
          * @brief Generate uniform distribution between rangeLow , rangeHigh.
@@ -58,7 +59,8 @@ namespace exageostat::generators {
          * @return void
          *
          */
-        static void SortLocations(const int &aN, const common::Dimension &aDimension, dataunits::Locations<T> &aLocations);
+        static void
+        SortLocations(const int &aN, const common::Dimension &aDimension, dataunits::Locations<T> &aLocations);
     };
 
     /**

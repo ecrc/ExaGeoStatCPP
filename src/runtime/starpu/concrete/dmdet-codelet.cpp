@@ -45,31 +45,21 @@ void DMDETCodelet<T>::InsertTask(const Computation &aComputation, void *apDescA,
     auto desc_m = aStarPuHelpers->GetM(apDescA);
     auto desc_mb = aStarPuHelpers->GetMB(apDescA);
 
-    if (aComputation == DIAGONAL_APPROX || aComputation == EXACT_DENSE) {
-        for (row = 0; row < desc_mt; row++) {
-            rows_num = row == desc_mt - 1 ? desc_m - row * desc_mb : desc_mb;
-            starpu_insert_task(&this->cl_dmdet,
-                               STARPU_VALUE, &rows_num, sizeof(int),
-                               STARPU_R, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescA, row, row),
-                               STARPU_RW, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescDet, 0, 0),
-                               0);
-        }
-    } else if (aComputation == TILE_LOW_RANK) {
-        for (row = 0; row < desc_mt; row++) {
-            rows_num = row == desc_mt - 1 ? desc_m - row * desc_mb : desc_mb;
-            starpu_insert_task(&this->cl_dmdet,
-                               STARPU_VALUE, &rows_num, sizeof(int),
-                               STARPU_R, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescA, row, 0),
-                               STARPU_RW, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescDet, 0, 0),
-                               0);
-        }
+    for (row = 0; row < desc_mt; row++) {
+        rows_num = row == desc_mt - 1 ? desc_m - row * desc_mb : desc_mb;
+        starpu_insert_task(&this->cl_dmdet,
+                           STARPU_VALUE, &rows_num, sizeof(int),
+                           STARPU_R,
+                           aStarPuHelpers->ExaGeoStatDataGetAddr(apDescA, row, aComputation != TILE_LOW_RANK ? row : 0),
+                           STARPU_RW, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescDet, 0, 0),
+                           0);
     }
 }
 
 template<typename T>
 void DMDETCodelet<T>::cl_dmdet_function(void *apBuffers[], void *apCodeletArguments) {
     int rows_num;
-    T *pDescriptor_A, *pDeterminant ;
+    T *pDescriptor_A, *pDeterminant;
 
     pDescriptor_A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
     pDeterminant = (T *) STARPU_MATRIX_GET_PTR(apBuffers[1]);

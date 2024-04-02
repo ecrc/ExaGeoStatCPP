@@ -14,15 +14,13 @@
 #ifndef EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 #define EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 
-// This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+// This is a fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+#ifdef USE_HICMA
 #ifdef min
 #undef min
 #endif
+#endif
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <set>
 #include <functional>
 
 #include <configurations/Configurations.hpp>
@@ -70,14 +68,14 @@ namespace exageostat::plugins {
          * @return A pointer to the created plugin, or nullptr if the plugin could not be created.
          *
          */
-        static T *Create(const std::string &aName, const int& aTimeSlot) {
+        static T *Create(const std::string &aName, const int &aTimeSlot) {
             auto map = GetFactoryMap();
 
             if (map.find(aName) == map.end()) {
                 return nullptr;
             }
             // Get the object from the map.
-            T* object = map[aName]();
+            T *object = map[aName]();
             // Automatically set the new P value which will get updated with the user input of P.
             object->SetPValue(aTimeSlot);
             return object;

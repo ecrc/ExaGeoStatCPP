@@ -100,14 +100,14 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
 
         auto *HICMA_descriptorZ = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
         auto *HICMA_descriptorZcpy = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                             DESCRIPTOR_Z_COPY).hicma_desc;
+                                                                              DESCRIPTOR_Z_COPY).hicma_desc;
         auto *HICMA_descriptorDeterminant = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                                    DESCRIPTOR_DETERMINANT).hicma_desc;
+                                                                                     DESCRIPTOR_DETERMINANT).hicma_desc;
         auto *HICMA_descriptorCD = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
         auto *HICMA_descriptorCUV = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                            DESCRIPTOR_CUV).hicma_desc;
+                                                                             DESCRIPTOR_CUV).hicma_desc;
         auto *HICMA_descriptorCrk = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                            DESCRIPTOR_CRK).hicma_desc;
+                                                                             DESCRIPTOR_CRK).hicma_desc;
 
         // Descriptor CD.
         REQUIRE(HICMA_descriptorCD->m == N);

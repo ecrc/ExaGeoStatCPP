@@ -46,7 +46,7 @@ void DCMGCodelet<T>::InsertTask(void *apDescriptor, const int &aTriangularPart, 
 
     for (col = 0; col < CHAM_apDescriptor->nt; col++) {
         cols_num = col == CHAM_apDescriptor->nt - 1 ? CHAM_apDescriptor->n - col * CHAM_apDescriptor->nb
-                                                : CHAM_apDescriptor->nb;
+                                                    : CHAM_apDescriptor->nb;
         if (aTriangularPart == ChamUpperLower) {
             row = 0;
         } else {
@@ -54,7 +54,7 @@ void DCMGCodelet<T>::InsertTask(void *apDescriptor, const int &aTriangularPart, 
         }
         for (; row < CHAM_apDescriptor->mt; row++) {
             rows_num = row == CHAM_apDescriptor->mt - 1 ? CHAM_apDescriptor->m - row * CHAM_apDescriptor->mb
-                                                  : CHAM_apDescriptor->mb;
+                                                        : CHAM_apDescriptor->mb;
             tile_row = row * CHAM_apDescriptor->mb;
             tile_col = col * CHAM_apDescriptor->nb;
             starpu_insert_task(&this->cl_dcmg,
@@ -82,7 +82,9 @@ void DCMGCodelet<T>::cl_dcmg_function(void *apBuffers[], void *apCodeletArgument
     Kernel<T> *pKernel;
 
     pDescriptor_A = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
-    starpu_codelet_unpack_args(apCodeletArguments, &rows_num, &cols_num, &tile_row, &tile_col, &pLocation1, &pLocation2, &pLocation3, &pLocal_theta,
+    starpu_codelet_unpack_args(apCodeletArguments, &rows_num, &cols_num, &tile_row, &tile_col, &pLocation1, &pLocation2,
+                               &pLocation3, &pLocal_theta,
                                &distance_metric, &pKernel);
-    pKernel->GenerateCovarianceMatrix(pDescriptor_A, rows_num, cols_num, tile_row, tile_col, *pLocation1, *pLocation2, *pLocation3, pLocal_theta, distance_metric);
+    pKernel->GenerateCovarianceMatrix(pDescriptor_A, rows_num, cols_num, tile_row, tile_col, *pLocation1, *pLocation2,
+                                      *pLocation3, pLocal_theta, distance_metric);
 }

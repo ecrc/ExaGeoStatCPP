@@ -22,7 +22,6 @@ using namespace nlopt;
 using namespace exageostat::api;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
-using namespace exageostat::prediction;
 using namespace exageostat::configurations;
 
 template<typename T>
@@ -102,7 +101,7 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(Configurations &aConfigurations, std::u
                                                                                       aConfigurations.GetTimeSlot());
     // Add the data prediction arguments.
     aConfigurations.InitializeDataPredictionArguments();
-    Prediction<T>::PredictMissingData(aData, aConfigurations, apMeasurementsMatrix, *pKernel, apTrainLocations,
-                                      apTestLocations);
+    prediction::Prediction<T>::PredictMissingData(aData, aConfigurations, apMeasurementsMatrix, *pKernel,
+                                                  apTrainLocations, apTestLocations);
     delete pKernel;
 }

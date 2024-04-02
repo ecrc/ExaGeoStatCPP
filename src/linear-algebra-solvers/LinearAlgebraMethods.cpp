@@ -13,7 +13,9 @@
 **/
 
 #ifdef USE_MPI
+
 #include <mpi.h>
+
 #endif
 
 #include <lapacke.h>
@@ -182,7 +184,8 @@ void LinearAlgebraMethods<T>::InitiateFisherDescriptors(Configurations &aConfigu
 }
 
 template<typename T>
-void LinearAlgebraMethods<T>::InitiatePredictionDescriptors(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
+void LinearAlgebraMethods<T>::InitiatePredictionDescriptors(Configurations &aConfigurations,
+                                                            std::unique_ptr<ExaGeoStatData<T>> &aData) {
 
     if (!ExaGeoStatHardware::GetChameleonContext()) {
         throw std::runtime_error(
@@ -414,7 +417,7 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
         pMatrix = new T[full_problem_size];
         string path = aConfigurations.GetLoggerPath();
         ExaGeoStatDesc2Lap(pMatrix, full_problem_size, CHAM_descZ, EXAGEOSTAT_UPPER_LOWER);
-        if ( CHAMELEON_Comm_rank() == 0 ){
+        if (CHAMELEON_Comm_rank() == 0) {
             dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(*pMatrix, full_problem_size, P, path, *apLocation1);
         }
         delete[] pMatrix;
@@ -475,11 +478,11 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(std::unique_ptr<ExaGeoStatD
     auto *CHAM_desc_Zobs = aData->GetDescriptorData()->GetDescriptor(common::CHAMELEON_DESCRIPTOR,
                                                                      DescriptorName::DESCRIPTOR_Z_OBSERVATIONS).chameleon_desc;
 
-    T *mspe = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mspe);
+    T *mspe = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MSPE);
     *mspe = 0;
-    T *mspe_1 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mspe1);
+    T *mspe_1 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MSPE_1);
     *mspe_1 = 0;
-    T *mspe_2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mspe2);
+    T *mspe_2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MSPE_2);
     *mspe_2 = 0;
 
     auto kernel_name = aConfiguration.GetKernelName();
@@ -582,7 +585,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLEPredictTile(std::unique_ptr<ExaGeoStatD
                 "\n\n# of missing observations :%d\n\nPrediction Execution Time: %.8f, ""Flops: %.8f, Mean Square Prediction Error (MSPE): %.8f\n\n",
                 aZMissNumber, (mat_gen_time + time_solve + time_mspe), (flops / 1e9 / (time_solve)), *mspe);
     }
-    if(apZActual){
+    if (apZActual) {
         VERBOSE("\t- Z Actual .. Z Miss")
         for (i = 0; i < aZMissNumber; i++) {
             VERBOSE("\t (" << apZActual[i] << ", " << apZMiss[i] << ")")
@@ -638,11 +641,11 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<
     auto *CHAM_desc_Rcopy = aData->GetDescriptorData()->GetDescriptor(common::CHAMELEON_DESCRIPTOR,
                                                                       DescriptorName::DESCRIPTOR_R_COPY).chameleon_desc;
 
-    T *mspe = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mspe);
+    T *mspe = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MSPE);
     *mspe = 0;
-    T *mspe_1 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mspe1);
+    T *mspe_1 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MSPE_1);
     *mspe_1 = 0;
-    T *mspe_2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mspe2);
+    T *mspe_2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MSPE_2);
     *mspe_2 = 0;
 
     auto kernel_name = aConfiguration.GetKernelName();
@@ -731,8 +734,8 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<
     CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Rcopy, CHAM_desc_R, 0, CHAM_desc_C12);
     STOP_TIMING(time_gemm);
 
-    auto r = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_C12);
-    auto Zmiss2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_Zmiss);
+    auto r = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12);
+    auto Zmiss2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_MISS);
 
     auto ng_nu = new T[aZMissNumber];
     auto ng_sigma_sq = new T[aZMissNumber];
@@ -792,6 +795,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatMLENonGaussianPredictTile(std::unique_ptr<
     all_mspe[2] = *mspe_2;
     delete[] ng_sigma_sq;
     delete[] ng_nu;
+
     return all_mspe;
 }
 
@@ -854,9 +858,9 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
     auto *CHAM_desc_truth_alpha = aData->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                             DESCRIPTOR_TRUTH_ALPHA).chameleon_desc;
 
-    T *mloe = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mloe);
+    T *mloe = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MLOE);
     *mloe = 0;
-    T *mmom = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_mmom);
+    T *mmom = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_MMOM);
     *mmom = 0;
 
     // Create a Chameleon sequence, if not initialized before through the same descriptors
@@ -1090,12 +1094,12 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
         ExaGeoStatGeaddTile(EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_estimated_alpha, -1, CHAM_desc_expr4);
 
         VERBOSE("\t- Matrix Generation Time: " << matrix_gen << " Vectors Generation Time: " << vecs_gen
-                                             << " First Cholesky factorization Time: " << cholesky1
-                                             << " First Cholesky factorization Time: " << cholesky2)
+                                               << " First Cholesky factorization Time: " << cholesky1
+                                               << " First Cholesky factorization Time: " << cholesky2)
         VERBOSE("\t- First Trsm time: " << trsm1 << " Second Trsm time: " << trsm2 << " Third Trsm time: " << trsm3
-                                      << " Fourth Trsm time: " << trsm4)
+                                        << " Fourth Trsm time: " << trsm4)
         VERBOSE("\t- First gemm time: " << gevv1 << " Second gemm time: " << gevv2 << " Third gemm time: " << gevv3
-                                      << " Fourth gemm time: " << gevv4 << " Fifth gemm time: " << gevv5)
+                                        << " Fourth gemm time: " << gevv4 << " Fifth gemm time: " << gevv5)
         RuntimeFunctions<T>::ExaGeoStatMLETileAsyncMLOEMMOM(CHAM_desc_expr2, CHAM_desc_expr3, CHAM_desc_expr4,
                                                             CHAM_desc_mloe, CHAM_desc_mmom, sequence, request);
         this->ExaGeoStatSequenceWait(sequence);
@@ -1148,7 +1152,7 @@ T *LinearAlgebraMethods<T>::ExaGeoStatFisherTile(Configurations &aConfigurations
     auto *CHAM_desc_C_trace = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                         DescriptorName::DESCRIPTOR_C_TRACE).chameleon_desc;
 
-    auto trace = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_C_trace);
+    auto trace = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C_TRACE);
     *trace = 0.0;
 
     RUNTIME_request_t request_array[2] = {RUNTIME_REQUEST_INITIALIZER, RUNTIME_REQUEST_INITIALIZER};
@@ -1329,7 +1333,7 @@ LinearAlgebraMethods<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *a
         z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY).chameleon_desc;
     }
     double epsilon = 1e-8;
-    if (abs(((T *)z_desc->mat)[0]) < epsilon) {
+    if (abs(((T *) z_desc->mat)[0]) < epsilon) {
         z_desc = (CHAM_desc_t *) aDescData.GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
     }
     this->ExaGeoStatDesc2Lap(apZ, aSize, z_desc, UpperLower::EXAGEOSTAT_UPPER_LOWER);

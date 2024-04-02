@@ -55,7 +55,7 @@ void TEST_GENERATE_DATA() {
                                          0.623389, -1.341858, -1.054282, -1.669383, 0.219171, 0.971214, 0.538973,
                                          -0.752828, 0.290822};
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
-                                                                         DESCRIPTOR_Z).chameleon_desc;
+                                                                          DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         double diff;
 
@@ -107,7 +107,8 @@ void TEST_MODEL_DATA(Computation aComputation) {
     {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(aComputation, 4, 0); // Or you could use configurations.GetComputation().
-        std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+        std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
+                configurations.GetProblemSize(), configurations.GetDimension());
 
 
         //initiating the matrix of the CHAMELEON Descriptor Z.
@@ -135,7 +136,8 @@ void TEST_MODEL_DATA(Computation aComputation) {
         data->GetLocations()->SetLocationX(*location_x, N);
         data->GetLocations()->SetLocationY(*location_y, N);
 
-        double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data, z_matrix);
+        double log_likelihood = exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data,
+                                                                                            z_matrix);
         REQUIRE((log_likelihood - expected) == Catch::Approx(0.0).margin(1e-6));
 
         delete[] location_x;
@@ -177,7 +179,8 @@ void TEST_PREDICTION() {
     Configurations::SetVerbosity(QUIET_MODE);
 
     auto hardware = ExaGeoStatHardware(EXACT_DENSE, configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
-    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
+            configurations.GetProblemSize(), configurations.GetDimension());
 
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
                                    -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
@@ -241,7 +244,7 @@ void TEST_PREDICTION() {
         configurations.SetIsIDW(true);
         configurations.SetIsFisher(true);
         configurations.SetIsMLOEMMOM(true);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(configurations,data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
         exageostat::api::ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
     }
@@ -254,6 +257,8 @@ TEST_CASE("ExaGeoStat API tests") {
     TEST_GENERATE_DATA();
     TEST_MODEL_DATA(EXACT_DENSE);
     TEST_MODEL_DATA(DIAGONAL_APPROX);
+#ifdef USE_HICMA
     TEST_MODEL_DATA(TILE_LOW_RANK);
+#endif
     TEST_PREDICTION();
 }

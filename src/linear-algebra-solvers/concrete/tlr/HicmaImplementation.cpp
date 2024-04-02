@@ -12,8 +12,12 @@
  * @date 2024-02-04
 **/
 
+#include <mkl_service.h>
+
 #ifdef USE_MPI
+
 #include <mpi.h>
+
 #endif
 
 #include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
@@ -58,8 +62,7 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatDa
     int MD = full_problem_size;
     int ND = MBD;
     aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point,
-                                              MBD,
-                                              NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
+                                              MBD, NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
     int MBUV = lts;
     int NBUV = 2 * max_rank;
     int MUV;
@@ -158,17 +161,15 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &
                                                                      DescriptorName::DESCRIPTOR_DETERMINANT).hicma_desc;
     auto *CHAM_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                         DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
-    auto *HICMA_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
-                                                                         DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
     auto *HICMA_desc_sum = aData->GetDescriptorData()->GetDescriptor(DescriptorType::HICMA_DESCRIPTOR,
                                                                      DescriptorName::DESCRIPTOR_SUM).chameleon_desc;
     N = HICMA_descCUV->m;
     NRHS = HICMA_descZ->n;
     lts = HICMA_descZ->mb;
 
-    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_det);
+    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT);
     *determinant = 0;
-    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, CHAM_desc_product);
+    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT);
     *product = 0;
     T *sum;
 
@@ -246,19 +247,17 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &
         ExaGeoStatSequenceWait(pSequence);
 
         VERBOSE(" Done.")
-        sum = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, HICMA_desc_sum);
+        sum = aData->GetDescriptorData()->GetDescriptorMatrix(HICMA_DESCRIPTOR, DESCRIPTOR_SUM);
         *sum = 0;
 
         VERBOSE("LR:Calculating dot product...")
         CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_descZ, CHAM_descZ, 0, CHAM_desc_product);
         VERBOSE(" Done.")
 
+#ifdef USE_MPI
         double global_sum;
         double local_sum = *product;
-#ifdef USE_MPI
         MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#else
-        global_sum = *product;
 #endif
         RuntimeFunctions<T>::ExaGeoStatNonGaussianLogLikeTileAsync(aConfigurations.GetComputation(), HICMA_descZ,
                                                                    HICMA_desc_sum, (T *) theta, pSequence,
@@ -344,6 +343,9 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &
     Results::GetInstance()->SetLogLikValue(loglik);
 
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
+    // Due to a leak in HiCMA in ZGEMM, We had to free the buffer manually.
+    mkl_free_buffers();
+
     return loglik;
 }
 

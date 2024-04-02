@@ -45,10 +45,10 @@ namespace exageostat::runtime {
          *
          */
         static void
-        CovarianceMatrix(dataunits::DescriptorData <T> &aDescriptorData, void *apDescriptor, const int &aTriangularPart,
-                         dataunits::Locations <T> *apLocation1, dataunits::Locations <T> *apLocation2,
-                         dataunits::Locations <T> *apLocation3, T *apLocalTheta, const int &aDistanceMetric,
-                         const kernels::Kernel <T> *apKernel);
+        CovarianceMatrix(dataunits::DescriptorData<T> &aDescriptorData, void *apDescriptor, const int &aTriangularPart,
+                         dataunits::Locations<T> *apLocation1, dataunits::Locations<T> *apLocation2,
+                         dataunits::Locations<T> *apLocation3, T *apLocalTheta, const int &aDistanceMetric,
+                         const kernels::Kernel<T> *apKernel);
 
         /**
          * @brief Perform an asynchronous computation of MLE, MLOE, and MMOM for a tile.
@@ -93,7 +93,7 @@ namespace exageostat::runtime {
          *
          */
         static void
-        CopyDescriptorZ(dataunits::DescriptorData <T> &aDescriptorData, void *apDescriptor, T *apDoubleVector);
+        CopyDescriptorZ(dataunits::DescriptorData<T> &aDescriptorData, void *apDescriptor, T *apDoubleVector);
 
         /**
         * @brief Converts a Gaussian descriptor to a non-tiled descriptor.
@@ -104,7 +104,7 @@ namespace exageostat::runtime {
         *
         */
         static void
-        ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData <T> &aDescriptorData, void *apDesc, T *apTheta);
+        ExaGeoStatGaussianToNonTileAsync(dataunits::DescriptorData<T> &aDescriptorData, void *apDesc, T *apTheta);
 
         /**
         * @brief copy Chameleon descriptor to vector float*.

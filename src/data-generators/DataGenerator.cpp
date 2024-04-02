@@ -14,12 +14,10 @@
 #include <data-generators/DataGenerator.hpp>
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-loader/concrete/CSVLoader.hpp>
-#include <results/Results.hpp>
 
 using namespace exageostat::generators;
 using namespace exageostat::dataLoader::csv;
 using namespace exageostat::generators::synthetic;
-using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::results;
 

@@ -52,7 +52,7 @@ namespace exageostat::runtime {
          * @return void
          *
          */
-        void InsertTask(const common::Computation& aComputation, void *apDescA, void *apDescDet,
+        void InsertTask(const common::Computation &aComputation, void *apDescA, void *apDescDet,
                         std::unique_ptr<StarPuHelpers> &aStarPuHelpers);
 
     private:
@@ -73,7 +73,7 @@ namespace exageostat::runtime {
          * @return T The calculated determinant of the matrix.
          *
          */
-        static T core_dmdet(const T *apDescriptor,const int &aSize);
+        static T core_dmdet(const T *apDescriptor, const int &aSize);
 
         /// starpu_codelet struct
         static struct starpu_codelet cl_dmdet;

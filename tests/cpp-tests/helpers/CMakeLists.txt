@@ -14,4 +14,4 @@ set(EXAGEOSTAT_TESTFILES
 
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
-)
+        )

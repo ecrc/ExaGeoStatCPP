@@ -16,7 +16,6 @@
 
 #include <nlopt.hpp>
 
-#include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 #include <data-units/ExaGeoStatData.hpp>
 
@@ -59,6 +58,7 @@ namespace exageostat::api {
          * @param[in] aGrad  An array of length n where you can optionally return the gradient of the objective function.
          * @param[in] apInfo pointer containing needed configurations and data.
          * @return double MLE results.
+         *
          */
         static double ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
 
@@ -67,19 +67,16 @@ namespace exageostat::api {
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
+         * @param[in] apTrainLocations (Optional) Pointer to Locations representing training locations. these are used in training phase.
+         * @param[in] apTestLocations (Optional) Pointer to Locations representing test locations. These are used in prediction phase.
          * @return void
+         *
          */
-        static void ExaGeoStatPrediction(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                         T *apMeasurementsMatrix = nullptr,
-                                         dataunits::Locations<T> *apTrainLocations = nullptr,
-                                         dataunits::Locations<T> *apTestLocations = nullptr);
+        static void
+        ExaGeoStatPrediction(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
+                             T *apMeasurementsMatrix = nullptr, dataunits::Locations<T> *apTrainLocations = nullptr,
+                             dataunits::Locations<T> *apTestLocations = nullptr);
 
-    private:
-        /**
-         * @brief
-         * Prevent Class Instantiation for API Wrapper Class.
-         */
-        ExaGeoStat() = default;
     };
 
     /**

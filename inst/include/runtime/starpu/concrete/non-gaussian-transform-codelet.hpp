@@ -88,7 +88,8 @@ namespace exageostat::runtime {
          * @return T The calculated root of the function.
          *
          */
-        static double newton_raphson(T apDescriptorZ, T aTransLocation, T aTransScale, T aTransShape, T aTransKurtosis, T aEpsilon);
+        static double
+        newton_raphson(T apDescriptorZ, T aTransLocation, T aTransScale, T aTransShape, T aTransKurtosis, T aEpsilon);
 
         /**
          * @brief Calculates the Non-Gaussian transformation of a value.
@@ -101,7 +102,8 @@ namespace exageostat::runtime {
          * @return T The transformed value.
          *
          */
-        static double tukeyGHTransfor(T aOriginalValue, T aCurrentValue, T aTransLocation, T aTransScale, T aTransShape, T aTransKurtosis);
+        static double tukeyGHTransfor(T aOriginalValue, T aCurrentValue, T aTransLocation, T aTransScale, T aTransShape,
+                                      T aTransKurtosis);
 
         /**
          * @brief Calculates the derivative of the Non-Gaussian transformation.

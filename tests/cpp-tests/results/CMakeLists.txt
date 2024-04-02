@@ -11,4 +11,4 @@ set(EXAGEOSTAT_TESTFILES
         ${CMAKE_CURRENT_SOURCE_DIR}/TestResults.cpp
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
-)
+        )

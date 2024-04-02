@@ -22,9 +22,9 @@ for location and descriptor manipulation. It is initialized with the size and di
  \code{\link{ExaGeoStatData}} Creates a new instance of the \code{ExaGeoStatData} class.
  \code{ExaGeoStatData(size, dimension)}
  \describe{
- \item{\code{size}}{An integer representing the size of the data.}
- \item{\code{dimension}}{A string representing the dimensions of the data.}
-}
+    \item{\code{size}}{An integer representing the size of the locations data.}
+    \item{\code{dimension}}{A string representing the dimensions of the data. - available dimension ("2D", "3D", "ST")}
+    }
 }
 
 \value{
@@ -33,7 +33,7 @@ An object of class \code{ExaGeoStatData} representing a data component with the 
 
 \examples{
 problem_size <- 4
-dimension = "2D"
+dimension = "3D"
 empty_data <- new(Data, problem_size, dimension)
 }
 

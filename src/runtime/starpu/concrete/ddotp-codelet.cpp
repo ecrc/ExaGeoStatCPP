@@ -48,12 +48,12 @@ void DDOTPCodelet<T>::InsertTask(void *apDescA, void *apDescProduct) {
     auto desc_m = pDesc_A->m;
     auto desc_mb = pDesc_A->mb;
 
-    for ( row = 0; row < desc_mt; row++) {
+    for (row = 0; row < desc_mt; row++) {
         rows_num = row == desc_mt - 1 ? desc_m - row * desc_mb : desc_mb;
 
         starpu_insert_task(&this->cl_ddotp,
                            STARPU_VALUE, &rows_num, sizeof(int),
-                           STARPU_RW,(starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_product, 0, 0),
+                           STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_product, 0, 0),
                            STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_A, row, 0),
                            0);
     }

@@ -15,7 +15,6 @@
 #ifndef EXAGEOSTAT_CPP_CSVDATALOADER_HPP
 #define EXAGEOSTAT_CPP_CSVDATALOADER_HPP
 
-#include <data-generators/DataGenerator.hpp>
 #include <data-loader/DataLoader.hpp>
 
 namespace exageostat::dataLoader::csv {

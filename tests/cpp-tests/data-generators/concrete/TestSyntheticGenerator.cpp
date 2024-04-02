@@ -194,12 +194,13 @@ void TEST_GENERATE_LOCATIONS() {
     synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
     vector<double> initial_theta{1, 0.1, 0.5};
     synthetic_data_configurations.SetInitialTheta(initial_theta);
-    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+            synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
 
 
     auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
-                                                             synthetic_data_configurations.GetCoresNumber(),
-                                                             synthetic_data_configurations.GetGPUsNumbers());
+                                       synthetic_data_configurations.GetCoresNumber(),
+                                       synthetic_data_configurations.GetGPUsNumbers());
     SECTION("2D Generation")
     {
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
@@ -216,8 +217,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(x[i] != 0);
             REQUIRE(y[i] != 0);
         }
-    }
-    SECTION("3D Generation")
+    }SECTION("3D Generation")
     {
         synthetic_data_configurations.SetDimension(Dimension3D);
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
@@ -233,9 +233,8 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0);
             REQUIRE(z[i] != 0);
         }
-        
-    }
-    SECTION("ST Generation")
+
+    }SECTION("ST Generation")
     {
         synthetic_data_configurations.SetDimension(DimensionST);
         synthetic_data_configurations.SetTimeSlot(2);
@@ -252,7 +251,7 @@ void TEST_GENERATE_LOCATIONS() {
             REQUIRE(y[i] != 0.0);
             REQUIRE(z[i] != 0.0);
         }
-        
+
     }
 
     delete pKernel;
@@ -299,10 +298,11 @@ void TEST_GENERATION() {
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
         synthetic_data_configurations.SetComputation(exageostat::common::EXACT_DENSE);
         auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
-                                                                 synthetic_data_configurations.GetCoresNumber(),
-                                                                 synthetic_data_configurations.GetGPUsNumbers());
+                                           synthetic_data_configurations.GetCoresNumber(),
+                                           synthetic_data_configurations.GetGPUsNumbers());
 
-        Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
+        Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+                synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
 
         unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
                 synthetic_data_configurations);

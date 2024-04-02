@@ -12,6 +12,9 @@
  * @date 2023-07-17
 **/
 
+#include <iostream>
+
+#include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <data-units/descriptor/concrete/ChameleonDescriptor.hpp>
 
 #ifdef USE_HICMA
@@ -19,8 +22,6 @@
 #include <data-units/descriptor/concrete/HicmaDescriptor.hpp>
 
 #endif
-
-#include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 
 using namespace exageostat::common;
 using namespace exageostat::dataunits::descriptor;

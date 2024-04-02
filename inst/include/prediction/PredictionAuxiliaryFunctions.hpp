@@ -40,6 +40,7 @@ namespace exageostat::prediction {
          * @param[in] aObsLocation Reference to the observed locations.
          * @param[out] apMSPE Pointer to be filled with MSPE value.
          * @return T Array provides insight into the accuracy of the IDW-interpolated predictions for missing values
+         *
          */
         static void PredictIDW(T *apZMiss, T *apZActual, T *apZObs, const int &aZMissNumber, const int &aZObsNumber,
                                exageostat::dataunits::Locations<T> &aMissLocation,

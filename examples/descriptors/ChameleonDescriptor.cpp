@@ -90,10 +90,10 @@ int main(int argc, char **argv) {
 
     // Print Data Matrix of Descriptor
     LOGGER("** Data in Matrix:")
-    LOGGER_2("",0)
+    LOGGER_2("", 0)
     auto *data_mat = (double *) CHAM_descriptorC->mat;
     for (int i = 0; i < config_problem_size; ++i) {
-            LOGGER_PRECISION_1(" " << data_mat[i],0)
+        LOGGER_PRECISION_1(" " << data_mat[i], 0)
     }
 
     delete kernel;

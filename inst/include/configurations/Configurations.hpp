@@ -27,7 +27,6 @@
  * the specified type and sets the member variable with the specified name
  * to the value of the argument. The name of the member variable is used as
  * the key to set the corresponding value in the specified dictionary.
- *
  * @param[in] name The name of the member variable to be set.
  * @param[in] type The data type of the member variable.
  * @param[in] argument_name The name of the argument to the generated function.
@@ -44,7 +43,6 @@ void Set##name(type argument_name)                                          \
  * @brief Macro that generates a getter function for a member variable.
  * @details This macro generates a function named Get##name that returns the value of
  * the member variable with the specified name from the specified dictionary.
- *
  * @param[in] name The name of the member variable to be retrieved.
  * @param[in] type The data type of the member variable.
  * @param[in] dictionary_name The name of the dictionary to retrieve the value from.
@@ -86,6 +84,7 @@ namespace exageostat::configurations {
          * @param[in] apArgV The array of arguments.
          * @param[in] aEnableR check if R is enabled
          * @details This method initializes the command line arguments and set default values for unused args.
+         * @return void
          *
          */
         void InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR = false);
@@ -93,6 +92,7 @@ namespace exageostat::configurations {
         /**
          * @brief Initialize the all theta arguments.
          * @return void
+         *
          */
         void InitializeAllTheta();
 
@@ -353,6 +353,7 @@ namespace exageostat::configurations {
          * @brief Checks the value of the unknown observations parameter.
          * @param[in] aValue A string representing the number of unknown observations.
          * @return The corresponding integer value.
+         *
          */
         int CheckUnknownObservationsValue(const std::string &aValue);
 
@@ -369,12 +370,14 @@ namespace exageostat::configurations {
          * @brief print the summary of MLE inputs.
          * @param[in] aRank A MPI Rank variable
          * @return void
+         *
          */
         inline void PrintSummary(int aRank = 0);
 
         /**
          * @brief Calculates the number of observed measurements.
          * @return number of observed measurements.
+         *
          */
         int CalculateZObsNumber();
 
@@ -391,6 +394,7 @@ namespace exageostat::configurations {
          * @brief parse user's input to distance metric.
          * @param[in] aDistanceMetric string specifying the used distance metric.
          * @return void
+         *
          */
         void ParseDistanceMetric(const std::string &aDistanceMetric);
 

@@ -36,6 +36,7 @@ namespace exageostat::kernels {
         /**
          * @brief Constructs a new UnivariateSpacetimeMaternStationary object.
          * @details Initializes a new UnivariateSpacetimeMaternStationary object with default values.
+         *
          */
         UnivariateSpacetimeMaternStationary();
 
@@ -48,6 +49,7 @@ namespace exageostat::kernels {
         /**
          * @brief Generates a covariance matrix using a set of locations and kernel parameters.
          * @copydoc Kernel::GenerateCovarianceMatrix()
+         *
          */
         void
         GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,

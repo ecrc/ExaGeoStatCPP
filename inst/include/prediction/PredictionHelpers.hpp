@@ -29,6 +29,7 @@ namespace exageostat::prediction {
     template<typename T>
     class PredictionHelpers {
     public:
+
         /**
         * @brief Pick random Z points for prediction depending on p.
         * @param[in] aConfigurations Configurations object containing relevant settings.
@@ -40,6 +41,7 @@ namespace exageostat::prediction {
         * @param[out] aObsLocation Location object to be filled with missed locations.
         * @param[in] aP the P value of the kernel multiplied by time slot.
         * @return void
+        *
         */
         static void PickRandomPoints(configurations::Configurations &aConfigurations,
                                      std::unique_ptr<ExaGeoStatData<T>> &aData, T *apZObs, T *apZActual, T *apZ,
@@ -52,6 +54,7 @@ namespace exageostat::prediction {
          * @param[in, out] aLocations Locations to be shuffled.
          * @param[out] aSize Size of data.
          * @return void
+         *
          */
         static void Shuffle(T *apArray, exageostat::dataunits::Locations<T> &aLocations, int aSize);
 
@@ -62,6 +65,7 @@ namespace exageostat::prediction {
          * @param[in, out] aLocations Locations to be shuffled.
          * @param[out] aSize Size of data.
          * @return void
+         *
          */
         static void Shuffle(T *apArray1, T *apArray2, exageostat::dataunits::Locations<T> &aLocations, int aSize);
 
@@ -73,6 +77,7 @@ namespace exageostat::prediction {
          * @param[in, out] aLocations Locations to be shuffled.
          * @param[out] aSize Size of data.
          * @return void
+         *
          */
         static void
         Shuffle(T *apArray1, T *apArray2, T *apArray3, exageostat::dataunits::Locations<T> &aLocations, int aSize);
@@ -83,6 +88,7 @@ namespace exageostat::prediction {
          * @param aCount[in] Number of elements in the input array.
          * @param aDimension[in] Dimension of the input data.
          * @return void
+         *
          */
         static void SortArray(uint32_t *aData, int aCount);
 
@@ -93,6 +99,7 @@ namespace exageostat::prediction {
          * @param[in,out] aLocations Reference to the Locations object containing X and Y coordinates (input/output).
          * @param[in,out] apZ Pointer to the array containing observation values (input/output).
          * @return 0 if the sorting is successful.
+         *
          */
         static int SortInplace(int aN, exageostat::dataunits::Locations<T> &aLocations, T *apZ);
 

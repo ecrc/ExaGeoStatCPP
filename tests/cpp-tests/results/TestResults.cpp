@@ -25,9 +25,9 @@ void TEST_SINGLETON_RESULTS() {
 }
 
 void TEST_SETTERS_AND_GETTERS() {
-    
+
     auto results_instacne = Results::GetInstance();
-    
+
     SECTION("Total Modeling Execution Time Setter/Getter") {
         results_instacne->SetTotalModelingExecutionTime(1.0);
         REQUIRE(results_instacne->GetTotalModelingExecutionTime() == 1.0);

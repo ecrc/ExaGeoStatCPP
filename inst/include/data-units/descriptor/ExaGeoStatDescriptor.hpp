@@ -15,8 +15,6 @@
 #ifndef EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
 #define EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
 
-#include <iostream>
-
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <common/Definitions.hpp>

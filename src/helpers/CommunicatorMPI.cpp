@@ -23,12 +23,11 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
     return mpInstance;
 }
 
-int CommunicatorMPI::GetRank() const{
+int CommunicatorMPI::GetRank() const {
 #ifdef USE_MPI
-    if(!mIsHardwareInitialized){
+    if (!mIsHardwareInitialized) {
         return 0;
-    }
-    else{
+    } else {
         return CHAMELEON_Comm_rank();
     }
 #else
@@ -39,6 +38,7 @@ int CommunicatorMPI::GetRank() const{
 void CommunicatorMPI::SetHardwareInitialization() {
     mIsHardwareInitialized = true;
 }
+
 void CommunicatorMPI::RemoveHardwareInitialization() {
     mIsHardwareInitialized = false;
 }

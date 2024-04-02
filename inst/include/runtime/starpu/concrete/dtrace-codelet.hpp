@@ -72,7 +72,7 @@ namespace exageostat::runtime {
          * @return The calculated trace of the matrix.
          *
          */
-        static double core_dtrace(const T *pDescriptor,const int &aSize, T *pTrace);
+        static double core_dtrace(const T *pDescriptor, const int &aSize, T *pTrace);
 
         /// starpu_codelet struct
         static struct starpu_codelet cl_dtrace;

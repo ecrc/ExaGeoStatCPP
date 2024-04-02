@@ -60,6 +60,7 @@ namespace exageostat::generators {
         virtual ~DataGenerator();
 
     protected:
+
         /// Used enum for data generators types.
         static common::DataSourceType aDataSourceType;
     };

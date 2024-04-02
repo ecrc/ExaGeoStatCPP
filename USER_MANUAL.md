@@ -13,10 +13,10 @@ ExaGeoStatCPP User Manual
 
 ## Configurations
 
-* Run the help of `config.sh` to know the needed arguments for your specific options.
+* Run the help of `configure` to know the needed arguments for your specific options.
 
 ```commandline
-./config.sh -h
+./configure -h
 ```
 
 * To Enable support of HiCMA, add `-H` disabled by default.
@@ -29,6 +29,8 @@ ExaGeoStatCPP User Manual
 * To change the installation path of the dependencies, use `-i <installation/path>` project_path/installdir/_deps/ by default on Unix systems.
 * To enable manually passing mkl as BLA vendor, add `--use-mkl` MKL by default.
 * To enable packaging system for distribution, add `-p` disabled by default.
+* To enable showing code warnings, add `-w` disabled by default.
+* To manually set mkl as blas vendor, add `--use-mkl`. MKL is required as blas vendor and it's automatically detected but in some environments it need to be manually set.
 
 ## Building
 
@@ -241,7 +243,7 @@ The subsequent arguments are as follows:
  - `number of gpus`: Specifies the number of GPUs to be used for the solver.
 
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R
 hardware <- new(Hardware, computation, number of cores, number of gpus);
 hardware$finalize_hardware()
@@ -273,25 +275,15 @@ Here we use already existing data by providing the path to it:
 
 - The Data Path must be passed to Configuration
 ```
---log_path=<path/to/file>
+data_path <- <path/to/file>
 ```
 
 And then using the following code:
 
-```c++
-// Create a new ExaGeoStat data that holds the locations data and descriptors data.
-std::unique_ptr<ExaGeoStatData<double>> data;
+```R
+exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension, data_path=data_path)
 
-// Generate data by passing your arguments through the configurations, your hardware and your container of the data which will be filled with the new generated data.
-ExaGeoStat<double>::ExaGeoStatLoadData(hardware, configurations, data);
 ```
-The subsequent arguments are as follows:
-
- - `kernel`: Specifies the kernel function to be used in the simulation.
- - `initial_theta`: Sets the initial values for the parameters of the simulation.
- - `problem_size`: Defines the size of the problem or dataset to be simulated.
- - `dts`: Specifies the time steps or intervals for the simulation.
- - `dimension`: Indicates the dimensionality of the data to be simulated.
 
 ### Location Getters
 
@@ -301,7 +293,7 @@ ExaGeoStat supports locations data of dimension upto 3D, and therefore we have g
 ```c++
 double *locations_x = exageostat_data->GetLocations()->GetLocationX();
 ```
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R 
 locations_x <- get_locationsX(data=exageostat_data)
 ```
@@ -313,7 +305,7 @@ The subsequent arguments are as follows:
 ```c++
 double *locations_y = exageostat_data->GetLocations()->GetLocationY();
 ```
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R 
 locations_y <- get_locationsY(data=exageostat_data)
 ```
@@ -325,7 +317,7 @@ The subsequent arguments are as follows:
 ```c++
 double *locations_z = exageostat_data->GetLocations()->GetLocationZ();
 ```
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R 
 locations_x <- get_locationsZ(data=exageostat_data)
 ```
@@ -347,7 +339,7 @@ The used variables are as follows:
 - `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 - `desc_Z_values`: pointer to descriptor matrix.
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R 
 desc_Z_values <- get_Z_measurement_vector(data=exageostat_data, type="chameleon")
 ```
@@ -365,24 +357,14 @@ ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_mat
 ```
 
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R
-theta <- model_data(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, dimension=dimension, lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation)
+estimated_theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation, band=1)
 ```
-This function models data based on specified parameters:
-
- - `data`: The dataset to be used for modeling.
- - `matrix`: The matrix of values to be used in the model.
- - `x`: The x-coordinates of the data points.
- - `y`: The y-coordinates of the data points.
- - `kernel`: The kernel function to be applied in the model.
- - `dts`: The time steps or intervals for the model.
- - `dimension`: The dimensionality of the data.
- - `lb`: The lower bound for the model parameters.
- - `ub`: The upper bound for the model parameters.
- - `mle_itr`: The number of iterations for maximum likelihood estimation.
- - `computation`: The computation mode for the model.
-
+Or
+```R
+estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
+```
 
 ### Data Prediction
 ```c++
@@ -391,20 +373,10 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R
-predict_data(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, estimated_theta=estimated_theta, z_miss=5)
+predict_data(train_data=list(locations_x, locations_y, locations_z, z_value), test_data=list(test_x, test_y, test_z), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 ```
-This function predicts data based on specified parameters:
-
- - `data`: The dataset to be used for prediction.
- - `matrix`: The matrix of values to be used in the prediction.
- - `x`: The x-coordinates of the data points.
- - `y`: The y-coordinates of the data points.
- - `kernel`: The kernel function to be applied in the prediction.
- - `dts`: The time steps or intervals for the prediction.
- - `estimated_theta`: The estimated parameters from the model.
- - `z_miss`: The number of missing values to be handled in the prediction.
 
 ### Fisher Function
 1. Pass the fisher arguments to the Configurations.
@@ -419,20 +391,10 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R
-fisher(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, estimated_theta=estimated_theta, z_miss=5)
+fisher_matrix <- fisher(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 ```
-This function predicts data based on specified parameters:
-
- - `data`: The dataset to be used for the Fisher method.
- - `matrix`: The matrix of values to be used in the Fisher method.
- - `x`: The x-coordinates of the data points.
- - `y`: The y-coordinates of the data points.
- - `kernel`: The kernel function to be applied in the Fisher method.
- - `dts`: The time steps or intervals for the Fisher method.
- - `estimated_theta`: The initial estimated parameters for the Fisher method.
- - `z_miss`: The number of missing values to be handled in the Fisher method.
 
 ### MLOE-MMOM Function
 1. Pass the MLOE-MMOM arguments to the Configurations.
@@ -448,21 +410,10 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R
-mloe_mmom(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, estimated_theta=estimated_theta, true_theta=estimated_theta, z_miss=5)
+result_mloe_mmom = mloe_mmom(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, true_theta=true_theta)
 ```
-This function predicts data based on specified parameters:
-
- - `data`: The dataset to be used for the MLE.
- - `matrix`: The matrix of values to be used in the MLE.
- - `x`: The x-coordinates of the data points.
- - `y`: The y-coordinates of the data points.
- - `kernel`: The kernel function to be applied in the MLE.
- - `dts`: The time steps or intervals for the MLE.
- - `estimated_theta`: The initial estimated parameters for the MLE.
- - `true_theta`: The true parameters for the MLE, used for comparison or validation.
- - `z_miss`: The number of missing values to be handled in the MLE.
 
 ### IDW Function
 1. Pass the IDW arguments to the Configurations.
@@ -478,21 +429,10 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStatR wrapper*
+##### *ExaGeoStat R wrapper*
 ```R
-idw(data=empty_data, matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, estimated_theta=estimated_theta, z_miss=5)
+idw_error = idw(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, test_measurements=test_measurements)
 ```
-This function predicts data based on specified parameters:
-
- - `data`: The dataset to be used for the IDW.
- - `matrix`: The matrix of values to be used in the IDW.
- - `x`: The x-coordinates of the data points.
- - `y`: The y-coordinates of the data points.
- - `kernel`: The kernel function to be applied in the IDW.
- - `dts`: The time steps or intervals for the IDW.
- - `estimated_theta`: The initial estimated parameters for the IDW.
- - `z_miss`: The number of missing values to be handled in the IDW.
-
 ## Contributing
 [Contribution Guidelines](CONTRIBUTING.md)
  - 

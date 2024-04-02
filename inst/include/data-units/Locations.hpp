@@ -39,6 +39,7 @@ namespace exageostat::dataunits {
         /**
          * @brief Default copy constructor.
          * @param[in] aLocations Locations to be copied.
+         *
          */
         Locations(const Locations<T> &aLocations) = default;
 

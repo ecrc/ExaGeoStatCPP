@@ -54,7 +54,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {
@@ -64,7 +64,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternNonGaussian() {
         };
 
         for (size_t i = 0; i < N; i++) {
-            double diff = A[i] - expected_output_data[i]/2;
+            double diff = A[i] - expected_output_data[i] / 2;
             REQUIRE(diff == Catch::Approx(0.0).margin(1e-6));
         }
     }

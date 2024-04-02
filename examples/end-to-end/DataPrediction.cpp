@@ -46,7 +46,8 @@ int main(int argc, char **argv) {
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
+            configurations.GetProblemSize(), configurations.GetDimension());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,

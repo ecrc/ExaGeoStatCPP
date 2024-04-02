@@ -31,8 +31,8 @@ RcppExport SEXP _rcpp_module_boot_ExaGeoStatCPP();
  * @brief Array of R function call entries.
  */
 static const R_CallMethodDef CallEntries[] = {
-    {"_rcpp_module_boot_ExaGeoStatCPP", (DL_FUNC) &_rcpp_module_boot_ExaGeoStatCPP, 0},
-    {nullptr, nullptr,                                                0}
+        {"_rcpp_module_boot_ExaGeoStatCPP", (DL_FUNC) &_rcpp_module_boot_ExaGeoStatCPP, 0},
+        {nullptr,                           nullptr,                                    0}
 };
 
 /**

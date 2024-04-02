@@ -13,12 +13,10 @@
 **/
 
 #include <data-loader/DataLoader.hpp>
-#include <results/Results.hpp>
 
 using namespace std;
 
 using namespace exageostat::dataLoader;
-using namespace exageostat::dataunits;
 using namespace exageostat::common;
 using namespace exageostat::results;
 

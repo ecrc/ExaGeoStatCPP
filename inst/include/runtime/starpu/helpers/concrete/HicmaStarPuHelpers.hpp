@@ -63,7 +63,7 @@ namespace exageostat::runtime {
          * @copydoc StarPuHelpers::ExaGeoStatDataGetAddr()
          *
          */
-        void *ExaGeoStatDataGetAddr(void *apDescriptor, const int& aDescRow, const int& aDescCol) override;
+        void *ExaGeoStatDataGetAddr(void *apDescriptor, const int &aDescRow, const int &aDescCol) override;
 
         /**
          *  @brief Get the number of tile rows of the sub-matrix

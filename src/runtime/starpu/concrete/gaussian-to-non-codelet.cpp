@@ -63,7 +63,8 @@ void GaussianCodelet<T>::cl_gaussian_to_non_function(void **apBuffers, void *apC
     pTheta = new T[6];
     pDescriptorZ = (T *) STARPU_MATRIX_GET_PTR(apBuffers[0]);
 
-    starpu_codelet_unpack_args(apCodeletArguments, &rows_num, &pTheta[0], &pTheta[1], &pTheta[2], &pTheta[3], &pTheta[4],
+    starpu_codelet_unpack_args(apCodeletArguments, &rows_num, &pTheta[0], &pTheta[1], &pTheta[2], &pTheta[3],
+                               &pTheta[4],
                                &pTheta[5]);
     //core function to convert Z tile from Gaussian to non-Gaussian.
     core_gaussian_to_non(pDescriptorZ, pTheta, rows_num);
@@ -71,7 +72,7 @@ void GaussianCodelet<T>::cl_gaussian_to_non_function(void **apBuffers, void *apC
 }
 
 template<typename T>
-void GaussianCodelet<T>::core_gaussian_to_non(T *apDescriptorZ,const T *apLocalTheta, const int &aSize) {
+void GaussianCodelet<T>::core_gaussian_to_non(T *apDescriptorZ, const T *apLocalTheta, const int &aSize) {
 
     T xi = apLocalTheta[2];
     T omega = apLocalTheta[3];
@@ -87,7 +88,8 @@ void GaussianCodelet<T>::core_gaussian_to_non(T *apDescriptorZ,const T *apLocalT
             apDescriptorZ[i] = xi + omega * apDescriptorZ[i] * (exp(0.5 * h * pow(apDescriptorZ[i], 2)));
     } else {
         for (i = 0; i < aSize; i++)
-            apDescriptorZ[i] = xi + omega * (exp(g * apDescriptorZ[i]) - 1) * (exp(0.5 * h * pow(apDescriptorZ[i], 2))) / g;
+            apDescriptorZ[i] =
+                    xi + omega * (exp(g * apDescriptorZ[i]) - 1) * (exp(0.5 * h * pow(apDescriptorZ[i], 2))) / g;
     }
 }
 

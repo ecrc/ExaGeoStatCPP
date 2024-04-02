@@ -51,7 +51,7 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
         std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {-0.696887, -2.069051, -0.417382, -1.001165, -0.235721, -1.726871, -0.285059,

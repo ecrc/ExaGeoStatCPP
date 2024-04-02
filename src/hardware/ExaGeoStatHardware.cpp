@@ -61,7 +61,7 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
 }
 
-void ExaGeoStatHardware::FinalizeHardware(){
+void ExaGeoStatHardware::FinalizeHardware() {
     // finalize hardware using Chameleon
     if (mpChameleonContext) {
         CHAMELEON_Finalize()
@@ -79,18 +79,7 @@ void ExaGeoStatHardware::FinalizeHardware(){
 ExaGeoStatHardware::~ExaGeoStatHardware() {
 
     Results::GetInstance()->PrintEndSummary();
-    // finalize hardware using Chameleon
-    if (mpChameleonContext) {
-        CHAMELEON_Finalize()
-        mpChameleonContext = nullptr;
-    }
-    // finalize hardware using HiCMA
-#ifdef USE_HICMA
-        if (mpHicmaContext) {
-            HICMA_Finalize();
-            mpHicmaContext = nullptr;
-        }
-#endif
+    FinalizeHardware();
     exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
@@ -118,5 +107,5 @@ void *ExaGeoStatHardware::GetContext(Computation aComputation) {
     return nullptr;
 }
 
-void * ExaGeoStatHardware::mpChameleonContext = nullptr;
-void * ExaGeoStatHardware::mpHicmaContext = nullptr;
+void *ExaGeoStatHardware::mpChameleonContext = nullptr;
+void *ExaGeoStatHardware::mpHicmaContext = nullptr;

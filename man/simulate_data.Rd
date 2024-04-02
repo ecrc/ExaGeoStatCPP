@@ -61,9 +61,9 @@ simulate_data(kernel, initial_theta, distance_matrix = "euclidean", problem_size
 \item{initial_theta}{A list of initial theta parameters.}
 \item{distance_matrix}{A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
 \item{problem_size}{A numeric value representing the size of the problem to simulate.}
-\item{seed A numeric}{value specifying the seed for random number generation. Default is 0.}
-\item{dts A numeric}{value representing the time step size.}
-\item{lts A numeric}{value representing the length step size. Default is 0.}
+\item{seed}{ A numeric value specifying the seed for random number generation. Default is 0.}
+\item{dts}{ A numeric value representing the time step size.}
+\item{lts}{ A numeric  value representing the length step size. Default is 0.}
 \item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D".}
 \item{log_path}{A string specifying the path for logging. Default is "".}
 \item{data_path}{A string specifying the path for data storage. Default is "".}
@@ -91,9 +91,6 @@ empty_data <- new(Data, problem_size, dimension)
 
 dts <- 2
 kernel <- "univariate_matern_stationary"
-z_value <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967, -0.163880452049749520)
-locations_x <- c(0.193041886015106440, 0.330556191348134576, 0.181612878614480805, 0.370473792629892440)
-locations_y <- c(0.103883421072709245, 0.135790035858701447, 0.434683756771190977, 0.400778210116731537)
 initial_theta <- c(1,0.1,0.5)
 
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)

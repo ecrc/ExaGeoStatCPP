@@ -48,11 +48,12 @@ void TEST_CSV_P_1() {
     vector<double> initial_theta{1, 0.1, 0.5};
     configurations.SetInitialTheta(initial_theta);
 
-    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+            configurations.GetKernelName(), configurations.GetTimeSlot());
 
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(),
-                                                             configurations.GetCoresNumber(),
-                                                             configurations.GetGPUsNumbers());
+                                       configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
@@ -91,10 +92,7 @@ void TEST_CSV_P_1() {
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N, p, write_path, locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
 
@@ -124,10 +122,7 @@ void TEST_CSV_P_1() {
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N, p, write_path, locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
         auto data_loc_z = data->GetLocations()->GetLocationZ();
@@ -160,10 +155,7 @@ void TEST_CSV_P_1() {
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N, p, write_path, locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
         auto data_loc_time = data->GetLocations()->GetLocationZ();
@@ -198,12 +190,13 @@ void TEST_CSV_P_2() {
     configurations.SetComputation(exageostat::common::EXACT_DENSE);
     configurations.SetDataPath(read_path);
 
-    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+            configurations.GetKernelName(), configurations.GetTimeSlot());
     int p = pKernel->GetVariablesNumber();
 
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(),
-                                                             configurations.GetCoresNumber(),
-                                                             configurations.GetGPUsNumbers());
+                                       configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
@@ -251,13 +244,10 @@ void TEST_CSV_P_2() {
         locations.SetLocationY(*location_y, N);
 
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N * p, p, write_path,
-                                                                    locations);
+                                                    locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
 
@@ -288,13 +278,10 @@ void TEST_CSV_P_2() {
         locations.SetLocationZ(*location_z, N);
 
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N * p, p, write_path,
-                                                                    locations);
+                                                    locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
         auto data_loc_z = data->GetLocations()->GetLocationZ();
@@ -328,13 +315,10 @@ void TEST_CSV_P_2() {
         locations.SetLocationZ(*location_time, N);
 
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N * p, p, write_path,
-                                                                    locations);
+                                                    locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
         auto data_loc_time = data->GetLocations()->GetLocationZ();
@@ -371,12 +355,13 @@ void TEST_CSV_P_3() {
     vector<double> initial_theta{1, 1, 1, 0.1, 0.5, 1, 1.5, 0.1, 0.1, 0};
     configurations.SetInitialTheta(initial_theta);
 
-    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(configurations.GetKernelName(), configurations.GetTimeSlot());
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+            configurations.GetKernelName(), configurations.GetTimeSlot());
     int p = pKernel->GetVariablesNumber();
 
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(),
-                                                             configurations.GetCoresNumber(),
-                                                             configurations.GetGPUsNumbers());
+                                       configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers());
 
     //creating locations x and y.
     auto *location_x = new double[N]{0.193041886015106440, 0.330556191348134576, 0.181612878614480805,
@@ -421,13 +406,10 @@ void TEST_CSV_P_3() {
         locations.SetLocationY(*location_y, N);
 
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N * p, p, write_path,
-                                                                    locations);
+                                                    locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
 
@@ -456,13 +438,10 @@ void TEST_CSV_P_3() {
         locations.SetLocationZ(*location_z, N);
 
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N * p, p, write_path,
-                                                                    locations);
+                                                    locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
         auto data_loc_z = data->GetLocations()->GetLocationZ();
@@ -494,13 +473,10 @@ void TEST_CSV_P_3() {
         locations.SetLocationZ(*location_time, N);
 
         CSVLoader<double>::GetInstance()->WriteData(*measurements_matrix, N * p, p, write_path,
-                                                                    locations);
+                                                    locations);
         auto data = csv_reader->CreateData(configurations, *pKernel);
 
-        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR,
-                                                                         data->GetDescriptorData()->GetDescriptor(
-                                                                                 CHAMELEON_DESCRIPTOR,
-                                                                                 DESCRIPTOR_Z).chameleon_desc);
+        auto z_desc_mat = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
         auto data_loc_x = data->GetLocations()->GetLocationX();
         auto data_loc_y = data->GetLocations()->GetLocationY();
         auto data_loc_time = data->GetLocations()->GetLocationZ();
