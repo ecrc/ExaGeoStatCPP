@@ -29,10 +29,10 @@ struct starpu_codelet GaussianCodelet<T>::cl_gaussian_to_non = {
 #else
         .where        = STARPU_CPU,
         .cpu_funcs    = {cl_gaussian_to_non_function},
-        .nbuffers    = 1,
+#endif
+       .nbuffers    = 1,
         .modes        = {STARPU_RW},
         .name        = "gaussian_to_non"
-#endif
 };
 
 template<typename T>
@@ -92,4 +92,5 @@ void GaussianCodelet<T>::core_gaussian_to_non(T *apDescriptorZ, const T *apLocal
                     xi + omega * (exp(g * apDescriptorZ[i]) - 1) * (exp(0.5 * h * pow(apDescriptorZ[i], 2))) / g;
     }
 }
+
 
