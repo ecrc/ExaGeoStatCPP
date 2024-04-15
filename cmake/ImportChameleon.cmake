@@ -39,6 +39,7 @@ ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_
 # The AFTER keyword specifies that these directories should be searched after the default ones.
 include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
 include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)
+include_directories(${CHAMELEON_DIR_FOUND})
 
 # Print a status message indicating the completion of Chameleon's inclusion process.
 message(STATUS "${name} done")

@@ -136,7 +136,7 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
 #ifdef USE_CUDA
     int nDevices;
     cudaGetDeviceCount(&nDevices);
-    uniform_int_distribution<int> gpu_size_distribution(1, nDevices);
+    uniform_int_distribution<int> gpu_size_distribution(0, nDevices - 1);
     arguments_vector.push_back("--gpus=" + to_string(gpu_size_distribution(gen)));
 #endif
 

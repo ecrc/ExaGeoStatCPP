@@ -63,8 +63,6 @@ enable_language(CXX)
 # Get the current path of the project.
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
 
-
-
 # ExaGeoStatCPP depends on a CUDA
 # -------------------------------
 if (USE_CUDA)

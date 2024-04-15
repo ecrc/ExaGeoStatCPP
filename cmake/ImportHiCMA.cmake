@@ -35,6 +35,8 @@ ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_
 
 # Directories containing HiCMA headers are included in the project, ensuring that HiCMA's functions and types are accessible.
 include_directories(${HICMA_LIBDIR}/../hicma-src/hicma_ext)
+include_directories(${HICMA_LIBDIR}/../hicma_ext)
+
 # A status message is displayed to indicate the successful inclusion of the HiCMA library into the project.
 message(STATUS "HiCMA done")
 
