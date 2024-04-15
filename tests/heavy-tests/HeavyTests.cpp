@@ -13,7 +13,6 @@
 
 #include <iostream>
 #include <thread>
-#include <random>
 
 #ifdef USE_CUDA
 #include <cuda_runtime.h>
@@ -21,13 +20,10 @@
 
 #include <catch2/catch_all.hpp>
 
-#include <api/ExaGeoStat.hpp>
 #include <kernels/Kernel.hpp>
 
 using namespace std;
 
-using namespace exageostat::dataunits;
-using namespace exageostat::api;
 using namespace exageostat::kernels;
 
 void GenerateCommandLineArguments(const string &aKernelName, const string &aComputation, vector<string> &aDimensions,
@@ -62,7 +58,7 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
     int N_value = problem_size_distribution(gen);
 
     if (aComputation == "tlr") {
-        uniform_int_distribution<int> lts_distribution(LOWER_SIZE, N_value);
+        uniform_int_distribution<int> lts_distribution(LOWER_SIZE, N_value / 2);
         lts = lts_distribution(gen);
         N_value = lts * lts;
         if (aKernelName.find("Bivariate") != string::npos || aKernelName.find("Trivariate") != string::npos) {
@@ -168,7 +164,7 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
 
 TEST_CASE("END-TO-END") {
 
-// Add all the possible combination of code.
+    // Add all the possible combination of code.
     vector<string> kernels_vector = {
             "BivariateMaternFlexible",
             "BivariateMaternParsimonious",
@@ -191,38 +187,25 @@ TEST_CASE("END-TO-END") {
 
     size_t combination_number = 1;
     size_t number_of_iterations = 1;
-    for (
-            int i = 0;
-            i < number_of_iterations;
-            i++) {
-        cout << "**** END-TO_END TESTS -- ITERATION NUMBER (" << i + 1 << ") ****" <<
-             endl;
+    for (int i = 0; i < number_of_iterations; i++) {
+        cout << "**** END-TO_END TESTS -- ITERATION NUMBER (" << i + 1 << ") ****" << endl;
+
         // Generate combinations.
-        for (
-            const auto &current_kernel
-                : kernels_vector) {
-            for (
-                const auto &computation
-                    : computation_vector) {
-                for (
-                    const auto &precision
-                        : precision_vector) {
-                    for (
-                        const auto &distance_type
-                            : distance_vector) {
+        for (const auto &current_kernel: kernels_vector) {
+            for (const auto &computation: computation_vector) {
+                for (const auto &precision: precision_vector) {
+                    for (const auto &distance_type: distance_vector) {
+
                         vector<string> arguments_vector;
                         // This helper function will fill the arguments vector with the software arguments commands
                         GenerateCommandLineArguments(current_kernel, computation, dimensions_vector, precision,
-                                                     arguments_vector, distance_type
-                        );
+                                                     arguments_vector, distance_type);
                         // Generate combination of dimensions.
-                        for (
-                            const auto &dimension
-                                : dimensions_vector) {
-                        // Add the dimension into the arguments vector
+                        for (const auto &dimension: dimensions_vector) {
+                            // Add the dimension into the arguments vector
                             arguments_vector.push_back("--dimension=" + dimension);
 
-                        // Great Circle (GC) distance is only valid for 2D!
+                            // Great Circle (GC) distance is only valid for 2D!
                             if (distance_type == "gcd" && (dimension == "3D" || dimension == "ST")) {
                                 continue;
                             }
@@ -233,49 +216,31 @@ TEST_CASE("END-TO-END") {
                                 random_device rd;
                                 mt19937 gen(rd());
                                 uniform_int_distribution<int> time_slot_distribution(1, 5);
-                                arguments_vector.push_back("--time_slot=" +
-                                                           to_string(time_slot_distribution(gen)
-                                                           ));
+                                arguments_vector.push_back("--time_slot=" + to_string(time_slot_distribution(gen)));
                             }
 
                             string arguments_string;
-                            for (
-                                const auto &j
-                                    : arguments_vector) {
-                                arguments_string += " " +
-                                                    j;
+                            for (const auto &j: arguments_vector) {
+                                arguments_string += " " + j;
                             }
 
                             cout << "(" << combination_number
-                                 << ") Testing the software with arguments: " + arguments_string << endl <<
-                                 flush;
+                                 << ") Testing the software with arguments: " + arguments_string << endl << flush;
 
                             // Specify the executable path as the first argument
                             std::filesystem::path currentPath =
                                     std::filesystem::current_path().parent_path().parent_path() /
                                     "examples/end-to-end/Example_Data_Generation_Modeling_and_Prediction";
                             std::string fullCommand = std::string(currentPath) + arguments_string;
-                            if (
-                                    std::system(fullCommand
-                                                        .
-
-                                                                c_str()
-
-                                    )) {
+                            if (std::system(fullCommand.c_str())) {
                                 throw runtime_error("This test failed " + fullCommand);
                             }
-
                             // To remove the previous dimension.
-                            arguments_vector.
-
-                                    pop_back();
+                            arguments_vector.pop_back();
 
                             if (dimension == "ST") {
-                            // To remove the time slot.
-                                arguments_vector.
-
-                                        pop_back();
-
+                                // To remove the time slot.
+                                arguments_vector.pop_back();
                             }
                             combination_number += 1;
                         }

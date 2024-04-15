@@ -29,6 +29,8 @@ struct starpu_codelet GaussianCodelet<T>::cl_gaussian_to_non = {
 #else
         .where        = STARPU_CPU,
         .cpu_funcs    = {cl_gaussian_to_non_function},
+        .cuda_funcs={},
+        .cuda_flags={0},
 #endif
        .nbuffers    = 1,
         .modes        = {STARPU_RW},
