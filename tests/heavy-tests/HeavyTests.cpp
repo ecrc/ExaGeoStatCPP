@@ -43,10 +43,11 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
     // Set up a random number generator
     random_device rd;
     mt19937 gen(rd());
-    int LOWER_SIZE = 5;
-    int MULTIPLICATION = 5;
+    int LOWER_SIZE = 6;
+    int MAX_SIZE = 256;
+    int MAX_LTS = 20;
     int lts = INT16_MAX;
-    uniform_int_distribution<int> problem_size_distribution(LOWER_SIZE, LOWER_SIZE * MULTIPLICATION);
+    uniform_int_distribution<int> problem_size_distribution(LOWER_SIZE, MAX_SIZE);
     int max_threads_size = static_cast<int>(std::thread::hardware_concurrency());
     uniform_int_distribution<int> cpu_size_distribution(1, max_threads_size - 5);
     uniform_int_distribution<int> max_iteration_distribution(1, 4);
@@ -58,7 +59,7 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
     int N_value = problem_size_distribution(gen);
 
     if (aComputation == "tlr") {
-        uniform_int_distribution<int> lts_distribution(LOWER_SIZE, N_value / 2);
+        uniform_int_distribution<int> lts_distribution(LOWER_SIZE, MAX_LTS);
         lts = lts_distribution(gen);
         N_value = lts * lts;
         if (aKernelName.find("Bivariate") != string::npos || aKernelName.find("Trivariate") != string::npos) {
@@ -167,13 +168,13 @@ TEST_CASE("END-TO-END") {
     // Add all the possible combination of code.
     vector<string> kernels_vector = {
             "BivariateMaternFlexible",
+            "UnivariateMaternStationary",
             "BivariateMaternParsimonious",
             "BivariateSpacetimeMaternStationary",
             "TrivariateMaternParsimonious",
             "UnivariateExpNonGaussian",
             "UnivariateMaternNonGaussian",
             "UnivariateMaternNuggetsStationary",
-            "UnivariateMaternStationary",
             "UnivariateSpacetimeMaternStationary"
     };
 
