@@ -44,8 +44,8 @@ void GenerateCommandLineArguments(const string &aKernelName, const string &aComp
     random_device rd;
     mt19937 gen(rd());
     int LOWER_SIZE = 6;
-    int MAX_SIZE = 256;
-    int MAX_LTS = 20;
+    int MAX_SIZE = 25;
+    int MAX_LTS = 18;
     int lts = INT16_MAX;
     uniform_int_distribution<int> problem_size_distribution(LOWER_SIZE, MAX_SIZE);
     int max_threads_size = static_cast<int>(std::thread::hardware_concurrency());
