@@ -1,33 +1,82 @@
-ExaGeoStatCPP User Manual
-=========================
+# ExaGeoStatCPP User Manual
 
-# Content
+## Content
 
-1. [Configurations of the software](#configurations)
-2. [Building ExaGeoStatCPP](#building)
-3. [Supported Covariance kernels](#supported-covariance-functions-kernels-)
+1. [ExaGeoStatCPP v1.1.0](#ExaGeoStatCPP)
+2. [Configurations of the software](#configurations)
+3. [Building ExaGeoStatCPP](#building)
 4. [Arguments](#arguments)
 5. [List of Descriptors](#list-of-descriptors)
 6. [Supported operations](#supported-operations)
-7. [Contributing](#contributing)
+7. [Manuals](#Manuals)
+8. [Contributing](#contributing)
+
+## ExaGeoStatCPP
+> Current Version of ExaGeoStatCPP: 1.1.0
+### Supported Operations:
+1. (Data Generation): Generating large geospatial synthetic datasets using  dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques.
+2. (Data Modeling): Modeling large geospatial datasets on dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques through the Maximum likelihood Estimation (MLE) operation.
+3. (Data Prediction): Predicting missing measurements on given locations using dense, Diagonal Super-Tile (DST), and Tile Low-Rank (TLR) approximation techniques.
+4. (MLOE/MMOM): Computing the Mean Loss of Efficiency (MLOE), Mean Misspecification of the Mean Square Error (MMOM), and Root mean square MOM (RMOM) to describe the prediction performance over the whole observation region.
+5. (Fisher Information Matrix (FIM)): Quantifying the information content that a variable x carries about a parameter $\theta$ within a Gaussian distribution.
+
+### Supported Covariance Functions:
+1. Univariate Matérn (Gaussian/Stationary)
+2. Univariate Matérn with Nugget (Gaussian/Stationary)
+3. Flexible Bivariate Matérn (Gaussian/Stationary)
+4. Parsimonious Bivariate Matérn (Gaussian/Stationary)
+5. Parsimonious trivariate Matérn (Gaussian/Stationary)
+6. Univariate Space/Time Matérn (Gaussian/Stationary)
+7. Bivariate Space/Time Matérn (Gaussian/Stationary)
+8. Tukey g-and-h Univariate Matérn (non-Gaussian/Stationary)
+9. Tukey g-and-h Univariate Power Exponential (non-Gaussian/Stationary)
+> To add your kernel, please refer to [Contribution Guidelines](CONTRIBUTING.md)
+
+### Programming models:
+1. MPI
+2. Task-based programming models
+
+### External libraries:
+1. NLOPT [https://nlopt.readthedocs.io/en/latest/](https://nlopt.readthedocs.io/en/latest/)
+2. GSL [https://www.gnu.org/software/gsl/](https://www.gnu.org/software/gsl/)
+3. HWLOC [https://www.open-mpi.org/projects/hwloc/](https://www.open-mpi.org/projects/hwloc/)
+4. StarPU dynamic runtime system  [https://starpu.gitlabpages.inria.fr/](https://starpu.gitlabpages.inria.fr/)
+5. HCORE [https://github.com/ecrc/hcore](https://github.com/ecrc/hcore)
+6. HiCMA [https://github.com/ecrc/hicma](https://github.com/ecrc/hicma)
+7. Stars-H [https://github.com/ecrc/stars-h](https://github.com/ecrc/stars-h)
+8. Chameleon [https://gitlab.inria.fr/solverstack/chameleon](https://gitlab.inria.fr/solverstack/chameleon)
+
+### Project Hierarchy
+
+* **```cmake```** A directory contains essential CMake modules that facilitate the importation and location of required dependencies.
+* **```docs```** A directory contains all the necessary documents.
+* **```examples```** A directory contains a comprehensive collection of demo code that illustrates the framework's application and demonstrates its features and capabilities.
+* **```inst```** A directory contains all the system's header files, mirroring the structure of the src directory.
+* **```man```** A directory contains all the R functions documentation.
+* **```scripts```** A directory contains benchmarking scripts.
+* **```src```** A directory contains all the source files.
+* **```tests```** A directory contains all the test files and follows the same structure as the src folder.
+* **```clean_build.sh```** A script is designed to compile the software tests once all dependencies are installed, and it is set to build everything by default.
+* **```CMakeLists.txt```** The top-level CMake file to configure the build system.
+* **```configure```** A Script used to generate the building system inside a 'bin' directory.
+
 
 ## Configurations
 
 * Run the help of `configure` to know the needed arguments for your specific options.
+  ``` bash
+  ./configure -h
+  ```
 
-```commandline
-./configure -h
-```
-
-* To Enable support of HiCMA, add `-H` disabled by default.
+* To enable R interface, add `-r` disabled by default.
+* To enable support of HiCMA, add `-H` disabled by default.
 * To enable examples, add `-e` enabled by default.
 * To enable tests, add `-t` disabled by default.
 * To enable heavy tests, add `-T` disabled by default.
 * To enable CUDA, add `-c` disabled by default.
 * To enable MPI, add `-m` disabled by default.
 * To enable verbose output, add `-v` disabled by default.
-* To change the installation path of the dependencies, use `-i <installation/path>` project_path/installdir/_deps/ by default on Unix systems.
-* To enable manually passing mkl as BLA vendor, add `--use-mkl` MKL by default.
+* To change the installation path of the dependencies, use `-i <installation/path>` the default is project_path/installdir/_deps/ on Unix systems.
 * To enable packaging system for distribution, add `-p` disabled by default.
 * To enable showing code warnings, add `-w` disabled by default.
 * To manually set mkl as blas vendor, add `--use-mkl`. MKL is required as blas vendor and it's automatically detected but in some environments it need to be manually set.
@@ -36,51 +85,20 @@ ExaGeoStatCPP User Manual
 
 * Run the help of `clean_build.sh` to know additional argument options.
 
-```commandline
-./clean_build.sh -h
-```
+  ```bash
+  ./clean_build.sh -h
+  ```
 * Run clean_build.sh to build the project.
-```commandline
-./clean_build.sh
-```
-* To build and install the project, Run the following command.
-```commandline
-./clean_build.sh -i
-```
-* To build and enable verbose printing, Run the following command.
-```commandline
-./clean_build.sh -v
-```
-* To enable building with a specific number of threads, run the following command.
-```commandline
-./clean_build.sh -j <thread_number>
-```
+  ```bash
+  ./clean_build.sh
+  ```
+* To enable the installation of the project, add `-i` disabled by default.
+* To enable verbose printing, add `-v` disabled by default.
+* To enable building with a specific number of threads, add `-j <thread_number>` running with maximum number of threads by default.
 
-Supported Covariance Functions/ Kernels:
-======================
 
-1. univariate_matern_stationary
-2. univariate_exp_non_gaussian
-3. univariate_matern_dbeta
-4. univariate_matern_ddbeta_beta
-5. univariate_matern_ddbeta_nu
-6. univariate_matern_ddnu_nu
-7. univariate_matern_ddsigma_square
-8. univariate_matern_ddsigma_square_beta
-9. univariate_matern_ddsigma_square_nu
-10. univariate_matern_dnu
-11. univariate_matern_dsigma_square
-12. univariate_matern_non_gaussian
-13. univariate_matern_nuggets_stationary
-14. univariate_spacetime_matern_stationary
-15. bivariate_matern_flexible
-16. bivariate_matern_parsimonious
-17. bivariate_spacetime_matern_stationary
-18. trivariate_matern_parsimonious
-
-* To add your kernel, please refer to [Contribution Guidelines](CONTRIBUTING.md)
 ## Arguments
-
+These are the arguments that you can specify when running any C++ example.
 * {Mandatory} To set the problem size (N)
 
         --N=<problem_size>
@@ -200,8 +218,6 @@ Supported Covariance Functions/ Kernels:
 8. DESCRIPTOR_C12UV : HiCMA descCUV descriptor
 9. DESCRIPTOR_C22UV : HiCMA descCUV descriptor
 
-
-
 ## Supported Operations
 
 ### Provide Arguments
@@ -243,7 +259,7 @@ The subsequent arguments are as follows:
  - `number of gpus`: Specifies the number of GPUs to be used for the solver.
 
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R
 hardware <- new(Hardware, computation, number of cores, number of gpus);
 hardware$finalize_hardware()
@@ -252,7 +268,7 @@ First arguement represents the name of the R class that wrapps its correponding 
 
 ### Types of Data
 
-`ExaGeoStatCPP` can be used with 2 types of data:
+ExaGeoStatCPP can be used with 2 types of data:
 
 - Synthetic data i.e. generated by the software according to the user arguments.
 - Real data e.g. data from satellite imagery or weather sensors. Real data can be used to train the software to predict the values of new data better.
@@ -271,53 +287,52 @@ ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
 
 #### Using Real Data
 
-Here we use already existing data by providing the path to it:
+Here we use existing data by providing the path to it:
 
 - The Data Path must be passed to Configuration
-```
-data_path <- <path/to/file>
-```
+  ```
+  data_path <- <path/to/file>
+  ```
 
 And then using the following code:
 
 ```R
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension, data_path=data_path)
-
 ```
 
 ### Location Getters
 
-ExaGeoStat supports locations data of dimension upto 3D, and therefore we have getters for X, Y and Z coordinates.
+ExaGeoStat support 2D and 3D spatial locations, and therefore we have getters for X, Y and Z coordinates.
 
 #### X-coordinate Getter
 ```c++
 double *locations_x = exageostat_data->GetLocations()->GetLocationX();
 ```
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R 
 locations_x <- get_locationsX(data=exageostat_data)
 ```
 The subsequent arguments are as follows:
 
-- `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data..
+- `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 
 #### Y-coordinate Getter
 ```c++
 double *locations_y = exageostat_data->GetLocations()->GetLocationY();
 ```
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R 
 locations_y <- get_locationsY(data=exageostat_data)
 ```
 The subsequent arguments are as follows:
 
-- `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data..
+- `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 
 #### Z-coordinate Getter
 ```c++
 double *locations_z = exageostat_data->GetLocations()->GetLocationZ();
 ```
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R 
 locations_x <- get_locationsZ(data=exageostat_data)
 ```
@@ -339,7 +354,7 @@ The used variables are as follows:
 - `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 - `desc_Z_values`: pointer to descriptor matrix.
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R 
 desc_Z_values <- get_Z_measurement_vector(data=exageostat_data, type="chameleon")
 ```
@@ -357,7 +372,7 @@ ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_mat
 ```
 
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R
 estimated_theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation, band=1)
 ```
@@ -373,7 +388,7 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R
 predict_data(train_data=list(locations_x, locations_y, locations_z, z_value), test_data=list(test_x, test_y, test_z), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 ```
@@ -391,7 +406,7 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R
 fisher_matrix <- fisher(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 ```
@@ -410,7 +425,7 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R
 result_mloe_mmom = mloe_mmom(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, true_theta=true_theta)
 ```
@@ -429,10 +444,14 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```
 
 
-##### *ExaGeoStat R wrapper*
+##### *ExaGeoStat R Interface*
 ```R
 idw_error = idw(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, test_measurements=test_measurements)
 ```
+
+## Manuals
+- Find a detailed Manual for R functions in [ExaGeoStatCPP-R-Interface-Manual](docs/ExaGeoStat-R-Interface-Manual.pdf)
+- Find a detailed Manual for C++ functions in [ExaGeoStatC-CPP-Manual](docs/ExaGeoStat-CPP-Manual.pdf)
+
 ## Contributing
 [Contribution Guidelines](CONTRIBUTING.md)
- - 

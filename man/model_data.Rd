@@ -1,10 +1,10 @@
 
-% Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+% Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 % All rights reserved.
 % ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 % @file model_data.Rd
-% @brief roxygen2 documentation for the R wrapper of R_ExaGeoStatModelData function.
+% @brief roxygen2 documentation for the R Interface of R_ExaGeoStatModelData function.
 % @version 1.1.0
 % @author Mahmoud ElKarargy
 % @date 2024-03-17
