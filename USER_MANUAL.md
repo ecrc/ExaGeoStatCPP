@@ -240,7 +240,7 @@ for setting your arguments:
     synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
     synthetic_data_configurations.SetPrecision(exageostat::common::double);
 ```
-### Initialize and Finalize the Hardware
+### Initialize and Finalize the Hardware class
 
 To use any operations, you must initialize the hardware by selecting the number of CPUs and/or GPUs.
 ```c++

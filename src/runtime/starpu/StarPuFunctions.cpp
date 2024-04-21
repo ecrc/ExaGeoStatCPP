@@ -17,7 +17,6 @@
 #include <runtime/starpu/StarPuCodeletsHeaders.hpp>
 #include <runtime/starpu/helpers/StarPuHelpersFactory.hpp>
 
-using namespace std;
 using namespace exageostat::common;
 using namespace exageostat::runtime;
 using namespace exageostat::dataunits;
