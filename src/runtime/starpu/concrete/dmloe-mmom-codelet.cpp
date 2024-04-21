@@ -33,7 +33,7 @@ struct starpu_codelet DmloeMmomCodelet<T>::cl_dmloe_mmom = {
         .cuda_flags={(0)},
 #endif
         .nbuffers    = 5,
-        .modes        = {STARPU_R, STARPU_R, STARPU_R, STARPU_RW, STARPU_RW},
+        .modes        = {STARPU_W, STARPU_W, STARPU_W, STARPU_W, STARPU_W},
         .name        = "dmloe_mmom"
 };
 
@@ -54,15 +54,15 @@ void DmloeMmomCodelet<T>::InsertTask(void *apDescExpr1, void *apDescExpr2, void 
             starpu_insert_task(&this->cl_dmloe_mmom,
                                STARPU_VALUE, &rows_num, sizeof(int),
                                STARPU_VALUE, &cols_num, sizeof(int),
-                               STARPU_R,
+                               STARPU_W,
                                (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr1, row, col),
-                               STARPU_R,
+                               STARPU_W,
                                (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr2, row, col),
-                               STARPU_R,
+                               STARPU_W,
                                (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescExpr3, row, col),
-                               STARPU_RW,
+                               STARPU_W,
                                (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMLOE, row, col),
-                               STARPU_RW,
+                               STARPU_W,
                                (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescMMOM, row, col),
                                0);
         }

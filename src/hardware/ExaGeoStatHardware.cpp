@@ -36,7 +36,6 @@ ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const in
 
 void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber,
                                       const int &aGpuNumber) {
-    LOGGER("** Initialize ExaGeoStat hardware **")
     int tag_width = 31, tag_sep = 26;
 
     // Init hardware using Chameleon
@@ -59,6 +58,7 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
 #endif
     }
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
+    LOGGER("** Initialize ExaGeoStat hardware **")
 }
 
 void ExaGeoStatHardware::FinalizeHardware() {

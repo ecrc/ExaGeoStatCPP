@@ -33,7 +33,7 @@ struct starpu_codelet DTRACECodelet<T>::cl_dtrace = {
         .cuda_flags={(0)},
 #endif
         .nbuffers     = 3,
-        .modes        = {STARPU_R, STARPU_RW, STARPU_W},
+        .modes        = {STARPU_W, STARPU_W, STARPU_W},
         .name         = "dtrace"
 };
 
@@ -46,8 +46,8 @@ void DTRACECodelet<T>::InsertTask(void *apDescA, void *apDescNum, void *apDescTr
         rows_num = row == pDescriptor_A->mt - 1 ? pDescriptor_A->m - row * pDescriptor_A->mb : pDescriptor_A->mb;
         starpu_insert_task(&this->cl_dtrace,
                            STARPU_VALUE, &rows_num, sizeof(int),
-                           STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescA, row, row),
-                           STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescNum, 0, 0),
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescA, row, row),
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescNum, 0, 0),
                            STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescTrace, row, 0),
                            0);
     }

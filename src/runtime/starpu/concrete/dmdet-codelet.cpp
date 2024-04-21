@@ -33,7 +33,7 @@ struct starpu_codelet DMDETCodelet<T>::cl_dmdet{
         .cuda_flags={(0)},
 #endif
         .nbuffers    = 2,
-        .modes        = {STARPU_R, STARPU_RW},
+        .modes        = {STARPU_W, STARPU_W},
         .name        = "dmdet"
 };
 
@@ -49,9 +49,9 @@ void DMDETCodelet<T>::InsertTask(const Computation &aComputation, void *apDescA,
         rows_num = row == desc_mt - 1 ? desc_m - row * desc_mb : desc_mb;
         starpu_insert_task(&this->cl_dmdet,
                            STARPU_VALUE, &rows_num, sizeof(int),
-                           STARPU_R,
+                           STARPU_W,
                            aStarPuHelpers->ExaGeoStatDataGetAddr(apDescA, row, aComputation != TILE_LOW_RANK ? row : 0),
-                           STARPU_RW, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescDet, 0, 0),
+                           STARPU_W, aStarPuHelpers->ExaGeoStatDataGetAddr(apDescDet, 0, 0),
                            0);
     }
 }

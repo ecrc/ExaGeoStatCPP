@@ -33,7 +33,7 @@ struct starpu_codelet DDOTPCodelet<T>::cl_ddotp = {
         .cuda_flags={(0)},
 #endif
         .nbuffers     = 2,
-        .modes        = {STARPU_RW, STARPU_R},
+        .modes        = {STARPU_W, STARPU_W},
         .name         = "ddotp"
 };
 
@@ -53,8 +53,8 @@ void DDOTPCodelet<T>::InsertTask(void *apDescA, void *apDescProduct) {
 
         starpu_insert_task(&this->cl_ddotp,
                            STARPU_VALUE, &rows_num, sizeof(int),
-                           STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_product, 0, 0),
-                           STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_A, row, 0),
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_product, 0, 0),
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr(pDesc_A, row, 0),
                            0);
     }
 }

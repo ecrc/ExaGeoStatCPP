@@ -33,7 +33,7 @@ struct starpu_codelet DMSECodelet<T>::cl_dmse = {
         .cuda_flags={(0)},
 #endif
         .nbuffers    = 3,
-        .modes        = {STARPU_RW, STARPU_R, STARPU_R},
+        .modes        = {STARPU_W, STARPU_W, STARPU_W},
         .name        = "dmse"
 };
 
@@ -47,10 +47,10 @@ void DMSECodelet<T>::InsertTask(void *apDescError, void *apDescZPredict, void *a
                 row == pDesc_Z_predict->mt - 1 ? pDesc_Z_predict->m - row * pDesc_Z_predict->mb : pDesc_Z_predict->mb;
         starpu_insert_task(&this->cl_dmse,
                            STARPU_VALUE, &rows_num, sizeof(int),
-                           STARPU_RW, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescError, 0, 0),
-                           STARPU_R,
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescError, 0, 0),
+                           STARPU_W,
                            (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescZPredict, row, 0),
-                           STARPU_R, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescZMiss, row, 0),
+                           STARPU_W, (starpu_data_handle_t) RUNTIME_data_getaddr((CHAM_desc_t *) apDescZMiss, row, 0),
                            0);
     }
 }
