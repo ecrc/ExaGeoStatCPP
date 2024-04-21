@@ -3,7 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - Version 1.1.0 (YYYY-MM-DD)
+## [1.1.0](https://github.com/ecrc/ExaGeoStatCPP/releases/tag/1.1.0) - 2024-04-25
 ### Added
 - Implemented a new changelog.
 - Introduced a benchmarking script.
@@ -32,9 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cleaned the code base for better readability.
 
 ### Removed
-- Eliminated non-stationary kernel support.
-- Removed Find OpenMP, LAPACKPP, and CuSOLVER.
+- Eliminated The non-stationary kernel support.
+- Removed FindOpenMP.cmake, FindLAPACKPP.cmake, and FindCuSOLVER.cmake.
 
-## [1.0.0] - 2023-11-12
+## [1.0.0](https://github.com/ecrc/ExaGeoStatCPP/releases/tag/1.0.0) - 2023-11-12
 ### Added
 - Integrated all features present in [ExaGeoStat C version](https://github.com/ecrc/exageostat).

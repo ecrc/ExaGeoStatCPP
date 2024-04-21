@@ -101,7 +101,7 @@ ExaGeoStatCPP.
    R CMD INSTALL . --configure-args="-r"
    ```
 
-> For more detailed information on setting up ExaGeoStat with different configurations and enabling technologies such as CUDA, MPI, R, etc., please refer to the [User Manual](USER_MANUAL.md)
+> For more detailed information on installing ExaGeoStat with different configurations and enabling technologies such as CUDA, MPI, R, etc., please refer to the [User Manual](USER_MANUAL.md)
 
 
 ## Usage

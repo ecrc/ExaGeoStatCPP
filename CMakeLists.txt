@@ -63,7 +63,7 @@ enable_language(CXX)
 # Get the current path of the project.
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
 
-# ExaGeoStatCPP depends on a CUDA
+# ExaGeoStatCPP depends on CUDA
 # -------------------------------
 if (USE_CUDA)
     message("-- Build CUDA Support")
@@ -73,7 +73,7 @@ else ()
     unset(BLA_VENDOR)
 endif ()
 
-# ExaGeoStatCPP depends on a MPI
+# ExaGeoStatCPP depends on MPI
 # -------------------------------
 if (USE_MPI)
     message("")
@@ -102,21 +102,21 @@ include_directories(${LAPACKE_INCLUDE_DIRS})
 # Print installation path of ExaGeoStatCPP.
 message(STATUS "Installation path : ${CMAKE_INSTALL_PREFIX}")
 
-# ExaGeoStatCPP depends on a HWLoc
+# ExaGeoStatCPP depends on HWLoc
 # -------------------------------
 include(ImportHwloc)
 list(APPEND STARPU_COMPONENT_LIST "HWLOC")
 string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
 
-# ExaGeoStatCPP depends on a StarPu runtime
+# ExaGeoStatCPP depends on StarPU runtime
 # -------------------------------
 include(ImportStarPu)
 
-# ExaGeoStatCPP depends on a GSL
+# ExaGeoStatCPP depends on GSL
 # -------------------------------
 include(ImportGSL)
 
-# ExaGeoStatCPP depends on a NLOPT
+# ExaGeoStatCPP depends on NLOPT
 # -------------------------------
 include(ImportNLOPT)
 
@@ -133,7 +133,7 @@ endif ()
 # -------------------------------
 include(ImportChameleon)
 
-# ExaGeoStatCPP depends on a LAPACK/BLASPP
+# ExaGeoStatCPP depends on LAPACK/BLASPP
 # -------------------------------
 include(ImportBLASPP)
 include(ImportLapack)

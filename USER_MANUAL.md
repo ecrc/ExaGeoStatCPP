@@ -15,8 +15,8 @@
 > Current Version of ExaGeoStatCPP: 1.1.0
 ### Supported Operations:
 1. (Data Generation): Generating large geospatial synthetic datasets using  dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques.
-2. (Data Modeling): Modeling large geospatial datasets on dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques through the Maximum likelihood Estimation (MLE) operation.
-3. (Data Prediction): Predicting missing measurements on given locations using dense, Diagonal Super-Tile (DST), and Tile Low-Rank (TLR) approximation techniques.
+2. (Data Modeling): Modeling large geospatial datasets on dense, DST and TLR approximation techniques through the Maximum likelihood Estimation (MLE) operation.
+3. (Data Prediction): Predicting missing measurements on given locations using dense, DST, and TLR approximation techniques.
 4. (MLOE/MMOM): Computing the Mean Loss of Efficiency (MLOE), Mean Misspecification of the Mean Square Error (MMOM), and Root mean square MOM (RMOM) to describe the prediction performance over the whole observation region.
 5. (Fisher Information Matrix (FIM)): Quantifying the information content that a variable x carries about a parameter $\theta$ within a Gaussian distribution.
 
@@ -452,6 +452,7 @@ idw_error = idw(train_data=list(locations_x, locations_y, z_value), test_data=li
 ## Manuals
 - Find a detailed Manual for R functions in [ExaGeoStatCPP-R-Interface-Manual](docs/ExaGeoStat-R-Interface-Manual.pdf)
 - Find a detailed Manual for C++ functions in [ExaGeoStatC-CPP-Manual](docs/ExaGeoStat-CPP-Manual.pdf)
+- Doxygen Manual: https://ecrc.github.io/ExaGeoStatCPP
 
 ## Contributing
 [Contribution Guidelines](CONTRIBUTING.md)
