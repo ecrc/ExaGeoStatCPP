@@ -11,53 +11,38 @@
 
 \name{simulate_data}
 \alias{simulate_data}
-\title{This function simulates data based on the provided computation method, kernel, distance matrix, and other parameters.}
+\title{Simulate Data Function}
 
 \usage{
-simulate_data(kernel, initial_theta, distance_matrix = "euclidean", problem_size, seed = 0, dts, lts = 0, dimension = "2D", log_path = "", data_path = "", observations_file = "", recovery_file = "")
+simulate_data(kernel, initial_theta, distance_matrix = "euclidean", problem_size,
+seed = 0, dts, lts = 0, dimension = "2D", log_path = "", data_path = "",
+observations_file = "", recovery_file = "")
 }
 
 \arguments{
- \item{kernel}{A string specifying the kernel to use - available kernels
-   (        "BivariateMaternFlexible",
-            "BivariateMaternParsimonious",
-            "BivariateSpacetimeMaternStationary",
-            "TrivariateMaternParsimonious",
-            "UnivariateExpNonGaussian",
-            "UnivariateMaternDbeta",
-            "UnivariateMaternDdbetaBeta",
-            "UnivariateMaternDdbetaNu",
-            "UnivariateMaternDdnuNu",
-            "UnivariateMaternDdsigmaSquare",
-            "UnivariateMaternDdsigmaSquareBeta",
-            "UnivariateMaternDdsigmaSquareNu",
-            "UnivariateMaternDnu",
-            "UnivariateMaternDsigmaSquare",
-            "UnivariateMaternNonGaussian",
-            "UnivariateMaternNuggetsStationary",
-            "UnivariateMaternStationary",
-            "UnivariatePowExpStationary",
-            "UnivariateSpacetimeMaternStationary",
-            "bivariate_matern_flexible",
-            "bivariate_matern_parsimonious",
-            "bivariate_spacetime_matern_stationary",
-            "trivariate_matern_parsimonious",
-            "univariate_exp_non_gaussian",
-            "univariate_matern_dbeta",
-            "univariate_matern_ddbeta_beta",
-            "univariate_matern_ddbeta_nu",
-            "univariate_matern_ddnu_nu",
-            "univariate_matern_ddsigma_square",
-            "univariate_matern_ddsigma_square_beta",
-            "univariate_matern_ddsigma_square_nu",
-            "univariate_matern_dnu",
-            "univariate_matern_dsigma_square",
-            "univariate_matern_non_gaussian",
-            "univariate_matern_nuggets_stationary",
-            "univariate_matern_stationary",
-            "univariate_pow_exp_stationary",
-            "univariate_spacetime_matern_stationary"
-   )}
+  \item{kernel}{A string specifying the kernel to use. Available kernels include:
+      \itemize{
+        \item "BivariateMaternFlexible"
+        \item "BivariateMaternParsimonious"
+        \item "BivariateSpacetimeMaternStationary"
+        \item "TrivariateMaternParsimonious"
+        \item "UnivariateExpNonGaussian"
+        \item "UnivariateMaternDbeta"
+        \item "UnivariateMaternDdbetaBeta"
+        \item "UnivariateMaternDdbetaNu"
+        \item "UnivariateMaternDdnuNu"
+        \item "UnivariateMaternDdsigmaSquare"
+        \item "UnivariateMaternDdsigmaSquareBeta"
+        \item "UnivariateMaternDdsigmaSquareNu"
+        \item "UnivariateMaternDnu"
+        \item "UnivariateMaternDsigmaSquare"
+        \item "UnivariateMaternNonGaussian"
+        \item "UnivariateMaternNuggetsStationary"
+        \item "UnivariateMaternStationary"
+        \item "UnivariatePowExpStationary"
+        \item "UnivariateSpacetimeMaternStationary"
+      }
+    }
 \item{initial_theta}{A list of initial theta parameters.}
 \item{distance_matrix}{A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
 \item{problem_size}{A numeric value representing the size of the problem to simulate.}
@@ -93,5 +78,6 @@ dts <- 2
 kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
 
-exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
+exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta,
+problem_size=problem_size, dts=dts, dimension=dimension)
 }

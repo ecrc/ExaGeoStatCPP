@@ -1,16 +1,16 @@
 Package: ExaGeoStatCPP
 Type: Package
-Title: R Package Demonstrates the R/C++ Language Interface for Exascale GeoStatistics software
+Title: R Package demonstrates the R/C++ Language Interface for Exascale GeoStatistics software (ExaGeoStat)
 Version: 1.1.0
 Date: 2024-01-14
 Author: Mahmoud ElKarargy [aut, cph], Sameh Abdulah [cre, cph], KAUST King Abdullah University of Science and Technology [fnd, cph], Brightskies [cph]
 Maintainer: Sameh Abdulah <sameh.abdulah@kaust.edu.sa>
-Description: An R-Interface for ExaGeoStatCPP: a parallel high performance unified framework for geostatistics on  manycore systems. Its abbreviation stands for Exascale Geostatistics. The framework aims at optimizing the likelihood function for a given spatial data to provide an efficient way to predict missing observations. The framework targets many-core systems: clusters of CPUs and GPUs.
+Description: An R-Interface for the ExaGeoStatCPP software: a parallel high performance unified framework for geostatistics on  manycore systems. Its abbreviation stands for Exascale Geostatistics. The framework aims at optimizing the likelihood function for a given spatial data to provide an efficient way to predict missing observations. The framework targets many-core systems: clusters of CPUs and GPUs.
 License: GPL (>= 3)
 Imports: assertthat (>= 0.2.1), MASS, methods, Rcpp (>= 1.0.9)
-Depends: R (>= 3.5.0), assertthat (>= 0.2.1), MASS
+Depends: R (>= 3.5.0), assertthat (>= 0.2.1)
 RoxygenNote: 7.2.3
-SystemRequirements: C++ (>= 11), lapacke (https://github.com/xianyi/OpenBLAS/releases)
+SystemRequirements: C++ (>= 11), CMake (>= 3.2), lapacke (https://github.com/xianyi/OpenBLAS/releases)
 NeedsCompilation: yes
 OS_type: unix
 Authors@R: c(
@@ -19,6 +19,6 @@ Authors@R: c(
     person("KAUST", "King Abdullah University of Science and Technology", role=c("fnd","cph")),
     person("Brightskies", role=c("cph"))
     )
-URL: https://www.github.com/ecrc/ExaGeoStatCPP
+URL: https://github.com/ecrc/ExaGeoStatCPP
 BugReports: https://github.com/ecrc/ExaGeoStatCPP/issues
 Encoding: UTF-8

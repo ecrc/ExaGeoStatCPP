@@ -14,17 +14,22 @@
 \title{ExaGeoStatData Class}
 
 \description{
-The ExaGeoStatData class represents a data component in the ExaGeoStat system, that manages geo-statistical data with functions
-for location and descriptor manipulation. It is initialized with the size and dimension of the data.
+The \code{ExaGeoStatData} class is designed to facilitate the handling and manipulation of geospatial statistics data within the ExaGeoStat framework.
+It provides a structured way to store and manage data points based on their dimensions.
+Instances of this class can hold a specified number of location points, and support different data dimensions including two-dimensional (2D), three-dimensional (3D), and spatiotemporal (ST) configurations.
 }
 
 \section{Constructor}{
- \code{\link{ExaGeoStatData}} Creates a new instance of the \code{ExaGeoStatData} class.
- \code{ExaGeoStatData(size, dimension)}
- \describe{
+  \code{\link{ExaGeoStatData}} Creates a new instance of the
+  \code{ExaGeoStatData} class. This is achieved by calling:
+  \preformatted{
+    new(ExaGeoStatData, problem_size, dimension)
+  }
+  \describe{
     \item{\code{size}}{An integer representing the size of the locations data.}
-    \item{\code{dimension}}{A string representing the dimensions of the data. - available dimension ("2D", "3D", "ST")}
-    }
+    \item{\code{dimension}}{A string representing the dimensions of the data.
+    Available dimensions are "2D", "3D", and "ST".}
+  }
 }
 
 \value{

@@ -11,7 +11,7 @@
 
 \name{get_Z_measurement_vector}
 \alias{get_Z_measurement_vector}
-\title{Get descriptive Z values from ExaGeoStat data}
+\title{Get descriptive Z values Function}
 
 \description{
 Retrieves descriptive Z values from ExaGeoStat data based on type.
@@ -43,7 +43,7 @@ empty_data <- new(Data, problem_size, dimension)
 dts <- 2
 kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
-exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
-
+exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta,
+problem_size=problem_size, dts=dts, dimension=dimension)
 Z <- get_Z_measurement_vector(data=exageostat_data, type="chameleon")
 }

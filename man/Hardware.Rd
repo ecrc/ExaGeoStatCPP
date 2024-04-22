@@ -19,12 +19,15 @@ It is initialized with computation mode, and two integers representing number of
 }
 
 \section{Constructor}{
- \code{\link{ExaGeoStatHardware}} Creates a new instance of the \code{ExaGeoStatHardware} class.
- \code{ExaGeoStatHardware(computation, num_of_cpus, num_of_gpus)}
+ \code{\link{ExaGeoStatHardware}} Creates a new instance of the
+ \code{ExaGeoStatHardware} class. This is achieved by calling:
+ \preformatted{
+    new(Hardware, computation, ncores, ngpus)
+ }
  \describe{
- \item{\code{computation}}{A string specifying the computation method, either "exact" or "dst" or "tlr".}
- \item{\code{num_of_cpus}}{An integer representing number of CPU cores.}
- \item{\code{num_of_gpus}}{An integer representing number of GPU cores.}
+     \item{\code{computation}}{A string specifying the computation method, either "exact" or "dst" or "tlr".}
+     \item{\code{num_of_cpus}}{An integer representing number of CPU cores.}
+     \item{\code{num_of_gpus}}{An integer representing number of GPU cores.}
 }
 }
 
@@ -43,7 +46,6 @@ ncores <- 2
 ngpus <- 0
 computation <- "exact"
 hardware <- new(Hardware, computation, ncores, ngpus)
-
 hardware$finalize_hardware()
 }
 
