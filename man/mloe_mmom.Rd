@@ -42,13 +42,13 @@ dts, lts=0, dimension="2D", train_data, test_data)
        \item "UnivariateSpacetimeMaternStationary"
      }
    }
-\item{distance_matrix}{ A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean"}
-\item{estimated_theta}{A list of estimated theta parameters}
-\item{true_theta}{A list of truth theta parameters}
-\item{dts}{A numeric value represents the time step size}
-\item{lts}{A numeric value represents the length step size. Default is 0}
-\item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D"}
-\item{train_data}{ A numeric vector contains the locations and z measurements for training}
+\item{distance_matrix}{ A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
+\item{estimated_theta}{A list of estimated theta parameters.}
+\item{true_theta}{A list of truth theta parameters.}
+\item{dts}{A numeric value represents the time step size.}
+\item{lts}{A numeric value represents the length step size. Default is 0.}
+\item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D".}
+\item{train_data}{ A numeric vector contains the locations and z measurements for training.}
 \item{test_data}{ A numeric vector contains the locations for testing.}
 }
 

@@ -1,24 +1,23 @@
-// TODO: Make get locations returns pairs of locations
 % Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 % All rights reserved.
 % ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
-% @file get_locationsX.Rd
-% @brief roxygen2 documentation for the R Interface of get_locationsX function for X coordinates.
+% @file get_locations.Rd
+% @brief roxygen2 documentation for the R Interface of get_locations function for all coordinates.
 % @version 1.1.0
 % @author Mahmoud ElKarargy
 % @date 2024-03-17
 
-\name{get_locationsX}
-\alias{get_locationsX}
-\title{Get Locations X function}
+\name{get_locations}
+\alias{get_locations}
+\title{Get Locations function}
 
 \description{
-Retrieves X coordinates of locations from ExaGeoStatData object.
+Retrieves all the coordinates of locations from ExaGeoStatData object.
 }
 
 \usage{
-get_locationsX(data)
+get_locations(data)
 }
 
 \arguments{
@@ -26,7 +25,7 @@ get_locationsX(data)
 }
 
 \value{
-A numeric vector of X locations.
+A numeric vector of locations.
 }
 
 \examples{
@@ -46,5 +45,5 @@ kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta,
 problem_size=problem_size, dts=dts, dimension=dimension)
-x <- get_locationsX(data=exageostat_data)
+locs <- get_locations(data=exageostat_data)
 }

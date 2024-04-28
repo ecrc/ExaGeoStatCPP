@@ -308,35 +308,22 @@ ExaGeoStat support 2D and 3D spatial locations, and therefore we have getters fo
 ```c++
 double *locations_x = exageostat_data->GetLocations()->GetLocationX();
 ```
-##### *ExaGeoStat R Interface*
-```R 
-locations_x <- get_locationsX(data=exageostat_data)
-```
-The subsequent arguments are as follows:
-
-- `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 
 #### Y-coordinate Getter
 ```c++
 double *locations_y = exageostat_data->GetLocations()->GetLocationY();
 ```
-##### *ExaGeoStat R Interface*
-```R 
-locations_y <- get_locationsY(data=exageostat_data)
-```
-The subsequent arguments are as follows:
-
-- `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 
 #### Z-coordinate Getter
 ```c++
 double *locations_z = exageostat_data->GetLocations()->GetLocationZ();
 ```
+
 ##### *ExaGeoStat R Interface*
 ```R 
-locations_x <- get_locationsZ(data=exageostat_data)
+locations <- get_locations(data=exageostat_data)
 ```
-The subsequent arguments are as follows:
+Returns all the locations values. The subsequent arguments are as follows:
 
 - `exagostat_data`: pointer to ExaGeoStatData object containing the spatial data.
 

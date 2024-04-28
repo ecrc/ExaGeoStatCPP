@@ -35,7 +35,8 @@ estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dime
 
 test_x <- c(0.2, 0.330)
 test_y <- c(0.104, 0.14)
-predict_data(train_data=list(get_locationsX(data=exageostat_data), get_locationsY(data=exageostat_data), get_Z_measurement_vector(data=exageostat_data, type="chameleon")), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
+locations = get_locations(data=exageostat_data)
+predict_data(train_data=list(sapply(locations, function(v) v[1]), sapply(locations, function(v) v[2]), get_Z_measurement_vector(data=exageostat_data, type="chameleon")), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 
 paste("---------------------------------------------------------------------------------------------")
 paste("ExaGeoStat with Data Generation only")

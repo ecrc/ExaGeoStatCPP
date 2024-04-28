@@ -66,11 +66,7 @@ RCPP_MODULE(ExaGeoStatCPP) {
              List::create(_["kernel"], _["distance_matrix"] = "euclidean", _["estimated_theta"], _["dts"], _["lts"] = 0,
                           _["dimension"] = "2D", _["train_data"], _["test_data"], _["test_measurements"]));
 
-    function("get_locationsX", &exageostat::adapters::R_GetLocationX, List::create(_["data"]));
-
-    function("get_locationsY", &exageostat::adapters::R_GetLocationY, List::create(_["data"]));
-
-    function("get_locationsZ", &exageostat::adapters::R_GetLocationZ, List::create(_["data"]));
+    function("get_locations", &exageostat::adapters::R_GetLocations, List::create(_["data"]));
 
     function("get_Z_measurement_vector", &exageostat::adapters::R_GetDescZValues, List::create(_["data"], _["type"]));
 

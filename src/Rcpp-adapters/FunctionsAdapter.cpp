@@ -25,40 +25,30 @@ using namespace exageostat::configurations;
 
 namespace exageostat::adapters {
 
-    NumericVector R_GetLocationX(ExaGeoStatData<double> *apData) {
+    vector<vector<double>> R_GetLocations(ExaGeoStatData<double> *apData) {
 
-        // Obtain the pointer to the array of doubles
-        double *data = apData->GetLocations()->GetLocationX();
+        // Number of points per each dimension
         int length = apData->GetLocations()->GetSize();
-        // Create an empty NumericVector of the appropriate length
-        NumericVector vec(length);
-        // Copy data from the double array to the NumericVector
-        copy(data, data + length, vec.begin());
-        return vec;
-    }
+        bool is3D = apData->GetLocations()->GetDimension() == Dimension3D;
 
-    NumericVector R_GetLocationY(ExaGeoStatData<double> *apData) {
+        double *locationXArray = apData->GetLocations()->GetLocationX();
+        double *locationYArray = apData->GetLocations()->GetLocationY();
+        double *locationZArray = nullptr;
+        if (is3D) {
+            locationZArray = apData->GetLocations()->GetLocationZ();
+        }
 
-        // Obtain the pointer to the array of doubles
-        double *data = apData->GetLocations()->GetLocationY();
-        int length = apData->GetLocations()->GetSize();
-        // Create an empty NumericVector of the appropriate length
-        NumericVector vec(length);
-        // Copy data from the double array to the NumericVector
-        copy(data, data + length, vec.begin());
-        return vec;
-    }
-
-    NumericVector R_GetLocationZ(ExaGeoStatData<double> *apData) {
-
-        // Obtain the pointer to the array of doubles
-        double *data = apData->GetLocations()->GetLocationZ();
-        int length = apData->GetLocations()->GetSize();
-        // Create an empty NumericVector of the appropriate length
-        NumericVector vec(length);
-        // Copy data from the double array to the NumericVector
-        copy(data, data + length, vec.begin());
-        return vec;
+        vector<vector<double>> locations_matrix;
+        for (int i = 0; i < length; ++i) {
+            vector<double> point;
+            point.push_back(locationXArray[i]);
+            point.push_back(locationYArray[i]);
+            if (is3D) {
+                point.push_back(locationZArray[i]);
+            }
+            locations_matrix.push_back(point);
+        }
+        return locations_matrix;
     }
 
     NumericVector R_GetDescZValues(ExaGeoStatData<double> *apData, const string &aType) {
@@ -321,14 +311,14 @@ namespace exageostat::adapters {
         ValidateDataDimensions(aTestData, "test");
 
         size_t potential_train_data_size = aTrainData[0].size();
-        if (potential_train_data_size > static_cast<size_t>(std::numeric_limits<int>::max())) {
-            throw std::runtime_error("Train data size exceeds the maximum size for int type.");
+        if (potential_train_data_size > static_cast<size_t>(numeric_limits<int>::max())) {
+            throw runtime_error("Train data size exceeds the maximum size for int type.");
         }
         int train_data_size = static_cast<int>(potential_train_data_size);
 
         size_t potential_test_data_size = aTestData[0].size();
-        if (potential_test_data_size > static_cast<size_t>(std::numeric_limits<int>::max())) {
-            throw std::runtime_error("Test data size exceeds the maximum size for int type.");
+        if (potential_test_data_size > static_cast<size_t>(numeric_limits<int>::max())) {
+            throw runtime_error("Test data size exceeds the maximum size for int type.");
         }
         int test_data_size = static_cast<int>(potential_test_data_size);
 

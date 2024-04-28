@@ -23,34 +23,13 @@
 namespace exageostat::adapters {
 
     /**
-     * @brief Retrieves X coordinates of locations from ExaGeoStat data.
-     * @details Extracts and returns the X coordinates of geographical or spatial locations stored in an ExaGeoStatData object,
-     * facilitating data manipulation and analysis within the ExaGeoStat framework.
+     * @brief Retrieves locations from ExaGeoStat data.
+     * @details Extracts and returns the locations stored in an ExaGeoStatData object,
      * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
-     * @return Numeric vector of X coordinates.
+     * @return vector of locations coordinates.
      *
      */
-    Rcpp::NumericVector R_GetLocationX(ExaGeoStatData<double> *apData);
-
-    /**
-     * @brief Retrieves Y coordinates of locations from ExaGeoStat data.
-     * @details Extracts and returns the Y coordinates of geographical or spatial locations stored in an ExaGeoStatData object,
-     * supporting various spatial data analyses and operations within the ExaGeoStat software.
-     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
-     * @return Numeric vector of Y coordinates.
-     *
-     */
-    Rcpp::NumericVector R_GetLocationY(ExaGeoStatData<double> *apData);
-
-    /**
-     * @brief Retrieves Z coordinates of locations from ExaGeoStat data.
-     * @details Extracts and returns the Z coordinates (elevation or depth) of spatial locations stored in an ExaGeoStatData object,
-     * enhancing three-dimensional spatial analysis capabilities within the ExaGeoStat framework.
-     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
-     * @return Numeric vector of Z coordinates.
-     *
-     */
-    Rcpp::NumericVector R_GetLocationZ(ExaGeoStatData<double> *apData);
+    std::vector<std::vector<double>> R_GetLocations(ExaGeoStatData<double> *apData);
 
     /**
      * @brief Retrieves descriptive Z values from ExaGeoStat data based on type.
