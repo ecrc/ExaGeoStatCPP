@@ -35,9 +35,9 @@ int main(int argc, char **argv) {
     synthetic_data_configurations.InitializeDataGenerationArguments();
 
     // initialize ExaGeoStat Hardware.
-    auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
-                                       synthetic_data_configurations.GetCoresNumber(),
-                                       synthetic_data_configurations.GetGPUsNumbers());
+    ExaGeoStatHardware hardware(synthetic_data_configurations.GetComputation(),
+                                synthetic_data_configurations.GetCoresNumber(),
+                                synthetic_data_configurations.GetGPUsNumbers());
 
     Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());

@@ -44,8 +44,7 @@ int main() {
     configurations.SetInitialTheta(initial_theta);
 
     // Initialize the ExaGeoStat Hardware
-    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers());
+    ExaGeoStatHardware hardware(configurations.GetComputation(), configurations.GetCoresNumber(),configurations.GetGPUsNumbers());
     // Load data by either read from file or create synthetic data.
     std::unique_ptr<ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);

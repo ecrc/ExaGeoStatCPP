@@ -77,13 +77,13 @@ void ExaGeoStatHardware::FinalizeHardware() {
         mpHicmaContext = nullptr;
     }
 #endif
+    exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
 
     Results::GetInstance()->PrintEndSummary();
     FinalizeHardware();
-    exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
 void *ExaGeoStatHardware::GetHicmaContext() {
