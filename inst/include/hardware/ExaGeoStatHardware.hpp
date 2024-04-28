@@ -18,7 +18,7 @@
 #include <common/Definitions.hpp>
 
 /**
- * @brief Class representing the hardware configuration for the ExaGeoStat solver.
+ * @brief Class represents the hardware configuration for the ExaGeoStat solver.
  *
  */
 class ExaGeoStatHardware {
@@ -29,19 +29,24 @@ public:
      * @param[in] aComputation The computation mode for the solver.
      * @param[in] aCoreNumber The number of CPU cores to use for the solver.
      * @param[in] aGpuNumber The number of GPUs to use for the solver.
+     * @param[in] aP The P grid dimension setting, default is 1.
+     * @param[in] aQ The Q grid dimension setting, default is 1.
      *
      */
     explicit ExaGeoStatHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber,
-                                const int &aGpuNumber);
+                                const int &aGpuNumber, const int &aP = 1, const int &aQ = 1);
 
     /**
      * @brief Constructor for ExaGeoStatHardware.
      * @param[in] aComputation The computation mode for the solver as a string.
      * @param[in] aCoreNumber The number of CPU cores to use for the solver.
      * @param[in] aGpuNumber The number of GPUs to use for the solver.
+     * @param[in] aP The P grid dimension setting.
+     * @param[in] aQ The Q grid dimension setting.
      *
      */
-    explicit ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+    explicit ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                const int &aP = 1, const int &aQ = 1);
 
     /**
      * @brief A Finalize caller for Hardware.
@@ -61,11 +66,14 @@ public:
      * @param[in] aComputation The computation mode for the solver.
      * @param[in] aCoreNumber The number of CPU cores to use for the solver.
      * @param[in] aGpuNumber The number of GPUs to use for the solver.
+     * @param[in] aP The P grid dimension setting.
+     * @param[in] aQ The Q grid dimension setting.
      * @return void
      *
      */
     static void
-    InitHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber);
+    InitHardware(const exageostat::common::Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                 const int &aP, const int &aQ);
 
     /**
      * @brief Get the Chameleon hardware context.
@@ -89,11 +97,47 @@ public:
      */
     [[nodiscard]] static void *GetContext(exageostat::common::Computation aComputation);
 
+    /**
+     * @brief Retrieves the P dimension of the grid.
+     * @details This function returns the current setting of the P dimension of the grid, which is part of the grid configuration used in various computational processes.
+     * @return The current P dimension setting.
+     *
+    **/
+    static int GetPGrid();
+
+    /**
+     * @brief Retrieves the Q dimension of the grid.
+     * @details This function returns the current setting of the Q dimension of the grid, which is part of the grid configuration used in various computational processes.
+     * @return int The current Q dimension setting.
+     *
+    **/
+    static int GetQGrid();
+
+    /**
+     * @brief Sets the P dimension of the grid.
+     * @details This function updates the P dimension setting of the grid. This dimension is critical in configuring the grid's layout for simulations or calculations.
+     * @param[in] aP The new value for the P dimension.
+     *
+    **/
+    static void SetPGrid(int aP);
+
+    /**
+     * @brief Sets the Q dimension of the grid.
+     * @details This function updates the Q dimension setting of the grid. This dimension is crucial in configuring the grid's layout for simulations or calculations.
+     * @param[in] aQ The new value for the Q dimension.
+     *
+    **/
+    static void SetQGrid(int aQ);
+
 private:
     //// Used Pointer to the Chameleon hardware context.
     static void *mpChameleonContext;
     //// Used Pointer to the Hicma hardware context.
     static void *mpHicmaContext;
+    //// Used P-Grid
+    static int mPGrid;
+    //// Used Q-Grid
+    static int mQGrid;
 };
 
 #endif // EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP

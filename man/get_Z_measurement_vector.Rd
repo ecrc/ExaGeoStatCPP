@@ -1,4 +1,4 @@
-
+// TODO: dots
 % Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 % All rights reserved.
 % ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
@@ -11,7 +11,7 @@
 
 \name{get_Z_measurement_vector}
 \alias{get_Z_measurement_vector}
-\title{Get descriptive Z values Function}
+\title{Get descriptive Z values function}
 
 \description{
 Retrieves descriptive Z values from ExaGeoStat data based on type.
@@ -23,7 +23,7 @@ get_Z_measurement_vector(data,type)
 
 \arguments{
 \item{data}{A list of ExaGeoStatData that contains the locations.}
-\item{type}{A string specifying the type of descriptor value to retrieve (e.g., "Chameleon", "HiCMA").}
+\item{type}{A string specifies the type of descriptor value to retrieve (e.g., "Chameleon", "HiCMA").}
 }
 
 \value{
@@ -34,7 +34,9 @@ A numeric vector of descriptive Z values.
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+p <- 1
+q <- 1
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 dimension = "3D"
 problem_size <- 4

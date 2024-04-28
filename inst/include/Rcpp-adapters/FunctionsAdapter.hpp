@@ -110,7 +110,7 @@ namespace exageostat::adapters {
      * @param[in] aLocationsX Optional vector of X coordinates for locations, can be nullable.
      * @param[in] aLocationsY Optional vector of Y coordinates for locations, can be nullable.
      * @param[in] aLocationsZ Optional vector of Z coordinates for locations, can be nullable.
-     * @return Vector of doubles representing the modeled theta.
+     * @return Vector of doubles represents the modeled theta.
      *
      */
     std::vector<double> R_ExaGeoStatModelData(const std::string &aComputation, const std::string &aKernelName,
@@ -181,7 +181,7 @@ namespace exageostat::adapters {
      * @param[in] aDimension Dimensionality of the spatial data ("2D" or "3D").
      * @param[in] aTrainData Training data set used in the model.
      * @param[in] aTestData Test data set used for validation.
-     * @return Vector representing the Fisher information matrix.
+     * @return Vector represents the Fisher information matrix.
      *
      */
     std::vector<double> R_ExaGeoStatFisher(const std::string &aKernelName, const std::string &aDistanceMatrix,

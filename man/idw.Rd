@@ -11,7 +11,7 @@
 
 \name{idw}
 \alias{idw}
-\title{IDW Function}
+\title{IDW function}
 
 \usage{
 idw(kernel, distance_matrix = "euclidean", estimated_theta, dts, lts = 0,
@@ -19,7 +19,7 @@ dimension = "2D", train_data, test_data, test_measurements)
 }
 
 \arguments{
-\item{kernel}{A string specifying the kernel to use. Available kernels include:
+\item{kernel}{A string specifies the kernel to use. Available kernels include:
     \itemize{
       \item "BivariateMaternFlexible"
       \item "BivariateMaternParsimonious"
@@ -42,18 +42,18 @@ dimension = "2D", train_data, test_data, test_measurements)
       \item "UnivariateSpacetimeMaternStationary"
     }
   }
- \item{distance_matrix}{ A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean"}
+ \item{distance_matrix}{ A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean"}
  \item{estimated_theta}{A list of estimated theta parameters}
- \item{dts}{A numeric value representing the time step size}
- \item{lts}{A numeric value representing the length step size. Default is 0}
- \item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D"}
+ \item{dts}{A numeric value represents the time step size}
+ \item{lts}{A numeric value represents the length step size. Default is 0}
+ \item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D"}
  \item{train_data}{ A numeric vector contains the locations and z measurements for training}
  \item{test_data}{ A numeric vector contains the locations for testing.}
  \item{test_measurements}{ A numeric vector contains the z measurements for testing.}
 }
 
 \value{
- A vector containing the IDW error.
+ A vector contains the IDW error.
 }
 
 \description{
@@ -64,7 +64,7 @@ This function performs Inverse Distance Weighting (IDW) interpolation for a give
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 
 problem_size <- 4
 dimension = "2D"

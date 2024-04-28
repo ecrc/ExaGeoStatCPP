@@ -33,8 +33,10 @@ data_path <- ""
 observations_file <- ""
 # recovery file path is where to read recovery file
 recovery_file <- ""
+p <- 1
+q <- 1
 
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension, log_path=log_path)
 
 # Print the data..

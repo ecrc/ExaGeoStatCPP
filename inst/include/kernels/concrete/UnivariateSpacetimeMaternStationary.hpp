@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class UnivariateSpacetimeMaternStationary
-     * @brief A class representing a Univariate Spacetime Matern Stationary kernel.
+     * @brief A class represents a Univariate Spacetime Matern Stationary kernel.
      * @details This class represents a Univariate Spacetime Matern Stationary, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

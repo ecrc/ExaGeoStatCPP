@@ -67,8 +67,8 @@ namespace exageostat::api {
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
-         * @param[in] apTrainLocations (Optional) Pointer to Locations representing training locations. these are used in training phase.
-         * @param[in] apTestLocations (Optional) Pointer to Locations representing test locations. These are used in prediction phase.
+         * @param[in] apTrainLocations (Optional) Pointer to Locations represents training locations. these are used in training phase.
+         * @param[in] apTestLocations (Optional) Pointer to Locations represents test locations. These are used in prediction phase.
          * @return void
          *
          */

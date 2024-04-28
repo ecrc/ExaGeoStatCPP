@@ -21,19 +21,19 @@ Instances of this class can hold a specified number of location points, and supp
 
 \section{Constructor}{
   \code{\link{ExaGeoStatData}} Creates a new instance of the
-  \code{ExaGeoStatData} class. This is achieved by calling:
+  \code{ExaGeoStatData} class by calling:
   \preformatted{
     new(ExaGeoStatData, problem_size, dimension)
   }
   \describe{
-    \item{\code{size}}{An integer representing the size of the locations data.}
-    \item{\code{dimension}}{A string representing the dimensions of the data.
+    \item{\code{size}}{An integer represents the size of the locations data.}
+    \item{\code{dimension}}{A string represents the dimensions of the data.
     Available dimensions are "2D", "3D", and "ST".}
   }
 }
 
 \value{
-An object of class \code{ExaGeoStatData} representing a data component with the specified size and dimension.
+An object of class \code{ExaGeoStatData} represents a data component with the specified size and dimension.
 }
 
 \examples{

@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class UnivariateMaternDbeta
-     * @brief A class representing a Univariate Matern Dbeta kernel.
+     * @brief A class represents a Univariate Matern Dbeta kernel.
      * @details This class represents a Univariate Matern Dbeta, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

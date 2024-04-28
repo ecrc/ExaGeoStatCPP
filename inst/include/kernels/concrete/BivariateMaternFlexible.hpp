@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class BivariateMaternFlexible
-     * @brief A class representing a Bivariate Matern Flexible kernel.
+     * @brief A class represents a Bivariate Matern Flexible kernel.
      * @details This class represents a Bivariate Matern Flexible, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

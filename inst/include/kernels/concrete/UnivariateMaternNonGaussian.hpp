@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class UnivariateMaternNonGaussian
-     * @brief A class representing a Univariate Matern Non Gaussian kernel.
+     * @brief A class represents a Univariate Matern Non Gaussian kernel.
      * @details This class represents a Univariate Matern Non Gaussian, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

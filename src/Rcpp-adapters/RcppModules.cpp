@@ -32,7 +32,7 @@ RCPP_MODULE(ExaGeoStatCPP) {
 
     /** Hardware Class **/
     class_<ExaGeoStatHardware>("Hardware")
-            .constructor<std::string, int, int>()
+            .constructor<std::string, int, int, int, int>()
             .method("finalize_hardware", &ExaGeoStatHardware::FinalizeHardware, "Manually finalize the hardware");
 
     /** Data Class **/

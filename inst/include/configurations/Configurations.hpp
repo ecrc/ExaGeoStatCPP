@@ -319,7 +319,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the value of the dimension parameter.
-         * @param[in] aDimension A string representing the dimension.
+         * @param[in] aDimension A string represents the dimension.
          * @return The corresponding dimension value.
          *
          */
@@ -351,7 +351,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the value of the unknown observations parameter.
-         * @param[in] aValue A string representing the number of unknown observations.
+         * @param[in] aValue A string represents the number of unknown observations.
          * @return The corresponding integer value.
          *
          */
@@ -402,7 +402,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the run mode and sets the verbosity level.
-         * @param[in] aVerbosity A string representing the desired run mode ("verbose" or "standard").
+         * @param[in] aVerbosity A string represents the desired run mode ("verbose" or "standard").
          * @throws std::range_error if the input string is not "verbose" or "standard".
          * @return void
          *

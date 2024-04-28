@@ -25,8 +25,10 @@ kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
 lower_bound <- c(0.1,0.1,0.1)
 upper_bound <- c(5,5,5)
+p <- 1
+q <- 1
 
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
 estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)

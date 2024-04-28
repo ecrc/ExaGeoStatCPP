@@ -11,7 +11,7 @@
 
 \name{mloe_mmom}
 \alias{mloe_mmom}
-\title{MLOE MMOM Function}
+\title{MLOE MMOM function}
 
 \usage{
 mloe_mmom(kernel, distance_matrix="euclidean", estimated_theta, true_theta,
@@ -19,7 +19,7 @@ dts, lts=0, dimension="2D", train_data, test_data)
 }
 
 \arguments{
- \item{kernel}{A string specifying the kernel to use. Available kernels include:
+ \item{kernel}{A string specifies the kernel to use. Available kernels include:
      \itemize{
        \item "BivariateMaternFlexible"
        \item "BivariateMaternParsimonious"
@@ -42,12 +42,12 @@ dts, lts=0, dimension="2D", train_data, test_data)
        \item "UnivariateSpacetimeMaternStationary"
      }
    }
-\item{distance_matrix}{ A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean"}
+\item{distance_matrix}{ A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean"}
 \item{estimated_theta}{A list of estimated theta parameters}
 \item{true_theta}{A list of truth theta parameters}
-\item{dts}{A numeric value representing the time step size}
-\item{lts}{A numeric value representing the length step size. Default is 0}
-\item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D"}
+\item{dts}{A numeric value represents the time step size}
+\item{lts}{A numeric value represents the length step size. Default is 0}
+\item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D"}
 \item{train_data}{ A numeric vector contains the locations and z measurements for training}
 \item{test_data}{ A numeric vector contains the locations for testing.}
 }
@@ -64,7 +64,7 @@ This function calculates Mean Misspecification of the Mean Square Error (MMOM) a
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 
 problem_size <- 4
 dimension = "2D"

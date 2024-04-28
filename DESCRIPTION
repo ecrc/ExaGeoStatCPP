@@ -1,6 +1,6 @@
 Package: ExaGeoStatCPP
 Type: Package
-Title: R Package demonstrates the R/C++ Language Interface for Exascale GeoStatistics software (ExaGeoStat)
+Title: R Package demonstrates the R/C++ Interface for Exascale GeoStatistics software (ExaGeoStat)
 Version: 1.1.0
 Date: 2024-01-14
 Author: Mahmoud ElKarargy [aut, cph], Sameh Abdulah [cre, cph], KAUST King Abdullah University of Science and Technology [fnd, cph], Brightskies [cph]
@@ -10,7 +10,7 @@ License: GPL (>= 3)
 Imports: assertthat (>= 0.2.1), MASS, methods, Rcpp (>= 1.0.9)
 Depends: R (>= 3.5.0), assertthat (>= 0.2.1)
 RoxygenNote: 7.2.3
-SystemRequirements: C++ (>= 11), CMake (>= 3.2), lapacke (https://github.com/xianyi/OpenBLAS/releases)
+SystemRequirements: C++ (>= 11), CMake (>= 3.2), LAPACKE
 NeedsCompilation: yes
 OS_type: unix
 Authors@R: c(

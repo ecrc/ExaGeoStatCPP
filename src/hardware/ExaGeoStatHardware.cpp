@@ -23,19 +23,22 @@
 using namespace exageostat::common;
 using namespace exageostat::results;
 
-ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber,
-                                       const int &aGpuNumber) {
-    InitHardware(aComputation, aCoreNumber, aGpuNumber);
+ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                       const int &aP, const int &aQ) {
+    InitHardware(aComputation, aCoreNumber, aGpuNumber, aP, aQ);
 }
 
 // Constructor for R
-ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber) {
-
-    InitHardware(GetInputComputation(aComputation), aCoreNumber, aGpuNumber);
+ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                       const int &aP, const int &aQ) {
+    InitHardware(GetInputComputation(aComputation), aCoreNumber, aGpuNumber, aP, aQ);
 }
 
-void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber,
-                                      const int &aGpuNumber) {
+void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                      const int &aP, const int &aQ) {
+
+    SetPGrid(aP);
+    SetQGrid(aQ);
     int tag_width = 31, tag_sep = 26;
 
     // Init hardware using Chameleon
@@ -107,5 +110,23 @@ void *ExaGeoStatHardware::GetContext(Computation aComputation) {
     return nullptr;
 }
 
+int ExaGeoStatHardware::GetPGrid() {
+    return mPGrid;
+}
+
+int ExaGeoStatHardware::GetQGrid() {
+    return mQGrid;
+}
+
+void ExaGeoStatHardware::SetPGrid(int aP) {
+    mPGrid = aP;
+}
+
+void ExaGeoStatHardware::SetQGrid(int aQ) {
+    mQGrid = aQ;
+}
+
 void *ExaGeoStatHardware::mpChameleonContext = nullptr;
 void *ExaGeoStatHardware::mpHicmaContext = nullptr;
+int ExaGeoStatHardware::mPGrid = 1;
+int ExaGeoStatHardware::mQGrid = 1;

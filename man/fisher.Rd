@@ -11,7 +11,7 @@
 
 \name{fisher}
 \alias{fisher }
-\title{Fisher Function}
+\title{Fisher function}
 
 \usage{
 fisher(kernel, distance_matrix = "euclidean", estimated_theta, dts,
@@ -19,7 +19,7 @@ lts = 0, dimension = "2D", train_data, test_data)
 }
 
 \arguments{
-\item{kernel}{A string specifying the kernel to use. Available kernels include:
+\item{kernel}{A string specifies the kernel to use. Available kernels include:
     \itemize{
       \item "BivariateMaternFlexible"
       \item "BivariateMaternParsimonious"
@@ -42,16 +42,16 @@ lts = 0, dimension = "2D", train_data, test_data)
       \item "UnivariateSpacetimeMaternStationary"
     }
   }
-\item{distance_matrix}{ A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
+\item{distance_matrix}{ A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
 \item{estimated_theta}{A list of estimated theta parameters.}
-\item{dts}{A numeric value representing the time step size.}
-\item{lts}{A numeric value representing the length step size. Default is 0.}
-\item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D".}
+\item{dts}{A numeric value represents the time step size.}
+\item{lts}{A numeric value represents the length step size. Default is 0.}
+\item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D".}
 \item{train_data}{ A numeric vector contains the locations and z measurements for training}
 \item{test_data}{ A numeric vector contains the locations for testing.}
 }
 
-\value{A vector containing the Fisher information matrix elements.}
+\value{A vector contains the Fisher information matrix elements.}
 
 \description{This function computes the Fisher information matrix for a given dataset and theta vector,
 using a specified kernel and distance metric. It also allows for the inclusion of missing values and the specification of data dimensions.}
@@ -64,8 +64,9 @@ dts <- 2
 kernel <- "univariate_matern_stationary"
 estimated_theta <- c(1,0.1,0.5)
 computation <- "exact"
-
-hardware <- new(Hardware, computation, ncores, ngpus)
+p <- 1
+q <- 1
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 z_value <- c(-1.272336140360187606, -2.590699695867695773,
              0.512142584178685967, -0.163880452049749520)

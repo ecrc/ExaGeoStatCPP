@@ -1,4 +1,4 @@
-
+// TODO: Make get locations returns pairs of locations
 % Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 % All rights reserved.
 % ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
@@ -11,7 +11,7 @@
 
 \name{get_locationsX}
 \alias{get_locationsX}
-\title{Get Locations X Function}
+\title{Get Locations X function}
 
 \description{
 Retrieves X coordinates of locations from ExaGeoStatData object.
@@ -33,7 +33,9 @@ A numeric vector of X locations.
 ncores <- 1
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+p <- 1
+q <- 1
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 dimension = "2D"
 problem_size <- 4

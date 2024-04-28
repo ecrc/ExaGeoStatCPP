@@ -13,7 +13,7 @@
 # Configurations for the HCORE library
 # 'name' is set to "HCORE", serving as the identifier for the dependency throughout this script.
 set(name "HCORE")
-# 'tag' defines the version tag of the HCORE library to be fetched, representing a specific snapshot of the source code in the repository.
+# 'tag' defines the version tag of the HCORE library to be fetched, represents a specific snapshot of the source code in the repository.
 set(tag "v0.1.3")
 # 'version' indicates the version of the HCORE library, used to ensure compatibility or fulfill certain requirements.
 set(version "0.1.3")

@@ -23,7 +23,7 @@
 namespace exageostat::dataunits {
 
     /**
-     * @brief Union representing the base descriptor.
+     * @brief Union represents the base descriptor.
      * @details This union is used to store different types of descriptors based on the configuration.
      *
      */

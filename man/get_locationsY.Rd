@@ -11,7 +11,7 @@
 
 \name{get_locationsY}
 \alias{get_locationsY}
-\title{Get Locations Y Function}
+\title{Get Locations Y function}
 
 \description{
 This function retrieves the Y locations from the provided data.
@@ -33,7 +33,9 @@ A numeric vector of Y locations.
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+p <- 1
+q <- 1
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 dimension = "2D"
 problem_size <- 4

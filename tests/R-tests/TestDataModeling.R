@@ -25,8 +25,10 @@ kernel <- "univariate_matern_stationary"
 initial_theta <- c(1,0.1,0.5)
 lower_bound <- c(0.1,0.1,0.1)
 upper_bound <- c(5,5,5)
+p <- 1
+q <- 1
 
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 z_value <- c( -1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
              -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,
@@ -58,7 +60,7 @@ paste("ExaGeoStat with data Modeling only - tlr")
 lts <- 8
 computation <- "tlr"
 
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 empty_data <- new(Data, problem_size, dimension)
 theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, lts=lts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation)
 hardware$finalize_hardware()
@@ -70,5 +72,5 @@ lts <- 0
 computation <- "exact"
 
 empty_data <- new(Data, problem_size, dimension)
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation)

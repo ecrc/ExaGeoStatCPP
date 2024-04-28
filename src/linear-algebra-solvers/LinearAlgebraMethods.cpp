@@ -46,8 +46,8 @@ void LinearAlgebraMethods<T>::InitiateDescriptors(Configurations &aConfiguration
     // Get the problem size and other configuration parameters
     int full_problem_size = aConfigurations.GetProblemSize() * aP;
     int dts = aConfigurations.GetDenseTileSize();
-    int p_grid = aConfigurations.GetPGrid();
-    int q_grid = aConfigurations.GetQGrid();
+    int p_grid = ExaGeoStatHardware::GetPGrid();
+    int q_grid = ExaGeoStatHardware::GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
 
     // Create a Chameleon sequence, if not initialized before through the same descriptors
@@ -131,8 +131,8 @@ void LinearAlgebraMethods<T>::InitiateFisherDescriptors(Configurations &aConfigu
     int full_problem_size = aConfigurations.GetProblemSize();
     int num_params = kernels::KernelsConfigurations::GetParametersNumberKernelMap()[aConfigurations.GetKernelName()];
     int dts = aConfigurations.GetDenseTileSize();
-    int p_grid = aConfigurations.GetPGrid();
-    int q_grid = aConfigurations.GetQGrid();
+    int p_grid = ExaGeoStatHardware::GetPGrid();
+    int q_grid = ExaGeoStatHardware::GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
 
     // Create a Chameleon sequence, if not initialized before through the same descriptors
@@ -194,8 +194,8 @@ void LinearAlgebraMethods<T>::InitiatePredictionDescriptors(Configurations &aCon
 
     // Get the problem size and other configuration parameters
     int dts = aConfigurations.GetDenseTileSize();
-    int p_grid = aConfigurations.GetPGrid();
-    int q_grid = aConfigurations.GetQGrid();
+    int p_grid = ExaGeoStatHardware::GetPGrid();
+    int q_grid = ExaGeoStatHardware::GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
     int z_miss_number = aConfigurations.GetUnknownObservationsNb();
     int n_z_obs = aConfigurations.CalculateZObsNumber();
@@ -267,8 +267,8 @@ void LinearAlgebraMethods<T>::InitiateMLOEMMOMDescriptors(Configurations &aConfi
 
     int n_z_obs = aConfigurations.GetObservationNumber();
     int dts = aConfigurations.GetDenseTileSize();
-    int p_grid = aConfigurations.GetPGrid();
-    int q_grid = aConfigurations.GetQGrid();
+    int p_grid = ExaGeoStatHardware::GetPGrid();
+    int q_grid = ExaGeoStatHardware::GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
 
     FloatPoint float_point;
@@ -1314,8 +1314,8 @@ LinearAlgebraMethods<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *a
     if (!z_desc) {
         int full_problem_size = aConfigurations.GetProblemSize() * aP;
         int dts = aConfigurations.GetDenseTileSize();
-        int p_grid = aConfigurations.GetPGrid();
-        int q_grid = aConfigurations.GetQGrid();
+        int p_grid = ExaGeoStatHardware::GetPGrid();
+        int q_grid = ExaGeoStatHardware::GetQGrid();
         bool is_OOC = aConfigurations.GetIsOOC();
 
 

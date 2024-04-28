@@ -42,8 +42,8 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatDa
 
     int full_problem_size = aConfigurations.GetProblemSize() * aP;
     int lts = aConfigurations.GetLowTileSize();
-    int p_grid = aConfigurations.GetPGrid();
-    int q_grid = aConfigurations.GetQGrid();
+    int p_grid = ExaGeoStatHardware::GetPGrid();
+    int q_grid = ExaGeoStatHardware::GetQGrid();
     bool is_OOC = aConfigurations.GetIsOOC();
     int max_rank = aConfigurations.GetMaxRank();
 

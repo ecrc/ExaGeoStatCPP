@@ -23,7 +23,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 /**
  * @brief Rcpp module boot function for ExaGeoStatCPP.
- * @return An SEXP representing the Rcpp module.
+ * @return A SEXP represents the Rcpp module.
  */
 RcppExport SEXP _rcpp_module_boot_ExaGeoStatCPP();
 

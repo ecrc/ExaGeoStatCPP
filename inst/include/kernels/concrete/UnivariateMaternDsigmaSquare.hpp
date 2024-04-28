@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class UnivariateMaternDsigmaSquare
-     * @brief A class representing a Univariate Matern Dsigma Square kernel.
+     * @brief A class represents a Univariate Matern Dsigma Square kernel.
      * @details This class represents a Univariate Matern Dsigma Square, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class UnivariateMaternDdnuNu
-     * @brief A class representing a Univariate Matern Ddnu Nu kernel.
+     * @brief A class represents a Univariate Matern Ddnu Nu kernel.
      * @details This class represents a Univariate Matern Ddnu Nu , which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

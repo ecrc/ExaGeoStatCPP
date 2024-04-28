@@ -11,7 +11,7 @@
 
 \name{model_data}
 \alias{model_data}
-\title{Model Data Function}
+\title{Model Data function}
 
 \usage{
 model_data(computation = "exact", kernel, distance_matrix = "euclidean", lb,
@@ -20,8 +20,8 @@ data = NULL, matrix = NULL, x = NULL, y = NULL, z = NULL)
 }
 
 \arguments{
-\item{computation}{A string specifying the computation method, either "exact" or "dst" or "tlr". Default is "exact".}
- \item{kernel}{A string specifying the kernel to use. Available kernels include:
+\item{computation}{A string specifies the computation method, either "exact" or "dst" or "tlr". Default is "exact".}
+ \item{kernel}{A string specifies the kernel to use. Available kernels include:
      \itemize{
        \item "BivariateMaternFlexible"
        \item "BivariateMaternParsimonious"
@@ -44,16 +44,16 @@ data = NULL, matrix = NULL, x = NULL, y = NULL, z = NULL)
        \item "UnivariateSpacetimeMaternStationary"
      }
    }
-\item{distance_matrix}{A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
-\item{lb}{A numeric value representing the lower bound for the computation.}
-\item{ub}{A numeric value representing the upper bound for the computation.}
-\item{tol}{A numeric value specifying the tolerance for the computation. Default is 4.}
-\item{mle_itr}{A numeric value specifying the maximum number of iterations for the computation.}
-\item{dts}{A numeric value representing the time step size.}
-\item{lts}{A numeric value representing the length step size. Default is 0.}
-\item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D".}
-\item{band}{A numeric value Bandwidth for band matrices, applicable in certain computational kernels.. Default is 0.}
-\item{max_rank}{A numeric value specifying the Maximum rank for low-rank approximations.. Default is 500.}
+\item{distance_matrix}{A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
+\item{lb}{A numeric value represents the lower bound for the computation.}
+\item{ub}{A numeric value represents the upper bound for the computation.}
+\item{tol}{A numeric value specifies the tolerance for the computation. Default is 4.}
+\item{mle_itr}{A numeric value specifies the maximum number of iterations for the computation.}
+\item{dts}{A numeric value represents the time step size.}
+\item{lts}{A numeric value represents the length step size. Default is 0.}
+\item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D".}
+\item{band}{A numeric value Bandwidth for band matrices, applicable in certain computational kernels, Default is 0.}
+\item{max_rank}{A numeric value specifies the Maximum rank for low-rank approximations, Default is 500.}
 \item{data}{A list of data vectors. Default is `R_NilValue`.}
 \item{matrix}{A matrix object. Default is `R_NilValue`.}
 \item{x}{A numeric vector. Default is `R_NilValue`.}
@@ -62,7 +62,7 @@ data = NULL, matrix = NULL, x = NULL, y = NULL, z = NULL)
 }
 
 \value{
-A vector containing the starting theta.
+A vector contains the starting theta.
 }
 
 \description{
@@ -73,7 +73,7 @@ This function models data based on the provided computation method, kernel, dist
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 
 dimension = "2D"
 problem_size <- 4

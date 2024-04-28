@@ -11,7 +11,7 @@
 
 \name{simulate_data}
 \alias{simulate_data}
-\title{Simulate Data Function}
+\title{Simulate Data function}
 
 \usage{
 simulate_data(kernel, initial_theta, distance_matrix = "euclidean", problem_size,
@@ -20,7 +20,7 @@ observations_file = "", recovery_file = "")
 }
 
 \arguments{
-  \item{kernel}{A string specifying the kernel to use. Available kernels include:
+  \item{kernel}{A string specifies the kernel to use. Available kernels include:
       \itemize{
         \item "BivariateMaternFlexible"
         \item "BivariateMaternParsimonious"
@@ -44,16 +44,16 @@ observations_file = "", recovery_file = "")
       }
     }
 \item{initial_theta}{A list of initial theta parameters.}
-\item{distance_matrix}{A string specifying the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
-\item{problem_size}{A numeric value representing the size of the problem to simulate.}
-\item{seed}{ A numeric value specifying the seed for random number generation. Default is 0.}
-\item{dts}{ A numeric value representing the time step size.}
-\item{lts}{ A numeric  value representing the length step size. Default is 0.}
-\item{dimension}{A string specifying the data dimension, either "2D" or "3D". Default is "2D".}
-\item{log_path}{A string specifying the path for logging. Default is "".}
-\item{data_path}{A string specifying the path for data storage. Default is "".}
-\item{observations_file}{A string specifying the file name for observations. Default is "".}
-\item{recovery_file}{A string specifying the file name for recovery. Default is "".}
+\item{distance_matrix}{A string specifies the distance metric, either "euclidean" or "great_circle". Default is "euclidean".}
+\item{problem_size}{A numeric value represents the size of the problem to simulate.}
+\item{seed}{ A numeric value specifies the seed for random number generation. Default is 0.}
+\item{dts}{ A numeric value represents the time step size.}
+\item{lts}{ A numeric  value represents the length step size. Default is 0.}
+\item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D".}
+\item{log_path}{A string specifies the path for logging.}
+\item{data_path}{A string specifies the path for data storage.}
+\item{observations_file}{A string specifies the file name for observations.}
+\item{recovery_file}{A string specifies the file name for recovery.}
 }
 
 \value{
@@ -68,7 +68,7 @@ This function loads data into an ExaGeoStatData object using the provided config
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 
 dimension = "2D"
 problem_size <- 4

@@ -23,8 +23,10 @@ lts <- 0
 computation <- "exact"
 kernel <- "univariate_matern_stationary"
 estimated_theta <- c(1,0.1,0.5)
+p <- 1
+q <- 1
 
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 z_value <- c(-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
               -0.163880452049749520, 0.313503633252489700, -1.474410682226017677,

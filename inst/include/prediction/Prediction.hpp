@@ -35,8 +35,8 @@ namespace exageostat::prediction {
         * @param[in] aConfigurations Reference to Configurations object containing user input data.
         * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
         * @param[in] aKernel Reference to the kernel object to use.
-        * @param[in] apTrainLocations (Optional) Pointer to Locations representing training locations. these are used in training phase.
-        * @param[in] apTestLocations (Optional) Pointer to Locations representing test locations. These are used in prediction phase.
+        * @param[in] apTrainLocations (Optional) Pointer to Locations represents training locations. these are used in training phase.
+        * @param[in] apTestLocations (Optional) Pointer to Locations represents test locations. These are used in prediction phase.
         * @return void
         *
         */
@@ -57,8 +57,8 @@ namespace exageostat::prediction {
          * @param[out] aObsLocation Location object to be filled with missed locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
          * @param[in] aP the P value of the kernel multiplied by time slot.
-         * @param[in] apTrainLocations (Optional) Pointer to Locations representing training locations. these are used in training phase.
-         * @param[in] apTestLocations (Optional) Pointer to Locations representing test locations. These are used in prediction phase.
+         * @param[in] apTrainLocations (Optional) Pointer to Locations represents training locations. these are used in training phase.
+         * @param[in] apTestLocations (Optional) Pointer to Locations represents test locations. These are used in prediction phase.
          * @return void
          *
          */

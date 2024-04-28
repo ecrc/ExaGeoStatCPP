@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class TrivariateMaternParsimonious
-     * @brief A class representing a Trivariate Matern Parsimonious kernel.
+     * @brief A class represents a Trivariate Matern Parsimonious kernel.
      * @details This class represents a Trivariate Matern Parsimonious, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *

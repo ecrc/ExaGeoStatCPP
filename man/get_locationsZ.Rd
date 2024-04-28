@@ -11,7 +11,7 @@
 
 \name{get_locationsZ}
 \alias{get_locationsZ}
-\title{Get Locations Z Function}
+\title{Get Locations Z function}
 
 \description{
 Retrieves Z coordinates of locations from ExaGeoStatData object.
@@ -33,7 +33,9 @@ A numeric vector of Z locations.
 ncores <- 2
 ngpus <- 0
 computation <- "exact"
-hardware <- new(Hardware, computation, ncores, ngpus)
+p <- 1
+q <- 1
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 dimension = "3D"
 problem_size <- 4

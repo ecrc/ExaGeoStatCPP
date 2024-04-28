@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
 ```
 ### R Example:
 ```R
-hardware <- new(Hardware, computation, ncores, ngpus)
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
 estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
 predict_data(train_data=list(x, y, z_measurement), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)

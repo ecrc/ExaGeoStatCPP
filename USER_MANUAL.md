@@ -261,7 +261,7 @@ The subsequent arguments are as follows:
 
 ##### *ExaGeoStat R Interface*
 ```R
-hardware <- new(Hardware, computation, number of cores, number of gpus);
+hardware <- new(Hardware, computation, number of cores, number of gpus, p-grid, q-grid);
 hardware$finalize_hardware()
 ```
 First arguement represents the name of the R class that wrapps its correponding C++ class, the rest of arguments are the same as the C++ version
