@@ -1,5 +1,5 @@
 
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -319,7 +319,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the value of the dimension parameter.
-         * @param[in] aDimension A string represents the dimension.
+         * @param[in] aDimension A string representing the dimension.
          * @return The corresponding dimension value.
          *
          */
@@ -351,7 +351,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the value of the unknown observations parameter.
-         * @param[in] aValue A string represents the number of unknown observations.
+         * @param[in] aValue A string representing the number of unknown observations.
          * @return The corresponding integer value.
          *
          */
@@ -368,11 +368,10 @@ namespace exageostat::configurations {
 
         /**
          * @brief print the summary of MLE inputs.
-         * @param[in] aRank A MPI Rank variable
          * @return void
          *
          */
-        inline void PrintSummary(int aRank = 0);
+        void PrintSummary();
 
         /**
          * @brief Calculates the number of observed measurements.
@@ -402,7 +401,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the run mode and sets the verbosity level.
-         * @param[in] aVerbosity A string represents the desired run mode ("verbose" or "standard").
+         * @param[in] aVerbosity A string representing the desired run mode ("verbose" or "standard").
          * @throws std::range_error if the input string is not "verbose" or "standard".
          * @return void
          *
@@ -429,8 +428,9 @@ namespace exageostat::configurations {
         static bool mIsThetaInit;
         //// Used bool for R allocated memory on heap
         static bool mHeapAllocated;
+        //// Used bool for indicating the first init of configurations for printing summary
+        static bool mFirstInit;
     };
 }//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
-

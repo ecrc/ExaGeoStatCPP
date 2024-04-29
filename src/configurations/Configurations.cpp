@@ -1,5 +1,5 @@
 
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -11,12 +11,6 @@
  * @author Sameh Abdulah
  * @date 2024-02-04
 **/
-
-#ifdef USE_MPI
-
-#include <mpi.h>
-
-#endif
 
 #include <configurations/Configurations.hpp>
 #include <kernels/Kernel.hpp>
@@ -30,6 +24,7 @@ using namespace exageostat::common;
 Verbose Configurations::mVerbosity = Verbose::STANDARD_MODE;
 bool Configurations::mIsThetaInit = false;
 bool Configurations::mHeapAllocated = false;
+bool Configurations::mFirstInit = false;
 
 Configurations::Configurations() {
 
@@ -81,19 +76,10 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     this->mpArgV = apArgV;
     mHeapAllocated = aEnableR;
 
-    int rank = 0;
-#ifdef USE_MPI
-    MPI_Init(&this->mArgC, &this->mpArgV);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-#endif
-
     // Get the example name
     string example_name = apArgV[0];
     // Remove the './'
     example_name.erase(0, 2);
-    if (!rank) {
-        LOGGER("Running " + example_name)
-    }
     string argument;
     string argument_name;
     string argument_value;
@@ -225,8 +211,6 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     if (found != std::string::npos) {
         SetIsNonGaussian(true);
     }
-
-    this->PrintSummary(rank);
 }
 
 void Configurations::InitializeAllTheta() {
@@ -637,12 +621,12 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
     }
 }
 
-void Configurations::PrintSummary(int aRank) {
+void Configurations::PrintSummary() {
 
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
 
-    if (!aRank) {
+    if (!mFirstInit) {
 
         LOGGER("********************SUMMARY**********************")
         if (this->GetIsSynthetic()) {
@@ -691,6 +675,7 @@ void Configurations::PrintSummary(int aRank) {
         }
         LOGGER("*************************************************")
         mVerbosity = temp;
+        mFirstInit = true;
     }
 }
 
@@ -699,10 +684,7 @@ int Configurations::CalculateZObsNumber() {
 }
 
 Configurations::~Configurations() {
-#ifdef USE_MPI
-    // Finalize the MPI environment.
-    MPI_Finalize();
-#endif
+
     if (mHeapAllocated) {
         for (size_t i = 0; i < this->mArgC; ++i) {
             delete[] this->mpArgV[i];  // Delete each string
@@ -710,6 +692,7 @@ Configurations::~Configurations() {
         delete[] this->mpArgV;  // Delete the array of pointers
     }
     this->mpArgV = nullptr;
+    mFirstInit = false;
 }
 
 void Configurations::SetTolerance(double aTolerance) {

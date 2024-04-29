@@ -1,5 +1,5 @@
 
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -27,6 +27,7 @@ using namespace exageostat::configurations;
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
 
+    aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data generation/loading **")
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
@@ -44,6 +45,7 @@ template<typename T>
 T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix) {
 
+    aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data Modeling **")
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
@@ -95,6 +97,7 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(Configurations &aConfigurations, std::u
                                          T *apMeasurementsMatrix, Locations<T> *apTrainLocations,
                                          Locations<T> *apTestLocations) {
 
+    aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data Prediction **")
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
