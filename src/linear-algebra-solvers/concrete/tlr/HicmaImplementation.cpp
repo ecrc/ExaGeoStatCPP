@@ -61,6 +61,12 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatDa
     int NBD = lts;
     int MD = full_problem_size;
     int ND = MBD;
+#ifdef USE_MPI
+    // Due to a bug in HiCMA with MPI, the first created descriptor is not seen.
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point,
+                                              lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1,
+                                              p_grid, q_grid);
+#endif
     aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_CD, is_OOC, nullptr, float_point,
                                               MBD, NBD, MBD * NBD, MD, ND, 0, 0, MD, ND, p_grid, q_grid);
     int MBUV = lts;
@@ -94,6 +100,9 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatDa
     aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point,
                                               lts, lts, lts * lts, full_problem_size, 1, 0, 0, full_problem_size, 1,
                                               p_grid, q_grid);
+    aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr,
+                                              float_point, lts, lts, lts * lts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+
     if (aConfigurations.GetIsNonGaussian()) {
         aData->GetDescriptorData()->SetDescriptor(common::HICMA_DESCRIPTOR, DESCRIPTOR_PRODUCT, is_OOC, nullptr,
                                                   float_point,
