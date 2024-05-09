@@ -138,6 +138,8 @@ private:
     static int mPGrid;
     //// Used Q-Grid
     static int mQGrid;
+    //// Used boolean to avoid re-init mpi
+    static bool mIsMPIInit;
 };
 
 #endif // EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP

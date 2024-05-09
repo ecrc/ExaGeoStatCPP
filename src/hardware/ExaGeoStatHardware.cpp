@@ -39,11 +39,20 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
 
     SetPGrid(aP);
     SetQGrid(aQ);
-    int tag_width = 31, tag_sep = 26;
+    int tag_width = 31, tag_sep = 40;
 
     // Init hardware using Chameleon
     if (!mpChameleonContext) {
+#ifdef USE_MPI
+        // Due to a bug in Chameleon if CHAMELEON_user_tag_size is called twice with MPI an error happens due to a static variable in chameleon that doesn't change.
+        if(!mIsMPIInit){
+            CHAMELEON_user_tag_size(tag_width, tag_sep);
+            mIsMPIInit = true;
+        }
+#else
         CHAMELEON_user_tag_size(tag_width, tag_sep);
+#endif
+
         CHAMELEON_Init(aCoreNumber, aGpuNumber)
         mpChameleonContext = chameleon_context_self();
     }
@@ -130,3 +139,4 @@ void *ExaGeoStatHardware::mpChameleonContext = nullptr;
 void *ExaGeoStatHardware::mpHicmaContext = nullptr;
 int ExaGeoStatHardware::mPGrid = 1;
 int ExaGeoStatHardware::mQGrid = 1;
+bool ExaGeoStatHardware::mIsMPIInit = false;

@@ -27,6 +27,6 @@ if (USE_R)
 endif ()
 
 enable_testing()
-add_executable(exageostat-tests ${EXAGEOSTAT_TESTFILES})
-target_link_libraries(exageostat-tests Catch2::Catch2WithMain ${PROJECT_NAME}_INTERFACE)
+add_executable(exageostat-tests main.cpp ${EXAGEOSTAT_TESTFILES})
+target_link_libraries(exageostat-tests Catch2::Catch2 ${PROJECT_NAME}_INTERFACE)
 catch_discover_tests(exageostat-tests)
