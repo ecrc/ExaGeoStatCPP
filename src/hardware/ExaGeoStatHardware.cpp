@@ -12,6 +12,10 @@
  * @date 2024-02-04
 **/
 
+#ifdef USE_MPI
+#include <starpu_mpi.h>
+#endif
+
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
@@ -39,11 +43,19 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
 
     SetPGrid(aP);
     SetQGrid(aQ);
-    int tag_width = 31, tag_sep = 26;
+    int tag_width = 31, tag_sep = 40;
 
     // Init hardware using Chameleon
     if (!mpChameleonContext) {
+#ifdef USE_MPI
+        // Due to a bug in Chameleon if CHAMELEON_user_tag_size is called twice with MPI an error happens due to a static variable in chameleon that doesn't change.
+        if(!mIsMPIInit){
+            CHAMELEON_user_tag_size(tag_width, tag_sep);
+            mIsMPIInit = true;
+        }
+#else
         CHAMELEON_user_tag_size(tag_width, tag_sep);
+#endif
         CHAMELEON_Init(aCoreNumber, aGpuNumber)
         mpChameleonContext = chameleon_context_self();
     }
@@ -52,7 +64,15 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
     if (aComputation == TILE_LOW_RANK) {
 #ifdef USE_HICMA
         if (!mpHicmaContext) {
+#ifdef USE_MPI
+            // Due to a bug in HiCMA if HICMA_user_tag_size is called twice with MPI an error happens due to a static variable in HiCMA that doesn't change.
+            if(!mIsMPIInit){
+                HICMA_user_tag_size(tag_width, tag_sep);
+                mIsMPIInit = true;
+            }
+#else
             HICMA_user_tag_size(tag_width, tag_sep);
+#endif
             HICMA_Init(aCoreNumber, aGpuNumber);
             mpHicmaContext = hicma_context_self();
         }
@@ -65,11 +85,7 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
 }
 
 void ExaGeoStatHardware::FinalizeHardware() {
-    // finalize hardware using Chameleon
-    if (mpChameleonContext) {
-        CHAMELEON_Finalize()
-        mpChameleonContext = nullptr;
-    }
+
     // finalize hardware using HiCMA
 #ifdef USE_HICMA
     if (mpHicmaContext) {
@@ -77,6 +93,17 @@ void ExaGeoStatHardware::FinalizeHardware() {
         mpHicmaContext = nullptr;
     }
 #endif
+
+    // finalize hardware using Chameleon
+    if (mpChameleonContext) {
+#if defined(USE_MPI) && defined(USE_HICMA)
+        // Since already HiCMA do so, then no need to remove empty cache.
+        starpu_mpi_cache_set(0);
+#endif
+        CHAMELEON_Finalize()
+        mpChameleonContext = nullptr;
+    }
+
     exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
@@ -130,3 +157,4 @@ void *ExaGeoStatHardware::mpChameleonContext = nullptr;
 void *ExaGeoStatHardware::mpHicmaContext = nullptr;
 int ExaGeoStatHardware::mPGrid = 1;
 int ExaGeoStatHardware::mQGrid = 1;
+bool ExaGeoStatHardware::mIsMPIInit = false;

@@ -368,11 +368,10 @@ namespace exageostat::configurations {
 
         /**
          * @brief print the summary of MLE inputs.
-         * @param[in] aRank A MPI Rank variable
          * @return void
          *
          */
-        inline void PrintSummary(int aRank = 0);
+        void PrintSummary();
 
         /**
          * @brief Calculates the number of observed measurements.
@@ -429,8 +428,9 @@ namespace exageostat::configurations {
         static bool mIsThetaInit;
         //// Used bool for R allocated memory on heap
         static bool mHeapAllocated;
+        //// Used bool for indicating the first init of configurations for printing summary
+        static bool mFirstInit;
     };
 }//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
-
