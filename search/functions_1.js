@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['bivariatematernflexible_758',['BivariateMaternFlexible',['../classexageostat_1_1kernels_1_1_bivariate_matern_flexible.html#a7f691eaa5030b31699dda016268466bb',1,'exageostat::kernels::BivariateMaternFlexible']]],
-  ['bivariatematernparsimonious_759',['BivariateMaternParsimonious',['../classexageostat_1_1kernels_1_1_bivariate_matern_parsimonious.html#afa87c0da2784ec2ffc5f7dfa227013b2',1,'exageostat::kernels::BivariateMaternParsimonious']]],
-  ['bivariatespacetimematernstationary_760',['BivariateSpacetimeMaternStationary',['../classexageostat_1_1kernels_1_1_bivariate_spacetime_matern_stationary.html#a63b9c727b7a11002e3d583cbbcd303e7',1,'exageostat::kernels::BivariateSpacetimeMaternStationary']]]
+  ['bivariatematernflexible_850',['BivariateMaternFlexible',['../df/dc3/classexageostat_1_1kernels_1_1BivariateMaternFlexible.html#aa2fcf8e0b4b9a75a68d052102ccc8316',1,'exageostat::kernels::BivariateMaternFlexible']]],
+  ['bivariatematernparsimonious_851',['BivariateMaternParsimonious',['../d8/d0b/classexageostat_1_1kernels_1_1BivariateMaternParsimonious.html#a1c7748115610fe612c000fd49853471b',1,'exageostat::kernels::BivariateMaternParsimonious']]],
+  ['bivariatespacetimematernstationary_852',['BivariateSpacetimeMaternStationary',['../d2/d9e/classexageostat_1_1kernels_1_1BivariateSpacetimeMaternStationary.html#a6a067328709cae48cd1021eba1bf285b',1,'exageostat::kernels::BivariateSpacetimeMaternStationary']]]
 ];

@@ -1,7 +1,22 @@
 var searchData=
 [
-  ['exageostat_602',['ExaGeoStat',['../classexageostat_1_1api_1_1_exa_geo_stat.html',1,'exageostat::api']]],
-  ['exageostatdata_603',['ExaGeoStatData',['../classexageostat_1_1dataunits_1_1_exa_geo_stat_data.html',1,'exageostat::dataunits']]],
-  ['exageostatdescriptor_604',['ExaGeoStatDescriptor',['../classexageostat_1_1dataunits_1_1descriptor_1_1_exa_geo_stat_descriptor.html',1,'exageostat::dataunits::descriptor']]],
-  ['exageostathardware_605',['ExaGeoStatHardware',['../classexageostat_1_1hardware_1_1_exa_geo_stat_hardware.html',1,'exageostat::hardware']]]
+  ['datagenerator_683',['DataGenerator',['../d1/d74/classexageostat_1_1generators_1_1DataGenerator.html',1,'exageostat::generators']]],
+  ['dataloader_684',['DataLoader',['../d2/d19/classexageostat_1_1dataLoader_1_1DataLoader.html',1,'exageostat::dataLoader']]],
+  ['dcmg_685',['DCMG',['../d1/d34/classDCMG.html',1,'']]],
+  ['dcmgcodelet_686',['DCMGCodelet',['../d5/d99/classexageostat_1_1runtime_1_1DCMGCodelet.html',1,'exageostat::runtime']]],
+  ['ddotp_687',['DDOTP',['../d5/d02/classDDOTP.html',1,'']]],
+  ['ddotpcodelet_688',['DDOTPCodelet',['../dd/d02/classexageostat_1_1runtime_1_1DDOTPCodelet.html',1,'exageostat::runtime']]],
+  ['descriptordata_689',['DescriptorData',['../df/d10/classexageostat_1_1dataunits_1_1DescriptorData.html',1,'exageostat::dataunits']]],
+  ['distancecalculationhelpers_690',['DistanceCalculationHelpers',['../de/df4/classexageostat_1_1helpers_1_1DistanceCalculationHelpers.html',1,'exageostat::helpers']]],
+  ['dmdet_691',['DMDET',['../d4/d13/classDMDET.html',1,'']]],
+  ['dmdetcodelet_692',['DMDETCodelet',['../d5/d1f/classexageostat_1_1runtime_1_1DMDETCodelet.html',1,'exageostat::runtime']]],
+  ['dmloe_693',['Dmloe',['../d5/dd4/classDmloe.html',1,'']]],
+  ['dmloemmomcodelet_694',['DmloeMmomCodelet',['../d7/d98/classexageostat_1_1runtime_1_1DmloeMmomCodelet.html',1,'exageostat::runtime']]],
+  ['dmse_695',['DMSE',['../dc/dff/classDMSE.html',1,'']]],
+  ['dmsebivariatecodelet_696',['DMSEBivariateCodelet',['../d5/deb/classexageostat_1_1runtime_1_1DMSEBivariateCodelet.html',1,'exageostat::runtime']]],
+  ['dmsecodelet_697',['DMSECodelet',['../db/db7/classexageostat_1_1runtime_1_1DMSECodelet.html',1,'exageostat::runtime']]],
+  ['dtrace_698',['DTRACE',['../d9/d23/classDTRACE.html',1,'']]],
+  ['dtracecodelet_699',['DTRACECodelet',['../df/dd9/classexageostat_1_1runtime_1_1DTRACECodelet.html',1,'exageostat::runtime']]],
+  ['dzcpy_700',['DZCPY',['../d0/da8/classDZCPY.html',1,'']]],
+  ['dzcpycodelet_701',['DZCPYCodelet',['../d3/df8/classexageostat_1_1runtime_1_1DZCPYCodelet.html',1,'exageostat::runtime']]]
 ];

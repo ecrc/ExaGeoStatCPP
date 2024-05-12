@@ -1,13 +1,13 @@
 var searchData=
 [
-  ['basedescriptor_2',['BaseDescriptor',['../unionexageostat_1_1dataunits_1_1_base_descriptor.html',1,'exageostat::dataunits']]],
-  ['bivariatematernflexible_3',['BivariateMaternFlexible',['../classexageostat_1_1kernels_1_1_bivariate_matern_flexible.html',1,'exageostat::kernels::BivariateMaternFlexible&lt; T &gt;'],['../classexageostat_1_1kernels_1_1_bivariate_matern_flexible.html#a7f691eaa5030b31699dda016268466bb',1,'exageostat::kernels::BivariateMaternFlexible::BivariateMaternFlexible()']]],
-  ['bivariatematernflexible_2ecpp_4',['BivariateMaternFlexible.cpp',['../_bivariate_matern_flexible_8cpp.html',1,'']]],
-  ['bivariatematernflexible_2ehpp_5',['BivariateMaternFlexible.hpp',['../_bivariate_matern_flexible_8hpp.html',1,'']]],
-  ['bivariatematernparsimonious_6',['BivariateMaternParsimonious',['../classexageostat_1_1kernels_1_1_bivariate_matern_parsimonious.html',1,'exageostat::kernels::BivariateMaternParsimonious&lt; T &gt;'],['../classexageostat_1_1kernels_1_1_bivariate_matern_parsimonious.html#afa87c0da2784ec2ffc5f7dfa227013b2',1,'exageostat::kernels::BivariateMaternParsimonious::BivariateMaternParsimonious()']]],
-  ['bivariatematernparsimonious_2ecpp_7',['BivariateMaternParsimonious.cpp',['../_bivariate_matern_parsimonious_8cpp.html',1,'']]],
-  ['bivariatematernparsimonious_2ehpp_8',['BivariateMaternParsimonious.hpp',['../_bivariate_matern_parsimonious_8hpp.html',1,'']]],
-  ['bivariatespacetimematernstationary_9',['BivariateSpacetimeMaternStationary',['../classexageostat_1_1kernels_1_1_bivariate_spacetime_matern_stationary.html',1,'exageostat::kernels::BivariateSpacetimeMaternStationary&lt; T &gt;'],['../classexageostat_1_1kernels_1_1_bivariate_spacetime_matern_stationary.html#a63b9c727b7a11002e3d583cbbcd303e7',1,'exageostat::kernels::BivariateSpacetimeMaternStationary::BivariateSpacetimeMaternStationary()']]],
-  ['bivariatespacetimematernstationary_2ecpp_10',['BivariateSpacetimeMaternStationary.cpp',['../_bivariate_spacetime_matern_stationary_8cpp.html',1,'']]],
-  ['bivariatespacetimematernstationary_2ehpp_11',['BivariateSpacetimeMaternStationary.hpp',['../_bivariate_spacetime_matern_stationary_8hpp.html',1,'']]]
+  ['basedescriptor_5',['BaseDescriptor',['../d3/d2e/unionexageostat_1_1dataunits_1_1BaseDescriptor.html',1,'exageostat::dataunits']]],
+  ['basselfunction_6',['BasselFunction',['../d8/de8/classexageostat_1_1helpers_1_1BasselFunction.html',1,'exageostat::helpers']]],
+  ['basselfunction_2ehpp_7',['BasselFunction.hpp',['../d0/d13/BasselFunction_8hpp.html',1,'']]],
+  ['bivariatematernflexible_8',['BivariateMaternFlexible',['../df/dc3/classexageostat_1_1kernels_1_1BivariateMaternFlexible.html#aa2fcf8e0b4b9a75a68d052102ccc8316',1,'exageostat::kernels::BivariateMaternFlexible::BivariateMaternFlexible()'],['../df/dc3/classexageostat_1_1kernels_1_1BivariateMaternFlexible.html',1,'exageostat::kernels::BivariateMaternFlexible&lt; T &gt;']]],
+  ['bivariatematernflexible_2ehpp_9',['BivariateMaternFlexible.hpp',['../d0/d10/BivariateMaternFlexible_8hpp.html',1,'']]],
+  ['bivariatematernparsimonious_10',['BivariateMaternParsimonious',['../d8/d0b/classexageostat_1_1kernels_1_1BivariateMaternParsimonious.html#a1c7748115610fe612c000fd49853471b',1,'exageostat::kernels::BivariateMaternParsimonious::BivariateMaternParsimonious()'],['../d8/d0b/classexageostat_1_1kernels_1_1BivariateMaternParsimonious.html',1,'exageostat::kernels::BivariateMaternParsimonious&lt; T &gt;']]],
+  ['bivariatematernparsimonious_2ehpp_11',['BivariateMaternParsimonious.hpp',['../dc/dbd/BivariateMaternParsimonious_8hpp.html',1,'']]],
+  ['bivariatespacetimematernstationary_12',['BivariateSpacetimeMaternStationary',['../d2/d9e/classexageostat_1_1kernels_1_1BivariateSpacetimeMaternStationary.html#a6a067328709cae48cd1021eba1bf285b',1,'exageostat::kernels::BivariateSpacetimeMaternStationary::BivariateSpacetimeMaternStationary()'],['../d2/d9e/classexageostat_1_1kernels_1_1BivariateSpacetimeMaternStationary.html',1,'exageostat::kernels::BivariateSpacetimeMaternStationary&lt; T &gt;']]],
+  ['bivariatespacetimematernstationary_2ehpp_13',['BivariateSpacetimeMaternStationary.hpp',['../df/dbf/BivariateSpacetimeMaternStationary_8hpp.html',1,'']]],
+  ['bytehandler_2ehpp_14',['ByteHandler.hpp',['../d8/d7d/ByteHandler_8hpp.html',1,'']]]
 ];

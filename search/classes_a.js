@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['syntheticgenerator_620',['SyntheticGenerator',['../classexageostat_1_1generators_1_1synthetic_1_1_synthetic_generator.html',1,'exageostat::generators::synthetic']]]
+  ['nongaussianloglike_719',['NonGaussianLoglike',['../d2/d65/classexageostat_1_1runtime_1_1NonGaussianLoglike.html',1,'exageostat::runtime']]],
+  ['nongaussiantransform_720',['NonGaussianTransform',['../d7/d72/classexageostat_1_1runtime_1_1NonGaussianTransform.html',1,'exageostat::runtime']]]
 ];

@@ -1,20 +1,7 @@
 var searchData=
 [
-  ['uniformdistribution_958',['UniformDistribution',['../classexageostat_1_1generators_1_1synthetic_1_1_synthetic_generator.html#a72c43f5b4896fc49e2842b44b217db6a',1,'exageostat::generators::synthetic::SyntheticGenerator']]],
-  ['univariateexpnongaussian_959',['UnivariateExpNonGaussian',['../classexageostat_1_1kernels_1_1_univariate_exp_non_gaussian.html#af73db6190d6cea038b35840329c5c4fa',1,'exageostat::kernels::UnivariateExpNonGaussian']]],
-  ['univariatematerndbeta_960',['UnivariateMaternDbeta',['../classexageostat_1_1kernels_1_1_univariate_matern_dbeta.html#a6c63e34f520a7b134b18943323e02498',1,'exageostat::kernels::UnivariateMaternDbeta']]],
-  ['univariatematernddbetabeta_961',['UnivariateMaternDdbetaBeta',['../classexageostat_1_1kernels_1_1_univariate_matern_ddbeta_beta.html#a8a79ba2c0f4b53e650968e3f2d75951f',1,'exageostat::kernels::UnivariateMaternDdbetaBeta']]],
-  ['univariatematernddbetanu_962',['UnivariateMaternDdbetaNu',['../classexageostat_1_1kernels_1_1_univariate_matern_ddbeta_nu.html#a30765f696b36085176fb7fe2ca6ed6dd',1,'exageostat::kernels::UnivariateMaternDdbetaNu']]],
-  ['univariatematernddnunu_963',['UnivariateMaternDdnuNu',['../classexageostat_1_1kernels_1_1_univariate_matern_ddnu_nu.html#a4d628e82643f399e3db6c63b82c57835',1,'exageostat::kernels::UnivariateMaternDdnuNu']]],
-  ['univariatematernddsigmasquare_964',['UnivariateMaternDdsigmaSquare',['../classexageostat_1_1kernels_1_1_univariate_matern_ddsigma_square.html#a7f3d5753e642e5250d2ba317a41cdc5b',1,'exageostat::kernels::UnivariateMaternDdsigmaSquare']]],
-  ['univariatematernddsigmasquarebeta_965',['UnivariateMaternDdsigmaSquareBeta',['../classexageostat_1_1kernels_1_1_univariate_matern_ddsigma_square_beta.html#aec1d2fe22fff7a392d5b18a0db9ac27c',1,'exageostat::kernels::UnivariateMaternDdsigmaSquareBeta']]],
-  ['univariatematernddsigmasquarenu_966',['UnivariateMaternDdsigmaSquareNu',['../classexageostat_1_1kernels_1_1_univariate_matern_ddsigma_square_nu.html#a611ebe9fa019fddc923c8aef0e841321',1,'exageostat::kernels::UnivariateMaternDdsigmaSquareNu']]],
-  ['univariatematerndnu_967',['UnivariateMaternDnu',['../classexageostat_1_1kernels_1_1_univariate_matern_dnu.html#afdf957d7023d8baae2d4c5a5a2f57929',1,'exageostat::kernels::UnivariateMaternDnu']]],
-  ['univariatematerndsigmasquare_968',['UnivariateMaternDsigmaSquare',['../classexageostat_1_1kernels_1_1_univariate_matern_dsigma_square.html#af9211cf1f50f63274fc0a03872073b74',1,'exageostat::kernels::UnivariateMaternDsigmaSquare']]],
-  ['univariatematernnongaussian_969',['UnivariateMaternNonGaussian',['../classexageostat_1_1kernels_1_1_univariate_matern_non_gaussian.html#a5399003a9ff91c5698078fe8b7cd6299',1,'exageostat::kernels::UnivariateMaternNonGaussian']]],
-  ['univariatematernnonstat_970',['UnivariateMaternNonStat',['../classexageostat_1_1kernels_1_1_univariate_matern_non_stat.html#aa7d9790fe924f81fc51ce88e728d4228',1,'exageostat::kernels::UnivariateMaternNonStat']]],
-  ['univariatematernnonstationary_971',['UnivariateMaternNonStationary',['../classexageostat_1_1kernels_1_1_univariate_matern_non_stationary.html#aa01c4a9a359fa9d9281ab91c16783590',1,'exageostat::kernels::UnivariateMaternNonStationary']]],
-  ['univariatematernnuggetsstationary_972',['UnivariateMaternNuggetsStationary',['../classexageostat_1_1kernels_1_1_univariate_matern_nuggets_stationary.html#ae430f80a486ca5c9b3dc2c67994a645f',1,'exageostat::kernels::UnivariateMaternNuggetsStationary']]],
-  ['univariatematernstationary_973',['UnivariateMaternStationary',['../classexageostat_1_1kernels_1_1_univariate_matern_stationary.html#a8c37014391422da84b35d4bed3eef70f',1,'exageostat::kernels::UnivariateMaternStationary']]],
-  ['univariatespacetimematernstationary_974',['UnivariateSpacetimeMaternStationary',['../classexageostat_1_1kernels_1_1_univariate_spacetime_matern_stationary.html#aac3b7982b475c586fcdb09e3d3001da8',1,'exageostat::kernels::UnivariateSpacetimeMaternStationary']]]
+  ['tristrideveccodelet_1096',['TriStrideVecCodelet',['../d8/dec/classexageostat_1_1runtime_1_1TriStrideVecCodelet.html#a87d28350584fc86095b9edcd7f56cb9c',1,'exageostat::runtime::TriStrideVecCodelet']]],
+  ['trivariatematernparsimonious_1097',['TrivariateMaternParsimonious',['../d0/d10/classexageostat_1_1kernels_1_1TrivariateMaternParsimonious.html#ad5661b9d9e2e28c3cdc1741388326555',1,'exageostat::kernels::TrivariateMaternParsimonious']]],
+  ['tukeyghdiferencial_1098',['tukeyGHDiferencial',['../d7/d72/classexageostat_1_1runtime_1_1NonGaussianTransform.html#ab1fd30afaccd9439a923a413137e8f69',1,'exageostat::runtime::NonGaussianTransform']]],
+  ['tukeyghtransfor_1099',['tukeyGHTransfor',['../d7/d72/classexageostat_1_1runtime_1_1NonGaussianTransform.html#a228767cf84b33e82b6400a1f466f6ff2',1,'exageostat::runtime::NonGaussianTransform']]]
 ];

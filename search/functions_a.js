@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['neu_892',['Neu',['../classexageostat_1_1kernels_1_1_univariate_matern_non_stat.html#adf0b9636d69c1d6a04a8116f45f08eed',1,'exageostat::kernels::UnivariateMaternNonStat']]]
+  ['mmodelingdata_1019',['mModelingData',['../df/ddb/structexageostat_1_1dataunits_1_1mModelingData.html#ae9f78a66ef3a7c7eb8eb34557957e798',1,'exageostat::dataunits::mModelingData']]]
 ];

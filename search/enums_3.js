@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['precision_1094',['Precision',['../namespaceexageostat_1_1common.html#a4026bd0dfe42ff6b3de143d323b6d620',1,'exageostat::common']]]
+  ['floatpoint_1254',['FloatPoint',['../dc/deb/namespaceexageostat_1_1common.html#ac19bae42f7bcd80976baf9864db4e0a1',1,'exageostat::common']]]
 ];

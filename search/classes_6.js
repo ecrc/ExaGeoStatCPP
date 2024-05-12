@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['linearalgebrafactory_611',['LinearAlgebraFactory',['../classexageostat_1_1linear_algebra_1_1_linear_algebra_factory.html',1,'exageostat::linearAlgebra']]],
-  ['linearalgebramethods_612',['LinearAlgebraMethods',['../classexageostat_1_1linear_algebra_1_1_linear_algebra_methods.html',1,'exageostat::linearAlgebra']]],
-  ['locations_613',['Locations',['../classexageostat_1_1dataunits_1_1_locations.html',1,'exageostat::dataunits']]]
+  ['hicmadescriptor_708',['HicmaDescriptor',['../de/d0e/classexageostat_1_1dataunits_1_1descriptor_1_1HicmaDescriptor.html',1,'exageostat::dataunits::descriptor']]],
+  ['hicmaimplementation_709',['HicmaImplementation',['../d6/d50/classexageostat_1_1linearAlgebra_1_1tileLowRank_1_1HicmaImplementation.html',1,'exageostat::linearAlgebra::tileLowRank']]],
+  ['hicmastarpuhelpers_710',['HicmaStarPuHelpers',['../d2/da3/classexageostat_1_1runtime_1_1HicmaStarPuHelpers.html',1,'exageostat::runtime']]]
 ];

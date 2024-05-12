@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['create_5fgetter_5ffunction_1187',['CREATE_GETTER_FUNCTION',['../_configurations_8hpp.html#a2fefd460622b91b3b2770d0502310bde',1,'Configurations.hpp']]],
-  ['create_5fsetter_5ffunction_1188',['CREATE_SETTER_FUNCTION',['../_configurations_8hpp.html#a6b6c6977e5b8a7746b66bc37b31113f7',1,'Configurations.hpp']]]
+  ['api_5fexception_1362',['API_EXCEPTION',['../de/d1f/ErrorHandler_8hpp.html#a07200cc835038b45e69753ce767a5f7b',1,'ErrorHandler.hpp']]]
 ];

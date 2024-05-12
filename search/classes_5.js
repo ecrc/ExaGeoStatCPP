@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['kernel_608',['Kernel',['../classexageostat_1_1kernels_1_1_kernel.html',1,'exageostat::kernels']]],
-  ['kernels_609',['Kernels',['../class_kernels.html',1,'']]],
-  ['kernelsconfigurations_610',['KernelsConfigurations',['../structexageostat_1_1kernels_1_1_kernels_configurations.html',1,'exageostat::kernels']]]
+  ['gaussian_706',['Gaussian',['../d8/daa/classGaussian.html',1,'']]],
+  ['gaussiancodelet_707',['GaussianCodelet',['../d8/dc2/classexageostat_1_1runtime_1_1GaussianCodelet.html',1,'exageostat::runtime']]]
 ];

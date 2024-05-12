@@ -1,4 +1,4 @@
 var namespaces_dup =
 [
-    [ "exageostat", "namespaceexageostat.html", "namespaceexageostat" ]
+    [ "exageostat", "d9/d96/namespaceexageostat.html", "d9/d96/namespaceexageostat" ]
 ];

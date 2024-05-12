@@ -1,11 +1,23 @@
 var searchData=
 [
-  ['readdata_423',['ReadData',['../classexageostat_1_1generators_1_1csv_1_1_c_s_v_data_generator.html#a13893bb3b05958fc6ca1f9b310bee7a0',1,'exageostat::generators::csv::CSVDataGenerator']]],
-  ['recover_424',['recover',['../classexageostat_1_1linear_algebra_1_1_linear_algebra_methods.html#a13727373c80ddd5345d2b735e908b0e1',1,'exageostat::linearAlgebra::LinearAlgebraMethods']]],
-  ['releaseinstance_425',['ReleaseInstance',['../classexageostat_1_1generators_1_1csv_1_1_c_s_v_data_generator.html#aedb4cc3839768270bd08747acb4b0bcf',1,'exageostat::generators::csv::CSVDataGenerator::ReleaseInstance()'],['../classexageostat_1_1generators_1_1synthetic_1_1_synthetic_generator.html#a1ec234a2a9399028c0a8c9adfd27107e',1,'exageostat::generators::synthetic::SyntheticGenerator::ReleaseInstance()']]],
-  ['removehardwareinitialization_426',['RemoveHardwareInitialization',['../classexageostat_1_1helpers_1_1_communicator_m_p_i.html#a7b859aef187a3beb44eb42094c589c61',1,'exageostat::helpers::CommunicatorMPI']]],
-  ['results_427',['Results',['../classexageostat_1_1results_1_1_results.html',1,'exageostat::results']]],
-  ['results_2ecpp_428',['Results.cpp',['../_results_8cpp.html',1,'']]],
-  ['results_2ehpp_429',['Results.hpp',['../_results_8hpp.html',1,'']]],
-  ['reversespreadbits_430',['ReverseSpreadBits',['../classexageostat_1_1generators_1_1synthetic_1_1_synthetic_generator.html#ab8d2ead20009ee5ea09c41a9f6e1a738',1,'exageostat::generators::synthetic::SyntheticGenerator']]]
+  ['r_5fexageostatfisher_488',['R_ExaGeoStatFisher',['../d8/dd7/namespaceexageostat_1_1adapters.html#afea8831a234ebfe8fb611d8cff6a38df',1,'exageostat::adapters']]],
+  ['r_5fexageostatidw_489',['R_ExaGeoStatIDW',['../d8/dd7/namespaceexageostat_1_1adapters.html#a6e6d064850ca1d1a4d7c48e4015501e3',1,'exageostat::adapters']]],
+  ['r_5fexageostatloaddata_490',['R_ExaGeoStatLoadData',['../d8/dd7/namespaceexageostat_1_1adapters.html#a8136b6dd054b7dbffd3b3ca9539891ac',1,'exageostat::adapters']]],
+  ['r_5fexageostatmloe_5fmmom_491',['R_ExaGeoStatMLOE_MMOM',['../d8/dd7/namespaceexageostat_1_1adapters.html#ae5a7b300bdf2bac3d4adcbdb411838a2',1,'exageostat::adapters']]],
+  ['r_5fexageostatmodeldata_492',['R_ExaGeoStatModelData',['../d8/dd7/namespaceexageostat_1_1adapters.html#a9709a327fca80b86443a8ea42b69891f',1,'exageostat::adapters']]],
+  ['r_5fexageostatpredictdata_493',['R_ExaGeoStatPredictData',['../d8/dd7/namespaceexageostat_1_1adapters.html#a32dd4f94cf4d45494b6a03b8c082ee90',1,'exageostat::adapters']]],
+  ['r_5fgetdesczvalues_494',['R_GetDescZValues',['../d8/dd7/namespaceexageostat_1_1adapters.html#a682bded73a170ca4a989987483e8205c',1,'exageostat::adapters']]],
+  ['r_5fgetlocations_495',['R_GetLocations',['../d8/dd7/namespaceexageostat_1_1adapters.html#af6c002e427cdd9c24ac9bb9377b62698',1,'exageostat::adapters']]],
+  ['range_5ferror_496',['RANGE_ERROR',['../de/d1f/ErrorHandler_8hpp.html#aed6e5d8e0c233046b51a0726eeae42deaf1416900abf05d8ecbec408a3d61e493',1,'ErrorHandler.hpp']]],
+  ['readdata_497',['ReadData',['../d0/df2/classexageostat_1_1dataLoader_1_1csv_1_1CSVLoader.html#a3c40a9fb7413f033cb2a79d40e02546e',1,'exageostat::dataLoader::csv::CSVLoader::ReadData()'],['../d2/d19/classexageostat_1_1dataLoader_1_1DataLoader.html#a185c4943d9ac1a7e9fcb4174aa76c854',1,'exageostat::dataLoader::DataLoader::ReadData()']]],
+  ['readme_2emd_498',['README.md',['../da/ddd/README_8md.html',1,'']]],
+  ['recover_499',['Recover',['../da/d14/classexageostat_1_1linearAlgebra_1_1LinearAlgebraMethods.html#adfcbee4206b3c831098c7b3ee9977f73',1,'exageostat::linearAlgebra::LinearAlgebraMethods']]],
+  ['releaseinstance_500',['ReleaseInstance',['../d6/d4d/classexageostat_1_1generators_1_1synthetic_1_1SyntheticGenerator.html#a1097c97fbbd500a0fc33f0e00bdad51c',1,'exageostat::generators::synthetic::SyntheticGenerator::ReleaseInstance()'],['../d0/df2/classexageostat_1_1dataLoader_1_1csv_1_1CSVLoader.html#af2cd464ba3aa3ad534d9f41da0ed0f54',1,'exageostat::dataLoader::csv::CSVLoader::ReleaseInstance()']]],
+  ['removehardwareinitialization_501',['RemoveHardwareInitialization',['../d1/dd2/classexageostat_1_1helpers_1_1CommunicatorMPI.html#a5e0bf44ab8ffa905fd96f88b69be59de',1,'exageostat::helpers::CommunicatorMPI']]],
+  ['results_502',['Results',['../da/de1/classexageostat_1_1results_1_1Results.html',1,'exageostat::results']]],
+  ['results_2ehpp_503',['Results.hpp',['../d2/d70/Results_8hpp.html',1,'']]],
+  ['reversespreadbits_504',['ReverseSpreadBits',['../db/de7/namespaceexageostat_1_1helpers.html#a255ae981340c0f45b657eebed76b0fc7',1,'exageostat::helpers']]],
+  ['runtime_5ferror_505',['RUNTIME_ERROR',['../de/d1f/ErrorHandler_8hpp.html#aed6e5d8e0c233046b51a0726eeae42dea1e1e25ce9bc82ccfb34ba5e61e435cfa',1,'ErrorHandler.hpp']]],
+  ['runtimefunctions_506',['RuntimeFunctions',['../d3/d34/classexageostat_1_1runtime_1_1RuntimeFunctions.html',1,'exageostat::runtime']]],
+  ['runtimefunctions_2ehpp_507',['RuntimeFunctions.hpp',['../d8/d1c/RuntimeFunctions_8hpp.html',1,'']]]
 ];

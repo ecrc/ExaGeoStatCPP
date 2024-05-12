@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['hicmadescriptor_606',['HicmaDescriptor',['../classexageostat_1_1dataunits_1_1descriptor_1_1_hicma_descriptor.html',1,'exageostat::dataunits::descriptor']]],
-  ['hicmaimplementation_607',['HicmaImplementation',['../classexageostat_1_1linear_algebra_1_1tile_low_rank_1_1_hicma_implementation.html',1,'exageostat::linearAlgebra::tileLowRank']]]
+  ['exageostat_702',['ExaGeoStat',['../d2/d55/classexageostat_1_1api_1_1ExaGeoStat.html',1,'exageostat::api']]],
+  ['exageostatdata_703',['ExaGeoStatData',['../da/d88/classExaGeoStatData.html',1,'']]],
+  ['exageostatdescriptor_704',['ExaGeoStatDescriptor',['../d5/d33/classexageostat_1_1dataunits_1_1descriptor_1_1ExaGeoStatDescriptor.html',1,'exageostat::dataunits::descriptor']]],
+  ['exageostathardware_705',['ExaGeoStatHardware',['../df/d26/classExaGeoStatHardware.html',1,'']]]
 ];

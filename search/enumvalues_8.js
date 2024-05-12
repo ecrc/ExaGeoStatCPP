@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['tile_5flow_5frank_1186',['TILE_LOW_RANK',['../namespaceexageostat_1_1common.html#acf76dd8b3e369fd97dbe046ef8bbf22aa8fdb828be6f766f207862808fca99370',1,'exageostat::common']]]
+  ['range_5ferror_1355',['RANGE_ERROR',['../de/d1f/ErrorHandler_8hpp.html#aed6e5d8e0c233046b51a0726eeae42deaf1416900abf05d8ecbec408a3d61e493',1,'ErrorHandler.hpp']]],
+  ['runtime_5ferror_1356',['RUNTIME_ERROR',['../de/d1f/ErrorHandler_8hpp.html#aed6e5d8e0c233046b51a0726eeae42dea1e1e25ce9bc82ccfb34ba5e61e435cfa',1,'ErrorHandler.hpp']]]
 ];

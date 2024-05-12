@@ -1,4 +1,19 @@
 var searchData=
 [
-  ['writevectorstodisk_975',['WriteVectorsToDisk',['../classexageostat_1_1helpers_1_1_disk_writer.html#a7a94461f75243c312057ac37e6c4cc2d',1,'exageostat::helpers::DiskWriter']]]
+  ['uniformdistribution_1100',['UniformDistribution',['../db/dd6/classexageostat_1_1generators_1_1LocationGenerator.html#afeb81941415554f08dbcdbe7003568f4',1,'exageostat::generators::LocationGenerator']]],
+  ['univariateexpnongaussian_1101',['UnivariateExpNonGaussian',['../dd/dad/classexageostat_1_1kernels_1_1UnivariateExpNonGaussian.html#a838d432238c5f7d25246c730abaa436b',1,'exageostat::kernels::UnivariateExpNonGaussian']]],
+  ['univariatematerndbeta_1102',['UnivariateMaternDbeta',['../dc/d2f/classexageostat_1_1kernels_1_1UnivariateMaternDbeta.html#a35f1d8eb0220f47c8887fc85e2531635',1,'exageostat::kernels::UnivariateMaternDbeta']]],
+  ['univariatematernddbetabeta_1103',['UnivariateMaternDdbetaBeta',['../dc/dca/classexageostat_1_1kernels_1_1UnivariateMaternDdbetaBeta.html#a9c504f8005b097396dc9e4d08ff9da38',1,'exageostat::kernels::UnivariateMaternDdbetaBeta']]],
+  ['univariatematernddbetanu_1104',['UnivariateMaternDdbetaNu',['../d7/dc2/classexageostat_1_1kernels_1_1UnivariateMaternDdbetaNu.html#a96b35f0eb3aba3f8dcf1d142d51d3e71',1,'exageostat::kernels::UnivariateMaternDdbetaNu']]],
+  ['univariatematernddnunu_1105',['UnivariateMaternDdnuNu',['../d2/de4/classexageostat_1_1kernels_1_1UnivariateMaternDdnuNu.html#a84cb118cbb2241f10e86edad15efd188',1,'exageostat::kernels::UnivariateMaternDdnuNu']]],
+  ['univariatematernddsigmasquare_1106',['UnivariateMaternDdsigmaSquare',['../de/d2a/classexageostat_1_1kernels_1_1UnivariateMaternDdsigmaSquare.html#ab2aa92512149f00ec3931233dffec968',1,'exageostat::kernels::UnivariateMaternDdsigmaSquare']]],
+  ['univariatematernddsigmasquarebeta_1107',['UnivariateMaternDdsigmaSquareBeta',['../d8/dff/classexageostat_1_1kernels_1_1UnivariateMaternDdsigmaSquareBeta.html#a412236a9e0493082c2a09e3fa9d5110e',1,'exageostat::kernels::UnivariateMaternDdsigmaSquareBeta']]],
+  ['univariatematernddsigmasquarenu_1108',['UnivariateMaternDdsigmaSquareNu',['../dd/d05/classexageostat_1_1kernels_1_1UnivariateMaternDdsigmaSquareNu.html#a01dd7faaaa2aabc8cdbedf362d2fb1e5',1,'exageostat::kernels::UnivariateMaternDdsigmaSquareNu']]],
+  ['univariatematerndnu_1109',['UnivariateMaternDnu',['../dd/d49/classexageostat_1_1kernels_1_1UnivariateMaternDnu.html#a8b365cfdad01b4d52de41889a82a1513',1,'exageostat::kernels::UnivariateMaternDnu']]],
+  ['univariatematerndsigmasquare_1110',['UnivariateMaternDsigmaSquare',['../d8/d89/classexageostat_1_1kernels_1_1UnivariateMaternDsigmaSquare.html#a1116d0ea60d40c61eff47df11170b5e6',1,'exageostat::kernels::UnivariateMaternDsigmaSquare']]],
+  ['univariatematernnongaussian_1111',['UnivariateMaternNonGaussian',['../de/dba/classexageostat_1_1kernels_1_1UnivariateMaternNonGaussian.html#a00f7ca79bc8de022ea70b5b42e29bf77',1,'exageostat::kernels::UnivariateMaternNonGaussian']]],
+  ['univariatematernnuggetsstationary_1112',['UnivariateMaternNuggetsStationary',['../dd/d63/classexageostat_1_1kernels_1_1UnivariateMaternNuggetsStationary.html#a442ffbbc5029f739c30a75f72a7eaf76',1,'exageostat::kernels::UnivariateMaternNuggetsStationary']]],
+  ['univariatematernstationary_1113',['UnivariateMaternStationary',['../d7/d10/classexageostat_1_1kernels_1_1UnivariateMaternStationary.html#a50385254b1136a25daa30b4087392f50',1,'exageostat::kernels::UnivariateMaternStationary']]],
+  ['univariatepowexpstationary_1114',['UnivariatePowExpStationary',['../d0/d11/classexageostat_1_1kernels_1_1UnivariatePowExpStationary.html#a29f0361218baf525e9923e90d7028e32',1,'exageostat::kernels::UnivariatePowExpStationary']]],
+  ['univariatespacetimematernstationary_1115',['UnivariateSpacetimeMaternStationary',['../d8/d99/classexageostat_1_1kernels_1_1UnivariateSpacetimeMaternStationary.html#a62ad4137f3931131f7e81e17d0f626bc',1,'exageostat::kernels::UnivariateSpacetimeMaternStationary']]]
 ];

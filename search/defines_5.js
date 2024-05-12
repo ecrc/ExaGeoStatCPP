@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['q_5fnorm_1202',['Q_NORM',['../_definitions_8hpp.html#a1a7419a611a291ed4a68c939f36dc06e',1,'Definitions.hpp']]]
+  ['pi_1377',['PI',['../d6/d1d/Definitions_8hpp.html#a598a3330b3c21701223ee0ca14316eca',1,'Definitions.hpp']]]
 ];

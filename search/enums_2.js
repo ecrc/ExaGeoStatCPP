@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['floatpoint_1093',['FloatPoint',['../namespaceexageostat_1_1common.html#ac19bae42f7bcd80976baf9864db4e0a1',1,'exageostat::common']]]
+  ['errortype_1253',['ErrorType',['../de/d1f/ErrorHandler_8hpp.html#aed6e5d8e0c233046b51a0726eeae42de',1,'ErrorHandler.hpp']]]
 ];

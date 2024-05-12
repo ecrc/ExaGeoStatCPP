@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['chameleondescriptor_591',['ChameleonDescriptor',['../classexageostat_1_1dataunits_1_1descriptor_1_1_chameleon_descriptor.html',1,'exageostat::dataunits::descriptor']]],
-  ['chameleonimplementation_592',['ChameleonImplementation',['../classexageostat_1_1linear_algebra_1_1_chameleon_implementation.html',1,'exageostat::linearAlgebra']]],
-  ['chameleonimplementationdense_593',['ChameleonImplementationDense',['../classexageostat_1_1linear_algebra_1_1dense_1_1_chameleon_implementation_dense.html',1,'exageostat::linearAlgebra::dense']]],
-  ['chameleonimplementationdst_594',['ChameleonImplementationDST',['../classexageostat_1_1linear_algebra_1_1diagonal_super_tile_1_1_chameleon_implementation_d_s_t.html',1,'exageostat::linearAlgebra::diagonalSuperTile']]],
-  ['communicatormpi_595',['CommunicatorMPI',['../classexageostat_1_1helpers_1_1_communicator_m_p_i.html',1,'exageostat::helpers']]],
-  ['configurations_596',['Configurations',['../classexageostat_1_1configurations_1_1_configurations.html',1,'exageostat::configurations']]],
-  ['csvdatagenerator_597',['CSVDataGenerator',['../classexageostat_1_1generators_1_1csv_1_1_c_s_v_data_generator.html',1,'exageostat::generators::csv']]]
+  ['basedescriptor_670',['BaseDescriptor',['../d3/d2e/unionexageostat_1_1dataunits_1_1BaseDescriptor.html',1,'exageostat::dataunits']]],
+  ['basselfunction_671',['BasselFunction',['../d8/de8/classexageostat_1_1helpers_1_1BasselFunction.html',1,'exageostat::helpers']]],
+  ['bivariatematernflexible_672',['BivariateMaternFlexible',['../df/dc3/classexageostat_1_1kernels_1_1BivariateMaternFlexible.html',1,'exageostat::kernels']]],
+  ['bivariatematernparsimonious_673',['BivariateMaternParsimonious',['../d8/d0b/classexageostat_1_1kernels_1_1BivariateMaternParsimonious.html',1,'exageostat::kernels']]],
+  ['bivariatespacetimematernstationary_674',['BivariateSpacetimeMaternStationary',['../d2/d9e/classexageostat_1_1kernels_1_1BivariateSpacetimeMaternStationary.html',1,'exageostat::kernels']]]
 ];
