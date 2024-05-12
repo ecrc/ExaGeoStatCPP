@@ -55,11 +55,6 @@
 #define Q_NORM 1.959964
 
 /**
- * Kernel Files Path Definition
- */
-#define KERNELS_PATH PROJECT_SOURCE_DIR "/inst/include/kernels/concrete/"
-
-/**
  * Logging Path Definition
  */
 #define LOG_PATH PROJECT_SOURCE_DIR "/synthetic_ds/"
