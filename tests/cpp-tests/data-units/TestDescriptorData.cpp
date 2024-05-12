@@ -32,14 +32,14 @@ void TEST_CHAM_TO_HICMA_CONV() {
 
     // Initialize linear algebra solver
     int p = 1;
-    auto hardware = ExaGeoStatHardware(EXACT_DENSE, 1, 0);
+    auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
     auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(EXACT_DENSE);
     auto *data = new DescriptorData<float>();
     linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, p);
 
     // Create CHAM descriptor and convert it to HICMA descriptor
     auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
-    auto *HICMA_descriptor = data->ConvertChameleonToHicma(CHAM_descriptorC);
+    auto *HICMA_descriptor = data->ConvertChameleonToHicma(CHAM_descriptorC,DESCRIPTOR_C);
 
     // Verify common attributes are of same value
     REQUIRE(CHAM_descriptorC->m == HICMA_descriptor->m);

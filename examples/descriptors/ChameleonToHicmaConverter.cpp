@@ -65,12 +65,9 @@ int main(int argc, char **argv) {
 
     // Set Data Descriptor
     data->SetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C, config_is_OOC, matrix.data(), EXAGEOSTAT_REAL_DOUBLE,
-                        config_dts,
-                        config_dts,
-                        config_dts * config_dts, config_full_problem_size, config_full_problem_size, 0, 0,
-                        config_full_problem_size,
-                        config_full_problem_size, config_p_grid, config_q_grid);
-
+                        config_dts, config_dts, config_dts * config_dts, config_full_problem_size,
+                        config_full_problem_size, 0, 0, config_full_problem_size, config_full_problem_size,
+                        config_p_grid, config_q_grid);
     auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
 
     //Print Descriptor Attributes Before and After conversion
@@ -98,9 +95,9 @@ int main(int argc, char **argv) {
         LOGGER_PRECISION_1(" " << cham_mat[i], 0)
     }
 
-    auto *HICMA_descriptorC = data->ConvertChameleonToHicma(CHAM_descriptorC);
+    auto *HICMA_descriptorC = data->ConvertChameleonToHicma(CHAM_descriptorC, DESCRIPTOR_C);
 
-    LOGGER("\n\t\t ** Hicma Descriptor, After Conversion:")
+    //Print Descriptor Attributes
     LOGGER(" Problem Size: " << HICMA_descriptorC->m)
     LOGGER(" Dense Tile Size: " << HICMA_descriptorC->mb)
 
@@ -117,14 +114,13 @@ int main(int argc, char **argv) {
     LOGGER(" Size including Padding: " << HICMA_descriptorC->bsiz)
 
     // Print Data Matrix of Descriptor
-    LOGGER("** Data in Matrix of Hicma descriptor:")
-    auto *hicma_mat = (double *) HICMA_descriptorC->mat;
+    LOGGER("** Data in Matrix:")
     LOGGER_2("", 0)
+    auto *data_mat = (double *) HICMA_descriptorC->mat;
     for (int i = 0; i < config_problem_size; ++i) {
-        LOGGER_PRECISION_1(" " << hicma_mat[i], 0)
+        LOGGER_PRECISION_1(" " << data_mat[i], 0)
     }
 
     delete kernel;
-    delete HICMA_descriptorC;
     return 0;
 }

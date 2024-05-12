@@ -72,32 +72,16 @@ void *DescriptorData<T>::GetRequest() {
 #ifdef USE_HICMA
 
 template<typename T>
-HICMA_desc_t *DescriptorData<T>::ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc) {
+HICMA_desc_t *
+DescriptorData<T>::ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc, const DescriptorName &aDescriptorName) {
 
-    // Create a new HICMA descriptor
-    auto *hicma_desc = new HICMA_desc_t;
+    this->SetDescriptor(HICMA_DESCRIPTOR, aDescriptorName, apChameleonDesc->ooc, apChameleonDesc->mat,
+                        (FloatPoint) (apChameleonDesc->dtyp), apChameleonDesc->mb, apChameleonDesc->nb,
+                        apChameleonDesc->bsiz, apChameleonDesc->lm, apChameleonDesc->ln, apChameleonDesc->i,
+                        apChameleonDesc->j, apChameleonDesc->m, apChameleonDesc->n, apChameleonDesc->p,
+                        apChameleonDesc->q, apChameleonDesc->ooc, true);
 
-    // Set function pointers in HICMA descriptor
-    hicma_desc->get_blkaddr = hicma_getaddr_ccrb;
-    hicma_desc->get_blkldd = hicma_getblkldd_ccrb;
-    hicma_desc->get_rankof = hicma_getrankof_2d;
-
-    // Set sizes and offsets for memory copy
-    size_t hicma_desc_total_size = 184;
-    size_t chameleon_desc_total_size = 200;
-    // Size of the common members between Hicma_desc and Chameleon_desc
-    size_t common_total_size = 3 * sizeof(size_t) + 30 * sizeof(int);
-    // Skip the size of function pointers.
-    size_t hicma_offset = hicma_desc_total_size - (common_total_size + sizeof(void *));
-    size_t chameleon_offset = chameleon_desc_total_size - (common_total_size + sizeof(void *));
-
-    // Copy common data from CHAMELEON descriptor to HICMA descriptor
-    memcpy(((char *) hicma_desc) + hicma_offset, ((char *) apChameleonDesc) + chameleon_offset, common_total_size);
-    // Set additional data in HICMA descriptor
-    hicma_desc->mat = apChameleonDesc->mat;
-    hicma_desc->schedopt = apChameleonDesc->schedopt;
-
-    return hicma_desc;
+    return this->GetDescriptor(HICMA_DESCRIPTOR, aDescriptorName).hicma_desc;
 }
 
 #endif
@@ -125,7 +109,8 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
         } else if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAMELEON") !=
                    this->mDictionary.end()) {
             descriptor.hicma_desc = this->ConvertChameleonToHicma(
-                    (CHAM_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAMELEON"]);
+                    (CHAM_desc_t *) this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAMELEON"],
+                    aDescriptorName);
             this->mDictionary[GetDescriptorName(aDescriptorName) + "_CHAM_HIC"] = descriptor.hicma_desc;
         } else {
             descriptor.hicma_desc = nullptr;
@@ -142,7 +127,7 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
                                       const bool &aIsOOC, void *apMatrix, const FloatPoint &aFloatPoint,
                                       const int &aMB, const int &aNB, const int &aSize, const int &aLM, const int &aLN,
                                       const int &aI, const int &aJ, const int &aM, const int &aN, const int &aP,
-                                      const int &aQ, const bool &aValidOOC) {
+                                      const int &aQ, const bool &aValidOOC, const bool &aConverted) {
 
     void *descriptor;
     std::string type;
@@ -164,7 +149,11 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
 #endif
     }
 
+    if (aConverted) {
+        type = "_CHAM_HIC";
+    }
     this->mDictionary[GetDescriptorName(aDescriptorName) + type] = descriptor;
+
 }
 
 template<typename T>

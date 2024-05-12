@@ -117,6 +117,7 @@ public:
      * @brief Sets the P dimension of the grid.
      * @details This function updates the P dimension setting of the grid. This dimension is critical in configuring the grid's layout for simulations or calculations.
      * @param[in] aP The new value for the P dimension.
+     * @return void
      *
     **/
     static void SetPGrid(int aP);
@@ -125,6 +126,7 @@ public:
      * @brief Sets the Q dimension of the grid.
      * @details This function updates the Q dimension setting of the grid. This dimension is crucial in configuring the grid's layout for simulations or calculations.
      * @param[in] aQ The new value for the Q dimension.
+     * @return void
      *
     **/
     static void SetQGrid(int aQ);

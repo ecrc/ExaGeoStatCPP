@@ -102,10 +102,12 @@ namespace exageostat::dataunits {
         /**
          * @brief Converts a CHAMELEON descriptor to a HICMA descriptor.
          * @param[in] apChameleonDesc Pointer to the CHAMELEON descriptor to be converted.
+         * @param[in] aDescriptorName The name of the descriptor.
          * @return Pointer to the converted HICMA descriptor.
          *
          */
-        HICMA_desc_t *ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc);
+        HICMA_desc_t *
+        ConvertChameleonToHicma(CHAM_desc_t *apChameleonDesc, const common::DescriptorName &aDescriptorName);
 
 #endif
 
@@ -128,6 +130,7 @@ namespace exageostat::dataunits {
          * @param[in] aP The number of rows in the complete matrix.
          * @param[in] aQ The number of columns in the complete matrix.
          * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not, default is true
+         * @param[in] aConverted Boolean indicates whether it's a converted descriptor from chameleon to hicma or not, default is false
          * @return void
          * @throws std::runtime_error if the corresponding library is not enabled (USE_HICMA).
          *
@@ -136,7 +139,7 @@ namespace exageostat::dataunits {
                            const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
                            const int &aNB, const int &aSize, const int &aLM, const int &aLN, const int &aI,
                            const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ,
-                           const bool &aValidOOC = true);
+                           const bool &aValidOOC = true, const bool &aConverted = false);
 
         /**
          * @brief Getter for the Descriptor matrix.
