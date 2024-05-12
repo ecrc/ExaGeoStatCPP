@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -7,7 +7,7 @@
  * @brief Unit tests for the BivariateMaternFlexible kernel in the ExaGeoStat software package.
  * @details This file contains Catch2 unit tests that validate the functionality of the BivariateMaternFlexible kernel
  * in the ExaGeoStat software package. The tests cover the generation of data using this kernel with various configurations.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-05-09
@@ -19,10 +19,9 @@
 
 using namespace std;
 
-using namespace exageostat::configurations;
 using namespace exageostat::api;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
@@ -49,11 +48,10 @@ void TEST_KERNEL_GENERATION_BivariateMaternFlexible() {
 
         int seed = 0;
         srand(seed);
-        exageostat::dataunits::ExaGeoStatData<double> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        auto *CHAM_descriptorZ = data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
-                                                                         exageostat::common::DESCRIPTOR_Z).chameleon_desc;
+        std::unique_ptr<ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
+        auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
+                                                                          exageostat::common::DESCRIPTOR_Z).chameleon_desc;
         auto *A = (double *) CHAM_descriptorZ->mat;
         // Define the expected output
         double expected_output_data[] = {-0.696887, -2.069051, -0.417382, -1.001165, -0.235721, -1.726871, -0.285059,

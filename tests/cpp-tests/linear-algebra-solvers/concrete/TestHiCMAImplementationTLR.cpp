@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file TestHiCMAImplementationTLR.cpp
  * @brief Unit tests for the Tile Low Rank computation in the ExaGeoStat software package.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -18,99 +18,77 @@
 using namespace std;
 
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 //Test that the function initializes the HICMA_descriptorC descriptor correctly.
 void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
 
-    Configurations synthetic_data_configurations;
-    synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
-    synthetic_data_configurations.SetMaxMleIterations(1);
-    synthetic_data_configurations.SetTolerance(pow(10, -4));
+    SECTION("descriptors values") {
 
-    vector<double> lb{0.1, 0.1, 0.1};
-    synthetic_data_configurations.SetLowerBounds(lb);
-    synthetic_data_configurations.SetStartingTheta(lb);
-    vector<double> ub{5, 5, 5};
-    synthetic_data_configurations.SetUpperBounds(ub);
-    vector<double> initial_theta{1, 0.1, 0.5};
-    synthetic_data_configurations.SetInitialTheta(initial_theta);
-    vector<double> estimated_theta{-1, -1, -1};
-    synthetic_data_configurations.SetEstimatedTheta(estimated_theta);
-    synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
-    synthetic_data_configurations.SetMaxRank(500);
-    synthetic_data_configurations.SetProblemSize(16);
-    synthetic_data_configurations.SetLowTileSize(8);
-    synthetic_data_configurations.SetDenseTileSize(8);
+        Configurations synthetic_data_configurations;
+        synthetic_data_configurations.SetComputation(exageostat::common::TILE_LOW_RANK);
+        synthetic_data_configurations.SetMaxMleIterations(1);
+        synthetic_data_configurations.SetTolerance(4);
 
-    SECTION("With Approximation mode ON")
-    {
+        vector<double> lb{0.1, 0.1, 0.1};
+        synthetic_data_configurations.SetLowerBounds(lb);
+        synthetic_data_configurations.SetStartingTheta(lb);
+        vector<double> ub{5, 5, 5};
+        synthetic_data_configurations.SetUpperBounds(ub);
+        vector<double> initial_theta{1, 0.1, 0.5};
+        synthetic_data_configurations.SetInitialTheta(initial_theta);
+        vector<double> estimated_theta{-1, -1, -1};
+        synthetic_data_configurations.SetEstimatedTheta(estimated_theta);
+        synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
+        synthetic_data_configurations.SetMaxRank(500);
+        synthetic_data_configurations.SetProblemSize(16);
+        synthetic_data_configurations.SetLowTileSize(8);
+        synthetic_data_configurations.SetDenseTileSize(8);
 
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
         synthetic_data_configurations.SetApproximationMode(1);
 
-        exageostat::dataunits::ExaGeoStatData<double> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
+        std::unique_ptr<ExaGeoStatData<double>> data;
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
+        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(synthetic_data_configurations, data);
 
-        auto *HICMA_descriptorC = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
+        auto *HICMA_descriptorC = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_C).hicma_desc;
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int lts = synthetic_data_configurations.GetLowTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();
 
-        if (approximationMode == 1) {
-            // Descriptor C.
-            REQUIRE(HICMA_descriptorC->m == N);
-            REQUIRE(HICMA_descriptorC->n == N);
-            REQUIRE(HICMA_descriptorC->mb == lts);
-            REQUIRE(HICMA_descriptorC->nb == lts);
-            REQUIRE(HICMA_descriptorC->bsiz == lts * lts);
-            REQUIRE(HICMA_descriptorC->i == 0);
-            REQUIRE(HICMA_descriptorC->j == 0);
-            REQUIRE(HICMA_descriptorC->mt == ceil((N * 1.0) / (lts * 1.0)));
-            REQUIRE(HICMA_descriptorC->nt == ceil((N * 1.0) / (lts * 1.0)));
-            REQUIRE(HICMA_descriptorC->lm == N);
-            REQUIRE(HICMA_descriptorC->ln == N);
-            REQUIRE(HICMA_descriptorC->p == pGrid);
-            REQUIRE(HICMA_descriptorC->q == qGrid);
-        }
-    }SECTION("With Approximation mode OFF") {
-        synthetic_data_configurations.SetApproximationMode(0);
-
-        // initialize Hardware.
-        auto hardware = ExaGeoStatHardware(TILE_LOW_RANK, 1, 0);
-
-        exageostat::dataunits::ExaGeoStatData<double> data;
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(hardware, synthetic_data_configurations,
-                                                                data);
-        exageostat::api::ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, synthetic_data_configurations, data);
-
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
-        int lts = synthetic_data_configurations.GetLowTileSize();
-        int pGrid = synthetic_data_configurations.GetPGrid();
-        int qGrid = synthetic_data_configurations.GetQGrid();
-
-        // Re-Run again but with approx mode OFF
+        // Descriptor C.
+        REQUIRE(HICMA_descriptorC->m == N);
+        REQUIRE(HICMA_descriptorC->n == N);
+        REQUIRE(HICMA_descriptorC->mb == lts);
+        REQUIRE(HICMA_descriptorC->nb == lts);
+        REQUIRE(HICMA_descriptorC->bsiz == lts * lts);
+        REQUIRE(HICMA_descriptorC->i == 0);
+        REQUIRE(HICMA_descriptorC->j == 0);
+        REQUIRE(HICMA_descriptorC->mt == ceil((N * 1.0) / (lts * 1.0)));
+        REQUIRE(HICMA_descriptorC->nt == ceil((N * 1.0) / (lts * 1.0)));
+        REQUIRE(HICMA_descriptorC->lm == N);
+        REQUIRE(HICMA_descriptorC->ln == N);
+        REQUIRE(HICMA_descriptorC->p == pGrid);
+        REQUIRE(HICMA_descriptorC->q == qGrid);
 
         int maxRank = synthetic_data_configurations.GetMaxRank();
         string actualObservationsFilePath = synthetic_data_configurations.GetActualObservationsFilePath();
 
-        auto *HICMA_descriptorZ = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
-        auto *HICMA_descriptorZcpy = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                             DESCRIPTOR_Z_COPY).hicma_desc;
-        auto *HICMA_descriptorDeterminant = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                                    DESCRIPTOR_DETERMINANT).hicma_desc;
-        auto *HICMA_descriptorCD = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
-        auto *HICMA_descriptorCUV = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                            DESCRIPTOR_CUV).hicma_desc;
-        auto *HICMA_descriptorCrk = data.GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
-                                                                            DESCRIPTOR_CRK).hicma_desc;
+        auto *HICMA_descriptorZ = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_Z).hicma_desc;
+        auto *HICMA_descriptorZcpy = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                              DESCRIPTOR_Z_COPY).hicma_desc;
+        auto *HICMA_descriptorDeterminant = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                                     DESCRIPTOR_DETERMINANT).hicma_desc;
+        auto *HICMA_descriptorCD = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR, DESCRIPTOR_CD).hicma_desc;
+        auto *HICMA_descriptorCUV = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                             DESCRIPTOR_CUV).hicma_desc;
+        auto *HICMA_descriptorCrk = data->GetDescriptorData()->GetDescriptor(HICMA_DESCRIPTOR,
+                                                                             DESCRIPTOR_CRK).hicma_desc;
 
         // Descriptor CD.
         REQUIRE(HICMA_descriptorCD->m == N);
@@ -211,7 +189,6 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         REQUIRE(HICMA_descriptorDeterminant->ln == 1);
         REQUIRE(HICMA_descriptorDeterminant->p == pGrid);
         REQUIRE(HICMA_descriptorDeterminant->q == qGrid);
-
     }
 }
 

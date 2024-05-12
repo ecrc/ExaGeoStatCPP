@@ -1,0 +1,274 @@
+#! /bin/sh
+# Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+# All rights reserved.
+# ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
+# @file configure
+# @version 1.1.0
+# @author Mahmoud ElKarargy
+# @author David Helmy
+# @date 2024-02-04
+
+# Set variables and default values
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+INSTALL_PREFIX=$PWD/installdir/_deps
+
+# Function to install CMake from source
+install_cmake() {
+  echo "CMake not found. Installing CMake from source..."
+
+  # Create a temporary directory for building CMake
+  temp_dir=$(mktemp -d)
+  cd "$temp_dir" || exit 1
+
+  # Download CMake source code
+  wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz
+
+  # Extract the source code
+  tar -xzvf cmake-3.28.1.tar.gz
+
+  # Enter the extracted directory
+  cd cmake-3.28.1 || exit 1
+
+  # Configure, build, and install CMake to the specified location
+  ./bootstrap --prefix="$INSTALL_PREFIX" --parallel=2 -- -DCMAKE_USE_OPENSSL=OFF
+  make -j 2
+  sudo make install
+
+  # Clean up
+  cd "$temp_dir" || exit 1
+  rm -rf "$temp_dir"
+}
+
+# shellcheck disable=SC2164
+cd "$(dirname "$0")"
+# Get the operating system type using uname
+OS_TYPE=$(uname)
+
+if [ "$OS_TYPE" = "darwin"* ]; then
+  ABSOLUTE_PATH=$([[ $1 == /* ]] && echo "$1" || echo "$PWD/${1#./}")
+else
+  ABSOLUTE_PATH=$(dirname "$(realpath "$0")")
+fi
+
+BUILDING_TESTS="OFF"
+BUILDING_HEAVY_TESTS="OFF"
+BUILDING_EXAMPLES="OFF"
+USING_HiCMA="OFF"
+VERBOSE="OFF"
+USE_CUDA="OFF"
+USE_MPI="OFF"
+BLAS_VENDOR=""
+PACKAGE="OFF"
+RUNTIME_TYPE="starpu"
+SHOW_WARNINGS="OFF"
+COMPILE_FLAGS="-Wl,--no-as-needed -w -fpic"
+DEVELOPER_WARNINGS="-Wno-dev"
+
+for arg in "$@"
+do
+    case $arg in
+        --use-mkl)
+          echo "${GREEN}MKL as a BLA vendor${NC}"
+          BLAS_VENDOR="Intel10_64lp"
+          ;;
+        --use-parsec)
+          echo "${GREEN}Parsec as a runtime${NC}"
+          RUNTIME_TYPE="parsec"
+          ;;
+        *)
+          # Collect non-option arguments as a space-delimited string
+          params="$params $arg"
+          ;;
+    esac
+done
+
+# Reset positional parameters to collected non-option arguments
+eval set -- $params
+
+# Parse command line options
+while getopts ":tevhHi:cmpTwr" opt; do
+  case $opt in
+  i) ##### Define installation path  #####
+    echo "${YELLOW}Installation path set to $OPTARG.${NC}"
+    INSTALL_PREFIX=$OPTARG
+    ;;
+  t) ##### Building tests enabled #####
+    echo "${GREEN}Building tests enabled.${NC}"
+    BUILDING_TESTS="ON"
+    ;;
+  T) ##### Building heavy tests enabled #####
+    echo "${GREEN}Building heavy tests enabled.${NC}"
+    BUILDING_HEAVY_TESTS="ON"
+    ;;
+  e) ##### Building examples enabled #####
+    echo "${GREEN}Building examples enabled.${NC}"
+    BUILDING_EXAMPLES="ON"
+    ;;
+  H) ##### Using HiCMA #####
+    echo "${GREEN}Using HiCMA.${NC}"
+    USING_HiCMA="ON"
+    ;;
+  c) ##### Using cuda enabled #####
+    echo "${GREEN}Cuda enabled ${NC}"
+    USE_CUDA="ON"
+    ;;
+  m) ##### Using MPI enabled #####
+    echo "${GREEN}MPI enabled ${NC}"
+    USE_MPI="ON"
+    ;;
+  v) ##### printing full output of make #####
+    echo "${GREEN}printing make with details.${NC}"
+    VERBOSE="ON"
+    ;;
+  p) ##### Enabling packaging system for distribution #####
+    echo "${GREEN}CPACK enabled${NC}"
+    PACKAGE=ON
+    ;;
+  w) ##### Enable showing all the warnings #####
+    echo "${GREEN}Showing Warnings is enabled${NC}"
+    SHOW_WARNINGS="ON"
+    ;;
+  r) ##### Enable R and Rcpp support #####
+    echo "${GREEN}R is enabled${NC}"
+    USE_R="ON"
+    ;;
+  \?) ##### Error unknown option #####
+    echo "Option $OPTARG parameter is unknown, please -h for help"
+    exit 1
+    ;;
+  :) ##### Error in an option #####
+    echo "Option $OPTARG requires parameter(s)"
+    exit 0
+    ;;
+  h) ##### Prints the help #####
+    echo "Usage of $(basename "$0"):"
+    echo ""
+    printf "%20s %s\n" "--use-mkl :" "to use MKL as a BLA vendor."
+    printf "%20s %s\n" "--use-parsec :" "to use parsec runtime."
+    printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
+    printf "%20s %s\n" "-t :" "to enable building tests."
+    printf "%20s %s\n" "-T :" "to enable building heavy tests."
+    printf "%20s %s\n" "-e :" "to enable building examples."
+    printf "%20s %s\n" "-H :" "to enable using HiCMA."
+    printf "%20s %s\n" "-c :" "to enable using CUDA."
+    printf "%20s %s\n" "-m :" "to enable using MPI."
+    printf "%20s %s\n" "-v :" "to enable verbose printings."
+    printf "%20s %s\n" "-p :" "to enable a packaging system for distribution."
+    printf "%20s %s\n" "-w :" "to enable showing warnings."
+    printf "%20s %s\n" "-r :" "to enable R support"
+    printf "%20s %s\n" "-h :" "Help."
+    echo ""
+    exit 1
+    ;;
+  esac
+done
+
+if [ -z "$BUILDING_TESTS" ]; then
+  BUILDING_TESTS="OFF"
+  echo "${RED}Building tests disabled.${NC}"
+fi
+
+if [ -z "$BUILDING_EXAMPLES" ]; then
+  BUILDING_EXAMPLES="OFF"
+  echo "${RED}Building examples disabled.${NC}"
+fi
+
+if [ -z "$USING_HiCMA" ]; then
+  echo "${RED}Using HiCMA is disabled.${NC}"
+fi
+
+if [ -z "$USE_CUDA" ]; then
+  USE_CUDA="OFF"
+  echo "${RED}Using CUDA disabled${NC}"
+fi
+
+if [ -z "$USE_MPI" ]; then
+  USE_MPI="OFF"
+  echo "${RED}Using MPI disabled${NC}"
+fi
+
+if [ "$SHOW_WARNINGS" = "ON" ]; then
+  COMPILE_FLAGS="$COMPILE_FLAGS -W"
+  DEVELOPER_WARNINGS=""
+elif [ "$SHOW_WARNINGS" = "OFF" ]; then
+  COMPILE_FLAGS="$COMPILE_FLAGS -w"
+fi
+
+if [ -z "$USE_R" ]; then
+  USE_R="OFF"
+  echo "${RED}Using R is disabled${NC}"
+fi
+
+echo "${BLUE}Installation path set to $INSTALL_PREFIX.${NC}"
+echo ""
+echo "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
+echo ""
+
+# cleaning bin
+rm -rf bin/
+mkdir bin/
+
+# Check if cmake is installed
+if command -v cmake /dev/null 2>&1; then
+  # Save the installation directory to the variable
+  cmake_install_dir=$(command -v cmake | xargs dirname)
+  echo "CMake is installed in: $cmake_install_dir"
+  cmake_command_bin=cmake
+elif [ -x "/Applications/CMake.app/Contents/bin/cmake" ]; then
+  echo "CMake found in /Applications/CMake.app/Contents/bin/cmake."
+  cmake_install_dir="/Applications/CMake.app/Contents/bin"
+  cmake_command_bin="${cmake_install_dir}/cmake"
+else
+  echo "Installing CMake from source"
+  mkdir "${ABSOLUTE_PATH}/inst/_deps/"
+  install_dir="${ABSOLUTE_PATH}/inst/_deps/"
+  install_cmake "$install_dir"
+  cmake_command_bin="${ABSOLUTE_PATH}/inst/_deps/bin/cmake"
+fi
+
+"$cmake_command_bin" "$DEVELOPER_WARNINGS" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DCMAKE_BUILD_TYPE=RELEASE \
+  -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+  -DBUILD_TESTS="${BUILDING_TESTS}" \
+  -DBUILD_HEAVY_TESTS="${BUILDING_HEAVY_TESTS}" \
+  -DBUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
+  -DUSE_HICMA="${USING_HiCMA}" \
+  -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
+  -DUSE_CUDA="${USE_CUDA}" \
+  -DUSE_MPI="${USE_MPI}" \
+  -DUSE_R="${USE_R}" \
+  -DBLA_VENDOR="${BLAS_VENDOR}" \
+  -DCREATE_PACKAGE="${PACKAGE}" \
+  -DRUNTIME_TYPE="${RUNTIME_TYPE}" \
+  -DBUILD_SHARED_LIBS=OFF \
+  -H"${ABSOLUTE_PATH}" \
+  -B"${ABSOLUTE_PATH}/bin" \
+  -G "Unix Makefiles" \
+  -DCMAKE_CXX_FLAGS_DEBUG="$COMPILE_FLAGS" \
+  -DCMAKE_CXX_FLAGS_RELEASE="$COMPILE_FLAGS"
+
+if [ "$USE_R" = "ON" ]; then
+  # Change to the bin directory, or exit if it doesn't exist.
+  cd bin/ || {
+    echo "Error: bin directory not found."
+    exit 1
+  }
+
+  # Clean the directory and build the code with the specified options.
+  "$cmake_command_bin" --build . -j 10
+
+  if [ "$OS_TYPE" = "darwin"* ]; then
+    cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.dylib" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.dylib -> src"
+  else
+    cp "${ABSOLUTE_PATH}/bin/src/libExaGeoStatCPP.so" "${ABSOLUTE_PATH}/src/ExaGeoStatCPP.so" || echo "Failed: libExaGeoStatCPP.so -> src"
+  fi
+
+  rm -rf "${ABSOLUTE_PATH:?}/bin/"*
+
+fi

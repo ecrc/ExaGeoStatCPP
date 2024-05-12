@@ -1,5 +1,5 @@
 
-# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -8,10 +8,10 @@
 # The project is a parallel high performance unified framework for geographical statistics on manycore systems.
 # The file sets up variables and finds dependencies required for the project.
 # It also provides options to enable building tests, building examples, building documentation, and enabling a packaging system for distribution.
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
-# @date 2023-01-30
+# @date 2024-02-04
 
 # Set the minimum CMake version required to 3.20
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
@@ -20,16 +20,26 @@ cmake_policy(SET CMP0048 NEW)
 # Set project options
 option(USE_CUDA "Use Cuda, if available" false)
 option(USE_MPI "Use MPI, if available" false)
-option(EXAGEOSTAT_BUILD_TESTS "Option to enable building tests" ON)
-option(EXAGEOSTAT_BUILD_EXAMPLES "Option to enable building examples" ON)
-option(EXAGEOSTAT_BUILD_DOCS "Build documentation in docs directory" ON)
-option(EXAGEOSTAT_PACKAGE "Enable a packaging system for distribution" OFF)
+option(BUILD_TESTS "Option to enable building tests" OFF)
+option(BUILD_HEAVY_TESTS "Option to enable building heavy tests, This may take a lot of time" OFF)
+option(BUILD_EXAMPLES "Option to enable building examples" ON)
+option(BUILD_DOCS "Build documentation in docs directory" ON)
+option(USE_R "Enable the use of R and Rcpp in the project" OFF)
+option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
+if (${BUILD_SHARED_LIBS})
+    set(BLA_STATIC OFF)
+else ()
+    set(BLA_STATIC ON)
+endif ()
+
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
+    message("")
+    message("---------------------------------------- CUDA")
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
     enable_language(CUDA)
@@ -44,21 +54,19 @@ else ()
 endif ()
 
 # Project Name and Version
-project(exageostatcpp VERSION 1.0.0 DESCRIPTION "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems.")
+project(ExaGeoStatCPP VERSION 1.0.0 DESCRIPTION "ExaGeoStatCPP is a parallel high performance unified framework for geostatistics on manycore systems.")
 
 # Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
 # Enable C++ language
 enable_language(CXX)
-
+# Get the current path of the project.
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}/")
+# Set kernels path.
+add_definitions(-DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/")
 
-add_definitions(
-        -DLOG_PATH="${PROJECT_SOURCE_DIR}/synthetic_ds/"
-        -DKERNELS_PATH="${PROJECT_SOURCE_DIR}/inst/include/kernels/concrete/"
-)
-
-# Add all dependencies for ExaGeoStat PP
+# ExaGeoStatCPP depends on CUDA
+# -------------------------------
 if (USE_CUDA)
     message("-- Build CUDA Support")
 else ()
@@ -67,73 +75,74 @@ else ()
     unset(BLA_VENDOR)
 endif ()
 
-# EXAGEOSTAT depends on a MPI
+# ExaGeoStatCPP depends on MPI
 # -------------------------------
 if (USE_MPI)
+    message("")
+    message("---------------------------------------- MPI")
     # Enable MPI and include MPI
     add_definitions(-DUSE_MPI=TRUE)
     message(STATUS "Trying to find MPI")
     find_package(MPI REQUIRED)
+    include_directories(${MPI_INCLUDE_PATH})
+    list(APPEND LIBS ${MPI_LIBRARIES})
     list(APPEND STARPU_COMPONENT_LIST "MPI")
 endif ()
 
-# EXAGEOSTAT depends on LAPACKE
+# ExaGeoStatCPP depends on LAPACKE
 #-----------------------------
+message("")
+message("---------------------------------------- LAPACKE")
 find_package(LAPACKE)
 list(APPEND LIBS ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 
-# Check if no path is set for installation
-if (NOT EXAGEOSTAT_INSTALL_PREFIX)
-    message(FATAL_ERROR "Installation path not set! Please use -DEXAGEOSTAT_INSTALL_PREFIX=path/to/install or use ./config.sh")
-endif ()
-# Print installation path of Exageostat.
-message(STATUS "Installation path : ${EXAGEOSTAT_INSTALL_PREFIX}")
+# Add all dependencies for ExaGeoStatCPP
+#-----------------------------
 
-# EXAGEOSTAT depends on a Hwloc
+# Print installation path of ExaGeoStatCPP.
+message(STATUS "Installation path : ${CMAKE_INSTALL_PREFIX}")
+
+# ExaGeoStatCPP depends on HWLoc
 # -------------------------------
 include(ImportHwloc)
 list(APPEND STARPU_COMPONENT_LIST "HWLOC")
-
 string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
 
-# EXAGEOSTAT depends on a runtime
+# ExaGeoStatCPP depends on StarPU runtime
 # -------------------------------
 include(ImportStarPu)
 
-# EXAGEOSTAT depends on a GSL
+# ExaGeoStatCPP depends on GSL
 # -------------------------------
 include(ImportGSL)
 
-# EXAGEOSTAT depends on a NLOPT
+# ExaGeoStatCPP depends on NLOPT
 # -------------------------------
 include(ImportNLOPT)
 
-# EXAGEOSTAT depends on HiCMA
+# ExaGeoStatCPP depends on HiCMA
 # -------------------------------
-if (EXAGEOSTAT_USE_HICMA)
-    add_definitions(-DEXAGEOSTAT_USE_HICMA=TRUE)
-    message(STATUS "Add Hcore, Dependency needed for HiCMA")
-    include(ImportHcore)
-    message(STATUS "Add StarsH, Dependency needed for HiCMA")
+if (USE_HICMA)
+    add_definitions(-DUSE_HICMA=TRUE)
+    include(ImportHCore)
     include(ImportStarsH)
     include(ImportHiCMA)
 endif ()
 
-# EXAGEOSTAT depends on CHAMELEON
+# ExaGeoStatCPP depends on Chameleon
 # -------------------------------
 include(ImportChameleon)
 
-# EXAGEOSTAT depends on a LAPACK/BLASPP
+# ExaGeoStatCPP depends on LAPACK/BLASPP
 # -------------------------------
-include(ImportBlasPP)
+include(ImportBLASPP)
 include(ImportLapack)
 
-# EXAGEOSTAT DOCUMENTATIONS
-if (EXAGEOSTAT_BUILD_DOCS)
+# ExaGeoStatCPP Documentation
+if (BUILD_DOCS)
     find_package(Doxygen)
-
     if (DOXYGEN_FOUND)
         add_subdirectory("docs")
     else ()
@@ -141,11 +150,24 @@ if (EXAGEOSTAT_BUILD_DOCS)
     endif ()
 endif ()
 
-# Include directories for Exageostat-cpp
+# Include directories for ExaGeoStatCPP
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inst/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/prerequisites)
 set(MY_LOGGER_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DMY_LOGGER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+
+if (USE_R)
+    message("")
+    message("---------------------------------------- Rcpp")
+    # Find R and Rcpp using FindR Module
+    find_package(R REQUIRED)
+    if (${R_FOUND})
+        message(STATUS "Using R technology")
+        list(APPEND LIBS R)
+        add_definitions(-DUSING_R)
+    endif ()
+endif ()
+
 
 # Add src Directory to expose added libraries
 add_subdirectory(src)
@@ -158,14 +180,8 @@ target_link_libraries(${PROJECT_NAME}_INTERFACE INTERFACE ${PROJECT_NAME})
 # Add linker options to the target
 target_link_options(${PROJECT_NAME}_INTERFACE INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:${PROJECT_NAME}> -Wl,--no-whole-archive")
 
-# Install headers
-install(TARGETS exageostatcpp
-        DESTINATION lib/
-        PUBLIC_HEADER DESTINATION include/
-        )
-
 # Add tests if enabled
-if (${EXAGEOSTAT_BUILD_TESTS})
+if (${BUILD_TESTS})
     message(STATUS "Building Tests")
     include(ImportCatch2)
     include(Catch)
@@ -174,55 +190,85 @@ if (${EXAGEOSTAT_BUILD_TESTS})
     enable_testing()
 endif ()
 
+# Add heavy tests if enabled
+if (${BUILD_HEAVY_TESTS})
+    message(STATUS "Building Heavy Tests")
+    include(ImportCatch2)
+    include(Catch)
+    include(CTest)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests/heavy-tests)
+    enable_testing()
+    message(STATUS "Building heavy tests will enable examples too")
+    set(BUILD_EXAMPLES ON)
+endif ()
 
-if (EXAGEOSTAT_BUILD_EXAMPLES)
-    message(STATUS "Building Examples  is Enabled")
+# Add examples if enabled
+if (BUILD_EXAMPLES)
+    message(STATUS "Building Examples is Enabled")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples)
 endif ()
 
-# Installation actions
-install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
+# ExaGeoStatCPP Dependence export messages for users
+# -------------------------------
+message(" \n \t ** Configurations of ExaGeoStatCPP and installation of dependence is done successfully ** ")
+message("\t - Export the following line to avoid re-install dependencies each time. -")
+message("\t ----------------------------------------------------------------------------------------------------------------------------------- ")
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARPU/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/NLOPT/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
+if(USE_HICMA)
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HCORE/lib/pkgconfig:$PKG_CONFIG_PATH")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
+endif()
+message("\t ----------------------------------------------------------------------------------------------------------------------------------- \n")
+
+# Installation of ExaGeoStatCPP
+install(DIRECTORY inst/include/ DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/include)
+
 ## Install cmake find package.
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" COMPATIBILITY ExactVersion)
+write_basic_package_version_file("${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/${PROJECT_NAME}ConfigVersion.cmake" COMPATIBILITY ExactVersion)
 install(
         FILES
-        "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION lib/cmake/${PROJECT_NAME}
+        "${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/cmake/${PROJECT_NAME}
 )
 
 configure_file(${PROJECT_NAME}Config.cmake.in
-        ${PROJECT_NAME}Config.cmake @ONLY)
+        ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/${PROJECT_NAME}Config.cmake @ONLY)
 
 install(
         FILES
-        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-        DESTINATION lib/cmake/${PROJECT_NAME}
+        "${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/${PROJECT_NAME}Config.cmake"
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/cmake/${PROJECT_NAME}
 )
 
 install(
         DIRECTORY
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-        DESTINATION lib/cmake/${PROJECT_NAME}/Modules
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/Modules
 )
 
 ## Generate pkg-config file
 configure_file(package.pc.in
-        lib/pkgconfig/${PROJECT_NAME}.pc @ONLY)
+        ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/pkgconfig/${PROJECT_NAME}.pc @ONLY)
 install(
         FILES
-        "${PROJECT_BINARY_DIR}/lib/pkgconfig/${PROJECT_NAME}.pc"
-        DESTINATION lib/pkgconfig/
+        "${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/pkgconfig/${PROJECT_NAME}.pc"
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/pkgconfig/
 )
 
-if (EXAGEOSTAT_PACKAGE)
+if (CREATE_PACKAGE)
     ##################
     # Release source #
     ##################
     set(CPACK_SOURCE_GENERATOR "TGZ")
     set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
     set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
-    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ExaGeoStat is a parallel high performance unified framework for geostatistics on manycore systems. Its abbreviation stands for 'Exascale Geostatistics'.")
+    set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ExaGeoStatCPP is a parallel high performance unified framework for geostatistics on manycore systems. Its abbreviation stands for 'Exascale Geostatistics'.")
     set(CPACK_PACKAGE_VERSION "${${PROJECT_NAME}_VERSION}")
     set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
     set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
@@ -230,16 +276,11 @@ if (EXAGEOSTAT_PACKAGE)
     set(CPACK_PACKAGE_CONTACT "sameh.abdulah@kaust.edu.sa")
     set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
     set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
-    set(CPACK_SOURCE_IGNORE_FILES "bin;.git;.gitmodules;Jenkinsfile")
+    set(CPACK_SOURCE_IGNORE_FILES "bin;.git;Jenkinsfile")
     include(CPack)
-endif ()
 
-message(" \n \t ** Configurations of ExaGeoStat and installation of dependence is done successfully ** ")
-message("\t Export the following line to avoid re-install dependencies each time, This line assume that you haven't changed the installation path. ")
-message("\t If not, Please change the following paths with your installation path. \n")
-message("\t ------------------------------------------------------------------------------------------------------------------------------- ")
-message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HCORE/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${EXAGEOSTAT_INSTALL_PREFIX}/STARPU/lib/pkgconfig:${EXAGEOSTAT_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t ------------------------------------------------------------------------------------------------------------------------------- \n")
+    message("\t - Export the following line if you want to use ExaGeoStatCPP in another software. -")
+    message("\t ----------------------------------------------------------------------------------------------------------------------------------------------------- ")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/EXAGEOSTATCPP/lib/pkgconfig:$PKG_CONFIG_PATH")
+    message("\t ----------------------------------------------------------------------------------------------------------------------------------------------------- ")
+endif ()

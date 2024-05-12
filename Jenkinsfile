@@ -20,14 +20,14 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
+                    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
                     ####################################################
-
                     set -x
-                    ./config.sh -t -e
+                    ./configure -t -e
                     ./clean_build.sh
                 '''
             }
@@ -43,6 +43,7 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
+                    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
@@ -61,14 +62,14 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
+                    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
                     ####################################################
-
                     set -x
-                    ./config.sh -t -e -H
+                    ./configure -t -e -H
                     ./clean_build.sh
                 '''
             }
@@ -84,11 +85,11 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
+                    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    module load gsl/2.6-gcc-10.2.0
                     cd bin/
                     ctest --no-compress-output --verbose
                     '''
@@ -101,12 +102,14 @@ pipeline {
                     module purge
                     module load gcc/10.2.0
                     module load cmake/3.21.2
+                    module load doxygen/1.8.20
                     ####################################################
                     # BLAS/LAPACK
                     ####################################################
                     module load mkl/2020.0.166
-                    module load gsl/2.6-gcc-10.2.0
-                    ./config.sh -t -e
+                    ####################################################
+
+                    ./configure -e
                     ./clean_build.sh
                     cd bin
                     make docs

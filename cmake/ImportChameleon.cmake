@@ -1,65 +1,45 @@
 
-# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ImportChameleon.cmake
 # @brief This script checks for Chameleon and includes it in the project if it is not already a target.
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-03-13
 
-message("")
-message("---------------------------------------- Chameleon")
-message(STATUS "Checking for Chameleon")
-include(macros/BuildDependency)
+# Set basic configuration variables for the Chameleon library.
+# 'name' is set to "CHAMELEON", which is the identifier used for the dependency throughout the script.
+set(name "CHAMELEON")
+# 'tag' specifies the version tag of the Chameleon library to fetch, indicating a specific state of the source code in the repository.
+set(tag "v1.1.0")
+# 'version' specifies the version of the Chameleon library. This may be used to ensure compatibility or meet specific requirements.
+set(version "1.1.0")
+# 'flag' can be used to pass additional flags to the configure/make commands when building the dependency. Flags here are for CUDA, BLAS vendor, MPI, StarPU, and disabling testing.
+set(flag -DCHAMELEON_USE_CUDA=${USE_CUDA} \-DBLA_VENDOR=${BLA_VENDOR} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON \-DCHAMELEON_ENABLE_TESTING=OFF)
+# 'is_cmake' is a boolean flag indicating whether the Chameleon library uses CMake for its build system. It's set to ON, meaning it does.
+set(is_cmake ON)
+# 'is_git' is a boolean flag indicating whether the Chameleon library's source code is hosted in a git repository. It's set to ON.
+set(is_git ON)
+# 'auto_gen' is a boolean flag indicating whether to use autogen scripts for the configuration process. It's set to OFF here.
+set(auto_gen OFF)
+# 'url' specifies the location of the Chameleon library's source code repository.
+set(url "https://gitlab.inria.fr/solverstack/chameleon.git")
 
-if (NOT TARGET CHAMELEON_FOUND)
-    include(FindPkgConfig)
-    find_package(PkgConfig QUIET)
-    find_package(CHAMELEON QUIET)
+# Include the 'ImportDependency' macro script located in the 'macros' directory.
+# This macro is responsible for importing and possibly installing the dependency.
+include(macros/ImportDependency)
+# Call the 'ImportDependency' macro with the previously set configuration parameters.
+# This macro checks if CHAMELEON is already available; if not, it proceeds to fetch, configure, build, and install it.
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
-    # If Chameleon is found, include it
-    if (CHAMELEON_FOUND)
-        message("   Found Chameleon: ${CHAMELEON_LIBDIR}")
-    # If Chameleon is not found, install it
-    else ()
-        message("   Can't find Chameleon, Installing it instead ..")
-        # Set installation flags
-        set(FLAGS -DCHAMELEON_USE_CUDA=${USE_CUDA} \-DBLA_VENDOR=${BLA_VENDOR} \-DCHAMELEON_USE_MPI=${USE_MPI} \-DCHAMELEON_SCHED_STARPU=ON \-DCHAMELEON_ENABLE_TESTING=OFF)
-        set(ISCMAKE ON)
-        set(ISGIT ON)
-        set(AUTO_GEN OFF)
-        # Install Chameleon
-        BuildDependency(CHAMELEON "https://gitlab.inria.fr/solverstack/chameleon.git" "v1.1.0" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-        # Reset flags
-        set(FLAGS "")
-        find_package(CHAMELEON REQUIRED)
-    endif ()
-else()
-    message("   CHAMELEON already included")
-endif()
-
-link_directories(${CHAMELEON_LIBRARY_DIRS_DEP})
-
-include_directories(AFTER ${CHAMELEON_INCLUDE_DIRS_DEP})
+# Additional include directories for Chameleon are specified, ensuring the project can find Chameleon's headers.
+# The AFTER keyword specifies that these directories should be searched after the default ones.
 include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
 include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)
+include_directories(${CHAMELEON_DIR_FOUND})
 
-if (CHAMELEON_LINKER_FLAGS)
-    list(APPEND CMAKE_EXE_LINKER_FLAGS "${CHAMELEON_LINKER_FLAGS} ")
-endif ()
-if (CHAMELEON_LIBRARY_DIRS)
-    # the RPATH to be used when installing
-    list(APPEND CMAKE_INSTALL_RPATH "${CHAMELEON_LIBRARY_DIRS}")
-endif ()
-if (CHAMELEON_LIBRARIES)
-    if (CHAMELEON_LIBRARIES_DEP)
-        list(APPEND LIBS ${CHAMELEON_LIBRARIES_DEP})
-    else ()
-        list(APPEND LIBS ${CHAMELEON_LIBRARIES})
-    endif ()
-endif ()
-
-message(STATUS "Chameleon done")
+# Print a status message indicating the completion of Chameleon's inclusion process.
+message(STATUS "${name} done")

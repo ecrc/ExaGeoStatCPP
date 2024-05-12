@@ -1,10 +1,10 @@
 
-# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @date 2023-04-06
 
@@ -14,7 +14,7 @@ set(EXAGEOSTAT_TESTFILES
         ${EXAGEOSTAT_TESTFILES}
         )
 
-if (EXAGEOSTAT_USE_HICMA)
+if (USE_HICMA)
     list(APPEND EXAGEOSTAT_TESTFILES
             ${CMAKE_CURRENT_SOURCE_DIR}/concrete/TestHiCMAImplementationTLR.cpp
             )

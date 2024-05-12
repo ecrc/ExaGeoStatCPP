@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file UnivariateSpacetimeMaternStationary.cpp
  * @brief Implementation of the UnivariateSpacetimeMaternStationary kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
@@ -17,7 +17,7 @@
 #include <gsl/gsl_sf_bessel.h>
 
 #include <kernels/concrete/UnivariateSpacetimeMaternStationary.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -51,10 +51,10 @@ UnivariateSpacetimeMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, c
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double z0, z1;
-    double expr, expr2, expr3, expr4;
-    double con;
-    double sigma_square = aLocalTheta[0];
+    T z0, z1;
+    T expr, expr2, expr3, expr4;
+    T con;
+    T sigma_square = aLocalTheta[0];
 
     con = pow(2, (aLocalTheta[2] - 1)) * tgamma(aLocalTheta[2]);
     con = 1.0 / con;

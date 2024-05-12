@@ -1,5 +1,4 @@
-What is ExaGeoStat?
-================
+# ExaGeoStat
 
 The **Exascale GeoStatistics** project (ExaGeoStat) is a parallel high-performance unified framework for computational
 geostatistics on many-core systems. The project aims to optimize the likelihood function for a given spatial data to
@@ -9,19 +8,19 @@ from commodity x86 to GPU accelerator-based shared and distributed-memory system
 tackle computationally challenging scientific problems at large-scale while abstracting the hardware complexity through
 state-of-the-art high-performance linear algebra software libraries.
 
-
-What is ExaGeoStatCPP?
-====================
+### ExaGeoStatCPP
 ExaGeoStatCPP is a C++ API for ExaGeoStat that aims to offer a user-friendly and efficient API for C++ developers, essentially
 maintaining traditional practices and embracing contemporary C++ elements like namespaces, templates, and exceptions to enhance functionality.
 
+### ExaGeoStatR : R Interface of ExaGeoStat
+R is a powerful and versatile tool for scientific computing, offering a wide range of statistical and graphical
+techniques, strong community support, and the flexibility to integrate with other programming languages.
+Its open-source nature and extensive package ecosystem make it an invaluable resource for researchers and data scientists.
+Therefore, we decided to create ExaGeoStatR: An interface for functionalities provided by ExaGeoStatCPP to make use of R's various benefits.
 
-Vision of ExaGeoStat/ExaGeoStatCPP
-=================
-
+### Vision of ExaGeoStat/ExaGeoStatCPP
 The ExaGeoStat/ExaGeoStatCPP project is a collaboration between the KAUST Spatial Statistics group and the Extreme Computing Research
-Center (ECRC). Its contribution lies not in a new algorithm nor a new dataset,
-but in demonstrating the routine use of the larger datasets becoming available to geospatial
+Center (ECRC). Lies not in a new algorithm nor a new dataset, but in demonstrating the routine use of the larger datasets becoming available to geospatial
 statisticians, thanks to the implementation of state-of-the-art statistical algorithms on
 High Performance Computing (HPC) hardware.
 
@@ -54,108 +53,93 @@ This low-rank matrix approximation permits the exploitation of the data sparsity
 numerical accuracy. This further expands practical problem sizes for
 statisticians with modest computational resources.
 
+## Installation
 
-Current Version of ExaGeoStatCPP: 1.0.0
-======================
-Operations:
+> Note: Installation requires at least **CMake of version 3.2**. to build ExaGeoStatCPP.
 
-1. (Data Generation): Generating large geospatial synthetic datasets using  dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques.
-2. (Data Modeling): Modeling large geospatial datasets on dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques through the Maximum likelihood Estimation (MLE) operation.
-3. (Data Prediction): Predicting missing measurements on given locations using dense, Diagonal Super-Tile (DST), and Tile Low-Rank (TLR) approximation techniques.
-4. (MLOE/MMOM): Computing the Mean Loss of Efficiency (MLOE), Mean Misspecification of the Mean Square Error (MMOM), and Root mean square MOM (RMOM) to describe the prediction performance over the whole observation region.
-5. (Fisher Information Matrix (FIM)): Quantifying the information content that a variable x carries about a parameter $\theta$ within a Gaussian distribution.
+### C++ source code installation
+To install the `ExaGeoStat` project locally, run the following commands in your terminal:
 
-Supported Covariance Functions:
-======================
+1. Clone the project from the remote gitHub repository into your local machine using the following command
+   ```bash
+   git clone https://github.com/ecrc/ExaGeoStatCPP.git 
+   ```
 
-1. Univariate Matérn (Gaussian/Stationary)
-2. Univariate Matérn with Nugget (Gaussian/Stationary)
-3. Flexible Bivariate Matérn (Gaussian/Stationary)
-4. Parsimonious Bivariate Matérn (Gaussian/Stationary)
-5. Parsimonious trivariate Matérn (Gaussian/Stationary)
-6. Univariate Space/Time Matérn (Gaussian/Stationary)
-7. Bivariate Space/Time Matérn (Gaussian/Stationary)
-8. Tukey g-and-h Univariate Matérn (non-Gaussian/Stationary)
-9. Tukey g-and-h Univariate Power Exponential (non-Gaussian/Stationary)
+2. Change your current directory by getting into the `ExaGeoStatCPP` project directory
+   ```bash
+   cd ExaGeoStatCPP
+   ```
 
-Programming models:
+3. Run `configure` script with the flag `-h` for help, to know the supported options and their corresponding flags.
+   ```bash
+   ./configure -h
+   ```
 
-1. MPI
-2. Task-based programming models
+4. Run `clean_build.sh` script with the flag `-h` for help, to know the needed arguments to run with your specific options.
+   ```bash
+   ./clean_build.sh -h
+   ```
 
-External libraries:
-
-1. NLOPT [https://nlopt.readthedocs.io/en/latest/](https://nlopt.readthedocs.io/en/latest/)
-2. GSL [https://www.gnu.org/software/gsl/](https://www.gnu.org/software/gsl/)
-3. HWLOC [https://www.open-mpi.org/projects/hwloc/](https://www.open-mpi.org/projects/hwloc/)
-4. StarPU dynamic runtime system  [https://starpu.gitlabpages.inria.fr/](https://starpu.gitlabpages.inria.fr/)
-5. HCORE [https://github.com/ecrc/hcore](https://github.com/ecrc/hcore)
-6. HiCMA [https://github.com/ecrc/hicma](https://github.com/ecrc/hicma)
-7. Stars-H [https://github.com/ecrc/stars-h](https://github.com/ecrc/stars-h)
-8. Chameleon [https://gitlab.inria.fr/solverstack/chameleon](https://gitlab.inria.fr/solverstack/chameleon)
-
-Project Hierarchy
---------------------
-
-* **```cmake```** A directory contains essential CMake modules that facilitate the importation and location of required dependencies.
-* **```docs```** A directory contains all the necessary documents.
-* **```examples```** A directory contains a comprehensive collection of demo code that illustrates the framework's application and demonstrates its features and capabilities.
-* **```inst```** A directory contains all the system's header files, mirroring the structure of the src directory.
-* **```prerequisites```** A directory contains all the necessary prerequisites for the project and default scripts for their installation.
-* **```src```** A directory contains all the source files.
-* **```tests```** A directory contains all the test files and follows the same structure as the src folder.
-* **```clean_build.sh```** A script is designed to compile the software tests once all dependencies are installed, and it is set to build everything by default.
-* **```CMakeLists.txt```** The top-level CMake file to configure the build system.
-* **```config.sh```** A Script used to generate the building system inside a 'bin' directory.
-
-Installation
-============
-
-Installation requires at least **CMake of version 3.2**. to build ExaGeoStatCPP,
-please follow these instructions:
-
-1. Get from git repository
-
-       git clone git@github.com:ecrc/exageostatcpp
-
-   or
-
-       git clone https://github.com/ecrc/exageostatcpp
-
-2. Go into the ExaGeoStatCPP folder
-
-       cd exageostatcpp
-
-3. Run help of config.sh to know the needed arguments to run with your specific options.
-
-       ./config.sh --h
-   or check user manual.
-
-4. Run help of clean_build.sh to know the needed arguments to run with your specific options.
-
-       ./clean_build.sh -h
-
-10. Export the installation paths of the dependencies, e.g.,
-
-        export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH
-
-    to your .bashrc file.
+5. Export the installation paths of the dependencies to your `.bashrc` file, e.g.
+   ```bash
+   export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH
+   ```
 
 Now, you can use the pkg-config executable to collect compiler and linker flags for
-EXAGEOSTATCPP.
+ExaGeoStatCPP.
 
-Using ExaGeoStatCPP
-============
-Please refer to **```USER_MANUAL```** for detailed instructions.
-Please take a look at the end-to-end examples as a reference for using all the operations.
+### R package installation
+1. Open the R prompt window by simply running `R` command in the terminal, inside the prompt, we will install needed packages by running the following commands:
+   ```R
+   install.packages(Rcpp)
+   install.packages("assert")
+   ```
 
-Contribute
-=======
+2. close the R prompt and return to the terminal. Run the following command, make sure your current path is the ExaGeoStat project directory
 
-[Contribution Guidelines](CONTRIBUTING.md)
+   ```commandline
+   R CMD INSTALL . --configure-args="-r"
+   ```
 
-References
-==========
+> For more detailed information on installing ExaGeoStat with different configurations and enabling technologies such as CUDA, MPI, R, etc., please refer to the [User Manual](USER_MANUAL.md)
+
+
+## Usage
+#### C++ Example
+```C++
+int main(int argc, char **argv) {
+
+    // Create a new configurations object.
+    Configurations configurations;
+    // Initialize the arguments with the provided command line arguments
+    configurations.InitializeArguments(argc, argv);
+    // Initialize the ExaGeoStat Hardware
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
+    // Load data by either read from file or create synthetic data.
+    std::unique_ptr<ExaGeoStatData<double>> data;
+    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
+    // Modeling module.
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
+    // Prediction module
+    ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data);
+
+    return 0;
+}
+```
+### R Example:
+```R
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
+exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
+estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
+predict_data(train_data=list(x, y, z_measurement), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
+```
+
+> Please take a look at the end-to-end examples as a reference for using all the operations.
+
+## Contributing
+Find detailed information on how to contribute to ExaGeoStatCPP [here](CONTRIBUTING.md)
+
+## References
 
 1. Sameh Abdulah, Hatem Ltaief, Ying Sun, Marc G. Genton, and David E. Keyes. "ExaGeoStat: A high performance unified
    software for geostatistics on manycore systems." IEEE Transactions on Parallel and Distributed Systems 29, no. 12 (
@@ -190,12 +174,17 @@ References
    geostatistical modeling and prediction for extreme-scale environmental applications." In 2022 SC22: International
    Conference for High-Performance Computing, Networking, Storage and Analysis (SC), pp. 13-24. IEEE Computer Society, 2022.
    (ACM GORDON BELL PRIZE Finalist).
-         
+
 9. Sagnik Mondal, Sameh Abdulah, Hatem Ltaief, Ying Sun, Marc G. Genton, and David E. Keyes. "Tile low-rank approximations
-    of non-Gaussian space and space-time Tukey g-and-h random field likelihoods and predictions on large-scale systems." 
-    Journal of Parallel and Distributed Computing 180 (2023): 104715.
-    
+   of non-Gaussian space and space-time Tukey g-and-h random field likelihoods and predictions on large-scale systems."
+   Journal of Parallel and Distributed Computing 180 (2023): 104715.
+
 10. Qinglei Cao, Sameh Abdulah, Hatem Ltaief, Marc G. Genton, David E. Keyes, and George Bosilca. "Reducing Data Motion
     and Energy Consumption of Geospatial Modeling Applications Using Automated Precision Conversion." In 2023 IEEE International Conference
-   on Cluster Computing (CLUSTER), IEEE, 2023.
-   
+    on Cluster Computing (CLUSTER), IEEE, 2023.
+
+## License
+[BSD 3-Clause](LICENSE)
+
+## Handout
+![ExaGeoStatCPP-handout.png](docs/ExaGeoStatCPP-handout.png)

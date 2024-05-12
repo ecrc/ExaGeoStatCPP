@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Prediction.hpp
  * @brief Contains the definition of the Prediction class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -23,35 +23,28 @@ namespace exageostat::prediction {
      * @Class Prediction
      * @brief Class to handle different Prediction Module calls.
      * @tparam T Data Type: float or double.
+     *
      */
-
     template<typename T>
     class Prediction {
     public:
 
         /**
-         * @brief Default constructor for Prediction class.
-         */
-        Prediction() = default;
-
-        /**
-         * @brief Default destructor for Prediction class.
-         */
-        ~Prediction() = default;
-
-        /**
         * @brief Takes care of calling the MSPE function, and the appropriate auxiliary function.
-        * @param[in] aHardware Reference to Hardware configuration for the ExaGeoStat solver.
         * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing needed descriptors, and locations.
         * @param[in] aConfigurations Reference to Configurations object containing user input data.
         * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
         * @param[in] aKernel Reference to the kernel object to use.
-        * @return
+        * @param[in] apTrainLocations (Optional) Pointer to Locations represents training locations. these are used in training phase.
+        * @param[in] apTestLocations (Optional) Pointer to Locations represents test locations. These are used in prediction phase.
+        * @return void
+        *
         */
-        void PredictMissingData(const exageostat::hardware::ExaGeoStatHardware &aHardware,
-                                exageostat::dataunits::ExaGeoStatData<T> &aData,
-                                exageostat::configurations::Configurations &aConfigurations, T *apMeasurementsMatrix,
-                                const kernels::Kernel<T> &aKernel);
+        static void
+        PredictMissingData(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations,
+                           T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel,
+                           dataunits::Locations<T> *apTrainLocations = nullptr,
+                           dataunits::Locations<T> *apTestLocations = nullptr);
 
         /**
          * @brief Initializes needed pointers for prediction.
@@ -63,13 +56,20 @@ namespace exageostat::prediction {
          * @param[out] aMissLocation Location object to be filled with missed locations.
          * @param[out] aObsLocation Location object to be filled with missed locations.
          * @param[in] apMeasurementsMatrix Pointer to the user input measurements matrix.
+         * @param[in] aP the P value of the kernel multiplied by time slot.
+         * @param[in] apTrainLocations (Optional) Pointer to Locations represents training locations. these are used in training phase.
+         * @param[in] apTestLocations (Optional) Pointer to Locations represents test locations. These are used in prediction phase.
          * @return void
+         *
          */
-        void InitializePredictionArguments(exageostat::configurations::Configurations &aConfigurations,
-                                           exageostat::dataunits::ExaGeoStatData<T> &aData,
-                                           std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
-                                           T *apZObs, T *apZActual, exageostat::dataunits::Locations<T> &aMissLocation,
-                                           exageostat::dataunits::Locations<T> &aObsLocation, T *apMeasurementsMatrix);
+        static void
+        InitializePredictionArguments(configurations::Configurations &aConfigurations,
+                                      std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                      std::unique_ptr<exageostat::linearAlgebra::LinearAlgebraMethods<T>> &aLinearAlgebraSolver,
+                                      T *apZObs, T *apZActual, exageostat::dataunits::Locations<T> &aMissLocation,
+                                      exageostat::dataunits::Locations<T> &aObsLocation, T *apMeasurementsMatrix,
+                                      const int &aP, dataunits::Locations<T> *apTrainLocations,
+                                      dataunits::Locations<T> *apTestLocations);
 
     };
 

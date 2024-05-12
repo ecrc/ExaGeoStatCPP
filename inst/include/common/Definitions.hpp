@@ -1,11 +1,11 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Definitions.hpp
- * @version 1.0.0
+ * @version 1.1.0
  * @brief This file contains common definitions used in ExaGeoStat software package.
  * @details These definitions include enums for dimension, computation, precision, and floating point arithmetic;
  * A macro for instantiating template classes with supported types; and a set of available kernels.
@@ -14,27 +14,24 @@
  * @date 2023-03-21
 **/
 
-
 #ifndef EXAGEOSTATCPP_DEFINITIONS_HPP
 #define EXAGEOSTATCPP_DEFINITIONS_HPP
 
-//// TODO: This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+// This is a fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+#ifdef USE_HICMA
 #ifdef min
 #undef min
 #endif
+#endif
 
-#include <iostream>
-#include <string>
-#include <map>
 #include <set>
 #include <filesystem>
-#include <unordered_map>
 
 /**
  * @def EXAGEOSTAT_INSTANTIATE_CLASS
  * @brief Macro definition to instantiate the EXAGEOSTAT template classes with supported types.
+ *
 **/
-
 #define EXAGEOSTAT_INSTANTIATE_CLASS(TEMPLATE_CLASS)   template class TEMPLATE_CLASS<float>;  \
                                                     template class TEMPLATE_CLASS<double>;
 
@@ -56,6 +53,11 @@
  * Q Norm value.
  */
 #define Q_NORM 1.959964
+
+/**
+ * Logging Path Definition
+ */
+#define LOG_PATH PROJECT_SOURCE_DIR "/synthetic_ds/"
 
 namespace exageostat::common {
 
@@ -84,6 +86,7 @@ namespace exageostat::common {
     /**
      * @enum Side
      * @brief Enum denoting the side on which the matrix appears in an equation.
+     *
      */
     enum Side {
         EXAGEOSTAT_LEFT = 141,
@@ -93,6 +96,7 @@ namespace exageostat::common {
     /**
      * @enum Trans
      * @brief Enum denoting whether or not to transpose a matrix.
+     *
      */
     enum Trans {
         EXAGEOSTAT_NO_TRANS = 111,
@@ -103,6 +107,7 @@ namespace exageostat::common {
     /**
      * @enum Diag
      * @brief Enum denoting whether the diagonal is unitary.
+     *
      */
     enum Diag {
         EXAGEOSTAT_NON_UNIT = 131,
@@ -112,6 +117,7 @@ namespace exageostat::common {
     /**
      * @enum Distance metric
      * @brief Enum denoting distance metric type.
+     *
      */
     enum DistanceMetric {
         EUCLIDEAN_DISTANCE = 0,
@@ -121,6 +127,7 @@ namespace exageostat::common {
     /**
      * @enum Descriptor Type
      * @brief Enum denoting the Descriptor Type.
+     *
      */
     enum DescriptorType {
         CHAMELEON_DESCRIPTOR = 0,
@@ -128,8 +135,19 @@ namespace exageostat::common {
     };
 
     /**
+     * @enum Data source Type
+     * @brief Enum denoting the data source Type.
+     *
+     */
+    enum DataSourceType {
+        SYNTHETIC = 0,
+        CSV_FILE = 1
+    };
+
+    /**
      * @enum Descriptor Name
      * @brief Enum denoting all Descriptors Names.
+     *
      */
     enum DescriptorName : int {
         DESCRIPTOR_C = 0,
@@ -184,10 +202,15 @@ namespace exageostat::common {
         DESCRIPTOR_C_DIAG = 49,
         DESCRIPTOR_A = 50,
         DESCRIPTOR_RESULTS = 51,
+        DESCRIPTOR_SUM = 52,
+        DESCRIPTOR_R = 53,
+        DESCRIPTOR_R_COPY = 54,
     };
 
     /**
+     * @enum Tile Storage
      * @brief Matrix tile storage
+     *
      */
     typedef enum TileStorage {
         EXAGOSTAT_CM = 101,
@@ -247,20 +270,29 @@ namespace exageostat::common {
     };
 
     /**
+     * @enum CopyDirection
+     * @brief Enum denoting the copy descriptors flow
+     *
+     */
+    enum CopyDirection : int {
+        CHAMELEON_TO_HICMA = 0,
+        HICMA_TO_CHAMELEON = 1
+    };
+
+    /**
      * @var availableKernels
      * @brief Set denoting the available kernels supported in matrix generation.
      * @details This set is updated automatically to add new kernels.
      * The set is initialized with a lambda function that iterates through a directory
      * and extracts the kernel names from the filenames. It also adds lowercase versions
      * of the kernel names with underscores before each capital letter.
+     * @return set of all available kernels names
      *
      */
     const static std::set<std::string> availableKernels = []() {
         // This set stores the kernel names.
         std::set<std::string> kernelNames;
         // This string stores the directory path where the kernel files are located.
-        // The path is obtained by using the __FILE__ macro to get the full path of the current source file,
-        // and then navigating two levels up to reach the directory that contains the kernel files.
         const std::string directoryPath = KERNELS_PATH;
         // This loop iterates through all the files in the directory and extracts the kernel names.
         for (const auto &entry: std::filesystem::directory_iterator(directoryPath)) {

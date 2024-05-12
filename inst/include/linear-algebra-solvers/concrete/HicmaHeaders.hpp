@@ -1,7 +1,7 @@
 /**
  * @file HicmaHeaders.hpp
  * @brief This file contains the necessary includes for using the Chameleon library.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-08-24
 **/
@@ -9,7 +9,7 @@
 #ifndef EXAGEOSTATCPP_HICMAHEADERS_HPP
 #define EXAGEOSTATCPP_HICMAHEADERS_HPP
 
-#ifdef EXAGEOSTAT_USE_HICMA
+#ifdef USE_HICMA
 extern "C" {
 #include <hicma_struct.h>
 #include <starsh-spatial.h>

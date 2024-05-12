@@ -1,21 +1,25 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Results.cpp
  * @brief Defines the Results class for storing and accessing result data.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-09-14
+ * @date 2024-02-04
 **/
 
 #include <results/Results.hpp>
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
+#include <utility>
 
 using namespace exageostat::results;
 using namespace exageostat::common;
+using namespace exageostat::configurations;
+
+using namespace std;
 
 Results *Results::GetInstance() {
 
@@ -37,102 +41,84 @@ void Results::SetIsLogger(bool aIsLogger) {
     this->mIsLogger = aIsLogger;
 }
 
-void Results::SetLoggerPath(const std::string &aLoggerPath) {
+void Results::SetLoggerPath(const string &aLoggerPath) {
     this->mLoggerPath = aLoggerPath;
 }
 
 void Results::PrintEndSummary() {
 
-    Verbose temp = exageostat::configurations::Configurations::GetVerbosity();
-    exageostat::configurations::Configurations::SetVerbosity(STANDARD_MODE);
-    LOGGER("")
+    Verbose temp = Configurations::GetVerbosity();
+    Configurations::SetVerbosity(STANDARD_MODE);
     LOGGER("********************SUMMARY**********************")
 
-    auto locations_number = mGeneratedLocationsNumber;
+    auto locations_number = this->mGeneratedLocationsNumber;
     if (locations_number > 0) {
-        LOGGER("---- Data Generation Results ----")
-        if (mIsSynthetic) {
-            LOGGER(" #Synthetic Dataset")
-        } else {
-            LOGGER(" #Real Dataset")
-        }
-        LOGGER("  #Number of Locations: " << locations_number)
-        if (mIsLogger && mIsSynthetic) {
+        LOGGER("#Number of Locations: " << locations_number)
+        if (this->mIsLogger && this->mIsSynthetic) {
             LOGGER("  #Data is written to file (", true)
-            if (mLoggerPath.empty()) {
-                mLoggerPath = LOG_PATH;
+            if (this->mLoggerPath.empty()) {
+                this->mLoggerPath = LOG_PATH;
             }
-            LOGGER_PRECISION(mLoggerPath << ").")
+            LOGGER_PRECISION(this->mLoggerPath << ").")
             LOGGER("")
         }
-        LOGGER(" #Total Data Generation Execution Time: " << mExecutionTimeDataGeneration)
-        LOGGER(" #Total Data Generation Gflop/s: " << mFlopsDataGeneration)
-        LOGGER("")
+        VERBOSE("#Total Data Generation Execution Time: " << this->mExecutionTimeDataGeneration)
+        VERBOSE("#Total Data Generation Gflop/s: " << this->mFlopsDataGeneration)
     }
-    if (mMLEIterations > 0) {
-        LOGGER("---- Data Modeling Results ----")
-        LOGGER(" #Number of MLE Iterations till reach Maximum: " << mMLEIterations)
-        LOGGER(" #Found Maximum Theta at: ", true)
-        for (double i: mMaximumTheta) {
+    if (this->mMLEIterations > 0) {
+        LOGGER("#Number of MLE Iterations: " << this->mMLEIterations)
+        LOGGER("#Found Maximum Theta at: ", true)
+        for (double i: this->mMaximumTheta) {
             LOGGER_PRECISION(i << " ", 8)
         }
         LOGGER("")
-        LOGGER(" #Final Log Likelihood value: " << mLogLikValue)
-        LOGGER(" #Average Time Modeling per Iteration: " << this->GetAverageModelingExecutionTime())
-        LOGGER(" #Average Flops per Iteration: " << this->GetAverageModelingFlops())
-        LOGGER(" #Total MLE Execution time: " << mTotalModelingExecutionTime)
-        LOGGER(" #Total MLE Gflop/s: " << mTotalModelingFlops)
-        LOGGER("")
+        LOGGER("#Final Log Likelihood value: " << this->mLogLikValue)
+        VERBOSE("#Average Time Modeling per Iteration: " << this->GetAverageModelingExecutionTime())
+        VERBOSE("#Average Flops per Iteration: " << this->GetAverageModelingFlops())
+        VERBOSE("#Total MLE Execution time: " << this->mTotalModelingExecutionTime)
+        VERBOSE("#Total MLE GFlop/s: " << this->mTotalModelingFlops)
     }
 
-    if (mZMiss > 0) {
-        LOGGER("---- Data Prediction Results ----")
-        LOGGER(" #Number of Missing Observations: " << mZMiss)
-        if (mMSPEError > 0) {
-            LOGGER(" #MSPE")
-            LOGGER("  #MSPE Prediction Execution Time: " << mExecutionTimeMSPE)
-            LOGGER("  #MSPE Gflop/s: " << mFlopsMSPE)
-            LOGGER("  #Mean Square Error MSPE: " << mMSPEError)
+    if (this->mZMiss > 0) {
+        LOGGER("#Number of Missing Observations: " << this->mZMiss)
+        if (this->mMSPEError > 0) {
+            VERBOSE("#MSPE Prediction Execution Time: " << this->mExecutionTimeMSPE)
+            VERBOSE("#MSPE Gflop/s: " << this->mFlopsMSPE)
+            LOGGER("#Mean Square Error MSPE: " << this->mMSPEError)
 
         }
-        if (!mIDWError.empty()) {
-            LOGGER(" #IDW")
-            LOGGER("  #IDW Error: ( ", true)
+        if (!this->mIDWError.empty()) {
+            LOGGER("#IDW Error: ( ", true)
             for (int i = 0; i < 3; i++) {
-                LOGGER_PRECISION(mIDWError[i] << " ", 8)
+                LOGGER_PRECISION(this->mIDWError[i] << " ", 8)
             }
             LOGGER_PRECISION(").")
             LOGGER("")
         }
-        if (mMLOE > 0 || mMMOM > 0) {
-            LOGGER(" #MLOE MMOM")
-            LOGGER("  #MLOE: " << mMLOE)
-            LOGGER("  #MMOM: " << mMMOM)
-            LOGGER("  #MLOE-MMOM Execution Time: " << mExecutionTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Matrix Generation Time: " << mGenerationTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Cholesky Factorization Time: " << mFactoTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Loop Time: " << mLoopTimeMLOEMMOM)
-            LOGGER("  #MLOE-MMOM Number of flops: " << mFlopsMLOEMMOM)
-            LOGGER("")
+        if (this->mMLOE > 0 || this->mMMOM > 0) {
+            LOGGER("#MLOE: " << this->mMLOE << "\t\t#MMOM: " << this->mMMOM)
+            VERBOSE("#MLOE-MMOM Execution Time: " << this->mExecutionTimeMLOEMMOM)
+            VERBOSE("#MLOE-MMOM Matrix Generation Time: " << this->mGenerationTimeMLOEMMOM)
+            VERBOSE("#MLOE-MMOM Cholesky Factorization Time: " << this->mFactoTimeMLOEMMOM)
+            VERBOSE("#MLOE-MMOM Loop Time: " << this->mLoopTimeMLOEMMOM)
+            VERBOSE("#MLOE-MMOM Number of flops: " << this->mFlopsMLOEMMOM)
         }
     }
-    if(mFisher00 != 0){
-        LOGGER(" #Fisher")
-        LOGGER("  #Sd For Sigma2: " << mFisher00)
-        LOGGER("  #Sd For Alpha: " << mFisher11)
-        LOGGER("  #Sd For Nu: " << mFisher22)
-        LOGGER("  #Fisher Execution Time: " << mTotalFisherTime)
-        LOGGER("")
+    if (!this->mFisherMatrix.empty()) {
+        LOGGER("#Sd For Sigma2: " << this->mFisherMatrix[0])
+        LOGGER("#Sd For Alpha: " << this->mFisherMatrix[1])
+        LOGGER("#Sd For Nu: " << this->mFisherMatrix[2])
+        VERBOSE("#Fisher Execution Time: " << this->mTotalFisherTime)
     }
     LOGGER("*************************************************")
-    exageostat::configurations::Configurations::SetVerbosity(temp);
+    Configurations::SetVerbosity(temp);
 }
 
 void Results::SetMLEIterations(int aIterationsNumber) {
     this->mMLEIterations = aIterationsNumber;
 }
 
-void Results::SetMaximumTheta(const std::vector<double> &aMaximumTheta) {
+void Results::SetMaximumTheta(const vector<double> &aMaximumTheta) {
     this->mMaximumTheta = aMaximumTheta;
 }
 
@@ -148,7 +134,7 @@ void Results::SetMSPEError(double aMSPEError) {
     this->mMSPEError = aMSPEError;
 }
 
-void Results::SetIDWError(const std::vector<double> &aIDWError) {
+void Results::SetIDWError(const vector<double> &aIDWError) {
     this->mIDWError = aIDWError;
 }
 
@@ -180,14 +166,14 @@ double Results::GetAverageModelingExecutionTime() const {
     if (this->mMLEIterations) {
         return this->mTotalModelingExecutionTime / this->mMLEIterations;
     }
-    throw std::runtime_error("Number of MLE Iterations is not set!");
+    throw runtime_error("Number of MLE Iterations is not set!");
 }
 
 double Results::GetAverageModelingFlops() const {
     if (this->mMLEIterations) {
         return this->mTotalModelingFlops / this->mMLEIterations;
     }
-    throw std::runtime_error("Number of MLE Iterations is not set!");
+    throw runtime_error("Number of MLE Iterations is not set!");
 }
 
 void Results::SetTotalModelingFlops(double aTime) {
@@ -232,14 +218,34 @@ void Results::SetTotalFisherTime(double aTime) {
     this->mTotalFisherTime = aTime;
 }
 
-void Results::SetFisher00(double aFisher00) {
-    this->mFisher00 = aFisher00;
+void Results::SetFisherMatrix(vector<double> aFisherMatrix) {
+    this->mFisherMatrix = std::move(aFisherMatrix);
 }
 
-void Results::SetFisher11(double aFisher11) {
-    this->mFisher11 = aFisher11;
+void Results::SetPredictedMissedValues(vector<double> aPredictedValues) {
+    this->mPredictedMissedValues = std::move(aPredictedValues);
 }
 
-void Results::SetFisher22(double aFisher22) {
-    this->mFisher22 = aFisher22;
+double Results::GetMLOE() const {
+    return this->mMLOE;
+}
+
+double Results::GetMSPEError() const {
+    return this->mMSPEError;
+}
+
+vector<double> Results::GetIDWError() const {
+    return this->mIDWError;
+}
+
+double Results::GetMMOM() const {
+    return this->mMMOM;
+}
+
+std::vector<double> Results::GetFisherMatrix() const {
+    return this->mFisherMatrix;
+}
+
+std::vector<double> Results::GetPredictedMissedValues() const {
+    return this->mPredictedMissedValues;
 }

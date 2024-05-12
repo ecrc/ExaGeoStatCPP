@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Locations.hpp
  * @brief Header file for the Locations class, which contains methods to set and get location data.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-27
@@ -39,14 +39,15 @@ namespace exageostat::dataunits {
         /**
          * @brief Default copy constructor.
          * @param[in] aLocations Locations to be copied.
+         *
          */
         Locations(const Locations<T> &aLocations) = default;
 
         /**
-         * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         * @brief destructor for Locations.
          *
          */
-        virtual ~Locations();
+        ~Locations();
 
         /**
          * @brief Setter for LocationX.

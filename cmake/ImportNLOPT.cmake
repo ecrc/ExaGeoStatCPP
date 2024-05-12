@@ -1,56 +1,38 @@
 
-# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file ImportNLOPT.cmake
 # @brief Find and include NLOPT library as a dependency.
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-03-26
-message("")
-message("---------------------------------------- NLOPT")
-message(STATUS "Checking for NLOPT")
-include(macros/BuildDependency)
 
-if (NOT TARGET NLOPT_FOUND)
-    # Try to find NLOPT.
-    include(FindPkgConfig)
-    find_package(PkgConfig QUIET)
-    find_package(NLOPT 2.4.2 QUIET)
+# Configuration settings for the integration of the NLOPT library
+# 'name' is assigned to "NLOPT", serving as the identifier for this library within the script.
+set(name "NLOPT")
+# 'tag' defines "v2.7.1" as the version tag of NLOPT, indicating the specific release to be utilized.
+set(tag "v2.7.1")
+# 'version' specifies "2.7.1" as the version of the NLOPT library, ensuring compatibility with the project's requirements.
+set(version "2.7.1")
+# 'flag' is intended for additional configuration options during the build process. A space is placed as a placeholder.
+set(flag " ")
+# 'is_cmake' indicates that NLOPT uses CMake for its build system, which is set to ON.
+set(is_cmake ON)
+# 'is_git' denotes that the NLOPT source code is hosted in a Git repository, which is set to ON.
+set(is_git ON)
+# 'auto_gen' signals whether autogen scripts are required for the build process, which is set to OFF for NLOPT.
+set(auto_gen OFF)
+# 'url' provides the location of the NLOPT source code repository on GitHub.
+set(url "https://github.com/stevengj/nlopt")
 
-    # If NLOPT is found, print its location.
-    if (NLOPT_FOUND)
-        message("   Found NLOPT: ${NLOPT_LIBRARIES}")
-        # If not found, install it.
-    else ()
-        message("   Can't find NLOPT, Installing it instead ..")
+# The 'ImportDependency' macro script, located in the 'macros' directory, is included for managing the import and setup of the NLOPT library.
+include(macros/ImportDependency)
+# The 'ImportDependency' macro is invoked with the above-defined parameters to handle the detection, fetching, and integration of NLOPT into the project.
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
-        # Set installation flags.
-        set(FLAGS "")
-        set(ISCMAKE ON)
-        set(ISGIT ON)
-        set(AUTO_GEN OFF)
-        # Build NLOPT from source.
-        BuildDependency(NLOPT "https://github.com/stevengj/nlopt" "v2.7.1" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
+# A status message is outputted to indicate the successful integration of the NLOPT library into the project.
+message(STATUS "${name} done")
 
-        # Set the location of NLOPT.
-        set(NLOPT_LIBRARY_DIRS= ${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/lib:$NLOPT_LIBRARY_DIRS)
-        set(NLOPT_INCLUDE_DIRS= ${EXAGEOSTAT_INSTALL_PREFIX}/NLOPT/include:$NLOPT_INCLUDE_DIRS)
-
-        # Try to find NLOPT again.
-        find_package(NLOPT 2.4.2 REQUIRED)
-    endif ()
-else ()
-    message("   NLOPT already included")
-endif ()
-
-# Include NLOPT headers.
-include_directories(${NLOPT_INCLUDE_DIRS})
-
-# Link NLOPT libraries.
-link_directories(${NLOPT_LIBRARY_DIRS})
-list(APPEND LIBS ${NLOPT_LIBRARIES})
-
-message(STATUS "NLOPT done")

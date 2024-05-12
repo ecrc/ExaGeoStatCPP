@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file TestChameleonImplementationDST.cpp
  * @brief Unit tests for the Diagonal Super Tile computation in the ExaGeoStat software package.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-09
 **/
@@ -25,29 +25,26 @@ using namespace std;
 
 using namespace exageostat::linearAlgebra;
 using namespace exageostat::common;
-using namespace exageostat::configurations;
 using namespace exageostat::dataunits;
-using namespace exageostat::hardware;
+using namespace exageostat::configurations;
 
 
 //Test that the function initializes the CHAM_descriptorC descriptor correctly.
 void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
 
     Configurations synthetic_data_configurations;
-
+    int p = 1;
     SECTION("SINGLE")
     {
         // initialize Hardware.
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 1, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<float>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
-
         synthetic_data_configurations.SetProblemSize(64);
         synthetic_data_configurations.SetDenseTileSize(16);
 
         auto *data = new DescriptorData<float>();
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, p, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -55,7 +52,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto *CHAM_descriptorDeterminant = data->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                                DESCRIPTOR_DETERMINANT).chameleon_desc;
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();
@@ -165,13 +162,11 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto hardware = ExaGeoStatHardware(DIAGONAL_APPROX, 2, 0);
 
         auto linearAlgebraSolver = LinearAlgebraFactory<double>::CreateLinearAlgebraSolver(DIAGONAL_APPROX);
-        linearAlgebraSolver->SetContext(hardware.GetChameleonContext());
-
         synthetic_data_configurations.SetProblemSize(32);
         synthetic_data_configurations.SetDenseTileSize(16);
 
         auto *data = new DescriptorData<double>();
-        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, nullptr);
+        linearAlgebraSolver->InitiateDescriptors(synthetic_data_configurations, *data, p, nullptr);
 
         auto *CHAM_descriptorC = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
         auto *CHAM_descriptorZ = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z).chameleon_desc;
@@ -181,7 +176,7 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES_DST() {
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
         auto *CHAM_descriptorProduct_1 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1).chameleon_desc;
         auto *CHAM_descriptorProduct_2 = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2).chameleon_desc;
-        int N = synthetic_data_configurations.GetProblemSize() * synthetic_data_configurations.GetP();
+        int N = synthetic_data_configurations.GetProblemSize();
         int dts = synthetic_data_configurations.GetDenseTileSize();
         int pGrid = synthetic_data_configurations.GetPGrid();
         int qGrid = synthetic_data_configurations.GetQGrid();

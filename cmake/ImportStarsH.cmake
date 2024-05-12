@@ -1,86 +1,37 @@
 
-# Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+# Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 # All rights reserved.
 # ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 # @file CMakeLists.txt
 # @brief Find and include STARSH library as a dependency.
-# @version 1.0.0
+# @version 1.1.0
 # @author Mahmoud ElKarargy
 # @author Sameh Abdulah
 # @date 2023-03-13
 
-message("")
-message("---------------------------------------- Stars-H")
-message(STATUS "Checking for STARSH")
-include(macros/BuildDependency)
+# Configuration parameters for integrating the STARSH library
+# 'name' is set to "STARSH" to identify the STARSH library within this script.
+set(name "STARSH")
+# 'tag' specifies "v0.3.1" as the version tag for STARSH, denoting the exact release to be used.
+set(tag "v0.3.1")
+# 'version' sets "0.3.1" as the version of the STARSH library, ensuring it aligns with project requirements.
+set(version "0.3.1")
+# 'flag' is used for additional build configuration options, specifically disabling StarPU and optionally enabling MPI.
+set(flag \-DSTARPU=OFF \-DMPI=${USE_MPI})
+# 'is_cmake' indicates that STARSH uses CMake as its build system, set to ON.
+set(is_cmake ON)
+# 'is_git' denotes that the source code for STARSH is hosted on a Git repository, set to ON.
+set(is_git ON)
+# 'auto_gen' signals whether autogen scripts are needed for the build process; it is set to OFF for STARSH.
+set(auto_gen OFF)
+# 'url' provides the GitHub repository URL for STARSH, specifying the source code's location.
+set(url "https://github.com/ecrc/stars-h.git")
 
-if (NOT TARGET STARSH_FOUND)
-    # Try to find STARSH.
-    include(FindPkgConfig)
-    find_package(PkgConfig QUIET)
-    find_package(STARSH QUIET)
+# The 'ImportDependency' macro, located in the 'macros' directory, is included to manage the import and setup of the STARSH library.
+include(macros/ImportDependency)
+# The 'ImportDependency' macro is called with the configuration parameters set above to manage the detection, fetching, and setup of STARSH.
+ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_git} ${auto_gen})
 
-    # If STARSH is found, print its location.
-    if (STARSH_FOUND)
-        message("   Found STARSH: ${STARSH_INCLUDE_DIRS}")
-        # If not found, install it.
-    else ()
-        message("   Can't find STARSH, Installing it instead ..")
-        set(FLAGS \-DSTARPU=OFF \-DMPI=${USE_MPI})
-        set(ISCMAKE ON)
-        set(ISGIT ON)
-        set(AUTO_GEN OFF)
-        BuildDependency(STARSH "https://github.com/ecrc/stars-h.git" "v0.3.1" ${FLAGS} ${ISCMAKE} ${ISGIT} ${AUTO_GEN})
-        set(FLAGS "")
-        find_package(STARSH REQUIRED)
-    endif ()
-else ()
-    message("   STARSH already included")
-endif ()
-
-# Include STARSH headers.
-include_directories(${STARSH_INCLUDE_DIRS_DEP})
-
-# Set linker flags and library directories.
-if (STARSH_LINKER_FLAGS)
-    list(APPEND CMAKE_EXE_LINKER_FLAGS "${STARSH_LINKER_FLAGS}")
-endif ()
-if (STARSH_LIBRARY_DIRS)
-    list(APPEND CMAKE_INSTALL_RPATH "${STARSH_LIBRARY_DIRS}")
-endif ()
-
-# Check if GSL is a dependency of STARSH and add it if needed.
-if (STARSH_LIBRARIES)
-    find_library(_STARSH_LIB NAME starsh PATHS ${STARSH_LIBRARY_DIRS})
-    if (_STARSH_LIB AND NOT "${STARSH_LIBRARIES_DEP}" MATCHES "gsl")
-        execute_process(COMMAND nm ${_STARSH_LIB} COMMAND grep gsl RESULT_VARIABLE GSL_IN_STARSH)
-        if (${GSL_IN_STARSH} EQUAL 0)
-            message(STATUS "STARSH depends on gsl. Adding it to dependency list")
-            find_package(GSL REQUIRED)
-            if (GSL_FOUND)
-                if (STARSH_LIBRARIES_DEP)
-                    list(APPEND STARSH_LIBRARIES_DEP ${GSL_LIBRARIES})
-                else ()
-                    list(APPEND STARSH_LIBRARIES ${GSL_LIBRARIES})
-                endif ()
-            endif ()
-        endif ()
-    endif ()
-
-    # Add STARSH libraries to the project.
-    if (STARSH_LIBRARIES_DEP)
-        list(APPEND LIBS ${STARSH_LIBRARIES_DEP})
-        link_directories(${STARSH_LIBRARY_DIRS_DEP})
-        link_directories(${STARSH_LIBRARIES_DEP})
-    else ()
-        list(APPEND LIBS ${STARSH_LIBRARIES})
-        link_directories(${STARSH_LIBRARIES})
-    endif ()
-
-    list(APPEND LIBS ${STARSH_LIBRARIES})
-    link_directories(${STARSH_LIBRARY_DIRS_DEP})
-    include_directories(${STARSH_INCLUDE_DIRS})
-endif ()
-
-message(STATUS "StarsH Done")
+# A message is output to indicate the successful integration of the STARSH library into the project.
+message(STATUS "${name} done")

@@ -1,19 +1,19 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file TrivariateMaternParsimonious.cpp
  * @brief Implementation of the BivariateMaternParsimonious kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/TrivariateMaternParsimonious.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -46,8 +46,8 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr;
-    double con1, con2, con3, con12, con13, con23, rho12, rho13, rho23, nu12, nu13, nu23;
+    T expr;
+    T con1, con2, con3, con12, con13, con23, rho12, rho13, rho23, nu12, nu13, nu23;
 
     con1 = pow(2, (aLocalTheta[4] - 1)) * tgamma(aLocalTheta[4]);
     con1 = 1.0 / con1;
@@ -88,13 +88,13 @@ void TrivariateMaternParsimonious<T>::GenerateCovarianceMatrix(T *apMatrixA, con
     i0 /= 3;
     int matrix_size = aRowsNumber * aColumnsNumber;
     int index;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber - 1; i += 3) {
         j0 = aColumnOffset / 3;
         for (j = 0; j < aColumnsNumber - 1; j += 3) {
             expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
-                                                                    flag) / aLocalTheta[3];
+                                                                    0) / aLocalTheta[3];
 
             if (expr == 0) {
 

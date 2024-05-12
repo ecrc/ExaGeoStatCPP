@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file PredictionAuxiliaryFunctions.hpp
  * @brief Contains the definition of the PredictionAuxiliaryFunctions.hpp class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -29,16 +29,6 @@ namespace exageostat::prediction {
     public:
 
         /**
-         * @brief Default constructor for PredictionAuxiliaryFunctions
-         */
-        PredictionAuxiliaryFunctions() = default;
-
-        /**
-         * @brief Default destructor for PredictionAuxiliaryFunctions
-         */
-        ~PredictionAuxiliaryFunctions() = default;
-
-        /**
          * @brief  implements the Inverse Distance Weighting (IDW) interpolation method
          * for predicting missing values based on available observed values.
          * @param[in] apZMiss Pointer to the missed measurements.
@@ -50,6 +40,7 @@ namespace exageostat::prediction {
          * @param[in] aObsLocation Reference to the observed locations.
          * @param[out] apMSPE Pointer to be filled with MSPE value.
          * @return T Array provides insight into the accuracy of the IDW-interpolated predictions for missing values
+         *
          */
         static void PredictIDW(T *apZMiss, T *apZActual, T *apZObs, const int &aZMissNumber, const int &aZObsNumber,
                                exageostat::dataunits::Locations<T> &aMissLocation,

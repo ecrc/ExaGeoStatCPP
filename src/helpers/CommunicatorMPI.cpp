@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file CommunicatorMPI.cpp
  * @brief Defines the CommunicatorMPI class for MPI rank communication.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Sameh Abdulah
  * @date 2023-11-10
 **/
@@ -23,25 +23,24 @@ CommunicatorMPI *CommunicatorMPI::GetInstance() {
     return mpInstance;
 }
 
-bool CommunicatorMPI::GetRank() const {
-
-    if(!this->mIsHardwareInitialized){
-        return false;
+int CommunicatorMPI::GetRank() const {
+#ifdef USE_MPI
+    if (!mIsHardwareInitialized) {
+        return 0;
+    } else {
+        return CHAMELEON_Comm_rank();
     }
-    else{
-        if(CHAMELEON_Comm_rank() == 0){
-            return true;
-        }
-        return false;
-    }
+#else
+    return 0;
+#endif
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {
-    this->mIsHardwareInitialized = true;
+    mIsHardwareInitialized = true;
+}
+
+void CommunicatorMPI::RemoveHardwareInitialization() {
+    mIsHardwareInitialized = false;
 }
 
 CommunicatorMPI *CommunicatorMPI::mpInstance = nullptr;
-
-void CommunicatorMPI::RemoveHardwareInitialization() {
-    this->mIsHardwareInitialized = false;
-}

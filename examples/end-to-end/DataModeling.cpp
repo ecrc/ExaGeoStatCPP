@@ -1,5 +1,5 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -7,20 +7,15 @@
  * @file DataModeling.cpp
  * @brief This program models data using the ExaGeoStat library.
  * @details The program takes command line arguments and example variables to configure the data modeling.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-06-21
+ * @date 2024-02-04
 **/
 
-#include <iostream>
-
-#include <common/Utils.hpp>
 #include <api/ExaGeoStat.hpp>
 
 using namespace exageostat::api;
-using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
-using namespace exageostat::hardware;
 
 /**
  * @brief Main entry point for the Data Modeling program.
@@ -30,14 +25,15 @@ using namespace exageostat::hardware;
  * the library's efficiency in handling large spatial datasets while efficiently utilizing hardware resources..
  * @param[in] argc The number of command line arguments.
  * @param[in] argv An array of command line argument strings.
- * @return An integer indicating the success or failure of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 int main(int argc, char **argv) {
     // Create a new data_modeling_configurations object with the provided command line arguments and example variables
     Configurations configurations;
     configurations.InitializeArguments(argc, argv);
     /**
-     * Since this example is currently relying on user inputs instead of reading files, The following points are important to know:
+     * Since this example is relying on user inputs, The following points are important to know:
      * The N and dts have to match with the Location X, Y and Z_values you're going to provide.
      * You have to provide Locations and Z values in order to use Modeling without generation.
      */
@@ -47,13 +43,12 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    LOGGER("** initialize ExaGeoStat hardware ** ")
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers());
 
     //Data Setup
-    LOGGER("** Create ExaGeoStat data ** ")
-    ExaGeoStatData<double> data(configurations.GetProblemSize(), configurations.GetDimension());
+    std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
+            configurations.GetProblemSize(), configurations.GetDimension());
 
     // Initiating the matrix of the CHAMELEON Descriptor Z.
     auto *z_matrix = new double[N]{-1.272336140360187606, -2.590699695867695773, 0.512142584178685967,
@@ -77,15 +72,16 @@ int main(int argc, char **argv) {
                                      0.573571374074921758, 0.568657969024185528, 0.935835812924391552,
                                      0.942824444953078489};
 
-    data.GetLocations()->SetLocationX(*location_x, N);
-    data.GetLocations()->SetLocationY(*location_y, N);
+    data->GetLocations()->SetLocationX(*location_x, N);
+    data->GetLocations()->SetLocationY(*location_y, N);
 
-    LOGGER("** ExaGeoStat Data Modeling ** ")
-    ExaGeoStat<double>::ExaGeoStatDataModeling(hardware, configurations, data, z_matrix);
-    LOGGER("** All example stages have been completed successfully ** ")
+    // Modeling module.
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data, z_matrix);
+
     // Freeing the allocated memory.
     delete[] z_matrix;
     delete[] location_x;
     delete[] location_y;
+
     return 0;
 }

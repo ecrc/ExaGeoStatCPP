@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file PredictionAuxiliaryFunctions.cpp
  * @brief Contains the implementation of the PredictionAuxiliaryFunctions class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -16,7 +16,7 @@
 
 #include <prediction/PredictionAuxiliaryFunctions.hpp>
 #include <helpers/DistanceCalculationHelpers.hpp>
-#include <common/Utils.hpp>
+#include <utilities/Logger.hpp>
 
 using namespace exageostat::prediction;
 using namespace exageostat::dataunits;
@@ -57,8 +57,9 @@ void PredictionAuxiliaryFunctions<T>::PredictIDW(T *apZMiss, T *apZActual, T *ap
     apMSPE[1] = error1 / (aZMissNumber / 2);
     apMSPE[2] = error2 / (aZMissNumber / 2);
 
-    LOGGER("- Z Actual .. Z Miss")
-    for (int index = 0; index < aZMissNumber; index++)
-        LOGGER(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
-    LOGGER("- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
+    VERBOSE("- Z Actual .. Z Miss")
+    for (int index = 0; index < aZMissNumber; index++) {
+        VERBOSE(" (" << apZActual[index] << ", " << apZMiss[index] << ")")
+    }
+    LOGGER("\t\t- Prediction Error (IDW): " << apMSPE[0] << " - " << apMSPE[1] << " - " << apMSPE[2])
 }

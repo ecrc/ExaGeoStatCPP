@@ -1,19 +1,19 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file BivariateMaternFlexible.cpp
  * @brief Implementation of the BivariateMaternFlexible kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/BivariateMaternFlexible.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -47,9 +47,9 @@ BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
     int i, j;
     int i0 = aRowOffset;
     int j0;
-    double expr1, expr2, expr12;
-    double con1, con2, con12, scale12, rho, nu12, sigma_square11, sigma_square22;
-    double scale1 = aLocalTheta[0], scale2 = aLocalTheta[1], nu1 = aLocalTheta[4], nu2 = aLocalTheta[5];
+    T expr1, expr2, expr12;
+    T con1, con2, con12, scale12, rho, nu12, sigma_square11, sigma_square22;
+    T scale1 = aLocalTheta[0], scale2 = aLocalTheta[1], nu1 = aLocalTheta[4], nu2 = aLocalTheta[5];
 
     //Remark 1 (c) of Apanasovich et al. (2012)
     scale12 = pow(0.5 * (pow(scale1, -2) + pow(scale2, -2)) + aLocalTheta[2] * (1 - aLocalTheta[3]), -0.5);
@@ -76,7 +76,7 @@ BivariateMaternFlexible<T>::GenerateCovarianceMatrix(T *apMatrixA, const int &aR
     con12 = rho * con12;
 
     i0 /= 2;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
 
     for (i = 0; i < aRowsNumber; i += 2) {
         j0 = aColumnOffset / 2;

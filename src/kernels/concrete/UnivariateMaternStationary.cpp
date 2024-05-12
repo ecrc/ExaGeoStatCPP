@@ -1,19 +1,19 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file UnivariateMaternStationary.cpp
  * @brief Implementation of the UnivariateMaternStationary kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-04-14
 **/
 
 #include <kernels/concrete/UnivariateMaternStationary.hpp>
-#include <helpers/DistanceCalculationHelpers.hpp>
+
 
 using namespace exageostat::kernels;
 using namespace exageostat::dataunits;
@@ -48,7 +48,7 @@ UnivariateMaternStationary<T>::GenerateCovarianceMatrix(T *apMatrixA, const int 
     const T nu = aLocalTheta[2];
     const T inv_con = sigma_square * (1.0 / (pow(2, (nu - 1)) * tgamma((nu))));
     int i0 = aRowOffset;
-    int flag = 0;
+    int flag = aLocation1.GetLocationZ() == nullptr ? 0 : 1;
     int j0;
     int i, j;
     T dist;

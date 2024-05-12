@@ -1,34 +1,30 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file SyntheticLocationsGeneration.cpp
  * @brief This file contains the main function for generating synthetic Locations for ExaGeoStat
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
- * @date 2023-03-04
+ * @date 2024-02-04
 **/
-
-#include <iostream>
 
 #include <data-generators/DataGenerator.hpp>
 
-using namespace std;
-
-using namespace exageostat::configurations;
 using namespace exageostat::generators;
 using namespace exageostat::common;
-using namespace exageostat::hardware;
 using namespace exageostat::kernels;
+using namespace exageostat::configurations;
 
 /**
  * @brief The main function of the program.
  * @details This function generates synthetic data for ExaGeoStat using the provided command line arguments.
  * @param[in] argc The number of command line arguments.
  * @param[in] argv The command line arguments.
- * @return The status code of the program.
+ * @return An integer indicating the success or failure of the program. A return value of 0 indicates success, while any non-zero value indicates failure.
+ *
  */
 
 int main(int argc, char **argv) {
@@ -39,18 +35,19 @@ int main(int argc, char **argv) {
     synthetic_data_configurations.InitializeDataGenerationArguments();
 
     // initialize ExaGeoStat Hardware.
-    auto hardware = ExaGeoStatHardware(synthetic_data_configurations.GetComputation(),
-                                       synthetic_data_configurations.GetCoresNumber(),
-                                       synthetic_data_configurations.GetGPUsNumbers());
+    ExaGeoStatHardware hardware(synthetic_data_configurations.GetComputation(),
+                                synthetic_data_configurations.GetCoresNumber(),
+                                synthetic_data_configurations.GetGPUsNumbers());
 
-    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(synthetic_data_configurations.GetKernelName());
+    Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
+            synthetic_data_configurations.GetKernelName(), synthetic_data_configurations.GetTimeSlot());
 
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
+    std::unique_ptr<DataGenerator<double>> synthetic_generator = DataGenerator<double>::CreateGenerator(
             synthetic_data_configurations);
 
     // Initialize the locations of the generated data
-    auto data = *synthetic_generator->CreateData(synthetic_data_configurations, hardware, *pKernel);
+    auto data = synthetic_generator->CreateData(synthetic_data_configurations, *pKernel);
     // Define a struct to hold pointers to the x, y, and z coordinates of the generated data
     struct DataPointers {
         double *x;
@@ -59,9 +56,9 @@ int main(int argc, char **argv) {
     } data_pointers{};
 
     // Set the pointers in the DataPointers struct to the location coordinates of the generated data
-    data_pointers.x = data.GetLocations()->GetLocationX();
-    data_pointers.y = data.GetLocations()->GetLocationY();
-    data_pointers.z = data.GetLocations()->GetLocationZ();
+    data_pointers.x = data->GetLocations()->GetLocationX();
+    data_pointers.y = data->GetLocations()->GetLocationY();
+    data_pointers.z = data->GetLocations()->GetLocationZ();
 
     // Print the generated location coordinates
     LOGGER("Generated Data ...")
@@ -76,10 +73,11 @@ int main(int argc, char **argv) {
         if (synthetic_data_configurations.GetDimension() != Dimension2D) {
             LOGGER_PRECISION(" Z: " << data_pointers.z[i], 18)
         }
-        LOGGER_PRECISION(" Measurements: " << ((double *)data.GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR, exageostat::common::DESCRIPTOR_Z).chameleon_desc->mat)[i] << "\n" , 18)
+        LOGGER_PRECISION(" Measurements: " << ((double *) data->GetDescriptorData()->GetDescriptor(
+                exageostat::common::CHAMELEON_DESCRIPTOR, exageostat::common::DESCRIPTOR_Z).chameleon_desc->mat)[i]
+                                           << "\n", 18)
     }
 
     delete pKernel;
-
     return 0;
 }

@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file DistanceCalculationHelpers.cpp
  * @brief Contains the implementation of the DistanceCalculationHelpers class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -18,14 +18,14 @@
 
 using namespace exageostat::helpers;
 
-//convert degree to radian
-static double DegreeToRadian(double aDegree) {
+template<typename T>
+T DistanceCalculationHelpers<T>::DegreeToRadian(T aDegree) {
     return (aDegree * PI / 180);
 }
 
 template<typename T>
 T DistanceCalculationHelpers<T>::DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2) {
-    double lat1r, lon1r, lat2r, lon2r, u, v;
+    T lat1r, lon1r, lat2r, lon2r, u, v;
     lat1r = DegreeToRadian(aLatitude1);
     lon1r = DegreeToRadian(aLongitude1);
     lat2r = DegreeToRadian(aLatitude2);

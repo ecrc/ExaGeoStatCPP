@@ -1,15 +1,15 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
 * @file Configurations.hpp
-* @version 1.0.0
+* @version 1.1.0
 * @brief Contains the declaration of the Configurations class and its member functions.
-* @author Sameh Abdulah
 * @author Mahmoud ElKarargy
-* @date 2023-01-31
+* @author Sameh Abdulah
+* @date 2024-02-04
 **/
 
 #ifndef EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
@@ -27,7 +27,6 @@
  * the specified type and sets the member variable with the specified name
  * to the value of the argument. The name of the member variable is used as
  * the key to set the corresponding value in the specified dictionary.
- *
  * @param[in] name The name of the member variable to be set.
  * @param[in] type The data type of the member variable.
  * @param[in] argument_name The name of the argument to the generated function.
@@ -44,7 +43,6 @@ void Set##name(type argument_name)                                          \
  * @brief Macro that generates a getter function for a member variable.
  * @details This macro generates a function named Get##name that returns the value of
  * the member variable with the specified name from the specified dictionary.
- *
  * @param[in] name The name of the member variable to be retrieved.
  * @param[in] type The data type of the member variable.
  * @param[in] dictionary_name The name of the dictionary to retrieve the value from.
@@ -75,23 +73,26 @@ namespace exageostat::configurations {
         Configurations();
 
         /**
-         * @brief Virtual destructor to allow calls to the correct concrete destructor.
+         * @brief destructor to allow calls to the correct concrete destructor.
          *
          */
-        virtual ~Configurations() = default;
+        ~Configurations();
 
         /**
          * @brief Initialize the module arguments.
          * @param[in] aArgC The number of arguments being passed into the program from the command line.
          * @param[in] apArgV The array of arguments.
+         * @param[in] aEnableR check if R is enabled
          * @details This method initializes the command line arguments and set default values for unused args.
+         * @return void
          *
          */
-        void InitializeArguments(const int &aArgC, char **apArgV);
+        void InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR = false);
 
         /**
          * @brief Initialize the all theta arguments.
          * @return void
+         *
          */
         void InitializeAllTheta();
 
@@ -190,7 +191,7 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(LoggerPath, std::string, "LoggerPath")
 
-        CREATE_SETTER_FUNCTION(InitialTheta, std::vector<double> &, apTheta, "InitialTheta")
+        CREATE_SETTER_FUNCTION(InitialTheta, const std::vector<double> &, apTheta, "InitialTheta")
 
         CREATE_GETTER_FUNCTION(InitialTheta, std::vector<double> &, "InitialTheta")
 
@@ -206,29 +207,25 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(Logger, bool, "Logger")
 
-        CREATE_SETTER_FUNCTION(P, int, aP, "P")
-
-        CREATE_GETTER_FUNCTION(P, int, "P")
-
-        CREATE_SETTER_FUNCTION(MeanSquareError, double, aMeanSquareError, "MeanSquareError")
-
-        CREATE_GETTER_FUNCTION(MeanSquareError, double, "MeanSquareError")
-
-        CREATE_SETTER_FUNCTION(LowerBounds, std::vector<double> &, apTheta, "LowerBounds")
+        CREATE_SETTER_FUNCTION(LowerBounds, const std::vector<double> &, apTheta, "LowerBounds")
 
         CREATE_GETTER_FUNCTION(LowerBounds, std::vector<double> &, "LowerBounds")
 
-        CREATE_SETTER_FUNCTION(UpperBounds, std::vector<double> &, apTheta, "UpperBounds")
+        CREATE_SETTER_FUNCTION(UpperBounds, const std::vector<double> &, apTheta, "UpperBounds")
 
         CREATE_GETTER_FUNCTION(UpperBounds, std::vector<double> &, "UpperBounds")
 
-        CREATE_SETTER_FUNCTION(EstimatedTheta, std::vector<double> &, apTheta, "EstimatedTheta")
+        CREATE_SETTER_FUNCTION(EstimatedTheta, const std::vector<double> &, apTheta, "EstimatedTheta")
 
         CREATE_GETTER_FUNCTION(EstimatedTheta, std::vector<double> &, "EstimatedTheta")
 
-        CREATE_SETTER_FUNCTION(StartingTheta, std::vector<double> &, apTheta, "StartingTheta")
+        CREATE_SETTER_FUNCTION(StartingTheta, const std::vector<double> &, apTheta, "StartingTheta")
 
         CREATE_GETTER_FUNCTION(StartingTheta, std::vector<double> &, "StartingTheta")
+
+        CREATE_SETTER_FUNCTION(IsNonGaussian, bool, aIsNonGaussian, "IsNonGaussian")
+
+        CREATE_GETTER_FUNCTION(IsNonGaussian, bool, "IsNonGaussian")
 
         /**
          * @brief Getter for the verbosity.
@@ -250,10 +247,6 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(IsSynthetic, bool, "IsSynthetic")
 
-        CREATE_SETTER_FUNCTION(IsCSV, bool, aIsCSV, "IsCSV")
-
-        CREATE_GETTER_FUNCTION(IsCSV, bool, "IsCSV")
-
         CREATE_SETTER_FUNCTION(DataPath, const std::string&, aDataPath, "DataPath")
 
         CREATE_GETTER_FUNCTION(DataPath, std::string, "DataPath")
@@ -271,16 +264,6 @@ namespace exageostat::configurations {
 
         CREATE_SETTER_FUNCTION(FileLogName, const std::string&, aFileLogName, "FileLogName")
 
-        CREATE_GETTER_FUNCTION(FileLogName, std::string, "FileLogName")
-
-        CREATE_SETTER_FUNCTION(AvgExecutedTimePerIteration, double, aAvgExecTimePerIter, "AvgExecuted")
-
-        CREATE_GETTER_FUNCTION(AvgExecutedTimePerIteration, double, "AvgExecuted")
-
-        CREATE_SETTER_FUNCTION(AvgFlopsPerIteration, double, aAvgFlopsPerIter, "AvgFlops")
-
-        CREATE_GETTER_FUNCTION(AvgFlopsPerIteration, double, "AvgFlops")
-
         CREATE_SETTER_FUNCTION(DistanceMetric, common::DistanceMetric, aDistanceMetric, "DistanceMetric")
 
         CREATE_GETTER_FUNCTION(DistanceMetric, common::DistanceMetric, "DistanceMetric")
@@ -293,7 +276,7 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(Accuracy, int, "Accuracy")
 
-        CREATE_SETTER_FUNCTION(Tolerance, double, aTolerance, "Tolerance")
+        void SetTolerance(double aTolerance);
 
         CREATE_GETTER_FUNCTION(Tolerance, double, "Tolerance")
 
@@ -320,6 +303,10 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(IsFisher, bool, "IsFisher")
 
+        CREATE_SETTER_FUNCTION(ObservationNumber, int, aObservationsNumber, "ObservationNumber")
+
+        CREATE_GETTER_FUNCTION(ObservationNumber, int, "ObservationNumber")
+
         /** END OF THE DATA PREDICTION MODULES. **/
 
         /**
@@ -332,7 +319,7 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the value of the dimension parameter.
-         * @param[in] aDimension A string representing the dimension.
+         * @param[in] aDimension A string represents the dimension.
          * @return The corresponding dimension value.
          *
          */
@@ -364,8 +351,9 @@ namespace exageostat::configurations {
 
         /**
          * @brief Checks the value of the unknown observations parameter.
-         * @param[in] aValue A string representing the number of unknown observations.
+         * @param[in] aValue A string represents the number of unknown observations.
          * @return The corresponding integer value.
+         *
          */
         int CheckUnknownObservationsValue(const std::string &aValue);
 
@@ -381,24 +369,39 @@ namespace exageostat::configurations {
         /**
          * @brief print the summary of MLE inputs.
          * @return void
+         *
          */
-        inline void PrintSummary();
+        void PrintSummary();
 
         /**
          * @brief Calculates the number of observed measurements.
          * @return number of observed measurements.
+         *
          */
         int CalculateZObsNumber();
 
+        /**
+         * @brief Parses a string of theta values and returns an array of doubles.
+         * @param[in] aInputValues The input string of theta values.
+         * @return A vector of parsed theta values.
+         *
+         */
+        static std::vector<double> ParseTheta(const std::string &aInputValues);
+
+
+        /**
+         * @brief parse user's input to distance metric.
+         * @param[in] aDistanceMetric string specifying the used distance metric.
+         * @return void
+         *
+         */
+        void ParseDistanceMetric(const std::string &aDistanceMetric);
 
     private:
 
-        /// static bool to make sure that print summary is only performed once.
-        static bool mIsPrinted;
-
         /**
          * @brief Checks the run mode and sets the verbosity level.
-         * @param[in] aVerbosity A string representing the desired run mode ("verbose" or "standard").
+         * @param[in] aVerbosity A string represents the desired run mode ("verbose" or "standard").
          * @throws std::range_error if the input string is not "verbose" or "standard".
          * @return void
          *
@@ -413,30 +416,6 @@ namespace exageostat::configurations {
          */
         static bool IsCamelCase(const std::string &aString);
 
-        /**
-         * @brief Parses a string of theta values and returns an array of doubles.
-         * @param[in] aInputValues The input string of theta values.
-         * @return A vector of parsed theta values.
-         *
-         */
-        static std::vector<double> ParseTheta(const std::string &aInputValues);
-
-        /**
-         * @brief parse user's input to distance metric.
-         * @param[in] aDistanceMetric string specifying the used distance metric.
-         * @return void
-         */
-        void ParseDistanceMetric(const std::string &aDistanceMetric);
-
-        /**
-         * @brief Initializes the log file.
-         * @details This function attempts to open a log file with the name returned by GetFileLogName(),
-         * and sets the file log path accordingly. If an exception occurs during the file opening,
-         * a default log file named "log_file" is created.
-         * @return void
-         */
-        void InitLog();
-
         /// Used Dictionary
         std::unordered_map<std::string, std::any> mDictionary;
         /// Used Argument counter
@@ -447,9 +426,11 @@ namespace exageostat::configurations {
         static exageostat::common::Verbose mVerbosity;
         //// Used bool for init theta
         static bool mIsThetaInit;
-
+        //// Used bool for R allocated memory on heap
+        static bool mHeapAllocated;
+        //// Used bool for indicating the first init of configurations for printing summary
+        static bool mFirstInit;
     };
 }//namespace exageostat
 
 #endif //EXAGEOSTAT_CPP_CONFIGURATIONS_HPP
-

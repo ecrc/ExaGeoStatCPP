@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file DistanceCalculationHelpers.hpp
  * @brief Contains the definition of the DistanceCalculationHelpers class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-06-08
@@ -23,6 +23,7 @@ namespace exageostat::helpers {
      * @Class DistanceCalculationHelpers
      * @brief Class to calculate the distance between two points.
      * @tparam T Data Type: float or double.
+     *
      */
 
     template<typename T>
@@ -37,6 +38,7 @@ namespace exageostat::helpers {
          * @param[in] aDistanceMetric Flag indicating the distance metric to use (1 for Manhattan distance, 2 for Euclidean distance).
          * @param[in] aFlagZ Flag indicating whether the points are in 2D or 3D space (0 for 2D, 1 for 3D).
          * @return The Euclidean distance between the two points.
+         *
          */
         static T CalculateDistance(exageostat::dataunits::Locations<T> &aLocations1,
                                    exageostat::dataunits::Locations<T> &aLocations2, const int &aIdxLocation1,
@@ -49,8 +51,18 @@ namespace exageostat::helpers {
          * @param[in] aLatitude2 Latitude of the second point in degrees.
          * @param[in] aLongitude2 Longitude of the second point in degrees.
          * @return The distance between the two points in kilometers.
+         *
          */
         static T DistanceEarth(T &aLatitude1, T &aLongitude1, T &aLatitude2, T &aLongitude2);
+
+        /**
+         * @brief Converts an angle from degrees to radians.
+         * @details This function converts an angle from degrees to radians using the conversion factor π/180.
+         * @param[in] aDegree The angle in degrees.
+         * @return The angle converted to radians.
+         *
+         */
+        static T DegreeToRadian(T aDegree);
 
     };
     /**

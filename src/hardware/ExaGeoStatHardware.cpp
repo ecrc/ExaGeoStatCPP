@@ -1,104 +1,160 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file ExaGeoStatHardware.cpp
  * @brief Contains the implementation of the ExaGeoStatHardware class.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2023-08-07
+ * @date 2024-02-04
 **/
+
+#ifdef USE_MPI
+#include <starpu_mpi.h>
+#endif
 
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <results/Results.hpp>
 #include <helpers/CommunicatorMPI.hpp>
+#include <utilities/Logger.hpp>
+#include <utilities/EnumStringParser.hpp>
 
-using namespace exageostat::hardware;
+using namespace exageostat::common;
+using namespace exageostat::results;
 
-ExaGeoStatHardware::ExaGeoStatHardware(const common::Computation &aComputation, const int &aCoreNumber,
-                                       const int &aGpuNumber) {
+ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                       const int &aP, const int &aQ) {
+    InitHardware(aComputation, aCoreNumber, aGpuNumber, aP, aQ);
+}
 
-    this->mComputation = aComputation;
-    int tag_width = 31, tag_sep = 26;
+// Constructor for R
+ExaGeoStatHardware::ExaGeoStatHardware(const std::string &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                       const int &aP, const int &aQ) {
+    InitHardware(GetInputComputation(aComputation), aCoreNumber, aGpuNumber, aP, aQ);
+}
+
+void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
+                                      const int &aP, const int &aQ) {
+
+    SetPGrid(aP);
+    SetQGrid(aQ);
+    int tag_width = 31, tag_sep = 40;
+
     // Init hardware using Chameleon
-    if (!this->mpChameleonContext) {
-        CHAMELEON_user_tag_size(tag_width, tag_sep);
-        CHAMELEON_Init(aCoreNumber, aGpuNumber)
-        this->mpChameleonContext = chameleon_context_self();
-    }
-
-    // Init hardware using Hicma
-    if (aComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
-        if (!this->mpHicmaContext) {
-            HICMA_user_tag_size(tag_width, tag_sep);
-            HICMA_Init(aCoreNumber, aGpuNumber);
-            this->mpHicmaContext = hicma_context_self();
+    if (!mpChameleonContext) {
+#ifdef USE_MPI
+        // Due to a bug in Chameleon if CHAMELEON_user_tag_size is called twice with MPI an error happens due to a static variable in chameleon that doesn't change.
+        if(!mIsMPIInit){
+            CHAMELEON_user_tag_size(tag_width, tag_sep);
+            mIsMPIInit = true;
         }
 #else
-        throw std::runtime_error("You need to enable Hicma to use TLR computation!");
+        CHAMELEON_user_tag_size(tag_width, tag_sep);
+#endif
+        CHAMELEON_Init(aCoreNumber, aGpuNumber)
+        mpChameleonContext = chameleon_context_self();
+    }
+
+    // Init hardware using HiCMA
+    if (aComputation == TILE_LOW_RANK) {
+#ifdef USE_HICMA
+        if (!mpHicmaContext) {
+#ifdef USE_MPI
+            // Due to a bug in HiCMA if HICMA_user_tag_size is called twice with MPI an error happens due to a static variable in HiCMA that doesn't change.
+            if(!mIsMPIInit){
+                HICMA_user_tag_size(tag_width, tag_sep);
+                mIsMPIInit = true;
+            }
+#else
+            HICMA_user_tag_size(tag_width, tag_sep);
+#endif
+            HICMA_Init(aCoreNumber, aGpuNumber);
+            mpHicmaContext = hicma_context_self();
+        }
+#else
+        throw std::runtime_error("You need to enable HiCMA to use TLR computation!");
 #endif
     }
-    helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
+    exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
+    LOGGER("** Initialize ExaGeoStat hardware **")
+}
+
+void ExaGeoStatHardware::FinalizeHardware() {
+
+    // finalize hardware using HiCMA
+#ifdef USE_HICMA
+    if (mpHicmaContext) {
+        HICMA_Finalize();
+        mpHicmaContext = nullptr;
+    }
+#endif
+
+    // finalize hardware using Chameleon
+    if (mpChameleonContext) {
+#if defined(USE_MPI) && defined(USE_HICMA)
+        // Since already HiCMA do so, then no need to remove empty cache.
+        starpu_mpi_cache_set(0);
+#endif
+        CHAMELEON_Finalize()
+        mpChameleonContext = nullptr;
+    }
+
+    exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
 ExaGeoStatHardware::~ExaGeoStatHardware() {
-    // finalize hardware using Hicma
-    // finalize hardware using Chameleon
-    if (!this->mpChameleonContext) {
-        std::cerr << "No initialized context of Chameleon, Please initialize a hardware first" << std::endl;
-        exit(1);
-    } else {
-        CHAMELEON_Finalize()
-        this->mpChameleonContext = nullptr;
-    }
-    if (this->mComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
-        if (!this->mpHicmaContext) {
-            std::cout
-                    << "No initialized context of HiCMA, Please use 'ExaGeoStatHardware::ExaGeoStatHardware(aComputation, CoreNumber, aGpuNumber);'"
-                    << std::endl;
-        } else {
-            HICMA_Finalize();
-            this->mpHicmaContext = nullptr;
-        }
-#endif
-    }
-    helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
-    results::Results::GetInstance()->PrintEndSummary();
+
+    Results::GetInstance()->PrintEndSummary();
+    FinalizeHardware();
 }
 
-#ifdef EXAGEOSTAT_USE_HICMA
-
-void *ExaGeoStatHardware::GetHicmaContext() const {
-    if (!this->mpHicmaContext) {
-        throw std::runtime_error("Hardware is not initialized!");
+void *ExaGeoStatHardware::GetHicmaContext() {
+    if (!mpHicmaContext) {
+        throw std::runtime_error("HiCMA Hardware is not initialized!");
     }
-    return this->mpHicmaContext;
+    return mpHicmaContext;
 }
 
-#endif
-
-void *ExaGeoStatHardware::GetChameleonContext() const {
-    if (!this->mpChameleonContext) {
-        throw std::runtime_error("Hardware is not initialized!");
+void *ExaGeoStatHardware::GetChameleonContext() {
+    if (!mpChameleonContext) {
+        throw std::runtime_error("Chameleon Hardware is not initialized!");
     }
-    return this->mpChameleonContext;
+    return mpChameleonContext;
 }
 
-void *ExaGeoStatHardware::GetContext(common::Computation aComputation) const {
-    if (aComputation == common::EXACT_DENSE || aComputation == common::DIAGONAL_APPROX) {
+void *ExaGeoStatHardware::GetContext(Computation aComputation) {
+    if (aComputation == EXACT_DENSE || aComputation == DIAGONAL_APPROX) {
         return GetChameleonContext();
     }
-    if (aComputation == common::TILE_LOW_RANK) {
-#ifdef EXAGEOSTAT_USE_HICMA
+    if (aComputation == TILE_LOW_RANK) {
         return GetHicmaContext();
-#endif
     }
     return nullptr;
 }
+
+int ExaGeoStatHardware::GetPGrid() {
+    return mPGrid;
+}
+
+int ExaGeoStatHardware::GetQGrid() {
+    return mQGrid;
+}
+
+void ExaGeoStatHardware::SetPGrid(int aP) {
+    mPGrid = aP;
+}
+
+void ExaGeoStatHardware::SetQGrid(int aQ) {
+    mQGrid = aQ;
+}
+
+void *ExaGeoStatHardware::mpChameleonContext = nullptr;
+void *ExaGeoStatHardware::mpHicmaContext = nullptr;
+int ExaGeoStatHardware::mPGrid = 1;
+int ExaGeoStatHardware::mQGrid = 1;
+bool ExaGeoStatHardware::mIsMPIInit = false;

@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file PluginRegistry.hpp
  * @brief Defines a template class for registering and creating plugins.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @date 2023-04-30
 **/
@@ -14,16 +14,16 @@
 #ifndef EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 #define EXAGEOSTATCPP_PLUGINREGISTRY_HPP
 
-//// TODO: This is a hot fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+// This is a fix to avoid the problem in HiCMA which set the min definition with a conflict implementation of chrono library.
+#ifdef USE_HICMA
 #ifdef min
 #undef min
 #endif
+#endif
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <set>
 #include <functional>
+
+#include <configurations/Configurations.hpp>
 
 namespace exageostat::plugins {
     /**
@@ -68,13 +68,17 @@ namespace exageostat::plugins {
          * @return A pointer to the created plugin, or nullptr if the plugin could not be created.
          *
          */
-        static T *Create(const std::string &aName) {
+        static T *Create(const std::string &aName, const int &aTimeSlot) {
             auto map = GetFactoryMap();
 
             if (map.find(aName) == map.end()) {
                 return nullptr;
             }
-            return map[aName]();
+            // Get the object from the map.
+            T *object = map[aName]();
+            // Automatically set the new P value which will get updated with the user input of P.
+            object->SetPValue(aTimeSlot);
+            return object;
         }
 
     private:

@@ -1,12 +1,12 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file UnivariateMaternDdsigmaSquareNu.hpp
  * @brief Defines the UnivariateMaternDdsigmaSquareNu class, a Univariate Matern Ddsigma Square Nu kernel.
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @author Suhas Shankar
@@ -23,7 +23,7 @@ namespace exageostat::kernels {
 
     /**
      * @class UnivariateMaternDdsigmaSquareNu
-     * @brief A class representing a Univariate Matern Ddsigma Square Nu kernel.
+     * @brief A class represents a Univariate Matern Ddsigma Square Nu kernel.
      * @details This class represents a Univariate Matern Ddsigma Square Nu, which is a subclass of the Kernel class.
      * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
      *
@@ -36,6 +36,7 @@ namespace exageostat::kernels {
         /**
          * @brief Constructs a new UnivariateMaternDdsigmaSquareNu object.
          * @details Initializes a new UnivariateMaternDdsigmaSquareNu object with default values.
+         *
          */
         UnivariateMaternDdsigmaSquareNu();
 
@@ -48,6 +49,7 @@ namespace exageostat::kernels {
         /**
          * @brief Generates a covariance matrix using a set of locations and kernel parameters.
          * @copydoc Kernel::GenerateCovarianceMatrix()
+         *
          */
         void
         GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,

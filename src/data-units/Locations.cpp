@@ -1,23 +1,20 @@
 
-// Copyright (c) 2017-2023 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file Locations.cpp
  * @brief Implementation of the Locations class
- * @version 1.0.0
+ * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2023-02-27
 **/
 
-#include <iostream>
 #include <cstring>
 
 #include <data-units/Locations.hpp>
-
-using namespace std;
 
 using namespace exageostat::dataunits;
 using namespace exageostat::common;
