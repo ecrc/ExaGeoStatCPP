@@ -44,8 +44,8 @@ int main(int argc, char **argv) {
 
     // Initialize ExaGeoStat Hardware and Kernel.
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers());
-
+                                       configurations.GetGPUsNumbers(), configurations.GetPGrid(),
+                                       configurations.GetQGrid());
     Kernel<double> *kernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             configurations.GetKernelName(), configurations.GetTimeSlot());
     int kernel_variables = kernel->GetVariablesNumber();
