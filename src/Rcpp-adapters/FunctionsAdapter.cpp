@@ -25,60 +25,7 @@ using namespace exageostat::configurations;
 
 namespace exageostat::adapters {
 
-    vector<vector<double>> R_GetLocations(ExaGeoStatData<double> *apData) {
-
-        // Number of points per each dimension
-        int length = apData->GetLocations()->GetSize();
-        bool is3D = apData->GetLocations()->GetDimension() == Dimension3D;
-
-        double *locationXArray = apData->GetLocations()->GetLocationX();
-        double *locationYArray = apData->GetLocations()->GetLocationY();
-        double *locationZArray = nullptr;
-        if (is3D) {
-            locationZArray = apData->GetLocations()->GetLocationZ();
-        }
-
-        vector<vector<double>> locations_matrix;
-        for (int i = 0; i < length; ++i) {
-            vector<double> point;
-            point.push_back(locationXArray[i]);
-            point.push_back(locationYArray[i]);
-            if (is3D) {
-                point.push_back(locationZArray[i]);
-            }
-            locations_matrix.push_back(point);
-        }
-        return locations_matrix;
-    }
-
-    NumericVector R_GetDescZValues(ExaGeoStatData<double> *apData, const string &aType) {
-
-        DescriptorType descriptorType;
-        void *pDescriptor;
-
-        if (aType == "chameleon" || aType == "Chameleon") {
-            descriptorType = CHAMELEON_DESCRIPTOR;
-        } else if (aType == "hicma" || aType == "Hicma" || aType == "HICMA") {
-#ifdef USE_HICMA
-            descriptorType = HICMA_DESCRIPTOR;
-#else
-            throw runtime_error("Please enable HiCMA to use HiCMA descriptors.");
-#endif
-        } else {
-            throw domain_error("Invalid type of descriptor, please use chameleon or hicma.");
-        }
-
-        // Obtain the pointer to the array of doubles
-        double *data = apData->GetDescriptorData()->GetDescriptorMatrix(descriptorType, DESCRIPTOR_Z);
-        int length = apData->GetLocations()->GetSize();
-        // Create an empty NumericVector of the appropriate length
-        NumericVector vec(length);
-        // Copy data from the double array to the NumericVector
-        copy(data, data + length, vec.begin());
-        return vec;
-    }
-
-    ExaGeoStatData<double> *
+    List
     R_ExaGeoStatLoadData(const string &aKernelName, const vector<double> &aInitialTheta, const string &aDistanceMatrix,
                          const int &aProblemSize, const int &aSeed, const int &aDenseTileSize, const int &aLowTileSize,
                          const string &aDimension, const string &aLogPath, const string &aDataPath,
@@ -110,8 +57,59 @@ namespace exageostat::adapters {
         unique_ptr<ExaGeoStatData<double>> data;
         ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
 
+        // Obtain the pointer to the array of doubles
+        double *descriptor_data = data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z);
+        int length = data->GetLocations()->GetSize();
+        // Create an empty NumericVector of the appropriate length
+        NumericVector vec(length);
+        // Copy data from the double array to the NumericVector
+        copy(descriptor_data, descriptor_data + length, vec.begin());
+
+        // Number of points per each dimension
+        bool is3D = data->GetLocations()->GetDimension() == Dimension3D;
+
+        double *locationXArray = data->GetLocations()->GetLocationX();
+        double *locationYArray = data->GetLocations()->GetLocationY();
+        double *locationZArray = nullptr;
+        if (is3D) {
+            locationZArray = data->GetLocations()->GetLocationZ();
+        }
+
+        vector<vector<double>> locations_matrix;
+        for (int i = 0; i < length; ++i) {
+            vector<double> point;
+            point.push_back(locationXArray[i]);
+            point.push_back(locationYArray[i]);
+            if (is3D) {
+                point.push_back(locationZArray[i]);
+            }
+            locations_matrix.push_back(point);
+        }
+
+        // Create NumericVectors for location coordinates
+        NumericVector locationX(length);
+        NumericVector locationY(length);
+        NumericVector locationZ(length);
+
+        for (int i = 0; i < length; ++i) {
+            locationX[i] = locationXArray[i];
+            locationY[i] = locationYArray[i];
+            if (is3D) {
+                locationZ[i] = locationZArray[i];
+            }
+        }
+
+        // Create a list of vectors including z_values and locations
+        Rcpp::List result = Rcpp::List::create(
+                _["m"] = vec,
+                _["x"] = locationX,
+                _["y"] = locationY,
+                _["z"] = locationZ
+        );
         // We can safely return the raw pointer, but we need to release it from data to avoid deletion.
-        return data.release();
+        data.release();
+
+        return result;
     }
 
     vector<double>

@@ -23,25 +23,6 @@
 namespace exageostat::adapters {
 
     /**
-     * @brief Retrieves locations from ExaGeoStat data.
-     * @details Extracts and returns the locations stored in an ExaGeoStatData object,
-     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
-     * @return vector of locations coordinates.
-     *
-     */
-    std::vector<std::vector<double>> R_GetLocations(ExaGeoStatData<double> *apData);
-
-    /**
-     * @brief Retrieves descriptive Z values from ExaGeoStat data based on type.
-     * @details Extracts and returns Z values from an ExaGeoStatData object, aiding in targeted spatial data analysis and visualization within ExaGeoStat.
-     * @param[in] apData Pointer to ExaGeoStatData object containing the spatial data.
-     * @param[in] aType String specifying the type of descriptor value to retrieve (e.g., "Chameleon", "HiCMA").
-     * @return Numeric vector of descriptive Z values.
-     *
-     */
-    Rcpp::NumericVector R_GetDescZValues(ExaGeoStatData<double> *apData, const std::string &aType);
-
-    /**
      * @brief Function to load ExaGeoStat data.
      * @details This function loads data into an ExaGeoStatData object using the provided configuration and computational settings.
      * It is designed to initialize the data structure necessary for subsequent statistical model operations within the ExaGeoStat framework.
@@ -60,7 +41,7 @@ namespace exageostat::adapters {
      * @return A pointer to an ExaGeoStatData object containing the loaded data.
      *
      */
-    ExaGeoStatData<double> *
+    Rcpp::List
     R_ExaGeoStatLoadData(const std::string &aKernelName, const std::vector<double> &aInitialTheta,
                          const std::string &aDistanceMatrix, const int &aProblemSize, const int &aSeed,
                          const int &aDenseTileSize, const int &aLowTileSize, const std::string &aDimension,

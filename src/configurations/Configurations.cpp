@@ -623,6 +623,7 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
 
 void Configurations::PrintSummary() {
 
+#ifndef USING_R
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
 
@@ -674,9 +675,10 @@ void Configurations::PrintSummary() {
             LOGGER("#Out Of Core (OOC) technology is enabled")
         }
         LOGGER("*************************************************")
-        mVerbosity = temp;
         mFirstInit = true;
     }
+    mVerbosity = temp;
+#endif
 }
 
 int Configurations::CalculateZObsNumber() {

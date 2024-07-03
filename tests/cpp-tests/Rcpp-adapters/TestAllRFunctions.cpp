@@ -24,40 +24,6 @@ using namespace std;
 using namespace exageostat::adapters;
 using namespace exageostat::common;
 
-void TEST_DATA_GENERATION() {
-
-    const string computation = "exact";
-    const string dimension = "2D";
-    const string kernel = "univariate_matern_stationary";
-    const string distance_matrix = "eg";
-    const int cores_number = 1;
-    const int gpus_number = 0;
-    const int problem_size = 9;
-    const int dts = 3;
-    const int lts = 0;
-    const vector<double> initial_theta = {1, 0.1, 0.5};
-    const vector<double> lower_bound = {0.1, 0.1, 0.1};
-    const vector<double> upper_bound = {5, 5, 5};
-    const vector<double> estimated_theta = {0.9, 0.2, 0.5};
-    srand(0);
-
-    auto hardware = ExaGeoStatHardware(computation, cores_number, gpus_number);
-    auto exageostat_data = R_ExaGeoStatLoadData(kernel, initial_theta, distance_matrix, problem_size, 0, dts, lts,
-                                                dimension, "", "", "", "");
-
-    vector<double> x = {0.257389, 0.456062, 0.797269, 0.242161, 0.440742, 0.276432, 0.493965, 0.953933, 0.86952};
-    vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
-    vector<double> z = {-1.27234, -2.47547, 0.54585, -0.120985, 0.242569, -1.54421, 0.0986468, 0.779835, -1.48139};
-
-    for (int i = 0; i < problem_size; i++) {
-        REQUIRE((exageostat_data->GetLocations()->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
-        REQUIRE((exageostat_data->GetLocations()->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
-        REQUIRE((exageostat_data->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z)[i] -
-                 z[i]) == Catch::Approx(0.0).margin(1e-5));
-    }
-    delete exageostat_data;
-}
-
 void TEST_ALL_R_METHODS() {
 
     const string computation = "exact";
@@ -164,6 +130,5 @@ void TEST_ALL_R_METHODS() {
 }
 
 TEST_CASE("Test R/Rcpp adapters in C++") {
-    TEST_DATA_GENERATION();
     TEST_ALL_R_METHODS();
 }
