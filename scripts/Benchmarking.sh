@@ -47,13 +47,13 @@ for N in "${desired_N[@]}"; do
       time_prediction=$(echo "$time_prediction" | tr -d '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
       time_modeling_iteration=$(echo "$command_output" | awk -F "#Average Time Modeling per Iteration: " '{print $2}' | awk -F "," '{print $1}')
       time_modeling_iteration=$(echo "$time_modeling_iteration" | tr -d '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-      flops_generation=$(echo "$command_output" | awk -F "#Total Data Generation Gflop/s: " '{print $2}' | awk -F "," '{print $1}')
+      flops_generation=$(echo "$command_output" | awk -F "#Total Data Generation GFlop/s: " '{print $2}' | awk -F "," '{print $1}')
       flops_generation=$(echo "$flops_generation" | tr -d '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-      flops_modeling=$(echo "$command_output" | awk -F "#Total MLE Gflop/s: " '{print $2}' | awk -F "," '{print $1}')
+      flops_modeling=$(echo "$command_output" | awk -F "#Total MLE GFlop/s: " '{print $2}' | awk -F "," '{print $1}')
       flops_modeling=$(echo "$flops_modeling" | tr -d '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
       flops_modeling_iteration=$(echo "$command_output" | awk -F "#Average Flops per Iteration: " '{print $2}' | awk -F "," '{print $1}')
       flops_modeling_iteration=$(echo "$flops_modeling_iteration" | tr -d '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-      flops_mspe=$(echo "$command_output" | awk -F "#MSPE Gflop/s: " '{print $2}' | awk -F "," '{print $1}')
+      flops_mspe=$(echo "$command_output" | awk -F "#MSPE GFlop/s: " '{print $2}' | awk -F "," '{print $1}')
       flops_mspe=$(echo "$flops_mspe" | tr -d '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
     echo "$command_output"

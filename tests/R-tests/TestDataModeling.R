@@ -61,8 +61,7 @@ lts <- 8
 computation <- "tlr"
 
 hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
-empty_data <- new(Data, problem_size, dimension)
-theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, lts=lts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation)
+theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, lts=lts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation, band=1)
 hardware$finalize_hardware()
 
 paste("---------------------------------------------------------------------------------------------")
@@ -71,6 +70,5 @@ paste("ExaGeoStat with data Modeling only - exact")
 lts <- 0
 computation <- "exact"
 
-empty_data <- new(Data, problem_size, dimension)
 hardware <- new(Hardware, computation, ncores, ngpus, 1, 1)
 theta <- model_data(matrix=z_value, x=locations_x, y=locations_y, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation)

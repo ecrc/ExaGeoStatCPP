@@ -93,16 +93,16 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
         VERBOSE("\t\t- CI for nu: " << aConfigurations.GetEstimatedTheta()[2] - Q_NORM * sqrt(fisher_results[8]) << " "
                                     << aConfigurations.GetEstimatedTheta()[2] + Q_NORM * sqrt(fisher_results[8]))
 
-        LOGGER("\t\t- Fisher Matrix:")
+        VERBOSE("\t\t- Fisher Matrix:")
         for (i = 0; i < num_params; i++) {
-            LOGGER("\t\t  ", true)
+            VERBOSE("\t\t ", true)
             for (j = 0; j < num_params; j++) {
-                LOGGER_PRECISION(fisher_results[i * num_params + j], 18)
+                VERBOSE(fisher_results[i * num_params + j],true)
                 if (j != num_params - 1) {
-                    LOGGER_PRECISION(", ")
+                    VERBOSE(", ",true)
                 }
             }
-            LOGGER("")
+            VERBOSE("")
         }
         delete[] fisher_results;
     }
@@ -159,7 +159,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
 
     // MSPE Prediction Function Call
     if (aConfigurations.GetIsMSPE()) {
-        LOGGER("\t---- Using MSPE ----")
+        LOGGER("\t---- Using Prediction Function MSPE ----")
         T *prediction_error_mspe;
         if (aConfigurations.GetIsNonGaussian()) {
             prediction_error_mspe = linear_algebra_solver->ExaGeoStatMLENonGaussianPredictTile(aData,
@@ -187,7 +187,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
         }
         Results::GetInstance()->SetPredictedMissedValues(z_miss_vector);
         if (z_actual) {
-            LOGGER("\t\t- MSPE: " << avg_pred_value[0])
+            LOGGER("\t\t- Prediction value: " << avg_pred_value[0])
         }
         delete[] prediction_error_mspe;
     }

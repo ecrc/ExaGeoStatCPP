@@ -31,17 +31,49 @@
 #define DEFAULT_PRECISION 6
 
 /**
- * @def VERBOSE(msg)
- * @brief Verbose macro for logging and debugging mode.
+ * @def VERBOSE_PRECISION
+ * @brief A fixed precision for the verbose mode.
  */
-#define VERBOSE(msg) \
+#define VERBOSE_PRECISION 12
+
+/**
+ * @def VERBOSE_1(msg)
+ * @brief VERBOSE_1 macro for logging outputs in verbose mode, with double taps at the beginning, a fixed precision and a new line at the end.
+ */
+#define VERBOSE_1(msg) \
     if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && \
-       !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) { \
+      !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) { \
         std::ostringstream oss; \
-        oss << "\t\t\t " << msg << std::endl; \
+        oss << "\t\t " << std::fixed << std::setprecision(VERBOSE_PRECISION) << msg << std::endl; \
         std::cout << oss.str(); \
     }
 
+/**
+ * @def VERBOSE_2(msg, A)
+ * @brief VERBOSE_2 macro for logging outputs in verbose mode, with double taps at the beginning, a fixed precision and without a new line at the end.
+ */
+#define VERBOSE_2(msg, A) \
+    if(exageostat::configurations::Configurations::GetVerbosity() == exageostat::common::Verbose::DETAILED_MODE && \
+       !exageostat::helpers::CommunicatorMPI::GetInstance()->GetRank()) { \
+        std::ostringstream oss; \
+        oss << "\t\t " << std::fixed << std::setprecision(VERBOSE_PRECISION) << msg ; \
+        std::cout << oss.str(); \
+    }
+
+/**
+ * @def VERBOSE_CONTROL(x, A, B, FUNC, ...)
+ * @brief VERBOSE_CONTROL is The internal macro that simply strips the excess and ends up with the required macro
+ */
+#define VERBOSE_CONTROL(x, A, B, FUNC, ...) FUNC
+
+/**
+ * @def VERBOSE(...)
+ * @brief VERBOSE macro that's called, Used to logging outputs in a verbose mode.
+ */
+#define VERBOSE(...) VERBOSE_CONTROL(,##__VA_ARGS__, \
+                       VERBOSE_2(__VA_ARGS__),         \
+                       VERBOSE_1(__VA_ARGS__),       \
+                                         )
 /**
  * @def LOGGER_1(msg)
  * @brief LOGGER_1 macro for logging outputs with double taps and new line at the end.

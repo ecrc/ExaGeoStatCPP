@@ -31,12 +31,11 @@ q <- 1
 hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
-estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
+estimated_theta <- model_data(matrix=exageostat_data$m, x=exageostat_data$x, y=exageostat_data$y, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
 
 test_x <- c(0.2, 0.330)
 test_y <- c(0.104, 0.14)
-locations = get_locations(data=exageostat_data)
-predict_data(train_data=list(sapply(locations, function(v) v[1]), sapply(locations, function(v) v[2]), get_Z_measurement_vector(data=exageostat_data, type="chameleon")), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
+predict_data(train_data=list(x=exageostat_data$x, y=exageostat_data$y, exageostat_data$m), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
 
 paste("---------------------------------------------------------------------------------------------")
 paste("ExaGeoStat with Data Generation only")
