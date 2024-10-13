@@ -245,7 +245,7 @@ for setting your arguments:
 To use any operations, you must initialize the hardware by selecting the number of CPUs and/or GPUs.
 ```c++
 // Initialize an instance of the hardware
-auto hardware = ExaGeoStatHardware(computation, number of cores, number of gpus);
+auto hardware = ExaGeoStatHardware(computation, number of cores, number of gpus, p, q);
 
 // Other code goes here
 

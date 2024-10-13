@@ -36,7 +36,6 @@ int main(int argc, char **argv) {
 
     // Initialize Hardware
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
-                                       configuration.GetGPUsNumbers());
-
+                                       configuration.GetGPUsNumbers(), configuration.GetPGrid(), configuration.GetQGrid());
     return 0;
 }

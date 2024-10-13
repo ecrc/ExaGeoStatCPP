@@ -43,7 +43,9 @@ int main(int argc, char **argv) {
 
     // Initialize Hardware and Data
     auto hardware = ExaGeoStatHardware(configuration.GetComputation(), configuration.GetCoresNumber(),
-                                       configuration.GetGPUsNumbers());
+                                       configuration.GetGPUsNumbers(), configuration.GetPGrid(),
+                                       configuration.GetQGrid());
+
     unique_ptr<DescriptorData<double>> data = make_unique<DescriptorData<double>>();
     Kernel<double> *kernel = exageostat::plugins::PluginRegistry<Kernel<double>>::Create(
             configuration.GetKernelName(), configuration.GetTimeSlot());
@@ -53,8 +55,8 @@ int main(int argc, char **argv) {
     int config_problem_size = configuration.GetProblemSize();
     int config_full_problem_size = config_problem_size * kernel_variables_number;
     int config_dts = configuration.GetDenseTileSize();
-    int config_p_grid = configuration.GetPGrid();
-    int config_q_grid = configuration.GetQGrid();
+    int config_p_grid = ExaGeoStatHardware::GetPGrid();
+    int config_q_grid = ExaGeoStatHardware::GetQGrid();
     bool config_is_OOC = configuration.GetIsOOC();
 
     // Randomly Initialized Matrix of Data

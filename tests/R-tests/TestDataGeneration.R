@@ -40,9 +40,14 @@ hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension, log_path=log_path)
 
 # Print the data..
-paste("** Locations X - Y - Z")
-locations <- get_locations(data=exageostat_data)
-paste(locations)
+paste("Z Values")
+paste(exageostat_data$m)
+paste("Locations X")
+paste(exageostat_data$x)
+paste("Locations Y")
+paste(exageostat_data$y)
+paste("Locations Z")
+paste(exageostat_data$z)
 
 paste("---------------------------------------------------------------------------------------------")
 paste("ExaGeoStat with Data Generation - Reading Data")
@@ -52,6 +57,13 @@ data_path <- "./synthetic_ds/SYN_16_1"
 
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension, data_path=data_path)
 
-paste("** Locations X - Y - Z - after reading")
-locations <- get_locations(data=exageostat_data)
-paste(locations)
+paste("** after reading")
+# Print the data..
+paste("Z Values")
+paste(exageostat_data$m)
+paste("Locations X")
+paste(exageostat_data$x)
+paste("Locations Y")
+paste(exageostat_data$y)
+paste("Locations Z")
+paste(exageostat_data$z)

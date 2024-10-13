@@ -114,8 +114,9 @@ int main(int argc, char **argv) {
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
     // Initialize the ExaGeoStat Hardware
-    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(), configurations.GetGPUsNumbers());
-    // Load data by either read from file or create synthetic data.
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers(), configurations.GetPGrid(),
+                                       configurations.GetQGrid());    // Load data by either read from file or create synthetic data.
     std::unique_ptr<ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
     // Modeling module.

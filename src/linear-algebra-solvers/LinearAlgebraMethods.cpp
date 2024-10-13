@@ -813,16 +813,16 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
 
     int n_z_miss = aConfigurations.GetUnknownObservationsNb();
     int num_par = aKernel.GetParametersNumbers();
-    LOGGER("\t\t- Truth Theta: ", true)
+    VERBOSE("\t\t- Truth Theta: ", true)
     for (int num = 0; num < num_par; num++) {
-        LOGGER_PRECISION(apTruthTheta[num] << " ")
+        VERBOSE(apTruthTheta[num] << " ",true)
     }
-    LOGGER("")
-    LOGGER("\t\t- Estimated Theta: ", true)
+    VERBOSE("")
+    VERBOSE("\t\t- Estimated Theta: ", true)
     for (int num = 0; num < num_par; num++) {
-        LOGGER_PRECISION(apEstimatedTheta[num] << " ")
+        VERBOSE(apEstimatedTheta[num] << " ",true)
     }
-    LOGGER("")
+    VERBOSE("")
     int p;
     double all_time, cholesky1, cholesky2, matrix_gen, vecs_gen, copy_vecs, trsm1, trsm2, trsm3, trsm4, gevv1, gevv2, gevv3, gevv4, gevv5;
 
@@ -1109,7 +1109,7 @@ void LinearAlgebraMethods<T>::ExaGeoStatMLETileMLOEMMOM(Configurations &aConfigu
     *mloe /= n_z_miss;
     *mmom /= n_z_miss;
     STOP_TIMING(all_time);
-    LOGGER("\t\t- MLOE = " << *mloe << "\t\t- MMOM = " << *mmom)
+    VERBOSE("\t\t- MLOE = " << *mloe << "\t\t- MMOM = " << *mmom)
     VERBOSE("\t---- MLOE MMOM Time: " << all_time << " seconds.")
 
     Results::GetInstance()->SetMLOE(*mloe);

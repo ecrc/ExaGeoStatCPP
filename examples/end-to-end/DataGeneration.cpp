@@ -32,7 +32,8 @@ int main(int argc, char **argv) {
     configurations.InitializeArguments(argc, argv);
     // Initialize the ExaGeoStat Hardware
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers());
+                                       configurations.GetGPUsNumbers(), configurations.GetPGrid(),
+                                       configurations.GetQGrid());
     // Load data by either read from file or create synthetic data.
     std::unique_ptr<ExaGeoStatData<double>> data;
     exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);

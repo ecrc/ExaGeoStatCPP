@@ -58,8 +58,8 @@ void TEST_HICMA_DESCRIPTORS_VALUES_TLR() {
         int approximationMode = synthetic_data_configurations.GetApproximationMode();
         int N = synthetic_data_configurations.GetProblemSize();
         int lts = synthetic_data_configurations.GetLowTileSize();
-        int pGrid = synthetic_data_configurations.GetPGrid();
-        int qGrid = synthetic_data_configurations.GetQGrid();
+        int pGrid = ExaGeoStatHardware::GetPGrid();
+        int qGrid = ExaGeoStatHardware::GetQGrid();
 
         // Descriptor C.
         REQUIRE(HICMA_descriptorC->m == N);

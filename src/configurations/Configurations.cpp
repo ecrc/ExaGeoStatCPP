@@ -101,9 +101,9 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
             } else if (argument_name == "--Kernel" || argument_name == "--kernel") {
                 CheckKernelValue(argument_value);
             } else if (argument_name == "--P" || argument_name == "--p") {
-                SetPGrid(CheckNumericalValue(argument_value));
+                SetPGrid(max(CheckNumericalValue(argument_value), GetPGrid()));
             } else if (argument_name == "--Q" || argument_name == "--q") {
-                SetQGrid(CheckNumericalValue(argument_value));
+                SetQGrid(max(CheckNumericalValue(argument_value), GetQGrid()));
             } else if (argument_name == "--Dimension" || argument_name == "--dimension" || argument_name == "--dim" ||
                        argument_name == "--Dim") {
                 SetDimension(CheckDimensionValue(argument_value));
@@ -623,6 +623,7 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
 
 void Configurations::PrintSummary() {
 
+#ifndef USING_R
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
 
@@ -674,9 +675,10 @@ void Configurations::PrintSummary() {
             LOGGER("#Out Of Core (OOC) technology is enabled")
         }
         LOGGER("*************************************************")
-        mVerbosity = temp;
         mFirstInit = true;
     }
+    mVerbosity = temp;
+#endif
 }
 
 int Configurations::CalculateZObsNumber() {

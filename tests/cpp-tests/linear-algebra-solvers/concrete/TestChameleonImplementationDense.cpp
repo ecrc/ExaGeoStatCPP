@@ -54,8 +54,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
         auto *CHAM_descriptorProduct = data->GetDescriptor(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT).chameleon_desc;
         int N = synthetic_data_configurations.GetProblemSize();
         int dts = synthetic_data_configurations.GetDenseTileSize();
-        int pGrid = synthetic_data_configurations.GetPGrid();
-        int qGrid = synthetic_data_configurations.GetQGrid();
+        int pGrid = ExaGeoStatHardware::GetPGrid();
+        int qGrid = ExaGeoStatHardware::GetQGrid();
 
         REQUIRE(CHAM_descriptorC->m == N);
         REQUIRE(CHAM_descriptorZ->m == N);
@@ -184,8 +184,8 @@ void TEST_CHAMELEON_DESCRIPTORS_VALUES() {
 
         int N = synthetic_data_configurations.GetProblemSize();
         int dts = synthetic_data_configurations.GetDenseTileSize();
-        int pGrid = synthetic_data_configurations.GetPGrid();
-        int qGrid = synthetic_data_configurations.GetQGrid();
+        int pGrid = ExaGeoStatHardware::GetPGrid();
+        int qGrid = ExaGeoStatHardware::GetQGrid();
 
         REQUIRE(CHAM_descriptorC->m == N);
         REQUIRE(CHAM_descriptorZ->m == N);

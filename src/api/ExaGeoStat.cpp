@@ -71,6 +71,18 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
 
+    auto theta = aConfigurations.GetStartingTheta();
+
+    LOGGER("--> Final Theta Values (", true)
+    for (int i = 0; i < parameters_number; i++) {
+        LOGGER_PRECISION(theta[i])
+        if (i != parameters_number - 1) {
+            LOGGER_PRECISION(", ")
+        }
+    }
+    LOGGER_PRECISION(")")
+    LOGGER("")
+
     delete pKernel;
     delete modeling_data;
     return optimizing_function.last_optimum_value();
