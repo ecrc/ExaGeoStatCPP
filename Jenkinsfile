@@ -95,6 +95,30 @@ pipeline {
                     '''
             }
         }
+        stage ('PaRSEC') {
+            steps {
+                sh '''#!/bin/bash -le
+                    ####################################################
+                    # Configure and build
+                    ####################################################
+                    module purge
+                    module load gcc/10.2.0
+                    module load cmake/3.21.2
+                    module load doxygen/1.8.20
+                    ####################################################
+                    # BLAS/LAPACK
+                    ####################################################
+                    module load mkl/2020.0.166
+                    ####################################################
+                    # MPI
+                    ####################################################
+                    source /opt/ecrc/hpc-toolkit/ub18/setvars.sh
+                    set -x
+                    ./configure -e --use-parsec
+                    ./clean_build.sh
+                '''
+            }
+        }
 	    stage('documentation') {
              agent { label 'jenkinsfile'}
              steps {

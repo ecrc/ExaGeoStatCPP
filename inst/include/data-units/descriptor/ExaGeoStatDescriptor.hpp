@@ -15,7 +15,9 @@
 #ifndef EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
 #define EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
 
+#if DEFAULT_RUNTIME
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#endif
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #include <common/Definitions.hpp>
 
