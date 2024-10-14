@@ -255,7 +255,7 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HCORE/lib/pkgconfig:$PKG_CONFIG_PATH")
-    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA-x/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-x/lib64:$PKG_CONFIG_PATH")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA-X/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64:$PKG_CONFIG_PATH")
 endif()
 message("\t ----------------------------------------------------------------------------------------------------------------------------------- \n")
 
