@@ -28,7 +28,8 @@ if(PKG_CONFIG_FOUND)
             get_filename_component(HICMA_X_ROOT "${HICMA_X_LIB_PATH}" DIRECTORY) # Go one level up
             set(HICMA-X_INCLUDE_DIRS "${HICMA_X_ROOT}/include")  # Set the include path
         endif()
-
+        # TODO: This is not generalized for the case of hicma installed manually
+        set(HICMA_X_SRC_DIR ${HICMA_X_ROOT}/hicma-x-src)
         set(HICMA-X_FOUND TRUE)
         set(HICMA-X_LIBRARIES ${DPLASMA_PKG_LIBRARIES} ${PARSEC_PKG_LIBRARIES})
         set(HICMA-X_LIBRARY_DIRS "${HICMA_X_LIB_PATH}")
@@ -88,8 +89,9 @@ if(NOT HICMA-X_FOUND)
         # Set the include directory
         set(HICMA-X_INCLUDE_DIRS "${HICMA-X_INCLUDE_DIR}")
         # Include both lib and lib64 directories
-        set(HICMA-X_LIBRARY_DIRS "${CMAKE_CURRENT_LIST_DIR}/../hicma-x/lib")
-        set(HICMA-X_LIBRARY_DIRS_DEP "${CMAKE_CURRENT_LIST_DIR}/../hicma-x/lib64")
+        # TODO: This paths are not generalized, if the install is not with the same dir.
+        set(HICMA-X_LIBRARY_DIRS "${HICMA-X_LIBRARY}/lib")
+        set(HICMA-X_LIBRARY_DIRS_DEP "${HICMA-X_LIBRARY}/lib64")
     else()
         set(HICMA-X_FOUND FALSE)
     endif()

@@ -31,12 +31,10 @@ include(macros/ImportDependency)
 # Use the ImportDependency macro to handle fetching, detecting, and setting up HiCMA-X.
 ImportDependency(${name} ${tag} "" ${url} "${flags}" "" ${is_cmake} ${is_git} ${auto_gen})
 
-# Set the base directory for HiCMA-X, pointing to the installation and source directories.
-set(HICMA_BASE_DIR "${CMAKE_INSTALL_PREFIX}/HICMA-X/hicma-x-src")
 # Include necessary directories for HiCMA-X and its dependencies.
-include_directories(${HICMA_BASE_DIR})
-include_directories(${HICMA_BASE_DIR}/dplasma/src)
-include_directories(${HICMA_BASE_DIR}/hicma_parsec)
-include_directories(${HICMA_BASE_DIR}/bin/dplasma/src)
+include_directories(${HICMA_X_SRC_DIR})
+include_directories(${HICMA_X_SRC_DIR}/dplasma/src)
+include_directories(${HICMA_X_SRC_DIR}/hicma_parsec)
+include_directories(${HICMA_X_SRC_DIR}/bin/dplasma/src)
 # Display a status message indicating that HiCMA-X has been successfully included.
 message(STATUS "HiCMA-X done")
