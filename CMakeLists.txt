@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
 
 # Set project options
-option(USE_CUDA "Use Cuda, if available" OFF)
+option(USE_CUDA "Use CUDA, if available" OFF)
 option(USE_MPI "Use MPI, if available" OFF)
 option(BUILD_TESTS "Option to enable building tests" OFF)
 option(BUILD_HEAVY_TESTS "Option to enable building heavy tests, This may take a lot of time" OFF)
@@ -43,7 +43,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 string(TOUPPER ${RUNTIME_TYPE} RUNTIME_TYPE)
 
 if(RUNTIME_TYPE STREQUAL "PARSEC")
-    message(STATUS "MPI is required to be enabled in order to use ParSEC")
+    message(STATUS "MPI is required to be enabled in order to use PaRSEC")
     set(USE_MPI ON)
     set(USE_HICMA OFF)
 endif()
