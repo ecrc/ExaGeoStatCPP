@@ -12,8 +12,9 @@
 **/
 
 #include <helpers/CommunicatorMPI.hpp>
+#if DEFAULT_RUNTIME
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
-
+#endif
 using namespace exageostat::helpers;
 
 CommunicatorMPI *CommunicatorMPI::GetInstance() {
@@ -27,12 +28,14 @@ int CommunicatorMPI::GetRank() const {
 #ifdef USE_MPI
     if (!mIsHardwareInitialized) {
         return 0;
-    } else {
+    }
+    #if DEFAULT_RUNTIME
+    else {
         return CHAMELEON_Comm_rank();
     }
-#else
-    return 0;
+    #endif
 #endif
+    return 0;
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {

@@ -13,6 +13,7 @@
 #   Hwloc_FOUND            - True if hwloc was found
 #   Hwloc_INCLUDE_DIRS     - include directories for hwloc
 #   Hwloc_LIBRARIES        - link against these libraries to use hwloc
+#   Hwloc_LIBRARY_DIRS     - directories where hwloc libraries are found
 #   Hwloc_VERSION          - version
 #   Hwloc_CFLAGS           - include directories as compiler flags
 #   Hwloc_LDLFAGS          - link paths and libs as compiler flags
@@ -171,6 +172,9 @@ else()
         list(GET Hwloc_VERSION_PARSED 1 Hwloc_VERSION_MINOR)
         set(Hwloc_VERSION_MINOR "${Hwloc_VERSION_MINOR}" CACHE STRING "Minor version of Hwloc")
 
+        # Capture the library directories
+        set(Hwloc_LIBRARY_DIRS ${Hwloc_LIBRARY_DIRS} CACHE STRING "Directories where hwloc libraries are found")
+
         include(FindPackageHandleStandardArgs)
         find_package_handle_standard_args(Hwloc DEFAULT_MSG Hwloc_LIBRARIES)
 
@@ -183,6 +187,5 @@ else()
                     "Found hwloc ${Hwloc_VERSION} in ${Hwloc_INCLUDE_DIRS}:${Hwloc_LIBRARIES}")
         endif()
     endif()
-
 
 endif()

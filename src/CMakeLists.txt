@@ -11,18 +11,24 @@
 # @date 2024-02-04
 
 # Add subdirectories for configurations, data-generators, data-units, and linear-algebra-solvers.
-add_subdirectory(api)
 add_subdirectory(configurations)
-add_subdirectory(data-generators)
-add_subdirectory(data-loader)
-add_subdirectory(data-units)
-add_subdirectory(hardware)
-add_subdirectory(helpers)
 add_subdirectory(kernels)
-add_subdirectory(linear-algebra-solvers)
-add_subdirectory(prediction)
-add_subdirectory(results)
-add_subdirectory(runtime)
+add_subdirectory(helpers)
+add_subdirectory(data-units)
+
+# Check the value of RUNTIME_TYPE and configure chameleon/starpu accordingly
+if(RUNTIME_TYPE STREQUAL "STARPU")
+    add_subdirectory(api)
+    add_subdirectory(data-generators)
+    add_subdirectory(data-loader)
+    add_subdirectory(hardware)
+    add_subdirectory(linear-algebra-solvers)
+    add_subdirectory(prediction)
+    add_subdirectory(results)
+    add_subdirectory(runtime)
+
+elseif(RUNTIME_TYPE STREQUAL "PARSEC")
+endif()
 
 if (USE_R)
     add_subdirectory(Rcpp-adapters)

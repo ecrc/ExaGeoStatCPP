@@ -19,6 +19,7 @@
 
 #include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 
 namespace exageostat::dataunits {
 

@@ -10,7 +10,7 @@
 # @date 2024-03-10
 
 # Include runtime directory,based on runtime flag.
-if ("${RUNTIME_TYPE}" STREQUAL "parsec")
+if ("${RUNTIME_TYPE}" STREQUAL "PARSEC")
     add_subdirectory(parsec)
 else ()
     #by default use StarPu runtime.

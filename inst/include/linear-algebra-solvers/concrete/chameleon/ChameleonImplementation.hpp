@@ -17,6 +17,7 @@
 #define EXAGEOSTATCPP_CHAMELEONIMPLEMENTATION_HPP
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 
 namespace exageostat::linearAlgebra {
 

@@ -20,7 +20,9 @@
 
 #include<cmath>
 
+#if DEFAULT_RUNTIME
 #include <starpu.h>
+#endif
 
 extern "C" {
 #include <gsl/gsl_sf_bessel.h>

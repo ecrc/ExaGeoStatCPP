@@ -12,9 +12,11 @@
  * @date 2024-02-04
 **/
 
+#include <cstring>
+
 #include <configurations/Configurations.hpp>
-#include <kernels/Kernel.hpp>
 #include <utilities/Logger.hpp>
+#include <kernels/Kernel.hpp>
 
 using namespace std;
 

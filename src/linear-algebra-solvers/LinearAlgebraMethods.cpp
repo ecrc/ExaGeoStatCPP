@@ -22,6 +22,7 @@
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <data-loader/concrete/CSVLoader.hpp>
+#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 
 using namespace std;
 
