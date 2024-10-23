@@ -10,7 +10,9 @@
 # @date 2023-08-15
 
 # Include the concrete implementations of the ExaGeoStat Descriptor class
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
+endif ()
 
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatDescriptor.cpp
