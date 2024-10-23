@@ -16,6 +16,7 @@
 #define EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP
 
 #include <common/Definitions.hpp>
+#include <configurations/Configurations.hpp>
 
 /**
  * @brief Class represents the hardware configuration for the ExaGeoStat solver.
@@ -24,6 +25,14 @@
 class ExaGeoStatHardware {
 
 public:
+
+    /**
+     * @brief Constructor for ExaGeoStatHardware.
+     * @param[in] aConfigurations The set of arguments from the configurations.
+     *
+     */
+    explicit ExaGeoStatHardware(exageostat::configurations::Configurations &aConfigurations);
+
     /**
      * @brief Constructor for ExaGeoStatHardware.
      * @param[in] aComputation The computation mode for the solver.
@@ -90,6 +99,13 @@ public:
     [[nodiscard]] static void *GetHicmaContext();
 
     /**
+     * @brief Get the PaRSEC hardware context.
+     * @return Pointer to the hardware context.
+     *
+     */
+    [[nodiscard]] static void *GetParsecContext();
+
+    /**
      * @brief Get the hardware context.
      * @param[in] aComputation Used computation to decide whether to use Hicma or Chameleon context.
      * @return Pointer to the hardware context.
@@ -136,6 +152,8 @@ private:
     static void *mpChameleonContext;
     //// Used Pointer to the Hicma hardware context.
     static void *mpHicmaContext;
+    //// Used Pointer to the PaRSEC hardware context.
+    static void *mpParsecContext;
     //// Used P-Grid
     static int mPGrid;
     //// Used Q-Grid

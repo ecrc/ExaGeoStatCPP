@@ -66,7 +66,10 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     optimizing_function.set_ftol_abs(aConfigurations.GetTolerance());
     // Set max iterations value.
     optimizing_function.set_maxeval(max_number_of_iterations);
-    optimizing_function.set_max_objective(ExaGeoStatMLETileAPI, (void *) modeling_data);
+    // TODO: ON API level it should be consistent regardless of the runtime being implemented
+#if DEFAULT_RUNTIME
+    optimizing_function.set_max_objective(ModelingAPI, (void *) modeling_data);
+#endif
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
@@ -89,8 +92,7 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
 }
 
 template<typename T>
-double
-ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
+double ExaGeoStat<T>::ModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
 
     auto config = ((mModelingData<T> *) apInfo)->mpConfiguration;
     auto data = ((mModelingData<T> *) apInfo)->mpData;
@@ -100,7 +102,8 @@ ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vect
     // We do Date Modeling with any computation.
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
             config->GetComputation());
-    return linear_algebra_solver->ExaGeoStatMLETile(*data, *config, aTheta.data(), measurements, *kernel);
+
+    return linear_algebra_solver->ModelingOperations(*data, *config, aTheta.data(), measurements, *kernel);
 }
 
 
@@ -119,4 +122,14 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(Configurations &aConfigurations, std::u
     prediction::Prediction<T>::PredictMissingData(aData, aConfigurations, apMeasurementsMatrix, *pKernel,
                                                   apTrainLocations, apTestLocations);
     delete pKernel;
+}
+
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatTransformData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData){
+
+}
+
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatDataAnalyzer(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData){
+
 }

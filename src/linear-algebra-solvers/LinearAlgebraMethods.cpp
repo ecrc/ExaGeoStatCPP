@@ -1340,37 +1340,6 @@ LinearAlgebraMethods<T>::ExaGeoStatGetZObs(Configurations &aConfigurations, T *a
     this->ExaGeoStatDesc2Lap(apZ, aSize, z_desc, UpperLower::EXAGEOSTAT_UPPER_LOWER);
 }
 
-#ifdef USE_HICMA
-
-template<typename T>
-void LinearAlgebraMethods<T>::CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
-                                              const common::CopyDirection &aDirection) {
-    auto *z = new T[aSize];
-    int status;
-    if (aDirection == common::CHAMELEON_TO_HICMA) {
-        status = CHAMELEON_Desc2Lap((cham_uplo_t) EXAGEOSTAT_UPPER_LOWER, (CHAM_desc_t *) apSourceDesc, z, aSize);
-        if (status != CHAMELEON_SUCCESS) {
-            throw std::runtime_error("CHAMELEON_Desc2Lap Failed!");
-        }
-        status = HICMA_Lapack_to_Tile(z, aSize, (HICMA_desc_t *) apDestinationDesc);
-        if (status != HICMA_SUCCESS) {
-            throw std::runtime_error("HICMA_Lapack_to_Tile Failed!");
-        }
-    } else if (aDirection == common::HICMA_TO_CHAMELEON) {
-        status = HICMA_Tile_to_Lapack((HICMA_desc_t *) apSourceDesc, z, aSize);
-        if (status != HICMA_SUCCESS) {
-            throw std::runtime_error("HICMA_Tile_to_Lapack Failed!");
-        }
-        status = CHAMELEON_Lap2Desc((cham_uplo_t) EXAGEOSTAT_UPPER_LOWER, z, aSize, (CHAM_desc_t *) apDestinationDesc);
-        if (status != CHAMELEON_SUCCESS) {
-            throw std::runtime_error("CHAMELEON_Lap2Desc Failed!");
-        }
-    }
-    delete[] z;
-}
-
-#endif
-
 template<typename T>
 void
 LinearAlgebraMethods<T>::ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const UpperLower &aUpperLower) {

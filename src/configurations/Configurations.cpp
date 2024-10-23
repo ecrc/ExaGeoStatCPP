@@ -70,6 +70,17 @@ Configurations::Configurations() {
     SetAccuracy(0);
     SetIsNonGaussian(false);
     mIsThetaInit = false;
+#if !DEFAULT_RUNTIME
+    // Set default values for Hicma-Parsec params
+    SetDenseBandDP(0);
+    SetObjectsNumber(0);
+    SetAdaptiveDecision(0);
+    SetDiagonalAddition(0);
+    SetTimeSlotPerFile(1);
+    SetFileNumber(1);
+    SetEnableInverse(false);
+    SetMPIIO(true);
+#endif
 }
 
 void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR) {
@@ -122,7 +133,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
             } else if (argument_name == "--gpus" || argument_name == "--GPUsNumbers" ||
                        argument_name == "--gpu_number" || argument_name == "--ngpus") {
                 SetGPUsNumbers(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
+            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts" || argument_name == "--NB") {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
@@ -154,6 +165,19 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
                 ParseDistanceMetric(argument_value);
             } else if (argument_name == "--logpath" || argument_name == "--log_path" || argument_name == "--logPath") {
                 SetLoggerPath(argument_value);
+            } else if(argument_name == "--band_dense" || argument_name == "--bandDense"){
+                SetDenseBandDP(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--numobj" || argument_name == "--obj-num" || argument_name == "--objnum"){
+                SetObjectsNumber(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--adaptive_decision"){
+                SetAdaptiveDecision(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--add_diag" || argument_name == "--add-diag" || argument_name == "--add-diagonal"
+            || argument_name == "--add-diag-elements"){
+                SetDiagonalAddition(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--file_time_slot" || argument_name == "--fileTimeSlot"){
+                SetTimeSlotPerFile(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--numFiles" || argument_name == "--file-num"){
+                SetFileNumber(CheckNumericalValue(argument_value));
             } else {
                 if (!(argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
                       argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
@@ -183,6 +207,10 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
                 SetApproximationMode(true);
             } else if (argument_name == "--log" || argument_name == "--Log") {
                 SetLogger(true);
+            } else if(argument_name == "--enable-inverse" || argument_name == "--enable_inverse"){
+                SetEnableInverse(true);
+            } else if(argument_name == "--mpiio"){
+                SetMPIIO(true);
             } else {
                 if (!(argument_name == "--mspe" || argument_name == "--MSPE" ||
                       argument_name == "--idw" || argument_name == "--IDW" ||
@@ -200,13 +228,17 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     if (GetProblemSize() == 0 && GetIsSynthetic()) {
         throw domain_error("You need to set the problem size, before starting");
     }
+
     if (GetDenseTileSize() == 0) {
         throw domain_error("You need to set the Dense tile size, before starting");
     }
+
+#if DEFAULT_RUNTIME
     // Throw Errors if any of these arguments aren't given by the user.
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
+#endif
 
     size_t found = GetKernelName().find("NonGaussian");
     // Check if the substring was found
@@ -423,6 +455,14 @@ void Configurations::PrintUsage() {
     LOGGER("--approximation_mode : Used to enable Approximation mode.")
     LOGGER("--log : Enable logging.")
     LOGGER("--acc : Used to set the accuracy when using tlr.")
+    LOGGER("--band_dense=value : Used to set the dense band double precision, Used with PaRSEC runtime only.")
+    LOGGER("--numobj=value : Used to set the number of objects (number of viruses within a population), Used with PaRSEC runtime only.")
+    LOGGER("--adaptive_decision=value : Used to set the adaptive decision of each tile's format using norm approach, if enabled, otherwise 0, Used with PaRSEC runtime only.")
+    LOGGER("--add_diag=value : Used to add this number to diagonal elements to make the matrix positive definite in electrodynamics problem, Used with PaRSEC runtime only.")
+    LOGGER("--file_time_slot=value : Used to set time slot per file, Used with PaRSEC runtime only.")
+    LOGGER("--numFiles=value : Used to set file number, Used with PaRSEC runtime only.")
+    LOGGER("--enable-inverse : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
+    LOGGER("--mpiio : Used to enable MPI IO, Used with PaRSEC runtime only.")
     LOGGER("\n\n")
 
     exit(0);

@@ -19,7 +19,9 @@
 
 #include <data-units/descriptor/ExaGeoStatDescriptor.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
+#if DEFAULT_RUNTIME
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#endif
 
 namespace exageostat::dataunits {
 
@@ -29,9 +31,11 @@ namespace exageostat::dataunits {
      *
      */
     union BaseDescriptor {
+#if DEFAULT_RUNTIME
         CHAM_desc_t *chameleon_desc;
 #ifdef USE_HICMA
         HICMA_desc_t *hicma_desc;
+#endif
 #endif
     };
 
