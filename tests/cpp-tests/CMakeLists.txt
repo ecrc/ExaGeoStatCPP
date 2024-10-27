@@ -8,10 +8,11 @@
 # @author Mahmoud ElKarargy
 # @date 2024-01-24
 
+add_subdirectory(configurations)
+
 # Check the value of RUNTIME_TYPE
 if(RUNTIME_TYPE STREQUAL "STARPU")
     add_subdirectory(api)
-    add_subdirectory(configurations)
     add_subdirectory(data-generators)
     add_subdirectory(hardware)
     add_subdirectory(helpers)

@@ -30,6 +30,7 @@ if(PKG_CONFIG_FOUND)
         endif()
         # TODO: This is not generalized for the case of hicma installed manually
         set(HICMA_X_SRC_DIR ${HICMA_X_ROOT}/hicma-x-src)
+        set(HICMA_X_BIN_DIR ${HICMA_X_ROOT}/bin)
         set(HICMA-X_FOUND TRUE)
         set(HICMA-X_LIBRARIES ${DPLASMA_PKG_LIBRARIES} ${PARSEC_PKG_LIBRARIES})
         set(HICMA-X_LIBRARY_DIRS "${HICMA_X_LIB_PATH}")

@@ -60,7 +60,7 @@ namespace exageostat::api {
          * @return double MLE results.
          *
          */
-        static double ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
+        static double ModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
 
         /**
          * @brief Predict missing measurements values.
@@ -76,6 +76,25 @@ namespace exageostat::api {
         ExaGeoStatPrediction(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
                              T *apMeasurementsMatrix = nullptr, dataunits::Locations<T> *apTrainLocations = nullptr,
                              dataunits::Locations<T> *apTestLocations = nullptr);
+       /**
+        * @brief Transform data into the required format for ExaGeoStat operations.
+        * @param[in] aConfigurations Reference to Configurations object containing user input data.
+        * @param[in, out] aData Reference to an ExaGeoStatData<T> object containing the descriptors and locations to be transformed.
+        * @return void
+        *
+        */
+        static void
+        ExaGeoStatTransformData(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
+
+        /**
+         * @brief Analyze the data to extract insights and patterns.
+         * @param[in] aConfigurations Reference to Configurations object containing user input data.
+         * @param[in, out] aData Reference to an ExaGeoStatData<T> object that contains the data to be analyzed.
+         * @return void
+         *
+         */
+         static void
+         ExaGeoStatDataAnalyzer(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
 
     };
 

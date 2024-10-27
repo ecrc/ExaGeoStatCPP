@@ -24,10 +24,12 @@ using namespace exageostat::results;
 template<typename T>
 std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(configurations::Configurations &apConfigurations) {
 
-    //// TODO: In case of other file support, Then we can create another layer for the factory creation depending on the file size.
     // Check the used Data generation method, whether it's synthetic or real.
+#if DEFAULT_RUNTIME
     aDataSourceType = apConfigurations.GetIsSynthetic() ? SYNTHETIC : CSV_FILE;
-
+#else
+    aDataSourceType = CSV_FILE;
+#endif
     // Return DataGenerator unique pointer of Synthetic type
     if (aDataSourceType == SYNTHETIC) {
         Results::GetInstance()->SetIsSynthetic(true);
@@ -49,7 +51,7 @@ DataGenerator<T>::~DataGenerator() {
         CSVLoader<T>::GetInstance()->ReleaseInstance();
     } else {
         std::cerr << "Data Loading for this file type is unsupported for now" << std::endl;
-        std::exit(1);
+        exit(1);
     }
 }
 

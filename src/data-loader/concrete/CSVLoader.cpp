@@ -4,8 +4,8 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file CSVDataGenerator.cpp
- * @brief Implementation of the CSVDataGenerator class
+ * @file CSVLoader.cpp
+ * @brief Implementation of the CSVLoader class
  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah

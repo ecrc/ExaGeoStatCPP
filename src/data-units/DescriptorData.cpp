@@ -21,6 +21,7 @@ using namespace exageostat::dataunits::descriptor;
 template<typename T>
 DescriptorData<T>::~DescriptorData() {
 
+#if DEFAULT_RUNTIME
     ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
     // Destroy descriptors.
     const std::string &chameleon = "_CHAMELEON";
@@ -47,6 +48,7 @@ DescriptorData<T>::~DescriptorData() {
     if (this->mpSequence) {
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpSequence);
     }
+#endif
 }
 
 template<typename T>
@@ -91,6 +93,8 @@ BaseDescriptor
 DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName) {
 
     BaseDescriptor descriptor{};
+#if DEFAULT_RUNTIME
+
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
         if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_CHAMELEON") == this->mDictionary.end()) {
             descriptor.chameleon_desc = nullptr;
@@ -119,6 +123,15 @@ DescriptorData<T>::GetDescriptor(const DescriptorType &aDescriptorType, const De
         throw std::runtime_error("To use HiCMA descriptor you need to enable USE_HICMA!");
 #endif
     }
+#else
+    if (aDescriptorType == PARSEC_DESCRIPTOR) {
+        if (this->mDictionary.find(GetDescriptorName(aDescriptorName) + "_PARSEC") == this->mDictionary.end()) {
+            descriptor.parsec_desc = nullptr;
+        }
+        descriptor.parsec_desc = (parsec_matrix_block_cyclic_t *) this->mDictionary[GetDescriptorName(aDescriptorName) +
+                                                                      "_PARSEC"];
+    }
+#endif
     return descriptor;
 }
 
@@ -132,6 +145,8 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
     void *descriptor;
     std::string type;
     ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
+#if DEFAULT_RUNTIME
+
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
         descriptor = exaGeoStatDescriptor.CreateDescriptor((CHAM_desc_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
@@ -148,17 +163,27 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
         throw std::runtime_error("To create HiCMA descriptor you need to enable USE_HICMA!");
 #endif
     }
-
     if (aConverted) {
         type = "_CHAM_HIC";
     }
+#else
+    if (aDescriptorType == PARSEC_DESCRIPTOR) {
+        descriptor = exaGeoStatDescriptor.CreateDescriptor((parsec_matrix_block_cyclic_t *) descriptor, aDescriptorType, aIsOOC,
+                                                           apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
+                                                           aN, aP, aQ, aValidOOC);
+        type = "_PARSEC";
+    }
+    else {
+        throw std::runtime_error("While using PaRSEC as a runtime, only PaRSEC descriptors are enabled!");
+    }
+#endif
     this->mDictionary[GetDescriptorName(aDescriptorName) + type] = descriptor;
-
 }
 
 template<typename T>
 T *
 DescriptorData<T>::GetDescriptorMatrix(const DescriptorType &aDescriptorType, const DescriptorName &aDescriptorName) {
+#if DEFAULT_RUNTIME
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
         return (T *) (this->GetDescriptor(CHAMELEON_DESCRIPTOR, aDescriptorName).chameleon_desc)->mat;
     } else {
@@ -168,6 +193,7 @@ DescriptorData<T>::GetDescriptorMatrix(const DescriptorType &aDescriptorType, co
         throw std::runtime_error("To use Hicma descriptor you need to enable USE_HICMA!");
 #endif
     }
+#endif
 }
 
 // Define a function that returns the name of a DescriptorName value as a string
@@ -284,6 +310,36 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_R";
         case DESCRIPTOR_R_COPY :
             return "DESCRIPTOR_R_COPY";
+        case DESCRIPTOR_F_DATA:
+            return "DESCRIPTOR_F_DATA";
+        case DESCRIPTOR_ET1:
+            return "DESCRIPTOR_ET1";
+        case DESCRIPTOR_ET2:
+            return "DESCRIPTOR_ET2";
+        case DESCRIPTOR_EP:
+            return "DESCRIPTOR_EP";
+        case DESCRIPTOR_SLMN:
+            return "DESCRIPTOR_SLMN";
+        case DESCRIPTOR_IE:
+            return "DESCRIPTOR_IE";
+        case DESCRIPTOR_IO:
+            return "DESCRIPTOR_IO";
+        case DESCRIPTOR_P:
+            return "DESCRIPTOR_P";
+        case DESCRIPTOR_D:
+            return "DESCRIPTOR_D";
+        case DESCRIPTOR_FLMERA:
+            return "DESCRIPTOR_FLMERA";
+        case DESCRIPTOR_ZLM:
+            return "DESCRIPTOR_ZLM";
+        case DESCRIPTOR_SC:
+            return "DESCRIPTOR_SC";
+        case DESCRIPTOR_F_SPATIAL:
+            return "DESCRIPTOR_F_SPATIAL";
+        case DESCRIPTOR_FLM:
+            return "DESCRIPTOR_FLM";
+        case DESCRIPTOR_FLMT:
+            return "DESCRIPTOR_FLMT";
         default:
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");

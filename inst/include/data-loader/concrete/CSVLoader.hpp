@@ -5,7 +5,7 @@
 
 /**
  * @file  CSVLoader.hpp
- * @brief A class for generating synthetic data.
+ * @brief A class for loading csv format data.
  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah

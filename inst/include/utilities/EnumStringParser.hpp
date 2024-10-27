@@ -14,6 +14,10 @@
 #ifndef EXAGEOSTATCPP_ENUMSTRINGPARSER_HPP
 #define EXAGEOSTATCPP_ENUMSTRINGPARSER_HPP
 
+#ifdef min
+#undef min
+#endif
+
 #include <algorithm>
 
 #include <utilities/ErrorHandler.hpp>

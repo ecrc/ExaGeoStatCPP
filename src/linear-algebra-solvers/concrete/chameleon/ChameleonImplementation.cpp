@@ -33,9 +33,9 @@ using namespace exageostat::configurations;
 using namespace exageostat::linearAlgebra;
 
 template<typename T>
-T ChameleonImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                                configurations::Configurations &aConfigurations, const double *theta,
-                                                T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) {
+T ChameleonImplementation<T>::ModelingOperations(std::unique_ptr <ExaGeoStatData<T>> &aData,
+                                                 configurations::Configurations &aConfigurations, const double *theta,
+                                                 T *apMeasurementsMatrix, const kernels::Kernel <T> &aKernel) {
 
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
         this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetVariablesNumber(),
@@ -360,4 +360,35 @@ void ChameleonImplementation<T>::ExaGeoStatCreateSequence(void *apSequence) {
     if (status != CHAMELEON_SUCCESS) {
         throw std::runtime_error("CHAMELEON_Sequence_Create Failed!");
     }
+}
+
+template<typename T>
+void ChameleonImplementation<T>::CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
+                                                 const common::CopyDirection &aDirection) {
+
+}
+
+template<typename T>
+void
+ChameleonImplementation<T>::ExaGeoStatSYRK(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
+
+}
+
+template<typename T>
+void ChameleonImplementation<T>::ExaGeoStatTLRCholesky(Configurations &aConfigurations,
+                                                       unique_ptr <ExaGeoStatData<T>> &aData) {
+
+}
+
+template<typename T>
+void
+ChameleonImplementation<T>::ExaGeoStatNorm(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
+
+}
+
+template<typename T>
+double
+ChameleonImplementation<T>::CalculateMSE(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
+
+    return 0;
 }

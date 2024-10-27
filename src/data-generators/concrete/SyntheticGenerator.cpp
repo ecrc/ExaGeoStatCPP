@@ -51,6 +51,8 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
                                             *locations);
     data->SetLocations(*locations);
 
+    // TODO: May need to get refactored to avoid the if/else guards
+#if DEFAULT_RUNTIME
     // Generate Descriptors phase
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, data, aKernel);
@@ -81,6 +83,7 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
 #endif
         VERBOSE("Done.")
     }
+#endif
     Results::GetInstance()->SetGeneratedLocationsNumber(n);
     Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
     Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());

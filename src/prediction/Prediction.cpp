@@ -32,6 +32,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
                                        T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel,
                                        Locations<T> *apTrainLocations, Locations<T> *apTestLocations) {
 
+#if DEFAULT_RUNTIME
     int i, j;
     bool can_predict = true;
     int num_params = aKernel.GetParametersNumbers();
@@ -201,6 +202,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
     delete[] z_actual;
     delete miss_locations;
     delete obs_locations;
+#endif
 }
 
 template<typename T>
@@ -209,7 +211,7 @@ void Prediction<T>::InitializePredictionArguments(Configurations &aConfiguration
                                                   T *apZObs, T *apZActual, Locations<T> &aMissLocation,
                                                   Locations<T> &aObsLocation, T *apMeasurementsMatrix, const int &aP,
                                                   Locations<T> *apTrainLocations, Locations<T> *apTestLocations) {
-
+#if DEFAULT_RUNTIME
     int full_problem_size = aConfigurations.GetProblemSize() * aP;
     T *z = new T[full_problem_size];
 
@@ -231,4 +233,5 @@ void Prediction<T>::InitializePredictionArguments(Configurations &aConfiguration
         memcpy(apZObs, apMeasurementsMatrix, aObsLocation.GetSize() * sizeof(T));
     }
     delete[] z;
+#endif
 }
