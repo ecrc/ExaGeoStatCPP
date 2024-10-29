@@ -8,6 +8,8 @@
  * @brief Implementation of JDF helper functions.
  * @version 2.0.0
  * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
+ * @author @qinglei Cao
  * @date 2024-10-20
 **/
 

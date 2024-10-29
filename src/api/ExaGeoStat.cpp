@@ -70,7 +70,7 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     optimizing_function.set_maxeval(max_number_of_iterations);
     // TODO: ON API level it should be consistent regardless of the runtime being implemented
 #if DEFAULT_RUNTIME
-    optimizing_function.set_max_objective(ModelingAPI, (void *) modeling_data);
+    optimizing_function.set_max_objective(DataModelingAPI, (void *) modeling_data);
 #endif
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
@@ -94,7 +94,7 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
 }
 
 template<typename T>
-double ExaGeoStat<T>::ModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
+double ExaGeoStat<T>::DataModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
 
     auto config = ((mModelingData<T> *) apInfo)->mpConfiguration;
     auto data = ((mModelingData<T> *) apInfo)->mpData;

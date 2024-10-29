@@ -60,7 +60,7 @@ namespace exageostat::api {
          * @return double MLE results.
          *
          */
-        static double ModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
+        static double DataModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
 
         /**
          * @brief Predict missing measurements values.

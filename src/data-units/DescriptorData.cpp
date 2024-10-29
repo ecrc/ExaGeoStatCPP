@@ -22,13 +22,13 @@ template<typename T>
 DescriptorData<T>::~DescriptorData() {
 
 #if DEFAULT_RUNTIME
-    ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
+    ExaGeoStatDescriptor<T> exageostat_descriptor;
     // Destroy descriptors.
     const std::string &chameleon = "_CHAMELEON";
     for (const auto &pair: this->mDictionary) {
         const std::string &key = pair.first;
         if (key.find("CHAMELEON") != std::string::npos && pair.second != nullptr) {
-            exaGeoStatDescriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR, pair.second);
+            exageostat_descriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR, pair.second);
 #ifdef USE_HICMA
             // Since there are converted descriptors from Chameleon to Hicma, which have the same memory address.
             // So, by deleting the owner which is Chameleon, no need to delete hicma. Therefore, we remove the row of that descriptor.
@@ -41,7 +41,7 @@ DescriptorData<T>::~DescriptorData() {
             }
 #endif
         } else if (key.find("HICMA") != std::string::npos && pair.second != nullptr) {
-            exaGeoStatDescriptor.DestroyDescriptor(HICMA_DESCRIPTOR, pair.second);
+            exageostat_descriptor.DestroyDescriptor(HICMA_DESCRIPTOR, pair.second);
         }
     }
     this->mDictionary.clear();
@@ -144,18 +144,18 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
 
     void *descriptor;
     std::string type;
-    ExaGeoStatDescriptor<T> exaGeoStatDescriptor;
+    ExaGeoStatDescriptor<T> exageostat_descriptor;
 #if DEFAULT_RUNTIME
 
     if (aDescriptorType == CHAMELEON_DESCRIPTOR) {
-        descriptor = exaGeoStatDescriptor.CreateDescriptor((CHAM_desc_t *) descriptor, aDescriptorType, aIsOOC,
+        descriptor = exageostat_descriptor.CreateDescriptor((CHAM_desc_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
                                                            aN, aP, aQ, aValidOOC);
         type = "_CHAMELEON";
 
     } else {
 #ifdef USE_HICMA
-        descriptor = exaGeoStatDescriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC,
+        descriptor = exageostat_descriptor.CreateDescriptor((HICMA_desc_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
                                                            aN, aP, aQ, aValidOOC);
         type = "_HICMA";
@@ -168,7 +168,7 @@ void DescriptorData<T>::SetDescriptor(const DescriptorType &aDescriptorType, con
     }
 #else
     if (aDescriptorType == PARSEC_DESCRIPTOR) {
-        descriptor = exaGeoStatDescriptor.CreateDescriptor((parsec_matrix_block_cyclic_t *) descriptor, aDescriptorType, aIsOOC,
+        descriptor = exageostat_descriptor.CreateDescriptor((parsec_matrix_block_cyclic_t *) descriptor, aDescriptorType, aIsOOC,
                                                            apMatrix, aFloatPoint, aMB, aNB, aSize, aLM, aLN, aI, aJ, aM,
                                                            aN, aP, aQ, aValidOOC);
         type = "_PARSEC";
