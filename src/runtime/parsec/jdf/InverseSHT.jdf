@@ -5,8 +5,8 @@ extern "C" %{
  *                         All rights reserved.
  */
 
-#include <runtime/parsec/ParsecHeader.hpp>
-#include <runtime/parsec/jdf/JDFHelperFunctions.h>
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
 
 static void FlmToFlmT(double *apFlmT, double *apFlm, parsec_matrix_block_cyclic_t *apFLMTDesc, int aFlmM, int aFlmN, int aM, int aN) {
     int flm_offset = aM * apFLMTDesc->super.mb;

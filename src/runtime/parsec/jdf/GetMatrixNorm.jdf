@@ -5,8 +5,8 @@ extern "C" %{
  *                         All rights reserved.
  **/
 
-#include <runtime/parsec/ParsecHeader.hpp>
-#include <runtime/parsec/jdf/JDFHelperFunctions.h>
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
 
 %}
 
@@ -17,7 +17,7 @@ apNormTile        [ type = "double *" ]
 aNT               [ type = "int" ]
 aUpperLower       [ type = "int" ]
 aNormGlobal       [ type = "double" ]
-apNorm              [ type = "double *" ]
+apNorm            [ type = "double *" ]
 
 
 /**************************************************

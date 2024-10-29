@@ -6,8 +6,8 @@ extern "C" %{
  *                         All rights reserved.
  */
 
-#include <runtime/parsec/ParsecHeader.hpp>
-#include <runtime/parsec/jdf/JDFHelperFunctions.h>
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
 
 static int ReadCSVTimeSlot_core(const char* apFilename, double *apData, int aM, int aN, int aGpus) {
 

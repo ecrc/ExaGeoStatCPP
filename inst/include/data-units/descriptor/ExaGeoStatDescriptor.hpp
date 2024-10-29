@@ -21,7 +21,7 @@
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 
 #else
-#include <runtime/parsec/ParsecHeader.hpp>
+#include <runtime/parsec/ParsecHeader.h>
 #endif
 
 #include <common/Definitions.hpp>
@@ -75,8 +75,6 @@ namespace exageostat::dataunits::descriptor {
          * @param[in] aP The number of rows of the 2D distribution grid.
          * @param[in] aQ The number of columns of the 2D distribution grid.
          * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not.
-         * @param[in] aNodes The number of nodes used in computation, default value is 1.
-         * @param[in] aTimeSlot The time slot, default value is 1.
          * @return A pointer to the newly created descriptor.
          *
          */

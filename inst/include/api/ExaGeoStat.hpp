@@ -76,6 +76,8 @@ namespace exageostat::api {
         ExaGeoStatPrediction(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
                              T *apMeasurementsMatrix = nullptr, dataunits::Locations<T> *apTrainLocations = nullptr,
                              dataunits::Locations<T> *apTestLocations = nullptr);
+
+#if !DEFAULT_RUNTIME
        /**
         * @brief Transform data into the required format for ExaGeoStat operations.
         * @param[in] aConfigurations Reference to Configurations object containing user input data.
@@ -95,6 +97,7 @@ namespace exageostat::api {
          */
          static void
          ExaGeoStatDataAnalyzer(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
+#endif
 
     };
 

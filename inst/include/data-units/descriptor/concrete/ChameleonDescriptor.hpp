@@ -46,7 +46,7 @@ namespace exageostat::dataunits::descriptor {
          * @param[in] aN The number of columns of the sub-matrix.
          * @param[in] aP The number of rows of the 2D distribution grid.
          * @param[in] aQ The number of columns of the 2D distribution grid.
-         * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not
+         * @param[in] aValidOOC Boolean refer to whether this descriptor can be created with OOC technology or not.
          * @return A pointer to the newly created CHAM_desc_t descriptor.
          *
          */

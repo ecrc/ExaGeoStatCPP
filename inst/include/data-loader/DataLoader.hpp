@@ -67,6 +67,19 @@ namespace exageostat::dataLoader {
         virtual void
         WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
                   exageostat::dataunits::Locations<T> &aLocations) = 0;
+
+        /**
+         * TODO: After changing the design of data loaders this function shouldn't be here
+         * @brief Reads data from a CSV file into a matrix.
+         * @param[in] apFilename Name of the CSV file.
+         * @param[out] apFileContent Pointer to an array where file contents will be stored.
+         * @param[in] aM Number of rows in the matrix.
+         * @param[in] aN Number of columns in the matrix.
+         * @return 0 on success, or a non-zero error code on failure.
+         *
+         */
+        int ReadCSVFileHelper(const char* apFilename, double *apFileContent, int aM, int aN);
+
     };
 
     /**

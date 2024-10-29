@@ -15,7 +15,7 @@
 #ifndef EXAGEOSTATCPP_ParsecDESCRIPTOR_HPP
 #define EXAGEOSTATCPP_ParsecDESCRIPTOR_HPP
 
-#include <runtime/parsec/ParsecHeader.hpp>
+#include <runtime/parsec/ParsecHeader.h>
 #include <common/Definitions.hpp>
 
 namespace exageostat::dataunits::descriptor {

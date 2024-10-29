@@ -5,8 +5,8 @@ extern "C" %{
  *                         All rights reserved.
  */
 
-#include <runtime/parsec/ParsecHeader.hpp>
-#include <runtime/parsec/jdf/JDFHelperFunctions.h>
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
 
 static void FlmToFlmT(double *apFlmT, double *apFlm, parsec_matrix_block_cyclic_t *apFLMTDesc, int aFlmM, int aFlmN, int aM, int aN) {
     int flm_offset = aM * apFLMTDesc->super.mb;
@@ -237,7 +237,6 @@ ForwardSHT_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t
     pTaskpool->_g_cuda_device_index = dev_index;
 #endif
 
-    // TODO
     parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_ForwardSHT_apF_data_ADT_IDX],
                             parsec_datatype_double_complex_t, PARSEC_MATRIX_FULL,
                             1, apFDataDesc->mb, apFDataDesc->nb, apFDataDesc->mb,

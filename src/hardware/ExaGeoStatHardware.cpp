@@ -22,7 +22,7 @@
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #else
-#include <runtime/parsec/ParsecHeader.hpp>
+#include <runtime/parsec/ParsecHeader.h>
 #endif
 
 #include <results/Results.hpp>
@@ -88,7 +88,6 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     hicma_parsec_data_t data;
     hicma_parsec_matrix_analysis_t analysis;
     this->mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, &params, &params_kernel, &data);
-    cout << "To make sure everything is right: " << params.uplo << " norm: " << params.norm_global << endl;
     SetParsecMPIRank(params.rank);
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();

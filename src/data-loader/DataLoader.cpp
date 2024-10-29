@@ -13,7 +13,7 @@
 **/
 
 #if !DEFAULT_RUNTIME
-#include <runtime/parsec/ParsecHeader.hpp>
+#include <runtime/parsec/ParsecHeader.h>
 
 extern "C"{
 #include <runtime/parsec/jdf/JobDescriptionFormat.h>
@@ -32,6 +32,7 @@ using namespace exageostat::results;
 template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
 DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel) {
+
 #if DEFAULT_RUNTIME
     // create vectors that will be populated with read data.
     vector<T> measurements_vector;
@@ -76,16 +77,6 @@ DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exage
     //create data object
     auto data = std::make_unique<ExaGeoStatData<T>>(aConfigurations.GetProblemSize() / 1,
                                                     aConfigurations.GetDimension());
-
-    // Set the floating point precision based on the template type
-    FloatPoint float_point;
-    if (sizeof(T) == SIZE_OF_FLOAT) {
-        float_point = EXAGEOSTAT_COMPLEX_FLOAT;
-    } else if (sizeof(T) == SIZE_OF_DOUBLE) {
-        float_point = EXAGEOSTAT_COMPLEX_DOUBLE;
-    } else {
-        throw runtime_error("Unsupported for now!");
-    }
 
     // Initiate Descriptors
     int L = aConfigurations.GetDenseTileSize();
@@ -211,14 +202,13 @@ DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exage
         ReadCSV((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pF_spatial_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
     }
 
-
     // Init and allocate memory for desc_flmT
     MB = L * L;
     NB = t;
 	VERBOSE_PRINT(rank, verbose, ("Alocating FLMT\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_FLMT);
     parsec_matrix_block_cyclic_t *pFlmt_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_FLMT).parsec_desc;
-    parsec_matrix_block_cyclic_init(pFlmt_data_desc, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank, NB*((MB/nodes%NB) ? MB/nodes/NB+1 : MB/nodes/NB),
+    parsec_matrix_block_cyclic_init(pFlmt_data_desc, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank, L*((MB/nodes%L) ? MB/nodes/L+1 : MB/nodes/L),
                                     NB, MB, NB, 0, 0, MB, NB, nodes, 1, 1, 1, 0, 0);
 
     pFlmt_data_desc->mat = parsec_data_allocate((size_t)pFlmt_data_desc->super.nb_local_tiles *
@@ -231,29 +221,48 @@ DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exage
     NB = t;
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_A);
     parsec_matrix_block_cyclic_t *pA_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_A).parsec_desc;
-    parsec_matrix_block_cyclic_init(pA_data_desc, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank, NB, NB, MB, NB, 0, 0,
+    parsec_matrix_block_cyclic_init(pA_data_desc, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank, L, L, MB, NB, 0, 0,
                                     pFlmt_data_desc->super.mb, pFlmt_data_desc->super.nb, P, nodes/P, 1, 1, 0, 0);
     pA_data_desc->mat = parsec_data_allocate((size_t)pA_data_desc->super.nb_local_tiles *
                                    (size_t)pA_data_desc->super.bsiz *
                                    (size_t)parsec_datadist_getsizeoftype(pA_data_desc->super.mtype));
-    parsec_data_collection_set_key((parsec_data_collection_t*)&pA_data_desc, "pA_data_desc");
+    parsec_data_collection_set_key((parsec_data_collection_t*)&pA_data_desc, "desc_A");
 
     if(aConfigurations.GetEnableInverse()){
         int ts_test_M = 2000;
         int ts_test_N = 1;
-//        climate_emulator_read_csv_double("/home/qcao3/hicma-x-dev/hicma_parsec/gb24/data/ts_test.csv", &ts_test, ts_test_M, ts_test_N);
+        // Allocate memory
+        double *pFileContent = (double *)malloc(ts_test_M * ts_test_N * sizeof(double));
+        sprintf(filename, "%s/%s", files_directory_path.c_str(),"ts_test.csv");
+        ReadCSVFileHelper(filename, pFileContent, ts_test_M, ts_test_N);
     }
-
-    // Flops TODO
-//    flops_forward = 2.0*(L+1)*(2*L-1)*(2*L) // Gmtheta_r = f_data*Ep
-//        + 2.0*(2*L-1)*(2*L-1)*(L+1) // Fmnm = Et1*Gmtheta_r
-//        + 2.0*(2*L-1)*(L-1)*(L+1) // tmp1 = Et2*P
-//        + 2.0*(2*L-1)*(2*L-1)*(L+1)  // tmp2 = tmp1 * Gmtheta_r
-//        + 2.0*(2*L-1)*(2*L-1)*(2*L-1)  // Fmnm += tmp2 * D
-//        + 2.0*L*L/2*(L*(2*L-1)+L);   // flmn_matrix(ell+1,m+1) = Slmn(climate_emulator_getSingleIndex(ell, m),:)*Ie*Fmnm(:,L+m)
-//    flops_forward *= (2 * T);
-//    flops_backward = 0;
 
 #endif
     return data;
+}
+
+
+template<typename T>
+int DataLoader<T>::ReadCSVFileHelper(const char* apFilename, double *apFileContent, int aM, int aN) {
+
+    FILE *pFile = fopen(apFilename, "r");
+    if (!pFile) {
+        printf("File opening failed: %s", apFilename);
+        return -1;
+    }
+
+    int status = 0;
+    for (int i = 0; i < aM; i++) {
+        for (int j = 0; j < aN; j++) {
+            status = fscanf(pFile, "%lf,", &apFileContent[i * aN + j]);
+            if (status != 1) {
+                fprintf(stderr, "Error reading file at row %d, column %d\n", i, j);
+                fclose(pFile);
+                return 1;
+            }
+        }
+    }
+    fclose(pFile);
+
+    return 0;
 }

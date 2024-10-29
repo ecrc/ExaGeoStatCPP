@@ -126,6 +126,7 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(Configurations &aConfigurations, std::u
     delete pKernel;
 }
 
+#if !DEFAULT_RUNTIME
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatTransformData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData){
 
@@ -138,3 +139,4 @@ template<typename T>
 void ExaGeoStat<T>::ExaGeoStatDataAnalyzer(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData){
 
 }
+#endif

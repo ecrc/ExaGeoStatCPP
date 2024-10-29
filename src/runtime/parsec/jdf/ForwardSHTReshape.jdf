@@ -5,8 +5,8 @@ extern "C" %{
  *                         All rights reserved.
  */
 
-#include <runtime/parsec/ParsecHeader.hpp>
-#include <runtime/parsec/jdf/JDFHelperFunctions.h>
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
 
 static void FlmTReshape(double *apFlmT, int aM, double *apTemp, parsec_matrix_block_cyclic_t *apFlmTDesc, int aT) {
 
@@ -213,13 +213,13 @@ int ForwardSHTReshape(parsec_context_t *apContext, int aRank, int aVerbose, pars
     }
     // Reshape
     VERBOSE_PRINT(aRank, aVerbose, ("Redistribute apFLMTDesc -> desc_A\n"));
-    parsec_redistribute(apContext, apFLMTDesc, apADesc, apADesc->mb, apADesc->nb, 0, 0, 0, 0);
+    parsec_redistribute(apContext, apFLMTDesc, apADesc, apADesc->m, apADesc->n, 0, 0, 0, 0);
 
     double norm_flmT = GetMatrixNorm(apContext, apFLMTDesc, aNormGlobal, aNT, aUpperLower);
-//    double norm_A = GetMatrixNorm(apContext, apADesc, aNormGlobal, aNT, aUpperLower);
+    double norm_A = GetMatrixNorm(apContext, apFLMTDesc, aNormGlobal, aNT, aUpperLower);
 
     if( 0 == aRank ) {
-//        fprintf(stderr, RED "norm_flmT %lf norm_A %lf\n" RESET, norm_flmT, norm_A);
+        fprintf(stderr, RED "norm_flmT %lf norm_A %lf\n" RESET, norm_flmT, norm_A);
     }
 
     // Free memory
