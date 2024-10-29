@@ -133,7 +133,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
             } else if (argument_name == "--gpus" || argument_name == "--GPUsNumbers" ||
                        argument_name == "--gpu_number" || argument_name == "--ngpus") {
                 SetGPUsNumbers(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
+            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts" || argument_name == "--NB") {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
