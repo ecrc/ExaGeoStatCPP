@@ -83,7 +83,8 @@ template<typename T> void DataTransformer<T>::ForwardReshape(Configurations &aCo
     int aFlmTNB = (aFlmTM / nodes % L) ? aFlmTM / nodes / L + 1 : aFlmTM / nodes / L;
 
     double aNormGlobal = 0;
-    double aNT = 0;
+    int N = aConfigurations.GetProblemSize();
+    double aNT = (N % L == 0) ? (N/L) : (N/L + 1);
     double aUpperLower = EXAGEOSTAT_LOWER;
     ForwardSHTReshape((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), rank, verbose, pFDataDesc, pFLMDesc,
                       pFLMTDesc, pET1Desc, pET2Desc, pEPDesc, pSLMNDesc, pIEDesc, pIODesc, pPDesc,
