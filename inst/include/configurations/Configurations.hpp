@@ -237,6 +237,42 @@ namespace exageostat::configurations {
         static void SetVerbosity(const common::Verbose &aVerbose);
 
         /** END OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
+
+        /** START OF THE HICMA-PARSEC SPECIFIC ARGUEMNTS. **/
+
+        CREATE_SETTER_FUNCTION(DenseBandDP, int, aDenseBandDP, "DenseBandDoublePrecision")
+
+        CREATE_GETTER_FUNCTION(DenseBandDP, int, "DenseBandDoublePrecision")
+
+        CREATE_SETTER_FUNCTION(ObjectsNumber, int, aObjectsNumber, "ObjectsNumber")
+
+        CREATE_GETTER_FUNCTION(ObjectsNumber, int, "ObjectsNumber")
+
+        CREATE_SETTER_FUNCTION(AdaptiveDecision, int, aAdaptiveDecision, "AdaptiveDecision")
+
+        CREATE_GETTER_FUNCTION(AdaptiveDecision, int, "AdaptiveDecision")
+
+        CREATE_SETTER_FUNCTION(DiagonalAddition, int, aDiagonalAddition, "DiagonalAddition")
+
+        CREATE_GETTER_FUNCTION(DiagonalAddition, int, "DiagonalAddition")
+
+        CREATE_SETTER_FUNCTION(TimeSlotPerFile, int, aTimeSlotPerFile, "TimeSlotPerFile")
+
+        CREATE_GETTER_FUNCTION(TimeSlotPerFile, int, "TimeSlotPerFile")
+
+        CREATE_SETTER_FUNCTION(FileNumber, int, aFileNumber, "FileNumber")
+
+        CREATE_GETTER_FUNCTION(FileNumber, int, "FileNumber")
+
+        CREATE_SETTER_FUNCTION(EnableInverse, bool , aEnableInverse, "EnableInverse")
+
+        CREATE_GETTER_FUNCTION(EnableInverse, bool , "EnableInverse")
+
+        CREATE_SETTER_FUNCTION(MPIIO, bool, aMPIIO, "MPIIO")
+
+        CREATE_GETTER_FUNCTION(MPIIO, bool, "MPIIO")
+
+        /** END OF THE HICMA-PARSEC SPECIFIC ARGUEMNTS. **/
         /** START OF THE DATA GENERATION MODULES. **/
 
         CREATE_SETTER_FUNCTION(Dimension, exageostat::common::Dimension, aDimension, "Dimension")

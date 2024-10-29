@@ -9,20 +9,17 @@
 # @author Sameh Abdulah
 # @date 2023-02-27
 
-# Initialize SOURCES variable if not already initialized
-set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp ${SOURCES})
-
 if (RUNTIME_TYPE STREQUAL "STARPU")
-
     # Include the concrete implementations of the ExaGeoStat Descriptor class
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptor)
-    # Append the necessary source files for the STARPU runtime
-    list(APPEND SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorData.cpp
-            ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatData.cpp
-
-            )
 endif()
 
-# Set the SOURCES variable to the parent scope
-set(SOURCES ${SOURCES} PARENT_SCOPE)
+# Initialize SOURCES variable if not already initialized
+set(SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorData.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStatData.cpp
+        ${SOURCES}
+        PARENT_SCOPE
+        )
+

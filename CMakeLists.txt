@@ -195,9 +195,9 @@ add_subdirectory(src)
 
 # Define USE_STARPU or USE_RUNTIME based on the selected runtime
 if(RUNTIME_TYPE STREQUAL "STARPU")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE DEFAULT_RUNTIME=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC DEFAULT_RUNTIME=1)
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE DEFAULT_RUNTIME=0)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC DEFAULT_RUNTIME=0)
 endif()
 
 # Creates a new INTERFACE library target named ${PROJECT_NAME}_INTERFACE.

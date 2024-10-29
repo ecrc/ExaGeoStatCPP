@@ -94,6 +94,48 @@ void TEST_ARGUMENT_INITIALIZATION() {
 
 }
 
+
+void TEST_ARGUMENT_INITIALIZATION_PARSEC() {
+
+    const int argc = 12;
+    char *argv[] = {
+            const_cast<char *>("program_name"),
+            const_cast<char *>("--N=16"),
+            const_cast<char *>("--dts=8"),
+            const_cast<char *>("--precision=double"),
+            const_cast<char *>("--band_dense=100"),
+            const_cast<char *>("--numobj=72"),
+            const_cast<char *>("--adaptive_decision=1"),
+            const_cast<char *>("--add_diag=10"),
+            const_cast<char *>("--file_time_slot=1"),
+            const_cast<char *>("--file-num=1"),
+            const_cast<char *>("--enable-inverse"),
+            const_cast<char *>("--mpiio")
+    };
+
+    Configurations configurations;
+    // Initialize configuration dictionary with only common arguments
+    configurations.InitializeArguments(argc, argv);
+
+    REQUIRE(configurations.GetProblemSize() == 16);
+    REQUIRE(configurations.GetDenseTileSize() == 8);
+    REQUIRE(configurations.GetPrecision() == DOUBLE);
+
+    // Check Hicma-Parsec parameters
+    REQUIRE(configurations.GetDenseBandDP() == 100);
+    REQUIRE(configurations.GetObjectsNumber() == 72);
+    REQUIRE(configurations.GetAdaptiveDecision() == 1);
+    REQUIRE(configurations.GetDiagonalAddition() == 10);
+    REQUIRE(configurations.GetTimeSlotPerFile() == 1);
+    REQUIRE(configurations.GetFileNumber() == 1);
+    REQUIRE(configurations.GetEnableInverse() == true);
+    REQUIRE(configurations.GetMPIIO() == true);
+
+    // No data generation arguments initialized
+    REQUIRE(configurations.GetDataPath() == string(""));
+}
+
+
 void TEST_SYNTHETIC_CONFIGURATIONS() {
 
     Configurations synthetic_data_configurations;
@@ -186,4 +228,7 @@ TEST_CASE("Configurations Tests") {
     TEST_SYNTHETIC_CONFIGURATIONS();
     TEST_COPY_CONSTRUCTOR();
     TEST_ARGUMENT_INITIALIZATION();
+#if !DEFAULT_RUNTIME
+    TEST_ARGUMENT_INITIALIZATION_PARSEC();
+#endif
 }

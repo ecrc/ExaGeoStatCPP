@@ -12,13 +12,19 @@
  * @date 2024-02-04
 **/
 
+#include <hardware/ExaGeoStatHardware.hpp>
+
+#if DEFAULT_RUNTIME
 #ifdef USE_MPI
 #include <starpu_mpi.h>
 #endif
 
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
+#else
+#include <runtime/parsec/ParsecHeader.hpp>
+#endif
+
 #include <results/Results.hpp>
 #include <helpers/CommunicatorMPI.hpp>
 #include <utilities/Logger.hpp>
@@ -26,6 +32,68 @@
 
 using namespace exageostat::common;
 using namespace exageostat::results;
+using namespace std;
+
+ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configurations &aConfigurations){
+
+    // These variables are named according to HiCMA-X inputs
+    const int N = aConfigurations.GetProblemSize();
+    const int t = aConfigurations.GetDenseTileSize();
+    const int e = aConfigurations.GetAccuracy();
+    const int a = aConfigurations.GetAdaptiveDecision();
+    const int g = aConfigurations.GetGPUsNumbers();
+    const int c = aConfigurations.GetCoresNumber();
+    const int j = aConfigurations.GetDiagonalAddition();
+    const int J = aConfigurations.GetTimeSlot();
+    const int K = aConfigurations.GetObjectsNumber();
+    const int I = aConfigurations.GetDenseBandDP();
+    const int time_slot_per_file = aConfigurations.GetTimeSlotPerFile();
+    const int num_file = aConfigurations.GetFileNumber();
+
+    int v = 0;
+    if (aConfigurations.GetVerbosity() == Verbose::DETAILED_MODE){
+        v = 1;
+    }
+
+    // Create a vector to store the arguments as strings
+    std::vector<std::string> new_args = {
+        "-g", to_string(g),
+        "-NB", to_string(t),
+        "-K", to_string(t),
+        "-N", to_string(N),
+        "-v", to_string(v),
+        "-I", to_string(I),
+        "-a", to_string(a),
+        "-J", to_string(J),
+        "-c", to_string(c),
+        "-K", to_string(K),
+        "-j", to_string(j)
+    };
+
+    // Convert std::vector<std::string> to char** for the new argv
+    int new_argc = new_args.size();
+    char **new_argv = new char*[new_argc];
+
+    for (int i = 0; i < new_argc; ++i) {
+        new_argv[i] = new char[new_args[i].length() + 1];
+        strcpy(new_argv[i], new_args[i].c_str());
+    }
+
+#if !DEFAULT_RUNTIME
+    int iparam[IPARAM_SIZEOF] = {0};
+    double dparam[DPARAM_SIZEOF];
+    char *cparam[CPARAM_SIZEOF];
+    hicma_parsec_params_t params;
+    starsh_params_t params_kernel;
+    hicma_parsec_data_t data;
+    hicma_parsec_matrix_analysis_t analysis;
+    this->mpParsecContext = hicma_parsec_init( new_argc, new_argv, iparam, dparam, cparam, &params, &params_kernel, &data );
+#endif
+
+    LOGGER("Climate Emulator Parameters")
+    LOGGER("L: " << t << "\tT: " << J << "\tNB: " << t << "\tgpus: " << g)
+    LOGGER("nodes: " << c << "\ttime_slot_per_file: " << time_slot_per_file << "\tnum_file: " << num_file << "\tfile_per_node: " << ((num_file%c)? num_file/c+1 : num_file/c))
+}
 
 ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
                                        const int &aP, const int &aQ) {
@@ -45,6 +113,7 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
     SetQGrid(aQ);
     int tag_width = 31, tag_sep = 40;
 
+#if DEFAULT_RUNTIME
     // Init hardware using Chameleon
     if (!mpChameleonContext) {
 #ifdef USE_MPI
@@ -80,12 +149,14 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
         throw std::runtime_error("You need to enable HiCMA to use TLR computation!");
 #endif
     }
+#endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
     LOGGER("** Initialize ExaGeoStat hardware **")
 }
 
 void ExaGeoStatHardware::FinalizeHardware() {
 
+ #if DEFAULT_RUNTIME
     // finalize hardware using HiCMA
 #ifdef USE_HICMA
     if (mpHicmaContext) {
@@ -103,6 +174,8 @@ void ExaGeoStatHardware::FinalizeHardware() {
         CHAMELEON_Finalize()
         mpChameleonContext = nullptr;
     }
+
+#endif
 
     exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
@@ -125,6 +198,13 @@ void *ExaGeoStatHardware::GetChameleonContext() {
         throw std::runtime_error("Chameleon Hardware is not initialized!");
     }
     return mpChameleonContext;
+}
+
+void *ExaGeoStatHardware::GetParsecContext() {
+    if (!mpParsecContext) {
+        throw std::runtime_error("PaRSEC Hardware is not initialized!");
+    }
+    return mpParsecContext;
 }
 
 void *ExaGeoStatHardware::GetContext(Computation aComputation) {
@@ -155,6 +235,7 @@ void ExaGeoStatHardware::SetQGrid(int aQ) {
 
 void *ExaGeoStatHardware::mpChameleonContext = nullptr;
 void *ExaGeoStatHardware::mpHicmaContext = nullptr;
+void *ExaGeoStatHardware::mpParsecContext = nullptr;
 int ExaGeoStatHardware::mPGrid = 1;
 int ExaGeoStatHardware::mQGrid = 1;
 bool ExaGeoStatHardware::mIsMPIInit = false;

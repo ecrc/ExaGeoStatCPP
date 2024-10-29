@@ -42,6 +42,9 @@ DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exage
 
     //Initialize the descriptors.
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
+
+    // TODO: May need to get refactored to avoid the if/else guards
+#if DEFAULT_RUNTIME
     linear_algebra_solver->InitiateDescriptors(aConfigurations, *data->GetDescriptorData(), p);
     linear_algebra_solver->ExaGeoStatLaSetTile(EXAGEOSTAT_UPPER_LOWER, 0, 0,
                                                data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
@@ -58,6 +61,7 @@ DataLoader<T>::CreateData(configurations::Configurations &aConfigurations, exage
         ((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
                                                         DESCRIPTOR_Z).chameleon_desc->mat)[i] = measurements_vector[i];
     }
+#endif
 
     Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize() / p);
     Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());

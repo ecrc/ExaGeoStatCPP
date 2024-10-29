@@ -50,11 +50,11 @@ namespace exageostat::linearAlgebra::tileLowRank {
 
         /**
          * @brief Calculates the log likelihood value of a given value theta.
-         * @copydoc LinearAlgebraMethods::ExaGeoStatMLETile()
+         * @copydoc LinearAlgebraMethods::ModelingOperations()
         */
-        T ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &aData,
-                            configurations::Configurations &aConfigurations, const double *theta,
-                            T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) override;
+        T ModelingOperations(std::unique_ptr <ExaGeoStatData<T>> &aData,
+                             configurations::Configurations &aConfigurations, const double *theta,
+                             T *apMeasurementsMatrix, const kernels::Kernel <T> &aKernel) override;
 
         /**
          * @brief Copies a matrix in the tile layout from source to destination
@@ -90,6 +90,46 @@ namespace exageostat::linearAlgebra::tileLowRank {
         void ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
                                 const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha, void *apA,
                                 void *apCD, void *apCrk, void *apZ, const int &aMaxRank) override;
+
+        /**
+         * @brief Copy Descriptor Matrix to another Descriptor matrix.
+         * @copydoc LinearAlgebraMethods::CopyDescriptors()
+         *
+         */
+        void CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
+                             const common::CopyDirection &aDirection) override;
+
+        /**
+         * @brief Performs a SYRK (symmetric rank-k update) operation on the matrix.
+         * @copydoc LinearAlgebraMethods::ExaGeoStatSYRK()
+         *
+         */
+        void ExaGeoStatSYRK(configurations::Configurations &aConfigurations,
+                            std::unique_ptr <ExaGeoStatData<T>> &aData) override;
+
+        /**
+         * @brief Performs TLR Cholesky operation on the matrix.
+         * @copydoc LinearAlgebraMethods::ExaGeoStatTLRCholesky()
+         *
+         */
+        void ExaGeoStatTLRCholesky(configurations::Configurations &aConfigurations,
+                                   std::unique_ptr <ExaGeoStatData<T>> &aData) override;
+
+        /**
+         * @brief Calculates norm.
+         * @copydoc LinearAlgebraMethods::ExaGeoStatNorm()
+         *
+         */
+        void ExaGeoStatNorm(configurations::Configurations &aConfigurations,
+                            std::unique_ptr <ExaGeoStatData<T>> &aData) override;
+
+        /**
+         * @brief Calculates the Mean Squared Error (MSE).
+         * @copydoc LinearAlgebraMethods::CalculateMSE()
+         *
+         */
+        double CalculateMSE(configurations::Configurations &aConfigurations,
+                            std::unique_ptr <ExaGeoStatData<T>> &aData) override;
 
     };
 

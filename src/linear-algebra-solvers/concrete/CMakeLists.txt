@@ -12,18 +12,24 @@
 # @date 2023-03-20
 
 # Include the concrete implementations of the LinearAlgebraMethods class based on the enabled libraries (HiCMA or Chameleon)
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/dense/ChameleonDense.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/dst/ChameleonDST.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/ChameleonImplementation.cpp
-        ${SOURCES}
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/dense/ChameleonDense.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/dst/ChameleonDST.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/chameleon/ChameleonImplementation.cpp
+            ${SOURCES}
+    )
+
+    if (USE_HICMA)
+        list(APPEND SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/tlr/HicmaImplementation.cpp
         )
-
-if (USE_HICMA)
-    list(APPEND SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/tlr/HicmaImplementation.cpp
-            )
+    endif ()
+elseif (RUNTIME_TYPE STREQUAL "PARSEC")
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/parsec/ParsecImplementation.cpp
+            ${SOURCES}
+    )
 endif ()
-
 set(SOURCES ${SOURCES} PARENT_SCOPE)
 
