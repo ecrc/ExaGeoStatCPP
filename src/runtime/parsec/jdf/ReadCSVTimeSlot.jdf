@@ -9,7 +9,7 @@ extern "C" %{
 #include <runtime/parsec/ParsecHeader.h>
 #include <runtime/parsec/JDFHelperFunctions.h>
 
-static int ReadCSVTimeSlot_core(const char* apFilename, double *apData, int aM, int aN, int aGpus) {
+static int ReadCSVTimeSlotCore(const char* apFilename, double *apData, int aM, int aN, int aGpus) {
 
     FILE *pFile = fopen(apFilename, "r");
     if (!pFile) {
@@ -57,7 +57,7 @@ RW A <- pDescA(m, n)
 
 BODY
 {
-    ReadCSVTimeSlot_core(pFilename, A, pDescA->mb, pDescA->nb, nb_gpus);
+    ReadCSVTimeSlotCore(pFilename, A, pDescA->mb, pDescA->nb, nb_gpus);
     if(0 == nb_gpus) SumDoubleData(A, pDescA->mb, pDescA->nb);
 }
 END
@@ -97,7 +97,7 @@ parsec_taskpool_t* ReadCSVTimeSlotConstructor(parsec_matrix_block_cyclic_t *apDe
 /**
  * @param [inout] the parsec object to destroy
 */
-void ReadCSVTimeSlot_destructor(parsec_taskpool_t *pTaskpool)
+void ReadCSVTimeSlotDestructor(parsec_taskpool_t *pTaskpool)
 {
     parsec_ReadCSVTimeSlot_taskpool_t *ReadCSVTimeSlot_taskpool = (parsec_ReadCSVTimeSlot_taskpool_t *)pTaskpool;
     parsec_del2arena(&ReadCSVTimeSlot_taskpool->arenas_datatypes[PARSEC_ReadCSVTimeSlot_DEFAULT_ADT_IDX]);
@@ -115,7 +115,7 @@ int ReadCSVTimeSlot(parsec_context_t *apContext, parsec_matrix_block_cyclic_t *a
         parsec_context_add_taskpool(apContext, pTaskpool);
         parsec_context_start(apContext);
         parsec_context_wait(apContext);
-        ReadCSVTimeSlot_destructor(pTaskpool);
+        ReadCSVTimeSlotDestructor(pTaskpool);
     }
     return 0;
 }

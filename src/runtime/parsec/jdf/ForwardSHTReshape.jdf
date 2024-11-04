@@ -199,7 +199,7 @@ int ForwardSHTReshape(parsec_context_t *apContext, int aRank, int aVerbose, pars
                       parsec_tiled_matrix_t *apET2Desc, parsec_tiled_matrix_t *apEPDesc, parsec_tiled_matrix_t *apSLMNDesc,
                       parsec_tiled_matrix_t *apIEDesc, parsec_tiled_matrix_t *apIODesc, parsec_tiled_matrix_t *apPDesc,
                       parsec_tiled_matrix_t *apDDesc, parsec_tiled_matrix_t *apADesc, int aFDataM, int aEPN, int aET1M, int aET2M,
-                      int aPN, int aFlmTNB, int aT, int aLSize, double aNormGlobal, int aNT, int aUpperLower)
+                      int aPN, int aFlmTNB, int aT, int aLSize, double *apNormGlobal, int aNT, int aUpperLower)
 {
     parsec_taskpool_t *pTaskpool = ForwardSHTReshape_constructor(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc,
                                                                  apEPDesc, apSLMNDesc, apIEDesc, apIODesc, apPDesc, apDDesc,
@@ -215,8 +215,12 @@ int ForwardSHTReshape(parsec_context_t *apContext, int aRank, int aVerbose, pars
     VERBOSE_PRINT(aRank, aVerbose, ("Redistribute apFLMTDesc -> desc_A\n"));
     parsec_redistribute(apContext, apFLMTDesc, apADesc, apADesc->m, apADesc->n, 0, 0, 0, 0);
 
-    double norm_flmT = GetMatrixNorm(apContext, apFLMTDesc, aNormGlobal, aNT, aUpperLower);
-    double norm_A = GetMatrixNorm(apContext, apFLMTDesc, aNormGlobal, aNT, aUpperLower);
+    double norm_flmT = 0.0;
+    GetMatrixNorm(apContext, apNormGlobal, apFLMTDesc, aNT, aUpperLower, 0);
+    norm_flmT = *apNormGlobal;
+    double norm_A = 0.0;
+    GetMatrixNorm(apContext, apNormGlobal, apADesc, aNT, aUpperLower, 0);
+    norm_A = *apNormGlobal;
 
     if( 0 == aRank ) {
         fprintf(stderr, RED "norm_flmT %lf norm_A %lf\n" RESET, norm_flmT, norm_A);

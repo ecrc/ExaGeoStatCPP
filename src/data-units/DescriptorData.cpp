@@ -21,12 +21,12 @@ using namespace exageostat::dataunits::descriptor;
 template<typename T>
 DescriptorData<T>::~DescriptorData() {
 
-#if DEFAULT_RUNTIME
     ExaGeoStatDescriptor<T> exageostat_descriptor;
     // Destroy descriptors.
     const std::string &chameleon = "_CHAMELEON";
     for (const auto &pair: this->mDictionary) {
         const std::string &key = pair.first;
+#if DEFAULT_RUNTIME
         if (key.find("CHAMELEON") != std::string::npos && pair.second != nullptr) {
             exageostat_descriptor.DestroyDescriptor(CHAMELEON_DESCRIPTOR, pair.second);
 #ifdef USE_HICMA
@@ -43,8 +43,18 @@ DescriptorData<T>::~DescriptorData() {
         } else if (key.find("HICMA") != std::string::npos && pair.second != nullptr) {
             exageostat_descriptor.DestroyDescriptor(HICMA_DESCRIPTOR, pair.second);
         }
+#else
+    if (key.find("PARSEC") != std::string::npos && pair.second != nullptr) {
+            if(key == "DESCRIPTOR_FLMT_PARSEC") {
+                continue;
+            }
+            exageostat_descriptor.DestroyDescriptor(PARSEC_DESCRIPTOR, pair.second);
+    }
+#endif
+
     }
     this->mDictionary.clear();
+#if DEFAULT_RUNTIME
     if (this->mpSequence) {
         CHAMELEON_Sequence_Destroy((RUNTIME_sequence_t *) this->mpSequence);
     }

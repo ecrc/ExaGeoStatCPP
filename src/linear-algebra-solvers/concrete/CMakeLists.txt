@@ -25,11 +25,6 @@ if (RUNTIME_TYPE STREQUAL "STARPU")
                 ${CMAKE_CURRENT_SOURCE_DIR}/tlr/HicmaImplementation.cpp
         )
     endif ()
-elseif (RUNTIME_TYPE STREQUAL "PARSEC")
-    set(SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/parsec/ParsecImplementation.cpp
-            ${SOURCES}
-    )
 endif ()
 set(SOURCES ${SOURCES} PARENT_SCOPE)
 

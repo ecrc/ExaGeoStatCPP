@@ -17,9 +17,12 @@ set(JDF_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/ReadCSVToComplexTimeSlot.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/ReadCSV.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/ForwardSHT.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/MeanSquaredError.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DifferenceDouble.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/ForwardSHTReshape.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/GetMatrixNorm.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/InverseSHT.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/MatrixCompress.jdf
 )
 
 # Output directory for generated sources

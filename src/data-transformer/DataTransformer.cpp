@@ -9,7 +9,7 @@
  * @version 2.0.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @author @qinglei Cao
+ * @author Qinglei Cao
  * @date 2024-02-04
 **/
 
@@ -37,17 +37,26 @@ template<typename T> void DataTransformer<T>::ForwardSphericalHarmonicsTransform
     parsec_tiled_matrix_t *pPDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_P).parsec_desc;
     parsec_tiled_matrix_t *pDDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_D).parsec_desc;
 
-    int aFDataM = pFDataDesc->mb;
-    int aEPN = pEPDesc->nb;
-    int aET1M = pET1Desc->mb;
-    int aET2M = pET2Desc->mb;
-    int aPN = pPDesc->nb;
-    int aFlmM = pFLMDesc->mb;
-    int aFlmN = pFLMDesc->nb;
+    int f_desc_M = pFDataDesc->mb;
+    int ep_desc_N = pEPDesc->nb;
+    int et1_desc_M = pET1Desc->mb;
+    int et2_desc_M = pET2Desc->mb;
+    int p_desc_N = pPDesc->nb;
+    int flm_desc_M = pFLMDesc->mb;
+    int flm_desc_N = pFLMDesc->nb;
 
     ForwardSHT((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pFDataDesc, pFLMDesc,
                pFLMTDesc, pET1Desc, pET2Desc, pEPDesc, pSLMNDesc, pIEDesc, pIODesc, pPDesc,
-               pDDesc, aFDataM, aEPN, aET1M, aET2M, aPN, aFlmM, aFlmN, aLSize);
+               pDDesc, f_desc_M, ep_desc_N, et1_desc_M, et2_desc_M, p_desc_N, flm_desc_M, flm_desc_N, aLSize);
+
+    int flops_forward = 2.0*(aLSize+1)*(2*aLSize-1)*(2*aLSize) // Gmtheta_r = f_data*Ep
+        + 2.0*(2*aLSize-1)*(2*aLSize-1)*(aLSize+1) // Fmnm = Et1*Gmtheta_r
+        + 2.0*(2*aLSize-1)*(aLSize-1)*(aLSize+1) // tmp1 = Et2*P
+        + 2.0*(2*aLSize-1)*(2*aLSize-1)*(aLSize+1)  // tmp2 = tmp1 * Gmtheta_r
+        + 2.0*(2*aLSize-1)*(2*aLSize-1)*(2*aLSize-1)  // Fmnm += tmp2 * D
+        + 2.0*aLSize*aLSize/2*(aLSize*(2*aLSize-1)+aLSize);   // flmn_matrix(ell+1,m+1) = Slmn(climate_emulator_getSingleIndex(ell, m),:)*Ie*Fmnm(:,L+m)
+
+    SYNC_TIME_PRINT(ExaGeoStatHardware::GetParsecMPIRank(), ("Forward SHT: %.2lf Gflop/s\n", flops_forward/sync_time_elapsed/1.0e9));
 
 }
 
@@ -57,7 +66,7 @@ template<typename T> void DataTransformer<T>::ForwardReshape(Configurations &aCo
     int rank = ExaGeoStatHardware::GetParsecMPIRank();
     int verbose = configurations::Configurations::GetVerbosity() == DETAILED_MODE? 1: 0;
     int L = aConfigurations.GetDenseTileSize();
-    int aT = aConfigurations.GetTimeSlot();
+    int t = aConfigurations.GetTimeSlot();
 
     parsec_tiled_matrix_t *pFDataDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_F_DATA).parsec_desc;
     parsec_tiled_matrix_t *pFLMDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_FLM).parsec_desc;
@@ -72,32 +81,33 @@ template<typename T> void DataTransformer<T>::ForwardReshape(Configurations &aCo
     parsec_tiled_matrix_t *pDDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_D).parsec_desc;
     parsec_tiled_matrix_t *pADesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_A).parsec_desc;
 
-    int aFDataM = pFDataDesc->mb;
-    int aEPN = pEPDesc->nb;
-    int aET1M = pET1Desc->mb;
-    int aET2M = pET2Desc->mb;
-    int aPN = pPDesc->nb;
-    int aFlmTM = pFLMTDesc->mb;
-    int aFlmTN = pFLMTDesc->nb;
+    int f_desc_M = pFDataDesc->mb;
+    int ep_desc_N = pEPDesc->nb;
+    int et1_desc_M = pET1Desc->mb;
+    int et2_desc_M = pET2Desc->mb;
+    int p_desc_N = pPDesc->nb;
+    int flmt_desc_M = pFLMTDesc->mb;
     int nodes = aConfigurations.GetCoresNumber();
-    int aFlmTNB = (aFlmTM / nodes % L) ? aFlmTM / nodes / L + 1 : aFlmTM / nodes / L;
+    int flmt_desc_nb = (flmt_desc_M / nodes % L) ? flmt_desc_M / nodes / L + 1 : flmt_desc_M / nodes / L;
 
-    double aNormGlobal = 0;
     int N = aConfigurations.GetProblemSize();
-    double aNT = (N % L == 0) ? (N/L) : (N/L + 1);
-    double aUpperLower = EXAGEOSTAT_LOWER;
+    int NT = (N % L == 0) ? (N/L) : (N/L + 1);
+    double upper_lower = EXAGEOSTAT_LOWER;
     ForwardSHTReshape((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), rank, verbose, pFDataDesc, pFLMDesc,
                       pFLMTDesc, pET1Desc, pET2Desc, pEPDesc, pSLMNDesc, pIEDesc, pIODesc, pPDesc,
-                      pDDesc, pADesc, aFDataM, aEPN, aET1M, aET2M, aPN, aFlmTNB, aT, L, aNormGlobal, aNT, aUpperLower);
+                      pDDesc, pADesc, f_desc_M, ep_desc_N, et1_desc_M, et2_desc_M, p_desc_N, flmt_desc_nb, t, L, &ExaGeoStatHardware::GetHicmaParams()->norm_global, NT, upper_lower);
+    SYNC_TIME_PRINT(ExaGeoStatHardware::GetParsecMPIRank(), ("Forward SHT Reshape\n"));
+    
 }
 
 template<typename T> void DataTransformer<T>::InverseSphericalHarmonicsTransform(const int &aLSize, std::unique_ptr<ExaGeoStatData<T>> &aData){
 
+    SYNC_TIME_START();
     parsec_tiled_matrix_t *pFSpatialDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_F_SPATIAL).parsec_desc;
     parsec_tiled_matrix_t *pFLMDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_FLM).parsec_desc;
     parsec_tiled_matrix_t *pZLMDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ZLM).parsec_desc;
     parsec_tiled_matrix_t *pSCDesc = (parsec_tiled_matrix_t *) aData->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_SC).parsec_desc;
 
     InverseSHT((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pFSpatialDesc, pFLMDesc, pZLMDesc, pSCDesc, aLSize);
-
+    SYNC_TIME_PRINT(ExaGeoStatHardware::GetParsecMPIRank(), ("Inverse SHT\n"));
 }

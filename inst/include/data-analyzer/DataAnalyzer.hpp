@@ -27,34 +27,38 @@ namespace exageostat::analyzer{
     class DataAnalyzer {
 
     public:
-        /**
-         * @brief Default constructor.
-         */
-        DataAnalyzer();
 
         /**
-         * @brief Default destructor.
-         */
-        ~DataAnalyzer();
-
-        /**
-         * @brief Analyzes the given matrix data.
-         * @param[in] aConfigurations Reference to Configurations object containing needed parameters.
+         * @brief Analyzes the given matrix data pre computation.
          * @param[in, out] aData Reference to an ExaGeoStatData object that contains matrix to be analyzed.
          * @return void
          *
          */
-        static void AnalyzeMatrix(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
+        static void PreAnalyzeMatrix(std::unique_ptr<ExaGeoStatData<T>> &aData);
 
         /**
-         * @brief Compares betweent two matrices by getting the difference.
-         * @param[in] aConfigurations Reference to Configurations object containing needed parameters.
+         * @brief Analyzes the given matrix data post computation.
+         * @param[in, out] aData Reference to an ExaGeoStatData object that contains matrix to be analyzed.
+         * @return void
+         *
+         */
+        static void PostAnalyzeMatrix(std::unique_ptr<ExaGeoStatData<T>> &aData);
+
+        /**
+         * @brief Compares between two matrices by getting the difference.
          * @param[in, out] aData Reference to an ExaGeoStatData object that contains matrix to be analyzed.
          * @return the calculated MSE.
          *
          */
-        static double CompareMatDifference(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
+        static double CompareMatDifference(std::unique_ptr<ExaGeoStatData<T>> &aData);
     };
+
+    /**
+     * @brief Instantiates the ExaGeoStat class for float and double types.
+     * @tparam T Data Type: float or double
+     *
+     */
+     EXAGEOSTAT_INSTANTIATE_CLASS(DataAnalyzer)
 
 }//namespace exageostat
 

@@ -89,7 +89,7 @@ my_rank = %{ return apFDataDesc->super.rank_of(&apFDataDesc->super, 0, n); %}
 
 // TODO: check whether this will evict apF_data first on GPU
 READ apF_data <- apF_data bind_gpu(n)                     [ type_remote = apF_data ]
-RW apFlm    <- apFlm bind_gpu(n)                      [ type_remote = apFlm ]
+RW apFlm    <- apFlm bind_gpu(n)                          [ type_remote = apFlm ]
           -> apFlm task_apFlmT(0..apFLMTDesc->lmt-1, n)   [ type_remote = apFlm ]
           -> apFLMDesc(0, n)
 
@@ -201,7 +201,7 @@ static void destroy_workspace(void *apWorkSpace, void *aN)
  * @return the parsec object to schedule.
  */
 parsec_taskpool_t*
-ForwardSHT_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t *apFLMDesc,
+ForwardSHTConstructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t *apFLMDesc,
                        parsec_tiled_matrix_t *apFLMTDesc, parsec_tiled_matrix_t *apET1Desc,
                        parsec_tiled_matrix_t *apET2Desc, parsec_tiled_matrix_t *apEPDesc,
                        parsec_tiled_matrix_t *apSLMNDesc, parsec_tiled_matrix_t *apIEDesc,
@@ -253,7 +253,7 @@ ForwardSHT_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t
 /**
  * @param [inout] the parsec object to destroy
 */
-void ForwardSHT_destructor(parsec_taskpool_t *apTaskpool)
+void ForwardSHTDestructor(parsec_taskpool_t *apTaskpool)
 {
     parsec_ForwardSHT_taskpool_t *pTaskpool = (parsec_ForwardSHT_taskpool_t *)apTaskpool;
     parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_ForwardSHT_apF_data_ADT_IDX]);
@@ -275,14 +275,14 @@ int ForwardSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFDataDesc, 
                parsec_tiled_matrix_t *apDDesc, int aFDataM, int aEPN, int aET1M,
                int aET2M, int aPN, int aFlmM, int aFlmN, int aLSize) {
 
-    parsec_taskpool_t *pTaskpool = ForwardSHT_constructor(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc,
+    parsec_taskpool_t *pTaskpool = ForwardSHTConstructor(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc,
                                                           apEPDesc, apSLMNDesc, apIEDesc, apIODesc, apPDesc, apDDesc,
                                                           aFDataM, aEPN, aET1M, aET2M, aPN, aFlmM, aFlmN, aLSize);
     if( pTaskpool != NULL ){
         parsec_context_add_taskpool(apContext, pTaskpool);
         parsec_context_start(apContext);
         parsec_context_wait(apContext);
-        ForwardSHT_destructor(pTaskpool);
+        ForwardSHTDestructor(pTaskpool);
     }
     return 0;
 }

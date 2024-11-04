@@ -9,7 +9,7 @@
  * @version 2.0.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @author @qinglei Cao
+ * @author Qinglei Cao
  * @date 2024-10-18
 **/
 
@@ -28,6 +28,7 @@ ParsecDescriptor<T>::CreateParsecDescriptor(void *apDescriptor) {
 template<typename T>
 int ParsecDescriptor<T>::DestroyParsecDescriptor(void *apDesc) {
     auto Parsec_desc = (parsec_matrix_block_cyclic_t *) apDesc;
-    delete apDesc;
+    parsec_data_free(Parsec_desc->mat);
+    parsec_tiled_matrix_destroy((parsec_tiled_matrix_t *) Parsec_desc);
     return 0;
 }

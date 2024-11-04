@@ -9,7 +9,7 @@ extern "C" %{
 #include <runtime/parsec/ParsecHeader.h>
 #include <runtime/parsec/JDFHelperFunctions.h>
 
-static int ReadCSVToComplex_core(const char* apFilename, void *apData, int aM, int aN, int aGpus) {
+static int ReadCSVToComplexCore(const char* apFilename, void *apData, int aM, int aN, int aGpus) {
 
     FILE *pFile = fopen(apFilename, "r");
     if (!pFile) {
@@ -65,7 +65,7 @@ RW A <- pDescA(m, n)
 
 BODY
 {
-    ReadCSVToComplex_core(pFilename, A, pDescA->mb, pDescA->nb, nb_gpus);
+    ReadCSVToComplexCore(pFilename, A, pDescA->mb, pDescA->nb, nb_gpus);
     if(0 == nb_gpus) SumComplexData(A, pDescA->mb, pDescA->nb);
 }
 END
@@ -104,7 +104,7 @@ parsec_taskpool_t* ReadCSVToComplexConstructor(parsec_matrix_block_cyclic_t *apD
 /**
  * @param [inout] the parsec object to destroy
 */
-void ReadCSVToComplex_destructor(parsec_taskpool_t *pTaskpool)
+void ReadCSVToComplexDestructor(parsec_taskpool_t *pTaskpool)
 {
     parsec_ReadCSVToComplex_taskpool_t *ReadCSVToComplex_taskpool = (parsec_ReadCSVToComplex_taskpool_t *)pTaskpool;
     parsec_del2arena(&ReadCSVToComplex_taskpool->arenas_datatypes[PARSEC_ReadCSVToComplex_DEFAULT_ADT_IDX]);
@@ -122,7 +122,7 @@ int ReadCSVToComplex(parsec_context_t *apContext, parsec_matrix_block_cyclic_t *
         parsec_context_add_taskpool(apContext, pTaskpool);
         parsec_context_start(apContext);
         parsec_context_wait(apContext);
-        ReadCSVToComplex_destructor(pTaskpool);
+        ReadCSVToComplexDestructor(pTaskpool);
     }
     return 0;
 }

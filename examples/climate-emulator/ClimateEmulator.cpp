@@ -31,14 +31,8 @@ int main(int argc, char **argv) {
     std::unique_ptr<ExaGeoStatData<double>> data;
     // Load the data, either by reading from a file or generating synthetic data.
     ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
-
-    // Transform and prepare the data.
-    ExaGeoStat<double>::ExaGeoStatTransformData(configurations, data);
-
     // Perform data modeling.
-//    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
-//    // Analyze the data.
-//    ExaGeoStat<double>::ExaGeoStatDataAnalyzer(configurations, data);
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
 
     return 0;
 }

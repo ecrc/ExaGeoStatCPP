@@ -13,12 +13,11 @@ extern "C" %{
 /* Globals
  */
 apADesc           [ type = "parsec_tiled_matrix_t*" ]
-apNormTile        [ type = "double *" ]
 aNT               [ type = "int" ]
 aUpperLower       [ type = "int" ]
-aNormGlobal       [ type = "double" ]
 apNorm            [ type = "double *" ]
-
+apNormTile        [ type = "double *" ]
+aIsSymmetric      [ type = "int" ]
 
 /**************************************************
  *        generate diagonal tiles                 *
@@ -27,7 +26,7 @@ task(m, n)
 
 // Execution space
 m = 0 .. apADesc->mt-1
-n = 0 .. apADesc->nt-1
+n = 0 .. (aIsSymmetric ? m : apADesc->nt-1) // Adjust based on matrix symmetry
 
 // Parallel partitioning
 :apADesc(m, n)
@@ -46,8 +45,16 @@ BODY
     double current_value = 0.0;
     apNormTile[n * aNT + m] = 0.0;
 
-    for(int j = 0; j < apADesc->nb; j++) {
+    // Diagonal modification for symmetric matrices
+    if (aIsSymmetric && m == n) {
         for(int i = 0; i < apADesc->mb; i++) {
+            ((double *)D)[i * apADesc->mb + i] += 1.0e-6;
+        }
+    }
+
+    // Norm calculation
+    for (int j = 0; j < apADesc->nb; j++) {
+        for (int i = 0; i < apADesc->mb; i++) {
             current_value = ((double *) D)[j * apADesc->mb + i];
             apNormTile[n * aNT + m] += current_value * current_value;
         }
@@ -56,8 +63,9 @@ BODY
     apNorm[tid] += apNormTile[n * aNT + m];
     apNormTile[n * aNT + m] = sqrt(apNormTile[n * aNT + m]);
 
-    if( m - n >= aNT * PORTION_NORM )
+    if(m - n >= aNT * PORTION_NORM ){
         apNorm[tid] = 0.0;
+    }
 }
 END
 
@@ -68,7 +76,8 @@ extern "C" %{
  * @return the parsec object to schedule
  */
 parsec_taskpool_t*
-GetMatrixNorm_constructor(parsec_tiled_matrix_t *apADesc, double *apNormTmp, int aUpperLower, int aNT, double aNormGlobal, double *apNorm)
+GetMatrixNormConstructor(parsec_tiled_matrix_t *apADesc, int aUpperLower, int aNT,
+                         double *apNormTmp, double *apNormTile, int aIsSymmetric)
 {
 
     /* Check input arguments */
@@ -77,13 +86,14 @@ GetMatrixNorm_constructor(parsec_tiled_matrix_t *apADesc, double *apNormTmp, int
         return NULL;
     }
 
-    parsec_GetMatrixNorm_taskpool_t *pTaskpool = parsec_GetMatrixNorm_new(apADesc, apNormTmp, aNT, aUpperLower, aNormGlobal, apNorm);
+    parsec_GetMatrixNorm_taskpool_t *pTaskpool = parsec_GetMatrixNorm_new(apADesc, aNT, aUpperLower,
+                                                                          apNormTmp, apNormTile, aIsSymmetric);
 
     return (parsec_taskpool_t*) pTaskpool;
 }
 
 /* Destructor */
-void GetMatrixNorm_destructor(parsec_taskpool_t *apTaskpool)
+void GetMatrixNormDestructor(parsec_taskpool_t *apTaskpool)
 {
     parsec_taskpool_free(apTaskpool);
 }
@@ -91,38 +101,39 @@ void GetMatrixNorm_destructor(parsec_taskpool_t *apTaskpool)
 /**
  * Generate matrix 
  */
-double GetMatrixNorm(parsec_context_t *apContext, parsec_tiled_matrix_t *apADesc, double aNormGlobal, int aNT, int aUpperLower)
+void GetMatrixNorm(parsec_context_t *apContext, double *apNormGlobal, parsec_tiled_matrix_t *apADesc,
+                   int aNT, int aUpperLower, int aIsSymmetric)
 {
 
     /* Only for 1 vp */
     assert(apContext->nb_vp == 1);
     int nb_threads = apContext->virtual_processes[0]->nb_cores;
-    double *pNormTmp = (double *) calloc(sizeof(double), nb_threads);
+    double *pNormTmp = (double *) calloc(nb_threads, sizeof(double));
 
     /* Make sure norm_tile and norm_global is fresh */
-    aNormGlobal = 0.0;
-    double* pNormTile = (double*)malloc(aNT * aNT * sizeof(double));
+    double* pNormTile = (double*) malloc(aNT * aNT * sizeof(double));
     memset(pNormTile, 0, aNT * aNT * sizeof(double));
-
-    parsec_taskpool_t *pTaskpool = GetMatrixNorm_constructor(apADesc, pNormTmp, aUpperLower, aNT, aNormGlobal, pNormTile);
+    *apNormGlobal = 0.0;
+    parsec_taskpool_t *pTaskpool = GetMatrixNormConstructor(apADesc, aUpperLower, aNT,
+                                                             pNormTmp, pNormTile, aIsSymmetric);
 
     parsec_context_add_taskpool(apContext, pTaskpool);
     parsec_context_start(apContext);
     parsec_context_wait(apContext);
-    GetMatrixNorm_destructor(pTaskpool);
+    GetMatrixNormDestructor(pTaskpool);
 
     /* Reduce to the global norm */
     double norm_process = 0.0;
-    for( int i = 0; i < nb_threads; i++ ) {
+    for(int i = 0; i < nb_threads; i++) {
         norm_process += pNormTmp[i];
     }
 
     MPI_Allreduce(MPI_IN_PLACE, pNormTile, aNT * aNT, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(&norm_process, &aNormGlobal, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-    aNormGlobal = sqrt(aNormGlobal);
+    MPI_Allreduce(&norm_process, apNormGlobal, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    *apNormGlobal = sqrt(*apNormGlobal);
 
+    free(pNormTile);
     free(pNormTmp);
-    return aNormGlobal;
 }
 
 %}

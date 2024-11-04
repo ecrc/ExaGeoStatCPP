@@ -69,16 +69,32 @@ namespace exageostat::dataLoader {
                   exageostat::dataunits::Locations<T> &aLocations) = 0;
 
         /**
-         * TODO: After changing the design of data loaders this function shouldn't be here
-         * @brief Reads data from a CSV file into a matrix.
-         * @param[in] apFilename Name of the CSV file.
-         * @param[out] apFileContent Pointer to an array where file contents will be stored.
-         * @param[in] aM Number of rows in the matrix.
-         * @param[in] aN Number of columns in the matrix.
-         * @return 0 on success, or a non-zero error code on failure.
+         * @brief Abstract method for loading data based on provided configurations and kernel.
+         * @param[in] aConfigurations Reference to the configurations object that contains parameters for loading data.
+         * @param[in] aKernel Reference to the kernel object that defines the operations to be applied while loading the data.
+         * @return A unique pointer to the loaded ExaGeoStatData object.
          *
          */
-        int ReadCSVFileHelper(const char* apFilename, double *apFileContent, int aM, int aN);
+        virtual std::unique_ptr<ExaGeoStatData<T>>
+        LoadData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel)  = 0;
+
+        /**
+         * @brief Factory method for creating a DataLoader instance based on the given configurations.
+         * This method dynamically determines the type of data loader to instantiate based on compile-time conditions.
+         * @param[in] aConfigurations Reference to the configurations object that contains parameters for loading data.
+         * @return A unique pointer to a DataLoader instance configured as per the specified runtime conditions.
+         *
+         */
+        static std::unique_ptr<DataLoader<T>>
+        CreateDataLoader(exageostat::configurations::Configurations &apConfigurations);
+
+        /**
+         * @brief Releases the singleton instance of the currently active DataLoader.
+         * This method ensures proper deallocation of the singleton instance of the data loader,
+         * depending on the selected runtime.
+         *
+         */
+        static void ReleaseDataLoader();
 
     };
 

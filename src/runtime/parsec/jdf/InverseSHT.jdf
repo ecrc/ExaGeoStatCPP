@@ -96,7 +96,7 @@ extern "C" %{
  * @return the parsec object to schedule.
  */
 parsec_taskpool_t*
-InverseSHT_constructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
+InverseSHTConstructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
                        parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc,
                        int aLSize)
 {
@@ -134,7 +134,7 @@ InverseSHT_constructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matri
 /**
  * @param [inout] the parsec object to destroy
 */
-void InverseSHT_destructor(parsec_taskpool_t *apTaskpool)
+void InverseSHTDestructor(parsec_taskpool_t *apTaskpool)
 {
     parsec_InverseSHT_taskpool_t *pTaskpool = (parsec_InverseSHT_taskpool_t *) apTaskpool;
     parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_InverseSHT_f_spatial_ADT_IDX]);
@@ -148,13 +148,13 @@ void InverseSHT_destructor(parsec_taskpool_t *apTaskpool)
 int InverseSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
                parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc, int aLSize) {
 
-    parsec_taskpool_t *pTaskpool = InverseSHT_constructor(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize);
+    parsec_taskpool_t *pTaskpool = InverseSHTConstructor(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize);
 
     if( pTaskpool != NULL ){
         parsec_context_add_taskpool(apContext, pTaskpool);
         parsec_context_start(apContext);
         parsec_context_wait(apContext);
-        InverseSHT_destructor(pTaskpool);
+        InverseSHTDestructor(pTaskpool);
     }
     return 0;
 }

@@ -63,7 +63,6 @@ void TEST_ARGUMENT_INITIALIZATION() {
 
     // No data modeling arguments initialized
     REQUIRE_THROWS(configurations.GetMaxMleIterations());
-    REQUIRE_THROWS(configurations.GetTolerance());
 
     // No data prediction arguments initialized
     REQUIRE(configurations.GetIsMSPE() == false);

@@ -49,9 +49,6 @@ namespace exageostat::linearAlgebra {
          */
         virtual ~LinearAlgebraMethods() = default;
 
-        // TODO: Since the common linear algebra fn between HiCMA andChameleon won't work with PaRSEC,
-        // consider move them and make this file as an Interface for virtual fns
-#if DEFAULT_RUNTIME
         /**
          * @brief Initializes the descriptors necessary for the linear algebra solver.
          * @details This method initializes the descriptors necessary for the linear algebra solver.
@@ -129,6 +126,84 @@ namespace exageostat::linearAlgebra {
                                    dataunits::Locations<T> *apLocation1, dataunits::Locations<T> *apLocation2,
                                    dataunits::Locations<T> *apLocation3, const int &aDistanceMetric,
                                    const kernels::Kernel<T> &aKernel);
+
+        /**
+         * @brief Calculates the log likelihood value of a given value theta.
+         * @param[in,out] aData DescriptorData object to be populated with descriptors and data.
+         * @param[in] aConfigurations Configurations object containing relevant settings.
+         * @param[in] apTheta Optimization parameter used by NLOPT.
+         * @param[in] apMeasurementsMatrix measurements matrix to be stored in DescZ.
+         * @param[in] aKernel Reference to the kernel object to use.
+         * @return log likelihood value
+         *
+         */
+        virtual T ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                    configurations::Configurations &aConfigurations, const double *apTheta,
+                                    T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) = 0;
+
+
+        /**
+         * @brief Copies a matrix in the tile layout from source to destination
+         * @param[in] aUpperLower Specifies the part of the matrix A to be copied to B.
+         * @param[in] apA Source matrix A.
+         * @param[in,out] apB Destination matrix B. On exit, B = A in the locations specified by Upper Lower.
+         * @return void
+         *
+         */
+        virtual void ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
+
+        /**
+         * @brief Wait for the completion of a sequence.
+         * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
+         * @return void
+         *
+         */
+        virtual void ExaGeoStatSequenceWait(void *apSequence) = 0;
+
+        /**
+         * @brief Create Sequence.
+         * @param[out] apSequence A pointer to either CHAMELEON or HiCMA sequence.
+         * @return void
+         *
+         */
+        virtual void
+        ExaGeoStatCreateSequence(void *apSequence) = 0;
+
+        /**
+        * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
+        * @param[in] aUpperLower Whether upper or lower part of the matrix A.
+        * @param[in, out] apA Symmetric matrix A.
+        * @param[in] aBand Diagonal thickness parameter.
+        * @param[in] apCD Additional matrix CD.
+        * @param[in] apCrk Additional matrix Crk.
+        * @param[in] aMaxRank Maximum rank parameter.
+        * @param[in] aAcc Accuracy parameter.
+        * @return void
+        *
+        */
+        virtual void
+        ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,
+                            const int &aMaxRank, const int &aAcc) = 0;
+
+        /**
+         * @brief Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
+         * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X.
+         * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
+         * @param[in] aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
+         * @param[in] aDiag Specifies whether or not A is unit triangular.
+         * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero, A is not referenced and B need not be set before entry.
+         * @param[in] apA The triangular matrix A.
+         * @param[in] apCD Additional matrix CD.
+         * @param[in] apCrk Additional matrix Crk.
+         * @param[in, out] apZ The matrix B of dimension, on exit is overwritten by the solution matrix X.
+         * @param[in] aMaxRank Maximum rank parameter.
+         * @return void
+         *
+         */
+        virtual void ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
+                                        const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha,
+                                        void *apA, void *apCD, void *apCrk, void *apZ, const int &aMaxRank) = 0;
+
 
         /**
          * @brief Solve a positive definite linear system of equations AX = B using tiled algorithms.
@@ -209,6 +284,22 @@ namespace exageostat::linearAlgebra {
          *
          */
         void ExaGeoStatDesc2Lap(T *apA, const int &aLDA, void *apDescA, const common::UpperLower &aUpperLower);
+
+#ifdef USE_HICMA
+
+        /**
+         * @brief Copy Descriptor Matrix to another Descriptor matrix.
+         * @param[out] apSourceDesc Descriptor matrix to be copied
+         * @param[out] apDestinationDesc Descriptor matrix to be copied to.
+         * @param[in] aSize Size of matrix to be copied.
+         * @param[in] aDirection Specifies the type of Descriptors to be copied.
+         * @return void
+         *
+         */
+        void CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
+                             const common::CopyDirection &aDirection);
+
+#endif
 
         /**
          * @brief Sets the values of all or part of a two-dimensional Tile.
@@ -308,129 +399,6 @@ namespace exageostat::linearAlgebra {
          *
          */
         bool Recover(char *apPath, const int &aIterationCount, T *apTheta, T *apLogLik, const int &aNumParams);
-#endif
-
-        /**
-         * @brief Copy Descriptor Matrix to another Descriptor matrix.
-         * @param[out] apSourceDesc Descriptor matrix to be copied
-         * @param[out] apDestinationDesc Descriptor matrix to be copied to.
-         * @param[in] aSize Size of matrix to be copied.
-         * @param[in] aDirection Specifies the type of Descriptors to be copied.
-         * @return void
-         *
-         */
-        virtual void CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
-                                     const common::CopyDirection &aDirection) = 0;
-
-        /**
-         * @brief The Gateway for the Modeling Operation
-         * @param[in,out] aData DescriptorData object to be populated with descriptors and data.
-         * @param[in] aConfigurations Configurations object containing relevant settings.
-         * @param[in] apTheta Optimization parameter used by NLOPT.
-         * @param[in] apMeasurementsMatrix measurements matrix to be stored in DescZ.
-         * @param[in] aKernel Reference to the kernel object to use.
-         * @return log likelihood value
-         *
-         */
-        virtual T ModelingOperations(std::unique_ptr<ExaGeoStatData<T>> &aData,
-                                     configurations::Configurations &aConfigurations, const double *apTheta,
-                                     T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) = 0;
-
-        /**
-         * @brief Copies a matrix in the tile layout from source to destination
-         * @param[in] aUpperLower Specifies the part of the matrix A to be copied to B.
-         * @param[in] apA Source matrix A.
-         * @param[in,out] apB Destination matrix B. On exit, B = A in the locations specified by Upper Lower.
-         * @return void
-         *
-         */
-        virtual void ExaGeoStatLapackCopyTile(const common::UpperLower &aUpperLower, void *apA, void *apB) = 0;
-
-        /**
-         * @brief Wait for the completion of a sequence.
-         * @param[in] apSequence apSequence A pointer to either CHAMELEON or HiCMA sequence.
-         * @return void
-         *
-         */
-        virtual void ExaGeoStatSequenceWait(void *apSequence) = 0;
-
-        /**
-         * @brief Create Sequence.
-         * @param[out] apSequence A pointer to either CHAMELEON or HiCMA sequence.
-         * @return void
-         *
-         */
-        virtual void
-        ExaGeoStatCreateSequence(void *apSequence) = 0;
-
-        /**
-        * @brief Computes the Cholesky factorization of a symmetric positive definite or Symmetric positive definite matrix.
-        * @param[in] aUpperLower Whether upper or lower part of the matrix A.
-        * @param[in, out] apA Symmetric matrix A.
-        * @param[in] aBand Diagonal thickness parameter.
-        * @param[in] apCD Additional matrix CD.
-        * @param[in] apCrk Additional matrix Crk.
-        * @param[in] aMaxRank Maximum rank parameter.
-        * @param[in] aAcc Accuracy parameter.
-        * @return void
-        *
-        */
-        virtual void
-        ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, void *apA, int aBand, void *apCD, void *apCrk,
-                            const int &aMaxRank, const int &aAcc) = 0;
-
-        /**
-         * @brief Solves one of the matrix equations op( A )*X = alpha*B, or X*op( A ) = alpha*B.
-         * @param[in] aSide Specifies whether op(A) appears on the left or on the right of X.
-         * @param[in] aUpperLower Specifies whether the matrix A is upper triangular or lower triangular.
-         * @param[in] aTrans Specifies the form of op( A ) to be used in the matrix multiplication.
-         * @param[in] aDiag Specifies whether or not A is unit triangular.
-         * @param[in] aAlpha Specifies the scalar alpha. When alpha is zero, A is not referenced and B need not be set before entry.
-         * @param[in] apA The triangular matrix A.
-         * @param[in] apCD Additional matrix CD.
-         * @param[in] apCrk Additional matrix Crk.
-         * @param[in, out] apZ The matrix B of dimension, on exit is overwritten by the solution matrix X.
-         * @param[in] aMaxRank Maximum rank parameter.
-         * @return void
-         *
-         */
-        virtual void ExaGeoStatTrsmTile(const common::Side &aSide, const common::UpperLower &aUpperLower,
-                                        const common::Trans &aTrans, const common::Diag &aDiag, const T &aAlpha,
-                                        void *apA, void *apCD, void *apCrk, void *apZ, const int &aMaxRank) = 0;
-
-        /**
-         * @brief Performs a SYRK (symmetric rank-k update) operation on the matrix.
-         * @param[in] aConfigurations Configurations object containing relevant settings.
-         * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
-         *
-         */
-        virtual void
-        ExaGeoStatSYRK(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) = 0;
-
-        /**
-         * @brief Performs TLR Cholesky operation on the matrix.
-         * @param[in] aConfigurations Configurations object containing relevant settings.
-         * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
-         *
-         */
-         virtual void ExaGeoStatTLRCholesky(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) = 0;
-
-        /**
-         * @brief Calculates norm.
-         * @param[in] aConfigurations Configurations object containing relevant settings.
-         * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
-         *
-         */
-         virtual void ExaGeoStatNorm(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) =0;
-
-        /**
-         * @brief Calculates the Mean Squared Error (MSE).
-         * @param[in] aConfigurations Reference to Configurations object containing needed parameters.
-         * @param[out] aData Reference to an ExaGeoStatData<T> object that contains matrix to be analyzed.
-         * @return the calculated MSE.
-         *
-         */
-         virtual double CalculateMSE(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) =0;
     };
 
     /**

@@ -9,7 +9,7 @@ extern "C" %{
 #include <runtime/parsec/ParsecHeader.h>
 #include <runtime/parsec/JDFHelperFunctions.h>
 
-static int ReadCSVToComplexTimeSlot_core(const char* apFilename, void *apData, int aM, int aN, int aGpus) {
+static int ReadCSVToComplexTimeSlotCore(const char* apFilename, void *apData, int aM, int aN, int aGpus) {
 
     FILE *pFile = fopen(apFilename, "r");
     if (!pFile) {
@@ -88,7 +88,7 @@ BODY
 {
     char *pFileZ_data  = (char *) malloc(200 * sizeof(char));
     snprintf(pFileZ_data, 200, "%s%s%d%s", pFilename,"/z_", n, ".csv");
-    ReadCSVToComplexTimeSlot_core(pFileZ_data, A, pDescA->mb, pDescA->nb, nb_gpus);
+    ReadCSVToComplexTimeSlotCore(pFileZ_data, A, pDescA->mb, pDescA->nb, nb_gpus);
     if(0 == nb_gpus) SumComplexData(A, pDescA->mb, pDescA->nb);
 }
 END
@@ -128,7 +128,7 @@ parsec_taskpool_t* ReadCSVToComplexTimeSlotConstructor(parsec_matrix_block_cycli
 /**
  * @param [inout] the parsec object to destroy
 */
-void ReadCSVToComplexTimeSlot_destructor(parsec_taskpool_t *pTaskpool)
+void ReadCSVToComplexTimeSlotDestructor(parsec_taskpool_t *pTaskpool)
 {
     parsec_ReadCSVToComplexTimeSlot_taskpool_t *ReadCSVToComplexTimeSlot_taskpool = (parsec_ReadCSVToComplexTimeSlot_taskpool_t *)pTaskpool;
     parsec_del2arena(&ReadCSVToComplexTimeSlot_taskpool->arenas_datatypes[PARSEC_ReadCSVToComplexTimeSlot_DEFAULT_ADT_IDX]);
@@ -146,7 +146,7 @@ int ReadCSVToComplexTimeSlot(parsec_context_t *apContext, parsec_matrix_block_cy
         parsec_context_add_taskpool(apContext, pTaskpool);
         parsec_context_start(apContext);
         parsec_context_wait(apContext);
-        ReadCSVToComplexTimeSlot_destructor(pTaskpool);
+        ReadCSVToComplexTimeSlotDestructor(pTaskpool);
     }
     return 0;
 }

@@ -80,6 +80,9 @@ Configurations::Configurations() {
     SetFileNumber(1);
     SetEnableInverse(false);
     SetMPIIO(true);
+    SetTolerance(0);
+    //TODO:currently,we support real data only in parsec.In the future,we should support synthetic and real data for both runtimes
+    SetIsSynthetic(false);
 #endif
 }
 
@@ -133,7 +136,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
             } else if (argument_name == "--gpus" || argument_name == "--GPUsNumbers" ||
                        argument_name == "--gpu_number" || argument_name == "--ngpus") {
                 SetGPUsNumbers(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts" || argument_name == "--NB") {
+            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
@@ -237,6 +240,13 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     // Throw Errors if any of these arguments aren't given by the user.
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
+    }
+#else
+    if(GetMaxRank() == 1){
+        SetMaxRank(GetDenseTileSize() / 2);
+    }
+    if(GetTolerance() >= 0){
+        SetTolerance(8);
     }
 #endif
 

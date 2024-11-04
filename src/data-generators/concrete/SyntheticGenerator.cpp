@@ -14,8 +14,14 @@
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-generators/LocationGenerator.hpp>
+#if !DEFAULT_RUNTIME
+#include <data-loader/concrete/ParsecLoader.hpp>
+#else
 #include <data-loader/concrete/CSVLoader.hpp>
+#endif
 
+//TODO: we need to make WriteData a function outside the csv, So it can be used whatever the runtime is.
+// currently, it has an implementation for the CSVLoader and an empty body for the parsec loader
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
