@@ -156,7 +156,6 @@ else()
     message(FATAL_ERROR "Unknown RUNTIME_TYPE: ${RUNTIME_TYPE}. Supported values are 'STARPU' or 'PARSEC'.")
 endif()
 
-
 # ExaGeoStatCPP depends on LAPACK/BLASPP
 # -------------------------------
 include(ImportBLASPP)

@@ -36,7 +36,7 @@ Configurations::Configurations() {
     SetGPUsNumbers(0);
     SetPGrid(1);
     SetQGrid(1);
-    SetMaxRank(1);
+    SetMaxRank(-1);
     SetIsOOC(false);
     SetKernelName("");
     SetDimension(Dimension2D);
@@ -81,7 +81,7 @@ Configurations::Configurations() {
     SetEnableInverse(false);
     SetMPIIO(true);
     SetTolerance(0);
-    //TODO:currently,we support real data only in parsec.In the future,we should support synthetic and real data for both runtimes
+    // TODO: currently, we support real data only in parsec. In the future, we should support synthetic and real data for both runtimes
     SetIsSynthetic(false);
 #endif
 }
@@ -241,8 +241,11 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
+    if(GetMaxRank() == -1){
+        SetMaxRank(1);
+    }
 #else
-    if(GetMaxRank() == 1){
+    if(GetMaxRank() == -1){
         SetMaxRank(GetDenseTileSize() / 2);
     }
     if(GetTolerance() >= 0){
