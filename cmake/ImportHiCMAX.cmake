@@ -16,7 +16,9 @@ set(name "HICMA-X")
 set(tag "FIX-package-installation-MK")
 # Flags to configure the build for HiCMA-X, including precision settings for DPLASMA
 # and disabling GPU support for both CUDA and HIP.
-set(flags '-DDPLASMA_PRECISIONS="s;d"' \-DPARSEC_WITH_DEVEL_HEADERS=ON \-DCMAKE_Fortran_FLAGS="-Wno-main" \-DPARSEC_GPU_WITH_HIP=OFF \-DPARSEC_GPU_WITH_CUDA=OFF \-DPARSEC_HAVE_CUDA=OFF \-DPARSEC_DIST_SHORT_LIMIT=0 \-DPARSEC_DIST_COLLECTIVES=ON \-DPARSEC_HAVE_DEV_CUDA_SUPPORT=OFF \-DDPLASMA_HAVE_CUDA=OFF)
+set(flags '-DDPLASMA_PRECISIONS="s;d"' \-DPARSEC_WITH_DEVEL_HEADERS=ON \-DCMAKE_Fortran_FLAGS="-Wno-main"
+    \-DPARSEC_GPU_WITH_HIP=OFF \-DPARSEC_GPU_WITH_CUDA=OFF \-DPARSEC_HAVE_CUDA=OFF \-DPARSEC_DIST_SHORT_LIMIT=0
+    \-DPARSEC_DIST_COLLECTIVES=ON \-DPARSEC_HAVE_DEV_CUDA_SUPPORT=OFF \-DDPLASMA_HAVE_CUDA=OFF \-DBLA_VENDOR=${BLA_VENDOR})
 # Indicates that HiCMA-X uses CMake for its build system.
 set(is_cmake ON)
 # Indicates that HiCMA-X is hosted on a Git repository.

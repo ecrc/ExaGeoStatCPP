@@ -9,10 +9,8 @@
 # @author Sameh Abdulah
 # @date 2023-02-27
 
-if (RUNTIME_TYPE STREQUAL "STARPU")
-    # Include the concrete implementations of the ExaGeoStat Descriptor class
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptor)
-endif()
+# Include the concrete implementations of the ExaGeoStat Descriptor class
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptor)
 
 # Initialize SOURCES variable if not already initialized
 set(SOURCES

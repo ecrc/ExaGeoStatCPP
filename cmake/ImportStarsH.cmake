@@ -31,7 +31,7 @@ elseif(RUNTIME_TYPE STREQUAL "PARSEC")
 endif()
 
 # 'flag' is used for additional build configuration options, specifically disabling StarPU and optionally enabling MPI.
-set(flag \-DSTARPU=OFF \-DMPI=${USE_MPI})
+set(flag \-DSTARPU=OFF \-DMPI=${USE_MPI} \-DBLA_VENDOR=${BLA_VENDOR})
 # 'is_cmake' indicates that STARSH uses CMake as its build system, set to ON.
 set(is_cmake ON)
 # 'is_git' denotes that the source code for STARSH is hosted on a Git repository, set to ON.

@@ -15,14 +15,13 @@
 
 #include <linear-algebra-solvers/LinearAlgebraFactory.hpp>
 
-#if DEFAULT_RUNTIME
 
 #include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonDense.hpp>
 #include <linear-algebra-solvers/concrete/chameleon/dst/ChameleonDST.hpp>
 
 #ifdef USE_HICMA
+
 #include <linear-algebra-solvers/concrete/hicma/tlr/HicmaImplementation.hpp>
-#endif
 
 #endif
 
@@ -32,7 +31,6 @@ using namespace exageostat::common;
 template<typename T>
 std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(Computation aComputation) {
 
-#if DEFAULT_RUNTIME
     // Check the used Linear Algebra solver library, whether it's HiCMA or Chameleon.
     if (aComputation == EXACT_DENSE) {
 
@@ -51,7 +49,6 @@ std::unique_ptr<LinearAlgebraMethods<T>> LinearAlgebraFactory<T>::CreateLinearAl
         return std::make_unique<diagonalSuperTile::ChameleonDST<T>>();
 
     }
-#endif
     // Return nullptr if no computation is selected
     throw std::runtime_error("You need to enable whether HiCMA or Chameleon");
 }

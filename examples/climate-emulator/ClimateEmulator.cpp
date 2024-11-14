@@ -27,17 +27,12 @@ int main(int argc, char **argv) {
     configurations.InitializeArguments(argc, argv);
     // Initialize the ExaGeoStat Hardware
     auto hardware = ExaGeoStatHardware(configurations);
-
-//    // Create a unique pointer to hold the data.
-//    std::unique_ptr<ExaGeoStatData<double>> data;
-//    // Transform and prepare the data.
-//    ExaGeoStat<double>::ExaGeoStatTransformData(configurations, data);
-//    // Load the data, either by reading from a file or generating synthetic data.
-//    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
-//    // Perform data modeling.
-//    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
-//    // Analyze the data.
-//    ExaGeoStat<double>::ExaGeoStatDataAnalyzer(configurations, data);
+    // Create a unique pointer to hold the data.
+    std::unique_ptr<ExaGeoStatData<double>> data;
+    // Load the data, either by reading from a file or generating synthetic data.
+    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
+    // Perform data modeling.
+    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
 
     return 0;
 }

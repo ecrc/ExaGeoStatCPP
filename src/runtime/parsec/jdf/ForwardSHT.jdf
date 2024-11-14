@@ -1,0 +1,290 @@
+extern "C" %{
+/*
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+static void FlmToFlmT(double *apFlmT, double *apFlm, parsec_matrix_block_cyclic_t *apFLMTDesc, int aFlmM, int aFlmN, int aM, int aN) {
+    int flm_offset = aM * apFLMTDesc->super.mb;
+    int flmT_offset = aN * apFLMTDesc->super.mb;
+    int size = (aM == apFLMTDesc->super.lmt - 1) ? (aFlmM * aFlmN) - flm_offset : apFLMTDesc->super.mb;
+    memcpy(apFlmT + flmT_offset, apFlm + flm_offset, size*sizeof(double));
+}
+
+
+%}
+
+/* Globals
+ */
+apFDataDesc       [ type = "parsec_tiled_matrix_t*" ]
+apFLMDesc         [ type = "parsec_tiled_matrix_t*" aligned = apFDataDesc]
+apFLMTDesc        [ type = "parsec_tiled_matrix_t*" ]
+apET1Desc         [ type = "parsec_tiled_matrix_t*" ]
+apET2Desc         [ type = "parsec_tiled_matrix_t*" ]
+apEPDesc          [ type = "parsec_tiled_matrix_t*" ]
+apSLMNDesc        [ type = "parsec_tiled_matrix_t*" ]
+apIEDesc          [ type = "parsec_tiled_matrix_t*" ]
+apIODesc          [ type = "parsec_tiled_matrix_t*" ]
+apPDesc           [ type = "parsec_tiled_matrix_t*" ]
+apDDesc           [ type = "parsec_tiled_matrix_t*" ]
+aFlmM             [ type = "int" ]
+aFlmN             [ type = "int" ]
+aLSize            [ type = "int" ]
+
+/* Temporary buffer used for convert */
+apGmtheta_r        [ type = "parsec_memory_pool_t *" hidden = on default = NULL ]
+apFmnm             [ type = "parsec_memory_pool_t *" hidden = on default = NULL ]
+apWork1            [ type = "parsec_memory_pool_t *" hidden = on default = NULL ]
+apWork2            [ type = "parsec_memory_pool_t *" hidden = on default = NULL ]
+
+/* GPU workspace */
+ws_gpu       [ type = "void *" hidden = on default = NULL ]
+
+/* GPU number and index */
+nb_cuda_devices      [ type = "int"   hidden = on default = 0 ]
+cuda_device_index    [ type = "int *" hidden = on default = "NULL"]
+
+bind_gpu(n)
+
+n = 0 .. apFDataDesc->lnt-1
+
+: apFDataDesc(0, n)
+
+READ apFlm   <- apFLMDesc(0, n)
+           -> apFlm task(n)         [ type_remote = apFlm ]
+
+READ apF_data <- apFDataDesc(0, n)
+            -> apF_data task(n)     [ type_remote = apF_data ]
+
+
+BODY
+{
+#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)  || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+    if( nb_cuda_devices > 0 ) {
+        int g = climate_emualtor_gpu_load_balance( n, gb->nodes, nb_cuda_devices );
+        parsec_advise_data_on_device( _f_apFlm->original,
+                                    cuda_device_index[g],
+                                    PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
+        parsec_advise_data_on_device( _f_apF_data->original,
+                                    cuda_device_index[g],
+                                    PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
+    }
+#endif
+}
+END
+
+
+
+task(n)
+
+n = 0 .. apFDataDesc->lnt-1 
+
+my_rank = %{ return apFDataDesc->super.rank_of(&apFDataDesc->super, 0, n); %}
+
+: apFDataDesc(0, n)
+
+// TODO: check whether this will evict apF_data first on GPU
+READ apF_data <- apF_data bind_gpu(n)                     [ type_remote = apF_data ]
+RW apFlm    <- apFlm bind_gpu(n)                          [ type_remote = apFlm ]
+          -> apFlm task_apFlmT(0..apFLMTDesc->lmt-1, n)   [ type_remote = apFlm ]
+          -> apFLMDesc(0, n)
+
+READ    apEt1 <- apET1Desc(0, my_rank) 
+READ    apEt2 <- apET2Desc(0, my_rank)
+READ    apEp  <- apEPDesc(0, my_rank) 
+READ    apSlmn <- apSLMNDesc(0, my_rank) 
+READ    apIe <- apIEDesc(0, my_rank) 
+READ    apIo <- apIODesc(0, my_rank) 
+READ    apP  <- apPDesc(0, my_rank)
+READ    apD  <- apDDesc(0, my_rank)
+
+
+BODY[type=CUDA]
+{
+#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)
+    ForwardSHT_gpu_core(apFlm, apF_data, apEt1, apEt2, apEp, apSlmn, apIe, apIo, apP, apD, cuda_device, gpu_task, cuda_stream, gb);
+#endif
+}
+END
+
+BODY[type=HIP]
+{
+#if defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+    ForwardSHT_gpu_core(apFlm, apF_data, apEt1, apEt2, apEp, apSlmn, apIe, apIo, apP, apD, cuda_device, gpu_task, cuda_stream, gb);
+#endif
+}
+END
+
+BODY
+{
+    complex double *pGmtheta_r = (complex double *) parsec_private_memory_pop(apGmtheta_r);
+    complex double *pFmnm = (complex double *) parsec_private_memory_pop(apFmnm);
+    complex double *pTmp1 = (complex double *) parsec_private_memory_pop(apWork1);
+    complex double *pTmp2 = (complex double *) parsec_private_memory_pop(apWork2);
+
+    ForwardSHTHelper(apFlm, apF_data, apFDataDesc->mb, apFDataDesc->nb, apEt1, apET1Desc->mb,
+                     apEt2, apET2Desc->mb, apEp, apEPDesc->mb, apEPDesc->nb, apSlmn,
+                     apSLMNDesc->mb, apSLMNDesc->nb, apIe, apIEDesc->mb, apIEDesc->nb, apIo,
+                     apIODesc->mb, apIODesc->nb, apP, apPDesc->mb, apPDesc->nb, apD,
+                     pGmtheta_r, pFmnm, pTmp1, pTmp2, aLSize);
+
+    parsec_private_memory_push(apGmtheta_r, pGmtheta_r);
+    parsec_private_memory_push(apFmnm, pFmnm);
+    parsec_private_memory_push(apWork1, pTmp1);
+    parsec_private_memory_push(apWork2, pTmp2);
+
+}
+END
+
+
+task_apFlmT(m, n)
+
+m = 0 .. apFLMTDesc->lmt-1
+n = 0 .. apFLMDesc->lnt-1
+
+: apFLMTDesc(m, 0)
+
+READ apFlm <- apFlm task(n)           [ type_remote = apFlm ]
+
+READ apFlmT  <- apFLMTDesc(m, 0)
+
+
+BODY
+{
+  FlmToFlmT(apFlmT, apFlm, (parsec_matrix_block_cyclic_t *) apFLMTDesc, aFlmM, aFlmN, m, n);
+}
+END
+
+
+
+extern "C" %{
+
+
+#if 0 
+void *gb_forward_create_workspace(void *obj, void *user)
+{
+    parsec_device_module_t *mod = (parsec_device_module_t *)obj;
+    zone_malloc_t *memory = ((parsec_device_cuda_module_t*)mod)->super.memory;
+    parsec_ForwardSHT_taskpool_t *tp = (parsec_ForwardSHT_taskpool_t*)user;
+    gb_forward_workspace_t *wp = NULL;
+    int nb = tp->_g_descA->nb;
+    int workspace_size = tp->_g_gb->apF_data_M * tp->_g_gb->apEp_N 
+        + tp->_g_gb->apEt1_M * tp->_g_gb->apEp_N
+        + tp->_g_gb->apEt2_M * tp->_g_gb->apP_N
+        + tp->_g_gb->apEt2_M * tp->_g_gb->apEp_N;
+    size_t elt_size = sizeof(complex double);
+
+    wp = (gb_forward_workspace_t*)malloc(sizeof(gb_forward_workspace_t));
+    wp->tmpmem = zone_malloc(memory, workspace_size * elt_size + sizeof(int));
+    assert(NULL != wp->tmpmem);
+    wp->lwork = workspace_size;
+    wp->memory = memory;
+    
+    return wp;
+}
+
+static void destroy_workspace(void *apWorkSpace, void *aN)
+{
+    gb_forward_workspace_t *ws = (gb_forward_workspace_t*) apWorkSpace;
+    zone_free((zone_malloc_t*)ws->memory, ws->tmpmem);
+    free(ws);
+    (void)aN;
+}
+#endif
+
+
+/**
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+ForwardSHTConstructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t *apFLMDesc,
+                       parsec_tiled_matrix_t *apFLMTDesc, parsec_tiled_matrix_t *apET1Desc,
+                       parsec_tiled_matrix_t *apET2Desc, parsec_tiled_matrix_t *apEPDesc,
+                       parsec_tiled_matrix_t *apSLMNDesc, parsec_tiled_matrix_t *apIEDesc,
+                       parsec_tiled_matrix_t *apIODesc, parsec_tiled_matrix_t *apPDesc,
+                       parsec_tiled_matrix_t *apDDesc, int aFDataM, int aEPN, int aET1M,
+                       int aET2M, int aPN, int aFlmM, int aFlmN, int aLSize)
+{
+
+    parsec_ForwardSHT_taskpool_t *pTaskpool =
+    parsec_ForwardSHT_new(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc, apEPDesc,
+                            apSLMNDesc, apIEDesc,apIODesc, apPDesc, apDDesc, aFlmM, aFlmN, aLSize);
+
+    pTaskpool->_g_apGmtheta_r = (parsec_memory_pool_t*) malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_apGmtheta_r, aFDataM * aEPN * sizeof(complex double));
+
+    pTaskpool->_g_apFmnm = (parsec_memory_pool_t*) malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_apFmnm, aET1M * aEPN * sizeof(complex double));
+
+    pTaskpool->_g_apWork1 = (parsec_memory_pool_t*) malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_apWork1, aET2M * aPN * sizeof(complex double));
+
+    pTaskpool->_g_apWork2 = (parsec_memory_pool_t*)malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init( pTaskpool->_g_apWork2, aET2M * aEPN * sizeof(complex double));
+
+#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT) || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+    int nb = 0, *dev_index;
+
+    /** Find all CUDA devices */
+    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+
+    pTaskpool->_g_ws_gpu = (void *)gb->ws;
+    pTaskpool->_g_nb_cuda_devices = nb;
+    pTaskpool->_g_cuda_device_index = dev_index;
+#endif
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_ForwardSHT_apF_data_ADT_IDX],
+                            parsec_datatype_double_complex_t, PARSEC_MATRIX_FULL,
+                            1, apFDataDesc->mb, apFDataDesc->nb, apFDataDesc->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_ForwardSHT_apFlm_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apFLMTDesc->mb, apFLMTDesc->nb, apFLMTDesc->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)pTaskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void ForwardSHTDestructor(parsec_taskpool_t *apTaskpool)
+{
+    parsec_ForwardSHT_taskpool_t *pTaskpool = (parsec_ForwardSHT_taskpool_t *)apTaskpool;
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_ForwardSHT_apF_data_ADT_IDX]);
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_ForwardSHT_apFlm_ADT_IDX]);
+    parsec_private_memory_fini(pTaskpool->_g_apGmtheta_r);
+    parsec_private_memory_fini(pTaskpool->_g_apFmnm);
+    parsec_private_memory_fini(pTaskpool->_g_apWork1);
+    parsec_private_memory_fini(pTaskpool->_g_apWork2);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ */
+int ForwardSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t *apFLMDesc,
+               parsec_tiled_matrix_t *apFLMTDesc, parsec_tiled_matrix_t *apET1Desc,
+               parsec_tiled_matrix_t *apET2Desc, parsec_tiled_matrix_t *apEPDesc,
+               parsec_tiled_matrix_t *apSLMNDesc, parsec_tiled_matrix_t *apIEDesc,
+               parsec_tiled_matrix_t *apIODesc, parsec_tiled_matrix_t *apPDesc,
+               parsec_tiled_matrix_t *apDDesc, int aFDataM, int aEPN, int aET1M,
+               int aET2M, int aPN, int aFlmM, int aFlmN, int aLSize) {
+
+    parsec_taskpool_t *pTaskpool = ForwardSHTConstructor(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc,
+                                                          apEPDesc, apSLMNDesc, apIEDesc, apIODesc, apPDesc, apDDesc,
+                                                          aFDataM, aEPN, aET1M, aET2M, aPN, aFlmM, aFlmN, aLSize);
+    if( pTaskpool != NULL ){
+        parsec_context_add_taskpool(apContext, pTaskpool);
+        parsec_context_start(apContext);
+        parsec_context_wait(apContext);
+        ForwardSHTDestructor(pTaskpool);
+    }
+    return 0;
+}
+
+%}

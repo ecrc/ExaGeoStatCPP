@@ -15,7 +15,6 @@
 #include <mkl_service.h>
 
 #include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonDense.hpp>
-#include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 
 using namespace std;
 

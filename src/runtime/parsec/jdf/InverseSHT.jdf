@@ -1,0 +1,162 @@
+extern "C" %{
+/*
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+static void FlmToFlmT(double *apFlmT, double *apFlm, parsec_matrix_block_cyclic_t *apFLMTDesc, int aFlmM, int aFlmN, int aM, int aN) {
+    int flm_offset = aM * apFLMTDesc->super.mb;
+    int flmT_offset = aN * apFLMTDesc->super.mb;
+    int size = (aM == apFLMTDesc->super.lmt - 1) ? (aFlmM * aFlmN) - flm_offset : apFLMTDesc->super.mb;
+    memcpy(apFlmT + flmT_offset, apFlm + flm_offset, size*sizeof(double));
+}
+
+
+%}
+
+/* Globals
+ */
+apFSpatialDesc       [ type = "parsec_tiled_matrix_t*" ]
+apFLMDesc            [ type = "parsec_tiled_matrix_t*" aligned = apFDataDesc]
+apZLMDesc            [ type = "parsec_tiled_matrix_t*" ]
+apSCDesc             [ type = "parsec_tiled_matrix_t*" ]
+aLSize               [ type = "int" ]
+
+/* Temporary buffer used for convert */
+apWork               [ type = "parsec_memory_pool_t *" hidden = on default = NULL ]
+
+/* GPU workspace */
+ws_gpu               [ type = "void *" hidden = on default = NULL ]
+
+/* GPU number and index */
+nb_cuda_devices      [ type = "int"   hidden = on default = 0 ]
+cuda_device_index    [ type = "int *" hidden = on default = "NULL"]
+
+bind_gpu(n)
+
+n = 0 .. apFSpatialDesc->lnt-1
+
+: apFSpatialDesc(0, n)
+
+READ flm   <- apFLMDesc(0, n)
+           -> flm task(n)               [ type_remote = flm ]
+
+READ f_spatial <- apFSpatialDesc(0, n)
+               -> f_spatial task(n)     [ type_remote = f_spatial ]
+
+
+BODY
+{
+#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)  || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+    if( nb_cuda_devices > 0 ) {
+        int g = climate_emulator_gpu_load_balance( n, gb->nodes, nb_cuda_devices );
+        parsec_advise_data_on_device( _f_flm->original,
+                                    cuda_device_index[g],
+                                    PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
+        parsec_advise_data_on_device( _f_f_spatial->original,
+                                    cuda_device_index[g],
+                                    PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
+    }
+#endif
+}
+END
+
+
+task(n)
+
+n = 0 .. apFSpatialDesc->lnt-1 
+
+: apFSpatialDesc(0, n)
+
+// TODO: check whether this will evict f_spatial first on GPU
+RW f_spatial <- f_spatial bind_gpu(n)     [ type_remote = f_spatial ]
+             -> apFSpatialDesc(0, n)
+
+READ flm   <- flm bind_gpu(n)             [ type_remote = flm ]
+READ Zlm   <- apZLMDesc(0, %{ return apFSpatialDesc->super.rank_of(&apFSpatialDesc->super, 0, n); %}) 
+READ SC    <- apSCDesc(0, %{ return apFSpatialDesc->super.rank_of(&apFSpatialDesc->super, 0, n); %})
+
+BODY
+{
+    double *pSmt = (double *) parsec_private_memory_pop(apWork);
+    InverseSHTHelper(flm, f_spatial, Zlm, SC, pSmt, aLSize);
+    parsec_private_memory_push(apWork, pSmt);
+
+}
+END
+
+
+extern "C" %{
+
+/**
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+InverseSHTConstructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
+                       parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc,
+                       int aLSize)
+{
+
+    parsec_InverseSHT_taskpool_t *pTaskpool = parsec_InverseSHT_new(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize);
+
+    pTaskpool->_g_apWork = (parsec_memory_pool_t*) malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_apWork, (aLSize + 1) * (2 * aLSize - 1) * sizeof(double) );
+
+#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT) || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+    int nb = 0, *dev_index;
+
+    /** Find all CUDA devices */
+
+    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+
+    pTaskpool->_g_ws_gpu = (void *)gb->ws;
+    pTaskpool->_g_nb_cuda_devices = nb;
+    pTaskpool->_g_cuda_device_index = dev_index;
+#endif
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_InverseSHT_f_spatial_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apFSpatialDesc->mb, apFSpatialDesc->nb, apFSpatialDesc->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_InverseSHT_flm_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apFLMDesc->mb, apFLMDesc->nb, apFLMDesc->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)pTaskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void InverseSHTDestructor(parsec_taskpool_t *apTaskpool)
+{
+    parsec_InverseSHT_taskpool_t *pTaskpool = (parsec_InverseSHT_taskpool_t *) apTaskpool;
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_InverseSHT_f_spatial_ADT_IDX]);
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_InverseSHT_flm_ADT_IDX]);
+    parsec_private_memory_fini(pTaskpool->_g_apWork);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ */
+int InverseSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
+               parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc, int aLSize) {
+
+    parsec_taskpool_t *pTaskpool = InverseSHTConstructor(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize);
+
+    if( pTaskpool != NULL ){
+        parsec_context_add_taskpool(apContext, pTaskpool);
+        parsec_context_start(apContext);
+        parsec_context_wait(apContext);
+        InverseSHTDestructor(pTaskpool);
+    }
+    return 0;
+}
+
+%}

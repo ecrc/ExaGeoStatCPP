@@ -36,7 +36,7 @@ Configurations::Configurations() {
     SetGPUsNumbers(0);
     SetPGrid(1);
     SetQGrid(1);
-    SetMaxRank(1);
+    SetMaxRank(-1);
     SetIsOOC(false);
     SetKernelName("");
     SetDimension(Dimension2D);
@@ -80,6 +80,9 @@ Configurations::Configurations() {
     SetFileNumber(1);
     SetEnableInverse(false);
     SetMPIIO(true);
+    SetTolerance(0);
+    // TODO: currently, we support real data only in parsec. In the future, we should support synthetic and real data for both runtimes
+    SetIsSynthetic(false);
 #endif
 }
 
@@ -133,7 +136,7 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
             } else if (argument_name == "--gpus" || argument_name == "--GPUsNumbers" ||
                        argument_name == "--gpu_number" || argument_name == "--ngpus") {
                 SetGPUsNumbers(CheckNumericalValue(argument_value));
-            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts" || argument_name == "--NB") {
+            } else if (argument_name == "--DTS" || argument_name == "--dts" || argument_name == "--Dts") {
                 SetDenseTileSize(CheckNumericalValue(argument_value));
             } else if (argument_name == "--LTS" || argument_name == "--lts" || argument_name == "--Lts") {
                 SetLowTileSize(CheckNumericalValue(argument_value));
@@ -238,6 +241,16 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
+    if(GetMaxRank() == -1){
+        SetMaxRank(1);
+    }
+#else
+    if(GetMaxRank() == -1){
+        SetMaxRank(GetDenseTileSize() / 2);
+    }
+    if(GetTolerance() >= 0){
+        SetTolerance(8);
+    }
 #endif
 
     size_t found = GetKernelName().find("NonGaussian");
@@ -308,11 +321,19 @@ void Configurations::InitializeDataGenerationArguments() {
     }
     if (GetDimension() != DimensionST) {
         if (GetTimeSlot() != 1) {
+#if DEFAULT_RUNTIME
             throw std::runtime_error("Time Slot can only be greater than 1 if the dimensions are set to SpaceTime.");
+#endif
         }
     } else if (GetTimeSlot() < 1) {
         throw std::runtime_error("Time Slot must be at least 1 if the dimensions are set to SpaceTime.");
     }
+
+#if !DEFAULT_RUNTIME
+    if (GetDataPath().empty()) {
+        throw domain_error("You need to set the data path, before starting");
+    }
+#endif
 }
 
 void Configurations::InitializeDataModelingArguments() {
@@ -672,6 +693,7 @@ void Configurations::PrintSummary() {
     if (!mFirstInit) {
 
         LOGGER("********************SUMMARY**********************")
+#if DEFAULT_RUNTIME
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Data generation")
         } else {
@@ -716,6 +738,12 @@ void Configurations::PrintSummary() {
         if (this->GetIsOOC()) {
             LOGGER("#Out Of Core (OOC) technology is enabled")
         }
+#else
+        LOGGER("\t#L: " << this->GetDenseTileSize() << "\t\t\t\t#T: " << this->GetTimeSlot())
+        LOGGER("\t#NB: " << this->GetDenseTileSize() << "\t\t\t\t#gpus: " << this->GetGPUsNumbers())
+        LOGGER("\t#Nodes: " << this->GetCoresNumber() << "\t\t\t#Time slot per file: " << GetTimeSlotPerFile());
+        LOGGER("\t#Number of files: " << this->GetFileNumber() << "\t#File per node: " << ((this->GetFileNumber()%this->GetCoresNumber())? this->GetFileNumber()/this->GetCoresNumber()+1 : this->GetFileNumber()/this->GetCoresNumber()))
+#endif
         LOGGER("*************************************************")
         mFirstInit = true;
     }

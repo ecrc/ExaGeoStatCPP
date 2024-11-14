@@ -61,8 +61,8 @@ namespace exageostat::generators {
 
     protected:
 
-        /// Used enum for data generators types.
-        static common::DataSourceType aDataSourceType;
+        /// Used flag to determine if data generated is synthetic.
+        static bool aIsSynthetic;
     };
 
     /**

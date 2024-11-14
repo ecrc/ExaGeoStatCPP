@@ -18,6 +18,10 @@
 #include <common/Definitions.hpp>
 #include <configurations/Configurations.hpp>
 
+#if !DEFAULT_RUNTIME
+#include <runtime/parsec/ParsecHeader.h>
+#endif
+
 /**
  * @brief Class represents the hardware configuration for the ExaGeoStat solver.
  *
@@ -114,6 +118,21 @@ public:
     [[nodiscard]] static void *GetContext(exageostat::common::Computation aComputation);
 
     /**
+     * @brief Sets the rank of MPI for PaRSEC.
+     * @param[in] aRank The new value for the rank.
+     * @return void
+     *
+    **/
+    static void SetParsecMPIRank(int aRank);
+
+    /**
+     * @brief Retrieves the rank of MPI for PaRSEC.
+     * @return The current rank of MPI PaRSEC.
+     *
+    **/
+    static int GetParsecMPIRank();
+
+    /**
      * @brief Retrieves the P dimension of the grid.
      * @details This function returns the current setting of the P dimension of the grid, which is part of the grid configuration used in various computational processes.
      * @return The current P dimension setting.
@@ -147,6 +166,40 @@ public:
     **/
     static void SetQGrid(int aQ);
 
+#if !DEFAULT_RUNTIME
+    /**
+     * @brief Retrieves the HiCMA parameters.
+     * @details This function returns a pointer to the current HiCMA parameters used in the computational process.
+     * @return A pointer to the current HiCMA parameters of type `hicma_parsec_params_t`.
+     *
+     */
+    static hicma_parsec_params_t* GetHicmaParams();
+
+    /**
+     * @brief Retrieves the STARSH parameters.
+     * @details This function returns a pointer to the current STARSH parameters used in the computational process.
+     * @return A pointer to the current STARSH parameters of type `starsh_params_t`.
+     *
+     */
+    static starsh_params_t* GetParamsKernel();
+
+    /**
+     * @brief Retrieves the HiCMA data.
+     * @details This function returns a pointer to the current HiCMA data used in the computational process.
+     * @return A pointer to the current HiCMA data of type `hicma_parsec_data_t`.
+     *
+     */
+    static hicma_parsec_data_t* GetHicmaData();
+
+    /**
+     * @brief Retrieves the HiCMA matrix analysis.
+     * @details This function returns a pointer to the current HiCMA matrix analysis data used in the computational process.
+     * @return A pointer to the current HiCMA matrix analysis of type `hicma_parsec_matrix_analysis_t`.
+     *
+     */
+    static hicma_parsec_matrix_analysis_t* GetAnalysis();
+#endif
+
 private:
     //// Used Pointer to the Chameleon hardware context.
     static void *mpChameleonContext;
@@ -155,11 +208,23 @@ private:
     //// Used Pointer to the PaRSEC hardware context.
     static void *mpParsecContext;
     //// Used P-Grid
+    static int mParsecMPIRank;
+    //// Used P-Grid
     static int mPGrid;
     //// Used Q-Grid
     static int mQGrid;
     //// Used boolean to avoid re-init mpi
     static bool mIsMPIInit;
+#if !DEFAULT_RUNTIME
+    //// HiCMA-specific variables - Himca_parsec_params
+    static std::unique_ptr<hicma_parsec_params_t> mpHicmaParams;
+    //// HiCMA-specific variables - starsh_params_t
+    static std::unique_ptr<starsh_params_t> mpParamsKernel;
+    //// HiCMA-specific variables - hicma_parsec_data_t
+    static std::unique_ptr<hicma_parsec_data_t> mpHicmaData;
+    //// HiCMA-specific variables - hicma_parsec_matrix_analysis_t
+    static std::unique_ptr<hicma_parsec_matrix_analysis_t> mpAnalysis;
+#endif
 };
 
 #endif // EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP

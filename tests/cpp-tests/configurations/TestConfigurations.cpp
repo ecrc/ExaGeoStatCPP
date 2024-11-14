@@ -63,7 +63,6 @@ void TEST_ARGUMENT_INITIALIZATION() {
 
     // No data modeling arguments initialized
     REQUIRE_THROWS(configurations.GetMaxMleIterations());
-    REQUIRE_THROWS(configurations.GetTolerance());
 
     // No data prediction arguments initialized
     REQUIRE(configurations.GetIsMSPE() == false);
@@ -133,6 +132,10 @@ void TEST_ARGUMENT_INITIALIZATION_PARSEC() {
 
     // No data generation arguments initialized
     REQUIRE(configurations.GetDataPath() == string(""));
+
+    // Passing an empty data path throws an exception
+    REQUIRE_THROWS(configurations.InitializeDataGenerationArguments());
+
 }
 
 
@@ -208,7 +211,7 @@ void TEST_COPY_CONSTRUCTOR() {
         Configurations synthetic_data_configurations;
         synthetic_data_configurations.SetProblemSize(10);
         synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
-        synthetic_data_configurations.SetPrecision(exageostat::common::MIXED);
+        synthetic_data_configurations.SetPrecision(MIXED);
         synthetic_data_configurations.SetLoggerPath("any/path");
         vector<double> lb{0.1, 0.1, 0.1};
         synthetic_data_configurations.SetLowerBounds(lb);

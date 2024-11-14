@@ -22,7 +22,7 @@
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
 #else
-#include <runtime/parsec/ParsecHeader.hpp>
+#include <runtime/parsec/ParsecHeader.h>
 #endif
 
 #include <results/Results.hpp>
@@ -83,16 +83,15 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     int iparam[IPARAM_SIZEOF] = {0};
     double dparam[DPARAM_SIZEOF];
     char *cparam[CPARAM_SIZEOF];
-    hicma_parsec_params_t params;
-    starsh_params_t params_kernel;
-    hicma_parsec_data_t data;
-    hicma_parsec_matrix_analysis_t analysis;
-    this->mpParsecContext = hicma_parsec_init( new_argc, new_argv, iparam, dparam, cparam, &params, &params_kernel, &data );
-#endif
+    this->mpHicmaParams = make_unique<hicma_parsec_params_t>();
+    this->mpParamsKernel = make_unique<starsh_params_t>();
+    this->mpHicmaData = make_unique<hicma_parsec_data_t>();
+    this->mpAnalysis = make_unique<hicma_parsec_matrix_analysis_t>();
 
-    LOGGER("Climate Emulator Parameters")
-    LOGGER("L: " << t << "\tT: " << J << "\tNB: " << t << "\tgpus: " << g)
-    LOGGER("nodes: " << c << "\ttime_slot_per_file: " << time_slot_per_file << "\tnum_file: " << num_file << "\tfile_per_node: " << ((num_file%c)? num_file/c+1 : num_file/c))
+    this->mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
+    SetParsecMPIRank(this->mpHicmaParams->rank);
+#endif
+    exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
 }
 
 ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,
@@ -156,27 +155,35 @@ void ExaGeoStatHardware::InitHardware(const Computation &aComputation, const int
 
 void ExaGeoStatHardware::FinalizeHardware() {
 
- #if DEFAULT_RUNTIME
+#if DEFAULT_RUNTIME
     // finalize hardware using HiCMA
-#ifdef USE_HICMA
+    #ifdef USE_HICMA
     if (mpHicmaContext) {
         HICMA_Finalize();
         mpHicmaContext = nullptr;
     }
-#endif
+    #endif
 
     // finalize hardware using Chameleon
     if (mpChameleonContext) {
-#if defined(USE_MPI) && defined(USE_HICMA)
+    #if defined(USE_MPI) && defined(USE_HICMA)
         // Since already HiCMA do so, then no need to remove empty cache.
         starpu_mpi_cache_set(0);
-#endif
+    #endif
         CHAMELEON_Finalize()
         mpChameleonContext = nullptr;
     }
+#else
+    if (mpParsecContext) {
 
+        int iparam[IPARAM_SIZEOF] = {0};
+        double dparam[DPARAM_SIZEOF];
+        char *cparam[CPARAM_SIZEOF];
+
+        hicma_parsec_fini((parsec_context_t *) mpParsecContext, 0, NULL, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get(), this->mpAnalysis.get());
+        mpParsecContext = nullptr;
+    }
 #endif
-
     exageostat::helpers::CommunicatorMPI::GetInstance()->RemoveHardwareInitialization();
 }
 
@@ -217,6 +224,14 @@ void *ExaGeoStatHardware::GetContext(Computation aComputation) {
     return nullptr;
 }
 
+void ExaGeoStatHardware::SetParsecMPIRank(int aRank){
+    mParsecMPIRank = aRank;
+}
+
+int ExaGeoStatHardware::GetParsecMPIRank() {
+    return mParsecMPIRank;
+}
+
 int ExaGeoStatHardware::GetPGrid() {
     return mPGrid;
 }
@@ -233,9 +248,34 @@ void ExaGeoStatHardware::SetQGrid(int aQ) {
     mQGrid = aQ;
 }
 
+#if !DEFAULT_RUNTIME
+hicma_parsec_params_t* ExaGeoStatHardware::GetHicmaParams() {
+    return mpHicmaParams.get();
+}
+
+starsh_params_t* ExaGeoStatHardware::GetParamsKernel() {
+    return mpParamsKernel.get();
+}
+
+hicma_parsec_data_t* ExaGeoStatHardware::GetHicmaData() {
+    return mpHicmaData.get();
+}
+
+hicma_parsec_matrix_analysis_t* ExaGeoStatHardware::GetAnalysis() {
+    return mpAnalysis.get();
+}
+#endif
+
 void *ExaGeoStatHardware::mpChameleonContext = nullptr;
 void *ExaGeoStatHardware::mpHicmaContext = nullptr;
 void *ExaGeoStatHardware::mpParsecContext = nullptr;
+int ExaGeoStatHardware::mParsecMPIRank = 0;
 int ExaGeoStatHardware::mPGrid = 1;
 int ExaGeoStatHardware::mQGrid = 1;
 bool ExaGeoStatHardware::mIsMPIInit = false;
+#if !DEFAULT_RUNTIME
+unique_ptr<hicma_parsec_params_t> ExaGeoStatHardware::mpHicmaParams = nullptr;
+unique_ptr<starsh_params_t> ExaGeoStatHardware::mpParamsKernel = nullptr;
+unique_ptr<hicma_parsec_data_t> ExaGeoStatHardware::mpHicmaData = nullptr;
+unique_ptr<hicma_parsec_matrix_analysis_t> ExaGeoStatHardware::mpAnalysis = nullptr;
+#endif

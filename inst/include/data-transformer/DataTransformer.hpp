@@ -18,7 +18,7 @@
 #include <configurations/Configurations.hpp>
 #include <data-units/ExaGeoStatData.hpp>
 
-namespace exageostat::transformer{
+namespace exageostat::transformers{
 
     /**
      * @brief Class represents the data transformer for the Climate Emulator.
@@ -27,12 +27,13 @@ namespace exageostat::transformer{
     template<typename T>
     class DataTransformer {
 
+    public:
         /**
          * @brief Performs the forward spherical harmonics transform (SHT).
-         * @param[in] aConfigurations Configurations object containing relevant settings.
+         * @param[in] aLSize The size of tile size
          * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
          */
-        static void ForwardSHT(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
+        static void ForwardSphericalHarmonicsTransform(const int &aLSize, std::unique_ptr<ExaGeoStatData<T>> &aData);
 
         /**
          * @brief Reshapes data during the forward phase of the simulation.
@@ -43,10 +44,17 @@ namespace exageostat::transformer{
 
         /**
          * @brief Performs the inverse spherical harmonics transform (SHT).
-         * @param[in] aConfigurations Configurations object containing relevant settings.
+         * @param[in] aLSize The size of tile size
          * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
          */
-        static void InverseSHT(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
+        static void InverseSphericalHarmonicsTransform(const int &aLSize, std::unique_ptr<ExaGeoStatData<T>> &aData);
     };
-}
+
+    /**
+     * @brief Instantiates the DataTransformers class for float and double types.
+     * @tparam T Data Type: float or double
+     */
+    EXAGEOSTAT_INSTANTIATE_CLASS(DataTransformer)
+} // namespace exageostat
+
 #endif // EXAGEOSTATCPP_DATATRANSFORMER_HPP

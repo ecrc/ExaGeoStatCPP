@@ -31,15 +31,14 @@ using namespace exageostat::dataunits;
 using namespace exageostat::kernels;
 using namespace exageostat::helpers;
 using namespace exageostat::results;
-using namespace exageostat::configurations;
 
 int store_only_diagonal_tiles = 1;
 int use_scratch = 1;
 int global_check = 0;  //used to create dense matrix for accuracy check
 
 template<typename T>
-void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr <ExaGeoStatData<T>> &aData,
-                                                    Configurations &aConfigurations, const int &aP) {
+void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                                    configurations::Configurations &aConfigurations, const int &aP) {
 
     int full_problem_size = aConfigurations.GetProblemSize() * aP;
     int lts = aConfigurations.GetLowTileSize();
@@ -115,9 +114,9 @@ void HicmaImplementation<T>::SetModelingDescriptors(std::unique_ptr <ExaGeoStatD
 }
 
 template<typename T>
-T HicmaImplementation<T>::ModelingOperations(std::unique_ptr <ExaGeoStatData<T>> &aData,
-                                             Configurations &aConfigurations, const double *theta,
-                                             T *apMeasurementsMatrix, const Kernel <T> &aKernel) {
+T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &aData,
+                                            configurations::Configurations &aConfigurations, const double *theta,
+                                            T *apMeasurementsMatrix, const Kernel<T> &aKernel) {
 
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
         this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetVariablesNumber(),
@@ -402,56 +401,4 @@ void HicmaImplementation<T>::ExaGeoStatTrsmTile(const common::Side &aSide, const
     if (status != HICMA_SUCCESS) {
         throw std::runtime_error("HICMA_dtrsmd_Tile Failed!");
     }
-}
-
-
-template<typename T>
-void HicmaImplementation<T>::CopyDescriptors(void *apSourceDesc, void *apDestinationDesc, const int &aSize,
-                                             const common::CopyDirection &aDirection) {
-
-    auto *z = new T[aSize];
-    int status;
-    if (aDirection == common::CHAMELEON_TO_HICMA) {
-        status = CHAMELEON_Desc2Lap((cham_uplo_t) EXAGEOSTAT_UPPER_LOWER, (CHAM_desc_t *) apSourceDesc, z, aSize);
-        if (status != CHAMELEON_SUCCESS) {
-            throw std::runtime_error("CHAMELEON_Desc2Lap Failed!");
-        }
-        status = HICMA_Lapack_to_Tile(z, aSize, (HICMA_desc_t *) apDestinationDesc);
-        if (status != HICMA_SUCCESS) {
-            throw std::runtime_error("HICMA_Lapack_to_Tile Failed!");
-        }
-    } else if (aDirection == common::HICMA_TO_CHAMELEON) {
-        status = HICMA_Tile_to_Lapack((HICMA_desc_t *) apSourceDesc, z, aSize);
-        if (status != HICMA_SUCCESS) {
-            throw std::runtime_error("HICMA_Tile_to_Lapack Failed!");
-        }
-        status = CHAMELEON_Lap2Desc((cham_uplo_t) EXAGEOSTAT_UPPER_LOWER, z, aSize, (CHAM_desc_t *) apDestinationDesc);
-        if (status != CHAMELEON_SUCCESS) {
-            throw std::runtime_error("CHAMELEON_Lap2Desc Failed!");
-        }
-    }
-    delete[] z;
-}
-
-
-template<typename T>
-void HicmaImplementation<T>::ExaGeoStatSYRK(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
-
-}
-
-template<typename T>
-void
-HicmaImplementation<T>::ExaGeoStatTLRCholesky(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
-
-}
-
-template<typename T>
-void HicmaImplementation<T>::ExaGeoStatNorm(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
-
-}
-
-template<typename T>
-double HicmaImplementation<T>::CalculateMSE(Configurations &aConfigurations, unique_ptr <ExaGeoStatData<T>> &aData) {
-
-    return 0;
 }

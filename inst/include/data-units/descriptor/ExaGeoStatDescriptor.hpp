@@ -16,9 +16,14 @@
 #define EXAGEOSTATCPP_EXAGEOSTATDESCRIPTOR_HPP
 
 #if DEFAULT_RUNTIME
+
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
-#endif
 #include <linear-algebra-solvers/concrete/HicmaHeaders.hpp>
+
+#else
+#include <runtime/parsec/ParsecHeader.h>
+#endif
+
 #include <common/Definitions.hpp>
 
 /**
