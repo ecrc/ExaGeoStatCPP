@@ -184,8 +184,6 @@ double Results::GetTotalModelingFlops() const {
     return this->mTotalModelingFlops;
 }
 
-Results *Results::mpInstance = nullptr;
-
 void Results::SetExecutionTimeMLOEMMOM(double aTime) {
     this->mExecutionTimeMLOEMMOM = aTime;
 }
@@ -249,3 +247,5 @@ std::vector<double> Results::GetFisherMatrix() const {
 std::vector<double> Results::GetPredictedMissedValues() const {
     return this->mPredictedMissedValues;
 }
+
+Results *Results::mpInstance = nullptr;

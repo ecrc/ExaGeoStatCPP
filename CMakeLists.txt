@@ -98,6 +98,11 @@ list(APPEND LIBS ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 
+if (${BLA_VENDOR} MATCHES "Intel10_64lp" OR ${BLA_VENDOR} MATCHES "Intel" OR ${BLA_VENDOR} MATCHES "Intel10_64lp_seq")
+    message(STATUS "Linked to MKL")
+    add_compile_definitions(USE_MKL)
+endif()
+
 # Add all dependencies for ExaGeoStatCPP
 #-----------------------------
 
@@ -164,7 +169,7 @@ if (USE_R)
     if (${R_FOUND})
         message(STATUS "Using R technology")
         list(APPEND LIBS R)
-        add_definitions(-DUSING_R)
+        add_definitions(-DUSE_R)
     endif ()
 endif ()
 
