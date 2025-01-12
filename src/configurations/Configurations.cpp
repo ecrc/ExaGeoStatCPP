@@ -623,7 +623,7 @@ void Configurations::InitTheta(vector<double> &aTheta, const int &size) {
 
 void Configurations::PrintSummary() {
 
-#ifndef USING_R
+#ifndef USE_R
     Verbose temp = this->GetVerbosity();
     mVerbosity = STANDARD_MODE;
 
