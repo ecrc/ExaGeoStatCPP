@@ -13,7 +13,10 @@
 **/
 
 #include <cstring>
+
+#ifdef USE_MKL
 #include <mkl_service.h>
+#endif
 
 #include <prediction/Prediction.hpp>
 #include <prediction/PredictionHelpers.hpp>
@@ -194,7 +197,9 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
 
 
     // Due to a leak in Chameleon, exactly trsm We had to free the buffer manually.
+#ifdef USE_MKL
     mkl_free_buffers();
+#endif
 
     delete[] z_obs;
     delete[] z_miss;
