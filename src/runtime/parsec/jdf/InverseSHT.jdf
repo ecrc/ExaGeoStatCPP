@@ -7,6 +7,7 @@ extern "C" %{
 
 #include <runtime/parsec/ParsecHeader.h>
 #include <runtime/parsec/JDFHelperFunctions.h>
+#include <gb24/gb24.h>
 
 static void FlmToFlmT(double *apFlmT, double *apFlm, parsec_matrix_block_cyclic_t *apFLMTDesc, int aFlmM, int aFlmN, int aM, int aN) {
     int flm_offset = aM * apFLMTDesc->super.mb;
@@ -35,6 +36,7 @@ ws_gpu               [ type = "void *" hidden = on default = NULL ]
 /* GPU number and index */
 nb_cuda_devices      [ type = "int"   hidden = on default = 0 ]
 cuda_device_index    [ type = "int *" hidden = on default = "NULL"]
+aNodes               [ type = "int" default = 1]
 
 bind_gpu(n)
 
@@ -53,7 +55,7 @@ BODY
 {
 #if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)  || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
     if( nb_cuda_devices > 0 ) {
-        int g = climate_emulator_gpu_load_balance( n, gb->nodes, nb_cuda_devices );
+        int g = gb24_gpu_load_balance( n, aNodes, nb_cuda_devices );
         parsec_advise_data_on_device( _f_flm->original,
                                     cuda_device_index[g],
                                     PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
@@ -96,12 +98,12 @@ extern "C" %{
  * @return the parsec object to schedule.
  */
 parsec_taskpool_t*
-InverseSHTConstructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
+InverseSHTConstructor(parsec_context_t *apContext, parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
                        parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc,
-                       int aLSize)
+                       int aLSize, int aNodes)
 {
 
-    parsec_InverseSHT_taskpool_t *pTaskpool = parsec_InverseSHT_new(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize);
+    parsec_InverseSHT_taskpool_t *pTaskpool = parsec_InverseSHT_new(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize, aNodes);
 
     pTaskpool->_g_apWork = (parsec_memory_pool_t*) malloc(sizeof(parsec_memory_pool_t));
     parsec_private_memory_init(pTaskpool->_g_apWork, (aLSize + 1) * (2 * aLSize - 1) * sizeof(double) );
@@ -111,9 +113,9 @@ InverseSHTConstructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix
 
     /** Find all CUDA devices */
 
-    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+    hicma_parsec_find_cuda_devices(apContext, &dev_index, &nb);
 
-    pTaskpool->_g_ws_gpu = (void *)gb->ws;
+//    pTaskpool->_g_ws_gpu = (void *)gb->ws;
     pTaskpool->_g_nb_cuda_devices = nb;
     pTaskpool->_g_cuda_device_index = dev_index;
 #endif
@@ -146,9 +148,9 @@ void InverseSHTDestructor(parsec_taskpool_t *apTaskpool)
 /**
  */
 int InverseSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix_t *apFLMDesc,
-               parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc, int aLSize) {
+               parsec_tiled_matrix_t *apZLMDesc, parsec_tiled_matrix_t *apSCDesc, int aLSize, int aNodes) {
 
-    parsec_taskpool_t *pTaskpool = InverseSHTConstructor(apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize);
+    parsec_taskpool_t *pTaskpool = InverseSHTConstructor(apContext, apFSpatialDesc, apFLMDesc, apZLMDesc, apSCDesc, aLSize, aNodes);
 
     if( pTaskpool != NULL ){
         parsec_context_add_taskpool(apContext, pTaskpool);

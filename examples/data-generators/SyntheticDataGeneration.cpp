@@ -32,7 +32,6 @@ int main(int argc, char **argv) {
     // Create a new synthetic_data_configurations object with the provided command line arguments
     Configurations synthetic_data_configurations;
     synthetic_data_configurations.InitializeArguments(argc, argv);
-    synthetic_data_configurations.InitializeDataGenerationArguments();
 
     // initialize ExaGeoStat Hardware.
     ExaGeoStatHardware hardware(synthetic_data_configurations.GetComputation(),

@@ -131,6 +131,8 @@ int ReadCSVToComplex(parsec_context_t *apContext, parsec_matrix_block_cyclic_t *
  * @param[in] aFlmM Number of rows in the spherical harmonic coefficients matrix.
  * @param[in] aFlmN Number of columns in the spherical harmonic coefficients matrix.
  * @param[in] aLSize Size of the spherical harmonic basis.
+ * @param[in] aNodes Number of nodes.
+ * @param[in] apWorkSpace pointer to workspace struct used in case of computation with GPU, otherwise null pointer.
  * @return 0 on success, negative value on error.
  *
  */
@@ -140,7 +142,7 @@ int ForwardSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFDataDesc, 
                parsec_tiled_matrix_t *apSLMNDesc, parsec_tiled_matrix_t *apIEDesc,
                parsec_tiled_matrix_t *apIODesc, parsec_tiled_matrix_t *apPDesc,
                parsec_tiled_matrix_t *apDDesc, int aFDataM, int aEPN, int aET1M,
-               int aET2M, int aPN, int aFlmM, int aFlmN, int aLSize);
+               int aET2M, int aPN, int aFlmM, int aFlmN, int aLSize, int aNodes, void *apWorkSpace = nullptr);
 
 /**
  * @brief Computes the element-wise difference between two matrices.
@@ -194,7 +196,8 @@ int ForwardSHTReshape(parsec_context_t *apContext, int aRank, int aVerbose, pars
                       parsec_tiled_matrix_t *apPDesc, parsec_tiled_matrix_t *apDDesc,
                       parsec_tiled_matrix_t *apADesc, int aFDataM, int aEPN, int aET1M,
                       int aET2M, int aPN, int aFlmTNB, int aT, int aLSize, double *apNormGlobal,
-                      int aNT, int aUpperLower);
+                      int aNT, int aUpperLower, int aFDataN, int aPM, int aSlmnN ,int aIeM,
+                      int aIeN, int aSlmnM, int aIoM, int aIoN);
 
 /**
  * @brief Computes the mean squared error between data and spatial descriptors.
@@ -264,3 +267,60 @@ int InverseSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFSpatialDes
 void MatrixCompress(parsec_context_t *apContext, double *apNormGlobal, int aUpperLower, int aBandSizeDense, int aNT,
                     int aMaxRank, int aN, int aAdaptiveDecision, int aTolerance, int aSendFullTile, int aAutoBand,
                     int aGpus, hicma_parsec_data_t *apHicmaData, starsh_params_t *apParamsKernel);
+
+/**
+ * @brief Generates a dmatrix for use in Parsec computations.
+ * @details This function populates a tiled matrix with data following a specified generation strategy.
+ * @param[in] apParsec Pointer to the Parsec context, which manages task execution and dataflow.
+ * @param[in,out] apDcA Pointer to the tiled matrix descriptor to be generated.
+ * @param[in] apL1 Pointer to the first parameter or data structure required for generation.
+ * @param[in] apL2 Pointer to the second parameter or data structure required for generation.
+ * @param[in] apLm Pointer to an additional parameter or data structure required for generation.
+ * @param[in] apTheta Pointer to a double-precision parameter (e.g., array of parameters) influencing generation.
+ * @param[in] aDm Integer specifying the size or dimension used in the matrix generation.
+ * @param[in] apCFun Pointer to a character string indicating the function or method used for generation.
+ * @param[in] aBandSizeDouble Integer specifying a band size for matrix generation (if relevant to the method).
+ * @return An integer error code: 0 if successful, non-zero otherwise.
+ */
+int ParsecDMatrixGeneration(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, void *apL1, void *apL2,
+                              void *apLm, double *apTheta, int aDm, char *apCFun, int aBandSizeDouble);
+
+/**
+ * @brief Sets the diagonal elements of a tiled matrix to a specified noise value.
+ * @details This function modifies the diagonal entries of the given tiled matrix descriptor.
+ * @param[in] apParsec Pointer to the Parsec context, which manages task execution and dataflow.
+ * @param[in,out] apDcA Pointer to the tiled matrix descriptor to be modified.
+ * @param[in] aNoise Double-precision value to be placed on the diagonal of the matrix.
+ * @return An integer error code: 0 if successful, non-zero otherwise.
+ */
+int ParsecDMatrixSetDiagonal(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, double aNoise);
+
+/**
+ * @brief Generates a Z matrix (or vector) for use in Parsec computations.
+ * @details This function populates a tiled matrix (often vector-like) with Z values
+ *          using the provided parameters.
+ * @param[in] apParsec Pointer to the Parsec context, which manages task execution and dataflow.
+ * @param[in,out] apDcA Pointer to the tiled matrix descriptor to be generated/updated.
+ * @param[in] apR Pointer to a double-precision array containing parameters or data needed for generation.
+ * @return An integer error code: 0 if successful, non-zero otherwise.
+ */
+int ParsecDZGeneration(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, double *apR);
+
+/**
+ * @brief Computes the sum of all elements in a tiled matrix.
+ * @details This function traverses the tiles of the matrix descriptor and sums the elements.
+ * @param[in] apParsec Pointer to the Parsec context, which manages task execution and dataflow.
+ * @param[in] apDcA Pointer to the tiled matrix descriptor whose elements are to be summed.
+ * @return The double-precision sum of all elements in the matrix.
+ */
+double ParsecDMatrixSum(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA);
+
+/**
+ * @brief Computes the sum of all elements in a Z matrix (or vector) descriptor.
+ * @details This function traverses the tiles of the matrix descriptor and sums the elements,
+ *          typically representing Z-data.
+ * @param[in] apParsec Pointer to the Parsec context, which manages task execution and dataflow.
+ * @param[in] apDcA Pointer to the tiled matrix descriptor whose elements are to be summed.
+ * @return The double-precision sum of all elements in the Z matrix (or vector).
+ */
+double ParsecDZSum(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA);

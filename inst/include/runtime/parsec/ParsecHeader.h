@@ -13,4 +13,5 @@
 **/
 
 #include <hicma_parsec.h>
+#include <hicma_parsec_internal.h>
 #undef str

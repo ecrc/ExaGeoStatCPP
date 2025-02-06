@@ -87,7 +87,7 @@ RW A <- pDescA(m, n)
 BODY
 {
     char *pFileZ_data  = (char *) malloc(200 * sizeof(char));
-    snprintf(pFileZ_data, 200, "%s%s%d%s", pFilename,"/z_", n, ".csv");
+    snprintf(pFileZ_data, 200, "%s%s%d%s", pFilename,"/z_", 1, ".csv");
     ReadCSVToComplexTimeSlotCore(pFileZ_data, A, pDescA->mb, pDescA->nb, nb_gpus);
     if(0 == nb_gpus) SumComplexData(A, pDescA->mb, pDescA->nb);
 }

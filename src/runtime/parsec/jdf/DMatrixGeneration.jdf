@@ -1,0 +1,791 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+#ifdef USE_CUDA
+#include <runtime/parsec/JDFKernels.h>
+#endif
+
+#define PI (3.141592653589793)
+#define EARHT_RADIUS_KM 6371.0
+/* Use own matrix generation */
+#define OWN_GENERATION 0
+#include <gsl/gsl_sf_bessel.h>
+
+/* Print more info */
+static int print_more_gpu = 0;
+static int print_more = 0;
+
+static double DegreeToRadian(double deg) {
+        return (deg * PI / 180);
+}
+
+static double DistanceEarth(double aLatitudeDegree1, double aLongitudeDegree1, double aLatitudeDegree2, double aLongitudeDegree2) {
+
+        double latitude_radian_1, longitude_radian_1, latitude_radian_2, longitude_radian_2, u, v;
+        latitude_radian_1 = DegreeToRadian(aLatitudeDegree1);
+        longitude_radian_1 = DegreeToRadian(aLongitudeDegree1);
+        latitude_radian_2 = DegreeToRadian(aLatitudeDegree2);
+        longitude_radian_2 = DegreeToRadian(aLongitudeDegree2);
+        u = sin((latitude_radian_2 - latitude_radian_1)/2);
+        v = sin((longitude_radian_2 - longitude_radian_1)/2);
+        return 2.0 * EARHT_RADIUS_KM * asin(sqrt(u * u + cos(latitude_radian_1) * cos(latitude_radian_2) * v * v));
+}
+
+static double CalculateDistance(location* apLocation1, location* apLocation2, int aLocationIndex1,
+        int aLocationIndex2, int aDistanceMetric, int aZFlag) {
+
+    double z1, z2;
+    double x1=apLocation1->x[aLocationIndex1];
+    double y1=apLocation1->y[aLocationIndex1];
+    double x2=apLocation2->x[aLocationIndex2];
+    double y2=apLocation2->y[aLocationIndex2];
+
+    if(apLocation1->z == NULL || apLocation2->z == NULL || aZFlag == 0)
+    {
+        if(aDistanceMetric == 1)
+            return DistanceEarth(x1, y1, x2, y2);
+        return  sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+    }
+    else
+    {
+        if(aDistanceMetric == 1)
+        {
+            printf("Great Circle (GC) distance is only valid for 2d\n");
+            exit(0);
+        }
+        z1 = apLocation1->z[aLocationIndex1];
+        z2 = apLocation2->z[aLocationIndex2];
+        return  sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) +  pow((z2 - z1), 2));
+    }
+}
+
+static double CalculateDistance3D(double aLocationX1, double aLocationY1, double aLocationZ1,
+                double aLocationX2, double aLocationY2, double aLocationZ2, int aDistanceMetric) {
+
+        if(aDistanceMetric == 1)
+        {
+                printf("Great Circle (GC) distance is only valid for 2d\n");
+                exit(0);
+        }
+        return  sqrt(pow((aLocationX2 - aLocationX1), 2) + pow((aLocationY2 - aLocationY1), 2) +  pow((aLocationZ2 - aLocationZ1), 2));
+}
+
+static void ParsecCoreDcmg(double *apDescA, int aM, int aN, int aM0, int aN0,
+		location  *apLocation1, location *apLocation2, double *apLocalTheta, int aDistanceMetric, int aLda) {
+
+        int i, j, i0 = aM0, j0 = aN0;
+        double x0, y0, expr = 0.0, con = 0.0, sigma_square = apLocalTheta[0];
+
+        con = pow(2,(apLocalTheta[2]-1)) * tgamma(apLocalTheta[2]);
+        con = 1.0/con;
+        con = sigma_square * con;
+
+        for (i = 0; i < aM; i++) {
+            j0 = aN0;
+            x0 = apLocation1->x[i0];
+            y0 = apLocation1->y[i0];
+            for (j = 0; j < aN; j++) {
+                expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0)/apLocalTheta[1];
+                if(expr == 0)
+                        apDescA[i + j * aLda] = sigma_square /*+ 1e-4*/;
+                else
+                        apDescA[i + j * aLda] = con*pow(expr, apLocalTheta[2])*gsl_sf_bessel_Knu(apLocalTheta[2],expr);
+                j0++;
+            }
+            i0++;
+        }
+}
+
+static void ParsecCoreDcmgSpacetimeMatern (double *apDescA, int aM, int aN, int aM0, int aN0, location  *apLocation1,
+                                           location *apLocation2, double *apLocalTheta, int aDistanceMetric, int aLda) {
+
+    int i, j, i0 = aM0,j0 = aN0;
+    double x0, y0, z0, z1, expr = 0.0, expr1 = 0.0, expr2 = 0.0, expr3 = 0.0, expr4 = 0.0, con = 0.0, sigma_square = apLocalTheta[0];// * apLocalTheta[0];
+
+    con = pow(2,(apLocalTheta[2]-1)) * tgamma(apLocalTheta[2]);
+    con = 1.0/con;
+    con = sigma_square * con;
+
+    for (i = 0; i < aM; i++) {
+        j0 = aN0;
+        z0 = apLocation1->z[i0];
+        for (j = 0; j < aN; j++) {
+            z1 = apLocation2->z[j0];
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 1)/apLocalTheta[1];
+            expr2 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * apLocalTheta[4])/apLocalTheta[3] + 1.0, apLocalTheta[5] / 2.0);
+            expr3 = expr / expr2;
+            expr4 = pow(pow(sqrt(pow(z0 - z1, 2)), 2 * apLocalTheta[4]) / apLocalTheta[3] + 1.0, apLocalTheta[5] + apLocalTheta[6]);
+
+            if(expr == 0)
+                apDescA[i + j * aLda] = sigma_square / expr4 /*+ 1e-4*/;
+            else
+                apDescA[i + j * aLda] = con*pow(expr3, apLocalTheta[2])
+                    * gsl_sf_bessel_Knu(apLocalTheta[2],expr3) / expr4; // Matern Function
+            j0++;
+        }
+        i0++;
+    }
+}
+
+static void ParsecCoreDcmgNuggets(double *apDescA, int aM, int aN, int aM0, int aN0, location  *apLocation1,
+                                  location *apLocation2, double *apLocalTheta, int aDistanceMetric, int aLda) {
+
+    int i, j,  i0 = aM0, j0 = aN0;
+    double x0, y0, z0, expr = 0.0, con = 0.0, sigma_square = apLocalTheta[0];// * apLocalTheta[0];
+
+    con = pow(2,(apLocalTheta[2]-1)) * tgamma(apLocalTheta[2]);
+    con = 1.0/con;
+    con = sigma_square * con;
+    if(apLocation1->z == NULL || apLocation2->z == NULL )
+    {
+        for (i = 0; i < aM; i++) {
+            j0 = aN0;
+            x0 = apLocation1->x[i0];
+            y0 = apLocation1->y[i0];
+            for (j = 0; j < aN; j++) {
+                expr  = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0)/apLocalTheta[1];
+                if(expr == 0)
+                    apDescA[i + j * aLda] = sigma_square + apLocalTheta[3];
+                else
+                    apDescA[i + j * aLda] = con*pow(expr, apLocalTheta[2])*gsl_sf_bessel_Knu(apLocalTheta[2],expr); // Matern Function
+                j0++;
+            }
+            i0++;
+        }
+    } else {
+        for (i = 0; i < aM; i++) {
+            j0 = aN0;
+            x0 = apLocation1->x[i0];
+            y0 = apLocation1->y[i0];
+            z0 = apLocation1->z[i0];
+            for (j = 0; j < aN; j++) {
+                expr  = CalculateDistance3D(x0, y0, z0,
+                        apLocation2->x[j0], apLocation2->y[j0], apLocation2->z[j0],  aDistanceMetric);
+                if(expr == 0)
+                    apDescA[i + j * aLda] = sigma_square + apLocalTheta[3];
+                else
+                    apDescA[i + j * aLda] = con*pow(expr, apLocalTheta[2])*gsl_sf_bessel_Knu(apLocalTheta[2],expr); // Matern Function
+                j0++;
+            }
+            i0++;
+        }
+    }
+}
+
+static void ParsecCoreDcmgBivariateFlexible (double *apDescA, int aM, int aN,
+        int aM0, int aN0, location  *apLocation1,
+        location *apLocation2, double *apLocalTheta, int aDistanceMetric, int aLda) {
+
+    int i, j, i0 = aM0, j0 = aN0;
+    double x0, y0, expr1 = 0.0, expr2 = 0.0, expr12 = 0.0;
+    double con1 = 0.0, con2 = 0.0, con12 = 0.0, scale12 = 0.0, rho = 0.0, nu12 = 0.0;
+    double scale1 = apLocalTheta[0], scale2 = apLocalTheta[1], nu1 = apLocalTheta[4], nu2 = apLocalTheta[5];
+
+    scale12 =  pow(0.5 * (pow(scale1, -2) + pow(scale2, -2)) + apLocalTheta[2] * (1 - apLocalTheta[3]), -0.5);
+    nu12 = 0.5 * (nu1 + nu2) + apLocalTheta[6] * (1 - apLocalTheta[7]) ;
+    rho = apLocalTheta[8] * apLocalTheta[9] * apLocalTheta[10] *
+        pow(scale12,  2 * apLocalTheta[6] + (nu1 + nu2))
+        * tgamma(0.5 * (nu1 + nu2) + 1) * tgamma(nu12) / tgamma(nu12 + 1);
+
+    apLocalTheta[0] = apLocalTheta[8] * apLocalTheta[8] *
+        pow(scale1, 2*apLocalTheta[6] + nu1 + nu1) * tgamma(nu1);
+    apLocalTheta[1] = apLocalTheta[9] * apLocalTheta[9] *
+        pow(scale2, 2*apLocalTheta[6] + nu2 + nu2) * tgamma(nu2);
+
+    con1 = pow(2,(nu1-1)) * tgamma(nu1);
+    con1 = 1.0/con1;
+    con1 = apLocalTheta[0] * con1;
+
+    con2 = pow(2,(nu2-1)) * tgamma(nu2);
+    con2 = 1.0/con2;
+    con2 = apLocalTheta[1] * con2;
+
+    con12 = pow(2,(nu12-1)) * tgamma(nu12);
+    con12 = 1.0/con12;
+    con12 = rho * con12;
+
+    i0/=2;
+    for (i = 0; i < aM; i+=2) {
+        j0 = aN0/2;
+        for (j = 0; j < aN; j+=2) {
+            expr1  = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0)/scale1;
+            expr2  = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0)/scale2;
+            expr12 = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0)/scale12;
+
+            if(expr1 == 0){
+                apDescA[i + j * aLda] = apLocalTheta[0] ;
+                apDescA[(i + 1) + j * aLda] = apDescA[i + (j + 1) * aM] = rho;
+                apDescA[(i + 1) + (j + 1) * aLda] = apLocalTheta[1] ;
+            } else {
+                apDescA[i + j * aLda] = con1 * pow(expr1, nu1)
+                    * gsl_sf_bessel_Knu(nu1, expr1);
+                apDescA[(i + 1) + j * aLda] = apDescA[i + (j + 1) * aM] = con12
+                    * pow(expr12, nu12) * gsl_sf_bessel_Knu(nu12, expr12);
+                apDescA[(i + 1) + (j + 1) * aLda] = con2 * pow(expr2, nu2)
+                    * gsl_sf_bessel_Knu(nu2, expr2);
+            }
+            j0++;
+        }
+        i0++;
+    }
+}
+
+static void ParsecCoreDcmgBivariateParsimonious(double *apDescA, int aM, int aN, int aM0, int aN0, location  *apLocation1,
+                                                location *apLocation2, double *apLocalTheta, int aDistanceMetric, int aLda) {
+
+    int i, j, i0 = aM0, j0 = aN0;
+    double x0, y0, expr = 0.0, con1 = 0.0, con2 = 0.0, con12 = 0.0, rho = 0.0, nu12 = 0.0;
+
+    con1 = pow(2,(apLocalTheta[3]-1)) * tgamma(apLocalTheta[3]);
+    con1 = 1.0/con1;
+    con1 = apLocalTheta[0] * con1;
+
+    con2 = pow(2,(apLocalTheta[4]-1)) * tgamma(apLocalTheta[4]);
+    con2 = 1.0/con2;
+    con2 = apLocalTheta[1] * con2;
+
+    //The average
+    nu12 = 0.5 * (apLocalTheta[3] + apLocalTheta[4]);
+
+    rho = apLocalTheta[5] * sqrt( (tgamma(apLocalTheta[3] + 1)*tgamma(apLocalTheta[4] + 1)) /
+            (tgamma(apLocalTheta[3]) * tgamma(apLocalTheta[4])) ) *
+        tgamma(nu12) / tgamma(nu12 + 1);
+
+    con12 = pow(2,(nu12-1)) * tgamma(nu12);
+    con12 = 1.0/con12;
+    con12 = rho * sqrt(apLocalTheta[0] * apLocalTheta[1]) * con12;
+
+    i0/=2;
+    for (i = 0; i < aM-1; i+=2) {
+        j0 = aN0/2;
+        for (j = 0; j < aN-1; j+=2) {
+            expr = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0)/apLocalTheta[2];
+
+            if(expr == 0){
+                apDescA[i + j * aLda] = apLocalTheta[0] ;
+                apDescA[(i + 1) + j * aLda] = apDescA[i + (j + 1) * aLda] = rho
+                    * sqrt(apLocalTheta[0] * apLocalTheta[1]) ;
+                apDescA[(i + 1) + (j + 1) * aLda] = apLocalTheta[1] ;
+            }
+            else{
+                apDescA[i + j * aLda] = con1 * pow(expr, apLocalTheta[3])
+                    * gsl_sf_bessel_Knu(apLocalTheta[3], expr);
+                apDescA[(i + 1) + j * aLda] = apDescA[i + (j + 1) * aLda] = con12 * pow(expr, nu12)
+                    * gsl_sf_bessel_Knu(nu12, expr);
+                apDescA[(i + 1) + (j + 1) * aLda] = con2 * pow(expr, apLocalTheta[4])
+                    * gsl_sf_bessel_Knu(apLocalTheta[4], expr);
+            }
+            j0++;
+        }
+        i0++;
+    }
+}
+
+static void ParsecCoreDcmgPowExp (double *apDescA, int aM, int aN, int aM0, int aN0, location  *apLocation1,
+                                  location *apLocation2, double *apLocalTheta, int aDistanceMetric, int aLda) {
+
+        int i, j, i0 = aM0, j0 = aN0;
+        double x0, y0, expr  = 0.0, expr1 = 0.0, sigma_square = apLocalTheta[0];
+
+        for (i = 0; i < aM; i++) {
+            j0 = aN0;
+            x0 = apLocation1->x[i0];
+            y0 = apLocation1->y[i0];
+            for (j = 0; j < aN; j++) {
+                expr  = CalculateDistance(apLocation1, apLocation2, i0, j0, aDistanceMetric, 0);
+                expr1 = pow(expr, apLocalTheta[2]);
+                if(expr == 0)
+                        apDescA[i + j * aLda] = sigma_square /*+ 1e-4*/;
+                else
+                        apDescA[i + j * aLda] = sigma_square *  exp(-(expr1/apLocalTheta[1])) ;
+                j0++;
+            }
+            i0++;
+        }
+}
+
+
+%}
+
+apDescA                [ type = "parsec_tiled_matrix_t *" ]
+apLocation1            [ type = "location *" ]
+apLocation2            [ type = "location *" ]
+apTheta                [ type = "double *" ]
+aDistanceMetric        [ type = "int" ]
+apCovarianceFunction   [ type = "char *" ]
+aBandSizeDouble        [ type = "int" ]
+
+ws_l1_x                [ type = "void *" hidden = on default = NULL ]
+ws_l1_y                [ type = "void *" hidden = on default = NULL ]
+ws_l1_z                [ type = "void *" hidden = on default = NULL ]
+ws_l2_x                [ type = "void *" hidden = on default = NULL ]
+ws_l2_y                [ type = "void *" hidden = on default = NULL ]
+ws_l2_z                [ type = "void *" hidden = on default = NULL ]
+
+nb_cuda_devices        [ type = "int"   hidden = on default = 0 ]
+cuda_device_index      [ type = "int *" hidden = on default = "NULL"]
+
+
+/**************************************************
+ *               bind_A                     *
+ **************************************************/
+bind_A(m, n)
+
+// Execution space
+n = 0 .. apDescA->lnt-1
+m = %{ return ((apDescA->m == apDescA->n)? n: 0); %} .. apDescA->lmt-1
+
+// Parallel partitioning
+:apDescA(m, n)
+
+READ A <- apDescA(m, n)
+       -> A Task(m, n)
+
+BODY
+{
+	int gpu_indicator = (strcmp(apCovarianceFunction, "pow-exp") == 0)? 1 : 0;
+#ifdef USE_CUDA
+	if( nb_cuda_devices > 0 && gpu_indicator ) {
+		int g = (m+ n* apDescA->nt) % nb_cuda_devices;
+		parsec_advise_data_on_device( _f_A->original,
+				cuda_device_index[g],
+				PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
+	}
+#endif
+}
+END
+
+
+Task(m, n)
+
+n = 0 .. apDescA->lnt-1
+m = %{ return ((apDescA->m == apDescA->n)? n: 0); %} .. apDescA->lmt-1
+
+gpu_indicator = %{ return ((strcmp(apCovarianceFunction, "pow-exp") == 0)? 1 : 0); %}
+
+: apDescA(m, n)
+
+RW A <- A bind_A(m, n)
+     -> apDescA(m, n)
+
+BODY [type=CUDA]
+{
+#ifdef USE_CUDA
+    if( print_more_gpu ) printf("%d %d : GPU matrix generation\n", m, n);
+
+    int tempmm = (m == apDescA->lmt-1)
+        ? parsec_imin(apDescA->mb, apDescA->m - m * apDescA->mb)
+        : apDescA->mb;
+    int tempnn = (n == apDescA->lnt-1)
+        ? parsec_imin(apDescA->nb, apDescA->n - n * apDescA->nb)
+        : apDescA->nb;
+
+    int M0 = m * apDescA->mb;
+    int N0 = n * apDescA->nb;
+    int distance_metric = (strcmp(aDistanceMetric, "gc") == 0) ? 1 : 0; // Not used
+
+    cudaError_t e;
+    cublasSetKernelStream(parsec_body.stream);
+
+    int size_l1 = apDescA->nb * sizeof(double);
+    int size_l2 = apDescA->mb * sizeof(double);
+
+    // Cast the generic parsec_gpu_exec_stream_t* to parsec_cuda_exec_stream_t*:
+    parsec_cuda_exec_stream_t *cstream = (parsec_cuda_exec_stream_t*)gpu_stream;
+
+    // Lookup GPU buffer for l1_x
+    parsec_potrf_workspace_t *_ws_l1_x = (parsec_potrf_workspace_t*)ws_l1_x;
+    parsec_potrf_stream_workspace_t *stream_l1_x =
+        lookup_gpu_workspace(gpu_device, cstream, _ws_l1_x);
+    double *l1_x_cuda = (double*)stream_l1_x->gpu_buffer;
+
+    // Lookup GPU buffer for l1_y
+    parsec_potrf_workspace_t *_ws_l1_y = (parsec_potrf_workspace_t*)ws_l1_y;
+    parsec_potrf_stream_workspace_t *stream_l1_y =
+        lookup_gpu_workspace(gpu_device, cstream, _ws_l1_y);
+    double *l1_y_cuda = (double*)stream_l1_y->gpu_buffer;
+
+    // Lookup GPU buffer for l2_x
+    parsec_potrf_workspace_t *_ws_l2_x = (parsec_potrf_workspace_t*)ws_l2_x;
+    parsec_potrf_stream_workspace_t *stream_l2_x =
+        lookup_gpu_workspace(gpu_device, cstream, _ws_l2_x);
+    double *l2_x_cuda = (double*)stream_l2_x->gpu_buffer;
+
+    // Lookup GPU buffer for l2_y
+    parsec_potrf_workspace_t *_ws_l2_y = (parsec_potrf_workspace_t*)ws_l2_y;
+    parsec_potrf_stream_workspace_t *stream_l2_y =
+        lookup_gpu_workspace(gpu_device, cstream, _ws_l2_y);
+    double *l2_y_cuda = (double*)stream_l2_y->gpu_buffer;
+
+    // Copy data to GPU
+    e = cudaMemcpy(l1_x_cuda, &apLocation1->x[N0], size_l1, cudaMemcpyHostToDevice);
+    e = cudaMemcpy(l1_y_cuda, &apLocation1->y[N0], size_l1, cudaMemcpyHostToDevice);
+    e = cudaMemcpy(l2_x_cuda, &apLocation2->x[M0], size_l2, cudaMemcpyHostToDevice);
+    e = cudaMemcpy(l2_y_cuda, &apLocation2->y[M0], size_l2, cudaMemcpyHostToDevice);
+
+#if OWN_GENERATION
+    // Only support 2D
+    dcmg_array_GPU(A, tempmm, tempnn, M0, N0,
+                   l1_x_cuda, l1_y_cuda, l2_x_cuda, l2_y_cuda,
+                   apTheta, distance_metric, apDescA->mb, parsec_body.stream);
+#else
+    if (apLocation1->z == NULL || apLocation2->z == NULL) {
+        if( print_more_gpu ) fprintf(stderr, "2d\n");
+        // 2D
+        DcmgArray(A, apDescA->mb, apDescA->nb,
+                   M0, N0, l1_x_cuda, l1_y_cuda, l2_x_cuda, l2_y_cuda,
+                   apTheta, distance_metric, parsec_body.stream);
+    } else {
+        if( print_more_gpu ) fprintf(stderr, "3d\n");
+
+        // Lookup for l1_z
+        parsec_potrf_workspace_t *_ws_l1_z = (parsec_potrf_workspace_t*)ws_l1_z;
+        parsec_potrf_stream_workspace_t *stream_l1_z =
+            lookup_gpu_workspace(gpu_device, cstream, _ws_l1_z);
+        double *l1_z_cuda = (double*)stream_l1_z->gpu_buffer;
+
+        // Lookup for l2_z
+        parsec_potrf_workspace_t *_ws_l2_z = (parsec_potrf_workspace_t*)ws_l2_z;
+        parsec_potrf_stream_workspace_t *stream_l2_z =
+            lookup_gpu_workspace(gpu_device, cstream, _ws_l2_z);
+        double *l2_z_cuda = (double*)stream_l2_z->gpu_buffer;
+
+        // Copy data to GPU
+        e = cudaMemcpy(l1_z_cuda, &apLocation1->z[N0], size_l1, cudaMemcpyHostToDevice);
+        e = cudaMemcpy(l2_z_cuda, &apLocation2->z[M0], size_l2, cudaMemcpyHostToDevice);
+
+        // 3D
+        // Make sure there's a prototype for DcmgArray3D
+        DcmgArray3D(A, apDescA->mb, apDescA->nb,
+                      M0, N0,
+                      l1_x_cuda, l1_y_cuda, l1_z_cuda,
+                      l2_x_cuda, l2_y_cuda, l2_z_cuda,
+                      apTheta, distance_metric, parsec_body.stream);
+    }
+#endif // OWN_GENERATION
+#endif // USE_CUDA
+}
+END
+
+BODY
+{
+	if( print_more ) printf("%d %d : CPU matrix generation\n", m, n);
+	int tempmm = (m == apDescA->lmt-1) ? parsec_imin(apDescA->mb, apDescA->m-m*apDescA->mb): apDescA->mb;
+	int tempnn = (n == apDescA->lnt-1) ? parsec_imin(apDescA->nb, apDescA->n-n*apDescA->nb): apDescA->nb;
+	int M0 = m * apDescA->mb;
+	int N0 = n * apDescA->nb;
+
+	int covariance_fun=0;
+	if(strcmp(apCovarianceFunction, "univariate_matern_stationary")   == 0)
+		covariance_fun=0;
+	else if(strcmp(apCovarianceFunction, "univariate_matern_nuggets_stationary")   == 0)
+		covariance_fun=1;
+	else if(strcmp(apCovarianceFunction, "univariate_matern_non_stationary")   == 0)
+		covariance_fun=2;
+	else if(strcmp(apCovarianceFunction, "bivariate_matern_flexible")   == 0)
+		covariance_fun=3;
+	else if(strcmp(apCovarianceFunction, "bivariate_matern_parsimonious")   == 0
+			|| strcmp(apCovarianceFunction, "bivariate_matern_parsimonious_profile")   == 0)
+		covariance_fun=4;
+	else if(strcmp(apCovarianceFunction, "bivariate_matern_parsimonious2")   == 0
+			|| strcmp(apCovarianceFunction, "bivariate_matern_parsimonious2_profile") == 0)
+		covariance_fun=5;
+	else if(strcmp(apCovarianceFunction, "univariate_spacetime_matern_stationary")   == 0)
+		covariance_fun=6;
+	else
+	{
+		fprintf(stderr,"Choosen kernel is not exist!\n");
+		fprintf(stderr, "Called function is: %s\n", __func__);
+		exit(0);
+	}
+
+#if OWN_GENERATION
+	/* Only support 2D */
+	assert( apLocation1->z == NULL || apLocation2->z == NULL );
+	if(covariance_fun == 0) {
+		ParsecCoreDcmg(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+	} else if(covariance_fun == 1) {
+		ParsecCoreDcmgPowExp(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+	} else if(covariance_fun == 2) {
+        ParsecCoreDcmgPowExp(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 3) {
+        core_dcmg_bivariate_flexible(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 4) {
+        ParsecCoreDcmgBivariateParsimonious(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 5) {
+        ParsecCoreDcmgBivariateParsimonious(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 6) {
+        ParsecCoreDcmgSpacetimeMatern(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    }
+
+#else
+    if(covariance_fun == 0) {
+        // Replace it with parsec in order to pass this part for now
+//        core_dcmg(A, apDescA->mb, apDescA->nb, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric);
+        ParsecCoreDcmg(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 1) {
+        //core_dcmg_pow_exp(A, apDescA->mb, apDescA->nb, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric);
+         ParsecCoreDcmgNuggets(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 2) {
+        //core_dcmg_pow_exp(A, apDescA->mb, apDescA->nb, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric);
+            ParsecCoreDcmgNuggets(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 3) {
+        ParsecCoreDcmgBivariateFlexible(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 4) {
+        ParsecCoreDcmgBivariateParsimonious(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 5) {
+        ParsecCoreDcmgBivariateParsimonious(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    } else if(covariance_fun == 6) {
+        ParsecCoreDcmgSpacetimeMatern(A, tempmm, tempnn, M0, N0, apLocation1, apLocation2, apTheta, aDistanceMetric, apDescA->mb);
+    }
+#endif
+
+}
+END
+
+extern "C" %{
+
+#ifdef USE_CUDA
+	/* Select GPU Task kernel
+	 * Can not pass internal_taskpool, so local instead
+	 */
+	static float evaluate_gpu_Task(parsec_task_t* task) {
+		int gpu_indicator = ((__parsec_DMatrixGeneration_Task_task_t *)task)->locals.gpu_indicator.value;
+		if( gpu_indicator )
+			return PARSEC_HOOK_RETURN_DONE;
+		else
+			return PARSEC_HOOK_RETURN_NEXT;
+	}
+
+#if GPU_BUFFER_ONCE
+	 parsec_potrf_workspace_t *ws_l1_x;
+	 parsec_potrf_workspace_t *ws_l1_y;
+	 parsec_potrf_workspace_t *ws_l1_z;
+	 parsec_potrf_workspace_t *ws_l2_x;
+	 parsec_potrf_workspace_t *ws_l2_y;
+	 parsec_potrf_workspace_t *ws_l2_z;
+#endif
+
+#endif
+
+
+	/**
+	 * @param [in] apDescA:    the data, already distributed and allocated
+	 * @return the parsec object to schedule.
+	 */
+	parsec_taskpool_t*
+		ParsecDMatrixGenerationNew(parsec_context_t *parsec,
+				parsec_tiled_matrix_t *apDescA, location *apLocation1, location *apLocation2,
+				double *apTheta , int aDistanceMetric, char *apCovarianceFunction, int aBandSizeDouble)
+		{
+			parsec_taskpool_t* dmatrix_generation_taskpool;
+			parsec_DMatrixGeneration_taskpool_t* taskpool = NULL;
+
+#ifdef USE_CUDA
+			/** Find all CUDA devices */
+			int nb = 0;
+			for(int i = 0; i < (int)parsec_nb_devices; i++) {
+				parsec_device_module_t *device = parsec_mca_device_get(i);
+				if( PARSEC_DEV_CUDA == device->type ) {
+					nb++;
+				}
+			}
+
+			if(nb == 0) {
+				char hostname[256];
+				gethostname(hostname, 256);
+				if( print_more_gpu && 0 == apDescA->super.myrank ) {
+					fprintf(stderr, "\nWarnning: No CUDA device found on rank %d on %s\n\n",
+							parsec->my_rank, hostname);
+				}
+			} else {
+				if( print_more_gpu && strcmp(apCovarianceFunction, "pow-exp") && 0 == apDescA->super.myrank )
+					fprintf(stderr, "\nWarnning: Matrix generation will be done on CPU\n\n");
+			}
+
+			int *dev_index = (int*)malloc(nb * sizeof(int));
+			nb = 0;
+			for(int i = 0; i < (int)parsec_nb_devices; i++) {
+				parsec_device_module_t *device = parsec_mca_device_get(i);
+				if( PARSEC_DEV_CUDA == device->type ) {
+					dev_index[nb++] = device->device_index;
+				}
+			}
+
+#if !GPU_BUFFER_ONCE
+			/* Declare workspace used on GPU */
+			parsec_gpu_workspace_t *ws_l1_x, *ws_l1_y, *ws_l1_z, *ws_l2_x, *ws_l2_y, *ws_l2_z;
+
+			/* Allocate memory */
+			ws_l1_x = workspace_memory_allocate( ws_l1_x );
+			ws_l1_y = workspace_memory_allocate( ws_l1_y );
+			ws_l1_z = workspace_memory_allocate( ws_l1_z );
+			ws_l2_x = workspace_memory_allocate( ws_l2_x );
+			ws_l2_y = workspace_memory_allocate( ws_l2_y );
+			ws_l2_z = workspace_memory_allocate( ws_l2_z );
+
+			/* Traverse all gpu device */
+			for(int i = 0; i < (int)parsec_nb_devices; i++) {
+				parsec_device_module_t *device = parsec_mca_device_get(i);
+				if( NULL == device ) continue;
+				if( device->type != PARSEC_DEV_CUDA ) continue;
+
+				parsec_device_cuda_module_t *gpu_device = (parsec_device_cuda_module_t*)device;
+				cudaSetDevice(gpu_device->cuda_index);
+
+				ws_l1_x->gpu_workspace[i].gpu_device = gpu_device;
+				ws_l1_y->gpu_workspace[i].gpu_device = gpu_device;
+				ws_l1_z->gpu_workspace[i].gpu_device = gpu_device;
+				ws_l2_x->gpu_workspace[i].gpu_device = gpu_device;
+				ws_l2_y->gpu_workspace[i].gpu_device = gpu_device;
+				ws_l2_z->gpu_workspace[i].gpu_device = gpu_device;
+
+				/* Traverse all streams */
+				for(int j = 0; j < gpu_device->max_exec_streams; j++) {
+					/* j 0, h2d; j 1, d2h */
+					if( j <= 1 ) continue;
+
+					/* Set unused to NULL */
+					{
+						ws_l1_x->gpu_workspace[i].stream_workspace[j].handle_cusolver = NULL;
+						ws_l1_x->gpu_workspace[i].stream_workspace[j].handle_cublas = NULL;
+
+						ws_l1_y->gpu_workspace[i].stream_workspace[j].handle_cusolver = NULL;
+						ws_l1_y->gpu_workspace[i].stream_workspace[j].handle_cublas = NULL;
+
+						ws_l1_z->gpu_workspace[i].stream_workspace[j].handle_cusolver = NULL;
+						ws_l1_z->gpu_workspace[i].stream_workspace[j].handle_cublas = NULL;
+
+						ws_l2_x->gpu_workspace[i].stream_workspace[j].handle_cusolver = NULL;
+						ws_l2_x->gpu_workspace[i].stream_workspace[j].handle_cublas = NULL;
+
+						ws_l2_y->gpu_workspace[i].stream_workspace[j].handle_cusolver = NULL;
+						ws_l2_y->gpu_workspace[i].stream_workspace[j].handle_cublas = NULL;
+
+						ws_l2_z->gpu_workspace[i].stream_workspace[j].handle_cusolver = NULL;
+						ws_l2_z->gpu_workspace[i].stream_workspace[j].handle_cublas = NULL;
+					}
+
+					/* Temporary buffer for apLocation1 */
+					{
+						int workspace_size = apDescA->nb;
+						ws_l1_x->gpu_workspace[i].stream_workspace[j].gpu_buffer = zone_malloc( gpu_device->memory, workspace_size * sizeof(double) );
+						assert(NULL != ws_l1_x->gpu_workspace[i].stream_workspace[j].gpu_buffer);
+						ws_l1_x->gpu_workspace[i].stream_workspace[j].buffer_size = workspace_size;
+
+						ws_l1_y->gpu_workspace[i].stream_workspace[j].gpu_buffer = zone_malloc( gpu_device->memory, workspace_size * sizeof(double) );
+						assert(NULL != ws_l1_y->gpu_workspace[i].stream_workspace[j].gpu_buffer);
+						ws_l1_y->gpu_workspace[i].stream_workspace[j].buffer_size = workspace_size;
+
+						ws_l1_z->gpu_workspace[i].stream_workspace[j].gpu_buffer = zone_malloc( gpu_device->memory, workspace_size * sizeof(double) );
+						assert(NULL != ws_l1_z->gpu_workspace[i].stream_workspace[j].gpu_buffer);
+						ws_l1_z->gpu_workspace[i].stream_workspace[j].buffer_size = workspace_size;
+					}
+
+					/* Temporary buffer for apLocation2 */
+					{
+						int workspace_size = apDescA->mb;
+						ws_l2_x->gpu_workspace[i].stream_workspace[j].gpu_buffer = zone_malloc( gpu_device->memory, workspace_size * sizeof(double) );
+						assert(NULL != ws_l2_x->gpu_workspace[i].stream_workspace[j].gpu_buffer);
+						ws_l2_x->gpu_workspace[i].stream_workspace[j].buffer_size = workspace_size;
+
+						ws_l2_y->gpu_workspace[i].stream_workspace[j].gpu_buffer = zone_malloc( gpu_device->memory, workspace_size * sizeof(double) );
+						assert(NULL != ws_l2_y->gpu_workspace[i].stream_workspace[j].gpu_buffer);
+						ws_l2_y->gpu_workspace[i].stream_workspace[j].buffer_size = workspace_size;
+
+						ws_l2_z->gpu_workspace[i].stream_workspace[j].gpu_buffer = zone_malloc( gpu_device->memory, workspace_size * sizeof(double) );
+						assert(NULL != ws_l2_z->gpu_workspace[i].stream_workspace[j].gpu_buffer);
+						ws_l2_z->gpu_workspace[i].stream_workspace[j].buffer_size = workspace_size;
+					}
+
+				}
+			}
+#endif /* #if GPU_BUFFER_ONCE */
+
+#endif
+			taskpool = parsec_DMatrixGeneration_new(apDescA, apLocation1, apLocation2, apTheta, aDistanceMetric, apCovarianceFunction, aBandSizeDouble);
+			dmatrix_generation_taskpool = (parsec_taskpool_t*)taskpool;
+
+#ifdef USE_CUDA
+			taskpool->_g_ws_l1_x = (void *)ws_l1_x;
+			taskpool->_g_ws_l1_y = (void *)ws_l1_y;
+			taskpool->_g_ws_l1_z = (void *)ws_l1_z;
+			taskpool->_g_ws_l2_x = (void *)ws_l2_x;
+			taskpool->_g_ws_l2_y = (void *)ws_l2_y;
+			taskpool->_g_ws_l2_z = (void *)ws_l2_z;
+			taskpool->_g_nb_cuda_devices = nb;
+			taskpool->_g_cuda_device_index = dev_index;
+
+			/* Select Kernel that run on GPU */
+			void** eval_gpu;
+			eval_gpu = (void *)&taskpool->super.task_classes_array[1]->incarnations[0].evaluate;
+			*eval_gpu = &evaluate_gpu_Task;
+#endif
+
+			parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_DMatrixGeneration_DEFAULT_ADT_IDX],
+					parsec_datatype_double_t, matrix_UpperLower,
+					1, apDescA->mb, apDescA->nb, apDescA->mb,
+					PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+			return dmatrix_generation_taskpool;
+		}
+
+	/**
+	 * @param [inout] the parsec object to destroy
+	 */
+	void ParsecDMatrixGenerationDestruct(parsec_taskpool_t *taskpool)
+	{
+		parsec_DMatrixGeneration_taskpool_t *tp = (parsec_DMatrixGeneration_taskpool_t *)taskpool;
+
+#ifdef USE_CUDA
+		if( tp->_g_nb_cuda_devices > 0 ) {
+#if !GPU_BUFFER_ONCE
+			workspace_memory_free( tp->_g_ws_l1_x );
+			workspace_memory_free( tp->_g_ws_l1_y );
+			workspace_memory_free( tp->_g_ws_l1_z );
+			workspace_memory_free( tp->_g_ws_l2_x );
+			workspace_memory_free( tp->_g_ws_l2_y );
+			workspace_memory_free( tp->_g_ws_l2_z );
+#endif
+
+			if( NULL != tp->_g_cuda_device_index )
+				free(tp->_g_cuda_device_index);
+		}
+#endif
+
+		parsec_del2arena(&tp->arenas_datatypes[PARSEC_DMatrixGeneration_DEFAULT_ADT_IDX]);
+		parsec_taskpool_free(taskpool);
+	}
+
+	/**
+	 * @brief allocate and generate apDescA
+	 *
+	 * @param [inout] apDescA: the data, already distributed and allocated
+	 */
+	int ParsecDMatrixGeneration(parsec_context_t *parsec,
+			parsec_tiled_matrix_t *apDescA, location *apLocation1, location *apLocation2,
+			location* lm, double *apTheta , int aDistanceMetric, char *apCovarianceFunction, int aBandSizeDouble)
+	{
+		parsec_taskpool_t *parsec_dmatrix_generation = NULL;
+
+		parsec_dmatrix_generation = ParsecDMatrixGenerationNew(
+				parsec, apDescA, apLocation1, apLocation2, apTheta, aDistanceMetric, apCovarianceFunction, aBandSizeDouble);
+
+		if( parsec_dmatrix_generation != NULL ){
+			parsec_context_add_taskpool(parsec, parsec_dmatrix_generation);
+			parsec_context_start(parsec);
+			parsec_context_wait(parsec);
+			ParsecDMatrixGenerationDestruct(parsec_dmatrix_generation);
+		}
+
+		return 0;
+	}
+
+	%}

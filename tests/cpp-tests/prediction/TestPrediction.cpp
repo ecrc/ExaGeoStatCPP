@@ -89,8 +89,6 @@ void TEST_PREDICTION_MISSING_DATA() {
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
 
-        // Add the data prediction arguments.
-        configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
 
         REQUIRE(Results::GetInstance()->GetMSPEError() == Catch::Approx(0.552448));
@@ -109,8 +107,6 @@ void TEST_PREDICTION_MISSING_DATA() {
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
-        // Add the data prediction arguments.
-        configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
         for (int i = 0; i < 3; i++) {
             REQUIRE(Results::GetInstance()->GetIDWError()[i] == Catch::Approx(idw_error[i]));
@@ -129,8 +125,6 @@ void TEST_PREDICTION_MISSING_DATA() {
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
-        // Add the data prediction arguments.
-        configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
         REQUIRE(Results::GetInstance()->GetMLOE() == Catch::Approx(0.004467).margin(0.001));
         REQUIRE(Results::GetInstance()->GetMMOM() == Catch::Approx(-0.0812376).margin(0.001));
@@ -149,8 +143,6 @@ void TEST_PREDICTION_MISSING_DATA() {
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
 
-        // Add the data prediction arguments.
-        configurations.InitializeDataPredictionArguments();
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
         REQUIRE(Results::GetInstance()->GetMLOE() == Catch::Approx(0).margin(0.001));
         REQUIRE(Results::GetInstance()->GetMMOM() == Catch::Approx(0).margin(0.001));
@@ -169,8 +161,7 @@ void TEST_PREDICTION_MISSING_DATA() {
         exageostat::kernels::Kernel<double> *pKernel = exageostat::plugins::PluginRegistry<exageostat::kernels::Kernel<double>>::Create(
                 configurations.GetKernelName(),
                 configurations.GetTimeSlot());
-        // Add the data prediction arguments.
-        configurations.InitializeDataPredictionArguments();
+
         Prediction<double>::PredictMissingData(data, configurations, z_matrix, *pKernel);
 
         vector<double> required_fisher = {0.1045891821, 0.0005116817, 0.0409307011, 0.0005116817, 0.1873553354,

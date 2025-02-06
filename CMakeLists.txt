@@ -42,6 +42,11 @@ project(ExaGeoStatCPP VERSION 2.0.0 DESCRIPTION "ExaGeoStatCPP is a parallel hig
 set(CMAKE_CXX_EXTENSIONS OFF)
 string(TOUPPER ${RUNTIME_TYPE} RUNTIME_TYPE)
 
+# Default path for default configuration json file
+add_definitions(
+        -DDEFAULT_CONFIGURATION_PATH="${PROJECT_SOURCE_DIR}/configurations/config.json"
+)
+
 if(RUNTIME_TYPE STREQUAL "PARSEC")
     message(STATUS "MPI is required to be enabled in order to use PaRSEC")
     set(USE_MPI ON)
@@ -107,6 +112,11 @@ list(APPEND LIBS ${LAPACKE_LIBRARIES})
 link_directories(${LAPACKE_LIBRARY_DIRS_DEP})
 include_directories(${LAPACKE_INCLUDE_DIRS})
 
+if (${BLA_VENDOR} MATCHES "Intel10_64lp" OR ${BLA_VENDOR} MATCHES "Intel" OR ${BLA_VENDOR} MATCHES "Intel10_64lp_seq")
+    message(STATUS "Linked to MKL")
+    add_compile_definitions(USE_MKL)
+endif()
+
 # Add all dependencies for ExaGeoStatCPP
 #-----------------------------
 
@@ -118,6 +128,10 @@ message(STATUS "Installation path : ${CMAKE_INSTALL_PREFIX}")
 include(ImportHwloc)
 list(APPEND STARPU_COMPONENT_LIST "HWLOC")
 string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
+
+# ExaGeoStatCPP depends on NLOHMANN
+# -------------------------------
+include(ImportNlohmannJSON)
 
 # ExaGeoStatCPP depends on NLOPT
 # -------------------------------
@@ -185,7 +199,7 @@ if (USE_R)
     if (${R_FOUND})
         message(STATUS "Using R technology")
         list(APPEND LIBS R)
-        add_definitions(-DUSING_R)
+        add_definitions(-DUSE_R)
     endif ()
 endif ()
 
@@ -240,6 +254,7 @@ endif ()
 message(" \n \t ** Configurations of ExaGeoStatCPP and installation of dependence is done successfully ** ")
 message("\t - Export the following line to avoid re-install dependencies each time. -")
 message("\t ----------------------------------------------------------------------------------------------------------------------------------- ")
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/NLOHMANN_JSON/share/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/NLOPT/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
@@ -254,7 +269,7 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HCORE/lib/pkgconfig:$PKG_CONFIG_PATH")
-    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA-X/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64:$PKG_CONFIG_PATH")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA-X/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64:$PKG_CONFIG_PATH")
 endif()
 message("\t ----------------------------------------------------------------------------------------------------------------------------------- \n")
 

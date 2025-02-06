@@ -11,6 +11,10 @@
 #include <runtime/parsec/ParsecHeader.h>
 #include <complex.h>
 
+#ifdef USE_CUDA
+#include <runtime/parsec/GPUHelperFunctions.h>
+#endif
+
 /**
  * @brief Calculates a unique single index from given dimensions.
  * @param[in] aN The row index.
@@ -74,3 +78,48 @@ void ForwardSHTHelper(double *apFlm, complex double *apF_data, int aFDataM, int 
  */
 void InverseSHTHelper(double *apFlm, double *apF_spatial, double *apZlm, double *apSC,
                       double *apSmt, int aL);
+
+/**
+ * @brief Computes the sum of the elements within a matrix block.
+ * @details This function iterates over a specified matrix block and accumulates
+ *          the values of all elements into a single double-precision result.
+ *          It also checks for NaN entries (not-a-number) and sets an indicator
+ *          if any are encountered. The final sum is returned as a double.
+ * @param[in] apA Pointer to the beginning of the matrix block data.
+ * @param[in] aMb The number of rows in the matrix block.
+ * @param[in] aNb The number of columns in the matrix block.
+ * @param[in] aLda The leading dimension of the matrix.
+ * @return The double-precision sum of all elements in the specified matrix block.
+ *
+ */
+double ParsecMatrixSumCore(double *apA, int aMb, int aNb, int aLda);
+
+#ifdef USE_CUDA
+
+/**
+ * @brief Performs forward Spherical Harmonic Transform (SHT) calculations on the GPU.
+ * This function is used to compute the forward SHT using GPU acceleration.
+ * @param[in] apFlm Pointer to coefficients used in the forward SHT.
+ * @param[in,out] apF_data Pointer to GPU memory holding data for the SHT calculations.
+ * @param[in] apEt1, apEt2, apEp Arrays for intermediate exponential terms in the SHT.
+ * @param[in] apSlmn Pointer to an array for storing spherical harmonics coefficients.
+ * @param[in] apIe, apIo Pointers to arrays for storing intermediate SHT results.
+ * @param[in] apP Pointer to an array of precomputed SHT coefficients.
+ * @param[in] apD Pointer to the differential operator array for SHT.
+ * @param[in] apGmtheta_r Pointer to the array of spherical harmonics multipliers.
+ * @param[in] apFmnm Pointer to an array for frequency modulation factors.
+ * @param[in,out] apTmp1, apTmp2 Temporary buffers for intermediate GPU calculations.
+ * @param[in] aL Maximum degree for the SHT.
+ * @param[in] apCudaDevice Pointer to the CUDA device module used for the SHT.
+ * @param[in] apCudaStream Pointer to the CUDA execution stream for asynchronous operations.
+ * @param[in] apWorkSpace Pointer to the gpu workspace.
+ * @return void
+ *
+ */
+void ForwardSHTGPUCore(double *apFlm, cuDoubleComplex *apF_data, cuDoubleComplex *apEt1,
+                       cuDoubleComplex *apEt2, cuDoubleComplex *apEp, cuDoubleComplex *apSlmn,
+                       cuDoubleComplex *apIe, cuDoubleComplex *apIo, cuDoubleComplex *apP,
+                       cuDoubleComplex *apD, parsec_device_cuda_module_t *apCudaDevice,
+                       parsec_gpu_task_t *apGpuTask, parsec_cuda_exec_stream_t *apCudaStream,
+                       void* apWorkSpace, int aL);
+#endif

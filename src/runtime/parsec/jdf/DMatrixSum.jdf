@@ -1,0 +1,119 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+%}
+
+apDescA            [ type = "parsec_tiled_matrix_t *" ]
+apSum              [ type = "double *" ]
+
+Read(m, n)
+
+m = 0 .. apDescA->lmt-1
+n = 0 .. m 
+
+: apDescA(m, n)
+
+READ A <- apDescA(m, n)            //[ type = DB ]
+
+WRITE D <- NEW
+        -> D Sum(m, n)
+
+BODY
+{
+	int tempmm = (m == apDescA->lmt-1) ? parsec_imin(apDescA->mb, apDescA->m-m*apDescA->mb): apDescA->mb;
+	int tempnn = (n == apDescA->lnt-1) ? parsec_imin(apDescA->nb, apDescA->n-n*apDescA->nb): apDescA->nb;
+        *((double *)D) = ParsecMatrixSumCore( A, tempmm, tempnn, apDescA->mb);
+}
+END
+
+Sum(m, n)
+
+m = 0 .. apDescA->lmt-1
+n = 0 .. m 
+
+: apDescA(0, 0)
+
+READ D <- D Read(m, n) 
+
+BODY
+{
+	int tid = es->th_id;
+	apSum[tid] += *((double *)D);
+}
+END
+
+
+extern "C" %{
+
+/**
+ * @param [in] apDescA:    the data, already distributed and allocated
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+ParsecDMatrixSumNew(parsec_tiled_matrix_t *apDescA, double *apSum)
+{
+    parsec_taskpool_t* pDmatrix_sum_taskpool;
+    parsec_DMatrixSum_taskpool_t* pTaskpool = NULL;
+
+    pTaskpool = parsec_DMatrixSum_new(apDescA, apSum);
+    pDmatrix_sum_taskpool = (parsec_taskpool_t*)pTaskpool;
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_DMatrixSum_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apDescA->mb, apDescA->nb, apDescA->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return pDmatrix_sum_taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void ParsecDMatrixSumDestruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_DMatrixSum_taskpool_t *pDmatrix_sum_taskpool = (parsec_DMatrixSum_taskpool_t *)apTaskpool;
+    parsec_del2arena(&pDmatrix_sum_taskpool->arenas_datatypes[PARSEC_DMatrixSum_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @brief allocate and generate apDescA
+ * @param [inout] apDescA: the data, already distributed and allocated
+ */
+double ParsecDMatrixSum(parsec_context_t *apParsecContext, parsec_tiled_matrix_t *apDescA ) {
+
+    parsec_taskpool_t *pParsec_dmatrix_sum = NULL;
+    int nb_threads = apParsecContext->virtual_processes[0]->nb_cores;
+    double *pSum = (double *)calloc( nb_threads, sizeof(double) );
+
+    pParsec_dmatrix_sum = ParsecDMatrixSumNew(apDescA, pSum);
+
+    if( pParsec_dmatrix_sum != NULL ){
+        parsec_context_add_taskpool(apParsecContext, pParsec_dmatrix_sum);
+        parsec_context_start(apParsecContext);
+        parsec_context_wait(apParsecContext);
+        ParsecDMatrixSumDestruct(pParsec_dmatrix_sum);
+    }
+
+    fflush(stdout);
+    
+    double total = 0.0; 
+    int root = apDescA->super.rank_of(&apDescA->super, 0, 0);
+    if( apDescA->super.myrank == root ) {
+        for( int i = 0; i < nb_threads; i++ ){
+            total += pSum[i];
+        }
+    }
+
+    MPI_Bcast( &total, 1, MPI_DOUBLE, root, MPI_COMM_WORLD );
+    free( pSum );
+    return total;
+}
+
+%}

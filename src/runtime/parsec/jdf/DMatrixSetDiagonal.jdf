@@ -1,0 +1,91 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+/* Print more info */
+static int print_more = 0;
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+%}
+
+apDescA                [ type = "parsec_tiled_matrix_t *" ]
+aNoise                  [ type = "double" ]
+
+Task(n)
+
+n = 0 .. apDescA->lnt-1
+
+: apDescA(n, n)
+
+RW A <- apDescA(n, n)
+     -> apDescA(n, n)
+
+BODY
+{
+
+    for(int i = 0; i < apDescA->mb; i++){
+        ((double *)A)[i*apDescA->mb+i] += aNoise;
+    }
+}
+END
+
+extern "C" %{
+
+/**
+ * @param [in] apDescA:    the data, already distributed and allocated
+ * @return the apParsecContext object to schedule.
+ */
+parsec_taskpool_t*
+ParsecDMatrixSetDiagonalNew(parsec_context_t *apParsecContext,
+		parsec_tiled_matrix_t *apDescA, double aNoise)
+{
+    parsec_taskpool_t* dmatrix_set_diagonal_taskpool;
+    parsec_DMatrixSetDiagonal_taskpool_t* pTaskpool = NULL;
+
+    assert( apDescA->mb == apDescA->nb );
+
+    pTaskpool = parsec_DMatrixSetDiagonal_new( apDescA, aNoise );
+    dmatrix_set_diagonal_taskpool = (parsec_taskpool_t*)pTaskpool;
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_DMatrixSetDiagonal_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, apDescA->mb, apDescA->nb, apDescA->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return dmatrix_set_diagonal_taskpool;
+}
+
+/**
+ * @param [inout] the apParsecContext object to destroy
+*/
+void ParsecDMatrixSetDiagonalDestruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_DMatrixSetDiagonal_taskpool_t *tp = (parsec_DMatrixSetDiagonal_taskpool_t *)apTaskpool;
+    parsec_del2arena(&tp->arenas_datatypes[PARSEC_DMatrixSetDiagonal_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @param [inout] apDescA: the data, already distributed and allocated
+ */
+int ParsecDMatrixSetDiagonal(parsec_context_t *apParsecContext,
+                         parsec_tiled_matrix_t *apDescA, double aNoise)
+{
+    parsec_taskpool_t *parsec_dmatrix_set_diagonal = NULL;
+    parsec_dmatrix_set_diagonal = ParsecDMatrixSetDiagonalNew( apParsecContext, apDescA, aNoise );
+
+    if( parsec_dmatrix_set_diagonal != NULL ){
+        parsec_context_add_taskpool(apParsecContext, parsec_dmatrix_set_diagonal);
+        parsec_context_start(apParsecContext);
+        parsec_context_wait(apParsecContext);
+        ParsecDMatrixSetDiagonalDestruct(parsec_dmatrix_set_diagonal);
+    }
+
+    return 0;
+}
+
+%}

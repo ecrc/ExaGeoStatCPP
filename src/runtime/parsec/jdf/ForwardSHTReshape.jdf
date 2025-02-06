@@ -7,6 +7,7 @@ extern "C" %{
 
 #include <runtime/parsec/ParsecHeader.h>
 #include <runtime/parsec/JDFHelperFunctions.h>
+#include <gb24/gb24.h>
 
 static void FlmTReshape(double *apFlmT, int aM, double *apTemp, parsec_matrix_block_cyclic_t *apFlmTDesc, int aT) {
 
@@ -89,6 +90,14 @@ apADesc           [ type = "parsec_tiled_matrix_t*" ]
 aFlmTNB           [ type = "int" ]
 aLSize            [ type = "int" ]
 aT                [ type = "int" ]
+aFDataN           [ type = "int" ]
+aPM               [ type = "int" ]
+aSlmnN            [ type = "int" ]
+aIeM              [ type = "int" ]
+aIeN              [ type = "int" ]
+aSlmnM            [ type = "int" ]
+aIoM              [ type = "int" ]
+aIoN              [ type = "int" ]
 
 /* Temporary buffer used for convert */
 apGmtheta_r        [ type = "parsec_memory_pool_t *" hidden = on default = NULL ]
@@ -133,19 +142,21 @@ extern "C" %{
  * @return the parsec object to schedule.
  */
 parsec_taskpool_t*
-ForwardSHTReshape_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t *apFLMDesc,
+ForwardSHTReshape_constructor(parsec_context_t* apContext, parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t *apFLMDesc,
                               parsec_tiled_matrix_t *apFLMTDesc, parsec_tiled_matrix_t *apET1Desc,
                               parsec_tiled_matrix_t *apET2Desc, parsec_tiled_matrix_t *apEPDesc,
                               parsec_tiled_matrix_t *apSLMNDesc, parsec_tiled_matrix_t *apIEDesc,
                               parsec_tiled_matrix_t *apIODesc, parsec_tiled_matrix_t *apPDesc,
                               parsec_tiled_matrix_t *apDDesc, parsec_tiled_matrix_t *apADesc,
                               int aFDataM, int aEPN, int aET1M, int aET2M, int aPN,
-                              int aFlmTNB, int aT, int aLSize)
+                              int aFlmTNB, int aT, int aLSize,int aFDataN, int aPM, int aSlmnN ,int aIeM
+                              ,int aIeN   ,int aSlmnM ,int aIoM   ,int aIoN)
 {
 
     parsec_ForwardSHTReshape_taskpool_t
         *pTaskpool = parsec_ForwardSHTReshape_new(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc, apEPDesc,
-                                                  apSLMNDesc, apIEDesc, apIODesc, apPDesc, apDDesc, apADesc, aFlmTNB, aLSize, aT);
+                                                  apSLMNDesc, apIEDesc, apIODesc, apPDesc, apDDesc, apADesc, aFlmTNB, aLSize, aT,
+                                                  aFDataN, aPM, aSlmnN ,aIeM,aIeN,aSlmnM ,aIoM,aIoN);
 
     pTaskpool->_g_apGmtheta_r = (parsec_memory_pool_t*)malloc(sizeof(parsec_memory_pool_t));
     parsec_private_memory_init(pTaskpool->_g_apGmtheta_r, aFDataM * aEPN * sizeof(complex double) );
@@ -163,9 +174,9 @@ ForwardSHTReshape_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_m
     int nb = 0, *dev_index;
 
     /** Find all CUDA devices */
-    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+    hicma_parsec_find_cuda_devices(apContext, &dev_index, &nb);
 
-    pTaskpool->_g_ws_gpu = (void *)gb->ws;
+//    pTaskpool->_g_ws_gpu = (void *)gb->ws;
     pTaskpool->_g_nb_cuda_devices = nb;
     pTaskpool->_g_cuda_device_index = dev_index;
 #endif
@@ -199,11 +210,12 @@ int ForwardSHTReshape(parsec_context_t *apContext, int aRank, int aVerbose, pars
                       parsec_tiled_matrix_t *apET2Desc, parsec_tiled_matrix_t *apEPDesc, parsec_tiled_matrix_t *apSLMNDesc,
                       parsec_tiled_matrix_t *apIEDesc, parsec_tiled_matrix_t *apIODesc, parsec_tiled_matrix_t *apPDesc,
                       parsec_tiled_matrix_t *apDDesc, parsec_tiled_matrix_t *apADesc, int aFDataM, int aEPN, int aET1M, int aET2M,
-                      int aPN, int aFlmTNB, int aT, int aLSize, double *apNormGlobal, int aNT, int aUpperLower)
+                      int aPN, int aFlmTNB, int aT, int aLSize, double *apNormGlobal, int aNT, int aUpperLower, int aFDataN,
+                      int aPM, int aSlmnN ,int aIeM, int aIeN, int aSlmnM, int aIoM, int aIoN)
 {
-    parsec_taskpool_t *pTaskpool = ForwardSHTReshape_constructor(apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc,
+    parsec_taskpool_t *pTaskpool = ForwardSHTReshape_constructor(apContext, apFDataDesc, apFLMDesc, apFLMTDesc, apET1Desc, apET2Desc,
                                                                  apEPDesc, apSLMNDesc, apIEDesc, apIODesc, apPDesc, apDDesc,
-                                                                 apADesc, aFDataM, aEPN, aET1M, aET2M, aPN, aFlmTNB, aT, aLSize);
+                                                                 apADesc, aFDataM, aEPN, aET1M, aET2M, aPN, aFlmTNB, aT, aLSize,aFDataN, aPM, aSlmnN ,aIeM,aIeN,aSlmnM ,aIoM,aIoN);
 
     if( pTaskpool != NULL ){
         parsec_context_add_taskpool(apContext, pTaskpool);

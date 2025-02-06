@@ -13,6 +13,8 @@
 # Add the Configurations.cpp file to the list of source files.
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Configurations.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Parser.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Validator.cpp
         ${SOURCES}
         PARENT_SCOPE
         )

@@ -17,8 +17,17 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/ParsecFunctions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/JDFHelperFunctions.c
         ${SOURCES}
-        PARENT_SCOPE
 )
+
+if (USE_CUDA)
+        set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/GPUHelperFunctions.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/JDFKernels.cu
+            ${SOURCES}
+        )
+endif()
+
+set(SOURCES ${SOURCES} PARENT_SCOPE)
 
 # Set JDF generated source files for Climate Emulator
 set(JDF_GENERATED_SOURCES

@@ -30,10 +30,12 @@ namespace exageostat::transformers{
     public:
         /**
          * @brief Performs the forward spherical harmonics transform (SHT).
-         * @param[in] aLSize The size of tile size
+         * @param[in] aConfigurations Configurations object containing relevant settings.
          * @param[in,out] aData Descriptor Data object to be populated with descriptors and data.
+         * @param[in] apWorkSpace pointer to workspace struct used in case of computation with GPU, otherwise null pointer.
          */
-        static void ForwardSphericalHarmonicsTransform(const int &aLSize, std::unique_ptr<ExaGeoStatData<T>> &aData);
+        static void ForwardSphericalHarmonicsTransform(configurations::Configurations &aConfigurations,
+                                                       std::unique_ptr<ExaGeoStatData<T>> &aData, void *apWorkSpace);
 
         /**
          * @brief Reshapes data during the forward phase of the simulation.

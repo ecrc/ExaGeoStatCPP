@@ -12,7 +12,9 @@
  * @date 2023-03-20
 **/
 
+#ifdef USE_MKL
 #include <mkl_service.h>
+#endif
 
 #include <linear-algebra-solvers/concrete/chameleon/dense/ChameleonDense.hpp>
 
@@ -29,5 +31,7 @@ ChameleonDense<T>::ExaGeoStatPotrfTile(const common::UpperLower &aUpperLower, vo
         throw std::runtime_error("CHAMELEON_dpotrf_Tile Failed, Matrix is not positive definite");
     }
     // Due to a leak in dense mode in Chameleon, We had to free the buffer manually.
+#ifdef USE_MKL
     mkl_free_buffers();
+#endif
 }

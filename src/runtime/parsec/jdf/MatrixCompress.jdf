@@ -65,14 +65,14 @@ BODY
 #if !BAND_MEMORY_CONTIGUOUS
     if( aBandSizeDense < aNT || aAutoBand == 1 || !MEMORY_IN_CHOLEKSY_DP ) {
         this_task->data._f_D.data_out = parsec_data_copy_new(data_of_apADesc(m, n), 0, PARSEC_MatrixCompress_FULL_ADT->opaque_dtt, PARSEC_DATA_FLAG_PARSEC_MANAGED);
-        if( aGpus > 0 ) { 
-#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)
+        if( aGpus > 1 ) {
+#ifdef USE_CUDA
             cudaMallocHost((void**)&this_task->data._f_D.data_out->device_private, apADesc->mb * apADesc->mb * sizeof(double));
 #endif
 
-#if defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+#ifdef USE_CUDA
             // TODO A better way
-            hipHostMalloc((void**)&this_task->data._f_D.data_out->device_private, apADesc->mb * apADesc->mb * sizeof(double), hipHostMallocDefault);
+            cudaMallocHost((void**)&this_task->data._f_D.data_out->device_private, apADesc->mb * apADesc->mb * sizeof(double));
 #endif
         } else {
             this_task->data._f_D.data_out->device_private = calloc(apADesc->mb * apADesc->mb, sizeof(double));
