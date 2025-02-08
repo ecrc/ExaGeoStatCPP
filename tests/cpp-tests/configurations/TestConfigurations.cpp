@@ -78,7 +78,7 @@ void TEST_ARGUMENT_INITIALIZATION_PARSEC() {
             const_cast<char *>("--N=16"),
             const_cast<char *>("--dts=8"),
             const_cast<char *>("--precision=double"),
-            const_cast<char *>("--band_dense=100"),
+            const_cast<char *>("--band_dense_dp=100"),
             const_cast<char *>("--objects-number=72"),
             const_cast<char *>("--adaptive_decision=1"),
             const_cast<char *>("--add_diagonal=10"),

@@ -75,10 +75,6 @@ void Configurations::ValidateConfiguration() {
         throw domain_error("You need to set the Dense tile size, before starting");
     }
 
-//    if (!GetDataPath().empty()) {
-//        SetIsSynthetic(false);
-//    }
-
     if (GetIsMSPE() || GetIsMLOEMMOM() || GetIsIDW()) {
         if (GetUnknownObservationsNb() <= 1) {
             throw domain_error(
@@ -115,9 +111,6 @@ void Configurations::ValidateConfiguration() {
     if(GetTolerance() >= 0){
         SetTolerance(8);
     }
-//     if (GetDataPath().empty()) {
-//        throw domain_error("You need to set the data path, before starting");
-//    }
 #endif
 
     size_t found = GetKernelName().find("NonGaussian");

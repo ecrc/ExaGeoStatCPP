@@ -16,12 +16,12 @@
 #include <data-generators/LocationGenerator.hpp>
 #if !DEFAULT_RUNTIME
 #include <data-loader/concrete/ParsecLoader.hpp>
-#else
-#include <data-loader/concrete/CSVLoader.hpp>
-#endif
 extern "C"{
 #include <runtime/parsec/jdf/JobDescriptionFormat.h>
 }
+#else
+#include <data-loader/concrete/CSVLoader.hpp>
+#endif
 //TODO: we need to make WriteData a function outside the csv, So it can be used whatever the runtime is.
 // currently, it has an implementation for the CSVLoader and an empty body for the parsec loader
 using namespace exageostat::generators::synthetic;
@@ -42,6 +42,57 @@ template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
 SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
                                   exageostat::kernels::Kernel<T> &aKernel) {
+#if DEFAULT_RUNTIME
+    int n = aConfigurations.GetProblemSize() * aConfigurations.GetTimeSlot();
+    auto data = std::make_unique<ExaGeoStatData<T>>(n, aConfigurations.GetDimension());
+
+    // Allocated new Locations object.
+    auto *locations = new dataunits::Locations<T>(n, aConfigurations.GetDimension());
+    int parameters_number = aKernel.GetParametersNumbers();
+
+    // Set initial theta values.
+    Configurations::InitTheta(aConfigurations.GetInitialTheta(), parameters_number);
+    aConfigurations.SetInitialTheta(aConfigurations.GetInitialTheta());
+
+    // Generate Locations phase
+    LocationGenerator<T>::GenerateLocations(n, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(),
+                                            *locations);
+    data->SetLocations(*locations);
+
+    // TODO: May need to get refactored to avoid the if/else guards
+
+    // Generate Descriptors phase
+    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
+    linear_algebra_solver->GenerateSyntheticData(aConfigurations, data, aKernel);
+
+    if (aConfigurations.GetLogger()) {
+        VERBOSE("Writing generated data to the disk (Synthetic Dataset Generation Phase) .....")
+#ifdef USE_MPI
+        auto pMatrix = new T[aConfigurations.GetProblemSize()];
+        std::string path = aConfigurations.GetLoggerPath();
+
+        CHAMELEON_Desc2Lap(ChamUpperLower, data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                                    DESCRIPTOR_Z).chameleon_desc,
+                           pMatrix, aConfigurations.GetProblemSize());
+        if (helpers::CommunicatorMPI::GetInstance()->GetRank() == 0) {
+            dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(
+                    *((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                     DESCRIPTOR_Z).chameleon_desc->mat),
+                    aConfigurations.GetProblemSize(), parameters_number, path,
+                    *data->GetLocations());
+        }
+        delete[] pMatrix;
+#else
+        std::string path = aConfigurations.GetLoggerPath();
+        dataLoader::csv::CSVLoader<T>::GetInstance()->WriteData(*((T *) data->GetDescriptorData()->GetDescriptor(CHAMELEON_DESCRIPTOR,
+                                                                                           DESCRIPTOR_Z).chameleon_desc->mat),
+                                          aConfigurations.GetProblemSize(), aKernel.GetVariablesNumber(), path,
+                                          *data->GetLocations());
+#endif
+        VERBOSE("Done.")
+    }
+#else
+
 
     int p = aKernel.GetVariablesNumber();
     int N = aConfigurations.GetProblemSize() * p;
@@ -131,9 +182,9 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
     parsec_data_collection_set_key((parsec_data_collection_t * ) & dcproduct, "dcproduct");
 
     printf("\n");
-	for (int i = 0; i < N; i++) {
-		printf("x: %f, y: %f\n", l1.x[i], l1.y[i]);
-	}
+    for (int i = 0; i < N; i++) {
+        printf("x: %f, y: %f\n", l1.x[i], l1.y[i]);
+    }
 
     // Used to check results
     int info_potrf = 0;
@@ -164,7 +215,7 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
     sum = ParsecDZSum(parsec, (parsec_tiled_matrix_dc_t *)&dcZ);
     fprintf( stderr, "\nin main Z: sum after generation %.17g\n", sum );
 
-    		/* Free memory */
+            /* Free memory */
     parsec_data_free( dcC.mat );
     parsec_tiled_matrix_dc_destroy( (parsec_tiled_matrix_t*)&dcC );
 
@@ -179,28 +230,29 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
                 (size_t)parsec_datadist_getsizeoftype(hicma_data->dcA0.super.mtype));
         parsec_data_collection_set_key((parsec_data_collection_t*)&hicma_data.dcA0, "dcA0");
     }
-	int ret = 0;
+    int ret = 0;
 
-    		/* Check results */
-		if( 0 == rank && info_potrf != 0 ) {
-			fprintf(stderr, "-- Cholesky factorization is suspicious (info_potrf = %d) ! \n", info_potrf);
-			ret |= 1;
-			//exit(1);
-		}
+            /* Check results */
+        if( 0 == rank && info_potrf != 0 ) {
+            fprintf(stderr, "-- Cholesky factorization is suspicious (info_potrf = %d) ! \n", info_potrf);
+            ret |= 1;
+            //exit(1);
+        }
 
-		if( 0 == rank && info_trmm != 0 ) {
-			fprintf(stderr, "-- TRMM is suspicious (info_potrf = %d) ! \n", info_trmm);
-			ret |= 1;
-		}
+        if( 0 == rank && info_trmm != 0 ) {
+            fprintf(stderr, "-- TRMM is suspicious (info_potrf = %d) ! \n", info_trmm);
+            ret |= 1;
+        }
 
-		if( 0 == rank ) {
-			fprintf(stderr, "Done Z Vector Generation Phase.\n");
-			fprintf(stderr, "************************************************************\n");
-		}
+        if( 0 == rank ) {
+            fprintf(stderr, "Done Z Vector Generation Phase.\n");
+            fprintf(stderr, "************************************************************\n");
+        }
 
     Results::GetInstance()->SetGeneratedLocationsNumber(aConfigurations.GetProblemSize());
     Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
     Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
+#endif
 
     return data;
 }
