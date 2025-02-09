@@ -251,10 +251,7 @@ fi
   -B"${ABSOLUTE_PATH}/bin" \
   -G "Unix Makefiles" \
   -DCMAKE_CXX_FLAGS_DEBUG="$COMPILE_FLAGS" \
-  -DCMAKE_CXX_FLAGS_RELEASE="$COMPILE_FLAGS" \
-  -DCUDAToolkit_ROOT=/usr/local/cuda \
-  -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda \
-  -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc
+  -DCMAKE_CXX_FLAGS_RELEASE="$COMPILE_FLAGS"
 
 if [ "$USE_R" = "ON" ]; then
   # Change to the bin directory, or exit if it doesn't exist.
