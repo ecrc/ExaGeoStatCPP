@@ -89,7 +89,6 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
                                           aConfigurations.GetProblemSize(), aKernel.GetVariablesNumber(), path,
                                           *data->GetLocations());
 #endif
-        VERBOSE("Done.")
     }
 #else
 
@@ -254,6 +253,7 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
     Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());
 #endif
 
+    VERBOSE("Done.")
     return data;
 }
 
