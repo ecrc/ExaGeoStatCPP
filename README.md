@@ -55,7 +55,14 @@ statisticians with modest computational resources.
 
 ## Installation
 
-> Note: Installation requires at least **CMake of version 3.2**. to build ExaGeoStatCPP.
+### Requirements
+To build and run this software, you will need:
+
+1. [CMake](https://cmake.org/download/) (version 3.2 or higher)
+2. [wget](https://www.gnu.org/software/wget/)
+3. **gcc** and **g++** compilers
+4. [R](https://cran.r-project.org/bin/windows/base/) (only if you plan on using the R functionality)
+
 
 ### C++ source code installation
 To install the `ExaGeoStat` project locally, run the following commands in your terminal:
