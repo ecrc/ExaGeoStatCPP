@@ -131,7 +131,8 @@ namespace exageostat::common {
      */
     enum DescriptorType {
         CHAMELEON_DESCRIPTOR = 0,
-        HICMA_DESCRIPTOR = 1
+        HICMA_DESCRIPTOR = 1,
+        PARSEC_DESCRIPTOR = 2
     };
 
     /**
@@ -141,7 +142,8 @@ namespace exageostat::common {
      */
     enum DataSourceType {
         SYNTHETIC = 0,
-        CSV_FILE = 1
+        CSV_FILE = 1,
+        PARSEC_FILE = 2
     };
 
     /**
@@ -205,6 +207,21 @@ namespace exageostat::common {
         DESCRIPTOR_SUM = 52,
         DESCRIPTOR_R = 53,
         DESCRIPTOR_R_COPY = 54,
+        DESCRIPTOR_F_DATA = 55,
+        DESCRIPTOR_ET1 = 56,
+        DESCRIPTOR_ET2 = 57,
+        DESCRIPTOR_EP = 58,
+        DESCRIPTOR_SLMN = 59,
+        DESCRIPTOR_IE = 60,
+        DESCRIPTOR_IO = 61,
+        DESCRIPTOR_P = 62,
+        DESCRIPTOR_D = 63,
+        DESCRIPTOR_FLMERA = 64,
+        DESCRIPTOR_ZLM = 65,
+        DESCRIPTOR_SC = 66,
+        DESCRIPTOR_F_SPATIAL = 67,
+        DESCRIPTOR_FLM = 68,
+        DESCRIPTOR_FLMT = 69
     };
 
     /**

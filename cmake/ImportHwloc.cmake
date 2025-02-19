@@ -12,7 +12,7 @@
 
 # Configuration settings for integrating the HWLOC library
 # 'name' sets the identifier for the HWLOC library within this script to "HWLOC".
-set(name "HWLOC")
+set(name "Hwloc")
 # 'tag' specifies "hwloc-2.10.0" as the version tag, identifying a specific release of HWLOC to be used.
 set(tag "hwloc-2.10.0")
 # 'version' defines "2.10.0" as the version of HWLOC, ensuring it meets project compatibility requirements.

@@ -18,8 +18,8 @@ cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 cmake_policy(SET CMP0048 NEW)
 
 # Set project options
-option(USE_CUDA "Use Cuda, if available" false)
-option(USE_MPI "Use MPI, if available" false)
+option(USE_CUDA "Use CUDA, if available" OFF)
+option(USE_MPI "Use MPI, if available" OFF)
 option(BUILD_TESTS "Option to enable building tests" OFF)
 option(BUILD_HEAVY_TESTS "Option to enable building heavy tests, This may take a lot of time" OFF)
 option(BUILD_EXAMPLES "Option to enable building examples" ON)
@@ -27,14 +27,26 @@ option(BUILD_DOCS "Build documentation in docs directory" ON)
 option(USE_R "Enable the use of R and Rcpp in the project" OFF)
 option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
 
+# Declare the RUNTIME_TYPE variable with a default value
+set(RUNTIME_TYPE "starpu" CACHE STRING "Specify the runtime type (e.g., starpu or parsec)")
 # Cmake Module Paths
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
-
 if (${BUILD_SHARED_LIBS})
     set(BLA_STATIC OFF)
 else ()
     set(BLA_STATIC ON)
 endif ()
+
+# Project Name and Version
+project(ExaGeoStatCPP VERSION 2.0.0 DESCRIPTION "ExaGeoStatCPP is a parallel high performance unified framework for geostatistics on manycore systems.")
+set(CMAKE_CXX_EXTENSIONS OFF)
+string(TOUPPER ${RUNTIME_TYPE} RUNTIME_TYPE)
+
+if(RUNTIME_TYPE STREQUAL "PARSEC")
+    message(STATUS "MPI is required to be enabled in order to use PaRSEC")
+    set(USE_MPI ON)
+    set(USE_HICMA OFF)
+endif()
 
 # Select toolchain based on whether CUDA is enabled or not
 if (USE_CUDA)
@@ -52,9 +64,6 @@ else ()
     # Include GccToolchain for non-CUDA builds - Gcc
     include(toolchains/GccToolchain)
 endif ()
-
-# Project Name and Version
-project(ExaGeoStatCPP VERSION 1.0.0 DESCRIPTION "ExaGeoStatCPP is a parallel high performance unified framework for geostatistics on manycore systems.")
 
 # Show the current version of CMake.
 message(STATUS "CMAKE VERSION: ${CMAKE_VERSION}")
@@ -115,30 +124,42 @@ include(ImportHwloc)
 list(APPEND STARPU_COMPONENT_LIST "HWLOC")
 string(REPLACE ";" " " STARPU_COMPONENT_STRING "${STARPU_COMPONENT_LIST}")
 
-# ExaGeoStatCPP depends on StarPU runtime
+# ExaGeoStatCPP depends on NLOPT
 # -------------------------------
-include(ImportStarPu)
+include(ImportNLOPT)
 
 # ExaGeoStatCPP depends on GSL
 # -------------------------------
 include(ImportGSL)
 
-# ExaGeoStatCPP depends on NLOPT
-# -------------------------------
-include(ImportNLOPT)
+message("---------------------------------------- ${RUNTIME_TYPE}")
+if(RUNTIME_TYPE STREQUAL "STARPU")
+    message(STATUS "Using StarPU as the runtime")
+    # ExaGeoStatCPP depends on StarPU runtime
+    # -------------------------------
+    include(ImportStarPu)
+    # ExaGeoStatCPP depends on HiCMA
+    # -------------------------------
+    if (USE_HICMA)
+        add_definitions(-DUSE_HICMA=TRUE)
+        include(ImportHCore)
+        include(ImportStarsH)
+        include(ImportHiCMA)
+    endif ()
+    # ExaGeoStatCPP depends on Chameleon
+    # -------------------------------
+    include(ImportChameleon)
 
-# ExaGeoStatCPP depends on HiCMA
-# -------------------------------
-if (USE_HICMA)
-    add_definitions(-DUSE_HICMA=TRUE)
-    include(ImportHCore)
+elseif(RUNTIME_TYPE STREQUAL "PARSEC")
+    message(STATUS "Using PaRSEC as the runtime")
+    # ExaGeoStatCPP depends on StarPU runtime
+    # -------------------------------
     include(ImportStarsH)
-    include(ImportHiCMA)
-endif ()
-
-# ExaGeoStatCPP depends on Chameleon
-# -------------------------------
-include(ImportChameleon)
+    include(ImportHCore)
+    include(ImportHiCMAX)
+else()
+    message(FATAL_ERROR "Unknown RUNTIME_TYPE: ${RUNTIME_TYPE}. Supported values are 'STARPU' or 'PARSEC'.")
+endif()
 
 # ExaGeoStatCPP depends on LAPACK/BLASPP
 # -------------------------------
@@ -173,9 +194,15 @@ if (USE_R)
     endif ()
 endif ()
 
-
 # Add src Directory to expose added libraries
 add_subdirectory(src)
+
+# Define USE_STARPU or USE_RUNTIME based on the selected runtime
+if(RUNTIME_TYPE STREQUAL "STARPU")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC DEFAULT_RUNTIME=1)
+elseif(RUNTIME_TYPE STREQUAL "PARSEC")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC DEFAULT_RUNTIME=0)
+endif()
 
 # Creates a new INTERFACE library target named ${PROJECT_NAME}_INTERFACE.
 # The INTERFACE keyword specifies that this library will not be built, but instead will only be used for its properties.
@@ -218,15 +245,21 @@ endif ()
 message(" \n \t ** Configurations of ExaGeoStatCPP and installation of dependence is done successfully ** ")
 message("\t - Export the following line to avoid re-install dependencies each time. -")
 message("\t ----------------------------------------------------------------------------------------------------------------------------------- ")
-message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARPU/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HWLOC/lib/pkgconfig:$PKG_CONFIG_PATH")
-message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
 message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/NLOPT/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/NLOPT/lib64/pkgconfig:$PKG_CONFIG_PATH")
-if(USE_HICMA)
+message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/GSL/lib/pkgconfig:$PKG_CONFIG_PATH")
+if(RUNTIME_TYPE STREQUAL "STARPU")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARPU/lib/pkgconfig:$PKG_CONFIG_PATH")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/CHAMELEON/lib/pkgconfig:$PKG_CONFIG_PATH")
+    if(USE_HICMA)
+        message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
+        message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HCORE/lib/pkgconfig:$PKG_CONFIG_PATH")
+        message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
+    endif()
+elseif(RUNTIME_TYPE STREQUAL "PARSEC")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HCORE/lib/pkgconfig:$PKG_CONFIG_PATH")
-    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
+    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA-X/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64:$PKG_CONFIG_PATH")
 endif()
 message("\t ----------------------------------------------------------------------------------------------------------------------------------- \n")
 

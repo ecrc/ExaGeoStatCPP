@@ -1,0 +1,123 @@
+
+extern "C" %{
+/*
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+static int ReadCSVCore(const char* apFilename, double *apData, int aM, int aN, int aGpus) {
+
+    FILE *pFile = fopen(apFilename, "r");
+    if (!pFile) {
+        printf("File opening failed: %s", apFilename);
+        return -1;
+    }
+
+    int status = 0;
+    if( 0 == aGpus ) {
+        complex double *pData = (complex double *)apData;
+        for (int i = 0; i < aM; i++) {
+            for (int j = 0; j < aN; j++) {
+                // Assuming the CSV data is separated by commas,
+                // fscanf can be used to read directly into the array.
+                status = fscanf(pFile, "%lf,", &apData[j*aM+i]);
+#if DEBUG_INFO_GB24
+                if (status != 1) {
+                    fprintf(stderr, "Error reading file at row %d, column %d\n", i, j);
+                    fclose(pFile);
+                    return 1;
+                }
+#endif
+            }
+        }
+    }
+    fclose(pFile);
+    return 0;
+}
+
+%}
+
+pDescA         [ type = "parsec_tiled_matrix_t*" ]
+pFilename      [ type = "char *" ]
+nb_gpus        [ type = "int" ]
+
+task(m, n)
+
+m = 0 .. pDescA->lmt-1
+n = 0 .. pDescA->lnt-1
+
+: pDescA(m, n)
+
+RW A <- pDescA(m, n)
+     -> pDescA(m, n)
+
+BODY
+{
+    ReadCSVCore(pFilename, A, pDescA->mb, pDescA->nb, nb_gpus);
+    if(0 == nb_gpus) SumDoubleData(A, pDescA->mb, pDescA->nb);
+}
+END
+
+extern "C" %{
+
+/**
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t* ReadCSVConstructor(parsec_matrix_block_cyclic_t *apDesc, int aMB, int aNB, int aNodes,
+                                                int aTimeSlot, char *apFilename, int aRank, int aVerbose, int aGpus) {
+
+    // Init and allocate memory
+    int kq = (aTimeSlot%aNodes)? aTimeSlot/aNodes+1 : aTimeSlot/aNodes;
+    parsec_matrix_block_cyclic_init(apDesc, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, aRank, aMB, aNB, aMB,
+                                    aNB*aNodes, 0, 0, aMB, aNB*aNodes, 1, aNodes, 1, kq, 0, 0);
+
+    apDesc->mat = parsec_data_allocate((size_t)apDesc->super.nb_local_tiles *
+                                   (size_t)apDesc->super.bsiz *
+                                   (size_t)parsec_datadist_getsizeoftype(apDesc->super.mtype));
+
+    if(NULL == apFilename) {
+        parsec_data_collection_set_key((parsec_data_collection_t*)apDesc, "desc");
+        VERBOSE_PRINT(aRank, aVerbose, ("FileName is NULL\n"));
+        return NULL;
+    }
+    parsec_data_collection_set_key((parsec_data_collection_t*)apDesc, apFilename);
+    parsec_ReadCSV_taskpool_t *taskpool = parsec_ReadCSV_new(&apDesc->super, apFilename, aGpus);
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_ReadCSV_DEFAULT_ADT_IDX],
+                        parsec_datatype_double_complex_t, PARSEC_MATRIX_FULL,
+                        1, aMB, aNB, aMB, PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void ReadCSVDestructor(parsec_taskpool_t *pTaskpool)
+{
+    parsec_ReadCSV_taskpool_t *ReadCSV_taskpool = (parsec_ReadCSV_taskpool_t *)pTaskpool;
+    parsec_del2arena(&ReadCSV_taskpool->arenas_datatypes[PARSEC_ReadCSV_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(pTaskpool);
+}
+
+int ReadCSV(parsec_context_t *apContext, parsec_matrix_block_cyclic_t *apDesc, int aMB, int aNB, int aNodes,
+            int aTimeSlot, char *apFilename, int aRank, int aVerbose, int aGpus)
+{
+    VERBOSE_PRINT(aRank, aVerbose, ("Reading %s\n", apFilename));
+    parsec_taskpool_t *pTaskpool = ReadCSVConstructor(apDesc, aMB, aNB, aNodes, aTimeSlot,
+                                                        apFilename, aRank, aVerbose, aGpus);
+
+    if(pTaskpool != NULL ){
+        parsec_context_add_taskpool(apContext, pTaskpool);
+        parsec_context_start(apContext);
+        parsec_context_wait(apContext);
+        ReadCSVDestructor(pTaskpool);
+    }
+    return 0;
+}
+
+%}

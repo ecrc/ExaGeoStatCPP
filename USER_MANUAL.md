@@ -80,6 +80,7 @@
 * To enable packaging system for distribution, add `-p` disabled by default.
 * To enable showing code warnings, add `-w` disabled by default.
 * To manually set mkl as blas vendor, add `--use-mkl`. MKL is required as blas vendor and it's automatically detected but in some environments it need to be manually set.
+* To enable PaRSEC as a runtime system, add `--use=parsec`, StarPU by default.
 
 ## Building
 

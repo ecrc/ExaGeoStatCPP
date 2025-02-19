@@ -12,6 +12,7 @@
 # Include the concrete implementations of the ExaGeoStat Descriptor class
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptor)
 
+# Initialize SOURCES variable if not already initialized
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Locations.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorData.cpp
@@ -19,3 +20,4 @@ set(SOURCES
         ${SOURCES}
         PARENT_SCOPE
         )
+

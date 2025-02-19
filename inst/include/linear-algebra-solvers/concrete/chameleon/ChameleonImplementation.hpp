@@ -71,6 +71,11 @@ namespace exageostat::linearAlgebra {
         ExaGeoStatCreateSequence(void *apSequence) override;
     };
 
+    /**
+    * @brief Instantiates the Chameleon Implementation class for float and double types.
+    * @tparam T Data Type: float or double
+    *
+    */
     EXAGEOSTAT_INSTANTIATE_CLASS(ChameleonImplementation)
 }//namespace exageostat
 

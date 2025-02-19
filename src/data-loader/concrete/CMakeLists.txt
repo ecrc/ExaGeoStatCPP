@@ -10,8 +10,16 @@
 # @date 2023-02-14
 
 # Add source files to the parent scope
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/CSVLoader.cpp
-        ${SOURCES}
-        PARENT_SCOPE
+if (RUNTIME_TYPE STREQUAL "STARPU")
+        set(SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/CSVLoader.cpp
+                ${SOURCES}
+                PARENT_SCOPE
         )
+elseif (RUNTIME_TYPE STREQUAL "PARSEC")
+        set(SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/ParsecLoader.cpp
+                ${SOURCES}
+                PARENT_SCOPE
+        )
+endif()

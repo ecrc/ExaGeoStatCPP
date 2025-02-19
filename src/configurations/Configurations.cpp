@@ -12,9 +12,11 @@
  * @date 2024-02-04
 **/
 
+#include <cstring>
+
 #include <configurations/Configurations.hpp>
-#include <kernels/Kernel.hpp>
 #include <utilities/Logger.hpp>
+#include <kernels/Kernel.hpp>
 
 using namespace std;
 
@@ -34,7 +36,7 @@ Configurations::Configurations() {
     SetGPUsNumbers(0);
     SetPGrid(1);
     SetQGrid(1);
-    SetMaxRank(1);
+    SetMaxRank(-1);
     SetIsOOC(false);
     SetKernelName("");
     SetDimension(Dimension2D);
@@ -68,6 +70,20 @@ Configurations::Configurations() {
     SetAccuracy(0);
     SetIsNonGaussian(false);
     mIsThetaInit = false;
+#if !DEFAULT_RUNTIME
+    // Set default values for Hicma-Parsec params
+    SetDenseBandDP(0);
+    SetObjectsNumber(0);
+    SetAdaptiveDecision(0);
+    SetDiagonalAddition(0);
+    SetTimeSlotPerFile(1);
+    SetFileNumber(1);
+    SetEnableInverse(false);
+    SetMPIIO(true);
+    SetTolerance(0);
+    // TODO: currently, we support real data only in parsec. In the future, we should support synthetic and real data for both runtimes
+    SetIsSynthetic(false);
+#endif
 }
 
 void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const bool &aEnableR) {
@@ -152,6 +168,19 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
                 ParseDistanceMetric(argument_value);
             } else if (argument_name == "--logpath" || argument_name == "--log_path" || argument_name == "--logPath") {
                 SetLoggerPath(argument_value);
+            } else if(argument_name == "--band_dense" || argument_name == "--bandDense"){
+                SetDenseBandDP(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--numobj" || argument_name == "--obj-num" || argument_name == "--objnum"){
+                SetObjectsNumber(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--adaptive_decision"){
+                SetAdaptiveDecision(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--add_diag" || argument_name == "--add-diag" || argument_name == "--add-diagonal"
+            || argument_name == "--add-diag-elements"){
+                SetDiagonalAddition(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--file_time_slot" || argument_name == "--fileTimeSlot"){
+                SetTimeSlotPerFile(CheckNumericalValue(argument_value));
+            } else if(argument_name == "--numFiles" || argument_name == "--file-num"){
+                SetFileNumber(CheckNumericalValue(argument_value));
             } else {
                 if (!(argument_name == "--ZmissNumber" || argument_name == "--Zmiss" ||
                       argument_name == "--ZMiss" || argument_name == "--predict" || argument_name == "--Predict" ||
@@ -181,6 +210,10 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
                 SetApproximationMode(true);
             } else if (argument_name == "--log" || argument_name == "--Log") {
                 SetLogger(true);
+            } else if(argument_name == "--enable-inverse" || argument_name == "--enable_inverse"){
+                SetEnableInverse(true);
+            } else if(argument_name == "--mpiio"){
+                SetMPIIO(true);
             } else {
                 if (!(argument_name == "--mspe" || argument_name == "--MSPE" ||
                       argument_name == "--idw" || argument_name == "--IDW" ||
@@ -198,13 +231,27 @@ void Configurations::InitializeArguments(const int &aArgC, char **apArgV, const 
     if (GetProblemSize() == 0 && GetIsSynthetic()) {
         throw domain_error("You need to set the problem size, before starting");
     }
+
     if (GetDenseTileSize() == 0) {
         throw domain_error("You need to set the Dense tile size, before starting");
     }
+
+#if DEFAULT_RUNTIME
     // Throw Errors if any of these arguments aren't given by the user.
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
+    if(GetMaxRank() == -1){
+        SetMaxRank(1);
+    }
+#else
+    if(GetMaxRank() == -1){
+        SetMaxRank(GetDenseTileSize() / 2);
+    }
+    if(GetTolerance() >= 0){
+        SetTolerance(8);
+    }
+#endif
 
     size_t found = GetKernelName().find("NonGaussian");
     // Check if the substring was found
@@ -274,11 +321,19 @@ void Configurations::InitializeDataGenerationArguments() {
     }
     if (GetDimension() != DimensionST) {
         if (GetTimeSlot() != 1) {
+#if DEFAULT_RUNTIME
             throw std::runtime_error("Time Slot can only be greater than 1 if the dimensions are set to SpaceTime.");
+#endif
         }
     } else if (GetTimeSlot() < 1) {
         throw std::runtime_error("Time Slot must be at least 1 if the dimensions are set to SpaceTime.");
     }
+
+#if !DEFAULT_RUNTIME
+    if (GetDataPath().empty()) {
+        throw domain_error("You need to set the data path, before starting");
+    }
+#endif
 }
 
 void Configurations::InitializeDataModelingArguments() {
@@ -421,6 +476,14 @@ void Configurations::PrintUsage() {
     LOGGER("--approximation_mode : Used to enable Approximation mode.")
     LOGGER("--log : Enable logging.")
     LOGGER("--acc : Used to set the accuracy when using tlr.")
+    LOGGER("--band_dense=value : Used to set the dense band double precision, Used with PaRSEC runtime only.")
+    LOGGER("--numobj=value : Used to set the number of objects (number of viruses within a population), Used with PaRSEC runtime only.")
+    LOGGER("--adaptive_decision=value : Used to set the adaptive decision of each tile's format using norm approach, if enabled, otherwise 0, Used with PaRSEC runtime only.")
+    LOGGER("--add_diag=value : Used to add this number to diagonal elements to make the matrix positive definite in electrodynamics problem, Used with PaRSEC runtime only.")
+    LOGGER("--file_time_slot=value : Used to set time slot per file, Used with PaRSEC runtime only.")
+    LOGGER("--numFiles=value : Used to set file number, Used with PaRSEC runtime only.")
+    LOGGER("--enable-inverse : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
+    LOGGER("--mpiio : Used to enable MPI IO, Used with PaRSEC runtime only.")
     LOGGER("\n\n")
 
     exit(0);
@@ -630,6 +693,7 @@ void Configurations::PrintSummary() {
     if (!mFirstInit) {
 
         LOGGER("********************SUMMARY**********************")
+#if DEFAULT_RUNTIME
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Data generation")
         } else {
@@ -674,6 +738,12 @@ void Configurations::PrintSummary() {
         if (this->GetIsOOC()) {
             LOGGER("#Out Of Core (OOC) technology is enabled")
         }
+#else
+        LOGGER("\t#L: " << this->GetDenseTileSize() << "\t\t\t\t#T: " << this->GetTimeSlot())
+        LOGGER("\t#NB: " << this->GetDenseTileSize() << "\t\t\t\t#gpus: " << this->GetGPUsNumbers())
+        LOGGER("\t#Nodes: " << this->GetCoresNumber() << "\t\t\t#Time slot per file: " << GetTimeSlotPerFile());
+        LOGGER("\t#Number of files: " << this->GetFileNumber() << "\t#File per node: " << ((this->GetFileNumber()%this->GetCoresNumber())? this->GetFileNumber()/this->GetCoresNumber()+1 : this->GetFileNumber()/this->GetCoresNumber()))
+#endif
         LOGGER("*************************************************")
         mFirstInit = true;
     }

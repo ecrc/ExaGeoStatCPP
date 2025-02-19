@@ -10,8 +10,12 @@
 # @date 2024-03-10
 
 # Include runtime directory,based on runtime flag.
-if ("${RUNTIME_TYPE}" STREQUAL "parsec")
+if ("${RUNTIME_TYPE}" STREQUAL "PARSEC")
     add_subdirectory(parsec)
+    set(JDF_GENERATED_SOURCES
+            ${JDF_GENERATED_SOURCES}
+            PARENT_SCOPE
+            )
 else ()
     #by default use StarPu runtime.
     add_subdirectory(starpu)
@@ -22,4 +26,3 @@ set(SOURCES
         ${SOURCES}
         PARENT_SCOPE
         )
-

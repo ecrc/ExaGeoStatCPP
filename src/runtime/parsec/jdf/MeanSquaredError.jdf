@@ -1,0 +1,96 @@
+extern "C" %{
+/*
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+static double NormCore(complex double *apDataA, double *apDataB, int aM, int aN, int aLSize) {
+    double result = 0.0, diff;
+    for(int j = 0; j < aN; j++) {
+        for(int i = 0; i < aM; i++) {
+            double diff = creal(apDataA[j*aM+i]) - apDataB[j*aM+i];
+            result += diff * diff;
+        }
+    }
+    return sqrt(result) / (2*aLSize*(aLSize+1));
+}
+
+%}
+
+apFDataDesc       [ type = "parsec_tiled_matrix_t*" ]
+apFSpatialDesc    [ type = "parsec_tiled_matrix_t*" aligned = apFDataDesc ]
+aLSize            [type="int"]
+
+task(n)
+
+n = 0 .. apFDataDesc->lnt-1
+
+: apFDataDesc(0, n)
+
+READ f_data    <- apFDataDesc(0, n)         [ type = f_data ]
+READ f_spatial <- apFSpatialDesc(0, n)      [ type = f_spatial ]
+
+BODY
+{
+    double norm = NormCore(f_data, f_spatial, apFDataDesc->mb, apFDataDesc->nb, aLSize);
+}
+END
+
+extern "C" %{
+
+/**
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+MeanSquaredErrorConstructor( parsec_matrix_block_cyclic_t * apDataDesc, parsec_matrix_block_cyclic_t * apSpatialDesc, int aLSize)
+{
+    int mb = apDataDesc->super.mb;
+    int nb = apDataDesc->super.nb;
+    parsec_MeanSquaredError_taskpool_t *pTaskpool = parsec_MeanSquaredError_new(&apDataDesc->super, &apSpatialDesc->super, aLSize);
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_MeanSquaredError_f_data_ADT_IDX],
+                            parsec_datatype_double_complex_t, PARSEC_MATRIX_FULL,
+                            1, mb, nb, mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_MeanSquaredError_f_spatial_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, mb, nb, mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)pTaskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void MeanSquaredErrorDestructor(parsec_taskpool_t *apTaskpool)
+{
+    parsec_MeanSquaredError_taskpool_t *pTaskpool = (parsec_MeanSquaredError_taskpool_t *)apTaskpool;
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_MeanSquaredError_f_data_ADT_IDX]);
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_MeanSquaredError_f_spatial_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ */
+int MeanSquaredError(parsec_context_t *apContext, parsec_matrix_block_cyclic_t* apDataDesc,
+        parsec_matrix_block_cyclic_t* apSpatialDesc, int aLSize)
+{
+    parsec_taskpool_t *pParsec_MeanSquaredError = NULL;
+    pParsec_MeanSquaredError = MeanSquaredErrorConstructor(apDataDesc, apSpatialDesc, aLSize);
+    if( pParsec_MeanSquaredError != NULL ){
+        parsec_context_add_taskpool(apContext, pParsec_MeanSquaredError);
+        parsec_context_start(apContext);
+        parsec_context_wait(apContext);
+        MeanSquaredErrorDestructor(pParsec_MeanSquaredError);
+    }
+
+    return 0;
+}
+
+%}

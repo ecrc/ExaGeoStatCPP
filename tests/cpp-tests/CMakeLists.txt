@@ -8,19 +8,24 @@
 # @author Mahmoud ElKarargy
 # @date 2024-01-24
 
-add_subdirectory(api)
 add_subdirectory(configurations)
-add_subdirectory(data-generators)
-add_subdirectory(hardware)
-add_subdirectory(helpers)
-add_subdirectory(kernels)
-add_subdirectory(linear-algebra-solvers)
-add_subdirectory(prediction)
-add_subdirectory(results)
 
-if (USE_HICMA)
-    add_subdirectory(data-units)
-endif ()
+# Check the value of RUNTIME_TYPE
+if(RUNTIME_TYPE STREQUAL "STARPU")
+    add_subdirectory(api)
+    add_subdirectory(data-generators)
+    add_subdirectory(hardware)
+    add_subdirectory(helpers)
+    add_subdirectory(kernels)
+    add_subdirectory(linear-algebra-solvers)
+    add_subdirectory(prediction)
+    add_subdirectory(results)
+    if (USE_HICMA)
+        add_subdirectory(data-units)
+    endif ()
+elseif(RUNTIME_TYPE STREQUAL "PARSEC")
+
+endif()
 
 if (USE_R)
     add_subdirectory(Rcpp-adapters)

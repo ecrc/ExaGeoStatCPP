@@ -1,0 +1,139 @@
+extern "C" %{
+/**
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ **/
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+%}
+
+/* Globals
+ */
+apADesc           [ type = "parsec_tiled_matrix_t*" ]
+aNT               [ type = "int" ]
+aUpperLower       [ type = "int" ]
+apNorm            [ type = "double *" ]
+apNormTile        [ type = "double *" ]
+aIsSymmetric      [ type = "int" ]
+
+/**************************************************
+ *        generate diagonal tiles                 *
+ **************************************************/
+task(m, n)
+
+// Execution space
+m = 0 .. apADesc->mt-1
+n = 0 .. (aIsSymmetric ? m : apADesc->nt-1) // Adjust based on matrix symmetry
+
+// Parallel partitioning
+:apADesc(m, n)
+
+// Parameters
+READ D <- apADesc(m, n)
+
+BODY
+{
+    int ldd = BLKLDD(apADesc, m);
+    int tempmm = m == apADesc->mt-1 ? apADesc->m - m * apADesc->mb : apADesc->mb;
+    int tempnn = tempmm;
+
+    /* Calcuate the global norm */
+    int tid = es->th_id;
+    double current_value = 0.0;
+    apNormTile[n * aNT + m] = 0.0;
+
+    // Diagonal modification for symmetric matrices
+    if (aIsSymmetric && m == n) {
+        for(int i = 0; i < apADesc->mb; i++) {
+            ((double *)D)[i * apADesc->mb + i] += 1.0e-6;
+        }
+    }
+
+    // Norm calculation
+    for (int j = 0; j < apADesc->nb; j++) {
+        for (int i = 0; i < apADesc->mb; i++) {
+            current_value = ((double *) D)[j * apADesc->mb + i];
+            apNormTile[n * aNT + m] += current_value * current_value;
+        }
+    }
+
+    apNorm[tid] += apNormTile[n * aNT + m];
+    apNormTile[n * aNT + m] = sqrt(apNormTile[n * aNT + m]);
+
+    if(m - n >= aNT * PORTION_NORM ){
+        apNorm[tid] = 0.0;
+    }
+}
+END
+
+extern "C" %{
+
+/**
+ * Generate matrix
+ * @return the parsec object to schedule
+ */
+parsec_taskpool_t*
+GetMatrixNormConstructor(parsec_tiled_matrix_t *apADesc, int aUpperLower, int aNT,
+                         double *apNormTmp, double *apNormTile, int aIsSymmetric)
+{
+
+    /* Check input arguments */
+    if (aUpperLower != PlasmaLower) {
+        dplasma_error("STARSH_appr_New", "illegal value of uplo, should be PlasmaLower\n");
+        return NULL;
+    }
+
+    parsec_GetMatrixNorm_taskpool_t *pTaskpool = parsec_GetMatrixNorm_new(apADesc, aNT, aUpperLower,
+                                                                          apNormTmp, apNormTile, aIsSymmetric);
+
+    return (parsec_taskpool_t*) pTaskpool;
+}
+
+/* Destructor */
+void GetMatrixNormDestructor(parsec_taskpool_t *apTaskpool)
+{
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * Generate matrix 
+ */
+void GetMatrixNorm(parsec_context_t *apContext, double *apNormGlobal, parsec_tiled_matrix_t *apADesc,
+                   int aNT, int aUpperLower, int aIsSymmetric)
+{
+
+    /* Only for 1 vp */
+    assert(apContext->nb_vp == 1);
+    int nb_threads = apContext->virtual_processes[0]->nb_cores;
+    double *pNormTmp = (double *) calloc(nb_threads, sizeof(double));
+
+    /* Make sure norm_tile and norm_global is fresh */
+    double* pNormTile = (double*) malloc(aNT * aNT * sizeof(double));
+    memset(pNormTile, 0, aNT * aNT * sizeof(double));
+    *apNormGlobal = 0.0;
+    parsec_taskpool_t *pTaskpool = GetMatrixNormConstructor(apADesc, aUpperLower, aNT,
+                                                             pNormTmp, pNormTile, aIsSymmetric);
+
+    parsec_context_add_taskpool(apContext, pTaskpool);
+    parsec_context_start(apContext);
+    parsec_context_wait(apContext);
+    GetMatrixNormDestructor(pTaskpool);
+
+    /* Reduce to the global norm */
+    double norm_process = 0.0;
+    for(int i = 0; i < nb_threads; i++) {
+        norm_process += pNormTmp[i];
+    }
+
+    MPI_Allreduce(MPI_IN_PLACE, pNormTile, aNT * aNT, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&norm_process, apNormGlobal, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    *apNormGlobal = sqrt(*apNormGlobal);
+
+    free(pNormTile);
+    free(pNormTmp);
+}
+
+%}

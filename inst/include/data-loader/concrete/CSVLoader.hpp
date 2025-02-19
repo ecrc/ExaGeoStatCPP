@@ -5,7 +5,7 @@
 
 /**
  * @file  CSVLoader.hpp
- * @brief A class for generating synthetic data.
+ * @brief A class for loading csv format data.
  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
@@ -54,6 +54,14 @@ namespace exageostat::dataLoader::csv {
                   exageostat::dataunits::Locations<T> &aLocations) override;
 
         /**
+        * @brief Loads data based on given configuration.
+        * @copydoc DataLoader::LoadData()
+        *
+        */
+       std::unique_ptr<ExaGeoStatData<T>>
+       LoadData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel) override;
+
+       /**
          * @brief Release the singleton instance of the  CSVLoader class.
          * @return void
          *
