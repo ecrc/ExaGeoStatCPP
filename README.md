@@ -210,23 +210,25 @@ exageostat_data <- simulate_data(
 
 # Estimate model parameters using MLE
 estimated_theta <- model_data(
-  data = exageostat_data,
-  kernel = kernel,
-  dts = dts,
-  dimension = dimension,
-  lb = lower_bound,
-  ub = upper_bound,
-  mle_itr = opt_itrs
-)
+  matrix=exageostat_data$m,
+  x=exageostat_data$x,
+  y=exageostat_data$y,
+  kernel=kernel, dts=dts,
+  dimension=dimension,
+  lb=lower_bound,
+  ub=upper_bound,
+  mle_itr=opt_itrs)
 
 # Perform spatial prediction using the estimated parameters
+test_x <- c(0.2, 0.330)
+test_y <- c(0.104, 0.14)
 predict_data(
-  train_data = list(x, y, z_measurement),
-  test_data = list(test_x, test_y),
-  kernel = kernel,
-  dts = dts,
-  estimated_theta = estimated_theta
-)
+  train_data=list(x=exageostat_data$x, y=exageostat_data$y, exageostat_data$m),
+  test_data=list(test_x, test_y),
+  kernel=kernel,
+  dts=dts,
+  estimated_theta=estimated_theta)
+
 ```
 
 This example walks through initializing hardware, simulating spatial data, estimating model parameters, and making predictions using **ExaGeoStatCPP** in R.
