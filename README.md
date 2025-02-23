@@ -181,19 +181,19 @@ Here is an example demonstrating how to use **ExaGeoStatCPP** in R:
 library(ExaGeoStatCPP)
 
 # Set parameters for the simulation
-dimension <- "2D"
-ncores <- 4
+ncores <- 30
 ngpus <- 0
 problem_size <- 1600
 dts <- 320
 lts <- 0
 computation <- "exact"
+dimension <- "2D"
 kernel <- "univariate_matern_stationary"
-initial_theta <- c(1, 0.1, 0.5)
+initial_theta <- c(1,0.1,0.5)
+lower_bound <- c(0.1,0.1,0.1)
+upper_bound <- c(5,5,5)
 p <- 1
 q <- 1
-lower_bound <- 0.01
-upper_bound <- 2
 opt_itrs <- 100
 
 # Initialize hardware configuration
