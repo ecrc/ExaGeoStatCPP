@@ -80,12 +80,12 @@ To install the `ExaGeoStatCPP` project locally (C++ version), run the following 
 
 3. Run `configure` script   (use the `-h` flag for help, to know the supported options and their corresponding flags). This step is **not required** when using R.
    ```bash
-   ./configure -h
+   ./configure -e 
    ```
 
 4. Run `clean_build.sh` (use the `-h` flag for help, to know the needed arguments to run with your specific options). This step is **not required** when using R.
    ```bash
-   ./clean_build.sh -h
+   ./clean_build.sh
    ```
 
 5. Export the installation paths of the dependencies to your `.bashrc` file, e.g.
@@ -100,7 +100,6 @@ ExaGeoStatCPP.
 1. Open the R prompt window by simply running `R` command in the terminal, inside the prompt, we will install needed packages by running the following commands:
    ```R
    install.packages("Rcpp")
-   install.packages("assert")
    install.packages("assertthat")
    ```
 
@@ -115,7 +114,7 @@ ExaGeoStatCPP.
 ## Common Installation Errors and Solutions
 
 ### 1. Missing CMake
-The installation requires **CMake**. Ensure it is installed on your system before proceeding with the installation of **ExaGeoStatCPP**.
+The installation requires **CMake** version 3.2 or higher. Ensure it is installed on your system before proceeding with the installation of **ExaGeoStatCPP**.
 
 To install CMake, use:
 ```sh
