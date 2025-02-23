@@ -66,7 +66,7 @@ To build and run this software, you will need:
 6. [R](https://cran.r-project.org/bin/windows/base/) (only if you plan on using the R functionality)
 
 ### C++ source code installation
-To install the `ExaGeoStat` project locally, run the following commands in your terminal:
+To install the `ExaGeoStatCPP` project locally (C++ version), run the following commands in your terminal:
 
 1. Clone the project from the remote gitHub repository into your local machine using the following command
    ```bash
@@ -78,7 +78,7 @@ To install the `ExaGeoStat` project locally, run the following commands in your 
    cd ExaGeoStatCPP
    ```
 
-3. Run `configure` script   (use the `-h` flag for help, to know the supported options and their corresponding flags).
+3. Run `configure` script   (use the `-h` flag for help, to know the supported options and their corresponding flags). This step is **not required** when using R.
    ```bash
    ./configure -h
    ```
