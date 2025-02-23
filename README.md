@@ -78,12 +78,12 @@ To install the `ExaGeoStat` project locally, run the following commands in your 
    cd ExaGeoStatCPP
    ```
 
-3. Run `configure` script with the flag `-h` for help, to know the supported options and their corresponding flags.
+3. Run `configure` script   (use the `-h` flag for help, to know the supported options and their corresponding flags).
    ```bash
    ./configure -h
    ```
 
-4. Run `clean_build.sh` script with the flag `-h` for help, to know the needed arguments to run with your specific options.
+4. Run `clean_build.sh` (use the `-h` flag for help, to know the needed arguments to run with your specific options). This step is **not required** when using R.
    ```bash
    ./clean_build.sh -h
    ```
@@ -99,17 +99,56 @@ ExaGeoStatCPP.
 ### R package installation
 1. Open the R prompt window by simply running `R` command in the terminal, inside the prompt, we will install needed packages by running the following commands:
    ```R
-   install.packages(Rcpp)
+   install.packages("Rcpp")
    install.packages("assert")
+   install.packages("assertthat")
    ```
 
-2. close the R prompt and return to the terminal. Run the following command, make sure your current path is the ExaGeoStat project directory
+2. close the R prompt and return to the terminal. Run the following command, make sure your current path is the ExaGeoStatCPP project directory
 
    ```commandline
    R CMD INSTALL . --configure-args="-r"
    ```
 
 > For more detailed information on installing ExaGeoStat with different configurations and enabling technologies such as CUDA, MPI, R, etc., please refer to the [User Manual](USER_MANUAL.md)
+
+## Common Installation Errors and Solutions
+
+### 1. Missing CMake
+The installation requires **CMake**. Ensure it is installed on your system before proceeding with the installation of **ExaGeoStatCPP**.
+
+To install CMake, use:
+```sh
+sudo apt install cmake
+```
+
+### 2. Missing Libtool
+If you encounter the following error during installation:
+```
+./autogen.sh: line 17: libtool: command not found
+./autogen.sh: line 20: glibtool: command not found
+```
+This indicates that **Libtool** is missing. You can install it using:
+```sh
+sudo apt install libtool libtool-bin
+```
+
+Alternatively, you can install **Libtool** locally:
+```sh
+wget http://ftpmirror.gnu.org/libtool/libtool-2.4.7.tar.gz
+tar -xvzf libtool-2.4.7.tar.gz
+cd libtool-2.4.7
+./configure --prefix=$HOME/local
+make
+make install
+```
+Then, update your environment variables:
+```sh
+export PATH=$HOME/local/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
+export PKG_CONFIG_PATH=$HOME/local/lib/pkgconfig:$PKG_CONFIG_PATH
+```
+After this, restart your terminal or run `source ~/.bashrc` to apply the changes.
 
 
 ## Usage
@@ -135,13 +174,63 @@ int main(int argc, char **argv) {
     return 0;
 }
 ```
-### R Example:
-```R
+## R Example
+Here is an example demonstrating how to use **ExaGeoStatCPP** in R:
+
+```r
+# Load the ExaGeoStatCPP library
+library(ExaGeoStatCPP)
+
+# Set parameters for the simulation
+dimension <- "2D"
+ncores <- 4
+ngpus <- 0
+problem_size <- 1600
+dts <- 320
+lts <- 0
+computation <- "exact"
+kernel <- "univariate_matern_stationary"
+initial_theta <- c(1, 0.1, 0.5)
+p <- 1
+q <- 1
+lower_bound <- 0.01
+upper_bound <- 2
+opt_itrs <- 100
+
+# Initialize hardware configuration
 hardware <- new(Hardware, computation, ncores, ngpus, p, q)
-exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
-estimated_theta <- model_data(data=exageostat_data, kernel=kernel, dts=dts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10)
-predict_data(train_data=list(x, y, z_measurement), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
+
+# Simulate spatial data based on the specified kernel and parameters
+exageostat_data <- simulate_data(
+  kernel = kernel,
+  initial_theta = initial_theta,
+  problem_size = problem_size,
+  dts = dts,
+  dimension = dimension
+)
+
+# Estimate model parameters using MLE
+estimated_theta <- model_data(
+  data = exageostat_data,
+  kernel = kernel,
+  dts = dts,
+  dimension = dimension,
+  lb = lower_bound,
+  ub = upper_bound,
+  mle_itr = opt_itrs
+)
+
+# Perform spatial prediction using the estimated parameters
+predict_data(
+  train_data = list(x, y, z_measurement),
+  test_data = list(test_x, test_y),
+  kernel = kernel,
+  dts = dts,
+  estimated_theta = estimated_theta
+)
 ```
+
+This example walks through initializing hardware, simulating spatial data, estimating model parameters, and making predictions using **ExaGeoStatCPP** in R.
 
 > Please take a look at the end-to-end examples as a reference for using all the operations.
 
