@@ -454,12 +454,12 @@ Computation Configurations::CheckComputationValue(const std::string &aValue) {
 
     if (aValue != "exact" and aValue != "Exact" and aValue != "Dense" and aValue != "dense" and
         aValue != "diag_approx" and aValue != "diagonal_approx" and aValue != "lr_approx" and aValue != "tlr" and
-        aValue != "TLR") {
+        aValue != "TLR" and aValue != "dst") {
         throw range_error("Invalid value for Computation. Please use Exact, diagonal_approx or TLR.");
     }
     if (aValue == "exact" or aValue == "Exact" or aValue == "Dense" or aValue == "dense") {
         return EXACT_DENSE;
-    } else if (aValue == "diag_approx" or aValue == "diagonal_approx") {
+    } else if (aValue == "diag_approx" or aValue == "diagonal_approx" or aValue == "dst") {
         return DIAGONAL_APPROX;
     }
     return TILE_LOW_RANK;
