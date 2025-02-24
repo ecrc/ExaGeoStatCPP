@@ -47,7 +47,7 @@ RCPP_MODULE(ExaGeoStatCPP) {
     function("model_data", &exageostat::adapters::R_ExaGeoStatModelData,
              List::create(_["computation"] = "exact", _["kernel"], _["distance_matrix"] = "euclidean", _["lb"], _["ub"],
                           _["tol"] = 4, _["mle_itr"], _["dts"], _["lts"] = 0, _["dimension"] = "2D", _["band"] = 0,
-                          _["max_rank"] = 500, _["data"] = R_NilValue, _["matrix"] = R_NilValue, _["x"] = R_NilValue,
+                          _["max_rank"] = 500, _["acc"] = 5, _["data"] = R_NilValue, _["matrix"] = R_NilValue, _["x"] = R_NilValue,
                           _["y"] = R_NilValue, _["z"] = R_NilValue));
 
     function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData,
