@@ -27,6 +27,8 @@ using namespace exageostat::configurations;
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
 
+    int seed = 0;
+    std::srand(seed);
     aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data generation/loading **")
     // Register and create a kernel object

@@ -440,6 +440,16 @@ void LinearAlgebraMethods<T>::GenerateObservationsVector(Configurations &aConfig
     VERBOSE("\t---- Total Time: " << time_facto + time_trmm)
     VERBOSE("\t---- Gflop/s: " << total_flops)
 
+
+    double sum_x = 0;
+    double sum_y = 0;
+    for(int i=0; i<full_problem_size; i++){
+        cout << "x: " << aData->GetLocations()->GetLocationX()[i] << " y: " << aData->GetLocations()->GetLocationY()[i] << endl;
+        sum_x += aData->GetLocations()->GetLocationX()[i];
+        sum_y += aData->GetLocations()->GetLocationY()[i];
+    }
+    cout << "sum X: " << sum_x << "sum Y: " << sum_y << endl;
+
     Results::GetInstance()->SetTotalDataGenerationExecutionTime(time_facto + time_trmm);
     Results::GetInstance()->SetTotalDataGenerationFlops(total_flops);
     Results::GetInstance()->SetGeneratedLocationsNumber(full_problem_size / aConfigurations.GetTimeSlot());
