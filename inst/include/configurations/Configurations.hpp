@@ -178,6 +178,10 @@ namespace exageostat::configurations {
 
         CREATE_GETTER_FUNCTION(MaxRank, int, "MaxRank")
 
+        CREATE_SETTER_FUNCTION(Acc, int, aAcc, "Acc")
+
+        CREATE_GETTER_FUNCTION(Acc, int, "Acc")
+
         CREATE_SETTER_FUNCTION(ActualObservationsFilePath, const std::string &, aActualObservationsFilePath,
                                "ActualObservationsFilePath")
 

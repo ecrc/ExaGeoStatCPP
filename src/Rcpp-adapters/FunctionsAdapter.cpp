@@ -116,7 +116,7 @@ namespace exageostat::adapters {
     R_ExaGeoStatModelData(const string &aComputation, const string &aKernelName, const string &aDistanceMatrix,
                           const vector<double> &aLowerBound, const vector<double> &aUpperBound, const int &aTolerance,
                           const int &aMleIterations, const int &aDenseTileSize, const int &aLowTileSize,
-                          const string &aDimension, const int &aBand, const int &aMaxRank, SEXP apData,
+                          const string &aDimension, const int &aBand, const int &aMaxRank, const int &aAcc, SEXP apData,
                           Nullable <NumericVector> aMeasurementsVector, Nullable <NumericVector> aLocationsX,
                           Nullable <NumericVector> aLocationsY, Nullable <NumericVector> aLocationsZ) {
 
@@ -144,6 +144,7 @@ namespace exageostat::adapters {
         configurations.SetTolerance(aTolerance);
         configurations.SetBand(aBand);
         configurations.SetMaxRank(aMaxRank);
+        configurations.SetMaxRank(aAcc);	
 
         ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data, pMeasurementsVectorPtr);
         // Take back ownership, to avoid deleting apData when the unique_ptr goes out of scope.  
