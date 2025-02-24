@@ -26,7 +26,6 @@ using namespace exageostat::common;
 
 void TEST_ALL_R_METHODS() {
 
-
     const string computation = "exact";
     const int cores_number = 1;
     const int gpus_number = 0;
