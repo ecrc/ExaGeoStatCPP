@@ -67,6 +67,15 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     // Set max iterations value.
     optimizing_function.set_maxeval(max_number_of_iterations);
     optimizing_function.set_max_objective(ExaGeoStatMLETileAPI, (void *) modeling_data);
+
+    if (aConfigurations.GetComputation() == common::EXACT_DENSE) {
+        LOGGER("\t--> Modeling Using Dense Tile - Chameleon")
+    } else if (aConfigurations.GetComputation() == common::DIAGONAL_APPROX){
+        LOGGER("\t--> Modeling Using Diagonal Super Tile - Chameleon")
+    }
+    else {
+        LOGGER("\t--> Modeling Using Tile Low Rank - HiCMA")
+    }
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());

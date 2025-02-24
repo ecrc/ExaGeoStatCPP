@@ -18,7 +18,6 @@ ncores <- 1
 ngpus <- 0
 problem_size <- 16
 dts <- 8
-lts <- 0
 computation <- "exact"
 dimension = "2D"
 kernel <- "univariate_matern_stationary"
@@ -75,3 +74,16 @@ test_x <- c(0.2, 0.330)
 test_y <- c(0.104, 0.14)
 
 predict_data(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta)
+
+paste("---------------------------------------------------------------")
+paste("ExaGeoStat with all Modules - tile low rank")
+
+computation <- "tlr"
+lts <- 8
+max_rank <- 500
+acc <- 0
+
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
+exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
+estimated_theta <- model_data(matrix=exageostat_data$m, x=exageostat_data$x, y=exageostat_data$y, kernel=kernel, dts=dts, lts = lts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation, max_rank=500, acc=acc)
+
