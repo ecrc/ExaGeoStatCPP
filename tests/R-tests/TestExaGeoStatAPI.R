@@ -78,13 +78,15 @@ predict_data(train_data=list(locations_x, locations_y, z_value), test_data=list(
 paste("---------------------------------------------------------------")
 paste("ExaGeoStat with all Modules - tile low rank")
 
+problem_size <- 1600
 computation <- "tlr"
-lts <- 8
-max_rank <- 500
+lts <- 400
+dts <- 400
+max_rank <- 200
 # The final value is computed as 10^(-1.0 * aAccuracy)
-acc <- 7
+acc <- 5
 
 hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
-estimated_theta <- model_data(matrix=exageostat_data$m, x=exageostat_data$x, y=exageostat_data$y, kernel=kernel, dts=dts, lts = lts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation, max_rank=500, acc=acc)
+estimated_theta <- model_data(matrix=exageostat_data$m, x=exageostat_data$x, y=exageostat_data$y, kernel=kernel, dts=dts, lts = lts, dimension=dimension,lb=lower_bound, ub=upper_bound, mle_itr=10, computation=computation, max_rank=max_rank, acc=acc)
 
