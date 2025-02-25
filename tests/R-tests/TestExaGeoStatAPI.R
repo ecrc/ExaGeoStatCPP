@@ -81,7 +81,8 @@ paste("ExaGeoStat with all Modules - tile low rank")
 computation <- "tlr"
 lts <- 8
 max_rank <- 500
-acc <- 0
+# The final value is computed as 10^(-1.0 * aAccuracy)
+acc <- 7
 
 hardware <- new(Hardware, computation, ncores, ngpus, p, q)
 exageostat_data <- simulate_data(kernel=kernel, initial_theta=initial_theta, problem_size=problem_size, dts=dts, dimension=dimension)
