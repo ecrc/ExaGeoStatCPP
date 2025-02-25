@@ -65,6 +65,7 @@ namespace exageostat::adapters {
      * @param[in] aDimension Dimensionality of the problem ("2D" or "3D").
      * @param[in] aBand Bandwidth for band matrices, applicable in certain computational kernels.
      * @param[in] aMaxRank Maximum rank for low-rank approximations.
+     * @param[in] aAccuracy Accuracy value for low-rank approximations, The final value is computed as 10^(-1.0 * aAccuracy)
      * @param[in] apData Pointer to ExaGeoStatData object to be modeled.
      * @param[in] aMeasurementsVector Optional vector of measurements to enhance modeling, can be nullable.
      * @param[in] aLocationsX Optional vector of X coordinates for locations, can be nullable.
@@ -79,7 +80,7 @@ namespace exageostat::adapters {
                                               const std::vector<double> &aUpperBound, const int &aTolerance,
                                               const int &aMleIterations, const int &aDenseTileSize,
                                               const int &aLowTileSize, const std::string &aDimension, const int &aBand,
-                                              const int &aMaxRank, SEXP apData,
+                                              const int &aMaxRank, const int &aAccuracy, SEXP apData,
                                               Rcpp::Nullable<Rcpp::NumericVector> aMeasurementsVector = R_NilValue,
                                               Rcpp::Nullable<Rcpp::NumericVector> aLocationsX = R_NilValue,
                                               Rcpp::Nullable<Rcpp::NumericVector> aLocationsY = R_NilValue,

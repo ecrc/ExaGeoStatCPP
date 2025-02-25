@@ -232,6 +232,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &
     //Calculate Cholesky Factorization (C=LL-1)
     VERBOSE("LR: Cholesky factorization of Sigma...")
     START_TIMING(time_facto);
+
     this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, HICMA_descCUV, 0, HICMA_descCD, HICMA_descCrk, max_rank,
                               pow(10, -1.0 * acc));
 

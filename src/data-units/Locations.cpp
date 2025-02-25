@@ -22,7 +22,7 @@ using namespace exageostat::common;
 template<typename T>
 void Locations<T>::SetLocationX(T &aLocationX, const int &aSize) {
 
-    if (aLocationX && aSize == this->mSize) {
+    if (&aLocationX != nullptr && aSize == this->mSize) {
         memcpy(this->mpLocationX, &aLocationX, this->mSize * sizeof(T));
     } else {
         throw std::runtime_error("Invalid value for setting Locations X");
@@ -41,7 +41,7 @@ T *Locations<T>::GetLocationX() {
 template<typename T>
 void Locations<T>::SetLocationY(T &aLocationY, const int &aSize) {
 
-    if (aLocationY && aSize == this->mSize) {
+    if (&aLocationY != nullptr && aSize == this->mSize) {
         memcpy(this->mpLocationY, &aLocationY, this->mSize * sizeof(T));
     } else {
         throw std::runtime_error("Invalid value for setting Locations Y");
@@ -59,7 +59,7 @@ T *Locations<T>::GetLocationY() {
 template<typename T>
 void Locations<T>::SetLocationZ(T &aLocationZ, const int &aSize) {
 
-    if (aLocationZ && aSize == this->mSize) {
+    if (&aLocationZ != nullptr && aSize == this->mSize) {
         memcpy(this->mpLocationZ, &aLocationZ, this->mSize * sizeof(T));
     } else {
         throw std::runtime_error("Invalid value for setting Locations Z");
