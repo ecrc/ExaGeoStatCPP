@@ -37,6 +37,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T
                                                 configurations::Configurations &aConfigurations, const double *theta,
                                                 T *apMeasurementsMatrix, const kernels::Kernel<T> &aKernel) {
 
+    double value;
     if (!aData->GetDescriptorData()->GetIsDescriptorInitiated()) {
         this->InitiateDescriptors(aConfigurations, *aData->GetDescriptorData(), aKernel.GetVariablesNumber(),
                                   apMeasurementsMatrix);
@@ -62,252 +63,96 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T
     auto kernel_name = aConfigurations.GetKernelName();
     int num_params = aKernel.GetParametersNumbers();
     auto median_locations = Locations<T>(1, aData->GetLocations()->GetDimension());
-    aData->CalculateMedianLocations(kernel_name, median_locations);
 
-    auto *CHAM_desc_C = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                  DescriptorName::DESCRIPTOR_C).chameleon_desc;
-    auto *CHAM_desc_sub_C11 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                        DescriptorName::DESCRIPTOR_C11).chameleon_desc;
-    auto *CHAM_desc_sub_C12 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                        DescriptorName::DESCRIPTOR_C12).chameleon_desc;
-    auto *CHAM_desc_sub_C22 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                        DescriptorName::DESCRIPTOR_C22).chameleon_desc;
-    auto *CHAM_desc_Z = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+    auto *CHAM_desc_Zobs = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
                                                                   DescriptorName::DESCRIPTOR_Z).chameleon_desc;
-    auto *CHAM_desc_Z1 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_Z_1).chameleon_desc;
-    auto *CHAM_desc_Z2 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_Z_2).chameleon_desc;
-    auto *CHAM_desc_Z3 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                   DescriptorName::DESCRIPTOR_Z_3).chameleon_desc;
-    auto *CHAM_desc_Zcpy = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                     DescriptorName::DESCRIPTOR_Z_COPY).chameleon_desc;
-    auto *CHAM_desc_det = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                    DescriptorName::DESCRIPTOR_DETERMINANT).chameleon_desc;
-    auto *CHAM_desc_product = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                        DescriptorName::DESCRIPTOR_PRODUCT).chameleon_desc;
-    auto *CHAM_desc_sum = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                    DescriptorName::DESCRIPTOR_SUM).chameleon_desc;
-    auto *CHAM_desc_product1 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                         DescriptorName::DESCRIPTOR_PRODUCT_1).chameleon_desc;
-    auto *CHAM_desc_product2 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                         DescriptorName::DESCRIPTOR_PRODUCT_2).chameleon_desc;
-    auto *CHAM_desc_product3 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                         DescriptorName::DESCRIPTOR_PRODUCT_3).chameleon_desc;
+    auto *CHAM_desc_X = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                   DescriptorName::DESCRIPTOR_X).chameleon_desc;
+    auto *CHAM_desc_part1 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                   DescriptorName::DESCRIPTOR_PART1).chameleon_desc;
+    auto *CHAM_desc_part2 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                   DescriptorName::DESCRIPTOR_PART2).chameleon_desc;
+    auto *CHAM_desc_part2_vector = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                    DescriptorName::DESCRIPTOR_PART2_VECTOR).chameleon_desc;
+    auto *CHAM_desc_XtX = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
+                                                                    DescriptorName::DESCRIPTOR_XtX).chameleon_desc;
 
-    T *determinant = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_DETERMINANT);
-    *determinant = 0;
-    T *product = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT);
-    *product = 0;
-    T *sum;
-    if (aConfigurations.GetIsNonGaussian()) {
-        sum = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_SUM);
-        *sum = 0;
-    }
-    n = CHAM_desc_C->m;
-    nhrs = CHAM_desc_Z->n;
 
-    string recovery_file = aConfigurations.GetRecoveryFile();
+    T *part1 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART1);
+    T *part2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART2);
+    *part2 = 0;
+    n = CHAM_desc_X->m;
     int iter_count = aData->GetMleIterations();
+    int no_years=751;
+    double* localtheta =  (double *) malloc((3+no_years) * sizeof(double));
+    int M = 10;
+    int t = 8760;
+    localtheta[0]= theta[0];
+    localtheta[1]= t;
+    localtheta[2]= M;
 
-    if (recovery_file.empty() ||
-        !(this->Recover((char *) (recovery_file.c_str()), iter_count, (T *) theta, &loglik, num_params))) {
-        START_TIMING(dzcpy_time);
-        if (iter_count == 0) {
-            // Save a copy of descZ into descZcpy for restoring each iteration (Only for the first iteration)
-            this->ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_Z, CHAM_desc_Zcpy);
-        } else {
-            VERBOSE("\tRe-store the original Z vector...")
-            this->ExaGeoStatLapackCopyTile(EXAGEOSTAT_UPPER_LOWER, CHAM_desc_Zcpy, CHAM_desc_Z);
-            VERBOSE("\tDone.")
-        }
-        STOP_TIMING(dzcpy_time);
+    int upper_lower = EXAGEOSTAT_UPPER_LOWER;
+    int distance_metric = aConfigurations.GetDistanceMetric();
+    for(int ii=0;ii<no_years;ii++) {
+        localtheta[3+ii] = apMeasurementsMatrix[ii];
     }
+//    fprintf(stderr, "%f %f %f %f\n", localtheta[0], localtheta[1], localtheta[2], localtheta[3]);
 
-    //Generate new co-variance matrix C based on new theta
-    VERBOSE("\tGenerate New Covariance Matrix...")
-    START_TIMING(matrix_gen_time);
-
-    if (kernel_name == "bivariate_matern_parsimonious2" ||
-        kernel_name == "bivariate_matern_parsimonious2_profile") {
-
-        int upper_lower = EXAGEOSTAT_UPPER_LOWER;
-        univariate_theta = new T[3];
-        univariate2_theta = new T[3];
-        univariate3_theta = new T[3];
-        univariate_theta[0] = theta[0];
-        univariate_theta[1] = theta[2];
-        univariate_theta[2] = theta[3];
-
-        int distance_metric = aConfigurations.GetDistanceMetric();
-
-        RuntimeFunctions<T>::CovarianceMatrix(*aData->GetDescriptorData(), CHAM_desc_sub_C11, upper_lower,
+    RuntimeFunctions<T>::CovarianceMatrix(*aData->GetDescriptorData(), CHAM_desc_X, upper_lower,
                                               aData->GetLocations(), aData->GetLocations(), &median_locations,
-                                              univariate_theta, distance_metric, &aKernel);
-
-        nu12 = 0.5 * (theta[3] + theta[4]);
-        rho = theta[5] * sqrt((tgamma(theta[3] + 1) * tgamma(theta[4] + 1)) / (tgamma(theta[3]) * tgamma(theta[4]))) *
-              tgamma(nu12) / tgamma(nu12 + 1);
-        sigma_square12 = rho * sqrt(theta[0] * theta[1]);
-        univariate2_theta[0] = sigma_square12;
-        univariate2_theta[1] = theta[2];
-        univariate2_theta[2] = nu12;
-
-        RuntimeFunctions<T>::CovarianceMatrix(*aData->GetDescriptorData(), CHAM_desc_sub_C12, upper_lower,
-                                              &median_locations, aData->GetLocations(), &median_locations,
-                                              univariate2_theta, 0, &aKernel);
-        STOP_TIMING(matrix_gen_time);
-
-        univariate3_theta[0] = theta[1];
-        univariate3_theta[1] = theta[2];
-        univariate3_theta[2] = theta[4];
-
-        RuntimeFunctions<T>::CovarianceMatrix(*aData->GetDescriptorData(), CHAM_desc_sub_C22, upper_lower,
-                                              &median_locations, aData->GetLocations(), &median_locations,
-                                              univariate2_theta, 0, &aKernel);
-    } else {
-        int upper_lower = EXAGEOSTAT_LOWER;
-        RuntimeFunctions<T>::CovarianceMatrix(*aData->GetDescriptorData(), CHAM_desc_C, upper_lower,
-                                              aData->GetLocations(), aData->GetLocations(), &median_locations,
-                                              (T *) theta, 0, &aKernel);
-    }
+                                          (T*)localtheta, distance_metric, &aKernel);
     this->ExaGeoStatSequenceWait(pSequence);
-    STOP_TIMING(matrix_gen_time);
-    VERBOSE("\tDone.")
+    //calculate part1
+    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_Zobs, CHAM_desc_Zobs, 0.0, CHAM_desc_part1);
 
-    VERBOSE("\tCholesky factorization of Sigma...")
-    START_TIMING(time_facto);
-    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_C, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
-    STOP_TIMING(time_facto);
-    flops += flops_dpotrf(n);
-    VERBOSE("\tDone.")
+    //Calculate part2
+    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_X, CHAM_desc_Zobs, 0, CHAM_desc_part2_vector);
 
-    //Calculate log(|C|) --> log(square(|L|))
-    VERBOSE("\tCalculating the log determinant ...")
-    START_TIMING(logdet_calculate);
-    RuntimeFunctions<T>::ExaGeoStatMeasureDetTileAsync(aConfigurations.GetComputation(), CHAM_desc_C, pSequence,
-                                                       &request_array, CHAM_desc_det);
-    this->ExaGeoStatSequenceWait(pSequence);
+    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_X, CHAM_desc_X, 0, CHAM_desc_XtX);
 
-    logdet = 2 * (*determinant);
-    STOP_TIMING(logdet_calculate);
-    VERBOSE("\tDone.")
+    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_XtX, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
 
-    if (aConfigurations.GetIsNonGaussian()) {
-        VERBOSE("Transform Z vector to Gaussian field ...")
-        RuntimeFunctions<T>::ExaGeoStatNonGaussianTransformTileAsync(aConfigurations.GetComputation(), CHAM_desc_Z,
-                                                                     (T *) theta, pSequence, &request_array[0]);
-        this->ExaGeoStatSequenceWait(pSequence);
-        VERBOSE("\tDone.")
-
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z, CHAM_desc_Z, 0, CHAM_desc_product);
-
-        VERBOSE("Calculate non-Gaussian loglik ...")
-        RuntimeFunctions<T>::ExaGeoStatNonGaussianLogLikeTileAsync(aConfigurations.GetComputation(), CHAM_desc_Z,
-                                                                   CHAM_desc_sum, (T *) theta, pSequence,
-                                                                   &request_array[0]);
-        this->ExaGeoStatSequenceWait(pSequence);
-        VERBOSE("\tDone.")
-    }
-
-    // Solving Linear System (L*X=Z)--->inv(L)*Z
-    VERBOSE("\tSolving the linear system ...")
-    START_TIMING(time_solve);
     this->ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
-                             CHAM_desc_C, nullptr, nullptr, CHAM_desc_Z, 0);
-    STOP_TIMING(time_solve);
-    flops += flops_dtrsm(ChamLeft, n, nhrs);
-    VERBOSE("\tDone.")
+                             CHAM_desc_XtX, nullptr, nullptr, CHAM_desc_part2_vector, 0);
 
-    //Calculate MLE likelihood
-    VERBOSE("Calculating the MLE likelihood function ...")
-    RuntimeFunctions<T>::ExaGeoStatDoubleDotProduct(CHAM_desc_Z, CHAM_desc_product,
-                                                    pSequence, request_array);
-    ExaGeoStatSequenceWait(pSequence);
+    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_part2_vector, CHAM_desc_part2_vector, 0, CHAM_desc_part2);
 
-    if (kernel_name == "BivariateMaternParsimonious2Profile") {
-        loglik =
-                -(n / 2) + (n / 2) * log(n) - (n / 2) * log(dot_product) - 0.5 * logdet - (T) (n / 2.0) * log(2.0 * PI);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z1, CHAM_desc_Z1, 0, CHAM_desc_product1);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z2, CHAM_desc_Z2, 0, CHAM_desc_product2);
-        variance1 = (1.0 / (n / 2)) * dot_product1;
-        variance2 = (1.0 / (n / 2)) * dot_product2;
+    value =(-1.0) * log(*part1-*part2);
 
-    } else if (kernel_name == "BivariateMaternParsimoniousProfile") {
-        loglik = -(n / 2) + (n / 2) * log(n) - (n / 2) * log(dot_product) - 0.5 * logdet -
-                 (double) (n / 2.0) * log(2.0 * PI);
-        RuntimeFunctions<T>::ExaGeoStaStrideVectorTileAsync(CHAM_desc_Z, CHAM_desc_Z1, CHAM_desc_Z2, pSequence,
-                                                            &request_array[0]);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z1, CHAM_desc_Z1, 0, CHAM_desc_product1);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z2, CHAM_desc_Z2, 0, CHAM_desc_product2);
-        variance1 = (1.0 / (n / 2)) * dot_product1;
-        variance2 = (1.0 / (n / 2)) * dot_product2;
-    } else if (kernel_name == "TrivariateMaternParsimoniousProfile") {
+//    LOGGER("\t" << iter_count + 1 << " - Model Parameters (", true)
+//    for (i=0; i < num_params; i++) {
+//        LOGGER_PRECISION(theta[i])
+//        if (i < num_params - 1) {
+//            LOGGER_PRECISION(", ")
+//        }
+//        if (aConfigurations.GetLogger()) {
+//            fprintf(aConfigurations.GetFileLogPath(), "%.8f, ", theta[i]);
+//        }
+//    }
+//
+//    LOGGER_PRECISION(")----> LogLi: " << loglik << "\n", 18)
+//
+//    if (aConfigurations.GetLogger()) {
+//        fprintf(aConfigurations.GetFileLogPath(), ")----> LogLi: %.18f\n", loglik);
+//    }
+//    VERBOSE("---- Facto Time: " << time_facto)
+//    VERBOSE("---- Log Determent Time: " << logdet_calculate)
+//    VERBOSE("---- dtrsm Time: " << time_solve)
+//    VERBOSE("---- Matrix Generation Time: " << matrix_gen_time)
+//    VERBOSE("---- Total Time: " << time_facto + logdet_calculate + time_solve)
+//    VERBOSE("---- Gflop/s: " << flops / 1e9 / (time_facto + time_solve))
 
-        loglik = -(n / 3.0) + (n / 3.0) * log(n / 3.0) - (n / 3.0) * log(dot_product) - 0.5 * logdet -
-                 (double) (n / 3.0) * log(2.0 * PI);
-        //to be optimized
-        RuntimeFunctions<T>::ExaGeoStaStrideVectorTileAsync(CHAM_desc_Z, CHAM_desc_Z1, CHAM_desc_Z2, CHAM_desc_Z3,
-                                                            pSequence, &request_array[0]);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z1, CHAM_desc_Z1, 0, CHAM_desc_product1);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z2, CHAM_desc_Z2, 0, CHAM_desc_product2);
-        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1, CHAM_desc_Z3, CHAM_desc_Z3, 0, CHAM_desc_product3);
-        variance1 = (1.0 / (n / 3.0)) * dot_product1;
-        variance2 = (1.0 / (n / 3.0)) * dot_product2;
-    } else {
-        dot_product = *product;
-        loglik = -0.5 * dot_product - 0.5 * logdet;
-        if (aConfigurations.GetIsNonGaussian()) {
-            loglik = loglik - *sum - n * log(theta[3]) - (double) (n / 2.0) * log(2.0 * PI);
-        } else {
-            loglik = loglik - (double) (n / 2.0) * log(2.0 * PI);
-        }
-    }
-    VERBOSE("\tDone.")
-
-    //Distribute the values in the case of MPI
-#ifdef USE_MPI
-    MPI_Bcast(&loglik, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+#if defined(CHAMELEON_USE_MPI)
+    MPI_Bcast(&value,1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+	MPI_Bcast(theta,1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+	if ( MORSE_My_Mpi_Rank() == 0 )
+	{
 #endif
 
-    LOGGER("\t" << iter_count + 1 << " - Model Parameters (", true)
-
-    if (aConfigurations.GetLogger()) {
-        fprintf(aConfigurations.GetFileLogPath(), "\t %d- Model Parameters (", iter_count + 1);
+    fprintf(stderr, "%d- data->part1:%f, data->part2: %f,  theta[0]:%0.14f ------- lh: %0.18f\n",   iter_count + 1, *part1, *part2, theta[0], value);
+#if defined(CHAMELEON_USE_MPI)
     }
-
-    if ((aConfigurations.GetKernelName() == "BivariateMaternParsimoniousProfile") ||
-        (aConfigurations.GetKernelName() == "BivariateMaternParsimonious2Profile")) {
-        LOGGER(setprecision(8) << variance1 << setprecision(8) << variance2)
-        if (aConfigurations.GetLogger()) {
-            fprintf(aConfigurations.GetFileLogPath(), "%.8f, %.8f,", variance1, variance2);
-        }
-        i = 2;
-    } else {
-        i = 0;
-    }
-    for (; i < num_params; i++) {
-        LOGGER_PRECISION(theta[i])
-        if (i < num_params - 1) {
-            LOGGER_PRECISION(", ")
-        }
-        if (aConfigurations.GetLogger()) {
-            fprintf(aConfigurations.GetFileLogPath(), "%.8f, ", theta[i]);
-        }
-    }
-
-    LOGGER_PRECISION(")----> LogLi: " << loglik << "\n", 18)
-
-    if (aConfigurations.GetLogger()) {
-        fprintf(aConfigurations.GetFileLogPath(), ")----> LogLi: %.18f\n", loglik);
-    }
-    VERBOSE("---- Facto Time: " << time_facto)
-    VERBOSE("---- Log Determent Time: " << logdet_calculate)
-    VERBOSE("---- dtrsm Time: " << time_solve)
-    VERBOSE("---- Matrix Generation Time: " << matrix_gen_time)
-    VERBOSE("---- Total Time: " << time_facto + logdet_calculate + time_solve)
-    VERBOSE("---- Gflop/s: " << flops / 1e9 / (time_facto + time_solve))
-
+#endif
     aData->SetMleIterations(aData->GetMleIterations() + 1);
 
     // for experiments and benchmarking
@@ -323,7 +168,7 @@ T ChameleonImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T
     Results::GetInstance()->SetMaximumTheta(vector<double>(theta, theta + num_params));
     Results::GetInstance()->SetLogLikValue(loglik);
 
-    return loglik;
+    return value;
 }
 
 template<typename T>

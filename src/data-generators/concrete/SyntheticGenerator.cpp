@@ -14,8 +14,14 @@
 
 #include <data-generators/concrete/SyntheticGenerator.hpp>
 #include <data-generators/LocationGenerator.hpp>
+#if !DEFAULT_RUNTIME
+#include <data-loader/concrete/ParsecLoader.hpp>
+#else
 #include <data-loader/concrete/CSVLoader.hpp>
+#endif
 
+//TODO: we need to make WriteData a function outside the csv, So it can be used whatever the runtime is.
+// currently, it has an implementation for the CSVLoader and an empty body for the parsec loader
 using namespace exageostat::generators::synthetic;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
@@ -51,6 +57,8 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
                                             *locations);
     data->SetLocations(*locations);
 
+    // TODO: May need to get refactored to avoid the if/else guards
+#if DEFAULT_RUNTIME
     // Generate Descriptors phase
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(EXACT_DENSE);
     linear_algebra_solver->GenerateSyntheticData(aConfigurations, data, aKernel);
@@ -81,6 +89,7 @@ SyntheticGenerator<T>::CreateData(Configurations &aConfigurations,
 #endif
         VERBOSE("Done.")
     }
+#endif
     Results::GetInstance()->SetGeneratedLocationsNumber(n);
     Results::GetInstance()->SetIsLogger(aConfigurations.GetLogger());
     Results::GetInstance()->SetLoggerPath(aConfigurations.GetLoggerPath());

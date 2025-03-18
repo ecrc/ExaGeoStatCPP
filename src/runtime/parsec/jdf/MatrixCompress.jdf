@@ -1,0 +1,409 @@
+extern "C" %{
+/**
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ **/
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+#define GENERATE_RANDOM_DATA 0
+
+%}
+
+/** Generate matrix
+ */
+
+/* Globals
+ */
+apADesc                 [ type = "parsec_tiled_matrix_t*" ]
+apArDesc                [ type = "parsec_tiled_matrix_t*" ]
+aBandSizeDense          [ type = "int" ]
+aNT                     [ type = "int" ]
+aMaxRank                [ type = "int" ]
+aN                      [ type = "int" ]
+apNorm                  [ type = "double *" ]
+apNormTile              [ type = "double *" ]
+aAdaptiveDecision       [ type = "int" ]
+aTolerance              [ type = "double" ]
+aSendFullTile           [ type = "int" ]
+aAutoBand               [ type = "int" ]
+aGpus                   [ type = "int" ]
+params_kernel           [ type = "starsh_params_t *" ]
+
+aRsvd_oversample [ type = "int" hidden = on ]
+aRsvd_lwork      [ type = "size_t" hidden = on ]
+aRsvd_liwork     [ type = "size_t" hidden = on ]
+aUv_work         [ type = "parsec_memory_pool_t *" hidden = on default = NULL]
+aD_work          [ type = "parsec_memory_pool_t *" hidden = on default = NULL]
+aRsvaD_work      [ type = "parsec_memory_pool_t *" hidden = on default = NULL]
+aRsvd_iwork      [ type = "parsec_memory_pool_t *" hidden = on default = NULL]
+
+/**************************************************
+ *        generate diagonal tiles                 *
+ **************************************************/
+generate_band(m, n) [high_priority = on]
+
+// Execution space
+m = 0 .. apADesc->mt-1
+n = %{ return parsec_imax(m-aBandSizeDense+1, 0); %} .. m 
+
+// Parallel partitioning
+:apADesc(m, n)
+
+// Parameters
+READ D <- apADesc(m, n)               
+READ D1 <- NULL                       [ type_remote = FULL ]
+
+BODY
+{
+    int ldd = BLKLDD(apADesc, m);
+    int tempmm = m == apADesc->mt-1 ? apADesc->m - m * apADesc->mb : apADesc->mb;
+    int tempnn = tempmm;
+
+    /* New data_copy and allocate memory on band if not allocated */
+#if !BAND_MEMORY_CONTIGUOUS
+    if( aBandSizeDense < aNT || aAutoBand == 1 || !MEMORY_IN_CHOLEKSY_DP ) {
+        this_task->data._f_D.data_out = parsec_data_copy_new(data_of_apADesc(m, n), 0, PARSEC_MatrixCompress_FULL_ADT->opaque_dtt, PARSEC_DATA_FLAG_PARSEC_MANAGED);
+        if( aGpus > 0 ) { 
+#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)
+            cudaMallocHost((void**)&this_task->data._f_D.data_out->device_private, apADesc->mb * apADesc->mb * sizeof(double));
+#endif
+
+#if defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+            // TODO A better way
+            hipHostMalloc((void**)&this_task->data._f_D.data_out->device_private, apADesc->mb * apADesc->mb * sizeof(double), hipHostMallocDefault);
+#endif
+        } else {
+            this_task->data._f_D.data_out->device_private = calloc(apADesc->mb * apADesc->mb, sizeof(double));
+        }
+    }
+#endif
+
+    /* Calcuate the global norm */
+    if( 1 ||  aAdaptiveDecision ) {
+        int tid = es->th_id;
+        double current_value = 0.0;
+        apNormTile[n*aNT+m] = 0.0;
+
+        for(int j = 0; j < apADesc->nb; j++) {
+            for(int i = 0; i < apADesc->mb; i++) {
+                current_value = ((double *)this_task->data._f_D.data_out->device_private)[j*apADesc->mb+i];
+                apNormTile[n * aNT + m] += current_value * current_value;
+            }
+        }
+
+        apNorm[tid] += apNormTile[n * aNT + m];
+        apNormTile[n * aNT + m] = sqrt(apNormTile[n * aNT + m]);
+
+        if( m - n >= aNT * PORTION_NORM )
+            apNorm[tid] = 0.0;
+    }
+}
+END
+
+
+/**************************************************
+ **************************************************/
+READ_R(m, n)
+
+// Execution space
+m = aBandSizeDense .. apADesc->mt-1
+n = 0 .. m-aBandSizeDense
+
+:apArDesc(m, n)
+
+READ R <- apArDesc(m, n)             
+       -> R generate_approximate_L(m, n)     [ type_remote = AR ]
+
+BODY
+{
+}
+END
+
+
+/**************************************************
+ **************************************************/
+WRITE_R(m, n)
+
+// Execution space
+m = aBandSizeDense .. apADesc->mt-1
+n = 0 .. m-aBandSizeDense
+
+:apArDesc(m, n)
+
+RW R <- R generate_approximate_L(m, n)       [ type_remote = AR ]
+     -> apArDesc(m, n)                         
+
+BODY
+{
+}
+END
+
+
+/**************************************************
+ * generate and approximate lower triangular part *
+ **************************************************/
+generate_approximate_L(m, n) [high_priority = on]
+
+// Execution space
+m = aBandSizeDense .. apADesc->mt-1
+n = 0 .. m-aBandSizeDense
+
+// Parallel partitioning
+:apADesc(m, n)
+
+// Parameters
+RW R <- R READ_R(m, n)             [ type_remote = AR ]
+     -> R WRITE_R(m, n)            [ type_remote = AR ]
+
+READ A <- NULL                     [ type_remote = UV ]
+
+BODY
+{
+    int size = 0;
+    int ldU = BLKLDD(apADesc, m);
+    int ldV = BLKLDD(apADesc, m);
+    int tempmm = m == apADesc->mt-1 ? apADesc->m - m * apADesc->mb : apADesc->mb;
+    int tempnn = n == apADesc->mt-1 ? apADesc->m - m * apADesc->mb : apADesc->mb;
+    void *U = parsec_private_memory_pop(aUv_work);
+    void *tmp_D = parsec_private_memory_pop(aD_work);
+    void *work = parsec_private_memory_pop(aRsvaD_work);
+    void *iwork = parsec_private_memory_pop(aRsvd_iwork);
+    int rank = -1;
+    void *V = (void *)U + apADesc->mb * aMaxRank * sizeof(double);
+
+#if GENERATE_RANDOM_DATA 
+    CORE_dplgsy(
+            aN, tempmm, tempnn, tmp_D, ldU,
+            apADesc->m, m*apADesc->mb, n*apADesc->nb, 3872 );
+#else
+    params_kernel->kernel(tempmm, tempnn, params_kernel->index + m*apADesc->mb,
+            params_kernel->index + n*apADesc->mb, params_kernel->data, params_kernel->data, tmp_D,
+            tempmm);
+#endif
+
+    /* Calcuate the global norm */ 
+    if( 1 || aAdaptiveDecision ) {
+        int tid = es->th_id;
+        double current_value = 0.0;
+        apNormTile[n*aNT+m] = 0.0;
+
+        for(int j = 0; j < apADesc->nb; j++) {
+            for(int i = 0; i < apADesc->mb; i++) {
+                current_value = ((double *)tmp_D)[j*apADesc->mb+i];
+                //norm[tid] += current_value * current_value;
+                apNormTile[n*aNT+m] += current_value * current_value;
+            }
+        }
+
+        apNorm[tid] += apNormTile[n*aNT+m];
+        apNormTile[n*aNT+m] = sqrt(apNormTile[n*aNT+m]);
+
+        if( m - n >= aNT*PORTION_NORM )
+            apNorm[tid] = 0.0;
+    }
+
+#if 1
+    starsh_dense_dlrrsdd(tempmm, tempnn, tmp_D, tempmm, U, ldU, V, ldV, &rank,
+            aMaxRank, aRsvd_oversample, aTolerance, work, aRsvd_lwork, iwork);
+#else
+    int maxrank_used = hicma_parsec_min(100, aMaxRank);
+    while( 1 ) {
+        starsh_dense_dlrrsdd(tempmm, tempnn, tmp_D, tempmm, U, ldU, V, ldV, &rank,
+                maxrank_used, aRsvd_oversample, aTolerance, work, aRsvd_lwork, iwork);
+        maxrank_used *= 2;
+        maxrank_used = hicma_parsec_min( apADesc->nb / 2, maxrank_used );
+        if( rank != -1 || maxrank_used > apADesc->nb / 2 ) break;
+
+        params_kernel->kernel(tempmm, tempnn, params_kernel->index + m*apADesc->mb,
+                params_kernel->index + n*apADesc->mb, params_kernel->data, params_kernel->data, tmp_D,
+                tempmm);
+    }
+#endif
+
+    if(rank == -1) {
+        printf("Tile(%d, %d) is dense, try increasing NB or aMaxRank \n", m, n);
+    } else {
+        /* Update R and size */
+        *(int *)R = rank;
+
+        if(aSendFullTile == 1){ /* Storage of UV tiles is MB by maxrank by 2 */
+            size = apADesc->mb * aMaxRank * 2;
+        } else {
+            size = apADesc->mb * parsec_imin(aMaxRank, rank) * 2;
+        }
+
+        /* New data_copy and allocate memory for apADesc(m, n); 
+         * For off band, if send_full_tile, allocate mb * maxrank * 2,
+         * else, size = mb * min(maxrank, rank) * 2
+         */
+        this_task->data._f_A.data_out = parsec_data_copy_new(data_of_apADesc(m, n), 0, PARSEC_MatrixCompress_UV_ADT->opaque_dtt, PARSEC_DATA_FLAG_PARSEC_MANAGED);
+        this_task->data._f_A.data_out->device_private = calloc(size, sizeof(double));
+
+        /* New nb_elts for data_of(m, n) */
+        (data_of_apADesc(m, n))->nb_elts = size * sizeof(double);
+
+        /* Copy U to A */
+        memcpy((void *)this_task->data._f_A.data_out->device_private,
+               (void *)U, apADesc->mb * rank * sizeof(double));
+
+        /* Copy V to A */
+        memcpy((void *)this_task->data._f_A.data_out->device_private + apADesc->mb * rank * sizeof(double),
+               (void *)V, apADesc->mb * rank * sizeof(double));
+    }
+
+    parsec_private_memory_push(aUv_work, U);
+    parsec_private_memory_push(aD_work, tmp_D);
+    parsec_private_memory_push(aRsvaD_work, work);
+    parsec_private_memory_push(aRsvd_iwork, iwork);
+}
+END
+
+extern "C" %{
+
+/**
+ * Generate matrix
+ * @return the parsec object to schedule
+ */
+parsec_taskpool_t*
+MatrixCompress_constructor(int aUpperLower, int aBandSizeDense, int aNT, int aMaxRank, int aN, double *apNormTmp, double *apNormTile,
+                           int aAdaptiveDecision, int aTolerance, int aSendFullTile, int aAutoBand, int aGpus,
+                           hicma_parsec_data_t *data, starsh_params_t *params_kernel)
+{
+
+    parsec_tiled_matrix_t *apADesc = (parsec_tiled_matrix_t *)&data->dcA;
+    // TODO: get */params_tlr->auto_band == 0 &&*/
+    if(aBandSizeDense >= aNT && MEMORY_IN_CHOLEKSY_DP ) {
+        apADesc = (parsec_tiled_matrix_t *)&data->dcAd;
+    }
+    parsec_tiled_matrix_t *apArDesc = (parsec_tiled_matrix_t *)&data->dcAr;
+
+    /* Check input arguments */
+    if (aUpperLower != PlasmaLower) {
+        dplasma_error("STARSH_appr_New", "illegal value of uplo, should be PlasmaLower\n");
+        return NULL;
+    }
+    
+    /* Check aBandSizeDense */ 
+    if(aBandSizeDense < 1 ) {
+        if(0 == apADesc->super.myrank )
+            fprintf(stderr, "\nERROR: band_size_dense should be not less that 1 : %d\n\n", aBandSizeDense);
+        exit(1);
+    }
+
+    /* Calculate workspace */
+    int rsvd_oversample = 10;
+    int mn = rsvd_oversample + aMaxRank;
+    if(mn > apADesc->mb) {
+        mn = apADesc->mb;
+    }
+    size_t rsvd_lwork = (4*mn+7) * mn;
+    
+    if(rsvd_lwork < apADesc->mb){
+        rsvd_lwork = apADesc->mb;
+    }
+    rsvd_lwork += mn*(3*apADesc->mb+mn+1);
+    size_t rsvd_liwork = 8*mn;
+
+    parsec_MatrixCompress_taskpool_t *pTaskpool =
+            parsec_MatrixCompress_new(apADesc, apArDesc, aBandSizeDense, aNT, aMaxRank, aN,
+                                      apNormTmp, apNormTile, aAdaptiveDecision, aTolerance, aSendFullTile,
+                                      aAutoBand, aGpus, params_kernel);
+
+    pTaskpool->_g_apNorm = apNormTmp;
+    pTaskpool->_g_aRsvd_oversample = rsvd_oversample;
+    pTaskpool->_g_aRsvd_lwork = rsvd_lwork;
+    pTaskpool->_g_aRsvd_liwork = rsvd_liwork;
+
+    /* Memery pool */
+    pTaskpool->_g_aUv_work = malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_aUv_work, (apADesc->mb*aMaxRank*2)*sizeof(double));
+
+    pTaskpool->_g_aD_work = malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_aD_work, (apADesc->mb*apADesc->mb)*sizeof(double));
+
+    pTaskpool->_g_aRsvaD_work = malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_aRsvaD_work, rsvd_lwork*sizeof(double));
+
+    pTaskpool->_g_aRsvd_iwork = malloc(sizeof(parsec_memory_pool_t));
+    parsec_private_memory_init(pTaskpool->_g_aRsvd_iwork, rsvd_liwork*sizeof(int));
+
+    /* Arena */
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_MatrixCompress_FULL_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apADesc->mb, apADesc->mb, apADesc->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_MatrixCompress_UV_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apADesc->mb, aMaxRank*2, apADesc->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&pTaskpool->arenas_datatypes[PARSEC_MatrixCompress_AR_ADT_IDX],
+                            parsec_datatype_int_t, PARSEC_MATRIX_FULL,
+                            1, 1, 1, 1,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)pTaskpool;
+}
+
+/* Destructor */
+void MatrixCompress_destructor(parsec_taskpool_t *apTaskpool)
+{
+    parsec_MatrixCompress_taskpool_t *pTaskpool = (parsec_MatrixCompress_taskpool_t *)apTaskpool;
+
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_MatrixCompress_FULL_ADT_IDX]);
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_MatrixCompress_UV_ADT_IDX]);
+    parsec_del2arena(&pTaskpool->arenas_datatypes[PARSEC_MatrixCompress_AR_ADT_IDX]);
+
+    parsec_private_memory_fini(pTaskpool->_g_aUv_work );
+    parsec_private_memory_fini(pTaskpool->_g_aD_work );
+    parsec_private_memory_fini(pTaskpool->_g_aRsvaD_work );
+    parsec_private_memory_fini(pTaskpool->_g_aRsvd_iwork );
+
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * Generate matrix 
+ */
+void MatrixCompress(parsec_context_t *apContext, double *apNormGlobal, int aUpperLower, int aBandSizeDense, int aNT,
+                    int aMaxRank, int aN, int aAdaptiveDecision, int aTolerance, int aSendFullTile, int aAutoBand,
+                    int aGpus, hicma_parsec_data_t *data, starsh_params_t *params_kernel)
+{
+
+    /* Only for 1 vp */
+    assert(apContext->nb_vp == 1);
+    int nb_threads = apContext->virtual_processes[0]->nb_cores;
+    double *pNormTmp = (double *) calloc(sizeof(double), nb_threads);
+
+    /* Make sure norm_tile and norm_global is fresh */
+    double* pNormTile = (double*) malloc(aNT * aNT * sizeof(double));
+    memset(pNormTile, 0, aNT * aNT * sizeof(double));
+    // Make sure norm_tile and norm_global is fresh
+    *apNormGlobal = 0.0;
+    parsec_taskpool_t *pTaskpool =
+            MatrixCompress_constructor(aUpperLower, aBandSizeDense, aNT, aMaxRank, aN, pNormTmp, pNormTile,
+                                       aAdaptiveDecision, aTolerance, aSendFullTile, aAutoBand, aGpus, data, params_kernel);
+
+    parsec_context_add_taskpool(apContext, pTaskpool);
+    parsec_context_start(apContext);
+    parsec_context_wait(apContext);
+    MatrixCompress_destructor(pTaskpool);
+
+    /* Reduce to the global norm */
+    double norm_process = 0.0;
+    for( int i = 0; i < nb_threads; i++ ) {
+        norm_process += pNormTmp[i];
+    }
+
+    MPI_Allreduce(MPI_IN_PLACE, pNormTile, aNT * aNT, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&norm_process, apNormGlobal, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    *apNormGlobal = sqrt(*apNormGlobal);
+
+    free(pNormTmp);
+    free(pNormTile);
+}
+
+%}
