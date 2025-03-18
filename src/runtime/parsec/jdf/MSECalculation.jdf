@@ -1,0 +1,134 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+%}
+
+descZpre                [ type = "parsec_tiled_matrix_t *" ]
+descZmiss               [ type = "parsec_tiled_matrix_t *" aligned = descZpre ]
+descZerror              [ type = "parsec_tiled_matrix_t *" ]
+
+
+Read(m)
+
+m = 0 .. descZpre->lmt-1
+
+: descZpre(m, 0)
+
+READ Zpre  <- descZpre(m, 0)      [ type = DB ]
+READ Zmiss <- descZmiss(m, 0)     [ type = DB ]
+
+WRITE local_mse <- NEW
+                -> local_mse Task(m) 
+
+BODY
+{
+	/* Initialize to 0.0 */
+        *((double *)local_mse) = 0.0;
+
+        int tempmm = (m == descZpre->lmt-1) ? parsec_imin(descZpre->mb, descZpre->m-m*descZpre->mb): descZpre->mb;
+        for(int i = 0; i < tempmm; i++)
+        {
+                 *((double *)local_mse) += pow( (((double *)Zpre)[i]-((double *)Zmiss)[i]), 2 );
+        }
+
+}
+END
+
+
+Task(m)
+
+m = 0 .. descZpre->lmt-1
+
+: descZerror(0, 0)
+
+READ local_mse <- local_mse Read(m) 
+
+RW Zerror <- descZerror(0, 0)           
+          -> descZerror(0, 0)          
+
+CTL ctl1 -> (m != descZpre->lmt-1)? ctl2 Task(m+1)
+CTL ctl2 <- (m != 0)? ctl1 Task(m-1)
+
+BODY
+{
+	/* Initialize to 0.0 */
+	if( 0 == m )
+		*((double *)Zerror) = 0.0;
+
+	/* Updata value */
+	*((double *)Zerror) += *((double *)local_mse); 
+}
+END
+
+
+extern "C" %{
+
+/**
+ * @param [in] dcA:    the data, already distributed and allocated
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+MSECalculation_New(parsec_tiled_matrix_t *dcZpre,
+		parsec_tiled_matrix_t *dcZmiss,
+		parsec_tiled_matrix_t *dcZerror) 
+{
+    parsec_MSECalculation_taskpool_t* taskpool = NULL;
+
+    taskpool = MSECalculation_New(dcZpre, dcZmiss, dcZerror); 
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_MSECalculation_DB_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, dcZpre->mb, 1, dcZpre->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_MSECalculation_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, 1, 1, 1,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void MSECalculation_Destruct(parsec_taskpool_t *taskpool)
+{
+    parsec_MSECalculation_taskpool_t *MSECalculation_taskpool = (parsec_MSECalculation_taskpool_t *)taskpool;
+    parsec_del2arena(&MSECalculation_taskpool->arenas_datatypes[PARSEC_MSECalculation_DB_ADT_IDX]);
+    parsec_del2arena(&MSECalculation_taskpool->arenas_datatypes[PARSEC_MSECalculation_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(taskpool);
+}
+
+/**
+ * @brief allocate and generate dcA
+ * 
+ * @param [inout] dcA: the data, already distributed and allocated
+ */
+int MSECalculation(parsec_context_t *parsec,
+                       parsec_tiled_matrix_t *dcZpre,
+                       parsec_tiled_matrix_t *dcZmiss,
+		       parsec_tiled_matrix_t *dcZerror)
+{
+    parsec_taskpool_t *parsec_MSECalculation = NULL;
+
+    parsec_MSECalculation = MSECalculation_New(dcZpre, dcZmiss, dcZerror); 
+
+    if( parsec_MSECalculation != NULL ){
+        parsec_context_add_taskpool(parsec, parsec_MSECalculation);
+        parsec_context_start(parsec);
+        parsec_context_wait(parsec);
+        MSECalculation_Destruct(parsec_MSECalculation);
+    }
+
+    return 0;
+}
+
+%}

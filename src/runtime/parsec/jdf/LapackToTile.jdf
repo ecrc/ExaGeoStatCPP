@@ -1,0 +1,103 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ *
+ * This file defines the LapackToTile conversion tasks.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+%}
+
+/* Distributed matrix descriptor, observation vector, and its size */
+apDescA             [ type = "parsec_tiled_matrix_t *" ]
+aZobs               [ type = "double *" ]
+anZobs              [ type = "int" ]
+
+/**************************************************
+ *                  Read Task                     *
+ **************************************************/
+Read(aM, aN)
+
+aM = 0 .. apDescA->lmt-1
+aN = 0 .. 0 
+
+: apDescA(aM, aN)
+
+RW apA <- apDescA(aM, aN) 
+     -> apDescA(aM, aN)
+
+BODY
+{
+       void *apZ0 = (void *)aZobs + aM * apDescA->mb * sizeof(double);
+       int aSize = (aM == apDescA->lmt-1)
+           ? (anZobs - (apDescA->lmt-1) * apDescA->mb) * sizeof(double)
+           : apDescA->mb * sizeof(double);
+       memcpy(apA, apZ0, aSize);
+}
+END
+
+extern "C" %{
+
+/**
+ * @brief Create a new LapackToTile taskpool.
+ * @param [in] apDcA  Pointer to the distributed matrix descriptor.
+ * @param [in] aZobs  Pointer to the observation vector containing the Lapack matrix.
+ * @param [in] anZobs The size (number of elements) of the observation vector.
+ * @return parsec_taskpool_t* Returns the allocated LapackToTile taskpool.
+ */
+parsec_taskpool_t*
+LapackToTile_New(parsec_tiled_matrix_t *apDcA, double *aZobs, int anZobs)
+{
+    parsec_taskpool_t* aLapackToTileTaskpool;
+    parsec_LapackToTile_taskpool_t* apTaskpool = NULL;
+
+    apTaskpool = parsec_LapackToTile_new(apDcA, aZobs, anZobs);
+    aLapackToTileTaskpool = (parsec_taskpool_t*)apTaskpool;
+
+    parsec_add2arena(&apTaskpool->arenas_datatypes[PARSEC_LapackToTile_DEFAULT_ADT_IDX],
+                     parsec_datatype_double_t, matrix_UpperLower,
+                     1, apDcA->mb, 1, apDcA->mb,
+                     PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return aLapackToTileTaskpool;
+}
+
+/**
+ * @brief Destroy the LapackToTile taskpool.
+ * @param [in,out] apTaskpool Pointer to the taskpool to be destroyed.
+ */
+void LapackToTile_Destruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_LapackToTile_taskpool_t *apLapackToTileTaskpool = (parsec_LapackToTile_taskpool_t *)apTaskpool;
+    parsec_del2arena(&apLapackToTileTaskpool->arenas_datatypes[PARSEC_LapackToTile_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @brief Convert a Lapack matrix to a tiled matrix.
+ * @param [in] apParsec Pointer to the PaRSEC context.
+ * @param [in,out] apDcA Pointer to the distributed matrix descriptor.
+ * @param [in] aZobs    Pointer to the observation vector containing the Lapack matrix.
+ * @param [in] anZobs   The number of elements in the observation vector.
+ * @return int Returns 0 upon success.
+ */
+int LapackToTile(parsec_context_t *apParsec,
+                 parsec_tiled_matrix_t *apDcA, double *aZobs, int anZobs)
+{
+    parsec_taskpool_t *aLapackToTile = NULL;
+    aLapackToTile = LapackToTile_New(apDcA, aZobs, anZobs);
+
+    if(aLapackToTile != NULL) {
+        parsec_context_add_taskpool(apParsec, aLapackToTile);
+        parsec_context_start(apParsec);
+        parsec_context_wait(apParsec);
+        LapackToTile_Destruct(aLapackToTile);
+    }
+
+    return 0;
+}
+
+%}

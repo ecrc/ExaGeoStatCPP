@@ -1,0 +1,132 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include "mix_precision_internal.h"
+
+#define POSITIVE_HALF_MIN 0.00006103515625
+#define POSITIVE_HALF_MAX 65504.0
+
+static int print_more = 0;
+
+static void CORE_dmatrix_count_total (double *sum_min, double *sum_max, double *A, int mb, int nb, int lda, int m, int n) {
+	for (int j = 0; j < nb; j++) {
+		for (int i = 0; i < mb; i++) {
+			if( A[j*lda+i] < POSITIVE_HALF_MIN ) {
+				*sum_min += 1.0; 
+				if( print_more ) fprintf(stderr, "In (%d %d) of tile (%d %d): %lf exceed half-precision threshold %lf\n", A[j*lda+i], POSITIVE_HALF_MIN);
+			}
+
+			if( A[j*lda+i] > POSITIVE_HALF_MAX ) {
+				*sum_max += 1.0; 
+				if( print_more ) fprintf(stderr, "In (%d %d) of tile (%d %d): %lf exceed half-precision threshold %lf\n", A[j*lda+i], POSITIVE_HALF_MAX);
+			}
+		}
+	}
+}
+
+%}
+
+descA            [ type = "parsec_tiled_matrix_t *" ]
+sum_min          [ type = "double *" ]
+sum_max          [ type = "double *" ]
+
+Read(m, n)
+
+m = 0 .. descA->lmt-1
+n = 0 .. m 
+
+: descA(m, n)
+
+READ A <- descA(m, n)
+
+BODY
+{
+	int tempmm = (m == descA->lmt-1) ? parsec_imin(descA->mb, descA->m-m*descA->mb): descA->mb;
+	int tempnn = (n == descA->lnt-1) ? parsec_imin(descA->nb, descA->n-n*descA->nb): descA->nb;
+        int myid = es->th_id;
+        CORE_dmatrix_count_total( &sum_min[myid], &sum_max[myid], A, tempmm, tempnn, descA->mb, m, n );
+}
+END
+
+
+extern "C" %{
+
+/**
+ * @param [in] dcA:    the data, already distributed and allocated
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+parsec_dmatrix_ratio_exceed_half_New(parsec_tiled_matrix_t *dcA, double *sum_min, double *sum_max) 
+{
+    parsec_taskpool_t* dmatrix_ratio_exceed_half_taskpool;
+    parsec_dmatrix_ratio_exceed_half_taskpool_t* taskpool = NULL;
+
+    taskpool = parsec_dmatrix_ratio_exceed_half_new(dcA, sum_min, sum_max); 
+    dmatrix_ratio_exceed_half_taskpool = (parsec_taskpool_t*)taskpool;
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_dmatrix_ratio_exceed_half_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, dcA->mb, dcA->nb, dcA->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return dmatrix_ratio_exceed_half_taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void parsec_dmatrix_ratio_exceed_half_Destruct(parsec_taskpool_t *taskpool)
+{
+    parsec_dmatrix_ratio_exceed_half_taskpool_t *dmatrix_ratio_exceed_half_taskpool = (parsec_dmatrix_ratio_exceed_half_taskpool_t *)taskpool;
+    parsec_del2arena(&dmatrix_ratio_exceed_half_taskpool->arenas_datatypes[PARSEC_dmatrix_ratio_exceed_half_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(taskpool);
+}
+
+/**
+ * @brief allocate and generate dcA
+ * 
+ * @param [inout] dcA: the data, already distributed and allocated
+ */
+void parsec_dmatrix_ratio_exceed_half(parsec_context_t *parsec,
+                       parsec_tiled_matrix_t *dcA,
+		       double *theta, int iter )
+{
+    parsec_taskpool_t *parsec_dmatrix_ratio_exceed_half = NULL;
+
+    int nb_threads = parsec->virtual_processes[0]->nb_cores;
+    double *sum_min = (double *)calloc( nb_threads, sizeof(double) );
+    double *sum_max = (double *)calloc( nb_threads, sizeof(double) );
+
+    parsec_dmatrix_ratio_exceed_half = parsec_dmatrix_ratio_exceed_half_New(dcA, sum_min, sum_max); 
+
+    if( parsec_dmatrix_ratio_exceed_half != NULL ){
+        parsec_context_add_taskpool(parsec, parsec_dmatrix_ratio_exceed_half);
+        parsec_context_start(parsec);
+        parsec_context_wait(parsec);
+        parsec_dmatrix_ratio_exceed_half_Destruct(parsec_dmatrix_ratio_exceed_half);
+    }
+
+    double total_min = 0.0, total_sum_min = 0.0; 
+    double total_max = 0.0, total_sum_max = 0.0; 
+    for( int i = 0; i < nb_threads; i++ ) {
+        total_min += sum_min[i];
+        total_max += sum_max[i];
+    }
+
+    MPI_Allreduce( &total_min, &total_sum_min, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+    MPI_Allreduce( &total_max, &total_sum_max, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+
+    if( 0 == dcA->super.myrank ) {
+        fprintf(stderr, "\n Iteration %d theta %lf %lf %lf : number_smaller_than %lf : %.0lf ; number_bigger_than %lf : %.0lf\n\n",
+			iter, theta[0], theta[1], theta[2], POSITIVE_HALF_MIN, total_sum_min, POSITIVE_HALF_MAX, total_sum_max);
+    }
+
+    free( sum_min );
+    free( sum_max );
+}
+
+%}

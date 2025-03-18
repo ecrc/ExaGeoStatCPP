@@ -5,7 +5,7 @@
 
 /**
  * @file  CSVLoader.hpp
- * @brief A class for generating synthetic data.
+ * @brief A class for loading csv format data.
  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
@@ -37,23 +37,42 @@ namespace exageostat::dataLoader::csv {
 
         /**
          * @brief Reads data from external sources into ExaGeoStat format.
-         * @copydoc DataLoader::ReadData()
+         * @param aConfigurations Configuration settings for data loading.
+         * @param aMeasurementsMatrix Vector to store measurement values.
+         * @param aXLocations Vector to store X coordinates of locations.
+         * @param aYLocations Vector to store Y coordinates of locations.
+         * @param aZLocations Vector to store Z coordinates of locations (if applicable).
+         * @param aP Partition index for distributed data loading.
+         * @return void
          *
          */
         void ReadData(configurations::Configurations &aConfigurations, std::vector<T> &aMeasurementsMatrix,
                       std::vector<T> &aXLocations, std::vector<T> &aYLocations, std::vector<T> &aZLocations,
-                      const int &aP) override;
+                      const int &aP) ;
 
         /**
         * @brief Writes a matrix of vectors to disk.
-        * @copydoc DataLoader::WriteData()
-        *
+        * @param[in] aMatrixPointer A Reference to the matrix data.
+        * @param[in] aProblemSize The size of the problem.
+        * @param[in] aP The number of processes.
+        * @param[in] aLoggerPath The path to the logger file.
+        * @param[in] aLocations A Reference to the Locations object.
+        * @return void
+        * 
         */
         void
         WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
-                  exageostat::dataunits::Locations<T> &aLocations) override;
+                  exageostat::dataunits::Locations<T> &aLocations) ;
 
         /**
+        * @brief Loads data based on given configuration.
+        * @copydoc DataLoader::LoadData()
+        *
+        */
+       std::unique_ptr<ExaGeoStatData<T>>
+       LoadData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel) override;
+
+       /**
          * @brief Release the singleton instance of the  CSVLoader class.
          * @return void
          *

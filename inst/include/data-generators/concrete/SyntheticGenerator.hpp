@@ -32,47 +32,38 @@ namespace exageostat::generators::synthetic {
     public:
 
         /**
-         * @brief Get a pointer to the singleton instance of the SyntheticGenerator class.
-         * @return A pointer to the instance of the SyntheticGenerator class.
-         *
-         */
-        static SyntheticGenerator<T> *GetInstance();
-
-        /**
          * @brief Creates the data by synthetically generating it.
          * @copydoc DataGenerator::CreateData()
          *
          */
         std::unique_ptr<ExaGeoStatData<T>>
-        CreateData(configurations::Configurations &aConfigurations,
-                   exageostat::kernels::Kernel<T> &aKernel) override;
+        CreateData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel) override;
 
-        /**
-         * @brief Release the singleton instance of the SyntheticGenerator class.
-         * @return void
+         /**
+         * @brief Abstract method for synthetic data generation based on provided configurations and kernel.
+         * @param[in] aConfigurations Reference to the configurations object that contains parameters for generating data.
+         * @param[in] aKernel Reference to the kernel object that defines the operations to be applied while generating the data.
+         * @return A unique pointer to the generated ExaGeoStatData object.
          *
          */
-        static void ReleaseInstance();
-
-    private:
-        /**
-         * @brief Constructor for the SyntheticGenerator class.
-         * @return void
-         *
-         */
-        SyntheticGenerator() = default;
+        virtual std::unique_ptr<ExaGeoStatData<T>>
+        CreateSyntheticData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel)  = 0;
 
         /**
-         * @brief Default destructor.
+         * @brief Factory method for creating a synthetic data generator instance.
+         * This method dynamically determines the type of synthetic generator to instantiate based on compile-time conditions.
+         * @return A unique pointer to a synthetic data generator instance configured as per the specified runtime conditions.
          *
          */
-        ~SyntheticGenerator() override = default;
+        static std::unique_ptr<SyntheticGenerator<T>> CreateSyntheticGenerator();
 
         /**
-         * @brief Pointer to the singleton instance of the SyntheticGenerator class.
+         * @brief Releases the singleton instance of the currently active synthetic data generator.
+         * This method ensures proper deallocation of the singleton instance of the synthetic data generator,
+         * depending on the selected runtime.
          *
          */
-        static SyntheticGenerator<T> *mpInstance;
+        static void ReleaseSyntheticGenerator();
 
     };
 

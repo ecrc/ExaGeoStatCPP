@@ -14,8 +14,6 @@
 #ifndef EXAGEOSTATCPP_EXAGEOSTAT_HPP
 #define EXAGEOSTATCPP_EXAGEOSTAT_HPP
 
-#include <nlopt.hpp>
-
 #include <configurations/Configurations.hpp>
 #include <data-units/ExaGeoStatData.hpp>
 
@@ -51,17 +49,6 @@ namespace exageostat::api {
                                         std::unique_ptr<ExaGeoStatData<T>> &aData,
                                         T *apMeasurementsMatrix = nullptr);
 
-
-        /**
-         * @brief Objective function used in optimization, and following the NLOPT objective function format.
-         * @param[in] aTheta An array of length n containing the current point in the parameter space.
-         * @param[in] aGrad  An array of length n where you can optionally return the gradient of the objective function.
-         * @param[in] apInfo pointer containing needed configurations and data.
-         * @return double MLE results.
-         *
-         */
-        static double ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
-
         /**
          * @brief Predict missing measurements values.
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
@@ -76,7 +63,6 @@ namespace exageostat::api {
         ExaGeoStatPrediction(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData,
                              T *apMeasurementsMatrix = nullptr, dataunits::Locations<T> *apTrainLocations = nullptr,
                              dataunits::Locations<T> *apTestLocations = nullptr);
-
     };
 
     /**

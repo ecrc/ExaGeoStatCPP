@@ -1,0 +1,190 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ *
+ * This file defines tasks for computing the trace needed for MLE.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+/**
+ * @brief Compute trace contributions from a tile.
+ *
+ * This helper function computes the sum of the diagonal elements of the tile
+ * stored in apC11, and writes each diagonal value into apZtrace.
+ *
+ * @param apC11 Pointer to a tile (double array) from the C11 matrix.
+ * @param apZtrace Pointer to the tile (double array) where the trace is stored.
+ * @param apS    Pointer to a double where the sum is accumulated.
+ * @param aMB   The number of rows (tile size) in the current tile.
+ * @param aLda  The leading dimension of the tile.
+ */
+static void DtraceCore(double *apC11, double *apZtrace, double *apS, int aMB, int aLda)
+{
+     *apS = 0.0;
+     for (int i = 0; i < aMB; i++) 
+     {
+         *apS += apC11[i + i * aLda];
+         apZtrace[i] = apC11[i + i * aLda];
+     }
+}
+
+%}
+
+/* Distributed matrix descriptors */
+apDescC11                [ type = "parsec_tiled_matrix_t *" ]
+apDescDet                [ type = "parsec_tiled_matrix_t *" ]
+apDescZtrace             [ type = "parsec_tiled_matrix_t *" ]
+
+/**************************************************
+ *                 Read_C11 Task                *
+ **************************************************/
+Read_C11(aM)
+
+aM = 0 .. apDescC11->lmt-1
+
+: apDescC11(aM, aM)
+
+READ apC11 <- apDescC11(aM, aM) 
+         -> apC11 GetTrace(aM)
+
+BODY
+{
+    /* No action in the Read_C11 task body */
+}
+END
+
+/**************************************************
+ *                 GetTrace Task                *
+ **************************************************/
+GetTrace(aM)
+
+aM = 0 .. apDescZtrace->lmt-1
+
+: apDescZtrace(aM, 0)
+
+READ apC11 <- apC11 Read_C11(aM)
+
+RW apZtrace <- apDescZtrace(aM, 0)
+          -> apDescZtrace(aM, 0)
+
+WRITE apS <- NEW
+        -> apS SumTrace(aM)
+
+BODY
+{
+    int aTempMB = (aM == apDescZtrace->lmt-1)
+                  ? parsec_imin(apDescZtrace->mb, apDescZtrace->m - aM * apDescZtrace->mb)
+                  : apDescZtrace->mb;
+    DtraceCore((double *)apC11, (double *)apZtrace, (double *)apS, aTempMB, apDescZtrace->mb);
+}
+END
+
+/**************************************************
+ *                SumTrace Task                 *
+ **************************************************/
+SumTrace(aM)
+
+aM = 0 .. apDescZtrace->lmt-1
+
+: apDescDet(0, 0)
+
+READ apS <- apS GetTrace(aM)
+
+RW apD <- apDescDet(0, 0)
+     -> apDescDet(0, 0)
+
+CTL ctl1 -> (aM != apDescZtrace->lmt-1)? ctl2 SumTrace(aM+1)
+CTL ctl2 <- (aM != 0)? ctl1 SumTrace(aM-1)
+
+BODY
+{
+    /* Initialize accumulator on first task */
+    if( 0 == aM ) {
+        *((double *)apD) = 0.0;
+    }
+    /* Update accumulator */
+    *((double *)apD) += *((double *)apS);
+}
+END
+
+extern "C" %{
+
+/**
+ * @brief Create a new MLE Dtrace taskpool.
+ *
+ * Allocates and initializes a new PaRSEC taskpool for computing the trace
+ * of the C11 matrix and summing it into the determinant descriptor.
+ *
+ * @param [in] apParsec   Pointer to the PaRSEC context.
+ * @param [in] apDcC11    Pointer to the distributed C11 matrix descriptor.
+ * @param [in] apDcDet    Pointer to the determinant output descriptor.
+ * @param [in] apDcZtrace Pointer to the trace output descriptor.
+ * @return parsec_taskpool_t* Returns the allocated MLE Dtrace taskpool.
+ */
+parsec_taskpool_t*
+MLEDtrace_New(parsec_context_t *apParsec,
+              parsec_tiled_matrix_t *apDcC11,
+              parsec_tiled_matrix_t *apDcDet,
+              parsec_tiled_matrix_t *apDcZtrace)
+{
+    parsec_taskpool_t* aMLEDtraceTaskpool;
+    parsec_MLEDtrace_taskpool_t* apTaskpool = NULL;
+
+    apTaskpool = parsec_MLEDtrace_new(apDcC11, apDcDet, apDcZtrace);
+    aMLEDtraceTaskpool = (parsec_taskpool_t*)apTaskpool;
+
+    parsec_add2arena(&apTaskpool->arenas_datatypes[PARSEC_MLEDtrace_DEFAULT_ADT_IDX],
+                     parsec_datatype_double_t, matrix_UpperLower,
+                     1, apDcC11->mb, apDcC11->nb, apDcC11->mb,
+                     PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return aMLEDtraceTaskpool;
+}
+
+/**
+ * @brief Destroy the MLE Dtrace taskpool.
+ *
+ * Releases resources associated with the MLE Dtrace taskpool.
+ *
+ * @param [in,out] apTaskpool Pointer to the taskpool to be destroyed.
+ */
+void MLEDtrace_Destruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_MLEDtrace_taskpool_t *apTp = (parsec_MLEDtrace_taskpool_t *)apTaskpool;
+    parsec_del2arena(&apTp->arenas_datatypes[PARSEC_MLEDtrace_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @brief Execute the MLE Dtrace task.
+ *
+ * This function creates a taskpool for computing the trace of the C11 matrix, adds it to the
+ * PaRSEC context, starts execution, waits for its completion, and then destroys the taskpool.
+ *
+ * @param [in] apParsec   Pointer to the PaRSEC context.
+ * @param [in,out] apDcC11 Pointer to the distributed C11 matrix descriptor.
+ * @param [in,out] apDcDet Pointer to the determinant output descriptor.
+ * @param [in,out] apDcZtrace Pointer to the Z-trace output descriptor.
+ * @return int Returns 0 upon successful execution.
+ */
+int MLEDtrace(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcC11, parsec_tiled_matrix_t *apDcDet, parsec_tiled_matrix_t *apDcZtrace)
+{
+    parsec_taskpool_t *aMLEDtrace = NULL;
+
+    aMLEDtrace = MLEDtrace_New(apParsec, apDcC11, apDcDet, apDcZtrace);
+
+    if( aMLEDtrace != NULL ){
+        parsec_context_add_taskpool(apParsec, aMLEDtrace);
+        parsec_context_start(apParsec);
+        parsec_context_wait(apParsec);
+        MLEDtrace_Destruct(aMLEDtrace);
+    }
+
+    return 0;
+}
+
+%}

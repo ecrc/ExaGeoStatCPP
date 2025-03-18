@@ -324,3 +324,133 @@ int PredictionHelpers<T>::SortInplace(int aN, Locations<T> &aLocations, T *apZ) 
 
     return 0;
 }
+
+#if !DEFAULT_RUNTIME
+template<typename T>
+void PredictionHelpers<T>::RadixSortRecursive(uint32_t *apData, int aCount, int aNDim,
+    int *apOrder, int *apTmpOrder, int aSDim, int aSBit, int aLo, int aHi) {
+    int aI, aLoLast = aLo, aHiLast = aHi;
+    uint32_t *apSData = apData + aSDim * aCount;
+    uint32_t aCheck = 1 << aSBit;
+    for(aI = aLo; aI <= aHi; aI++)
+    {
+        if((apSData[apOrder[aI]] & aCheck) == 0)
+        {
+            apTmpOrder[aLoLast] = apOrder[aI];
+            aLoLast++;
+        }
+        else
+        {
+            apTmpOrder[aHiLast] = apOrder[aI];
+            aHiLast--;
+        }
+    }
+    for(aI = aLo; aI <= aHi; aI++)
+        apOrder[aI] = apTmpOrder[aI];
+    if(aSDim > 0)
+    {
+        if(aLoLast - aLo > 1)
+        PredictionHelpers<T>::RadixSortRecursive(apData, aCount, aNDim, apOrder, apTmpOrder, aSDim - 1,
+                aSBit, aLo, aLoLast - 1);
+        if(aHi - aHiLast > 1)
+        PredictionHelpers<T>::RadixSortRecursive(apData, aCount, aNDim, apOrder, apTmpOrder, aSDim - 1,
+                aSBit, aHiLast + 1, aHi);
+    }
+    else if(aSBit > 0)
+    {
+        if(aLoLast - aLo > 1)
+        PredictionHelpers<T>::RadixSortRecursive(apData, aCount, aNDim, apOrder, apTmpOrder, aNDim - 1,
+                aSBit - 1, aLo, aLoLast - 1);
+        if(aHi - aHiLast > 1)
+        PredictionHelpers<T>::RadixSortRecursive(apData, aCount, aNDim, apOrder, apTmpOrder, aNDim - 1,
+                aSBit - 1, aHiLast + 1, aHi);
+    }
+}
+
+template<typename T>
+int PredictionHelpers<T>::RadixSort(uint32_t *apData, int aCount, int aNDim, int *apOrder)
+{
+    int *apTmpOrder = (int *) malloc(aCount * sizeof(int));
+    PredictionHelpers<T>::RadixSortRecursive(apData, aCount, aNDim, apOrder, apTmpOrder, aNDim - 1, 31, 0, aCount - 1);
+    free(apTmpOrder);
+    return 0;
+}
+
+template<typename T>
+int PredictionHelpers<T>::LocationsZSortInPlace(int aN, location *apLocations, double *apZ)
+{
+    int aI, aJ;
+    int aCount = aN;
+    int aNDim = 2;
+    int aInfo;
+    double *apPoint = (double *) malloc(aNDim * aCount * sizeof(double));
+    double *apPtr1;
+    double *apMinMax; // min values stored in first half, max values in second half
+
+    for(aI = 0; aI < aCount; aI++)
+    {
+        apPoint[aI]        = apLocations->x[aI];
+        apPoint[aI + aCount] = apLocations->y[aI];
+    }
+
+    apMinMax = (double *) malloc(2 * aCount * sizeof(double));
+    for(aI = 0; aI < aNDim; aI++)
+    {
+        apPtr1 = apPoint + aI * aCount;
+        apMinMax[aI] = apPtr1[0];
+        apMinMax[aI + aNDim] = apMinMax[aI];
+        for(aJ = 1; aJ < aCount; aJ++)
+        {
+            if(apMinMax[aI] > apPtr1[aJ])
+                apMinMax[aI] = apPtr1[aJ];
+            else if (apMinMax[aI + aNDim] < apPtr1[aJ])
+                apMinMax[aI + aNDim] = apPtr1[aJ];
+        }
+    }
+    // apMinMax[0:aNDim] stores minima, apMinMax[aNDim:2*aNDim] stores maxima.
+    uint32_t *apUintPoint = (uint32_t *) malloc(aNDim * aCount * sizeof(uint32_t));
+    uint32_t *apUintPtr1;
+    double aMin, aRange;
+    for(aI = 0; aI < aNDim; aI++)
+    {
+        apUintPtr1 = apUintPoint + aI * aCount;
+        apPtr1 = apPoint + aI * aCount;
+        aMin = apMinMax[aI];
+        aRange = apMinMax[aI + aNDim] - aMin;
+        for(aJ = 0; aJ < aCount; aJ++)
+            apUintPtr1[aJ] = (apPtr1[aJ] - aMin) / aRange * UINT32_MAX;
+    }
+    free(apMinMax);
+    // Prepare indices for sorting.
+    int *apOrder = (int *) malloc(aCount * sizeof(int));
+    for(aJ = 0; aJ < aCount; aJ++)
+        apOrder[aJ] = aJ;
+    aInfo = PredictionHelpers<T>::RadixSort(apUintPoint, aCount, aNDim, apOrder);
+    if(aInfo != 0)
+    {
+        free(apUintPoint);
+        free(apOrder);
+        return aInfo;
+    }
+    double *apNewPoint = (double *) malloc(aNDim * aCount * sizeof(double));
+    double *apNewZ     = (double *) malloc(aCount * sizeof(double));
+    for(aJ = 0; aJ < aCount; aJ++)
+    {
+        for(aI = 0; aI < aNDim; aI++)
+            apNewPoint[aCount * aI + aJ] = apPoint[aCount * aI + apOrder[aJ]];
+        apNewZ[aJ] = apZ[apOrder[aJ]];
+    }
+    for(aI = 0; aI < aCount; aI++)
+    {
+        apLocations->x[aI] = apNewPoint[aI];
+        apLocations->y[aI] = apNewPoint[aI + aCount];
+        apZ[aI] = apNewZ[aI];
+    }
+    free(apNewPoint);
+    free(apPoint);
+    free(apNewZ);
+    free(apUintPoint);
+    free(apOrder);
+    return 0;
+}
+#endif

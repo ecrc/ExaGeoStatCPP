@@ -1,0 +1,184 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include "mix_precision_internal.h"
+
+static int print_more = 0;
+
+%}
+
+descA           [ type = "parsec_tiled_matrix_t *" ]
+array_data      [ type = "double *" ]
+
+
+convert(m, n)
+
+m = 0 .. descA->lmt-1
+n = 0 .. m 
+
+: descA(m, n)
+
+RW  A   <- descA(m, n)
+        -> A error_ratio(m, n)
+
+RW B_h <- (m >= 0)? NEW
+RW B_s <- (m >= 0)? NEW
+RW B_d <- (m >= 0)? NEW
+       -> B error_ratio(m, n)
+
+BODY [ type=CUDA ] 
+{
+#if defined(EXAGEOSTAT_USE_CUDA)
+	//printf("GPU : %d %d\n", m, n);
+	double2float_GPU( descA->mb, descA->nb, A,   descA->mb, B_s, descA->mb, parsec_body.stream );
+	float2half_GPU  ( descA->mb, descA->nb, B_s, descA->mb, B_h, descA->mb, parsec_body.stream );
+	half2float_GPU  ( descA->mb, descA->nb, B_h, descA->mb, B_s, descA->mb, parsec_body.stream );
+	float2double_GPU( descA->mb, descA->nb, B_s, descA->mb, B_d, descA->mb, parsec_body.stream );
+#endif
+}
+END
+
+BODY
+{
+#if defined(EXAGEOSTAT_USE_CUDA)
+	printf("CPU : %d %d\n", m, n);
+#endif
+	LAPACKE_dlag2s( LAPACK_COL_MAJOR, descA->mb, descA->nb, A,   descA->mb, B_s, descA->mb );
+	LAPACKE_slag2d( LAPACK_COL_MAJOR, descA->mb, descA->nb, B_s, descA->mb, B_d, descA->mb );
+}
+END
+
+
+
+error_ratio(m, n)
+
+m = 0 .. descA->lmt-1
+n = 0 .. m
+
+: descA(m, n)
+
+READ A <- A   convert(m, n)
+READ B <- B_d convert(m, n)
+
+BODY
+{
+	int tempmm = (m == descA->lmt-1) ? parsec_imin(descA->mb, descA->m-m*descA->mb): descA->mb;
+	int tempnn = (n == descA->lnt-1) ? parsec_imin(descA->nb, descA->n-n*descA->nb): descA->nb;
+	double ratio_sum = 0.0;
+	double value_minA = (double)INT_MAX;
+	double value_minB = (double)INT_MAX;
+
+	for( int j = 0; j < tempnn; j++ ) {
+		for( int i = 0; i < tempmm; i++ ) {
+			if( ((double *)A)[j*descA->mb+i] ) ratio_sum += fabs( ((double *)A)[j*descA->mb+i] - ((double *)B)[j*descA->mb+i] ) / ((double *)A)[j*descA->mb+i]; 
+			if( ((double *)A)[j*descA->mb+i] < value_minA )
+				value_minA = ((double *)A)[j*descA->mb+i]; 
+
+			if( ((double *)B)[j*descA->mb+i] < value_minB )
+				value_minB = ((double *)B)[j*descA->mb+i]; 
+		}
+	}
+
+	if( print_more ) printf("%d %d : diff= %.17le minA= %.17le minB= %.17le\n", m, n, ratio_sum, value_minA, value_minB);
+	//array_data[n*descA->lmt+m] = ratio_sum; 
+	array_data[n*descA->lmt+m] = ratio_sum / (tempmm * tempnn); 
+}
+END
+
+
+extern "C" %{
+
+static float evaluate_gpu_convert(parsec_task_t* task) {
+    return PARSEC_HOOK_RETURN_DONE;
+}
+
+/**
+ * @param [in] dcA:    the data, already distributed and allocated
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+parsec_dmatrix_ratio_error_half_New(parsec_tiled_matrix_t *dcA, double *array_data) 
+{
+	parsec_dmatrix_ratio_error_half_taskpool_t* taskpool = NULL;
+	taskpool = parsec_dmatrix_ratio_error_half_new(dcA, array_data); 
+
+        //void** eval_gpu_convert;
+        //eval_gpu_convert = (void *)&taskpool->super.task_classes_array[0]->incarnations[0].evaluate;
+        //*eval_gpu_convert = &evaluate_gpu_convert;
+
+	parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_dmatrix_ratio_error_half_DEFAULT_ADT_IDX],
+			parsec_datatype_double_t, matrix_UpperLower,
+			1, dcA->mb, dcA->nb, dcA->mb,
+			PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+	return (parsec_taskpool_t*)taskpool; 
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+ */
+void parsec_dmatrix_ratio_error_half_Destruct(parsec_taskpool_t *taskpool)
+{
+	parsec_dmatrix_ratio_error_half_taskpool_t *dmatrix_ratio_error_half_taskpool = (parsec_dmatrix_ratio_error_half_taskpool_t *)taskpool;
+	parsec_del2arena(&dmatrix_ratio_error_half_taskpool->arenas_datatypes[PARSEC_dmatrix_ratio_error_half_DEFAULT_ADT_IDX]);
+	parsec_taskpool_free(taskpool);
+}
+
+/**
+ * @brief allocate and generate dcA
+ * 
+ * @param [inout] dcA: the data, already distributed and allocated
+ */
+void parsec_dmatrix_ratio_error_half(parsec_context_t *parsec,
+		parsec_tiled_matrix_t *dcA,
+		double *theta, int iter)
+{
+	parsec_taskpool_t *parsec_dmatrix_ratio_error_half = NULL;
+	double *array_data_tmp = (double *)calloc(dcA->lmt * dcA->lnt, sizeof(double));
+	double *array_data = (double *)calloc(dcA->lmt * dcA->lnt, sizeof(double));
+
+	parsec_dmatrix_ratio_error_half = parsec_dmatrix_ratio_error_half_New(dcA, array_data_tmp); 
+
+	if( parsec_dmatrix_ratio_error_half != NULL ){
+		parsec_context_add_taskpool(parsec, parsec_dmatrix_ratio_error_half);
+		parsec_context_start(parsec);
+		parsec_context_wait(parsec);
+		parsec_dmatrix_ratio_error_half_Destruct(parsec_dmatrix_ratio_error_half);
+	}
+
+	MPI_Reduce( array_data_tmp, array_data, dcA->lmt*dcA->lnt, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD );
+
+        /* Write into a file */
+	if( 0 == dcA->super.myrank ) {
+		char str[200]; 
+		char buf[200]; 
+		strcpy(str, "error_half");
+		sprintf(buf, "_%d_%d_%.6lf_%.6lf_%.6lf_%d", dcA->lm, dcA->mb, theta[0], theta[1], theta[2], iter);
+		strcat(str, buf);
+		fprintf(stderr, "Writing average error per tile cased by half-precision to file %s\n", str);
+
+		FILE *p;
+		p = fopen(str, "w");
+		if( NULL == p ) {
+			printf("Cannot open file\n");
+			exit(1);
+		}
+
+		for( int i = 0; i < dcA->lmt; i++ ) {
+			for( int j = 0; j < dcA->lnt; j++ )
+				fprintf(p, "%.6lf ", array_data[j*dcA->lmt+i]);
+			fprintf(p, "\n");
+		}
+
+		fclose(p);
+	}
+
+	free( array_data );
+	free( array_data_tmp );
+}
+
+%}

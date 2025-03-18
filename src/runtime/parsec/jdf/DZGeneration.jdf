@@ -1,0 +1,90 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+static void ParsecCoreDzcopy(double *apZ, int apM, int apM0, double *apDataR) {
+        memcpy(apZ, &apDataR[apM0], apM * sizeof(double));
+} 
+
+%}
+
+apDescA                [ type = "parsec_tiled_matrix_t *" ]
+apDataR                    [ type = "double *" ]
+
+Allocate(m, n)
+
+m = 0 .. apDescA->lmt-1
+n = 0 .. 0
+
+: apDescA(m, n)
+
+RW A <- apDescA(m, n)      [ type = DB ]
+     -> apDescA(m, n)      [ type = DB ]
+
+BODY
+{
+    int tempmm = (m == apDescA->lmt-1) ? parsec_imin(apDescA->mb, apDescA->m-m*apDescA->mb): apDescA->mb;
+    int m0 = m * apDescA->mb;
+    ParsecCoreDzcopy(A, tempmm, m0, apDataR);
+}
+END
+
+extern "C" %{
+
+/**
+ * @param [in] apDescA:    the data, already distributed and allocated
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+ParsecDZGenerationNew( parsec_tiled_matrix_t *apDescA, double *apDataR )
+{
+    parsec_taskpool_t* pDZ_generation_taskpool;
+    parsec_DZGeneration_taskpool_t* taskpool = NULL;
+    taskpool = parsec_DZGeneration_new(apDescA, apDataR);
+    pDZ_generation_taskpool = (parsec_taskpool_t*)taskpool;
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_DZGeneration_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, apDescA->mb, apDescA->nb, apDescA->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return pDZ_generation_taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void ParsecDZGenerationDestruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_DZGeneration_taskpool_t *pDZ_generation_taskpool = (parsec_DZGeneration_taskpool_t *)apTaskpool;
+    parsec_del2arena(&pDZ_generation_taskpool->arenas_datatypes[PARSEC_DZGeneration_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @brief allocate and generate apDescA
+ * 
+ * @param [inout] apDescA: the data, already distributed and allocated
+ */
+int ParsecDZGeneration(parsec_context_t *apParsecContext,
+                         parsec_tiled_matrix_t *apDescA, double *apDataR)
+{
+    parsec_taskpool_t *pParsec_dZ_generation = NULL;
+    pParsec_dZ_generation = ParsecDZGenerationNew( apDescA, apDataR );
+
+    if( pParsec_dZ_generation != NULL ){
+        parsec_context_add_taskpool(apParsecContext, pParsec_dZ_generation);
+        parsec_context_start(apParsecContext);
+        parsec_context_wait(apParsecContext);
+        ParsecDZGenerationDestruct(pParsec_dZ_generation);
+    }
+    return 0;
+}
+
+%}

@@ -14,6 +14,10 @@
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 
+#if !DEFAULT_RUNTIME
+#include <runtime/parsec/ParsecHeader.h>
+#endif
+
 #ifndef EXAGEOSTATCPP_PREDICTION_HPP
 #define EXAGEOSTATCPP_PREDICTION_HPP
 

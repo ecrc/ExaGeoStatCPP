@@ -16,6 +16,13 @@
 #include <data-units/ExaGeoStatData.hpp>
 #include <configurations/Configurations.hpp>
 
+#if !DEFAULT_RUNTIME
+#include <runtime/parsec/ParsecHeader.h>
+extern "C"{
+#include <runtime/parsec/jdf/JobDescriptionFormat.h>
+}
+#endif
+
 #ifndef EXAGEOSTATCPP_PREDICTION_HELPERS_HPP
 #define EXAGEOSTATCPP_PREDICTION_HELPERS_HPP
 
@@ -102,6 +109,41 @@ namespace exageostat::prediction {
          *
          */
         static int SortInplace(int aN, exageostat::dataunits::Locations<T> &aLocations, T *apZ);
+
+#if !DEFAULT_RUNTIME
+        /**
+         * @brief Hierarchical recursive radix sort to compute the Z-order of particles.
+         * @param apData      Pointer to an array of uint32_t representing the rescaled coordinates.
+         * @param aCount      The number of particles.
+         * @param aNDim       The number of dimensions.
+         * @param apOrder     Pointer to an array holding the current sort order (indexes).
+         * @param apTmpOrder  Pointer to an auxiliary array used for sorting.
+         * @param aSDim       The current dimension index for sorting.
+         * @param aSBit       The current bit index to sort on.
+         * @param aLo         The starting index of the current partition.
+         * @param aHi         The ending index of the current partition.
+         */
+        static void RadixSortRecursive(uint32_t *apData, int aCount, int aNDim, int *apOrder, int *apTmpOrder, int aSDim, int aSBit, int aLo, int aHi);
+        
+        /**
+         * @brief Auxiliary function to perform radix sort on particle coordinates.
+         * @param apData  Pointer to the array of uint32_t rescaled coordinates.
+         * @param aCount  The number of particles.
+         * @param aNDim   The number of dimensions.
+         * @param apOrder Pointer to an array that will hold the sorted order of indexes.
+         * @return int Returns 0 upon success.
+         */
+        static int RadixSort(uint32_t *apData, int aCount, int aNDim, int *apOrder);
+
+        /**
+         * @brief Sort particles in Z-order (Morton order) in place.
+         * @param aN           The number of particles.
+         * @param apLocations  Pointer to a location structure containing the particles' coordinates.
+         * @param apZ          Pointer to an array of doubles representing associated Z values.
+         * @return int Returns 0 on success.
+         */
+        static int LocationsZSortInPlace(int aN, location *apLocations, double *apZ);
+#endif
 
     };
 

@@ -1,0 +1,132 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+%}
+
+/* Input descriptor, observation vector, and size */
+apDescA          [ type = "parsec_tiled_matrix_t *" ]
+aZ               [ type = "double *" ]
+aN               [ type = "int" ]
+
+/**************************************************
+ *                  Read Task                     *
+ **************************************************/
+Read(m, n)
+
+m = 0 .. apDescA->lmt-1
+n = 0 .. 0 
+
+: apDescA(m, n)
+
+READ apA <- apDescA(m, n) 
+       -> apA Gather(m, n)
+
+BODY
+{
+    /* No action needed in the Read task body */
+}
+END
+
+/**************************************************
+ *                Gather Task                     *
+ **************************************************/
+Gather(m, n)
+
+m = 0 .. apDescA->lmt-1
+n = 0 .. 0
+
+: apDescA(0, 0)
+
+READ apA <- apA Read(m, n) 
+
+BODY
+{
+       /* Compute pointer into aZ for tile m */
+       void *apZ0 = (void *)aZ + m * apDescA->mb * sizeof(double); 
+       int aSize = (m == apDescA->lmt-1)
+           ? (aN - (apDescA->lmt-1) * apDescA->mb) * sizeof(double)
+           : apDescA->mb * sizeof(double);
+       memcpy(apZ0, apA, aSize); 
+}
+END
+
+extern "C" %{
+
+/**
+ * @brief Create a new GetZObs taskpool.
+ *
+ * Allocates and initializes a new PaRSEC taskpool for gathering the observation vector Z
+ * from the distributed tiled matrix.
+ *
+ * @param [in] apDcA Pointer to the distributed matrix descriptor.
+ * @param [in] aZ    Pointer to the observation vector.
+ * @param [in] aN    The size of the observation vector.
+ * @return parsec_taskpool_t* The allocated taskpool for Z gathering.
+ */
+parsec_taskpool_t*
+ParsecGetZObs_New(parsec_tiled_matrix_t *apDcA, double *aZ, int aN) 
+{
+    parsec_taskpool_t* aGetZObsTaskpool;
+    parsec_GetZObs_taskpool_t* aTaskpool = NULL;
+
+    aTaskpool = parsec_GetZObs_new(apDcA, aZ, aN); 
+    aGetZObsTaskpool = (parsec_taskpool_t*)aTaskpool;
+
+    parsec_add2arena(&aTaskpool->arenas_datatypes[PARSEC_GetZObs_DEFAULT_ADT_IDX],
+                     parsec_datatype_double_t, matrix_UpperLower,
+                     1, apDcA->mb, 1, apDcA->mb,
+                     PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return aGetZObsTaskpool;
+}
+
+/**
+ * @brief Destroy the GetZObs taskpool.
+ *
+ * Frees all resources associated with the Z observation taskpool.
+ *
+ * @param [in,out] apTaskpool The taskpool to destroy.
+ */
+void ParsecGetZObs_Destruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_GetZObs_taskpool_t *aGetZObsTaskpool = (parsec_GetZObs_taskpool_t *)apTaskpool;
+    parsec_del2arena(&aGetZObsTaskpool->arenas_datatypes[PARSEC_GetZObs_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @brief Gather the observation vector Z from the distributed matrix.
+ *
+ * This function creates a taskpool for gathering the observation vector Z from the tiled matrix apDcA.
+ * It then adds the taskpool to the PaRSEC context, starts execution, waits for completion, and finally
+ * destructs the taskpool.
+ *
+ * @param [in] apParsec  Pointer to the PaRSEC context.
+ * @param [in,out] apDcA Pointer to the distributed matrix descriptor.
+ * @param [in,out] aZ    Pointer to the observation vector.
+ * @param [in] aN        The size of the observation vector.
+ * @return int Returns 0 on success.
+ */
+int ParsecGetZObs(parsec_context_t *apParsec,
+                  parsec_tiled_matrix_t *apDcA, double *aZ, int aN) 
+{
+    parsec_taskpool_t *aGetZObs = NULL;
+    aGetZObs = ParsecGetZObs_New(apDcA, aZ, aN); 
+
+    if( aGetZObs != NULL ){
+        parsec_context_add_taskpool(apParsec, aGetZObs);
+        parsec_context_start(apParsec);
+        parsec_context_wait(apParsec);
+        ParsecGetZObs_Destruct(aGetZObs);
+    }
+
+    return 0;
+}
+
+%}

@@ -279,7 +279,7 @@ void TEST_HELPERS_FUNCTIONS() {
         REQUIRE(CompareUint64(num1, num1) == false);
         REQUIRE(CompareUint64(num1, num1 + num1) == true);
         REQUIRE(CompareUint64(num1 + num1, num1) == false);
-        SyntheticGenerator<double>::ReleaseInstance();
+        SyntheticGenerator<double>::ReleaseSyntheticGenerator();
     }
 }
 

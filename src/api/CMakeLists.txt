@@ -7,11 +7,19 @@
 # @version 1.1.0
 # @brief CMake build script for the operators library, which includes the OperatorMethods base class and the OperatorFactory class for creating operators of different types.
 # @author Mahmoud ElKarargy
-# @date 2023-05-30
+# @date 2025-01-19
 
 # Define the sources for the library
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/ExaGeoStat.cpp
         ${SOURCES}
-        PARENT_SCOPE
         )
+
+if (RUNTIME_TYPE STREQUAL "PARSEC")
+        set(SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/ClimateEmulator.cpp
+                ${SOURCES}
+        )
+endif ()
+
+set(SOURCES ${SOURCES} PARENT_SCOPE)

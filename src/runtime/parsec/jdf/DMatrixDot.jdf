@@ -1,0 +1,137 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include "mix_precision_internal.h"
+
+static double parsec_core_dmdot (double *A, double *B, int mb) {
+        double res = 0.0;
+        for (int i = 0; i < mb; i++) {
+		res += A[i] * B[i]; 
+        }
+
+        return res;
+}
+
+%}
+
+descA                [ type = "parsec_tiled_matrix_t *" ]
+descB                [ type = "parsec_tiled_matrix_t *" aligned = descA ]
+descdot              [ type = "parsec_tiled_matrix_t *" ]
+
+Read(m)
+
+m = 0 .. descA->lmt-1
+
+: descA(m, 0)
+
+READ A <- descA(m, 0)            [ type = DB ]
+READ B <- descB(m, 0)            [ type = DB ]
+
+WRITE D <- NEW
+        -> D0 Product(m)
+
+BODY
+{
+        *((double *)D) = 0.0;
+	int tempmm = (m == descA->lmt-1) ? parsec_imin(descA->mb, descA->m-m*descA->mb): descA->mb;
+        *((double *)D) = parsec_core_dmdot(A, B, tempmm);
+}
+END
+
+Product(m)
+
+m = 0 .. descA->lmt-1
+
+: descdot(0, 0)
+
+READ D0 <- D Read(m) 
+
+RW D <- descdot(0, 0)
+     -> descdot(0, 0)
+
+CTL ctl1 -> (m != descA->lmt-1)? ctl2 Product(m+1)
+CTL ctl2 <- (m != 0)? ctl1 Product(m-1)
+
+BODY
+{
+	/* Init data */
+	if( 0 == m ) {
+		*((double *)D) = 0.0;
+	}
+
+	/* Update */
+	*((double *)D) +=  *((double *)D0); 
+}
+END
+
+
+extern "C" %{
+
+/**
+ * @param [in] dcA:    the data, already distributed and allocated
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+parsec_dmatrix_dot_New(parsec_tiled_matrix_t *dcA,
+		parsec_tiled_matrix_t *dcB,
+		parsec_tiled_matrix_t *dcdot) 
+{
+    parsec_taskpool_t* dmatrix_dot_taskpool;
+    parsec_dmatrix_dot_taskpool_t* taskpool = NULL;
+
+    taskpool = parsec_dmatrix_dot_new(dcA, dcB, dcdot); 
+    dmatrix_dot_taskpool = (parsec_taskpool_t*)taskpool;
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_dmatrix_dot_DB_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, 1, 1, 1,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_dmatrix_dot_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, dcA->mb, 1, dcA->mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return dmatrix_dot_taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void parsec_dmatrix_dot_Destruct(parsec_taskpool_t *taskpool)
+{
+    parsec_dmatrix_dot_taskpool_t *dmatrix_dot_taskpool = (parsec_dmatrix_dot_taskpool_t *)taskpool;
+    parsec_del2arena(&dmatrix_dot_taskpool->arenas_datatypes[PARSEC_dmatrix_dot_DEFAULT_ADT_IDX]);
+    parsec_del2arena(&dmatrix_dot_taskpool->arenas_datatypes[PARSEC_dmatrix_dot_DB_ADT_IDX]);
+    parsec_taskpool_free(taskpool);
+}
+
+/**
+ * @brief allocate and generate dcA
+ * 
+ * @param [inout] dcA: the data, already distributed and allocated
+ */
+int parsec_dmatrix_dot(parsec_context_t *parsec,
+                       parsec_tiled_matrix_t *dcA,
+                       parsec_tiled_matrix_t *dcB,
+                       parsec_tiled_matrix_t *dcdot)
+{
+    parsec_taskpool_t *parsec_dmatrix_dot = NULL;
+
+    parsec_dmatrix_dot = parsec_dmatrix_dot_New(dcA, dcB, dcdot); 
+
+    if( parsec_dmatrix_dot != NULL ){
+        parsec_context_add_taskpool(parsec, parsec_dmatrix_dot);
+        parsec_context_start(parsec);
+        parsec_context_wait(parsec);
+        parsec_dmatrix_dot_Destruct(parsec_dmatrix_dot);
+    }
+
+    return 0;
+}
+
+%}

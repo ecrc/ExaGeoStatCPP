@@ -16,6 +16,11 @@
 #define EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP
 
 #include <common/Definitions.hpp>
+#include <configurations/Configurations.hpp>
+
+#if !DEFAULT_RUNTIME
+#include <runtime/parsec/ParsecHeader.h>
+#endif
 
 /**
  * @brief Class represents the hardware configuration for the ExaGeoStat solver.
@@ -24,6 +29,14 @@
 class ExaGeoStatHardware {
 
 public:
+
+    /**
+     * @brief Constructor for ExaGeoStatHardware.
+     * @param[in] aConfigurations The set of arguments from the configurations.
+     *
+     */
+    explicit ExaGeoStatHardware(exageostat::configurations::Configurations &aConfigurations);
+
     /**
      * @brief Constructor for ExaGeoStatHardware.
      * @param[in] aComputation The computation mode for the solver.
@@ -90,12 +103,34 @@ public:
     [[nodiscard]] static void *GetHicmaContext();
 
     /**
+     * @brief Get the PaRSEC hardware context.
+     * @return Pointer to the hardware context.
+     *
+     */
+    [[nodiscard]] static void *GetParsecContext();
+
+    /**
      * @brief Get the hardware context.
      * @param[in] aComputation Used computation to decide whether to use Hicma or Chameleon context.
      * @return Pointer to the hardware context.
      *
      */
     [[nodiscard]] static void *GetContext(exageostat::common::Computation aComputation);
+
+    /**
+     * @brief Sets the rank of MPI for PaRSEC.
+     * @param[in] aRank The new value for the rank.
+     * @return void
+     *
+    **/
+    static void SetParsecMPIRank(int aRank);
+
+    /**
+     * @brief Retrieves the rank of MPI for PaRSEC.
+     * @return The current rank of MPI PaRSEC.
+     *
+    **/
+    static int GetParsecMPIRank();
 
     /**
      * @brief Retrieves the P dimension of the grid.
@@ -131,17 +166,65 @@ public:
     **/
     static void SetQGrid(int aQ);
 
+#if !DEFAULT_RUNTIME
+    /**
+     * @brief Retrieves the HiCMA parameters.
+     * @details This function returns a pointer to the current HiCMA parameters used in the computational process.
+     * @return A pointer to the current HiCMA parameters of type `hicma_parsec_params_t`.
+     *
+     */
+    static hicma_parsec_params_t* GetHicmaParams();
+
+    /**
+     * @brief Retrieves the STARSH parameters.
+     * @details This function returns a pointer to the current STARSH parameters used in the computational process.
+     * @return A pointer to the current STARSH parameters of type `starsh_params_t`.
+     *
+     */
+    static starsh_params_t* GetParamsKernel();
+
+    /**
+     * @brief Retrieves the HiCMA data.
+     * @details This function returns a pointer to the current HiCMA data used in the computational process.
+     * @return A pointer to the current HiCMA data of type `hicma_parsec_data_t`.
+     *
+     */
+    static hicma_parsec_data_t* GetHicmaData();
+
+    /**
+     * @brief Retrieves the HiCMA matrix analysis.
+     * @details This function returns a pointer to the current HiCMA matrix analysis data used in the computational process.
+     * @return A pointer to the current HiCMA matrix analysis of type `hicma_parsec_matrix_analysis_t`.
+     *
+     */
+    static hicma_parsec_matrix_analysis_t* GetAnalysis();
+#endif
+
 private:
     //// Used Pointer to the Chameleon hardware context.
     static void *mpChameleonContext;
     //// Used Pointer to the Hicma hardware context.
     static void *mpHicmaContext;
+    //// Used Pointer to the PaRSEC hardware context.
+    static void *mpParsecContext;
+    //// Used P-Grid
+    static int mParsecMPIRank;
     //// Used P-Grid
     static int mPGrid;
     //// Used Q-Grid
     static int mQGrid;
     //// Used boolean to avoid re-init mpi
     static bool mIsMPIInit;
+#if !DEFAULT_RUNTIME
+    //// HiCMA-specific variables - Himca_parsec_params
+    static std::unique_ptr<hicma_parsec_params_t> mpHicmaParams;
+    //// HiCMA-specific variables - starsh_params_t
+    static std::unique_ptr<starsh_params_t> mpParamsKernel;
+    //// HiCMA-specific variables - hicma_parsec_data_t
+    static std::unique_ptr<hicma_parsec_data_t> mpHicmaData;
+    //// HiCMA-specific variables - hicma_parsec_matrix_analysis_t
+    static std::unique_ptr<hicma_parsec_matrix_analysis_t> mpAnalysis;
+#endif
 };
 
 #endif // EXAGEOSTATCPP_EXAGEOSTATHARDWARE_HPP
