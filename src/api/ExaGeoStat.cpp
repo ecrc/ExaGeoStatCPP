@@ -28,8 +28,6 @@ void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::uni
 
     int seed = 0;
     std::srand(seed);
-    int seed = 0;
-    std::srand(seed);
     aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data generation/loading **")
     // Register and create a kernel object
