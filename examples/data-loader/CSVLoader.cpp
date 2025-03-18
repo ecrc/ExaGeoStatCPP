@@ -40,7 +40,6 @@ int main(int argc, char **argv) {
 
     // Generate Data and Log it into file
     configurations.SetLogger(true);
-    configurations.InitializeDataGenerationArguments();
 
     // Initialize ExaGeoStat Hardware and Kernel.
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),

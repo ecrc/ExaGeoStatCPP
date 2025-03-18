@@ -51,7 +51,7 @@ READ f_spatial <- apFSpatialDesc(0, n)
 
 BODY
 {
-#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT)  || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+#if defined(USE_CUDA)
     if( nb_cuda_devices > 0 ) {
         int g = climate_emulator_gpu_load_balance( n, gb->nodes, nb_cuda_devices );
         parsec_advise_data_on_device( _f_flm->original,
@@ -106,7 +106,7 @@ InverseSHTConstructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix
     pTaskpool->_g_apWork = (parsec_memory_pool_t*) malloc(sizeof(parsec_memory_pool_t));
     parsec_private_memory_init(pTaskpool->_g_apWork, (aLSize + 1) * (2 * aLSize - 1) * sizeof(double) );
 
-#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT) || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+#if defined(USE_CUDA)
     int nb = 0, *dev_index;
 
     /** Find all CUDA devices */

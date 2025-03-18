@@ -159,7 +159,7 @@ ForwardSHTReshape_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_m
     pTaskpool->_g_apWork2 = (parsec_memory_pool_t*)malloc(sizeof(parsec_memory_pool_t));
     parsec_private_memory_init(pTaskpool->_g_apWork2, aET2M * aEPN * sizeof(complex double) );
 
-#if defined(PARSEC_HAVE_DEV_CUDA_SUPPORT) || defined(PARSEC_HAVE_DEV_HIP_SUPPORT)
+#if defined(USE_CUDA)
     int nb = 0, *dev_index;
 
     /** Find all CUDA devices */

@@ -17,6 +17,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 INSTALL_PREFIX=$PWD/installdir/_deps
+BASE_DIR=$PWD
 
 # Function to install CMake from source
 install_cmake() {
@@ -36,12 +37,11 @@ install_cmake() {
   cd cmake-3.28.1 || exit 1
 
   # Configure, build, and install CMake to the specified location
-  ./bootstrap --prefix="$INSTALL_PREFIX" --parallel=2 -- -DCMAKE_USE_OPENSSL=OFF
+  ./bootstrap --prefix="$INSTALL_PREFIX/CMAKE" --parallel=2 -- -DCMAKE_USE_OPENSSL=OFF
   make -j 2
-  sudo make install
-
+  make install
   # Clean up
-  cd "$temp_dir" || exit 1
+  cd "$BASE_DIR" || exit 1
   rm -rf "$temp_dir"
 }
 
@@ -59,7 +59,7 @@ fi
 BUILDING_TESTS="OFF"
 BUILDING_HEAVY_TESTS="OFF"
 BUILDING_EXAMPLES="OFF"
-USING_HiCMA="OFF"
+USE_HiCMA="OFF"
 VERBOSE="OFF"
 USE_CUDA="OFF"
 USE_MPI="OFF"
@@ -112,7 +112,7 @@ while getopts ":tevhHi:cmpTwr" opt; do
     ;;
   H) ##### Using HiCMA #####
     echo "${GREEN}Using HiCMA.${NC}"
-    USING_HiCMA="ON"
+    USE_HiCMA="ON"
     ;;
   c) ##### Using cuda enabled #####
     echo "${GREEN}Cuda enabled ${NC}"
@@ -179,7 +179,7 @@ if [ -z "$BUILDING_EXAMPLES" ]; then
   echo "${RED}Building examples disabled.${NC}"
 fi
 
-if [ -z "$USING_HiCMA" ]; then
+if [ -z "$USE_HiCMA" ]; then
   echo "${RED}Using HiCMA is disabled.${NC}"
 fi
 
@@ -226,10 +226,8 @@ elif [ -x "/Applications/CMake.app/Contents/bin/cmake" ]; then
   cmake_command_bin="${cmake_install_dir}/cmake"
 else
   echo "Installing CMake from source"
-  mkdir "${ABSOLUTE_PATH}/inst/_deps/"
-  install_dir="${ABSOLUTE_PATH}/inst/_deps/"
-  install_cmake "$install_dir"
-  cmake_command_bin="${ABSOLUTE_PATH}/inst/_deps/bin/cmake"
+  install_cmake
+  cmake_command_bin="${INSTALL_PREFIX}/CMAKE/bin/cmake"
 fi
 
 "$cmake_command_bin" "$DEVELOPER_WARNINGS" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
@@ -238,7 +236,7 @@ fi
   -DBUILD_TESTS="${BUILDING_TESTS}" \
   -DBUILD_HEAVY_TESTS="${BUILDING_HEAVY_TESTS}" \
   -DBUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
-  -DUSE_HICMA="${USING_HiCMA}" \
+  -DUSE_HICMA="${USE_HiCMA}" \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
   -DUSE_CUDA="${USE_CUDA}" \
   -DUSE_MPI="${USE_MPI}" \

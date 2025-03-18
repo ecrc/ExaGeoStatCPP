@@ -15,7 +15,7 @@
 
 \usage{
 model_data(computation = "exact", kernel, distance_matrix = "euclidean", lb,
-ub, tol = 4, mle_itr, dts, lts = 0, dimension = "2D", band = 0, max_rank = 500,
+ub, tol = 4, mle_itr, dts, lts = 0, dimension = "2D", band = 0, max_rank = 500, acc = 0,
 data = NULL, matrix = NULL, x = NULL, y = NULL, z = NULL)
 }
 
@@ -54,6 +54,7 @@ data = NULL, matrix = NULL, x = NULL, y = NULL, z = NULL)
 \item{dimension}{A string specifies the data dimension, either "2D" or "3D". Default is "2D".}
 \item{band}{A numeric value Bandwidth for band matrices, applicable in certain computational kernels, Default is 0.}
 \item{max_rank}{A numeric value specifies the Maximum rank for low-rank approximations, Default is 500.}
+\item{acc}{A numeric value specifies the accuracy for low-rank approximations, The final value is computed as 10^(-1.0 * acc). Default is 0.}
 \item{data}{A list of data vectors. Default is `R_NilValue`.}
 \item{matrix}{A matrix object. Default is `R_NilValue`.}
 \item{x}{A numeric vector. Default is `R_NilValue`.}

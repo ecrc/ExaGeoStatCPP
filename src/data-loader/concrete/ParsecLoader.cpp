@@ -55,6 +55,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
     int rank = ExaGeoStatHardware::GetParsecMPIRank();
     int verbose = configurations::Configurations::GetVerbosity() == DETAILED_MODE? 1: 0;
     int gpus = aConfigurations.GetGPUsNumbers();
+    int tile_size = aConfigurations.GetDenseTileSize();
     string files_directory_path = aConfigurations.GetDataPath();
     int path_length = files_directory_path.length();
     char filename[path_length + 50];
@@ -73,7 +74,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading Et1\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ET1);
     parsec_matrix_block_cyclic_t *pEt1_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ET1).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Et1.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Et1.csv");
     ReadCSVComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pEt1_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = 2*L-1;
@@ -81,7 +82,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading Et2\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ET2);
     parsec_matrix_block_cyclic_t *pEt2_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ET2).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Et2.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Et2.csv");
     ReadCSVComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pEt2_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = 2*L;
@@ -89,7 +90,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading Ep\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_EP);
     parsec_matrix_block_cyclic_t *pEp_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_EP).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Ep.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Ep.csv");
     ReadCSVComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pEp_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = (L*L+L)/2;
@@ -97,7 +98,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading Slmn\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_SLMN);
     parsec_matrix_block_cyclic_t *pSlum_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_SLMN).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Slmn.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Slmn.csv");
     ReadCSVComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pSlum_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = L;
@@ -105,7 +106,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading Ie\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_IE);
     parsec_matrix_block_cyclic_t *pIe_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_IE).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Ie.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Ie.csv");
     ReadCSVToComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pIe_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = L;
@@ -113,7 +114,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading Io\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_IO);
     parsec_matrix_block_cyclic_t *pIo_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_IO).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Io.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Io.csv");
     ReadCSVToComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pIo_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = L-1;
@@ -121,7 +122,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading P\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_P);
     parsec_matrix_block_cyclic_t *pP_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_P).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_P.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_P.csv");
     ReadCSVToComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pP_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = 2*L-1;
@@ -129,7 +130,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading D\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_D);
     parsec_matrix_block_cyclic_t *pD_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_D).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_D.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_D.csv");
     ReadCSVToComplex((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pD_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     MB = L;
@@ -142,7 +143,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
 	VERBOSE_PRINT(rank, verbose, ("Reading flmERA\n"));
     data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_FLMERA);
     parsec_matrix_block_cyclic_t *pFlmera_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_FLMERA).parsec_desc;
-    sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_flmERA.csv");
+    sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_flmERA.csv");
     ReadCSVTimeSlot((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pFlmera_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
     // Backward
@@ -153,7 +154,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
         VERBOSE_PRINT(rank, verbose, ("Reading Zlm\n"));
         data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ZLM);
         parsec_matrix_block_cyclic_t *PZlm_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_ZLM).parsec_desc;
-        sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_Zlm.csv");
+        sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_Zlm.csv");
         ReadCSV((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), PZlm_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
         MB = 2*L-1;
@@ -161,7 +162,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
         VERBOSE_PRINT(rank, verbose, ("Reading SC\n"));
         data->GetDescriptorData()->SetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_SC);
         parsec_matrix_block_cyclic_t *pSc_data_desc = data->GetDescriptorData()->GetDescriptor(PARSEC_DESCRIPTOR, DESCRIPTOR_SC).parsec_desc;
-        sprintf(filename, "%s/%s", files_directory_path.c_str(), "720_SC.csv");
+        sprintf(filename, "%s/%d%s", files_directory_path.c_str(), tile_size, "_SC.csv");
         ReadCSV((parsec_context_t *) ExaGeoStatHardware::GetParsecContext(), pSc_data_desc, MB, NB, nodes, t, filename, rank, verbose, gpus);
 
         MB = L+1;

@@ -99,7 +99,10 @@
 
 
 ## Arguments
-These are the arguments that you can specify when running any C++ example.
+These are the arguments that you can specify when running any C++ example. 
+**Please note that the arguments are not case-sensitive**, and you can use variations such as `-`, `_`, or capitalized forms for the same argument name. 
+For example, `MaxRank`, `max-rank`, `max_rank`, `Max_Rank` ,`Maxrank` , `MaxrAnk` and `Max-Rank` are all considered equivalent.
+
 * {Mandatory} To set the problem size (N)
 
         --N=<problem_size>
@@ -153,13 +156,13 @@ These are the arguments that you can specify when running any C++ example.
         --oub=<value:value:....:value>
 * {Optional} To set the initial theta
 
-        --itheta=<value:value:....:value>
+        --initial_theta=<value:value:....:value>
 * {Optional} To set the target theta
 
         --ttheta=<value:value:....:value>
 * {Optional} To set the estimated theta
 
-        --etheta=<value:value:....:value>
+        --estimated_theta=<value:value:....:value>
 * {Optional} To set the seed value, the default is 0
 
         --seed=<value>
@@ -224,10 +227,12 @@ These are the arguments that you can specify when running any C++ example.
 ### Provide Arguments
 
 To use any operations, you must initially supply the necessary arguments 
-to the operation via the Configurations module. There are two methods available
+to the operation via the Configurations module. 
+This program is configured by default through a json file of default values. You can either change the configuration arguments
+in the json file or provide them through command line. There are two methods available
 for setting your arguments:
 
-1. Provide your arguments with the command line.
+1. Provide your arguments with the command line, this overwrites the json configuration.
 ```c++
     // Create a new configuration object.
     Configurations configurations;

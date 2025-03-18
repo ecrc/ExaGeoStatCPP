@@ -15,15 +15,15 @@
  * @date 2023-01-31
 **/
 
-#include <iostream>
-
 #include <catch2/catch_all.hpp>
 #include <configurations/Configurations.hpp>
+#include <configurations/Validator.hpp>
 
 using namespace std;
 
 using namespace exageostat::common;
 using namespace exageostat::configurations;
+using namespace exageostat::configurations::validator;
 
 void TEST_ARGUMENT_INITIALIZATION() {
 
@@ -39,7 +39,7 @@ void TEST_ARGUMENT_INITIALIZATION() {
             const_cast<char *>("--ub=5:5:5"),
             const_cast<char *>("--lb=0.1:0.1:0.1"),
             const_cast<char *>("--max_mle_iterations=5"),
-            const_cast<char *>("--tolerance=4"),
+            const_cast<char *>("--tolerance=8"),
             const_cast<char *>("--ZMiss=6"),
             const_cast<char *>("--mspe"),
             const_cast<char *>("--idw"),
@@ -49,8 +49,6 @@ void TEST_ARGUMENT_INITIALIZATION() {
     };
 
     Configurations configurations;
-
-    // Initialize configuration dictionary with only common arguments
     configurations.InitializeArguments(argc, argv);
 
     REQUIRE(configurations.GetProblemSize() == 16);
@@ -58,32 +56,10 @@ void TEST_ARGUMENT_INITIALIZATION() {
     REQUIRE(configurations.GetDenseTileSize() == 8);
     REQUIRE(configurations.GetPrecision() == DOUBLE);
 
-    // No data generation arguments initialized
-    REQUIRE(configurations.GetDataPath() == string(""));
-
-    // No data modeling arguments initialized
-    REQUIRE_THROWS(configurations.GetMaxMleIterations());
-
-    // No data prediction arguments initialized
-    REQUIRE(configurations.GetIsMSPE() == false);
-    REQUIRE(configurations.GetIsIDW() == false);
-    REQUIRE(configurations.GetIsFisher() == false);
-    REQUIRE(configurations.GetIsMLOEMMOM() == false);
-    REQUIRE(configurations.GetUnknownObservationsNb() == 0);
-
-    // Data generation arguments initialized
-    configurations.InitializeDataGenerationArguments();
-
     REQUIRE(configurations.GetDataPath() == string("./dummy-path"));
 
-    // Data modelling arguments initialized
-    configurations.InitializeDataModelingArguments();
-
     REQUIRE(configurations.GetMaxMleIterations() == 5);
-    REQUIRE(configurations.GetTolerance() == pow(10, -4));
-
-    // Data prediction arguments initialized
-    configurations.InitializeDataPredictionArguments();
+    REQUIRE(configurations.GetTolerance() == pow(10, -8));
 
     REQUIRE(configurations.GetIsMSPE() == true);
     REQUIRE(configurations.GetIsIDW() == true);
@@ -96,20 +72,21 @@ void TEST_ARGUMENT_INITIALIZATION() {
 
 void TEST_ARGUMENT_INITIALIZATION_PARSEC() {
 
-    const int argc = 12;
+    const int argc = 13;
     char *argv[] = {
             const_cast<char *>("program_name"),
             const_cast<char *>("--N=16"),
             const_cast<char *>("--dts=8"),
             const_cast<char *>("--precision=double"),
             const_cast<char *>("--band_dense=100"),
-            const_cast<char *>("--numobj=72"),
+            const_cast<char *>("--objects-number=72"),
             const_cast<char *>("--adaptive_decision=1"),
-            const_cast<char *>("--add_diag=10"),
+            const_cast<char *>("--add_diagonal=10"),
             const_cast<char *>("--file_time_slot=1"),
-            const_cast<char *>("--file-num=1"),
+            const_cast<char *>("--file-number=1"),
             const_cast<char *>("--enable-inverse"),
-            const_cast<char *>("--mpiio")
+            const_cast<char *>("--mpiio"),
+            const_cast<char *>("--data_path=./dummy-path"),
     };
 
     Configurations configurations;
@@ -130,12 +107,7 @@ void TEST_ARGUMENT_INITIALIZATION_PARSEC() {
     REQUIRE(configurations.GetEnableInverse() == true);
     REQUIRE(configurations.GetMPIIO() == true);
 
-    // No data generation arguments initialized
-    REQUIRE(configurations.GetDataPath() == string(""));
-
-    // Passing an empty data path throws an exception
-    REQUIRE_THROWS(configurations.InitializeDataGenerationArguments());
-
+    REQUIRE(configurations.GetDataPath() == string("./dummy-path"));
 }
 
 
@@ -151,9 +123,9 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
     }SECTION("Dimensions value checker test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckDimensionValue("4D"),
+                Validator::CheckDimensionValue("4D"),
                 "Invalid value for Dimension. Please use 2D, 3D or ST.");
-        Configurations::CheckDimensionValue("2D");
+        Validator::CheckDimensionValue("2D");
     }
 
     SECTION("P-GRID setter/getter test")
@@ -164,42 +136,40 @@ void TEST_SYNTHETIC_CONFIGURATIONS() {
     }SECTION("P-GRID value checker test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckNumericalValue("K"),
+                Validator::CheckNumericalValue("K"),
                 "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckNumericalValue("-100"),
+                Validator::CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = Configurations::CheckNumericalValue("512");
+        int test_nb = Validator::CheckNumericalValue("512");
         synthetic_data_configurations.SetPGrid(test_nb);
         REQUIRE(synthetic_data_configurations.GetPGrid() == 512);
     }SECTION("Kernel setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations.GetKernelName().empty());
         synthetic_data_configurations.SetKernelName("univariate_matern_stationary");
         REQUIRE(synthetic_data_configurations.GetKernelName() == "univariate_matern_stationary");
     }SECTION("Kernel checker value test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckKernelValue("100"),
+                Validator::CheckKernelValue("100"),
                 "Invalid value for Kernel. Please check manual.");
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu%"),
+                Validator::CheckKernelValue("univariate_matern_dnu%"),
                 "Invalid value for Kernel. Please check manual.");
-        synthetic_data_configurations.CheckKernelValue("univariate_matern_dnu");
+        Validator::CheckKernelValue("univariate_matern_dnu");
     }SECTION("Problem size setter/getter test")
     {
-        REQUIRE(synthetic_data_configurations.GetProblemSize() == 0);
         synthetic_data_configurations.SetProblemSize(random_number);
         REQUIRE(synthetic_data_configurations.GetProblemSize() == random_number);
     }SECTION("Problem size checker value test")
     {
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckNumericalValue("K"),
+                Validator::CheckNumericalValue("K"),
                 "Invalid value. Please use Numerical values only.");
         REQUIRE_THROWS_WITH(
-                synthetic_data_configurations.CheckNumericalValue("-100"),
+                Validator::CheckNumericalValue("-100"),
                 "Invalid value. Please use positive values");
-        int test_nb = Configurations::CheckNumericalValue("512");
+        int test_nb = Validator::CheckNumericalValue("512");
         synthetic_data_configurations.SetProblemSize(test_nb);
         REQUIRE(synthetic_data_configurations.GetProblemSize() == 512);
     }

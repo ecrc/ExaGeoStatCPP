@@ -26,13 +26,13 @@ using namespace exageostat::configurations;
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
 
+    int seed = 0;
+    std::srand(seed);
     aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data generation/loading **")
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
-    // Add the data generation arguments.
-    aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
     aData = data_generator->CreateData(aConfigurations, *pKernel);
@@ -50,8 +50,8 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
-    // Add the data modeling arguments.
-    aConfigurations.InitializeDataModelingArguments();
+    // Initialize all theta: starting, estimated, lower and upper bounds.
+    aConfigurations.InitializeAllTheta();
 
     // We do Date Modeling with any computation.
     auto runtime_solver = runtimesolver::RuntimeSolverFactory<T>::CreateRuntimeSolver();
@@ -71,8 +71,8 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(Configurations &aConfigurations, std::u
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
-    // Add the data prediction arguments.
-    aConfigurations.InitializeDataPredictionArguments();
+    // Initialize all theta: starting, estimated, lower and upper bounds.
+    aConfigurations.InitializeAllTheta();
     prediction::Prediction<T>::PredictMissingData(aData, aConfigurations, apMeasurementsMatrix, *pKernel,
                                                   apTrainLocations, apTestLocations);
     delete pKernel;
