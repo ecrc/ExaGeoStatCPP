@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 
 namespace exageostat::results {
 
@@ -31,79 +32,78 @@ namespace exageostat::results {
         static Results *GetInstance();
 
         /**
-         * @brief Set the flag indicating whether the results are synthetic or not.
-         * @param[in] aIsSynthetic True if the results are synthetic, false otherwise.
-         *
+         * @brief Set whether the dataset is synthetic or not.
+         * @param aIsSynthetic Boolean indicating if the dataset is synthetic.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetIsSynthetic(bool aIsSynthetic);
+        void SetIsSynthetic(bool aIsSynthetic, const std::string &aKey = "");
 
         /**
          * @brief Set the number of generated locations.
-         * @param[in] aNumLocations The number of generated locations.
-         *
+         * @param aNumLocations Integer representing the number of locations.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetGeneratedLocationsNumber(int aNumLocations);
+        void SetGeneratedLocationsNumber(int aNumLocations, const std::string &aKey = "");
 
         /**
-         * @brief Set the flag indicating whether the logger is active or not.
-         * @param[in] aIsLogger True if the logger is active, false otherwise.
-         *
+         * @brief Enable or disable logging.
+         * @param aIsLogger Boolean indicating if logging is enabled.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetIsLogger(bool aIsLogger);
+        void SetIsLogger(bool aIsLogger, const std::string &aKey = "");
 
         /**
-         * @brief Set the path for the logger.
-         * @param[in] aLoggerPath The path for the logger.
-         *
+         * @brief Set the logger's file path.
+         * @param aLoggerPath String representing the logger file path.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetLoggerPath(const std::string &aLoggerPath);
+        void SetLoggerPath(const std::string &aLoggerPath, const std::string &aKey = "");
 
         /**
-         * @brief Set the Total Data Generation execution time.
-         * @param[in] aTime The execution time.
-         *
+         * @brief Set the total data generation execution time.
+         * @param aTime Double representing the execution time.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetTotalDataGenerationExecutionTime(double aTime);
+        void SetTotalDataGenerationExecutionTime(double aTime, const std::string &aKey = "");
 
         /**
-         * @brief Set the Data Generation floating-point operations (FLOPs).
-         * @param[in] aFlops The number of FLOPs.
-         *
+         * @brief Set the total data generation FLOPS.
+         * @param aFlops Double representing the FLOPS.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetTotalDataGenerationFlops(double aFlops);
+        void SetTotalDataGenerationFlops(double aFlops, const std::string &aKey = "");
 
         /**
          * @brief Set the log-likelihood value.
-         * @param[in] aLogLikValue The log-likelihood value.
-         *
+         * @param aLogLikValue Double representing the log-likelihood value.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetLogLikValue(double aLogLikValue);
+        void SetLogLikValue(double aLogLikValue, const std::string &aKey = "");
 
         /**
-         * @brief Set the number of maximum likelihood estimation (MLE) iterations.
-         * @param[in] aIterationsNumber The number of MLE iterations.
-         *
+         * @brief Set the number of MLE iterations.
+         * @param aIterationsNumber Integer representing the number of iterations.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetMLEIterations(int aIterationsNumber);
+        void SetMLEIterations(int aIterationsNumber, const std::string &aKey = "");
 
         /**
-         * @brief Set the vector of maximum theta values.
-         * @param[in] aMaximumTheta The vector of maximum theta values.
-         *
+         * @brief Set the maximum theta vector.
+         * @param aMaximumTheta Vector of doubles representing the theta values.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetMaximumTheta(const std::vector<double> &aMaximumTheta);
+        void SetMaximumTheta(const std::vector<double> &aMaximumTheta, const std::string &aKey = "");
 
         /**
          * @brief Set the total modeling execution time.
-         * @param[in] aTime The total execution time for data modeling.
-         *
+         * @param aTime Double representing the execution time.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetTotalModelingExecutionTime(double aTime);
+        void SetTotalModelingExecutionTime(double aTime, const std::string &aKey = "");
 
         /**
          * @brief Get the total modeling execution time.
-         * @return The total execution time for data modeling.
-         *
+         * @return Double representing the total modeling execution time.
          */
         [[nodiscard]] double GetTotalModelingExecutionTime() const;
 
@@ -150,16 +150,15 @@ namespace exageostat::results {
         [[nodiscard]] std::vector<double> GetPredictedMissedValues() const;
 
         /**
-         * @brief Set the total modeling FLOPs.
-         * @param[in] aTime The total number of FLOPs for data modeling.
-         *
+         * @brief Set the total modeling FLOPS.
+         * @param aTime Double representing the FLOPS.
+         * @param aKey Custom dictionary key (optional).
          */
-        void SetTotalModelingFlops(double aTime);
+        void SetTotalModelingFlops(double aTime, const std::string &aKey = "");
 
         /**
-         * @brief Get the total modeling FLOPs.
-         * @return The total number of FLOPs for data modeling.
-         *
+         * @brief Get the total modeling FLOPS.
+         * @return Double representing the total modeling FLOPS.
          */
         [[nodiscard]] double GetTotalModelingFlops() const;
 
@@ -182,111 +181,120 @@ namespace exageostat::results {
          * @param[in] aZMiss The value of ZMiss.
          *
          */
-        void SetZMiss(int aZMiss);
+        void SetZMiss(int aZMiss, const std::string &aKey = "");
 
         /**
          * @brief Set the value of MSPEError.
          * @param[in] aMSPEError The value of MSPEError.
          *
          */
-        void SetMSPEError(double aMSPEError);
+        void SetMSPEError(double aMSPEError, const std::string &aKey = "");
 
         /**
          * @brief Set the MSPE execution time.
          * @param[in] aTime The execution time.
          *
          */
-        void SetMSPEExecutionTime(double aTime);
+        void SetMSPEExecutionTime(double aTime, const std::string &aKey = "");
 
         /**
          * @brief Set the MSPE number of floating-point operations (FLOPs).
          * @param[in] aFlops The number of FLOPs.
          *
          */
-        void SetMSPEFlops(double aFlops);
+        void SetMSPEFlops(double aFlops, const std::string &aKey = "");
 
         /**
          * @brief Set the vector of IDW errors.
          * @param[in] aIDWError The vector of IDW errors.
          *
          */
-        void SetIDWError(const std::vector<double> &aIDWError);
+        void SetIDWError(const std::vector<double> &aIDWError, const std::string &aKey = "");
 
         /**
          * @brief Set the value of MLOE.
          * @param[in] aMLOE The value of MLOE.
          *
          */
-        void SetMLOE(double aMLOE);
+        void SetMLOE(double aMLOE, const std::string &aKey = "");
 
         /**
          * @brief Set the value of MMOM.
          * @param[in] aMMOM The value of MMOM.
          *
          */
-        void SetMMOM(double aMMOM);
+        void SetMMOM(double aMMOM, const std::string &aKey = "");
 
         /**
          * @brief Set the MLOE-MMOM execution time.
          * @param[in] aTime The execution time.
          *
          */
-        void SetExecutionTimeMLOEMMOM(double aTime);
+        void SetExecutionTimeMLOEMMOM(double aTime, const std::string &aKey = "");
 
         /**
          * @brief Set the MLOE-MMOM matrix generation time.
          * @param[in] aTime The execution time.
          *
          */
-        void SetMatrixGenerationTimeMLOEMMOM(double aTime);
+        void SetMatrixGenerationTimeMLOEMMOM(double aTime, const std::string &aKey = "");
 
         /**
          * @brief Set the MLOE-MMOM cholesky factorization time.
          * @param[in] aTime The execution time.
          *
          */
-        void SetFactoTimeMLOEMMOM(double aTime);
+        void SetFactoTimeMLOEMMOM(double aTime, const std::string &aKey = "");
 
         /**
         * @brief Set the MLOE-MMOM loop time.
         * @param[in] aTime The execution time.
         *
         */
-        void SetLoopTimeMLOEMMOM(double aTime);
+        void SetLoopTimeMLOEMMOM(double aTime, const std::string &aKey = "");
 
         /**
          * @brief Set the MLOE-MMOM number of floating-point operations (FLOPs).
          * @param[in] aFlops The number of FLOPs.
          *
          */
-        void SetFlopsMLOEMMOM(double aFlops);
+        void SetFlopsMLOEMMOM(double aFlops, const std::string &aKey = "");
 
         /**
          * @brief Set The total execution time of the fisher tile computation.
          * @param[in] aTime The total execution time for fisher tile computation.
          *
          */
-        void SetTotalFisherTime(double aTime);
+        void SetTotalFisherTime(double aTime, const std::string &aKey = "");
 
         /**
          * @brief Set the elements of the fisher matrix.
          * @param aFisherMatrix Elements of the fisher matrix.
          *
          */
-        void SetFisherMatrix(std::vector<double> aFisherMatrix);
+        void SetFisherMatrix(std::vector<double> aFisherMatrix, const std::string &aKey = "");
 
         /**
          * @brief Set the elements of the Z missed matrix.
          * @param aPredictedValues Elements of the Predicted Z missed matrix.
          *
          */
-        void SetPredictedMissedValues(std::vector<double> aPredictedValues);
+        void SetPredictedMissedValues(std::vector<double> aPredictedValues, const std::string &aKey = "");
 
         /**
          * @brief Print the end summary of the results.
          *
          */
         void PrintEndSummary();
+
+    private:
+        /**
+         * @brief Add result to dictionary
+         * @param[in] aKey string used as title
+         * @param[in] aValue string value of result
+         *
+         */
+        void UpdateDictionary(const std::string &aKey, const std::string &aValue);
 
     private:
         /**
@@ -345,6 +353,8 @@ namespace exageostat::results {
         std::vector<double> mFisherMatrix;
         /// Z miss values
         std::vector<double> mPredictedMissedValues;
+        /// Map that holds results
+        std::map<std::string, std::string> mSummaryDictionary;
     };
 
 }//namespace exageostat

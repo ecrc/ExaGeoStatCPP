@@ -68,12 +68,12 @@ To build and run this software, you will need:
 ### C++ source code installation
 To install the `ExaGeoStatCPP` project locally (C++ version), run the following commands in your terminal:
 
-1. Clone the project from the remote gitHub repository into your local machine using the following command
+1. Clone the project repository to your local machine:
    ```bash
    git clone https://github.com/ecrc/ExaGeoStatCPP.git 
    ```
 
-2. Change your current directory by getting into the `ExaGeoStatCPP` project directory
+2. Navigate to the cloned directory:
    ```bash
    cd ExaGeoStatCPP
    ```
@@ -92,6 +92,7 @@ To install the `ExaGeoStatCPP` project locally (C++ version), run the following 
    ```bash
    export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH
    ```
+   or copy/paste the output pkg-config paths from the configure step
 
 Now, you can use the pkg-config executable to collect compiler and linker flags for
 ExaGeoStatCPP.

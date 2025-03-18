@@ -1,0 +1,92 @@
+extern "C" %{
+/*
+ * @copyright (c) 2023     King Abdullah University of Science and Technology (KAUST).
+ * @copyright (c) 2023     The Universiy of Tennessee and The Universiy of Tennessee Research Foundation.
+ *                         All rights reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+static double DifferenceDouble_core(double *apDataA, double *apDataB, int aM, int aN) {
+    double result = 0.0;
+    for (int j = 0; j < aN; j++) {
+        for (int i = 0; i < aM; i++) {
+            result = fmax(result, fabs(apDataA[j*aM+i]-apDataB[j*aM+i]));
+            if( result > 1.0e-4 ) {
+                return result;
+            }
+        }
+    }
+    return result;
+}
+
+%}
+
+apDescA         [ type = "parsec_tiled_matrix_t*" ]
+apDescB         [ type = "parsec_tiled_matrix_t*" aligned = apDescA ]
+
+task(m, n)
+
+m = 0 .. apDescA->lmt-1
+n = 0 .. apDescA->lnt-1
+
+: apDescA(m, n)
+
+READ apDataA <- apDescA(m, n)
+READ apDataB <- apDescB(m, n)
+
+BODY
+{
+    double diff = DifferenceDouble_core(apDataA, apDataB, apDescA->mb, apDescA->nb);
+}
+END
+
+extern "C" %{
+
+/**
+ * @return the parsec object to schedule.
+ */
+parsec_taskpool_t*
+DifferenceDoubleConstructor(parsec_matrix_block_cyclic_t *apDescA, parsec_matrix_block_cyclic_t *apDescB)
+{
+    assert(apDescA->super.mb == apDescB->super.mb);
+    assert(apDescA->super.nb == apDescB->super.nb);
+    parsec_DifferenceDouble_taskpool_t *taskpool = parsec_DifferenceDouble_new(&apDescA->super, &apDescB->super);
+    parsec_add2arena(&taskpool->arenas_datatypes[PARSEC_DifferenceDouble_DEFAULT_ADT_IDX],
+                            parsec_datatype_double_t, PARSEC_MATRIX_FULL,
+                            1, apDescA->super.mb, apDescA->super.nb, apDescA->super.mb,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return (parsec_taskpool_t*)taskpool;
+}
+
+/**
+ * @param [inout] the parsec object to destroy
+*/
+void DifferenceDouble_destructor(parsec_taskpool_t *pTaskpool)
+{
+    parsec_DifferenceDouble_taskpool_t *difference_double_taskpool = (parsec_DifferenceDouble_taskpool_t *)pTaskpool;
+    parsec_del2arena(&difference_double_taskpool->arenas_datatypes[PARSEC_DifferenceDouble_DEFAULT_ADT_IDX]);
+    parsec_taskpool_free(pTaskpool);
+}
+
+/**
+ */
+int DifferenceDouble(parsec_context_t *apContext,
+        parsec_matrix_block_cyclic_t *apDescA,
+        parsec_matrix_block_cyclic_t *apDescB)
+{
+    parsec_taskpool_t *parsec_difference_double = NULL;
+    parsec_difference_double = DifferenceDoubleConstructor(apDescA, apDescB);
+    if(parsec_difference_double != NULL ){
+        parsec_context_add_taskpool(apContext, parsec_difference_double);
+        parsec_context_start(apContext);
+        parsec_context_wait(apContext);
+        DifferenceDouble_destructor(parsec_difference_double);
+    }
+
+    return 0;
+}
+
+%}

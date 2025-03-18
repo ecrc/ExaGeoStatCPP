@@ -16,7 +16,14 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/concrete)
 # Define the sources for the library
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebraFactory.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebraMethods.cpp
         ${SOURCES}
-        PARENT_SCOPE
         )
+
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebraMethods.cpp
+            ${SOURCES}
+            )
+endif ()
+
+set(SOURCES ${SOURCES} PARENT_SCOPE)

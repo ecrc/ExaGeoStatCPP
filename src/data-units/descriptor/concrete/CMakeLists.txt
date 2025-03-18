@@ -12,14 +12,20 @@
 # @date 2023-03-20
 
 # Include the concrete implementations of the Descriptor class based on the enabled libraries (HiCMA or Chameleon)
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/ChameleonDescriptor.cpp
-        ${SOURCES}
-        )
-
-if (USE_HICMA)
-    list(APPEND SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/HicmaDescriptor.cpp
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/ChameleonDescriptor.cpp
+            ${SOURCES}
+            )
+    if (USE_HICMA)
+        list(APPEND SOURCES
+                ${CMAKE_CURRENT_SOURCE_DIR}/HicmaDescriptor.cpp
+                )
+    endif ()
+else ()
+    set(SOURCES
+            ${CMAKE_CURRENT_SOURCE_DIR}/ParsecDescriptor.cpp
+            ${SOURCES}
             )
 endif ()
 

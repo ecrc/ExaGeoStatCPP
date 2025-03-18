@@ -85,6 +85,11 @@ macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_ge
     # Include the ProcessorCount module to determine the number of CPUs for parallel build and install commands.
     include(ProcessorCount)
     ProcessorCount(N)
+    # Subtract 5 from N, ensuring it doesn't go below 0
+    math(EXPR N "${N} - 5")
+    if (N LESS 0)
+        set(N 1)
+    endif()
     # Build the project using make, with parallel jobs based on processor count. This applies to both CMake and non-CMake projects.
     if (${is_using_cmake})
         execute_process(COMMAND make -j ${N}

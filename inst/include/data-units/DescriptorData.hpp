@@ -28,9 +28,13 @@ namespace exageostat::dataunits {
      *
      */
     union BaseDescriptor {
+#if DEFAULT_RUNTIME
         CHAM_desc_t *chameleon_desc;
-#ifdef USE_HICMA
+    #ifdef USE_HICMA
         HICMA_desc_t *hicma_desc;
+    #endif
+#else
+        parsec_matrix_block_cyclic_t *parsec_desc;
 #endif
     };
 
@@ -136,10 +140,11 @@ namespace exageostat::dataunits {
          *
          */
         void SetDescriptor(const common::DescriptorType &aDescriptorType, const common::DescriptorName &aDescriptorName,
-                           const bool &aIsOOC, void *apMatrix, const common::FloatPoint &aFloatPoint, const int &aMB,
-                           const int &aNB, const int &aSize, const int &aLM, const int &aLN, const int &aI,
-                           const int &aJ, const int &aM, const int &aN, const int &aP, const int &aQ,
-                           const bool &aValidOOC = true, const bool &aConverted = false);
+                           const bool &aIsOOC = false, void *apMatrix = nullptr,
+                           const common::FloatPoint &aFloatPoint = common::EXAGEOSTAT_REAL_DOUBLE, const int &aMB = 0,
+                           const int &aNB = 0, const int &aSize = 0, const int &aLM = 0, const int &aLN = 0,
+                           const int &aI = 0, const int &aJ = 0, const int &aM = 0, const int &aN = 0,
+                           const int &aP = 0, const int &aQ = 0, const bool &aValidOOC = true, const bool &aConverted = false);
 
         /**
          * @brief Getter for the Descriptor matrix.

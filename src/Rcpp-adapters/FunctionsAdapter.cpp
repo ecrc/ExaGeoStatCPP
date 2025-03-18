@@ -14,6 +14,7 @@
 #include <Rcpp-adapters/FunctionsAdapter.hpp>
 #include <api/ExaGeoStat.hpp>
 #include <results/Results.hpp>
+#include <configurations/Validator.hpp>
 
 using namespace std;
 using namespace Rcpp;
@@ -34,14 +35,14 @@ namespace exageostat::adapters {
         // manually set the configurations values with the user input from R.
         Configurations configurations;
         configurations.SetProblemSize(aProblemSize);
-        configurations.CheckKernelValue(aKernelName);
-        configurations.ParseDistanceMetric(aDistanceMatrix);
+        configurations.SetKernelName(validator::Validator::CheckKernelValue(aKernelName));
+        configurations.SetDistanceMetric(validator::Validator::CheckDistanceMetricValue(aDistanceMatrix));
         configurations.SetSeed(aSeed);
         configurations.SetDenseTileSize(aDenseTileSize);
         configurations.SetLowTileSize(aLowTileSize);
         configurations.SetComputation(EXACT_DENSE);
         configurations.SetInitialTheta(aInitialTheta);
-        configurations.SetDimension(Configurations::CheckDimensionValue(aDimension));
+        configurations.SetDimension(validator::Validator::CheckDimensionValue(aDimension));
 
         if (!aLogPath.empty()) {
             configurations.SetLogger(true);
@@ -137,7 +138,7 @@ namespace exageostat::adapters {
         double *pMeasurementsVectorPtr = GetDataFromArguments(aMeasurementsVector, aLocationsX, aLocationsY,
                                                               aLocationsZ, data, configurations, aKernelName,
                                                               aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                                                              Configurations::CheckComputationValue(aComputation));
+                                                              validator::Validator::CheckComputationValue(aComputation));
 
         configurations.SetLowerBounds(aLowerBound);
         configurations.SetUpperBounds(aUpperBound);
@@ -277,11 +278,11 @@ namespace exageostat::adapters {
         }
         // Set common configurations.
         aConfigurations.SetComputation(aComputation);
-        aConfigurations.CheckKernelValue(aKernelName);
-        aConfigurations.ParseDistanceMetric(aDistanceMatrix);
+        aConfigurations.SetKernelName(validator::Validator::CheckKernelValue(aKernelName));
+        aConfigurations.SetDistanceMetric(validator::Validator::CheckDistanceMetricValue(aDistanceMatrix));
         aConfigurations.SetDenseTileSize(aDenseTileSize);
         aConfigurations.SetLowTileSize(aLowTileSize);
-        aConfigurations.SetDimension(Configurations::CheckDimensionValue(aDimension));
+        aConfigurations.SetDimension(validator::Validator::CheckDimensionValue(aDimension));
         aConfigurations.SetProblemSize(aData->GetLocations()->GetSize());
         return pMeasurementsVectorPtr;
     }
@@ -354,11 +355,11 @@ namespace exageostat::adapters {
         }
 
         // Set common configurations.
-        aConfigurations.CheckKernelValue(aKernelName);
-        aConfigurations.ParseDistanceMetric(aDistanceMatrix);
+        aConfigurations.SetKernelName(validator::Validator::CheckKernelValue(aKernelName));
+        aConfigurations.SetDistanceMetric(validator::Validator::CheckDistanceMetricValue(aDistanceMatrix));
         aConfigurations.SetDenseTileSize(aDenseTileSize);
         aConfigurations.SetLowTileSize(aLowTileSize);
-        aConfigurations.SetDimension(Configurations::CheckDimensionValue(aDimension));
+        aConfigurations.SetDimension(validator::Validator::CheckDimensionValue(aDimension));
         aConfigurations.SetProblemSize(data->GetLocations()->GetSize());
         aConfigurations.SetEstimatedTheta(aEstimatedTheta);
 
