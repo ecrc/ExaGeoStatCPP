@@ -258,3 +258,5 @@ std::vector<double> Results::GetFisherMatrix() const {
 std::vector<double> Results::GetPredictedMissedValues() const {
     return this->mPredictedMissedValues;
 }
+
+Results *Results::mpInstance = nullptr;
