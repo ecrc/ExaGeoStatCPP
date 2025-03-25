@@ -41,7 +41,8 @@ RCPP_MODULE(ExaGeoStatCPP) {
 
     function("simulate_data", &exageostat::adapters::R_ExaGeoStatLoadData,
              List::create(_["kernel"], _["initial_theta"], _["distance_matrix"] = "euclidean", _["problem_size"],
-                          _["seed"] = 0, _["dts"], _["lts"] = 0, _["dimension"] = "2D", _["log_path"] = "",
+                          _["seed"] = static_cast<unsigned int>(time(0)), _["dts"], _["lts"] = 0,
+			  _["dimension"] = "2D", _["log_path"] = "",
                           _["data_path"] = "", _["observations_file"] = "", _["recovery_file"] = ""));
 
     function("model_data", &exageostat::adapters::R_ExaGeoStatModelData,
