@@ -216,7 +216,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &
     HICMA_zgenerate_problem(hicma_data_type, 'S', 0, N, lts, HICMA_descCUV->mt, HICMA_descCUV->nt,
                             &hicma_problem);
     int compress_diag = 0;
-    HICMA_zgytlr_Tile(EXAGEOSTAT_LOWER, HICMA_descCUV, HICMA_descCD, HICMA_descCrk, 0, max_rank, pow(10, -1.0 * acc),
+    HICMA_dgytlr_Tile(EXAGEOSTAT_LOWER, HICMA_descCUV, HICMA_descCD, HICMA_descCrk, 0, max_rank, pow(10, -1.0 * acc),
                       compress_diag, HICMA_descC);
 
     STOP_TIMING(matrix_gen_time);
@@ -234,7 +234,7 @@ T HicmaImplementation<T>::ExaGeoStatMLETile(std::unique_ptr<ExaGeoStatData<T>> &
     START_TIMING(time_facto);
 
     this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, HICMA_descCUV, 0, HICMA_descCD, HICMA_descCrk, max_rank,
-                              pow(10, -1.0 * acc));
+                              acc);
 
     STOP_TIMING(time_facto);
     flops = flops + flops_dpotrf(N);
