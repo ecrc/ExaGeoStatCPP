@@ -162,8 +162,6 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
 
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
     message(STATUS "Using PaRSEC as the runtime")
-    # EXAGEOSTAT depends on a NETCDF
-    # -------------------------------
     include(ImportNetCDF)
     # ExaGeoStatCPP depends on StarPU runtime
     # -------------------------------
@@ -271,7 +269,6 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
         message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA/lib/pkgconfig:$PKG_CONFIG_PATH")
     endif()
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
-    message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/NETCDF/lib/pkgconfig:$PKG_CONFIG_PATH")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/STARSH/lib/pkgconfig:$PKG_CONFIG_PATH")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HCORE/lib/pkgconfig:$PKG_CONFIG_PATH")
     message("\t export PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/HICMA-X/lib/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64/pkgconfig:${CMAKE_INSTALL_PREFIX}/HICMA-X/lib64:$PKG_CONFIG_PATH")
