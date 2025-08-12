@@ -61,11 +61,6 @@ namespace exageostat::dataLoader::parsec {
         std::unique_ptr<ExaGeoStatData<T>>
         LoadData(configurations::Configurations &aConfigurations, kernels::Kernel<T> &aKernel) override;
 
-        void StageZeroGeneration(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData, kernels::Kernel<T> &aKernel);
-
-        int OpenNetCDFFile(const std::string &aFilename);
-
-        void InitFilesDescriptors(configurations::Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData);
         /**
          * @brief Release the singleton instance of the  ParsecLoader class.
          * @return void

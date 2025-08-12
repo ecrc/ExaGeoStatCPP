@@ -4,13 +4,10 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file ClimateEmulator.cpp
- * @brief example of climate emulator.
+ * @file StageZeroDataGenerator.cpp
+ * @brief Example to run Stage Zero data generation (mean-trend pipeline).
  * @version 2.0.0
- * @author Mahmoud ElKarargy
- * @author Sameh Abdulah
- * @date 2024-09-23
-**/
+ **/
 
 #include <configurations/Configurations.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
@@ -21,18 +18,20 @@ using namespace exageostat::api;
 
 int main(int argc, char **argv) {
 
-    // Create a new configurations object.
+    // Create a configurations object.
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
     // Initialize the ExaGeoStat Hardware
-    auto hardware = ExaGeoStatHardware(configurations);
-    // Create a unique pointer to hold the data.
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers(), configurations.GetPGrid(),
+                                       configurations.GetQGrid());
     std::unique_ptr<ExaGeoStatData<double>> data;
-    // Load the data, either by reading from a file or generating synthetic data.
-    ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
-    // Perform data modeling.
-    ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data);
+    // Generate Stage Zero mean-trend data
+    ExaGeoStat<double>::ExaGeoStatGenerateMeanTrendData(configurations, data);
+
+    // Finalize Hardware
+    hardware.FinalizeHardware();
 
     return 0;
 }

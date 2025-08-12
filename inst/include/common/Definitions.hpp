@@ -221,13 +221,7 @@ namespace exageostat::common {
         DESCRIPTOR_SC = 66,
         DESCRIPTOR_F_SPATIAL = 67,
         DESCRIPTOR_FLM = 68,
-        DESCRIPTOR_FLMT = 69,
-        DESCRIPTOR_X = 70,
-        DESCRIPTOR_PART2_VECTOR = 71,
-        DESCRIPTOR_XtX = 72,
-        DESCRIPTOR_PART1 = 73,
-        DESCRIPTOR_PART2 = 74,
-        DESCRIPTOR_Estimated = 75
+        DESCRIPTOR_FLMT = 69
     };
 
     /**

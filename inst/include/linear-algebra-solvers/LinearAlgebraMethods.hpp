@@ -73,9 +73,6 @@ namespace exageostat::linearAlgebra {
         void InitiateFisherDescriptors(configurations::Configurations &aConfigurations,
                                        dataunits::DescriptorData<T> &aDescriptorData);
 
-        void mean_trend(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations, const kernels::Kernel<T> &aKernel,
-                        double * forcing, double * theta, int l, int u);
-
         /**
          * @brief Initializes the descriptors necessary for the Prediction.
          * @details This method initializes the descriptors necessary for the linear algebra solver.

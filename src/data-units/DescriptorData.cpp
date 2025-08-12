@@ -350,18 +350,6 @@ std::string DescriptorData<T>::GetDescriptorName(const DescriptorName &aDescript
             return "DESCRIPTOR_FLM";
         case DESCRIPTOR_FLMT:
             return "DESCRIPTOR_FLMT";
-        case DESCRIPTOR_X:
-            return "DESCRIPTOR_X";
-        case DESCRIPTOR_PART2_VECTOR:
-            return "DESCRIPTOR_PART2_VECTOR";
-        case DESCRIPTOR_XtX:
-            return "DESCRIPTOR_XtX";
-        case DESCRIPTOR_PART1:
-            return "DESCRIPTOR_PART1";
-        case DESCRIPTOR_PART2:
-            return "DESCRIPTOR_PART2";
-        case DESCRIPTOR_Estimated:
-            return "DESCRIPTOR_Estimated";
         default:
             throw std::invalid_argument(
                     "The name of descriptor you provided is undefined, Please read the user manual to know the available descriptors");

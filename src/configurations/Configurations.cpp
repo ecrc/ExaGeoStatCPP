@@ -101,6 +101,12 @@ void Configurations::ValidateConfiguration() {
         }
     }
 
+    if (GetStageZero()) {
+        if (GetResultsPath().empty()) {
+            throw domain_error("You need to set the results path (--resultspath) before starting");
+        }
+    }
+
 #if DEFAULT_RUNTIME
     // Throw Errors if any of these arguments aren't given by the user.
     if (GetKernelName().empty()) {
@@ -113,7 +119,7 @@ void Configurations::ValidateConfiguration() {
     if(GetMaxRank() == -1){
         SetMaxRank(GetDenseTileSize() / 2);
     }
-//    if(GetTolerance() >= 0){
+    if (mDictionary.find("tolerance") == mDictionary.end()) {
         SetTolerance(8);
     }
      if (GetDataPath().empty()) {
@@ -229,6 +235,8 @@ void Configurations::PrintUsage() {
     LOGGER("--enable-inverse : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
     LOGGER("--mpiio : Used to enable MPI IO, Used with PaRSEC runtime only.")
     LOGGER("--log-file-path: Used to set path of file where events and results are logged.")
+    LOGGER("--start-year=value : Used to set the starting year for NetCDF data processing (StageZero).")
+    LOGGER("--end-year=value : Used to set the ending year for NetCDF data processing (StageZero).")
     LOGGER("\n\n")
 
     exit(0);

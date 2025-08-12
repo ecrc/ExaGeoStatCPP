@@ -15,6 +15,7 @@
 #include <data-generators/DataGenerator.hpp>
 #include <prediction/Prediction.hpp>
 #include <runtime-solver/RuntimeSolverFactory.hpp>
+#include <data-generators/concrete/StageZeroGenerator.hpp>
 
 using namespace std;
 
@@ -22,6 +23,28 @@ using namespace exageostat::api;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+using namespace exageostat::generators::stagezero;
+
+
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
+    configurations::Configurations &aConfigurations,
+    std::unique_ptr <ExaGeoStatData <T>> &aData) {
+
+    int seed = 0;
+    std::srand(seed);
+    aConfigurations.PrintSummary();
+    LOGGER("** ExaGeoStat stage zero data generation **")
+    // Register and create a kernel object
+    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
+                                                                                      aConfigurations.GetTimeSlot());
+    // Create a unique pointer to a DataGenerator object
+    unique_ptr<DataGenerator<T>> data_generator = unique_ptr<DataGenerator<T>>(StageZeroGenerator<T>::GetInstance());
+    aData = data_generator->CreateData(aConfigurations, *pKernel);
+    delete pKernel;
+    LOGGER("\t*Data generation finished*")
+
+}
 
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {

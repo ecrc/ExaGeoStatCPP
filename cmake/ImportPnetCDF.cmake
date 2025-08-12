@@ -10,6 +10,14 @@
 # @author Sameh Abdulah
 # @date 2024-11-14
 
+# Compute MPI installation root from the MPI C++ compiler path
+if (DEFINED MPI_CXX_COMPILER)
+  get_filename_component(MPI_COMPILER_DIR "${MPI_CXX_COMPILER}" DIRECTORY)        # .../bin
+  get_filename_component(MPI_ROOT "${MPI_COMPILER_DIR}" DIRECTORY)               # parent of bin
+else()
+  message(FATAL_ERROR "MPI_CXX_COMPILER not set; cannot locate MPI installation")
+endif()
+
 # Configuration settings for the integration of the NLOPT library
 # 'name' is assigned to "NLOPT", serving as the identifier for this library within the script.
 set(name "PnetCDF")
@@ -18,7 +26,7 @@ set(tag "tag.v1.10.0")
 # 'version' specifies "1.12.0" as the version of the NLOPT library, ensuring compatibility with the project's requirements.
 set(version "1.10.0")
 # 'flag' is intended for additional configuration options during the build process. A space is placed as a placeholder.
-set(flag \--enable-shared \--with-mpi="${MPI_COMPILER}/..")
+set(flag \--enable-shared \--with-mpi=${MPI_ROOT})
 # 'is_cmake' indicates that NLOPT uses CMake for its build system, which is set to ON.
 set(is_cmake OFF)
 # 'is_git' denotes that the NLOPT source code is hosted in a Git repository, which is set to ON.

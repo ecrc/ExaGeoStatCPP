@@ -45,6 +45,8 @@
   "Fisher": "false",
   "ObservationNumber": "0",
   "NetCDFDataPath": "",
-  "ForcedDataPath": "",
+  "ForcingDataPath": "",
+  "StartYear": "2000",
+  "EndYear": "2001",
   "StageZero": "false"
 }

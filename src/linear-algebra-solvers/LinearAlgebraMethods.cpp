@@ -17,11 +17,8 @@
 #include <mpi.h>
 
 #endif
-#include <lapacke.h>
 
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/mman.h>
+#include <lapacke.h>
 
 #include <linear-algebra-solvers/LinearAlgebraMethods.hpp>
 #include <data-loader/concrete/CSVLoader.hpp>
@@ -71,331 +68,54 @@ void LinearAlgebraMethods<T>::InitiateDescriptors(Configurations &aConfiguration
     } else {
         throw runtime_error("Unsupported for now!");
     }
-    int N = aConfigurations.GetProblemSize();
 
-//    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C, is_OOC, nullptr, float_point, dts, dts,
-//                                  dts * dts, full_problem_size, full_problem_size, 0, 0, full_problem_size,
-//                                  full_problem_size, p_grid, q_grid);
-    double *Zcpy = (double *) malloc(full_problem_size * sizeof(double));
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, nullptr, float_point,
-                                  dts, dts, dts * dts, N, 1, 0, 0, N, 1, p_grid,
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C, is_OOC, nullptr, float_point, dts, dts,
+                                  dts * dts, full_problem_size, full_problem_size, 0, 0, full_problem_size,
+                                  full_problem_size, p_grid, q_grid);
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z, is_OOC, apMeasurementsMatrix, float_point,
+                                  dts, dts, dts * dts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid,
                                   q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, Zcpy, float_point, dts,
-                                  dts, dts * dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT, is_OOC, nullptr, float_point,  dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid, false);
-
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1, is_OOC, nullptr, float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2, is_OOC, nullptr, float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr, float_point, dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_COPY, is_OOC, nullptr, float_point, dts,
+                                  dts, dts * dts, full_problem_size, 1, 0, 0, full_problem_size, 1, p_grid, q_grid);
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_DETERMINANT, is_OOC, nullptr, float_point,
+                                  dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid, false);
+    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT, is_OOC, nullptr, float_point, dts,
+                                  dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid, false);
 
     if (float_point == EXAGEOSTAT_REAL_DOUBLE) {
-//        auto *CHAM_descC = aDescriptorData.GetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C11, is_OOC, nullptr, float_point, dts,
-//                                      dts, dts * dts, full_problem_size, full_problem_size, 0, 0, CHAM_descC->m / 2,
-//                                      CHAM_descC->n / 2, p_grid, q_grid);
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12, is_OOC, nullptr, float_point, dts,
-//                                      dts, dts * dts, full_problem_size, full_problem_size, CHAM_descC->m / 2, 0,
-//                                      CHAM_descC->m / 2, CHAM_descC->n / 2,
-//                                      p_grid, q_grid);
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22, is_OOC, nullptr, float_point, dts,
-//                                      dts, dts * dts, full_problem_size, full_problem_size, CHAM_descC->m / 2,
-//                                      CHAM_descC->n / 2, CHAM_descC->m / 2,
-//                                      CHAM_descC->n / 2, p_grid, q_grid);
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_1, is_OOC, nullptr, float_point, dts,
-//                                      dts, dts * dts, full_problem_size / 2, 1, 0, 0, full_problem_size / 2, 1, p_grid,
-//                                      q_grid);
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_2, is_OOC, nullptr, float_point, dts,
-//                                      dts, dts * dts, full_problem_size / 2, 1, 0, 0, full_problem_size / 2, 1, p_grid,
-//                                      q_grid);
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1, is_OOC, nullptr, float_point,
-//                                      dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2, is_OOC, nullptr, float_point,
-//                                      dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+        auto *CHAM_descC = aDescriptorData.GetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C).chameleon_desc;
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C11, is_OOC, nullptr, float_point, dts,
+                                      dts, dts * dts, full_problem_size, full_problem_size, 0, 0, CHAM_descC->m / 2,
+                                      CHAM_descC->n / 2, p_grid, q_grid);
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C12, is_OOC, nullptr, float_point, dts,
+                                      dts, dts * dts, full_problem_size, full_problem_size, CHAM_descC->m / 2, 0,
+                                      CHAM_descC->m / 2, CHAM_descC->n / 2,
+                                      p_grid, q_grid);
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_C22, is_OOC, nullptr, float_point, dts,
+                                      dts, dts * dts, full_problem_size, full_problem_size, CHAM_descC->m / 2,
+                                      CHAM_descC->n / 2, CHAM_descC->m / 2,
+                                      CHAM_descC->n / 2, p_grid, q_grid);
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_1, is_OOC, nullptr, float_point, dts,
+                                      dts, dts * dts, full_problem_size / 2, 1, 0, 0, full_problem_size / 2, 1, p_grid,
+                                      q_grid);
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Z_2, is_OOC, nullptr, float_point, dts,
+                                      dts, dts * dts, full_problem_size / 2, 1, 0, 0, full_problem_size / 2, 1, p_grid,
+                                      q_grid);
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_1, is_OOC, nullptr, float_point,
+                                      dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PRODUCT_2, is_OOC, nullptr, float_point,
+                                      dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     }
 
-//    if (aConfigurations.GetIsNonGaussian()) {
-//        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_SUM, is_OOC, nullptr, float_point,
-//                                      dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-//    }
-
-    // FOR STAGE zero
-    int M = 10;
-    //Fill data struct
-//    fprintf(stderr, "0000 %d, %d\n", N, (3+2*M));
-
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_X, is_OOC, nullptr, float_point,
-                                      dts, dts, dts * dts, N, 3+2*M,0,0,N,3+2*M,p_grid,q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART2_VECTOR, is_OOC, nullptr, float_point,
-                                      dts,dts,dts*dts,3+2*M,1,0,0,3+2*M,1,p_grid,q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_XtX, is_OOC, nullptr, float_point,
-                                       dts,dts,dts*dts,3+2*M,3+2*M,0,0,3+2*M,3+2*M,p_grid,q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART1, is_OOC, nullptr, float_point,
+    if (aConfigurations.GetIsNonGaussian()) {
+        aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_SUM, is_OOC, nullptr, float_point,
                                       dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART2, is_OOC, nullptr, float_point,
-                                        dts, dts, dts * dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
-    aDescriptorData.SetDescriptor(common::CHAMELEON_DESCRIPTOR, DESCRIPTOR_Estimated, is_OOC, nullptr, float_point,
-                                       dts,dts,dts*dts, N,1,0,0,N,1,p_grid,q_grid);
-
-    fprintf(stderr,"%d, %d\n", p_grid,q_grid);
+    }
 
     //stop gsl error handler
     gsl_set_error_handler_off();
     aDescriptorData.SetIsDescriptorInitiated(true);
 }
-
-// Function to count the number of lines in a file using memory-mapped file
-long count_lines_in_file(const char *file_path) {
-    int fd = open(file_path, O_RDONLY);
-    if (fd == -1) {
-        perror("Error opening file");
-        return -1;
-    }
-
-    struct stat file_info;
-    if (fstat(fd, &file_info) == -1) {
-        perror("Error getting file size");
-        close(fd);
-        return -1;
-    }
-
-    size_t file_size = file_info.st_size;
-
-    char *file_content = static_cast<char *>(mmap(NULL, file_size, PROT_READ, MAP_PRIVATE, fd, 0));
-    if (file_content == MAP_FAILED) {
-        perror("Error mapping file");
-        close(fd);
-        return -1;
-    }
-
-    close(fd);
-
-    long line_count = 0;
-    for (size_t i = 0; i < file_size; i++) {
-        if (file_content[i] == '\n') {
-            line_count++;
-        }
-    }
-
-    if (munmap(file_content, file_size) == -1) {
-        perror("Error unmapping file");
-        return -1;
-    }
-
-    return line_count;
-}
-
-template<typename T>
-void LinearAlgebraMethods<T>::mean_trend(std::unique_ptr<ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations, const kernels::Kernel<T> &aKernel,
-                                         double* forcing, double * theta, int l, int u)
-//! Maximum Loglikelihood Evaluation (MLE)
-/*!  -- using exact or approximation computation, and (single, double, or mixed) precision.
- * Returns the loglikelihhod value for the given theta.
- * @param[in] n: unsigned variable used by NLOPT package.
- * @param[in] theta: theta Vector with three parameter (Variance, Range, Smoothness)
- *                           that is used to to generate the Covariance Matrix.
- * @param[in] grad: double variable used by NLOPT package.
- * @param[in] data: MLE_data struct with different MLE inputs.
- */
-{
-
-    //Initialization
-    double value;
-    int M = 10;
-    int t = 8760;
-    int no_years=751;
-
-    auto *CHAM_desc_Zobs = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                  DescriptorName::DESCRIPTOR_Z).chameleon_desc;
-    auto *CHAM_desc_X = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                  DescriptorName::DESCRIPTOR_X).chameleon_desc;
-    auto *CHAM_desc_part1 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                      DescriptorName::DESCRIPTOR_PART1).chameleon_desc;
-    auto *CHAM_desc_part2 = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                      DescriptorName::DESCRIPTOR_PART2).chameleon_desc;
-    auto *CHAM_desc_part2_vector = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                             DescriptorName::DESCRIPTOR_PART2_VECTOR).chameleon_desc;
-    auto *CHAM_desc_XtX = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                    DescriptorName::DESCRIPTOR_XtX).chameleon_desc;
-    auto *CHAM_desc_estimated_mean_trend = aData->GetDescriptorData()->GetDescriptor(DescriptorType::CHAMELEON_DESCRIPTOR,
-                                                                    DescriptorName::DESCRIPTOR_Estimated).chameleon_desc;
-
-    int         N       = CHAM_desc_X->m;
-    //generate the matrix
-    double* localtheta =  (double *) malloc((3+no_years) * sizeof(double));
-    localtheta[0]= theta[0];
-    localtheta[1]= t;
-    localtheta[2]= M;
-#if defined(CHAMELEON_USE_MPI)
-    if ( MORSE_My_Mpi_Rank() == 0 )
-	{
-#endif
-    fprintf(stderr, "Estimated Theta: %f\n", theta[0]);
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
-    for(int ii=0;ii<no_years;ii++)
-        localtheta[3+ii]=forcing[ii];
-
-    int upper_lower = EXAGEOSTAT_UPPER_LOWER;
-    int distance_metric = aConfigurations.GetDistanceMetric();
-
-    RuntimeFunctions<T>::CovarianceMatrix(*aData->GetDescriptorData(), CHAM_desc_X, upper_lower,
-                                          aData->GetLocations(), aData->GetLocations(), nullptr,
-                                          (T*)localtheta, distance_metric, &aKernel);
-
-    //Calculate part2
-    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_X, CHAM_desc_Zobs, 0, CHAM_desc_part2_vector);
-
-    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_X, CHAM_desc_X, 0, CHAM_desc_XtX);
-
-    this->ExaGeoStatPotrfTile(EXAGEOSTAT_LOWER, CHAM_desc_XtX, aConfigurations.GetBand(), nullptr, nullptr, 0, 0);
-
-    this->ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
-                             CHAM_desc_XtX, nullptr, nullptr, CHAM_desc_part2_vector, 0);
-    this->ExaGeoStatTrsmTile(EXAGEOSTAT_LEFT, EXAGEOSTAT_LOWER, EXAGEOSTAT_NO_TRANS, EXAGEOSTAT_NON_UNIT, 1,
-                             CHAM_desc_XtX, nullptr, nullptr, CHAM_desc_part2_vector, 0);
-
-    CHAMELEON_dgemm_Tile(ChamNoTrans, ChamNoTrans, 1.0, CHAM_desc_X, CHAM_desc_part2_vector, 0, CHAM_desc_estimated_mean_trend);
-    ExaGeoStatGeaddTile(EXAGEOSTAT_NO_TRANS, 1, CHAM_desc_Zobs, -1, CHAM_desc_estimated_mean_trend);
-
-    CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, CHAM_desc_estimated_mean_trend, CHAM_desc_estimated_mean_trend, 0, CHAM_desc_part2);
-    T *part1 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART1);
-    T *part2 = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART2);
-
-    *part2 = *part2/N;   //SIGMA^2
-
-    T *estimated_mean_trend_lapack = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_Estimated);
-
-    double sum =0;
-    for(int i=0;i<N;i++)
-    {
-        estimated_mean_trend_lapack[i] /= sqrt(*part2); //Z
-    }
-
-    T *part2_vector_lapack = aData->GetDescriptorData()->GetDescriptorMatrix(CHAMELEON_DESCRIPTOR, DESCRIPTOR_PART2_VECTOR);
-
-
-#if defined(CHAMELEON_USE_MPI)
-    if ( MORSE_My_Mpi_Rank() == 0 )
-	{
-#endif
-//    double Z_new[1440][306600];  // 82 *365 *24  for hourly
-    double **Z_new = (double **)malloc(1440 * sizeof(double *));
-    for (int i = 0; i < 1440; i++) {
-        Z_new[i] = (double *)malloc(306600 * sizeof(double));
-    }
-
-    int loc_count = 1440;
-//    double params[1440][25]; //15 for daily and 25 for hourly
-    double **params = (double **)malloc(1440 * sizeof(double *));
-    for (int i = 0; i < 1440; i++) {
-        params[i] = (double *)malloc(25 * sizeof(double));
-    }
-
-    //////////////////////////////////// Write Z
-    int iter = 0;
-    for(int year=0; year<35;year++)
-    {
-        for(int i = 0; i < 365*24; i++){   //for hourly , for daily, just 365
-//            Z_new[l][iter]= estimated_mean_trend_lapack[iter];
-            iter++;
-        }
-
-    }
-    fprintf(stderr, "%d %d, hi\n", l, loc_count);
-    double time1 = 0.0;
-    double time2 = 0.0;
-    if(l == loc_count-1)
-    {
-#pragma omp parallel for
-        for(size_t time_slot=0; time_slot<35*365*24;time_slot++)   //for daily 83*365
-        {
-            while(true)
-            {
-                char * nFileZ_data  = (char *) malloc(100 * sizeof(char));
-                snprintf(nFileZ_data, 100, "%s%d%s", "/scratch/abdullsm/bandwidth/stage0_outputs_hourly4/z_", time_slot, ".csv");
-                START_TIMING(time1);
-                STOP_TIMING(time1);
-                if (true /*lineCount == (u)*loc_count*/ ){
-                    FILE* fp_data = fopen(nFileZ_data, "a");
-                    if(fp_data == NULL){
-                        fprintf(stderr, "File %s cannot be opened to write\n", nFileZ_data);
-                        exit(1);
-                    }
-                    START_TIMING(time2);
-
-                    for (int L = 0; L < loc_count; L++) {
-                        double value = Z_new[L][time_slot];
-                        fprintf(fp_data, "%0.14f\n", value);
-                    }
-
-                    // Write the buffer to the file
-                    STOP_TIMING(time2);
-                    fclose(fp_data);
-                    if(time_slot%50000 ==0)
-                    {
-                        fprintf(stderr, "write to (Z): %s\n", nFileZ_data);
-                        fprintf(stderr, "time(1): %f, time(2): %f\n", time1, time2);
-                    }
-
-                    break;
-                }
-                else
-                    {
-                    fprintf(stderr, "File does not have the expected number of lines. Waiting...\n");
-                    sleep(30); // Sleep for 10 seconds
-                }
-            }
-        }
-
-    }
-
-
-    //Store to global array
-    params[l][0]= theta[0];
-    params[l][1]= *part2;
-    for(int i = 0; i < 3+(2*M); i++){
-        params[l][i+2]=part2_vector_lapack[i];
-    }
-    fprintf(stderr, "%d 3- %d, hi\n", l, loc_count);
-    ////exit(0);
-    if(l==loc_count-1)
-    {
-        while(true)
-        {
-            size_t lineCount = count_lines_in_file("/scratch/abdullsm/bandwidth/stage0_outputs_hourly4/params.csv");
-            if (lineCount == (u)*loc_count) {
-                FILE* fp = fopen("/scratch/abdullsm/bandwidth/stage0_outputs_hourly4/params.csv", "a");
-                if(fp == NULL){
-                    fprintf(stderr, "File /scratch/abdullsm/bandwidth/stage0_outputs_hourly4//params.csv  cannot be opened to write\n");
-                    exit(1);
-                }
-                int k=0;
-                for(k=0;k<loc_count;k++)
-                {
-                    for(int i = 0; i < 3+(2*M)+2; i++)
-                        fprintf(fp, "%0.14f ", params[k][i]);
-                    fprintf(fp, "\n");
-                }
-                fclose(fp);
-                fprintf(stderr, "...Done Writting.\n");
-                break;
-            }
-            else {
-                fprintf(stderr, "File does not have the expected number of lines. Waiting...\n");
-                sleep(30); // Sleep for 10 seconds
-            }
-        }
-    }
-    fprintf(stderr, "%d 4- %d, hi\n", l, loc_count);
-    //e/xit(0);
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
-
-}
-
-
 
 template<typename T>
 void LinearAlgebraMethods<T>::InitiateFisherDescriptors(Configurations &aConfigurations,

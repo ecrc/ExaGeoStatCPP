@@ -5,16 +5,11 @@
 
 /**
  * @file TrendModel.hpp
- * @brief Defines the TrendModel kernel class.
+ * @brief Defines the TrendModel class – a time–trend kernel that can be used as a mean/covariate model.
  * @version 2.0.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-11-11
- *
- * This file provides the declaration of the TrendModel class, which is a subclass of the Kernel class.
- * It provides a method for generating a covariance matrix
- * using a set of input locations and kernel parameters.
- *
 **/
 
 #ifndef EXAGEOSTATCPP_TRENDMODEL_HPP
@@ -26,45 +21,38 @@ namespace exageostat::kernels {
 
     /**
      * @class TrendModel
-     * @brief A class represents a Trend Model kernel.
-     * @details This class represents a Trend Model Stationary, which is a subclass of the Kernel class.
-     * It provides a method for generating a covariance matrix using a set of input locations and kernel parameters.
+     * @brief A simple temporal trend model that can be plugged into the unified kernel interface.
      *
+     * The implementation replicates the time-series trend model that is originally implemented in the
+     * C version of ExaGeoStat.  The class inherits from the abstract `Kernel<T>` and therefore must
+     * provide an implementation for `GenerateCovarianceMatrix` in which the design matrix (or the
+     * corresponding covariance when used jointly with other kernels) is produced.
      */
     template<typename T>
     class TrendModel : public Kernel<T> {
-
     public:
-
         /**
-         * @brief Constructs a new TrendModel object.
-         * @details Initializes a new TrendModel object with default values.
-         *
+         * @brief Default constructor – sets the internal bookkeeping variables.
          */
         TrendModel();
 
         /**
          * @brief Virtual destructor to allow calls to the correct concrete destructor.
-         *
          */
         ~TrendModel() override = default;
 
         /**
-         * @brief Generates a covariance matrix using a set of locations and kernel parameters.
+         * @brief Generates a covariance (or design) matrix block for the trend model.
          * @copydoc Kernel::GenerateCovarianceMatrix()
-         *
          */
-        void
-        GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber, const int &aRowOffset,
-                                 const int &aColumnOffset, dataunits::Locations<T> &aLocation1,
-                                 dataunits::Locations<T> &aLocation2, dataunits::Locations<T> &aLocation3,
-                                 T *apLocalTheta, const int &aDistanceMetric) override;
+        void GenerateCovarianceMatrix(T *apMatrixA, const int &aRowsNumber, const int &aColumnsNumber,
+                                      const int &aRowOffset, const int &aColumnOffset, dataunits::Locations<T> &aLocation1,
+                                      dataunits::Locations<T> &aLocation2, dataunits::Locations<T> &aLocation3,
+                                      T *apLocalTheta, const int &aDistanceMetric) override;
 
         /**
-         * @brief Creates a new TrendModel object.
-         * @details This method creates a new TrendModel object and returns a pointer to it.
-         * @return A pointer to the new TrendModel object.
-         *
+         * @brief Factory function required by the plugin registry mechanism.
+         * @return A newly allocated `TrendModel` object.
          */
         static Kernel<T> *Create();
 
@@ -74,12 +62,10 @@ namespace exageostat::kernels {
     };
 
     /**
-     * @brief Instantiates the Data Generator class for float and double types.
-     * @tparam T Data Type: float or double
-     *
+     * @brief Instantiate the TrendModel class for the supported precision types.
      */
     EXAGEOSTAT_INSTANTIATE_CLASS(TrendModel)
 
-}//namespace exageostat
+}// namespace exageostat::kernels
 
-#endif //EXAGEOSTATCPP_TRENDMODEL_HPP
+#endif // EXAGEOSTATCPP_TRENDMODEL_HPP

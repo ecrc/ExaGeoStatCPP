@@ -233,6 +233,12 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(NetCDFDataPath, const std::string&, aPath, "netcdfdatapath")
         CREATE_GETTER_FUNCTION(NetCDFDataPath, std::string, "netcdfdatapath")
 
+        CREATE_SETTER_FUNCTION(StartYear, int, aStartYear, "startyear")
+        CREATE_GETTER_FUNCTION(StartYear, int, "startyear")
+
+        CREATE_SETTER_FUNCTION(EndYear, int, aEndYear, "endyear")
+        CREATE_GETTER_FUNCTION(EndYear, int, "endyear")
+
 /** END OF THE HICMA-PARSEC SPECIFIC ARGUMENTS. **/
 /** START OF THE DATA GENERATION MODULES. **/
 
@@ -244,6 +250,14 @@ namespace exageostat::configurations {
 
         CREATE_SETTER_FUNCTION(DataPath, const std::string&, aDataPath, "datapath")
         CREATE_GETTER_FUNCTION(DataPath, std::string, "datapath")
+
+        // Results output directory path (for CSVs and parameters)
+        CREATE_SETTER_FUNCTION(ResultsPath, const std::string&, aResultsPath, "resultspath")
+        CREATE_GETTER_FUNCTION(ResultsPath, std::string, "resultspath")
+
+        // Number of locations for Stage Zero
+        CREATE_SETTER_FUNCTION(NumLocs, int, aNumLocs, "numlocs")
+        CREATE_GETTER_FUNCTION(NumLocs, int, "numlocs")
 
 /** END OF THE DATA GENERATION MODULES. **/
 /** START OF THE DATA MODELING MODULES. **/

@@ -90,7 +90,7 @@ macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_ge
             endif ()
         endif ()
         execute_process(
-                COMMAND ./configure --prefix=${CMAKE_INSTALL_PREFIX}/${capital_name} CFLAGS=-fPIC
+                COMMAND ./configure --prefix=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags} CFLAGS=-fPIC
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
     endif ()

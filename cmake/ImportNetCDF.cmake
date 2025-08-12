@@ -21,7 +21,7 @@ set(tag "v4.7.4")
 # 'version' specifies "2.7.1" as the version of the NLOPT library, ensuring compatibility with the project's requirements.
 set(version "4.7.4")
 # 'flag' is intended for additional configuration options during the build process. A space is placed as a placeholder.
-set(flag \--enable-pnetcdf  \--enable-parallel-tests)
+set(flag \--enable-pnetcdf )
 # 'is_cmake' indicates that NLOPT uses CMake for its build system, which is set to ON.
 set(is_cmake OFF)
 # 'is_git' denotes that the NLOPT source code is hosted in a Git repository, which is set to ON.
