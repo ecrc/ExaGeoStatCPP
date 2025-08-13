@@ -234,6 +234,34 @@ predict_data(
 
 This example walks through initializing hardware, simulating spatial data, estimating model parameters, and making predictions using **ExaGeoStatCPP** in R.
 
+### Stage Zero Example
+Stage Zero is a preprocessing step for climate data that removes mean trends from time series data. Here's an example command to run the Stage Zero data generation:
+
+```bash
+./bin/examples/stage-zero/Example_Stage_Zero \
+  --kernel=trend_model \
+  --data-path=/path/to/ERA_data/ \
+  --forcing-data-path=/path/to/forcing_new.csv \
+  --lts=200 \
+  --lb=0.001 \
+  --ub=0.95 \
+  --starting-theta=0.9 \
+  --stage-zero \
+  --cores=50 \
+  --gpus=0 \
+  --dts=200 \
+  --resultspath=/path/to/output/ \
+  --startyear=2000 \
+  --endyear=2002 \
+  --numlocs=10 \
+  --max-mle-iterations=30 \
+  --tolerance=7
+```
+
+The output includes:
+- `z_*.csv` files: Normalized residuals for each time slot
+- `params.csv`: Optimized parameters for each location
+
 > Please take a look at the end-to-end examples as a reference for using all the operations.
 
 ## Contributing

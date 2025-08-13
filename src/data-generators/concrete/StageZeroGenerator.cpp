@@ -131,9 +131,15 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
 
     auto openFileNCmpi = [&](char *filename) {
         int id, ret;
+        double start_time = MPI_Wtime();
         if ((ret = ncmpi_open(MPI_COMM_WORLD, filename, NC_NOWRITE, MPI_INFO_NULL, &id))) {
+            double end_time = MPI_Wtime();
+            fprintf(stderr, "[StageZero] FAILED to open NetCDF file: %s (%.3f sec) - Error: %s\n", 
+                    filename, end_time - start_time, ncmpi_strerror(ret));
             throw std::runtime_error("Error opening NetCDF file: " + std::string(ncmpi_strerror(ret)));
         }
+        double end_time = MPI_Wtime();
+        fprintf(stderr, "[StageZero] SUCCESS opening NetCDF file: %s (%.3f sec)\n", filename, end_time - start_time);
         return id;
     };
 
@@ -146,8 +152,11 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
 
     
     char path[256];
-    snprintf(path, sizeof(path), "%sdata_%d.nc", mArgs.mConfigs->GetDataPath().c_str(), start_year);
+    std::string data_path = mArgs.mConfigs->GetDataPath();
+    if (!data_path.empty() && data_path.back() != '/') data_path += '/';
+    snprintf(path, sizeof(path), "%sdata_%d.nc", data_path.c_str(), start_year);
 
+    fprintf(stderr, "[StageZero] Loading initial NetCDF file for dimension setup: %s\n", path);
     ncid = openFileNCmpi(path);
 
     // Dimension IDs and lengths with error checks (exactly like reference)
@@ -173,8 +182,9 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
     
     for (int y = start_year; y <= end_year; y++) {
         char path2[256];
-        snprintf(path2, sizeof(path2), "%sdata_%d.nc", mArgs.mConfigs->GetDataPath().c_str(), y);
+        snprintf(path2, sizeof(path2), "%sdata_%d.nc", data_path.c_str(), y);
 
+        fprintf(stderr, "[StageZero] Loading NetCDF data for year %d: %s\n", y, path2);
         ncid = openFileNCmpi(path2);
 
 
@@ -206,8 +216,12 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
         ncmpi_get_vara_int_all(ncid, t2m_varid, index, count, t2m_local);
         STOP_TIMING(x_read)
 
+        double gather_start = MPI_Wtime();
         MPI_Allgather(t2m_local, (int) local_elems, MPI_INT, t2m,
                       (int) local_elems, MPI_INT, MPI_COMM_WORLD);
+        double gather_time = MPI_Wtime() - gather_start;
+        
+        fprintf(stderr, "[StageZero] Year %d: Read time: %.3f sec, Gather time: %.3f sec\n", y, x_read, gather_time);
 
         for (int lu = 0; lu < mArgs.mNumLocs; lu++) {
             int r = 0;
@@ -222,12 +236,20 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
         closeFileNCmpi(ncid);
         free(t2m);
         free(t2m_local);
+        fprintf(stderr, "[StageZero] Completed processing year %d\n\n", y);
     }
+    fprintf(stderr, "[StageZero] NetCDF loading completed for years %d-%d (%d files)\n\n", 
+            start_year, end_year, end_year - start_year + 1);
 }
 
 template<typename T>
 void StageZeroGenerator<T>::ReadForcingData() {
-    mArgs.mForcing = ReadObsFile((char *) mArgs.mConfigs->GetForcingDataPath().c_str(), mArgs.mNoYears);
+    std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
+    if (!forcing_path.empty() && forcing_path.back() == '/') forcing_path.pop_back();
+    
+    fprintf(stderr, "[StageZero] Loading forcing data from: %s\n", forcing_path.c_str());
+    mArgs.mForcing = ReadObsFile((char *) forcing_path.c_str(), mArgs.mNoYears);
+    fprintf(stderr, "[StageZero] Successfully loaded forcing data (%d years)\n\n", mArgs.mNoYears);
 }
 
 template<typename T>
@@ -288,13 +310,11 @@ void StageZeroGenerator<T>::RunMeanTrend() {
         fprintf(stderr, "data_path: %s\n", data_path.c_str());
         fprintf(stderr, "forcing_data_path: %s\n", forcing_path.c_str());
         fprintf(stderr, "results_path: %s\n", results_path.c_str());
-        fprintf(stderr, "start_year: %d, end_year: %d, years: %d\n", start_year, end_year, years);
+        fprintf(stderr, "start_year: %d, end_year: %d, years: %d\n", start_year, end_year, end_year-start_year+1);
         fprintf(stderr, "num_locs: %d\n", num_locs);
         fprintf(stderr, "period_hours(T): %d, harmonics(M): %d\n", period_hours, M);
         fprintf(stderr, "N (observations): %zu\n", N);
         fprintf(stderr, "tolerance(ftol_abs): %.10e, maxeval: %d\n", tol, maxeval);
-        fprintf(stderr, "starting_theta[0]: %.6f, lb[0]: %.6f, ub[0]: %.6f\n", st, lb0, ub0);
-        fprintf(stderr, "dts: %d, lts: %d\n", dts, lts_val);
         fprintf(stderr, "-------------------------------\n");
 #if defined(CHAMELEON_USE_MPI)
     }
@@ -337,7 +357,7 @@ void StageZeroGenerator<T>::RunMeanTrend() {
         // Re-register the objective before each optimize call
         nlopt_set_max_objective(opt, &StageZeroGenerator<T>::StageZeroObjectiveCallback, (void *)this);
         nlopt_result nlres = nlopt_optimize(opt, theta.data(), &opt_f);
-        fprintf(stderr, "[StageZero] NLopt finished (res=%d), theta=%0.10f, f=%0.10f\n", (int) nlres, theta[0], opt_f);
+        fprintf(stderr, "[StageZero] NLopt finished (res=%d), theta=%0.10f, f=%0.10f\n\n", (int) nlres, theta[0], opt_f);
 
         // Recompute full pipeline once with optimal theta to generate CSV (apObj == nullptr)
         {
@@ -440,7 +460,7 @@ void StageZeroGenerator<T>::SetupMLEComponents() {
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpEstimatedMeanTrend, NULL, ChamRealDouble,
                           dts, dts, dts*dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
     
-    fprintf(stderr, "All CHAMELEON descriptors created successfully\n");
+    fprintf(stderr, "All CHAMELEON descriptors created successfully\n\n");
 }
 
 template<typename T>
@@ -682,7 +702,7 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
             } catch (const std::exception &e) {
                 fprintf(stderr, "Failed to create output directory: %s (%s)\n", results_path.c_str(), e.what());
             }
-            fprintf(stderr, "Writing outputs to: %s\n", results_path.c_str());
+            fprintf(stderr, "[StageZero] Writing outputs to: %s\n", results_path.c_str());
             
             // Write Z files for each time slot
             #pragma omp parallel for
@@ -765,10 +785,15 @@ double * StageZeroGenerator<T>::ReadObsFile(char *aFileName, const int &aNumLoc)
     int count = 0;
     double *z_vec = new double[aNumLoc];
 
+    double start_time = MPI_Wtime();
     fp = fopen(aFileName, "r");
     if (fp == NULL) {
-        throw std::runtime_error("readObsFile:cannot open observations file");
+        double end_time = MPI_Wtime();
+        fprintf(stderr, "[StageZero] FAILED to open file: %s (%.3f sec)\n", aFileName, end_time - start_time);
+        throw std::runtime_error("readObsFile:cannot open observations file: " + std::string(aFileName));
     }
+    double end_time = MPI_Wtime();
+    fprintf(stderr, "[StageZero] SUCCESS opening file: %s (%.3f sec)\n", aFileName, end_time - start_time);
 
     while ((read = getline(&line, &len, fp)) != -1 && count < aNumLoc) {
         z_vec[count++] = atof(line);
