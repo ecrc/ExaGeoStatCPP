@@ -694,26 +694,43 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
         // Write CSV files only on the final call and when processing the last location
         if (is_final_call && (location_index == mArgs.mNumLocs - 1)) {
             std::string results_path;
-            try { results_path = mArgs.mConfigs->GetResultsPath(); } catch (...) { results_path.clear(); }
-            if (results_path.empty()) { throw std::runtime_error("ResultsPath is required. Please set --resultspath."); }
-            if (results_path.back() != '/') results_path += "/";
-            try {
-                std::filesystem::create_directories(results_path);
-            } catch (const std::exception &e) {
-                fprintf(stderr, "Failed to create output directory: %s (%s)\n", results_path.c_str(), e.what());
+            try { 
+                results_path = mArgs.mConfigs->GetResultsPath(); 
+            } catch (...) { 
+                results_path.clear(); 
             }
+            
+            if (results_path.empty()) { 
+                fprintf(stderr, "[StageZero] ERROR: ResultsPath is required. Please set --resultspath.\n");
+                throw std::runtime_error("ResultsPath is required. Please set --resultspath.");
+            }
+            
+            if (results_path.back() != '/') results_path += "/";
+            
+            // Create results directory if it doesn't exist
+            try {
+                if (!std::filesystem::exists(results_path)) {
+                    fprintf(stderr, "[StageZero] Creating results directory: %s\n", results_path.c_str());
+                    std::filesystem::create_directories(results_path);
+                }
+            } catch (const std::exception &e) {
+                fprintf(stderr, "[StageZero] ERROR: Failed to create output directory: %s (%s)\n", results_path.c_str(), e.what());
+                throw std::runtime_error("Failed to create output directory: " + std::string(e.what()));
+            }
+            
             fprintf(stderr, "[StageZero] Writing outputs to: %s\n", results_path.c_str());
             
-            // Write Z files for each time slot
+            // Write Z files for each time slot (replace mode instead of append)
             #pragma omp parallel for
             for (int time_slot = 0; time_slot < N; time_slot++) {
                 char file_path[256];
                 std::snprintf(file_path, sizeof(file_path), "%sz_%d.csv", results_path.c_str(), time_slot);
                 
-                // Retry loop for file locking
+                // Retry loop for file locking with replace mode
                 while (true) {
-                    FILE *fp = std::fopen(file_path, "a");
+                    FILE *fp = std::fopen(file_path, "w");  // Replace mode instead of append
                     if (!fp) {
+                        fprintf(stderr, "[StageZero] WARNING: Failed to open file %s, retrying...\n", file_path);
                         std::this_thread::sleep_for(std::chrono::seconds(1));
                         continue;
                     }
@@ -723,17 +740,18 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
                         std::fprintf(fp, "%.14f\n", Z_new[loc][time_slot]);
                     }
                     std::fclose(fp);
-                    
-                    // Progress reporting (like C version) (silenced)
                     break;
                 }
             }
             
-            // Write params
+            // Write params file (replace mode)
             char params_file_path[256];
             std::snprintf(params_file_path, sizeof(params_file_path), "%sparams.csv", results_path.c_str());
-            FILE* fp = std::fopen(params_file_path, "w");  // Overwrite mode
-            if(fp == NULL){ exit(1); }
+            FILE* fp = std::fopen(params_file_path, "w");  // Replace mode
+            if(fp == NULL){ 
+                fprintf(stderr, "[StageZero] ERROR: Failed to create params file: %s\n", params_file_path);
+                exit(1); 
+            }
             
             for(int k = 0; k < mArgs.mNumLocs; k++) {
                 for(int i = 0; i < 3 + 2*mArgs.mM + 2; i++) {
@@ -742,6 +760,8 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
                 fprintf(fp, "\n");
             }
             fclose(fp);
+            
+            fprintf(stderr, "[StageZero] Successfully wrote %d Z files and params.csv to %s\n", N, results_path.c_str());
         }
 
         mArgs.mIterCount++;
