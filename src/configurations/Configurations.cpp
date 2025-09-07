@@ -320,10 +320,14 @@ void Configurations::PrintSummary() {
             LOGGER("#Out Of Core (OOC) technology is enabled")
         }
 #else
-            LOGGER("\t#L: " << this->GetDenseTileSize() << "\t\t\t\t#T: " << this->GetTimeSlot())
-            LOGGER("\t#NB: " << this->GetDenseTileSize() << "\t\t\t\t#gpus: " << this->GetGPUsNumbers())
-            LOGGER("\t#Nodes: " << this->GetCoresNumber() << "\t\t\t#Time slot per file: " << GetTimeSlotPerFile());
-            LOGGER("\t#Number of files: " << this->GetFileNumber() << "\t#File per node: " << ((this->GetFileNumber()%this->GetCoresNumber())? this->GetFileNumber()/this->GetCoresNumber()+1 : this->GetFileNumber()/this->GetCoresNumber()))
+            LOGGER("#L: " << this->GetDenseTileSize())
+            LOGGER("#T: " << this->GetTimeSlot())
+            LOGGER("#NB: " << this->GetDenseTileSize())
+            LOGGER("#gpus: " << this->GetGPUsNumbers())
+            LOGGER("#Nodes: " << this->GetCoresNumber())
+            LOGGER("#Time slot per file: " << GetTimeSlotPerFile())
+            LOGGER("#Number of files: " << this->GetFileNumber())
+            LOGGER("#File per node: " << ((this->GetFileNumber()%this->GetCoresNumber())? this->GetFileNumber()/this->GetCoresNumber()+1 : this->GetFileNumber()/this->GetCoresNumber()))
 #endif
         LOGGER("*************************************************")
         mFirstInit = true;

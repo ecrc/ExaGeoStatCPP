@@ -16,6 +16,9 @@
 #include <prediction/Prediction.hpp>
 #include <runtime-solver/RuntimeSolverFactory.hpp>
 #include <data-generators/concrete/StageZeroGenerator.hpp>
+#if !DEFAULT_RUNTIME
+#include <data-generators/concrete/StageZeroGeneratorParsec.hpp>
+#endif
 
 using namespace std;
 
@@ -38,8 +41,20 @@ void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
+    
     // Create a unique pointer to a DataGenerator object
-    unique_ptr<DataGenerator<T>> data_generator = unique_ptr<DataGenerator<T>>(StageZeroGenerator<T>::GetInstance());
+    // Automatically select PaRSEC version when PaRSEC runtime is enabled
+    unique_ptr<DataGenerator<T>> data_generator;
+#if DEFAULT_RUNTIME
+    // Use StarPU/CHAMELEON version
+    data_generator = unique_ptr<DataGenerator<T>>(StageZeroGenerator<T>::GetInstance());
+    LOGGER("Using StageZeroGenerator (StarPU/CHAMELEON runtime)")
+#else
+    // Use PaRSEC version
+    data_generator = unique_ptr<DataGenerator<T>>(StageZeroGeneratorParsec<T>::GetInstance());
+    LOGGER("Using StageZeroGeneratorParsec (PaRSEC runtime)")
+#endif
+    
     aData = data_generator->CreateData(aConfigurations, *pKernel);
     delete pKernel;
     LOGGER("\t*Data generation finished*")

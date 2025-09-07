@@ -22,10 +22,20 @@ int main(int argc, char **argv) {
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    // Initialize the ExaGeoStat Hardware
-    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers(), configurations.GetPGrid(),
+    
+    // Initialize the ExaGeoStat Hardware based on runtime type
+#if DEFAULT_RUNTIME
+    // StarPU/CHAMELEON mode - use constructor that initializes CHAMELEON
+    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), 
+                                       configurations.GetCoresNumber(),
+                                       configurations.GetGPUsNumbers(), 
+                                       configurations.GetPGrid(), 
                                        configurations.GetQGrid());
+#else
+    // PaRSEC mode - use constructor that initializes PaRSEC
+    auto hardware = ExaGeoStatHardware(configurations);
+#endif
+    
     std::unique_ptr<ExaGeoStatData<double>> data;
     // Generate Stage Zero mean-trend data
     ExaGeoStat<double>::ExaGeoStatGenerateMeanTrendData(configurations, data);

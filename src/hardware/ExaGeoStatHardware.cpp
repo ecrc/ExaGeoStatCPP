@@ -88,7 +88,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     this->mpHicmaData = make_unique<hicma_parsec_data_t>();
     this->mpAnalysis = make_unique<hicma_parsec_matrix_analysis_t>();
 
-    this->mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
+    mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
     SetParsecMPIRank(this->mpHicmaParams->rank);
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();

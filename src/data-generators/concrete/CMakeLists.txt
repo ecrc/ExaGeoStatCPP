@@ -10,10 +10,17 @@
 # @author Sameh Abdulah
 # @date 2023-02-14
 
-# Add source files to the parent scope
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGenerator.cpp
-        ${SOURCES}
-        PARENT_SCOPE
-        )
+# Add source files to the parent scope - always include SyntheticGenerator
+list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp)
+
+# Add StageZeroGenerator based on runtime type
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    # Use StarPU/CHAMELEON version
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGenerator.cpp)
+elseif (RUNTIME_TYPE STREQUAL "PARSEC")
+    # Use PaRSEC version
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGeneratorParsec.cpp)
+endif()
+
+# Set the final SOURCES to parent scope
+set(SOURCES ${SOURCES} PARENT_SCOPE)
