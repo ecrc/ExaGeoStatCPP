@@ -315,8 +315,6 @@ void TEST_GENERATION() {
         vector<double> y = {0.138506, 0.238193, 0.170245, 0.579583, 0.514397, 0.752682, 0.867704, 0.610986, 0.891279};
 
         for (int i = 0; i < N; i++) {
-            cout << "x[i]: " << x[i] << " data->GetLocations()->GetLocationX()[i]: " << data->GetLocations()->GetLocationX()[i] << endl;
-            cout << "y[i]: " << y[i] << " data->GetLocations()->GetLocationY()[i]: " << data->GetLocations()->GetLocationY()[i] << endl;
             REQUIRE((data->GetLocations()->GetLocationX()[i] - x[i]) == Catch::Approx(0.0).margin(1e-6));
             REQUIRE((data->GetLocations()->GetLocationY()[i] - y[i]) == Catch::Approx(0.0).margin(1e-6));
         }
