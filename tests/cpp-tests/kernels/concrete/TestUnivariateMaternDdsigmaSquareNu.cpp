@@ -31,6 +31,7 @@ void TEST_KERNEL_GENERATION_UnivariateMaternDdsigmaSquareNu() {
         // Create a new synthetic_data_configurations object with the provided command line arguments
         Configurations synthetic_data_configurations;
         int N = 27;
+        synthetic_data_configurations.SetSeed(0);
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternDdsigmaSquareNu");
 

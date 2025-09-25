@@ -24,12 +24,10 @@ using namespace exageostat::configurations;
 void TEST_GENERATE_DATA() {
     SECTION("Data generation - Observations")
     {
-        int seed = 0;
-        srand(seed);
-
         // Create a new synthetic_data_configurations object with the provided command line arguments
         Configurations synthetic_data_configurations;
         int N = 16;
+        synthetic_data_configurations.SetSeed(0);
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariateMaternStationary");
         synthetic_data_configurations.SetDenseTileSize(9);
@@ -67,12 +65,11 @@ void TEST_GENERATE_DATA() {
 }
 
 void TEST_MODEL_DATA(Computation aComputation) {
-    int seed = 0;
-    srand(seed);
 
     // Create a new configurations object with the provided command line arguments
     Configurations configurations;
     int N = 16;
+    configurations.SetSeed(0);
     configurations.SetProblemSize(N);
     configurations.SetKernelName("UnivariateMaternStationary");
     int dts = 8;
