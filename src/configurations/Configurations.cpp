@@ -52,7 +52,7 @@ Configurations::Configurations() {
     SetLowerBounds(theta);
     SetUpperBounds(theta);
     SetEstimatedTheta(theta);
-    SetSeed(0);
+    SetSeed(static_cast<unsigned int>(time(0)));
     SetLogger(false);
     SetUnknownObservationsNb(0);
     SetApproximationMode(1);

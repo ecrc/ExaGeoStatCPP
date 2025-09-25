@@ -33,6 +33,7 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         Configurations synthetic_data_configurations;
 
         int N = 4;
+        synthetic_data_configurations.SetSeed(0);
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("BivariateSpacetimeMaternStationary");
 
@@ -48,8 +49,6 @@ void TEST_KERNEL_GENERATION_BivariateSpacetimeMaternStationary() {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 3, 0);
 
-        int seed = 0;
-        srand(seed);
         std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
         auto *CHAM_descriptorZ = data->GetDescriptorData()->GetDescriptor(exageostat::common::CHAMELEON_DESCRIPTOR,
