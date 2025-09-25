@@ -7,6 +7,7 @@
  * @file HicmaImplementation.cpp
  * @brief Sets up the HiCMA descriptors needed for the tile low rank computations in ExaGeoStat.
  * @version 1.1.0
+ * @author Omar Marzouk
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-02-04
