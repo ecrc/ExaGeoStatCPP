@@ -78,6 +78,7 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     else {
         LOGGER("\t--> Modeling Using Tile Low Rank - HiCMA")
     }
+
     // Optimize mle using nlopt.
     optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
     aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
