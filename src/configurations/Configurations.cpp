@@ -13,6 +13,7 @@
 **/
 
 #include <configurations/Configurations.hpp>
+#include <algorithm>
 #include <kernels/Kernel.hpp>
 #include <utilities/Logger.hpp>
 
