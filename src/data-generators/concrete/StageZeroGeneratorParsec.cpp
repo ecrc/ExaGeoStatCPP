@@ -46,13 +46,13 @@ template<typename T>
 StageZeroGeneratorParsec<T> *StageZeroGeneratorParsec<T>::GetInstance() {
     if (mpInstance == nullptr) {
         // Ensure MPI is initialized before creating the instance
-        int initialized;
-        MPI_Initialized(&initialized);
-        if (!initialized) {
-            int argc = 0;
-            char **argv = nullptr;
-            MPI_Init(&argc, &argv);
-        }
+        // int initialized;
+        // MPI_Initialized(&initialized);
+        // if (!initialized) {
+        //     int argc = 0;
+        //     char **argv = nullptr;
+        //     MPI_Init(&argc, &argv);
+        // }
         mpInstance = new StageZeroGeneratorParsec<T>();
     }
     return mpInstance;
@@ -76,11 +76,25 @@ void StageZeroGeneratorParsec<T>::ReleaseInstance() {
 
 template<typename T>
 void StageZeroGeneratorParsec<T>::Runner(exageostat::configurations::Configurations &aConfigurations) {
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    
     mArgs.mConfigs = &aConfigurations;
     this->ConfigureGenerator();
     this->Allocate();
     this->ReadForcingData();
     this->ReadNetCDFFiles();
+    
+    // After data gathering, only rank 0 continues with optimization
+    // Other ranks can exit since they're no longer needed
+    if (rank != 0) {
+        fprintf(stderr, "[StageZero PaRSEC] Rank %d: Data gathering complete, exiting (only rank 0 performs optimization)\n", rank);
+        this->CleanUp();
+        return;
+    }
+    
+    fprintf(stderr, "[StageZero PaRSEC] Rank 0: Starting optimization phase\n");
     this->RunMeanTrend();
     
     this->CleanUp();
