@@ -105,6 +105,14 @@ void Configurations::ValidateConfiguration() {
         if (GetResultsPath().empty()) {
             throw domain_error("You need to set the results path (--resultspath) before starting");
         }
+
+        if (GetLatitudeBand() < 0) {
+            throw domain_error("You need to set the latitude band (--lat) for StageZero");
+        }
+        
+        if (GetLongitudeCount() <= 0) {
+            throw domain_error("You need to set the longitude count (--lon) for StageZero");
+        }
     }
 
 #if DEFAULT_RUNTIME
@@ -237,6 +245,9 @@ void Configurations::PrintUsage() {
     LOGGER("--log-file-path: Used to set path of file where events and results are logged.")
     LOGGER("--start-year=value : Used to set the starting year for NetCDF data processing (StageZero).")
     LOGGER("--end-year=value : Used to set the ending year for NetCDF data processing (StageZero).")
+    LOGGER("--lat=value : Used to set the latitude band index for StageZero climate data processing (required for StageZero).")
+    LOGGER("--lon=value : Used to set the longitude count for StageZero climate data processing (required for StageZero).")
+    LOGGER("--resultspath=PATH : Used to set the output directory path for StageZero results (required for StageZero).")
     LOGGER("\n\n")
 
     exit(0);

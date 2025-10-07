@@ -255,9 +255,12 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(ResultsPath, const std::string&, aResultsPath, "resultspath")
         CREATE_GETTER_FUNCTION(ResultsPath, std::string, "resultspath")
 
-        // Number of locations for Stage Zero
-        CREATE_SETTER_FUNCTION(NumLocs, int, aNumLocs, "numlocs")
-        CREATE_GETTER_FUNCTION(NumLocs, int, "numlocs")
+        // StageZero climate data grid parameters (required for Stage Zero)
+        CREATE_SETTER_FUNCTION(LatitudeBand, int, aLatBand, "lat")
+        CREATE_GETTER_FUNCTION(LatitudeBand, int, "lat")
+        
+        CREATE_SETTER_FUNCTION(LongitudeCount, int, aLonCount, "lon")
+        CREATE_GETTER_FUNCTION(LongitudeCount, int, "lon")
 
 /** END OF THE DATA GENERATION MODULES. **/
 /** START OF THE DATA MODELING MODULES. **/

@@ -108,9 +108,8 @@ void StageZeroGenerator<T>::ConfigureGenerator() {
     int obs_years = (end_year - start_year + 1);
     mArgs.mN = static_cast<size_t>(mArgs.mT) * static_cast<size_t>(obs_years);
     
-    // Number of locations (prefer explicit arg; fallback to configured ProblemSize)
-    try { mArgs.mNumLocs = mArgs.mConfigs->GetNumLocs(); }
-    catch (...) { mArgs.mNumLocs = mArgs.mConfigs->GetProblemSize(); }
+    // Number of locations (longitude count) - now required
+    mArgs.mNumLocs = mArgs.mConfigs->GetLongitudeCount();
     
     
 }
@@ -178,7 +177,8 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
 
     closeFileNCmpi(ncid);
 
-    int min_loc = mArgs.mConfigs->GetLowTileSize(); 
+    // Get latitude band index (which latitude row to process) - now required
+    int min_loc = mArgs.mConfigs->GetLatitudeBand(); 
     
     for (int y = start_year; y <= end_year; y++) {
         char path2[256];
@@ -202,14 +202,19 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
         if (IsLeapYear(y)) time_len = v * 24 + 24;
         else time_len = v * 24;
 
+        // Parallelize time dimension across MPI ranks for a single latitude
         size_t total_elems = static_cast<size_t>(time_len) * static_cast<size_t>(mArgs.mNumLocs);
         size_t local_elems = static_cast<size_t>(time_len / nprocs) * static_cast<size_t>(mArgs.mNumLocs);
         t2m = (int *) malloc(total_elems * sizeof(int));
         t2m_local = (int *) malloc(local_elems * sizeof(int));
 
-        MPI_Offset index[] = {(MPI_Offset) (time_len / nprocs) * rank,
-                              (MPI_Offset) min_loc, 0};
-        MPI_Offset count[] = {(MPI_Offset) (time_len / nprocs), 1, (MPI_Offset) mArgs.mNumLocs};
+        // All ranks read the SAME latitude (min_loc), but different time chunks
+        MPI_Offset index[] = {(MPI_Offset) (time_len / nprocs) * rank,  // each rank reads different time chunk
+                              (MPI_Offset) min_loc,                       // all ranks read SAME latitude (from --lts)
+                              0};                                          // start from lon 0
+        MPI_Offset count[] = {(MPI_Offset) (time_len / nprocs),          // read portion of time
+                              1,                                           // read 1 latitude
+                              (MPI_Offset) mArgs.mNumLocs};               // read all longitudes
         
         double x_read = 0;
         START_TIMING(x_read)
@@ -221,7 +226,8 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
                       (int) local_elems, MPI_INT, MPI_COMM_WORLD);
         double gather_time = MPI_Wtime() - gather_start;
         
-        fprintf(stderr, "[StageZero] Year %d: Read time: %.3f sec, Gather time: %.3f sec\n", y, x_read, gather_time);
+        fprintf(stderr, "[StageZero] Rank %d, Year %d, Latitude %d: Read time: %.3f sec, Gather time: %.3f sec\n", 
+                rank, y, min_loc, x_read, gather_time);
 
         for (int lu = 0; lu < mArgs.mNumLocs; lu++) {
             int r = 0;
@@ -281,7 +287,8 @@ void StageZeroGenerator<T>::Allocate() {
 
 template<typename T>
 void StageZeroGenerator<T>::RunMeanTrend() {
-    const int     lts      = mArgs.mConfigs->GetLowTileSize();
+    // Get latitude band (which latitude row we're processing) - now required
+    int latitude_band = mArgs.mConfigs->GetLatitudeBand();
     const int     no_locs  = mArgs.mNumLocs;
 
 #if defined(CHAMELEON_USE_MPI)
@@ -304,14 +311,13 @@ void StageZeroGenerator<T>::RunMeanTrend() {
         const double lb0 = mArgs.mLb[0];
         const double ub0 = mArgs.mUp[0];
         const int dts = mArgs.mConfigs->GetDenseTileSize();
-        const int lts_val = mArgs.mConfigs->GetLowTileSize();
         fprintf(stderr, "----- StageZero Arguments -----\n");
         fprintf(stderr, "kernel: %s\n", kernel.c_str());
         fprintf(stderr, "data_path: %s\n", data_path.c_str());
         fprintf(stderr, "forcing_data_path: %s\n", forcing_path.c_str());
         fprintf(stderr, "results_path: %s\n", results_path.c_str());
         fprintf(stderr, "start_year: %d, end_year: %d, years: %d\n", start_year, end_year, end_year-start_year+1);
-        fprintf(stderr, "num_locs: %d\n", num_locs);
+        fprintf(stderr, "latitude_band: %d, longitude_count: %d\n", latitude_band, num_locs);
         fprintf(stderr, "period_hours(T): %d, harmonics(M): %d\n", period_hours, M);
         fprintf(stderr, "N (observations): %zu\n", N);
         fprintf(stderr, "tolerance(ftol_abs): %.10e, maxeval: %d\n", tol, maxeval);

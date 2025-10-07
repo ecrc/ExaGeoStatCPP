@@ -213,6 +213,15 @@ namespace exageostat::generators::stagezero {
          * @brief Cleans up allocated memory and descriptors.
          */
         void CleanUp();
+
+        /**
+         * @brief Thread-safe positioned file writing with file locking.
+         * @param[in] file_path Path to the file to write.
+         * @param[in] data Data to write to the file.
+         * @param[in] position Byte position in file to write at.
+         * @return True if successful, false otherwise.
+         */
+        bool WriteToFileAtPosition(const std::string &file_path, const std::string &data, long position);
     };
 
     /**

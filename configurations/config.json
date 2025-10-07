@@ -48,5 +48,7 @@
   "ForcingDataPath": "",
   "StartYear": "2000",
   "EndYear": "2001",
-  "StageZero": "false"
+  "StageZero": "false",
+  "Lat": "0",
+  "Lon": "0"
 }
