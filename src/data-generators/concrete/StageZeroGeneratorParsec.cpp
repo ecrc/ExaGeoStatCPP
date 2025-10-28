@@ -4,7 +4,14 @@
 
 /**
  * @file StageZeroGeneratorParsec.cpp
- * @brief Implementation of the StageZeroGeneratorParsec class using PaRSEC/DPLASMA
+ * @brief Implementation of StageZeroGeneratorParsec for climate data preprocessing using PaRSEC/DPLASMA
+ * 
+ * This class performs Stage Zero preprocessing for climate emulation:
+ * - Reads NetCDF climate data files in parallel using MPI
+ * - Performs trend removal and mean detrending using optimization
+ * - Generates preprocessed residuals for subsequent climate modeling
+ * - Supports multi-latitude processing with shared file outputs
+ * 
  * @version 2.0.0
 **/
 
@@ -25,8 +32,8 @@
 #include <cmath>
 #include <filesystem>
 #include <memory>
-#include <sys/file.h>  // For file locking
-#include <unistd.h>    // For usleep
+#include <sys/file.h>
+#include <unistd.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -47,14 +54,6 @@ using namespace exageostat::results;
 template<typename T>
 StageZeroGeneratorParsec<T> *StageZeroGeneratorParsec<T>::GetInstance() {
     if (mpInstance == nullptr) {
-        // Ensure MPI is initialized before creating the instance
-        // int initialized;
-        // MPI_Initialized(&initialized);
-        // if (!initialized) {
-        //     int argc = 0;
-        //     char **argv = nullptr;
-        //     MPI_Init(&argc, &argv);
-        // }
         mpInstance = new StageZeroGeneratorParsec<T>();
     }
     return mpInstance;
@@ -88,15 +87,11 @@ void StageZeroGeneratorParsec<T>::Runner(exageostat::configurations::Configurati
     this->ReadForcingData();
     this->ReadNetCDFFiles();
     
-    // After data gathering, only rank 0 continues with optimization
-    // Other ranks can exit since they're no longer needed
     if (rank != 0) {
-        fprintf(stderr, "[StageZero PaRSEC] Rank %d: Data gathering complete, exiting (only rank 0 performs optimization)\n", rank);
         this->CleanUp();
         return;
     }
     
-    fprintf(stderr, "[StageZero PaRSEC] Rank 0: Starting optimization phase\n");
     this->RunMeanTrend();
     
     this->CleanUp();
@@ -110,7 +105,6 @@ void StageZeroGeneratorParsec<T>::ConfigureGenerator() {
     mArgs.mT = 365*24;
     mArgs.mNoYears = 751;
     
-    // Only support trend_model for this workflow
     if (mArgs.mConfigs->GetKernelName() == "TrendModel" || mArgs.mConfigs->GetKernelName() == "trend_model") {
         mArgs.mNumParams = 1;
     } else {
@@ -126,7 +120,7 @@ void StageZeroGeneratorParsec<T>::ConfigureGenerator() {
     int obs_years = (end_year - start_year + 1);
     mArgs.mN = static_cast<size_t>(mArgs.mT) * static_cast<size_t>(obs_years);
     
-    // Number of locations (longitude count) - now required
+    // Number of locations (longitude count)
     mArgs.mNumLocs = mArgs.mConfigs->GetLongitudeCount();
 }
 
@@ -143,6 +137,12 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
 
     int start_year = mArgs.mConfigs->GetStartYear();
     int end_year   = mArgs.mConfigs->GetEndYear();
+    
+    // Ensure data path has trailing slash for directory
+    std::string data_path = mArgs.mConfigs->GetDataPath();
+    if (!data_path.empty() && data_path.back() != '/') {
+        data_path += "/";
+    }
 
     auto openFileNCmpi = [&](char *filename) {
         int id, ret;
@@ -161,7 +161,7 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
 
     
     char path[256];
-    snprintf(path, sizeof(path), "%sdata_%d.nc", mArgs.mConfigs->GetDataPath().c_str(), start_year);
+    snprintf(path, sizeof(path), "%sdata_%d.nc", data_path.c_str(), start_year);
 
     ncid = openFileNCmpi(path);
 
@@ -184,12 +184,12 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
 
     closeFileNCmpi(ncid);
 
-    // Get latitude band index (which latitude row to process) - now required
+    // Get latitude band index
     int min_loc = mArgs.mConfigs->GetLatitudeBand(); 
     
     for (int y = start_year; y <= end_year; y++) {
         char path2[256];
-        snprintf(path2, sizeof(path2), "%sdata_%d.nc", mArgs.mConfigs->GetDataPath().c_str(), y);
+        snprintf(path2, sizeof(path2), "%sdata_%d.nc", data_path.c_str(), y);
 
         ncid = openFileNCmpi(path2);
 
@@ -226,7 +226,9 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
                       (int) local_elems, MPI_INT, MPI_COMM_WORLD);
         double gather_time = MPI_Wtime() - gather_start;
         
-        fprintf(stderr, "[StageZero] Year %d: Read time: %.3f sec, Gather time: %.3f sec\n", y, x_read, gather_time);
+        if (rank == 0) {
+            fprintf(stderr, "[NetCDF Year %d] Read: %.3fs, Gather: %.3fs\n", y, x_read, gather_time);
+        }
 
         for (int lu = 0; lu < mArgs.mNumLocs; lu++) {
             int r = 0;
@@ -241,20 +243,31 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
         closeFileNCmpi(ncid);
         free(t2m);
         free(t2m_local);
-        fprintf(stderr, "[StageZero] Completed processing year %d\n\n", y);
     }
-    fprintf(stderr, "[StageZero] NetCDF loading completed for years %d-%d (%d files)\n\n", 
-            start_year, end_year, end_year - start_year + 1);
+    
+    if (rank == 0) {
+        fprintf(stderr, "[NetCDF] Successfully loaded all data files (%d-%d, %d files)\n\n", 
+                start_year, end_year, end_year - start_year + 1);
+    }
 }
 
 template<typename T>
 void StageZeroGeneratorParsec<T>::ReadForcingData() {
-    std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
-    if (!forcing_path.empty() && forcing_path.back() == '/') forcing_path.pop_back();
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     
-    fprintf(stderr, "[StageZero] Loading forcing data from: %s\n", forcing_path.c_str());
-    mArgs.mForcing = ReadObsFile((char *) mArgs.mConfigs->GetForcingDataPath().c_str(), mArgs.mNoYears);
-    fprintf(stderr, "[StageZero] Successfully loaded forcing data (%d years)\n\n", mArgs.mNoYears);
+    std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
+    
+    if (rank == 0) {
+        fprintf(stderr, "[Forcing] Loading from: %s (%d years)\n", 
+                forcing_path.c_str(), mArgs.mNoYears);
+    }
+    
+    mArgs.mForcing = ReadObsFile((char *) forcing_path.c_str(), mArgs.mNoYears);
+    
+    if (rank == 0) {
+        fprintf(stderr, "[Forcing] Successfully loaded forcing values\n");
+    }
 }
 
 template<typename T>
@@ -288,41 +301,21 @@ template<typename T>
 void StageZeroGeneratorParsec<T>::RunMeanTrend() {
     const int no_locs = mArgs.mNumLocs;
 
-    // Print configuration summary
-    const std::string kernel = mArgs.mConfigs->GetKernelName();
-    const std::string data_path = mArgs.mConfigs->GetDataPath();
-    const std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
-    const std::string results_path = mArgs.mConfigs->GetResultsPath();
-    const int start_year = mArgs.mConfigs->GetStartYear();
-    const int end_year = mArgs.mConfigs->GetEndYear();
-    const int years = mArgs.mNoYears;
-    const int period_hours = mArgs.mT;
-    const int M = mArgs.mM;
-    const size_t N = mArgs.mN;
-    const int num_locs = mArgs.mNumLocs;
-    const double tol = mArgs.mConfigs->GetTolerance();
-    const int maxeval = mArgs.mConfigs->GetMaxMleIterations();
-    const double st = mArgs.mStartingTheta[0];
-    const double lb0 = mArgs.mLb[0];
-    const double ub0 = mArgs.mUp[0];
-    const int dts = mArgs.mConfigs->GetDenseTileSize();
-    int latitude_band = mArgs.mConfigs->GetLatitudeBand();
-    
-    fprintf(stderr, "----- StageZero Arguments -----\n");
-    fprintf(stderr, "kernel: %s\n", kernel.c_str());
-    fprintf(stderr, "data_path: %s\n", data_path.c_str());
-    fprintf(stderr, "forcing_data_path: %s\n", forcing_path.c_str());
-    fprintf(stderr, "results_path: %s\n", results_path.c_str());
-    fprintf(stderr, "start_year: %d, end_year: %d, years: %d\n", start_year, end_year, end_year-start_year+1);
-    fprintf(stderr, "latitude_band: %d, longitude_count: %d\n", latitude_band, num_locs);
-    fprintf(stderr, "period_hours(T): %d, harmonics(M): %d\n", period_hours, M);
-    fprintf(stderr, "N (observations): %zu\n", N);
-    fprintf(stderr, "tolerance(ftol_abs): %.10e, maxeval: %d\n", tol, maxeval);
-    fprintf(stderr, "-------------------------------\n");
-
-    // Key bounds info
-    fprintf(stderr, "Starting theta[0]: %f\n", mArgs.mStartingTheta[0]);
-    fprintf(stderr, "Lower bound: %f, Upper bound: %f\n", mArgs.mLb[0], mArgs.mUp[0]);
+    fprintf(stderr, "\n========== StageZero Configuration ==========\n");
+    fprintf(stderr, "Data: %s (years %d-%d)\n", 
+            mArgs.mConfigs->GetDataPath().c_str(),
+            mArgs.mConfigs->GetStartYear(), 
+            mArgs.mConfigs->GetEndYear());
+    fprintf(stderr, "Forcing: %s\n", mArgs.mConfigs->GetForcingDataPath().c_str());
+    fprintf(stderr, "Results: %s\n", mArgs.mConfigs->GetResultsPath().c_str());
+    fprintf(stderr, "Latitude band: %d, Longitudes: %d\n", 
+            mArgs.mConfigs->GetLatitudeBand(), no_locs);
+    fprintf(stderr, "Observations: %zu (T=%d hours, M=%d harmonics)\n", 
+            mArgs.mN, mArgs.mT, mArgs.mM);
+    fprintf(stderr, "Optimization: theta_0=%.3f, bounds=[%.3f, %.3f], tol=%.2e, maxiter=%d\n",
+            mArgs.mStartingTheta[0], mArgs.mLb[0], mArgs.mUp[0],
+            mArgs.mConfigs->GetTolerance(), mArgs.mConfigs->GetMaxMleIterations());
+    fprintf(stderr, "=============================================\n\n");
     
     this->SetupMLEComponents();
     
@@ -342,13 +335,15 @@ void StageZeroGeneratorParsec<T>::RunMeanTrend() {
 
         this->ConvertT2MToZForLocation(l);
 
-        fprintf(stderr, "[StageZero PaRSEC] Starting NLopt for location %d/%d\n", l + 1, no_locs);
+        fprintf(stderr, "\n[Location %d/%d] Starting optimization...\n", l + 1, no_locs);
         theta[0] = mArgs.mStartingTheta[0];
         double opt_f = 0.0;
 
         nlopt_set_max_objective(opt, &StageZeroGeneratorParsec<T>::StageZeroObjectiveCallback, (void *)this);
         nlopt_result nlres = nlopt_optimize(opt, theta.data(), &opt_f);
-        fprintf(stderr, "[StageZero PaRSEC] NLopt finished (res=%d), theta=%0.10f, f=%0.10f\n", (int) nlres, theta[0], opt_f);
+        
+        fprintf(stderr, "[Location %d/%d] Optimization complete: result=%d, theta=%.10f, objective=%.10f, iterations=%d\n", 
+                l + 1, no_locs, (int)nlres, theta[0], opt_f, mArgs.mIterCount);
 
         {
             std::vector<double> grad;
@@ -419,9 +414,6 @@ void StageZeroGeneratorParsec<T>::SetupMLEComponents() {
     int N = mArgs.mN;
     int nparams = 3 + 2*mArgs.mM;
     int dts = mArgs.mConfigs->GetDenseTileSize();
-    int p_grid = 1, q_grid = 1;
-    
-    fprintf(stderr, "Creating PaRSEC descriptors: N=%d, nparams=%d, dts=%d\n", N, nparams, dts);
     
     mArgs.mIterCount = 0;
     
@@ -429,21 +421,18 @@ void StageZeroGeneratorParsec<T>::SetupMLEComponents() {
     try {
         mArgs.mpParsecContext = static_cast<parsec_context_t*>(ExaGeoStatHardware::GetParsecContext());
         if (mArgs.mpParsecContext) {
-            fprintf(stderr, "PaRSEC context obtained successfully\n");
+            fprintf(stderr, "[Setup] PaRSEC context obtained successfully\n");
         } else {
-            fprintf(stderr, "Warning: PaRSEC context is null, using fallback computations\n");
+            fprintf(stderr, "[Setup] Warning: PaRSEC context is null\n");
         }
     } catch (const std::exception& e) {
-        fprintf(stderr, "Warning: Could not get PaRSEC context: %s, using fallback computations\n", e.what());
-        mArgs.mpParsecContext = nullptr;
+        throw std::runtime_error("Could not get PaRSEC context: " + std::string(e.what()));
     }
     
     // Create PaRSEC block-cyclic descriptors using proper initialization
-    int rank = 0; // Single process for now
-    int nodes = 1; // Single node for now
-    
-    // Use same tile size as CHAMELEON version for exact equivalence
-    int tile_size = dts; // Use full dense tile size like CHAMELEON
+    int rank = 0; // Single process
+    int nodes = 1; // Single node
+    int tile_size = dts;
     
     // Z vector (observations) - N x 1
     mArgs.mpDescZ = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
@@ -501,7 +490,7 @@ void StageZeroGeneratorParsec<T>::SetupMLEComponents() {
                                                           (size_t)mArgs.mpEstimatedMeanTrend->super.bsiz *
                                                           (size_t)parsec_datadist_getsizeoftype(mArgs.mpEstimatedMeanTrend->super.mtype));
     
-    fprintf(stderr, "All PaRSEC descriptors created successfully\n");
+    fprintf(stderr, "[Setup] All PaRSEC descriptors created successfully\n");
 }
 
 template<typename T>
@@ -526,7 +515,7 @@ void StageZeroGeneratorParsec<T>::ConvertT2MToZForLocation(int location_index) {
         for (int ti = 0; ti < mt; ++ti) {
             double *tile_ptr = z_data + (tj * mt + ti) * bsiz;
             int row_offset = ti * mb;
-            int col_offset = tj * nb; // vector has only one column
+            int col_offset = tj * nb;
             int rows = std::min(mb, N - row_offset);
             int cols = std::min(nb, 1 - col_offset);
             if (cols <= 0) continue;
@@ -599,43 +588,40 @@ bool StageZeroGeneratorParsec<T>::WriteToFileAtPosition(const std::string &file_
                                                        const std::string &data, 
                                                        long position) {
     const int max_retries = 10;
-    const int retry_delay_us = 100000; // 100ms
+    const int retry_delay_us = 100000;
     
     for (int retry = 0; retry < max_retries; ++retry) {
         // Try to open existing file first
-        FILE *fp = fopen(file_path.c_str(), "r+b");  // Read/write existing file
+        FILE *fp = fopen(file_path.c_str(), "r+b");
         
-        // If file doesn't exist, create it on-demand
+        // If file doesn't exist, create it
         if (!fp) {
-            fp = fopen(file_path.c_str(), "w+b");  // Create new file
+            fp = fopen(file_path.c_str(), "w+b");
             if (!fp) {
                 usleep(retry_delay_us);
                 continue;
             }
         }
         
-        // Try to acquire exclusive lock (non-blocking for better performance)
         int fd = fileno(fp);
         if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
-            // Lock acquired successfully - write at position
             if (fseek(fp, position, SEEK_SET) == 0) {
-                // Write data - fwrite automatically extends file if needed
                 size_t written = fwrite(data.c_str(), 1, data.length(), fp);
                 if (written == data.length()) {
-                    fflush(fp);  // Force write to disk
+                    fflush(fp);
                 }
             }
-            flock(fd, LOCK_UN); // Unlock
+            flock(fd, LOCK_UN);
             fclose(fp);
             return true;
         } else {
-            // Lock failed, close and retry with exponential backoff
             fclose(fp);
             usleep(retry_delay_us * (retry + 1));
         }
     }
     
-    fprintf(stderr, "[StageZero PaRSEC] ERROR: Failed to acquire file lock for positioned write %s after %d retries\n", 
+    // Failed after all retries
+    fprintf(stderr, "[WriteFile] ERROR: Failed to acquire lock for %s after %d retries\n", 
             file_path.c_str(), max_retries);
     return false;
 }
@@ -671,7 +657,7 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
             int Nrows = static_cast<int>(mArgs.mN);
             int Ncols = 3 + 2*mArgs.mM;
             
-            // Create LAPACK buffer like CHAMELEON version
+            // Create LAPACK buffer
             double *x_lap = (double*)calloc((size_t)Nrows * (size_t)Ncols, sizeof(double));
             if (!x_lap) { throw std::runtime_error("Allocation failed for design matrix buffer"); }
             
@@ -710,33 +696,29 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
         dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)part2_vector);
         dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)XtX);
 
-        // Step 2: part1 = Z^T * Z (using DPLASMA)
+        // Step 2: part1 = Z^T * Z
         dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans,
                      1.0, (parsec_tiled_matrix_t*)Zobs, (parsec_tiled_matrix_t*)Zobs, 0.0, (parsec_tiled_matrix_t*)part1);
         
-        // Optional debug removed
-        
-        // Step 3: part2_vector = X^T * Z (using DPLASMA)
+        // Step 3: part2_vector = X^T * Z
         dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans,
                          1.0, (parsec_tiled_matrix_t*)X, (parsec_tiled_matrix_t*)Zobs, 0.0, (parsec_tiled_matrix_t*)part2_vector);
-        
-        // Optional debug removed
     
-        // Step 4: XtX = X^T * X (using DPLASMA)
+        // Step 4: XtX = X^T * X
             dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans,
                          1.0, (parsec_tiled_matrix_t*)X, (parsec_tiled_matrix_t*)X, 0.0, (parsec_tiled_matrix_t*)XtX);
 
-        // Step 5: Cholesky decomposition (using DPLASMA)
+        // Step 5: Cholesky decomposition
         int info = dplasma_dpotrf(mArgs.mpParsecContext, dplasmaLower, (parsec_tiled_matrix_t*)XtX);
         
-        if(info != 0) {
-            if (apObj) { free(localtheta); return -1e18; }
-            else {
-                fprintf(stderr, "[StageZero PaRSEC] ERROR: Cholesky failed. Aborting.\n");
-                free(localtheta);
-                exit(1);
+            if(info != 0) {
+                if (apObj) { free(localtheta); return -1e18; }
+                else {
+                    fprintf(stderr, "[Optimization] ERROR: Cholesky decomposition failed (matrix not positive definite)\n");
+                    free(localtheta);
+                    exit(1);
+                }
             }
-        }
     
         // Step 6: Triangular solve
             dplasma_dtrsm(mArgs.mpParsecContext, dplasmaLeft, dplasmaLower, dplasmaNoTrans, dplasmaNonUnit,
@@ -751,7 +733,7 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
         if (apObj) {
             double part1_val_cb = 0.0;
             if (part1 && part1->mat) part1_val_cb = static_cast<double *>(part1->mat)[0];
-            // Compute part2 = y^T y (equivalent to CHAMELEON_dgemm_Tile)
+            // Compute part2 = y^T y
             dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)part2);
             dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans, 1.0, 
                          (parsec_tiled_matrix_t*)part2_vector, (parsec_tiled_matrix_t*)part2_vector, 0.0, (parsec_tiled_matrix_t*)part2);
@@ -777,21 +759,21 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
             dplasma_dgemm(mArgs.mpParsecContext, dplasmaNoTrans, dplasmaNoTrans,
                          1.0, (parsec_tiled_matrix_t*)X, (parsec_tiled_matrix_t*)part2_vector, 0.0, (parsec_tiled_matrix_t*)estimated_mean_trend);
         
-        // Residuals = Z - trend (stored back into estimated_mean_trend) - equivalent to CHAMELEON_dgeadd_Tile
+        // Residuals = Z - trend (stored back into estimated_mean_trend)
         dplasma_dgeadd(mArgs.mpParsecContext, dplasmaNoTrans, 1.0, (parsec_tiled_matrix_t*)Zobs, -1.0, (parsec_tiled_matrix_t*)estimated_mean_trend);
         
-        // Compute sigma² = residuals^T * residuals (equivalent to CHAMELEON_dgemm_Tile)
+        // Compute sigma² = residuals^T * residuals
         dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans, 1.0, 
                      (parsec_tiled_matrix_t*)estimated_mean_trend, (parsec_tiled_matrix_t*)estimated_mean_trend, 0.0, (parsec_tiled_matrix_t*)part2);
         
-        // Get sigma² value and divide by N (like CHAMELEON version)
+        // Get sigma² value and divide by N
         double sigma_squared_raw = static_cast<double *>(part2->mat)[0];
         double sigma_squared = sigma_squared_raw / N;
         
         // Standardize residuals: residuals = residuals / sqrt(sigma²)
         double sqrt_sigma = std::sqrt(sigma_squared);
         
-        // Extract residuals from PaRSEC tiled matrix (like CHAMELEON_Tile_to_Lapack)
+        // Extract residuals from PaRSEC tiled matrix (Tile to Lapack)
         double *emt_lap = (double*)calloc((size_t)N, sizeof(double));
         if (!emt_lap) { throw std::runtime_error("Allocation failed for residuals buffer"); }
         
@@ -823,7 +805,7 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
             }
         }
         
-        // Normalize ALL N elements (this was the original bug - only first dts elements were accessed)
+        // Normalize ALL N elements
         for (int i = 0; i < N; ++i) {
             emt_lap[i] /= sqrt_sigma;
         }
@@ -831,7 +813,7 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
         // Set objective value (maximize -sigma^2 -> minimize sigma^2)
         value = -sigma_squared;
 
-        // Static global arrays for multi-location storage (like CHAMELEON version)
+        // Static global arrays for multi-location storage
         static std::vector<std::vector<double>> Z_new(mArgs.mNumLocs, std::vector<double>(N));
         static std::vector<std::vector<double>> params(mArgs.mNumLocs, std::vector<double>(3 + 2*mArgs.mM + 2));
         
@@ -861,7 +843,6 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
             }
             
             if (results_path.empty()) { 
-                fprintf(stderr, "[StageZero PaRSEC] ERROR: ResultsPath is required. Please set --resultspath.\n");
                 throw std::runtime_error("ResultsPath is required. Please set --resultspath.");
             }
             
@@ -870,17 +851,13 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
             // Create results directory if it doesn't exist
             try {
                 if (!std::filesystem::exists(results_path)) {
-                    fprintf(stderr, "[StageZero PaRSEC] Creating results directory: %s\n", results_path.c_str());
                     std::filesystem::create_directories(results_path);
                 }
             } catch (const std::exception &e) {
-                fprintf(stderr, "[StageZero PaRSEC] ERROR: Failed to create output directory: %s (%s)\n", results_path.c_str(), e.what());
                 throw std::runtime_error("Failed to create output directory: " + std::string(e.what()));
             }
             
-            fprintf(stderr, "[StageZero PaRSEC] Writing outputs to: %s\n", results_path.c_str());
-            
-            // Get global location index from environment variable (set by shell script)
+            // Get latitude band from environment variable
             int latitude_band = 0;
             int longitudes_per_lat = mArgs.mNumLocs;
             const char* lat_env = getenv("STAGEZERO_LATITUDE_BAND");
@@ -888,17 +865,15 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
                 latitude_band = atoi(lat_env);
             }
             
-            // Write Z files for each time slot (positioned writing to shared files)
+            // Write Z files for each time slot
             for (int time_slot = 0; time_slot < N; time_slot++) {
                 char file_path[256];
                 std::snprintf(file_path, sizeof(file_path), "%sz_%d.csv", results_path.c_str(), time_slot);
                 
                 // Calculate starting position for this latitude band in the shared file
-                // Use fixed width format: 18 chars per line (17 digits + \n) - optimized for large scale
                 const int chars_per_line = 18;
                 long start_position = static_cast<long>(latitude_band) * static_cast<long>(longitudes_per_lat) * chars_per_line;
                 
-                // Prepare data for all locations in this latitude band for this time slot
                 std::string data_block;
                 for (int loc = 0; loc < mArgs.mNumLocs; ++loc) {
                     char formatted_line[32];
@@ -907,21 +882,20 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
                     data_block += formatted_line;
                 }
                 
-                // Write to specific position with file locking
                 if (!WriteToFileAtPosition(file_path, data_block, start_position)) {
-                    fprintf(stderr, "[StageZero PaRSEC] ERROR: Failed to write to positioned Z file %s\n", file_path);
+                    fprintf(stderr, "[Latitude %d] ERROR: Failed to write timeslot %d to %s\n", 
+                            latitude_band, time_slot, file_path);
                 }
             }
             
-            // Write params for all locations in this latitude band (positioned writing to shared file)
+            // Write params for all locations
             char params_file_path[256];
             std::snprintf(params_file_path, sizeof(params_file_path), "%sparams.csv", results_path.c_str());
-            
+
             // Calculate starting position for this latitude band in params file
-            // Fixed-width format: each param is 18 chars, with M=10 we have 25 params + newline = ~451 chars per line  
-            const int params_per_location = 3 + 2*mArgs.mM + 2; // 25 params for M=10
-            const int chars_per_param = 18; // Fixed width per parameter (optimized)
-            const int params_chars_per_line = params_per_location * chars_per_param + 1; // +1 for newline
+            const int params_per_location = 3 + 2*mArgs.mM + 2;
+            const int chars_per_param = 18;
+            const int params_chars_per_line = params_per_location * chars_per_param + 1;
             long params_start_position = static_cast<long>(latitude_band) * static_cast<long>(longitudes_per_lat) * params_chars_per_line;
             
             std::string params_block;
@@ -935,12 +909,12 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
                 params_block += "\n";
             }
             
-            // Write to specific position in shared params file
             if (!WriteToFileAtPosition(params_file_path, params_block, params_start_position)) {
-                fprintf(stderr, "[StageZero PaRSEC] ERROR: Failed to write to positioned params file %s\n", params_file_path);
+                fprintf(stderr, "[Latitude %d] ERROR: Failed to write params to %s\n", 
+                        latitude_band, params_file_path);
             }
             
-            fprintf(stderr, "[StageZero PaRSEC] Successfully wrote latitude band %d data to positioned locations in shared files\n", latitude_band);
+            fprintf(stderr, "[Latitude %d] Successfully wrote all output files\n", latitude_band);
         }
 
         // Set summary information for final output
