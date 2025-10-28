@@ -35,9 +35,8 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(configuratio
         return DataLoader<T>::CreateDataLoader(apConfigurations);
     }
 #else
-    // For PaRSEC runtime, the API directly calls StageZeroGeneratorParsec
-    // This path should not be used for PaRSEC Stage Zero
-    throw std::runtime_error("DataGenerator::CreateGenerator should not be called for PaRSEC runtime. Use --stage-zero flag instead.");
+    aIsSynthetic = false;
+    return DataLoader<T>::CreateDataLoader(apConfigurations);
 #endif
 }
 
@@ -50,7 +49,10 @@ DataGenerator<T>::~DataGenerator() {
         DataLoader<T>::ReleaseDataLoader();
     }
 #else
-    // For PaRSEC runtime, nothing to clean up since we don't use DataLoader
+    // For PaRSEC runtime, clean up DataLoader (ParsecLoader)
+    if (!aIsSynthetic) {
+        DataLoader<T>::ReleaseDataLoader();
+    }
 #endif
 }
 

@@ -231,6 +231,15 @@ echo "Expected output: ${time_slots} timeslot files (z_*.csv) + 1 params.csv"
 echo "=========================================="
 echo ""
 
+# Check for Climate Emulator auxiliary files if emulator is enabled
+if [ "$run_climate_emulator" = true ]; then
+    echo "⚠ Climate Emulator Check:"
+    echo "  The Climate Emulator requires pre-computed auxiliary files in the results directory."
+    echo "  Required files (example for dts=720): 720_Et1.csv, 720_Et2.csv, 720_Ep.csv, etc."
+    echo "  Please copy auxiliary files to the results directory before running."
+    echo ""
+fi
+
 # Create shared output directory
 mkdir -p "${resultspath}"
 
@@ -238,7 +247,9 @@ mkdir -p "${resultspath}"
 echo "Clearing existing output files for clean start..."
 rm -f "${resultspath}"/z_*.csv
 rm -f "${resultspath}"/params.csv
-echo "✓ Output files cleared"
+rm -f "${resultspath}"/lat_*_output.log
+rm -f "${resultspath}"/climate_emulator.log
+echo "✓ Output files and logs cleared"
 echo "Files will be created on-demand by the C++ processes"
 echo ""
 

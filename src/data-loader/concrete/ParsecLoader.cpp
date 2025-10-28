@@ -55,7 +55,7 @@ ParsecLoader<T>::LoadData(configurations::Configurations &aConfigurations, exage
     int rank = ExaGeoStatHardware::GetParsecMPIRank();
     int verbose = configurations::Configurations::GetVerbosity() == DETAILED_MODE? 1: 0;
     int gpus = aConfigurations.GetGPUsNumbers();
-    int tile_size = 72; //hardcoded for now
+    int tile_size = 720; //hardcoded for now
     string files_directory_path = aConfigurations.GetDataPath();
     int path_length = files_directory_path.length();
     char filename[path_length + 50];
