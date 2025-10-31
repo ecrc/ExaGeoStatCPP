@@ -187,6 +187,9 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(IsNonGaussian, bool, aIsNonGaussian, "isnongaussian")
         CREATE_GETTER_FUNCTION(IsNonGaussian, bool, "isnongaussian")
 
+        CREATE_SETTER_FUNCTION(IsClimateEmulator, bool, aIsClimateEmulator, "isclimateemulator")
+        CREATE_GETTER_FUNCTION(IsClimateEmulator, bool, "isclimateemulator")
+
         /**
          * @brief Getter for the verbosity.
          * @return The verbosity mode.
@@ -238,6 +241,9 @@ namespace exageostat::configurations {
 
         CREATE_SETTER_FUNCTION(EndYear, int, aEndYear, "endyear")
         CREATE_GETTER_FUNCTION(EndYear, int, "endyear")
+
+        CREATE_SETTER_FUNCTION(IsClimateEmulator, bool, aIsClimateEmulator, "isclimateemulator")
+        CREATE_GETTER_FUNCTION(IsClimateEmulator, bool, "isclimateemulator")
 
 /** END OF THE HICMA-PARSEC SPECIFIC ARGUMENTS. **/
 /** START OF THE DATA GENERATION MODULES. **/

@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
+    // Enable climate emulator mode
+    configurations.SetIsClimateEmulator(true);
     // Initialize the ExaGeoStat Hardware
     auto hardware = ExaGeoStatHardware(configurations);
     // Create a unique pointer to hold the data.

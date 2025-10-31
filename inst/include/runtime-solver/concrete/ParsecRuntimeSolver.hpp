@@ -37,6 +37,30 @@ namespace exageostat::runtimesolver {
          */
         T ModelingOperations(std::unique_ptr <ExaGeoStatData<T>> &aData, configurations::Configurations &aConfigurations,
                              T *apMeasurementsMatrix, const kernels::Kernel <T> &aKernel) override;
+
+        /**
+         * @brief API function for data modeling (MLE optimization callback).
+         * @details This function is called by NLOPT during optimization iterations.
+         * @param aTheta A vector containing the model parameters (theta) to evaluate.
+         * @param aGrad A vector to store the computed gradient (not used in current implementation).
+         * @param apInfo Pointer to mModelingData struct containing context information.
+         * @return The computed log likelihood value.
+         */
+        static double DataModelingAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo);
+
+        /**
+         * @brief Performs Maximum Likelihood Estimation (MLE) on a tiled matrix using PaRSEC.
+         * @details Computes log-likelihood for given theta parameters using tile-based operations.
+         * @param apConfiguration The configuration settings for the data modeling process.
+         * @param theta Pointer to an array of doubles representing the current model parameters.
+         * @param grad Reference to a vector of doubles to store the gradient.
+         * @param data Unique pointer to an ExaGeoStatData instance that holds the matrix data.
+         * @param aKernel The kernel object containing the statistical model details.
+         * @return The log likelihood value computed.
+         */
+        static double ParsecDmleTile(configurations::Configurations &apConfiguration, const double *theta,
+                                    std::vector<double> &grad, std::unique_ptr<dataunits::ExaGeoStatData<T>> &data,
+                                    const kernels::Kernel<T> &aKernel);
         
         /**
          * @brief Performs a SYRK (symmetric rank-k update) operation on the matrix.

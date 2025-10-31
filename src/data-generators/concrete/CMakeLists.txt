@@ -20,6 +20,7 @@ if (RUNTIME_TYPE STREQUAL "STARPU")
 elseif (RUNTIME_TYPE STREQUAL "PARSEC")
     # Use PaRSEC version
     list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGeneratorParsec.cpp)
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/ParsecGenerator.cpp)
 endif()
 
 # Set the final SOURCES to parent scope

@@ -14,6 +14,8 @@
 #include <data-generators/DataGenerator.hpp>
 #if DEFAULT_RUNTIME
 #include <data-generators/concrete/SyntheticGenerator.hpp>
+#else
+#include <data-generators/concrete/runtime/ParsecGenerator.hpp>
 #endif
 #include <data-loader/DataLoader.hpp>
 
@@ -22,6 +24,8 @@ using namespace exageostat::generators;
 using namespace exageostat::dataLoader;
 #if DEFAULT_RUNTIME
 using namespace exageostat::generators::synthetic;
+#else
+using namespace exageostat::generators::synthetic::parsec;
 #endif
 
 template<typename T>
@@ -35,8 +39,13 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(configuratio
         return DataLoader<T>::CreateDataLoader(apConfigurations);
     }
 #else
-    aIsSynthetic = false;
-    return DataLoader<T>::CreateDataLoader(apConfigurations);
+    if (apConfigurations.GetIsClimateEmulator()) {
+        aIsSynthetic = false;
+        return DataLoader<T>::CreateDataLoader(apConfigurations);
+    } else {
+        aIsSynthetic = true;
+        return std::unique_ptr<DataGenerator<T>>(ParsecGenerator<T>::GetInstance());
+    }
 #endif
 }
 
@@ -49,8 +58,12 @@ DataGenerator<T>::~DataGenerator() {
         DataLoader<T>::ReleaseDataLoader();
     }
 #else
-    // For PaRSEC runtime, clean up DataLoader (ParsecLoader)
-    if (!aIsSynthetic) {
+    // PaRSEC runtime cleanup
+    if (aIsSynthetic) {
+        // Clean up ParsecGenerator (general operations)
+        ParsecGenerator<T>::GetInstance()->ReleaseInstance();
+    } else {
+        // Clean up ParsecLoader (climate emulator)
         DataLoader<T>::ReleaseDataLoader();
     }
 #endif

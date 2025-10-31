@@ -87,6 +87,7 @@ const std::unordered_map<std::string, std::string> Validator::mArgumentToCategor
         {"forcingdatapath",        "Path"},
         {"startyear",         "Numerical"},
         {"endyear",           "Numerical"},
+        {"isclimateemulator", "Bool"},
         {"recoveryfile",      "Path"},
         {"distancemetric",    "DistanceMetric"},
         {"maxmleiterations",  "Numerical"},
