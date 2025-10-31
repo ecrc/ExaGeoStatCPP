@@ -31,10 +31,16 @@ int main(int argc, char **argv) {
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
     configurations.InitializeArguments(argc, argv);
-    // Initialize the ExaGeoStat Hardware
+    // Initialize the ExaGeoStat Hardware based on runtime type
+#if DEFAULT_RUNTIME
+    // StarPU/CHAMELEON mode
     auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
                                        configurations.GetGPUsNumbers(), configurations.GetPGrid(),
                                        configurations.GetQGrid());
+#else
+    // PaRSEC mode
+    auto hardware = ExaGeoStatHardware(configurations);
+#endif
     // Load data by either read from file or create synthetic data.
     std::unique_ptr<ExaGeoStatData<double>> data;
     ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);

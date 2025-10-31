@@ -42,6 +42,16 @@ double SumDoubleData(double *apData, int aColumn, int aRow);
 complex double SumComplexData(complex double *apData, int aColumn, int aRow);
 
 /**
+ * @brief Core function to sum matrix elements for PaRSEC operations.
+ * @param[in] apA Pointer to the matrix data.
+ * @param[in] aMb Number of rows in the tile.
+ * @param[in] aNb Number of columns in the tile.
+ * @param[in] aLda Leading dimension of the matrix.
+ * @return The sum of matrix elements as a double.
+ */
+double ParsecMatrixSumCore(double *apA, int aMb, int aNb, int aLda);
+
+/**
  * @brief Performs forward Spherical Harmonic Transform (SHT) calculations.
  * @param[in,out] apFlm Pointer to SHT coefficients.
  * @param[in] apF_data Pointer to spatial data for transformation.

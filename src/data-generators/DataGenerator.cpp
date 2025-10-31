@@ -33,12 +33,13 @@ std::unique_ptr<DataGenerator<T>> DataGenerator<T>::CreateGenerator(configuratio
 #if DEFAULT_RUNTIME
     if (apConfigurations.GetIsSynthetic()){
         aIsSynthetic = true;
-        return std::unique_ptr<DataGenerator<T>>(SyntheticGenerator<T>::GetInstance());
+        return SyntheticGenerator<T>::CreateSyntheticGenerator();
     } else {
         aIsSynthetic = false;
         return DataLoader<T>::CreateDataLoader(apConfigurations);
     }
 #else
+    // PaRSEC runtime - check if climate emulator or general operations
     if (apConfigurations.GetIsClimateEmulator()) {
         aIsSynthetic = false;
         return DataLoader<T>::CreateDataLoader(apConfigurations);
@@ -53,17 +54,15 @@ template<typename T>
 DataGenerator<T>::~DataGenerator() {
 #if DEFAULT_RUNTIME
     if (aIsSynthetic) {
-        SyntheticGenerator<T>::GetInstance()->ReleaseInstance();
+        SyntheticGenerator<T>::ReleaseSyntheticGenerator();
     } else {
         DataLoader<T>::ReleaseDataLoader();
     }
 #else
     // PaRSEC runtime cleanup
     if (aIsSynthetic) {
-        // Clean up ParsecGenerator (general operations)
         ParsecGenerator<T>::GetInstance()->ReleaseInstance();
     } else {
-        // Clean up ParsecLoader (climate emulator)
         DataLoader<T>::ReleaseDataLoader();
     }
 #endif

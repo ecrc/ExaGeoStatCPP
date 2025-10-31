@@ -73,6 +73,7 @@ const std::unordered_map<std::string, std::string> Validator::mArgumentToCategor
         {"adddiagonal",       "Numerical"},
         {"filetimeslot",      "Numerical"},
         {"filenumber",        "Numerical"},
+        {"hnb",               "Numerical"},
         {"enableinverse",     "Bool"},
         {"mpiio",             "Bool"},
         {"mloemmom",          "Bool"},

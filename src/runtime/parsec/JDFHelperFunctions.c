@@ -39,6 +39,20 @@ complex double SumComplexData(complex double *apData, int aColumn, int aRow) {
     return sum;
 }
 
+double ParsecMatrixSumCore(double *apA, int aMb, int aNb, int aLda) {
+    double res = 0.0;
+    int indicator = 0;
+    for (int j = 0; j < aNb; j++) {
+        for (int i = 0; i < aMb; i++) {
+            if (isnan(apA[j * aLda + i])) {
+                indicator = 1;
+            }
+            res += apA[j * aLda + i];
+        }
+    }
+    return res;
+}
+
 void ForwardSHTHelper(double *apFlm, complex double *apF_data, int aFDataM, int aFDataN,
                       complex double *apEt1, int aEt1M, complex double *apEt2, int aEt2M,
                       complex double *apEp, int aEpM, int aEpN, complex double *apSlmn,

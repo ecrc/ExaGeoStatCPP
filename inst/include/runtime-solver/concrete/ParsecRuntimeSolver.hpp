@@ -59,7 +59,7 @@ namespace exageostat::runtimesolver {
          * @return The log likelihood value computed.
          */
         static double ParsecDmleTile(configurations::Configurations &apConfiguration, const double *theta,
-                                    std::vector<double> &grad, std::unique_ptr<dataunits::ExaGeoStatData<T>> &data,
+                                    std::vector<double> &grad, std::unique_ptr<ExaGeoStatData<T>> &data,
                                     const kernels::Kernel<T> &aKernel);
         
         /**

@@ -23,6 +23,12 @@ set(JDF_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/GetMatrixNorm.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/InverseSHT.jdf
         ${CMAKE_CURRENT_SOURCE_DIR}/MatrixCompress.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DMatrixDet.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DMatrixGeneration.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DMatrixSetDiagonal.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DMatrixSum.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DZGeneration.jdf
+        ${CMAKE_CURRENT_SOURCE_DIR}/DZSum.jdf
 )
 
 # Output directory for generated sources

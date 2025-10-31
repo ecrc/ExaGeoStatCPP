@@ -169,6 +169,9 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(ApproximationMode, int, aApproximationMode, "approximationmode")
         CREATE_GETTER_FUNCTION(ApproximationMode, int, "approximationmode")
 
+        CREATE_SETTER_FUNCTION(HNB, int, aHNB, "hnb")
+        CREATE_GETTER_FUNCTION(HNB, int, "hnb")
+
         CREATE_SETTER_FUNCTION(Logger, bool, aLogger, "log")
         CREATE_GETTER_FUNCTION(Logger, bool, "log")
 
@@ -186,9 +189,6 @@ namespace exageostat::configurations {
 
         CREATE_SETTER_FUNCTION(IsNonGaussian, bool, aIsNonGaussian, "isnongaussian")
         CREATE_GETTER_FUNCTION(IsNonGaussian, bool, "isnongaussian")
-
-        CREATE_SETTER_FUNCTION(IsClimateEmulator, bool, aIsClimateEmulator, "isclimateemulator")
-        CREATE_GETTER_FUNCTION(IsClimateEmulator, bool, "isclimateemulator")
 
         /**
          * @brief Getter for the verbosity.

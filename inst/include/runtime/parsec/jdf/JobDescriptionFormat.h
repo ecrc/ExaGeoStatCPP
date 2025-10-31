@@ -264,3 +264,62 @@ int InverseSHT(parsec_context_t *apContext, parsec_tiled_matrix_t *apFSpatialDes
 void MatrixCompress(parsec_context_t *apContext, double *apNormGlobal, int aUpperLower, int aBandSizeDense, int aNT,
                     int aMaxRank, int aN, int aAdaptiveDecision, int aTolerance, int aSendFullTile, int aAutoBand,
                     int aGpus, hicma_parsec_data_t *apHicmaData, starsh_params_t *apParamsKernel);
+
+/**
+ * @brief Generates a matrix for use in Parsec computations.
+ * @param[in] apParsec Pointer to the Parsec context.
+ * @param[in,out] apDcA Pointer to the tiled matrix descriptor.
+ * @param[in] apL1 First location parameter.
+ * @param[in] apL2 Second location parameter.
+ * @param[in] apLm Additional location parameter.
+ * @param[in] apTheta Array of theta parameters.
+ * @param[in] aDm Distance metric.
+ * @param[in] apCFun Covariance function name.
+ * @param[in] aBandSizeDouble Band size parameter.
+ * @return Error code (0 on success).
+ */
+int ParsecDMatrixGeneration(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, void *apL1, void *apL2,
+                            void *apLm, double *apTheta, int aDm, char *apCFun, int aBandSizeDouble);
+
+/**
+ * @brief Sets the diagonal elements of a matrix.
+ * @param[in] apParsec Pointer to the Parsec context.
+ * @param[in,out] apDcA Pointer to the tiled matrix descriptor.
+ * @param[in] aNoise Value to add to the diagonal.
+ * @return Error code (0 on success).
+ */
+int ParsecDMatrixSetDiagonal(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, double aNoise);
+
+/**
+ * @brief Generates a Z vector for Parsec computations.
+ * @param[in] apParsec Pointer to the Parsec context.
+ * @param[in,out] apDcA Pointer to the tiled matrix descriptor.
+ * @param[in] apR Array of random values.
+ * @return Error code (0 on success).
+ */
+int ParsecDZGeneration(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, double *apR);
+
+/**
+ * @brief Computes the sum of all elements in a matrix.
+ * @param[in] apParsec Pointer to the Parsec context.
+ * @param[in] apDcA Pointer to the tiled matrix descriptor.
+ * @return Sum of all matrix elements.
+ */
+double ParsecDMatrixSum(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA);
+
+/**
+ * @brief Computes the sum of all elements in a Z vector.
+ * @param[in] apParsec Pointer to the Parsec context.
+ * @param[in] apDcA Pointer to the tiled matrix descriptor.
+ * @return Sum of all Z vector elements.
+ */
+double ParsecDZSum(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA);
+
+/**
+ * @brief Computes the determinant of a matrix.
+ * @param[in] apParsec Pointer to the Parsec context.
+ * @param[in] apDcA Pointer to the input tiled matrix descriptor.
+ * @param[in,out] apDcDet Pointer to the output determinant descriptor.
+ * @return Error code (0 on success).
+ */
+int ParsecDMatrixDet(parsec_context_t *apParsec, parsec_tiled_matrix_t *apDcA, parsec_tiled_matrix_t *apDcDet);
