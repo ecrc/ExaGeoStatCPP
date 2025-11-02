@@ -33,6 +33,7 @@ ObjectsNumber=72
 add_diagonal=10
 Accuracy=0
 band_dense=1000
+hnb=300
 verbose="detailed"
 gpus=0
 
@@ -115,6 +116,10 @@ while [[ $# -gt 0 ]]; do
             band_dense="${1#*=}"
             shift
             ;;
+        --hnb=*)
+            hnb="${1#*=}"
+            shift
+            ;;
         --verbose=*)
             verbose="${1#*=}"
             shift
@@ -149,6 +154,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --add-diagonal=N         Diagonal value (default: $add_diagonal)"
             echo "  --Accuracy=N             Accuracy (default: $Accuracy)"
             echo "  --band-dense=N           Band dense (default: $band_dense)"
+            echo "  --hnb=N                  HNB (default: $hnb)"
             echo "  --verbose=MODE           Verbose mode (default: $verbose)"
             echo "  --gpus=N                 Number of GPUs (default: $gpus)"
             echo ""
@@ -417,7 +423,8 @@ if [ "$run_climate_emulator" = true ]; then
         --cores="$cores" \
         --add-diagonal="$add_diagonal" \
         --Accuracy="$Accuracy" \
-        --band_dense="$band_dense" \
+        --banddensedp="$band_dense" \
+        --hnb="$hnb" \
         --verbose="$verbose" \
         --gpus="$gpus" \
         --data_path="$resultspath" \

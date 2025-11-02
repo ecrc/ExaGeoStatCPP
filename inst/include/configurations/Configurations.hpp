@@ -172,6 +172,21 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(HNB, int, aHNB, "hnb")
         CREATE_GETTER_FUNCTION(HNB, int, "hnb")
 
+        CREATE_SETTER_FUNCTION(GenMaxRank, int, aGenMaxRank, "genmaxrank")
+        CREATE_GETTER_FUNCTION(GenMaxRank, int, "genmaxrank")
+
+        CREATE_SETTER_FUNCTION(CompMaxRank, int, aCompMaxRank, "compmaxrank")
+        CREATE_GETTER_FUNCTION(CompMaxRank, int, "compmaxrank")
+
+        CREATE_SETTER_FUNCTION(AutoBand, int, aAutoBand, "autoband")
+        CREATE_GETTER_FUNCTION(AutoBand, int, "autoband")
+
+        CREATE_SETTER_FUNCTION(BandDenseSP, int, aBandDenseSP, "banddensesp")
+        CREATE_GETTER_FUNCTION(BandDenseSP, int, "banddensesp")
+        
+        CREATE_SETTER_FUNCTION(BandLowRankDP, int, aBandLowRankDP, "bandlowrankdp")
+        CREATE_GETTER_FUNCTION(BandLowRankDP, int, "bandlowrankdp")
+
         CREATE_SETTER_FUNCTION(Logger, bool, aLogger, "log")
         CREATE_GETTER_FUNCTION(Logger, bool, "log")
 
@@ -203,8 +218,14 @@ namespace exageostat::configurations {
 
         /** START OF THE HICMA-PARSEC SPECIFIC ARGUEMNTS. **/
 
-        CREATE_SETTER_FUNCTION(DenseBandDP, int, aDenseBandDP, "banddense")
-        CREATE_GETTER_FUNCTION(DenseBandDP, int, "banddense")
+        CREATE_SETTER_FUNCTION(DenseBandDP, int, aDenseBandDP, "banddensedp")
+        CREATE_GETTER_FUNCTION(DenseBandDP, int, "banddensedp")
+        
+        CREATE_SETTER_FUNCTION(BandDense, int, aBandDense, "banddense")
+        CREATE_GETTER_FUNCTION(BandDense, int, "banddense")
+        
+        CREATE_SETTER_FUNCTION(BandDenseHP, int, aBandDenseHP, "banddensehp")
+        CREATE_GETTER_FUNCTION(BandDenseHP, int, "banddensehp")
 
         CREATE_SETTER_FUNCTION(ObjectsNumber, int, aObjectsNumber, "objectsnumber")
         CREATE_GETTER_FUNCTION(ObjectsNumber, int, "objectsnumber")

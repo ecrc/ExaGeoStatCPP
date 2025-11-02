@@ -49,13 +49,21 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     const int I = aConfigurations.GetDenseBandDP();
     const int time_slot_per_file = aConfigurations.GetTimeSlotPerFile();
     const int num_file = aConfigurations.GetFileNumber();
-
+    const int z = aConfigurations.GetHNB();
+    const int u = aConfigurations.GetMaxRank();
+    const int G = aConfigurations.GetGenMaxRank();
+    const int U = aConfigurations.GetCompMaxRank();
+    const int E = aConfigurations.GetAutoBand();
+    const int y = aConfigurations.GetBandDenseSP();
+    const int Z = aConfigurations.GetBandDense();
+    const int i = aConfigurations.GetBandLowRankDP();
+    
     int v = 0;
     if (aConfigurations.GetVerbosity() == Verbose::DETAILED_MODE){
         v = 1;
     }
 
-    // Create a vector to store the arguments as strings
+    // Create a vector with all arguments (matches parsec-operations-support branch)
     std::vector<std::string> new_args = {
         "-g", to_string(g),
         "-NB", to_string(t),
@@ -67,7 +75,15 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
         "-J", to_string(J),
         "-c", to_string(c),
         "-K", to_string(K),
-        "-j", to_string(j)
+        "-j", to_string(j),
+        "-z", to_string(z),
+        "-u", to_string(u),
+        "-G", to_string(G),
+        "-U", to_string(U),
+        "-E", to_string(E),
+        "-y", to_string(y),
+        "-Z", to_string(Z),
+        "-i", to_string(i)
     };
 
     // Convert std::vector<std::string> to char** for the new argv
