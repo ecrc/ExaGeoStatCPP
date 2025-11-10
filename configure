@@ -75,19 +75,18 @@ for arg in "$@"
 do
     case $arg in
         --use-mkl)
-          echo "${GREEN}MKL as a BLA vendor${NC}"
+          printf "%b\n" "${GREEN}MKL as a BLA vendor${NC}"
           BLAS_VENDOR="Intel10_64lp"
           ;;
         --use-parsec)
-          echo "${GREEN}PaRSEC as a runtime${NC}"
+          printf "%b\n" "${GREEN}PaRSEC as a runtime${NC}"
           RUNTIME_TYPE="parsec"
           ;;
         --climate-emulator)
-          echo "${GREEN}Climate Emulator examples enabled (Climate-Emulator + Stage-Zero)${NC}"
+          printf "%b\n" "${GREEN}Climate Emulator examples enabled (Climate-Emulator + Stage-Zero)${NC}"
           USE_CLIMATE_EMULATOR="ON"
-          # Auto-enable MPI because NetCDF requires it
           USE_MPI="ON"
-          echo "${GREEN}MPI auto-enabled (required for NetCDF)${NC}"
+          printf "%b\n" "${GREEN}MPI auto-enabled (required for NetCDF)${NC}"
           ;;
         *)
           # Collect non-option arguments as a space-delimited string
@@ -103,47 +102,47 @@ eval set -- $params
 while getopts ":tevhHi:cmpTwr" opt; do
   case $opt in
   i) ##### Define installation path  #####
-    echo "${YELLOW}Installation path set to $OPTARG.${NC}"
+    printf "%b\n" "${YELLOW}Installation path set to $OPTARG.${NC}"
     INSTALL_PREFIX=$OPTARG
     ;;
   t) ##### Building tests enabled #####
-    echo "${GREEN}Building tests enabled.${NC}"
+    printf "%b\n" "${GREEN}Building tests enabled.${NC}"
     BUILDING_TESTS="ON"
     ;;
   T) ##### Building heavy tests enabled #####
-    echo "${GREEN}Building heavy tests enabled.${NC}"
+    printf "%b\n" "${GREEN}Building heavy tests enabled.${NC}"
     BUILDING_HEAVY_TESTS="ON"
     ;;
   e) ##### Building examples enabled #####
-    echo "${GREEN}Building examples enabled.${NC}"
+    printf "%b\n" "${GREEN}Building examples enabled.${NC}"
     BUILDING_EXAMPLES="ON"
     ;;
   H) ##### Using HiCMA #####
-    echo "${GREEN}Using HiCMA.${NC}"
+    printf "%b\n" "${GREEN}Using HiCMA.${NC}"
     USE_HiCMA="ON"
     ;;
   c) ##### Using cuda enabled #####
-    echo "${GREEN}Cuda enabled ${NC}"
+    printf "%b\n" "${GREEN}Cuda enabled ${NC}"
     USE_CUDA="ON"
     ;;
   m) ##### Using MPI enabled #####
-    echo "${GREEN}MPI enabled ${NC}"
+    printf "%b\n" "${GREEN}MPI enabled ${NC}"
     USE_MPI="ON"
     ;;
   v) ##### printing full output of make #####
-    echo "${GREEN}printing make with details.${NC}"
+    printf "%b\n" "${GREEN}printing make with details.${NC}"
     VERBOSE="ON"
     ;;
   p) ##### Enabling packaging system for distribution #####
-    echo "${GREEN}CPACK enabled${NC}"
+    printf "%b\n" "${GREEN}CPACK enabled${NC}"
     PACKAGE=ON
     ;;
   w) ##### Enable showing all the warnings #####
-    echo "${GREEN}Showing Warnings is enabled${NC}"
+    printf "%b\n" "${GREEN}Showing Warnings is enabled${NC}"
     SHOW_WARNINGS="ON"
     ;;
   r) ##### Enable R and Rcpp support #####
-    echo "${GREEN}R is enabled${NC}"
+    printf "%b\n" "${GREEN}R is enabled${NC}"
     USE_R="ON"
     ;;
   \?) ##### Error unknown option #####
@@ -160,7 +159,7 @@ while getopts ":tevhHi:cmpTwr" opt; do
     printf "%20s %s\n" "--use-mkl :" "to use MKL as a BLA vendor."
     printf "%20s %s\n" "--use-parsec :" "to use ParSec runtime."
     printf "%20s %s\n" "--climate-emulator :" "to enable climate emulator examples (Stage-Zero + Climate-Emulator)."
-    printf "%20s %s\n" "" "  ${RED}NOTE:${NC} Climate-Emulator example requires --use-parsec."
+    printf "%20s %b\n" "" "  ${RED}NOTE:${NC} Climate-Emulator example requires --use-parsec."
     printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
     printf "%20s %s\n" "-t :" "to enable building tests."
     printf "%20s %s\n" "-T :" "to enable building heavy tests."
@@ -182,26 +181,26 @@ done
 
 if [ -z "$BUILDING_TESTS" ]; then
   BUILDING_TESTS="OFF"
-  echo "${RED}Building tests disabled.${NC}"
+  printf "%b\n" "${RED}Building tests disabled.${NC}"
 fi
 
 if [ -z "$BUILDING_EXAMPLES" ]; then
   BUILDING_EXAMPLES="OFF"
-  echo "${RED}Building examples disabled.${NC}"
+  printf "%b\n" "${RED}Building examples disabled.${NC}"
 fi
 
 if [ -z "$USE_HiCMA" ]; then
-  echo "${RED}Using HiCMA is disabled.${NC}"
+  printf "%b\n" "${RED}Using HiCMA is disabled.${NC}"
 fi
 
 if [ -z "$USE_CUDA" ]; then
   USE_CUDA="OFF"
-  echo "${RED}Using CUDA disabled${NC}"
+  printf "%b\n" "${RED}Using CUDA disabled${NC}"
 fi
 
 if [ -z "$USE_MPI" ]; then
   USE_MPI="OFF"
-  echo "${RED}Using MPI disabled${NC}"
+  printf "%b\n" "${RED}Using MPI disabled${NC}"
 fi
 
 if [ "$SHOW_WARNINGS" = "ON" ]; then
@@ -213,12 +212,12 @@ fi
 
 if [ -z "$USE_R" ]; then
   USE_R="OFF"
-  echo "${RED}Using R is disabled${NC}"
+  printf "%b\n" "${RED}Using R is disabled${NC}"
 fi
 
-echo "${BLUE}Installation path set to $INSTALL_PREFIX.${NC}"
+printf "%b\n" "${BLUE}Installation path set to $INSTALL_PREFIX.${NC}"
 echo ""
-echo "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
+printf "%b\n" "${YELLOW}Use -h to print the usages of exageostat-cpp flags.${NC}"
 echo ""
 
 # cleaning bin

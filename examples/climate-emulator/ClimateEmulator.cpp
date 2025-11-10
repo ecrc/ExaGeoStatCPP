@@ -15,6 +15,7 @@
 #include <configurations/Configurations.hpp>
 #include <hardware/ExaGeoStatHardware.hpp>
 #include <api/ExaGeoStat.hpp>
+#include <iostream>
 
 using namespace exageostat::configurations;
 using namespace exageostat::api;
@@ -29,7 +30,6 @@ int main(int argc, char **argv) {
     std::cerr << "Climate Emulator requires PaRSEC runtime.\n";
     std::cerr << "Please reconfigure and rebuild with PaRSEC:\n";
     std::cerr << "  ./configure -e --climate-emulator --use-parsec\n";
-    std::cerr << "  make\n\n";
     std::cerr << "Note: Stage Zero example works with both StarPU and PaRSEC.\n";
     std::cerr << "========================================\n\n";
     return 1;
