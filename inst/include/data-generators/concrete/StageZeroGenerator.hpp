@@ -201,6 +201,15 @@ namespace exageostat::generators::stagezero {
         void GenerateDesignMatrixExact(double *matrix, int m, int n, int m0, int n0, double *localtheta);
         
         /**
+         * @brief Write data to file at specific position with file locking (for parallel latitude writes).
+         * @param file_path Path to the file.
+         * @param data String data to write.
+         * @param position Byte position in the file to start writing.
+         * @return true if successful, false otherwise.
+         */
+        bool WriteToFileAtPosition(const std::string &file_path, const std::string &data, long position);
+        
+        /**
          * @brief Constructor for the SyntheticGenerator class.
          * @return void
          */

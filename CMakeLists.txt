@@ -26,6 +26,7 @@ option(BUILD_EXAMPLES "Option to enable building examples" ON)
 option(BUILD_DOCS "Build documentation in docs directory" ON)
 option(USE_R "Enable the use of R and Rcpp in the project" OFF)
 option(CREATE_PACKAGE "Enable a packaging system for distribution" OFF)
+option(USE_CLIMATE_EMULATOR "Enable climate emulator examples and NetCDF support" OFF)
 
 # Declare the RUNTIME_TYPE variable with a default value
 set(RUNTIME_TYPE "starpu" CACHE STRING "Specify the runtime type (e.g., starpu or parsec)")
@@ -147,7 +148,16 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
     # ExaGeoStatCPP depends on StarPU runtime
     # -------------------------------
     include(ImportStarPu)
-    include(ImportNetCDF)
+    
+    # NetCDF is only needed for climate emulator
+    if (USE_CLIMATE_EMULATOR)
+        message(STATUS "Climate Emulator enabled: including NetCDF support")
+        include(ImportNetCDF)
+        add_definitions(-DUSE_NETCDF=TRUE)
+    else()
+        message(STATUS "Climate Emulator disabled: NetCDF support not included")
+    endif()
+    
     # ExaGeoStatCPP depends on HiCMA
     # -------------------------------
     if (USE_HICMA)
@@ -162,8 +172,17 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
 
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
     message(STATUS "Using PaRSEC as the runtime")
-    include(ImportNetCDF)
-    # ExaGeoStatCPP depends on StarPU runtime
+    
+    # NetCDF is only needed for climate emulator
+    if (USE_CLIMATE_EMULATOR)
+        message(STATUS "Climate Emulator enabled: including NetCDF support")
+        include(ImportNetCDF)
+        add_definitions(-DUSE_NETCDF=TRUE)
+    else()
+        message(STATUS "Climate Emulator disabled: NetCDF support not included")
+    endif()
+    
+    # ExaGeoStatCPP depends on HiCMA-X for PaRSEC
     # -------------------------------
     include(ImportStarsH)
     include(ImportHCore)

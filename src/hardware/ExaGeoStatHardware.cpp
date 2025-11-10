@@ -47,8 +47,6 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     const int J = aConfigurations.GetTimeSlot();
     const int K = aConfigurations.GetObjectsNumber();
     const int I = aConfigurations.GetDenseBandDP();
-    const int time_slot_per_file = aConfigurations.GetTimeSlotPerFile();
-    const int num_file = aConfigurations.GetFileNumber();
     const int z = aConfigurations.GetHNB();
     const int u = aConfigurations.GetMaxRank();
     const int G = aConfigurations.GetGenMaxRank();
@@ -57,6 +55,10 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     const int y = aConfigurations.GetBandDenseSP();
     const int Z = aConfigurations.GetBandDense();
     const int i = aConfigurations.GetBandLowRankDP();
+    
+    const int time_slot_per_file = aConfigurations.GetTimeSlotPerFile();
+    const int num_file = aConfigurations.GetFileNumber();
+
     
     int v = 0;
     if (aConfigurations.GetVerbosity() == Verbose::DETAILED_MODE){

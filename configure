@@ -67,6 +67,7 @@ BLAS_VENDOR=""
 PACKAGE="OFF"
 RUNTIME_TYPE="starpu"
 SHOW_WARNINGS="OFF"
+USE_CLIMATE_EMULATOR="OFF"
 COMPILE_FLAGS="-Wl,--no-as-needed -w -fpic"
 DEVELOPER_WARNINGS="-Wno-dev"
 
@@ -78,8 +79,15 @@ do
           BLAS_VENDOR="Intel10_64lp"
           ;;
         --use-parsec)
-          echo "${GREEN}Parsec as a runtime${NC}"
+          echo "${GREEN}PaRSEC as a runtime${NC}"
           RUNTIME_TYPE="parsec"
+          ;;
+        --climate-emulator)
+          echo "${GREEN}Climate Emulator examples enabled (Climate-Emulator + Stage-Zero)${NC}"
+          USE_CLIMATE_EMULATOR="ON"
+          # Auto-enable MPI because NetCDF requires it
+          USE_MPI="ON"
+          echo "${GREEN}MPI auto-enabled (required for NetCDF)${NC}"
           ;;
         *)
           # Collect non-option arguments as a space-delimited string
@@ -150,7 +158,9 @@ while getopts ":tevhHi:cmpTwr" opt; do
     echo "Usage of $(basename "$0"):"
     echo ""
     printf "%20s %s\n" "--use-mkl :" "to use MKL as a BLA vendor."
-    printf "%20s %s\n" "--use-parsec :" "to use parsec runtime."
+    printf "%20s %s\n" "--use-parsec :" "to use ParSec runtime."
+    printf "%20s %s\n" "--climate-emulator :" "to enable climate emulator examples (Stage-Zero + Climate-Emulator)."
+    printf "%20s %s\n" "" "  ${RED}NOTE:${NC} Climate-Emulator example requires --use-parsec."
     printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
     printf "%20s %s\n" "-t :" "to enable building tests."
     printf "%20s %s\n" "-T :" "to enable building heavy tests."
@@ -237,6 +247,7 @@ fi
   -DBUILD_HEAVY_TESTS="${BUILDING_HEAVY_TESTS}" \
   -DBUILD_EXAMPLES="${BUILDING_EXAMPLES}" \
   -DUSE_HICMA="${USE_HiCMA}" \
+  -DUSE_CLIMATE_EMULATOR="${USE_CLIMATE_EMULATOR}" \
   -DCMAKE_VERBOSE_MAKEFILE:BOOL=${VERBOSE} \
   -DUSE_CUDA="${USE_CUDA}" \
   -DUSE_MPI="${USE_MPI}" \
