@@ -179,6 +179,7 @@ while getopts ":tevhHi:cmpTwr" opt; do
   esac
 done
 
+
 if [ -z "$BUILDING_TESTS" ]; then
   BUILDING_TESTS="OFF"
   echo "${RED}Building tests disabled.${NC}"

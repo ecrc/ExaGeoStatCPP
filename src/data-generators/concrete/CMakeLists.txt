@@ -13,14 +13,21 @@
 # Add source files to the parent scope - always include SyntheticGenerator
 list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp)
 
+# Add runtime-specific generators based on runtime type
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    # StarPU synthetic data generator
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/StarpuGenerator.cpp)
+elseif (RUNTIME_TYPE STREQUAL "PARSEC")
+    # PaRSEC synthetic data generator
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/ParsecGenerator.cpp)
+endif()
+
+# Add Stage Zero generators only if climate emulator is enabled
 if (USE_CLIMATE_EMULATOR)
     if (RUNTIME_TYPE STREQUAL "STARPU")
-        # Use StarPU/CHAMELEON version
         list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGenerator.cpp)
     elseif (RUNTIME_TYPE STREQUAL "PARSEC")
-        # Use PaRSEC version
         list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGeneratorParsec.cpp)
-        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/ParsecGenerator.cpp)
     endif()
 endif()
 
