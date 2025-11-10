@@ -12,14 +12,24 @@
 # Include subdirectories for end-to-end module, configurations module and data-generators module.
 # Check the value of RUNTIME_TYPE
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/end-to-end)
+
 if (RUNTIME_TYPE STREQUAL "STARPU")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/hardware)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/configurations)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-loader)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptors)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stage-zero)
+    
+    # Climate emulator examples (Stage0, Climate Emulator) only if enabled
+    if (USE_CLIMATE_EMULATOR)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stage-zero)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/climate-emulator)
+    endif()
+    
 elseif (RUNTIME_TYPE STREQUAL "PARSEC")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/climate-emulator)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stage-zero)
+    # Climate emulator examples (Stage0, Climate Emulator) only if enabled
+    if (USE_CLIMATE_EMULATOR)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stage-zero)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/climate-emulator)
+    endif()
 endif ()

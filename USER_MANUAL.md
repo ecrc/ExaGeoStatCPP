@@ -8,8 +8,9 @@
 4. [Arguments](#arguments)
 5. [List of Descriptors](#list-of-descriptors)
 6. [Supported operations](#supported-operations)
-7. [Manuals](#Manuals)
-8. [Contributing](#contributing)
+7. [Climate Data Processing](#climate-data-processing)
+8. [Manuals](#Manuals)
+9. [Contributing](#contributing)
 
 ## ExaGeoStatCPP
 > Current Version of ExaGeoStatCPP: 1.1.0
@@ -80,7 +81,8 @@
 * To enable packaging system for distribution, add `-p` disabled by default.
 * To enable showing code warnings, add `-w` disabled by default.
 * To manually set mkl as blas vendor, add `--use-mkl`. MKL is required as blas vendor and it's automatically detected but in some environments it need to be manually set.
-* To enable PaRSEC as a runtime system, add `--use=parsec`, StarPU by default.
+* To enable PaRSEC as a runtime system, add `--use-parsec`, StarPU by default.
+* To enable climate emulator examples (Stage Zero + Climate Emulator), add `--climate-emulator` disabled by default. **Note:** Climate Emulator requires `--use-parsec`. Stage Zero works with both StarPU and PaRSEC.
 
 ## Building
 
@@ -184,6 +186,102 @@ For example, `MaxRank`, `max-rank`, `max_rank`, `Max_Rank` ,`Maxrank` , `MaxrAnk
 * {Optional} To enable writing log files, the default is OFF
 
         --log
+
+### Stage Zero and Climate Processing Arguments
+
+* {Mandatory for Stage Zero} To set the number of longitude points
+
+        --lon=<value>
+
+* {Mandatory for Stage Zero} To set the latitude band index
+
+        --lat=<value>
+
+* {Mandatory for Stage Zero} To set the starting year for data processing
+
+        --startyear=<value>
+
+* {Mandatory for Stage Zero} To set the ending year for data processing
+
+        --endyear=<value>
+
+* {Mandatory for Stage Zero} To set the path to forcing data file
+
+        --forcing-data-path=<path/to/file>
+
+* {Optional} To set the results/output directory path
+
+        --resultspath=<path/to/directory>
+
+* {Optional} To set the starting theta value for MLE, default is 0.9
+
+        --starting-theta=<value>
+
+* {Optional} To set the lower bound for optimization, default is 0.001
+
+        --lb=<value>
+
+* {Optional} To set the upper bound for optimization, default is 0.95
+
+        --ub=<value>
+
+* {Optional} To set the optimization tolerance, default is 7
+
+        --tolerance=<value>
+
+* {Optional} To set the maximum MLE iterations, default is 30
+
+        --max-mle-iterations=<value>
+
+* {Mandatory for Stage Zero} To enable Stage Zero mode
+
+        --stage-zero
+
+* {Mandatory for Climate Emulator} To set the number of objects
+
+        --ObjectsNumber=<value>
+
+* {Mandatory for Climate Emulator} To set the number of time points to process (z_*.csv files)
+
+        --timeslot=<value>
+
+* {Optional} To set the diagonal addition value for regularization, default is 0
+
+        --add-diagonal=<value>
+
+* {Optional} To set the accuracy threshold for low-rank approximation (0 = full rank), default is 0
+
+        --Accuracy=<value>
+
+* {Optional} To set the band size for dense computations (double precision), default is 0
+
+        --banddensedp=<value>
+
+* {Optional} To set the HNB parameter for matrix operations, default is 0
+
+        --hnb=<value>
+
+* {Optional} To set the band size for dense operations (used in pipeline), default is 1000
+
+        --band-dense=<value>
+
+### Full Pipeline Arguments
+
+* {Mandatory for Pipeline} To set the total number of latitude bands to process
+
+        --lats=<value>
+
+* {Optional} To set the number of MPI processes per job, default is 2
+
+        --mpi-processes=<value>
+
+* {Optional} To set the number of parallel jobs, default is 10
+
+        --parallel-jobs=<value>
+
+* {Optional} To enable Climate Emulator after Stage Zero
+
+        --run-climate-emulator
 
 ## List of Descriptors
 ### Covariance Matrix Descriptors
@@ -441,6 +539,141 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 ```R
 idw_error = idw(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, test_measurements=test_measurements)
 ```
+
+## Climate Data Processing
+
+ExaGeoStatCPP provides specialized tools for climate data analysis through two main components:
+
+### Stage Zero - Data Preprocessing
+
+**Purpose:** Removes mean trends from climate time series data and produces normalized residuals for further analysis.
+
+**Runtime:** Works with both StarPU and PaRSEC.
+
+**Configuration:**
+```bash
+# With StarPU (default)
+./configure -e --climate-emulator
+
+# With PaRSEC
+./configure -e --climate-emulator --use-parsec
+```
+
+**Basic Usage:**
+```bash
+mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
+  --kernel=trend_model \
+  --lon=144 --lat=0 --dts=720 \
+  --startyear=2020 --endyear=2020 \
+  --data-path=/path/to/ERA_data/ \
+  --forcing-data-path=/path/to/forcing_new.csv \
+  --resultspath=/path/to/results/ \
+  --starting-theta=0.9 \
+  --lb=0.001 \
+  --ub=0.95 \
+  --tolerance=7 \
+  --max-mle-iterations=30 \
+  --stage-zero \
+  --cores=4 \
+  --gpus=0 \
+  --p=1 \
+  --q=1
+```
+
+**Outputs:**
+- `z_*.csv` files: Normalized residuals (one file per time point)
+- `params.csv`: Optimized parameters for each location
+
+### Climate Emulator - Statistical Modeling
+
+**Purpose:** Builds statistical models from Stage Zero residuals to emulate climate behavior.
+
+**Runtime:** Requires PaRSEC (StarPU not supported).
+
+**Configuration:**
+```bash
+./configure -e --climate-emulator --use-parsec
+```
+
+**Prerequisites:**
+1. Stage Zero output files (`z_*.csv` and `params.csv`)
+2. Auxiliary files matching your grid size: `<dts>_Et1.csv`, `<dts>_Et2.csv`, `<dts>_Ep.csv`
+
+**Basic Usage:**
+```bash
+./bin/examples/climate-emulator/Example_Climate_Emulator \
+  --N=5184 \
+  --dts=72 \
+  --timeslot=4000 \
+  --ObjectsNumber=72 \
+  --cores=1 \
+  --add-diagonal=10 \
+  --Accuracy=0 \
+  --banddensedp=1000 \
+  --hnb=300 \
+  --verbose=detailed \
+  --gpus=0 \
+  --data_path=/path/to/results/
+```
+
+**Key Parameters:**
+- `N`: Spatial problem size (typically `dts²`, e.g., N=5184 for dts=72)
+- `timeslot`: Number of time points to process (z_*.csv files)
+- `data_path`: Directory containing Stage Zero outputs
+
+### Full Pipeline Script
+
+**Purpose:** Automates processing of multiple latitude bands in parallel.
+
+**Script:** `FullPipeline.sh`
+
+**Stage Zero Processing:**
+```bash
+./FullPipeline.sh \
+  --lats=720 \
+  --lon=1440 \
+  --startyear=2000 \
+  --endyear=2022 \
+  --data-path=/path/to/ERA_data/ \
+  --forcing-data-path=/path/to/forcing_new.csv \
+  --resultspath=/path/to/results/ \
+  --mpi-processes=5 \
+  --parallel-jobs=40 \
+  --cores=5
+```
+
+**Full Pipeline (Stage Zero + Climate Emulator):**
+```bash
+./FullPipeline.sh \
+  --lats=720 \
+  --lon=1440 \
+  --startyear=2020 \
+  --endyear=2022 \
+  --data-path=/path/to/ERA_data/ \
+  --forcing-data-path=/path/to/forcing_new.csv \
+  --resultspath=/path/to/results/ \
+  --mpi-processes=5 \
+  --parallel-jobs=40 \
+  --cores=5 \
+  --run-climate-emulator \
+  --N=518400 \
+  --dts=720 \
+  --timeslot=4000 \
+  --ObjectsNumber=720 \
+  --add-diagonal=10 \
+  --Accuracy=0 \
+  --band-dense=1000 \
+  --hnb=1000 \
+  --verbose=detailed \
+  --gpus=0
+```
+
+**Important Notes:**
+- Climate Emulator requires PaRSEC runtime
+- Stage Zero works with both StarPU and PaRSEC
+- Ensure `parallel-jobs × cores ≤ available CPU cores`
+- For detailed parameter descriptions, see the [Arguments](#arguments) section
+
 
 ## Manuals
 - Find a detailed Manual for R functions in [ExaGeoStatCPP-R-Interface-Manual](docs/ExaGeoStat-R-Interface-Manual.pdf)

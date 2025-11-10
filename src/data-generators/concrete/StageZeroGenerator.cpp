@@ -4,8 +4,11 @@
 
 /**
  * @file StageZeroGenerator.cpp
- * @brief Implementation of the StageZeroGenerator class
+ * @brief Implementation of StageZeroGenerator for climate data preprocessing using CHAMELEON/StarPU
  * @version 1.1.0
+ * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
+ * @date 2024-02-04
 **/
 
 #include <data-generators/concrete/StageZeroGenerator.hpp>
@@ -29,6 +32,8 @@
 #include <cmath>
 #include <filesystem>
 #include <memory>
+#include <sys/file.h>
+#include <unistd.h>
 #include <chameleon.h>
 #include <chameleon/runtime.h>
 
@@ -74,11 +79,21 @@ void StageZeroGenerator<T>::ReleaseInstance() {
 
 template<typename T>
 void StageZeroGenerator<T>::Runner(Configurations &aConfigurations) {
+    int rank, nprocs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+    
     mArgs.mConfigs = &aConfigurations;
     this->ConfigureGenerator();
     this->Allocate();
     this->ReadForcingData();
     this->ReadNetCDFFiles();
+    
+    if (rank != 0) {
+        this->CleanUp();
+        return;
+    }
+    
     this->RunMeanTrend();
     
     this->CleanUp();
@@ -127,18 +142,18 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
 
     int start_year = mArgs.mConfigs->GetStartYear();
     int end_year   = mArgs.mConfigs->GetEndYear();
+    
+    // Ensure data path has trailing slash for directory
+    std::string data_path = mArgs.mConfigs->GetDataPath();
+    if (!data_path.empty() && data_path.back() != '/') {
+        data_path += "/";
+    }
 
     auto openFileNCmpi = [&](char *filename) {
         int id, ret;
-        double start_time = MPI_Wtime();
         if ((ret = ncmpi_open(MPI_COMM_WORLD, filename, NC_NOWRITE, MPI_INFO_NULL, &id))) {
-            double end_time = MPI_Wtime();
-            fprintf(stderr, "[StageZero] FAILED to open NetCDF file: %s (%.3f sec) - Error: %s\n", 
-                    filename, end_time - start_time, ncmpi_strerror(ret));
             throw std::runtime_error("Error opening NetCDF file: " + std::string(ncmpi_strerror(ret)));
         }
-        double end_time = MPI_Wtime();
-        fprintf(stderr, "[StageZero] SUCCESS opening NetCDF file: %s (%.3f sec)\n", filename, end_time - start_time);
         return id;
     };
 
@@ -151,11 +166,8 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
 
     
     char path[256];
-    std::string data_path = mArgs.mConfigs->GetDataPath();
-    if (!data_path.empty() && data_path.back() != '/') data_path += '/';
     snprintf(path, sizeof(path), "%sdata_%d.nc", data_path.c_str(), start_year);
 
-    fprintf(stderr, "[StageZero] Loading initial NetCDF file for dimension setup: %s\n", path);
     ncid = openFileNCmpi(path);
 
     // Dimension IDs and lengths with error checks (exactly like reference)
@@ -177,16 +189,14 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
 
     closeFileNCmpi(ncid);
 
-    // Get latitude band index (which latitude row to process) - now required
+    // Get latitude band index
     int min_loc = mArgs.mConfigs->GetLatitudeBand(); 
     
     for (int y = start_year; y <= end_year; y++) {
         char path2[256];
         snprintf(path2, sizeof(path2), "%sdata_%d.nc", data_path.c_str(), y);
 
-        fprintf(stderr, "[StageZero] Loading NetCDF data for year %d: %s\n", y, path2);
         ncid = openFileNCmpi(path2);
-
 
         double scaling_var = 1.0, offset_var = 0.0;
         if ((retval = ncmpi_get_att_double(ncid, t2m_varid, "scale_factor", &scaling_var))) {
@@ -202,19 +212,14 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
         if (IsLeapYear(y)) time_len = v * 24 + 24;
         else time_len = v * 24;
 
-        // Parallelize time dimension across MPI ranks for a single latitude
         size_t total_elems = static_cast<size_t>(time_len) * static_cast<size_t>(mArgs.mNumLocs);
         size_t local_elems = static_cast<size_t>(time_len / nprocs) * static_cast<size_t>(mArgs.mNumLocs);
         t2m = (int *) malloc(total_elems * sizeof(int));
         t2m_local = (int *) malloc(local_elems * sizeof(int));
 
-        // All ranks read the SAME latitude (min_loc), but different time chunks
-        MPI_Offset index[] = {(MPI_Offset) (time_len / nprocs) * rank,  // each rank reads different time chunk
-                              (MPI_Offset) min_loc,                       // all ranks read SAME latitude (from --lts)
-                              0};                                          // start from lon 0
-        MPI_Offset count[] = {(MPI_Offset) (time_len / nprocs),          // read portion of time
-                              1,                                           // read 1 latitude
-                              (MPI_Offset) mArgs.mNumLocs};               // read all longitudes
+        MPI_Offset index[] = {(MPI_Offset) (time_len / nprocs) * rank,
+                              (MPI_Offset) min_loc, 0};
+        MPI_Offset count[] = {(MPI_Offset) (time_len / nprocs), 1, (MPI_Offset) mArgs.mNumLocs};
         
         double x_read = 0;
         START_TIMING(x_read)
@@ -226,8 +231,9 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
                       (int) local_elems, MPI_INT, MPI_COMM_WORLD);
         double gather_time = MPI_Wtime() - gather_start;
         
-        fprintf(stderr, "[StageZero] Rank %d, Year %d, Latitude %d: Read time: %.3f sec, Gather time: %.3f sec\n", 
-                rank, y, min_loc, x_read, gather_time);
+        if (rank == 0) {
+            fprintf(stderr, "[NetCDF Year %d] Read: %.3fs, Gather: %.3fs\n", y, x_read, gather_time);
+        }
 
         for (int lu = 0; lu < mArgs.mNumLocs; lu++) {
             int r = 0;
@@ -242,20 +248,31 @@ void StageZeroGenerator<T>::ReadNetCDFFiles() {
         closeFileNCmpi(ncid);
         free(t2m);
         free(t2m_local);
-        fprintf(stderr, "[StageZero] Completed processing year %d\n\n", y);
     }
-    fprintf(stderr, "[StageZero] NetCDF loading completed for years %d-%d (%d files)\n\n", 
-            start_year, end_year, end_year - start_year + 1);
+    
+    if (rank == 0) {
+        fprintf(stderr, "[NetCDF] Successfully loaded all data files (%d-%d, %d files)\n\n", 
+                start_year, end_year, end_year - start_year + 1);
+    }
 }
 
 template<typename T>
 void StageZeroGenerator<T>::ReadForcingData() {
-    std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
-    if (!forcing_path.empty() && forcing_path.back() == '/') forcing_path.pop_back();
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     
-    fprintf(stderr, "[StageZero] Loading forcing data from: %s\n", forcing_path.c_str());
+    std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
+    
+    if (rank == 0) {
+        fprintf(stderr, "[Forcing] Loading from: %s (%d years)\n", 
+                forcing_path.c_str(), mArgs.mNoYears);
+    }
+    
     mArgs.mForcing = ReadObsFile((char *) forcing_path.c_str(), mArgs.mNoYears);
-    fprintf(stderr, "[StageZero] Successfully loaded forcing data (%d years)\n\n", mArgs.mNoYears);
+    
+    if (rank == 0) {
+        fprintf(stderr, "[Forcing] Successfully loaded forcing values\n");
+    }
 }
 
 template<typename T>
@@ -287,94 +304,59 @@ void StageZeroGenerator<T>::Allocate() {
 
 template<typename T>
 void StageZeroGenerator<T>::RunMeanTrend() {
-    // Get latitude band (which latitude row we're processing) - now required
-    int latitude_band = mArgs.mConfigs->GetLatitudeBand();
-    const int     no_locs  = mArgs.mNumLocs;
+    const int no_locs = mArgs.mNumLocs;
 
-#if defined(CHAMELEON_USE_MPI)
-    if (CHAMELEON_Comm_rank() == 0) {
-#endif
-        const std::string kernel = mArgs.mConfigs->GetKernelName();
-        const std::string data_path = mArgs.mConfigs->GetDataPath();
-        const std::string forcing_path = mArgs.mConfigs->GetForcingDataPath();
-        const std::string results_path = mArgs.mConfigs->GetResultsPath();
-        const int start_year = mArgs.mConfigs->GetStartYear();
-        const int end_year = mArgs.mConfigs->GetEndYear();
-        const int years = mArgs.mNoYears;
-        const int period_hours = mArgs.mT;
-        const int M = mArgs.mM;
-        const size_t N = mArgs.mN;
-        const int num_locs = mArgs.mNumLocs;
-        const double tol = mArgs.mConfigs->GetTolerance();
-        const int maxeval = mArgs.mConfigs->GetMaxMleIterations();
-        const double st = mArgs.mStartingTheta[0];
-        const double lb0 = mArgs.mLb[0];
-        const double ub0 = mArgs.mUp[0];
-        const int dts = mArgs.mConfigs->GetDenseTileSize();
-        fprintf(stderr, "----- StageZero Arguments -----\n");
-        fprintf(stderr, "kernel: %s\n", kernel.c_str());
-        fprintf(stderr, "data_path: %s\n", data_path.c_str());
-        fprintf(stderr, "forcing_data_path: %s\n", forcing_path.c_str());
-        fprintf(stderr, "results_path: %s\n", results_path.c_str());
-        fprintf(stderr, "start_year: %d, end_year: %d, years: %d\n", start_year, end_year, end_year-start_year+1);
-        fprintf(stderr, "latitude_band: %d, longitude_count: %d\n", latitude_band, num_locs);
-        fprintf(stderr, "period_hours(T): %d, harmonics(M): %d\n", period_hours, M);
-        fprintf(stderr, "N (observations): %zu\n", N);
-        fprintf(stderr, "tolerance(ftol_abs): %.10e, maxeval: %d\n", tol, maxeval);
-        fprintf(stderr, "-------------------------------\n");
-#if defined(CHAMELEON_USE_MPI)
-    }
-#endif
-
-    // Key bounds info
-    fprintf(stderr, "Starting theta[0]: %f\n", mArgs.mStartingTheta[0]);
-    fprintf(stderr, "Lower bound: %f, Upper bound: %f\n", mArgs.mLb[0], mArgs.mUp[0]);
+    fprintf(stderr, "\n========== StageZero Configuration ==========\n");
+    fprintf(stderr, "Data: %s (years %d-%d)\n", 
+            mArgs.mConfigs->GetDataPath().c_str(),
+            mArgs.mConfigs->GetStartYear(), 
+            mArgs.mConfigs->GetEndYear());
+    fprintf(stderr, "Forcing: %s\n", mArgs.mConfigs->GetForcingDataPath().c_str());
+    fprintf(stderr, "Results: %s\n", mArgs.mConfigs->GetResultsPath().c_str());
+    fprintf(stderr, "Latitude band: %d, Longitudes: %d\n", 
+            mArgs.mConfigs->GetLatitudeBand(), no_locs);
+    fprintf(stderr, "Observations: %zu (T=%d hours, M=%d harmonics)\n", 
+            mArgs.mN, mArgs.mT, mArgs.mM);
+    fprintf(stderr, "Optimization: theta_0=%.3f, bounds=[%.3f, %.3f], tol=%.2e, maxiter=%d\n",
+            mArgs.mStartingTheta[0], mArgs.mLb[0], mArgs.mUp[0],
+            mArgs.mConfigs->GetTolerance(), mArgs.mConfigs->GetMaxMleIterations());
+    fprintf(stderr, "=============================================\n\n");
     
-    // Initialize CHAMELEON and create descriptors ONCE
     this->SetupMLEComponents();
     
-    // Set up NLOPT optimization ONCE
     nlopt_opt opt = nlopt_create(NLOPT_LN_BOBYQA, mArgs.mNumParams);
     nlopt_set_lower_bounds(opt, mArgs.mLb);
     nlopt_set_upper_bounds(opt, mArgs.mUp);
     nlopt_set_max_objective(opt, &StageZeroGenerator<T>::StageZeroObjectiveCallback, (void *)this);
     
-    // Use configured tolerance and max iterations (defaults preserved in config)
     nlopt_set_ftol_abs(opt, mArgs.mConfigs->GetTolerance());
     nlopt_set_maxeval(opt, mArgs.mConfigs->GetMaxMleIterations());
     
-    // Working theta vector (mutable for NLopt)
     std::vector<double> theta(mArgs.mNumParams, 0.0);
     
-    // Process locations
     for (int l = 0; l < no_locs; ++l) {
-        mArgs.mIterCount = 0;   // reset iteration counter
-        mArgs.mCurrentLocation = l;  // Set current location for MLEAlgorithm
+        mArgs.mIterCount = 0;
+        mArgs.mCurrentLocation = l;
 
-        // Fill Z for current location
         this->ConvertT2MToZForLocation(l);
 
-        // Optimization
-        fprintf(stderr, "[StageZero] Starting NLopt for location %d/%d\n", l + 1, no_locs);
-        // Respect configured starting theta
+        fprintf(stderr, "\n[Location %d/%d] Starting optimization...\n", l + 1, no_locs);
         theta[0] = mArgs.mStartingTheta[0];
         double opt_f = 0.0;
 
-        // Re-register the objective before each optimize call
         nlopt_set_max_objective(opt, &StageZeroGenerator<T>::StageZeroObjectiveCallback, (void *)this);
         nlopt_result nlres = nlopt_optimize(opt, theta.data(), &opt_f);
-        fprintf(stderr, "[StageZero] NLopt finished (res=%d), theta=%0.10f, f=%0.10f\n\n", (int) nlres, theta[0], opt_f);
+        
+        fprintf(stderr, "[Location %d/%d] Optimization complete: result=%d, theta=%.10f, objective=%.10f, iterations=%d\n", 
+                l + 1, no_locs, (int)nlres, theta[0], opt_f, mArgs.mIterCount);
 
-        // Recompute full pipeline once with optimal theta to generate CSV (apObj == nullptr)
         {
-            std::vector<double> grad; // unused
+            std::vector<double> grad;
             this->MLEAlgorithm(theta, grad, nullptr);
         }
     }
     
-    // Cleanup
     nlopt_destroy(opt);
-    
 }
 
 template<typename T>
@@ -430,14 +412,12 @@ void StageZeroGenerator<T>::SetupMLEComponents() {
     int N = mArgs.mN;
     int nparams = 3 + 2*mArgs.mM;
     int dts = mArgs.mConfigs->GetDenseTileSize();
-    int p_grid = 1, q_grid = 1; // Single process grid for now
     
-    fprintf(stderr, "Creating descriptors: N=%d, nparams=%d, dts=%d\n", N, nparams, dts);
-    
-    // Initialize iteration counter
     mArgs.mIterCount = 0;
     
-    // Allocate CHAMELEON descriptors - Use UNIFORM tile size for compatibility
+    // Single process grid for CHAMELEON
+    int p_grid = 1, q_grid = 1;
+    
     // Z vector (observations) - N x 1
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpDescZ, NULL, ChamRealDouble,
                           dts, dts, dts*dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
@@ -446,27 +426,27 @@ void StageZeroGenerator<T>::SetupMLEComponents() {
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpX, NULL, ChamRealDouble,
                           dts, dts, dts*dts, N, nparams, 0, 0, N, nparams, p_grid, q_grid);
     
-    // XtX matrix - nparams x nparams (use same tile size as others)
+    // XtX matrix - nparams x nparams
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpXtX, NULL, ChamRealDouble,
                           dts, dts, dts*dts, nparams, nparams, 0, 0, nparams, nparams, p_grid, q_grid);
     
-    // part1 scalar - 1 x 1 (use same tile size pattern)
+    // part1 scalar - 1 x 1
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpDescPart1, NULL, ChamRealDouble,
                           dts, dts, dts*dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     
-    // part2 scalar - 1 x 1 (use same tile size pattern)
+    // part2 scalar - 1 x 1
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpDescPart2, NULL, ChamRealDouble,
                           dts, dts, dts*dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     
-    // part2_vector - nparams x 1 (use same tile size pattern)
+    // part2_vector - nparams x 1
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpPart2Vector, NULL, ChamRealDouble,
                           dts, dts, dts*dts, nparams, 1, 0, 0, nparams, 1, p_grid, q_grid);
     
-    // estimated_mean_trend vector - N x 1 (for final mean trend calculation)
+    // estimated_mean_trend vector - N x 1
     CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpEstimatedMeanTrend, NULL, ChamRealDouble,
                           dts, dts, dts*dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
     
-    fprintf(stderr, "All CHAMELEON descriptors created successfully\n\n");
+    fprintf(stderr, "[Setup] All CHAMELEON descriptors created successfully\n");
 }
 
 template<typename T>
@@ -541,6 +521,48 @@ void StageZeroGenerator<T>::GenerateDesignMatrixExact(double *matrix, int m, int
     }
 }
 
+template<typename T>
+bool StageZeroGenerator<T>::WriteToFileAtPosition(const std::string &file_path, 
+                                                       const std::string &data, 
+                                                       long position) {
+    const int max_retries = 10;
+    const int retry_delay_us = 100000;
+    
+    for (int retry = 0; retry < max_retries; ++retry) {
+        // Try to open existing file first
+        FILE *fp = fopen(file_path.c_str(), "r+b");
+        
+        // If file doesn't exist, create it
+        if (!fp) {
+            fp = fopen(file_path.c_str(), "w+b");
+            if (!fp) {
+                usleep(retry_delay_us);
+                continue;
+            }
+        }
+        
+        int fd = fileno(fp);
+        if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+            if (fseek(fp, position, SEEK_SET) == 0) {
+                size_t written = fwrite(data.c_str(), 1, data.length(), fp);
+                if (written == data.length()) {
+                    fflush(fp);
+                }
+            }
+            flock(fd, LOCK_UN);
+            fclose(fp);
+            return true;
+        } else {
+            fclose(fp);
+            usleep(retry_delay_us * (retry + 1));
+        }
+    }
+    
+    // Failed after all retries
+    fprintf(stderr, "[WriteFile] ERROR: Failed to acquire lock for %s after %d retries\n", 
+            file_path.c_str(), max_retries);
+    return false;
+}
 
 template<typename T>
 double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
@@ -671,33 +693,31 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
         // Set objective value (maximize -sigma^2 -> minimize sigma^2)
         value = -sigma_squared;
 
-        // Static global arrays for multi-location storage (like C version)
+        // Static global arrays for multi-location storage
         static std::vector<std::vector<double>> Z_new(mArgs.mNumLocs, std::vector<double>(N));
         static std::vector<std::vector<double>> params(mArgs.mNumLocs, std::vector<double>(3 + 2*mArgs.mM + 2));
         
         // Store normalized residuals for this location
         int location_index = mArgs.mCurrentLocation;  // Current location being processed (0-based)
         for (int i = 0; i < N; ++i) {
-            Z_new[location_index][i] = emt_lap[i];
+            Z_new[location_index][i] = emt_lap[i];  // Use properly extracted data
         }
-        free(emt_lap);
         
-        // Pull beta to LAPACK layout and store parameters
+        // Store parameters
+        params[location_index][0] = aThetaVec[0];  // optimized theta
+        params[location_index][1] = sigma_squared;  // sigma²
         int vlen = part2_vector->m;
         double *p2v_lap = (double*)calloc((size_t)vlen, sizeof(double));
         if (!p2v_lap) { throw std::runtime_error("Allocation failed for p2v_lap"); }
         CHAMELEON_Tile_to_Lapack(part2_vector, p2v_lap, vlen);
-        params[location_index][0] = aThetaVec[0];  // optimized theta
-        params[location_index][1] = sigma_squared;  // sigma²
         for(int i = 0; i < 3 + 2*mArgs.mM; i++) {
             params[location_index][i+2] = p2v_lap[i];
         }
+        
+        free(emt_lap);
         free(p2v_lap);
         
-        // Print debug info matching C version exactly
-        // remove noisy debug prints
-        
-        // Write CSV files only on the final call and when processing the last location
+        // Write CSV files on the final call and when processing the last location of this latitude band
         if (is_final_call && (location_index == mArgs.mNumLocs - 1)) {
             std::string results_path;
             try { 
@@ -707,7 +727,6 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
             }
             
             if (results_path.empty()) { 
-                fprintf(stderr, "[StageZero] ERROR: ResultsPath is required. Please set --resultspath.\n");
                 throw std::runtime_error("ResultsPath is required. Please set --resultspath.");
             }
             
@@ -716,58 +735,77 @@ double StageZeroGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
             // Create results directory if it doesn't exist
             try {
                 if (!std::filesystem::exists(results_path)) {
-                    fprintf(stderr, "[StageZero] Creating results directory: %s\n", results_path.c_str());
                     std::filesystem::create_directories(results_path);
                 }
             } catch (const std::exception &e) {
-                fprintf(stderr, "[StageZero] ERROR: Failed to create output directory: %s (%s)\n", results_path.c_str(), e.what());
                 throw std::runtime_error("Failed to create output directory: " + std::string(e.what()));
             }
             
-            fprintf(stderr, "[StageZero] Writing outputs to: %s\n", results_path.c_str());
+            // Get latitude band from environment variable
+            int latitude_band = 0;
+            int longitudes_per_lat = mArgs.mNumLocs;
+            const char* lat_env = getenv("STAGEZERO_LATITUDE_BAND");
+            if (lat_env) {
+                latitude_band = atoi(lat_env);
+            }
             
-            // Write Z files for each time slot (replace mode instead of append)
-            #pragma omp parallel for
+            // Write Z files for each time slot
             for (int time_slot = 0; time_slot < N; time_slot++) {
                 char file_path[256];
                 std::snprintf(file_path, sizeof(file_path), "%sz_%d.csv", results_path.c_str(), time_slot);
                 
-                // Retry loop for file locking with replace mode
-                while (true) {
-                    FILE *fp = std::fopen(file_path, "w");  // Replace mode instead of append
-                    if (!fp) {
-                        fprintf(stderr, "[StageZero] WARNING: Failed to open file %s, retrying...\n", file_path);
-                        std::this_thread::sleep_for(std::chrono::seconds(1));
-                        continue;
-                    }
-                    
-                    // Write all locations for this time slot
-                    for (int loc = 0; loc < mArgs.mNumLocs; ++loc) {
-                        std::fprintf(fp, "%.14f\n", Z_new[loc][time_slot]);
-                    }
-                    std::fclose(fp);
-                    break;
+                // Calculate starting position for this latitude band in the shared file
+                const int chars_per_line = 18;
+                long start_position = static_cast<long>(latitude_band) * static_cast<long>(longitudes_per_lat) * chars_per_line;
+                
+                std::string data_block;
+                for (int loc = 0; loc < mArgs.mNumLocs; ++loc) {
+                    char formatted_line[32];
+                    // Use fixed-width format: 18 chars total (17 digits + newline)
+                    std::snprintf(formatted_line, sizeof(formatted_line), "%17.14f\n", Z_new[loc][time_slot]);
+                    data_block += formatted_line;
+                }
+                
+                if (!WriteToFileAtPosition(file_path, data_block, start_position)) {
+                    fprintf(stderr, "[Latitude %d] ERROR: Failed to write timeslot %d to %s\n", 
+                            latitude_band, time_slot, file_path);
                 }
             }
             
-            // Write params file (replace mode)
+            // Write params for all locations
             char params_file_path[256];
             std::snprintf(params_file_path, sizeof(params_file_path), "%sparams.csv", results_path.c_str());
-            FILE* fp = std::fopen(params_file_path, "w");  // Replace mode
-            if(fp == NULL){ 
-                fprintf(stderr, "[StageZero] ERROR: Failed to create params file: %s\n", params_file_path);
-                exit(1); 
-            }
+
+            // Calculate starting position for this latitude band in params file
+            const int params_per_location = 3 + 2*mArgs.mM + 2;
+            const int chars_per_param = 18;
+            const int params_chars_per_line = params_per_location * chars_per_param + 1;
+            long params_start_position = static_cast<long>(latitude_band) * static_cast<long>(longitudes_per_lat) * params_chars_per_line;
             
-            for(int k = 0; k < mArgs.mNumLocs; k++) {
+            std::string params_block;
+            for(int loc = 0; loc < mArgs.mNumLocs; loc++) {
                 for(int i = 0; i < 3 + 2*mArgs.mM + 2; i++) {
-                    fprintf(fp, "%.14f ", params[k][i]);
+                    char param_str[32];
+                    // Fixed-width format: 17 digits + space = 18 chars per parameter
+                    std::snprintf(param_str, sizeof(param_str), "%17.14f ", params[loc][i]);
+                    params_block += param_str;
                 }
-                fprintf(fp, "\n");
+                params_block += "\n";
             }
-            fclose(fp);
             
-            fprintf(stderr, "[StageZero] Successfully wrote %d Z files and params.csv to %s\n", N, results_path.c_str());
+            if (!WriteToFileAtPosition(params_file_path, params_block, params_start_position)) {
+                fprintf(stderr, "[Latitude %d] ERROR: Failed to write params to %s\n", 
+                        latitude_band, params_file_path);
+            }
+            
+            fprintf(stderr, "[Latitude %d] Successfully wrote all output files\n", latitude_band);
+        }
+
+        // Set summary information for final output
+        if (is_final_call) {
+            Results::GetInstance()->SetGeneratedLocationsNumber(mArgs.mNumLocs);
+            Results::GetInstance()->SetIsLogger(mArgs.mConfigs->GetLogger());
+            Results::GetInstance()->SetLoggerPath(mArgs.mConfigs->GetLoggerPath());
         }
 
         mArgs.mIterCount++;
@@ -811,15 +849,10 @@ double * StageZeroGenerator<T>::ReadObsFile(char *aFileName, const int &aNumLoc)
     int count = 0;
     double *z_vec = new double[aNumLoc];
 
-    double start_time = MPI_Wtime();
     fp = fopen(aFileName, "r");
     if (fp == NULL) {
-        double end_time = MPI_Wtime();
-        fprintf(stderr, "[StageZero] FAILED to open file: %s (%.3f sec)\n", aFileName, end_time - start_time);
-        throw std::runtime_error("readObsFile:cannot open observations file: " + std::string(aFileName));
+        throw std::runtime_error("readObsFile:cannot open observations file");
     }
-    double end_time = MPI_Wtime();
-    fprintf(stderr, "[StageZero] SUCCESS opening file: %s (%.3f sec)\n", aFileName, end_time - start_time);
 
     while ((read = getline(&line, &len, fp)) != -1 && count < aNumLoc) {
         z_vec[count++] = atof(line);

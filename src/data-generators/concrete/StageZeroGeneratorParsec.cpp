@@ -5,14 +5,10 @@
 /**
  * @file StageZeroGeneratorParsec.cpp
  * @brief Implementation of StageZeroGeneratorParsec for climate data preprocessing using PaRSEC/DPLASMA
- * 
- * This class performs Stage Zero preprocessing for climate emulation:
- * - Reads NetCDF climate data files in parallel using MPI
- * - Performs trend removal and mean detrending using optimization
- * - Generates preprocessed residuals for subsequent climate modeling
- * - Supports multi-latitude processing with shared file outputs
- * 
- * @version 2.0.0
+ * @version 1.1.0
+ * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
+ * @date 2024-02-04
 **/
 
 #include <data-generators/concrete/StageZeroGeneratorParsec.hpp>

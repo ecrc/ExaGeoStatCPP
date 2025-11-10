@@ -4,6 +4,13 @@
 # Processes each latitude band independently but writes to SHARED output files
 ################################################################################
 
+# Color codes for terminal output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
 #==============================================================================
 # CONFIGURATION - Edit these values for your setup OR override via command line
 #==============================================================================
@@ -40,7 +47,7 @@ gpus=0
 # Parse command-line arguments to override defaults
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --total-latitudes=*)
+        --lats=*)
             total_latitudes="${1#*=}"
             shift
             ;;
@@ -131,8 +138,8 @@ while [[ $# -gt 0 ]]; do
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo "===== REQUIRED Stage Zero Options ====="
-            echo "  --total-latitudes=N      Number of latitude bands to process"
+            echo -e "${BLUE}===== REQUIRED Stage Zero Options =====${NC}"
+            echo "  --lats=N                 Number of latitude bands to process"
             echo "  --lon=N                  Number of longitudes per latitude"
             echo "  --startyear=YYYY         Starting year for data processing"
             echo "  --endyear=YYYY           Ending year for data processing"
@@ -140,12 +147,12 @@ while [[ $# -gt 0 ]]; do
             echo "  --forcing-data-path=PATH Path to forcing data file"
             echo "  --resultspath=PATH       Output directory path"
             echo ""
-            echo "===== OPTIONAL Pipeline Options ====="
+            echo -e "${BLUE}===== OPTIONAL Pipeline Options =====${NC}"
             echo "  --mpi-processes=N        MPI processes per job (default: $mpi_processes)"
             echo "  --parallel-jobs=N        Number of parallel jobs (default: $parallel_jobs)"
             echo "  --cores=N                Cores for Stage Zero and Emulator (default: auto-calculated)"
             echo ""
-            echo "===== Climate Emulator Options ====="
+            echo -e "${BLUE}===== Climate Emulator Options =====${NC}"
             echo "  --run-climate-emulator   Run climate emulator after Stage Zero"
             echo "  --N=N                    Spatial problem size (default: $N)"
             echo "  --dts=N                  Dense tile size (default: $dts)"
@@ -153,38 +160,35 @@ while [[ $# -gt 0 ]]; do
             echo "  --ObjectsNumber=N        Objects number (default: $ObjectsNumber)"
             echo "  --add-diagonal=N         Diagonal value (default: $add_diagonal)"
             echo "  --Accuracy=N             Accuracy (default: $Accuracy)"
-            echo "  --band-dense=N           Band dense (default: $band_dense)"
+            echo "  --band-dense=N           Band dense DP (default: $band_dense)"
             echo "  --hnb=N                  HNB (default: $hnb)"
             echo "  --verbose=MODE           Verbose mode (default: $verbose)"
             echo "  --gpus=N                 Number of GPUs (default: $gpus)"
             echo ""
-            echo "===== Parameter Relationships ====="
+            echo -e "${BLUE}===== Parameter Relationships =====${NC}"
             echo "Stage Zero Output:"
-            echo "  - Creates: total_latitudes × lon spatial locations"
+            echo "  - Creates: lats × lon spatial locations"
             echo "  - Generates: 365 × 24 × (endyear-startyear+1) z_*.csv files"
             echo "  - Each z file contains one timeslot for all spatial locations"
             echo "  - Processing time scales with: locations × years × optimization_iterations"
             echo ""
             echo "Climate Emulator Constraints:"
-            echo "  - CRITICAL: N must equal dts² (e.g., N=5184 requires dts=72)"
-            echo "  - N should be ≤ (total_latitudes × lon) from Stage Zero output"
+            echo "  - N should be equal to dts² (e.g., N=5184 requires dts=72)"
+            echo "  - N should be ≤ (lats × lon) from Stage Zero output"
             echo "  - timeslot: number of z files to read (max = Stage Zero output count)"
             echo ""
-            echo "===== Examples ====="
+            echo -e "${BLUE}===== Examples =====${NC}"
             echo "  1. Stage Zero only (3 years of data):"
-            echo "    $0 --total-latitudes=72 --lon=144 --startyear=2020 --endyear=2022 \\"
+            echo "    $0 --lats=72 --lon=144 --startyear=2020 --endyear=2022 \\"
             echo "       --data-path=/path/to/ERA_data/ --forcing-data-path=/path/to/forcing.csv \\"
             echo "       --resultspath=/path/to/results/ --parallel-jobs=10 --cores=4"
             echo ""
             echo "  2. Full Pipeline (Stage Zero + Climate Emulator):"
-            echo "    $0 --total-latitudes=72 --lon=144 --startyear=2020 --endyear=2022 \\"
+            echo "    $0 --lats=72 --lon=144 --startyear=2020 --endyear=2022 \\"
             echo "       --data-path=/path/to/ERA_data/ --forcing-data-path=/path/to/forcing.csv \\"
             echo "       --resultspath=/path/to/results/ --parallel-jobs=10 --cores=4 \\"
             echo "       --run-climate-emulator --N=5184 --dts=72 --timeslot=3000"
             echo ""
-            echo "  Note: In example 2, Stage Zero creates 26,280 z files (3 years × 365 × 24),"
-            echo "        but emulator processes only first 3,000 for faster testing."
-            echo "        For full processing: --timeslot=26280"
             exit 0
             ;;
         *)
@@ -213,9 +217,9 @@ fi
 #==============================================================================
 
 echo ""
-echo "=========================================="
-echo "  StageZero Pipeline"
-echo "=========================================="
+echo -e "${BLUE}=========================================="
+echo -e "  StageZero Pipeline"
+echo -e "==========================================${NC}"
 echo ""
 echo "Configuration:"
 echo "  Years:        ${startyear}-${endyear} ($((endyear - startyear + 1)) years)"
@@ -239,10 +243,10 @@ echo ""
 
 # Check for Climate Emulator auxiliary files if emulator is enabled
 if [ "$run_climate_emulator" = true ]; then
-    echo "⚠ Climate Emulator Check:"
+    echo -e "${RED}⚠ Climate Emulator Check:"
     echo "  The Climate Emulator requires pre-computed auxiliary files in the results directory."
     echo "  Required files (example for dts=720): 720_Et1.csv, 720_Et2.csv, 720_Ep.csv, etc."
-    echo "  Please copy auxiliary files to the results directory before running."
+    echo -e "  Please copy auxiliary files to the results directory before running.${NC}"
     echo ""
 fi
 
@@ -281,7 +285,7 @@ for lat in $(seq 0 $((total_latitudes - 1))); do
             --kernel=trend_model \
             --lon=${lon} \
             --lat=${lat} \
-            --dts=720 \
+            --dts="$dts" \
             --startyear=${startyear} \
             --endyear=${endyear} \
             --data-path=${data_path} \
@@ -300,10 +304,10 @@ for lat in $(seq 0 $((total_latitudes - 1))); do
             > "${resultspath}/lat_${lat}_output.log" 2>&1
         
         if [ $? -eq 0 ]; then
-            echo "[$(date +%H:%M:%S)] ✓ Latitude ${lat} complete"
+            echo -e "[$(date +%H:%M:%S)] ${GREEN}✓ Latitude ${lat} complete${NC}"
             touch "${lock_dir}/lat_${lat}.done"
         else
-            echo "[$(date +%H:%M:%S)] ✗ Latitude ${lat} FAILED"
+            echo -e "[$(date +%H:%M:%S)] ${RED}✗ Latitude ${lat} FAILED${NC}"
             touch "${lock_dir}/lat_${lat}.failed"
         fi
     ) &
@@ -324,9 +328,9 @@ echo "[$(date +%H:%M:%S)] Waiting for remaining jobs to complete..."
 wait
 
 echo ""
-echo "=========================================="
-echo "  Stage Zero Processing Complete"
-echo "=========================================="
+echo -e "${BLUE}=========================================="
+echo -e "  Stage Zero Processing Complete"
+echo -e "==========================================${NC}"
 
 # Show summary
 completed=$(find "${lock_dir}" -name "*.done" | wc -l)
@@ -336,7 +340,7 @@ echo ""
 echo "Job Summary:"
 echo "  ✓ Completed: ${completed}/${total_latitudes} latitudes"
 if [ ${failed} -gt 0 ]; then
-    echo "  ✗ Failed:    ${failed} latitude(s)"
+    echo -e "  ${RED}✗ Failed:    ${failed} latitude(s)${NC}"
 fi
 
 # Check output file sizes
@@ -348,10 +352,10 @@ if [ -f "${resultspath}/params.csv" ]; then
     if [ ${param_lines} -eq ${expected_param_lines} ]; then
         echo "  ✓ params.csv:  ${param_lines}/${expected_param_lines} lines"
     else
-        echo "  ⚠ params.csv:  ${param_lines}/${expected_param_lines} lines (MISMATCH)"
+        echo -e "  ${RED}⚠ params.csv:  ${param_lines}/${expected_param_lines} lines (MISMATCH)${NC}"
     fi
 else
-    echo "  ✗ params.csv:  FILE NOT FOUND"
+    echo -e "  ${RED}✗ params.csv:  FILE NOT FOUND${NC}"
 fi
 
 z_files=$(ls "${resultspath}"/z_*.csv 2>/dev/null | wc -l)
@@ -362,10 +366,10 @@ if [ ${z_files} -gt 0 ]; then
     if [ ${z_lines} -eq ${expected_z_lines} ]; then
         echo "  ✓ Z files:     ${z_files} files (${z_lines}/${expected_z_lines} lines each)"
     else
-        echo "  ⚠ Z files:     ${z_files} files (${z_lines}/${expected_z_lines} lines each - MISMATCH)"
+        echo -e "  ${RED}⚠ Z files:     ${z_files} files (${z_lines}/${expected_z_lines} lines each - MISMATCH)${NC}"
     fi
 else
-    echo "  ✗ Z files:     NO FILES FOUND"
+    echo -e "  ${RED}✗ Z files:     NO FILES FOUND${NC}"
 fi
 
 echo ""
@@ -373,13 +377,13 @@ echo "Results location: ${resultspath}"
 
 if [ ${completed} -lt ${total_latitudes} ]; then
     echo ""
-    echo "⚠ Failed Jobs - Check Logs:"
+    echo -e "${RED}⚠ Failed Jobs - Check Logs:"
     for lat in $(seq 0 $((total_latitudes - 1))); do
         if [ -f "${lock_dir}/lat_${lat}.failed" ]; then
             echo "  - Latitude ${lat}: ${resultspath}/lat_${lat}_output.log"
         fi
     done
-    echo "=========================================="
+    echo -e "==========================================${NC}"
     echo ""
     exit 1
 fi
@@ -390,13 +394,13 @@ echo ""
 # Run Climate Emulator if requested
 if [ "$run_climate_emulator" = true ]; then
     echo ""
-    echo "=========================================="
-    echo "  Climate Emulator"
-    echo "=========================================="
+    echo -e "${BLUE}=========================================="
+    echo -e "  Climate Emulator"
+    echo -e "==========================================${NC}"
     echo ""
     
     if [ ! -f "$EMULATOR_BIN" ]; then
-        echo "ERROR: Climate Emulator binary not found: $EMULATOR_BIN"
+        echo -e "${RED}ERROR: Climate Emulator binary not found: $EMULATOR_BIN${NC}"
         exit 1
     fi
     
@@ -434,12 +438,11 @@ if [ "$run_climate_emulator" = true ]; then
     
     echo ""
     if [ $EMULATOR_EXIT -eq 0 ]; then
-        echo "✓ Climate Emulator completed successfully!"
-        echo "  Log: $emulator_log"
+        echo "Climate Emulator finished."
+        echo "  Check log: $emulator_log"
         echo "=========================================="
         echo ""
-    else
-        echo "✗ Climate Emulator failed with exit code: $EMULATOR_EXIT"
+        echo -e "${RED}✗ Climate Emulator failed with exit code: $EMULATOR_EXIT${NC}"
         echo "  Check log: $emulator_log"
         echo "=========================================="
         echo ""
