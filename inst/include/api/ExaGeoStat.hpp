@@ -34,8 +34,10 @@ namespace exageostat::api {
          * @return void
          *
          */
+#ifdef USE_CLIMATE_EMULATOR
         static void ExaGeoStatGenerateMeanTrendData(configurations::Configurations &aConfigurations,
                                        std::unique_ptr<ExaGeoStatData<T>> &aData);
+#endif
 
         /**
          * @brief Generates Data whether it's synthetic data or real.

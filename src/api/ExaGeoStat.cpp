@@ -29,6 +29,7 @@ using namespace exageostat::configurations;
 using namespace exageostat::generators::stagezero;
 
 
+#ifdef USE_CLIMATE_EMULATOR
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
     configurations::Configurations &aConfigurations,
@@ -60,6 +61,7 @@ void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
     LOGGER("\t*Data generation finished*")
 
 }
+#endif
 
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
