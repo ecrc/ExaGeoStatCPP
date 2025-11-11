@@ -33,6 +33,7 @@ void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
         Configurations synthetic_data_configurations;
 
         int N = 9;
+        synthetic_data_configurations.SetSeed(0);
         synthetic_data_configurations.SetProblemSize(N);
         synthetic_data_configurations.SetKernelName("UnivariatePowExpStationary");
         synthetic_data_configurations.SetDimension(Dimension2D);
@@ -46,8 +47,6 @@ void TEST_KERNEL_GENERATION_UnivariatePowExpStationary() {
         // initialize ExaGeoStat Hardware.
         auto hardware = ExaGeoStatHardware(EXACT_DENSE, 3, 0);
 
-        int seed = 0;
-        srand(seed);
         std::unique_ptr<ExaGeoStatData<double>> data;
         exageostat::api::ExaGeoStat<double>::ExaGeoStatLoadData(synthetic_data_configurations, data);
 

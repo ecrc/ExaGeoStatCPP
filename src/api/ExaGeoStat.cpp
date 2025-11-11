@@ -71,7 +71,7 @@ void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
 
-    int seed = 0;
+    int seed = aConfigurations.GetSeed();
     std::srand(seed);
     aConfigurations.PrintSummary();
     LOGGER("** ExaGeoStat data generation/loading **")

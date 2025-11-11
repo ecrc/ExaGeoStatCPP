@@ -60,10 +60,14 @@ To build and run this software, you will need:
 
 1. [CMake](https://cmake.org/download/) (version 3.2 or higher)
 2. [wget](https://www.gnu.org/software/wget/)
-3. **gcc** and **g++** compilers
-4. **autoconf** and **automake**
-5. [libtool](https://www.gnu.org/software/libtool/)
-6. [R](https://cran.r-project.org/bin/windows/base/) (only if you plan on using the R functionality)
+3. [curl](https://curl.se/) 
+4. **gcc** and **g++** compilers  
+5. **autoconf** and **automake**  
+6. [libtool](https://www.gnu.org/software/libtool/)  
+7. [R](https://cran.r-project.org/bin/windows/base/) (only if you plan on using the R functionality)  
+
+> ⚠️ **Note on CUDA Support**: If you want to enable CUDA, you must use a CUDA version **strictly less than 12**.  
+> ExaGeoStatCPP is not compatible with CUDA 12 or newer due to dependency conflicts.
 
 ### C++ source code installation
 To install the `ExaGeoStatCPP` project locally (C++ version), run the following commands in your terminal:

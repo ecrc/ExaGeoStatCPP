@@ -42,6 +42,21 @@ Configurations::Configurations() {
     SetLowerBounds(theta);
     SetUpperBounds(theta);
     SetEstimatedTheta(theta);
+    SetSeed(static_cast<unsigned int>(time(0)));
+    SetLogger(false);
+    SetUnknownObservationsNb(0);
+    SetApproximationMode(1);
+    SetActualObservationsFilePath("");
+    SetRecoveryFile("");
+    SetPrecision(DOUBLE);
+    SetIsMSPE(false);
+    SetIsFisher(false);
+    SetIsIDW(false);
+    SetIsMLOEMMOM(false);
+    SetDataPath("");
+    SetDistanceMetric(EUCLIDEAN_DISTANCE);
+    SetAccuracy(0);
+    SetIsNonGaussian(false);
     mIsThetaInit = false;
 
 #if !DEFAULT_RUNTIME

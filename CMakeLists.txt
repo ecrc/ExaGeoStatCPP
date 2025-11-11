@@ -65,6 +65,13 @@ if (USE_CUDA)
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds
     set(BLA_VENDOR NVHPC)
     list(APPEND STARPU_COMPONENT_LIST "CUDA")
+
+    # ---- Enforce CUDA version constraint ----
+    if (CMAKE_CUDA_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0")
+        message(FATAL_ERROR
+            "CUDA ${CMAKE_CUDA_COMPILER_VERSION} detected. "
+            "This project only supports CUDA < 12. Please install an older CUDA toolkit.")
+    endif()
 else ()
     message("-- Build x86 Support")
     # Include GccToolchain for non-CUDA builds - Gcc
