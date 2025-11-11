@@ -142,21 +142,19 @@ include(ImportNLOPT)
 # -------------------------------
 include(ImportGSL)
 
+# NetCDF is only needed for climate emulator
+if (USE_CLIMATE_EMULATOR)
+    message(STATUS "Climate Emulator enabled: including NetCDF support")
+    include(ImportNetCDF)
+    add_definitions(-DUSE_NETCDF=TRUE)
+endif()
+
 message("---------------------------------------- ${RUNTIME_TYPE}")
 if(RUNTIME_TYPE STREQUAL "STARPU")
     message(STATUS "Using StarPU as the runtime")
     # ExaGeoStatCPP depends on StarPU runtime
     # -------------------------------
     include(ImportStarPu)
-    
-    # NetCDF is only needed for climate emulator
-    if (USE_CLIMATE_EMULATOR)
-        message(STATUS "Climate Emulator enabled: including NetCDF support")
-        include(ImportNetCDF)
-        add_definitions(-DUSE_NETCDF=TRUE)
-    else()
-        message(STATUS "Climate Emulator disabled: NetCDF support not included")
-    endif()
     
     # ExaGeoStatCPP depends on HiCMA
     # -------------------------------
@@ -172,15 +170,6 @@ if(RUNTIME_TYPE STREQUAL "STARPU")
 
 elseif(RUNTIME_TYPE STREQUAL "PARSEC")
     message(STATUS "Using PaRSEC as the runtime")
-    
-    # NetCDF is only needed for climate emulator
-    if (USE_CLIMATE_EMULATOR)
-        message(STATUS "Climate Emulator enabled: including NetCDF support")
-        include(ImportNetCDF)
-        add_definitions(-DUSE_NETCDF=TRUE)
-    else()
-        message(STATUS "Climate Emulator disabled: NetCDF support not included")
-    endif()
     
     # ExaGeoStatCPP depends on HiCMA-X for PaRSEC
     # -------------------------------
