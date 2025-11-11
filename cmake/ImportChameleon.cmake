@@ -38,8 +38,13 @@ ImportDependency(${name} ${tag} ${version} ${url} "${flag}" "" ${is_cmake} ${is_
 # Additional include directories for Chameleon are specified, ensuring the project can find Chameleon's headers.
 # The AFTER keyword specifies that these directories should be searched after the default ones.
 include_directories(AFTER ${CHAMELEON_DIR_FOUND}/include/coreblas)
-include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)
-include_directories(${CHAMELEON_DIR_FOUND})
 
+if(NOT CHAMELEON_DIR_FOUND)
+    set(CHAMELEON_DIR_FOUND ${CMAKE_INSTALL_PREFIX}/CHAMELEON)
+else()
+    include_directories(${CHAMELEON_DIR_FOUND})
+endif()
+message(STATUS "CHAMELEON_DIR_FOUND: ${CHAMELEON_DIR_FOUND}")
+include_directories(${CHAMELEON_DIR_FOUND}/chameleon-src)
 # Print a status message indicating the completion of Chameleon's inclusion process.
 message(STATUS "${name} done")

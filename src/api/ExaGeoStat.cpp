@@ -15,9 +15,12 @@
 #include <data-generators/DataGenerator.hpp>
 #include <prediction/Prediction.hpp>
 #include <runtime-solver/RuntimeSolverFactory.hpp>
+
+#ifdef USE_CLIMATE_EMULATOR
 #include <data-generators/concrete/StageZeroGenerator.hpp>
 #if !DEFAULT_RUNTIME
 #include <data-generators/concrete/StageZeroGeneratorParsec.hpp>
+#endif
 #endif
 
 using namespace std;
@@ -26,7 +29,9 @@ using namespace exageostat::api;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+#ifdef USE_CLIMATE_EMULATOR
 using namespace exageostat::generators::stagezero;
+#endif
 
 
 #ifdef USE_CLIMATE_EMULATOR
