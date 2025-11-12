@@ -36,6 +36,15 @@ using namespace std;
 
 ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configurations &aConfigurations){
 
+#if DEFAULT_RUNTIME
+    // StarPU/CHAMELEON mode - initialize using the other constructor path
+    InitHardware(aConfigurations.GetComputation(), 
+                 aConfigurations.GetCoresNumber(),
+                 aConfigurations.GetGPUsNumbers(), 
+                 aConfigurations.GetPGrid(), 
+                 aConfigurations.GetQGrid());
+#else
+    // PaRSEC mode - use HiCMAX initialization
     // These variables are named according to HiCMA-X inputs
     const int N = aConfigurations.GetProblemSize();
     const int t = aConfigurations.GetDenseTileSize();
@@ -97,7 +106,6 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
         strcpy(new_argv[i], new_args[i].c_str());
     }
 
-#if !DEFAULT_RUNTIME
     int iparam[IPARAM_SIZEOF] = {0};
     double dparam[DPARAM_SIZEOF];
     char *cparam[CPARAM_SIZEOF];
@@ -108,8 +116,9 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
 
     mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
     SetParsecMPIRank(this->mpHicmaParams->rank);
-#endif
+    
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
+#endif
 }
 
 ExaGeoStatHardware::ExaGeoStatHardware(const Computation &aComputation, const int &aCoreNumber, const int &aGpuNumber,

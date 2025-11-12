@@ -276,11 +276,8 @@ for lat in $(seq 0 $((total_latitudes - 1))); do
     
     echo "[$(date +%H:%M:%S)] Starting latitude ${lat}..."
     
-    # Run this latitude in background with environment variable set
+    # Run this latitude in background
     (
-        # Set environment variable for the C++ program to know which latitude band this is
-        export STAGEZERO_LATITUDE_BAND=${lat}
-        
         mpirun -n ${mpi_processes} ${STAGEZERO_BIN} \
             --kernel=trend_model \
             --lon=${lon} \

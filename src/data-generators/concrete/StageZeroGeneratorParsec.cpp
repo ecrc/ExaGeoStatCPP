@@ -853,13 +853,9 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
                 throw std::runtime_error("Failed to create output directory: " + std::string(e.what()));
             }
             
-            // Get latitude band from environment variable
-            int latitude_band = 0;
+            // Get latitude band from configuration
+            int latitude_band = mArgs.mConfigs->GetLatitudeBand();
             int longitudes_per_lat = mArgs.mNumLocs;
-            const char* lat_env = getenv("STAGEZERO_LATITUDE_BAND");
-            if (lat_env) {
-                latitude_band = atoi(lat_env);
-            }
             
             // Write Z files for each time slot
             for (int time_slot = 0; time_slot < N; time_slot++) {

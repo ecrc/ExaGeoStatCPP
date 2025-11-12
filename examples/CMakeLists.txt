@@ -20,14 +20,13 @@ if (RUNTIME_TYPE STREQUAL "STARPU")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/data-generators)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/descriptors)
     
-    # Climate emulator examples (Stage0, Climate Emulator) only if enabled
+    # Stage Zero example only (works with StarPU)
     if (USE_CLIMATE_EMULATOR)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stage-zero)
-        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/climate-emulator)
     endif()
     
 elseif (RUNTIME_TYPE STREQUAL "PARSEC")
-    # Climate emulator examples (Stage0, Climate Emulator) only if enabled
+    # Climate emulator examples (Stage Zero and Climate Emulator both require PaRSEC)
     if (USE_CLIMATE_EMULATOR)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/stage-zero)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/climate-emulator)
