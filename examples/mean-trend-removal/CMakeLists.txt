@@ -10,7 +10,7 @@
 # @date 2024-09-23
 
 # Define the target executable
-add_executable(Example_Stage_Zero ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroDataGenerator.cpp)
+add_executable(Example_Mean_Trend_Removal ${CMAKE_CURRENT_SOURCE_DIR}/MeanTrendRemoval.cpp)
 
 # Link the target executable with the project and any additional libraries
-target_link_libraries(Example_Stage_Zero PUBLIC ${PROJECT_NAME}_INTERFACE)
+target_link_libraries(Example_Mean_Trend_Removal PUBLIC ${PROJECT_NAME}_INTERFACE)

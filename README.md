@@ -72,7 +72,7 @@ To build and run this software, you will need:
 ### C++ source code installation
 To install the `ExaGeoStatCPP` project locally (C++ version), run the following commands in your terminal:
 
-1. Clone the project repository to your local machine:
+1. Clone the project:
    ```bash
    git clone https://github.com/ecrc/ExaGeoStatCPP.git 
    ```
@@ -89,7 +89,7 @@ To install the `ExaGeoStatCPP` project locally (C++ version), run the following 
    ./configure -e 
    ```
    
-   **For climate data processing:**
+   **To enable the Global Climate Emulator:**
    ```bash
    ./configure -e --climate-emulator
    ```

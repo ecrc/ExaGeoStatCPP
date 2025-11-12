@@ -22,12 +22,12 @@ elseif (RUNTIME_TYPE STREQUAL "PARSEC")
     list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/ParsecGenerator.cpp)
 endif()
 
-# Add Stage Zero generators only if climate emulator is enabled
+# Add Mean Trend Removal generators only if climate emulator is enabled
 if (USE_CLIMATE_EMULATOR)
     if (RUNTIME_TYPE STREQUAL "STARPU")
-        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGenerator.cpp)
+        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/MeanTrendRemovalGenerator.cpp)
     elseif (RUNTIME_TYPE STREQUAL "PARSEC")
-        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/StageZeroGeneratorParsec.cpp)
+        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/MeanTrendRemovalGeneratorParsec.cpp)
     endif()
 endif()
 

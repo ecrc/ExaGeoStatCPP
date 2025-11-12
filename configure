@@ -83,7 +83,7 @@ do
           RUNTIME_TYPE="parsec"
           ;;
         --climate-emulator)
-          printf "%b\n" "${GREEN}Climate Emulator examples enabled (Climate-Emulator + Stage-Zero)${NC}"
+          printf "%b\n" "${GREEN}Climate Emulator examples enabled (Climate-Emulator + mean-trend-removal)${NC}"
           USE_CLIMATE_EMULATOR="ON"
           USE_MPI="ON"
           printf "%b\n" "${GREEN}MPI auto-enabled (required for NetCDF)${NC}"
@@ -158,7 +158,7 @@ while getopts ":tevhHi:cmpTwr" opt; do
     echo ""
     printf "%20s %s\n" "--use-mkl :" "to use MKL as a BLA vendor."
     printf "%20s %s\n" "--use-parsec :" "to use ParSec runtime."
-    printf "%20s %s\n" "--climate-emulator :" "to enable climate emulator examples (Stage-Zero + Climate-Emulator)."
+    printf "%20s %s\n" "--climate-emulator :" "to enable climate emulator examples (mean-trend-removal + Climate-Emulator)."
     printf "%20s %b\n" "" "  ${RED}NOTE:${NC} Climate-Emulator example requires --use-parsec."
     printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
     printf "%20s %s\n" "-t :" "to enable building tests."

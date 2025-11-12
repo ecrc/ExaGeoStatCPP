@@ -1,5 +1,5 @@
-#ifndef EXAGEOSTAT_STAGEZEROGENERATOR_HPP
-#define EXAGEOSTAT_STAGEZEROGENERATOR_HPP
+#ifndef EXAGEOSTAT_MeanTrendRemovalGENERATOR_HPP
+#define EXAGEOSTAT_MeanTrendRemovalGENERATOR_HPP
 
 #include "../DataGenerator.hpp"
 #include <configurations/Configurations.hpp>
@@ -16,12 +16,12 @@ namespace exageostat { namespace kernels { template<typename T> class Kernel; } 
 #define EXAGEOSTAT_INSTANTIATE_CLASS(...)
 #endif
 
-namespace exageostat::generators::stagezero {
+namespace exageostat::generators::MeanTrendRemoval {
 
     /**
-     * @brief Holds runtime configuration and state for Stage Zero.
+     * @brief Holds runtime configuration and state for Mean Trend Removal.
      */
-    struct StageZeroArgs {
+    struct MeanTrendRemovalArgs {
         // Model/config
         int mM = 10;                        // harmonics for mean-trend
         int mT = 365 * 24;                  // period in hours (used to compute N)
@@ -71,25 +71,25 @@ namespace exageostat::generators::stagezero {
     };
 
     /**
-     * @class StageZeroGenerator
-     * @brief Stage Zero pipeline: read inputs, build mean-trend, optimize, and write CSV outputs.
+     * @class MeanTrendRemovalGenerator
+     * @brief Mean Trend Removal pipeline: read inputs, build mean-trend, optimize, and write CSV outputs.
      * @tparam T float or double
      */
     template<typename T>
-    class StageZeroGenerator : public DataGenerator<T> {
+    class MeanTrendRemovalGenerator : public DataGenerator<T> {
 
     public:
 
         /**
          * @brief Get a pointer to the singleton instance.
-         * @return Pointer to the `StageZeroGenerator<T>` instance.
+         * @return Pointer to the `MeanTrendRemovalGenerator<T>` instance.
          */
-        static StageZeroGenerator<T> *GetInstance();
+        static MeanTrendRemovalGenerator<T> *GetInstance();
 
         /**
-         * @brief Configure and run Stage Zero, returning the generated data container.
+         * @brief Configure and run Mean Trend Removal, returning the generated data container.
          * @param aConfigurations Global configuration object.
-         * @param aKernel Kernel (unused by Stage Zero mean-trend; retained for API compatibility).
+         * @param aKernel Kernel (unused by Mean Trend Removal mean-trend; retained for API compatibility).
          * @return Unique pointer to `ExaGeoStatData<T>`.
          */
         std::unique_ptr<ExaGeoStatData<T>>
@@ -117,13 +117,13 @@ namespace exageostat::generators::stagezero {
          * @param aN Number of parameters.
          * @param aTheta Parameter vector.
          * @param aGrad Gradient vector.
-         * @param aData Pointer to StageZeroGenerator instance.
+         * @param aData Pointer to MeanTrendRemovalGenerator instance.
          * @return Objective value.
          */
-        static double StageZeroObjectiveCallback(unsigned aN, const double *aTheta, double *aGrad, void *aData);
+        static double MeanTrendRemovalObjectiveCallback(unsigned aN, const double *aTheta, double *aGrad, void *aData);
 
         /**
-         * @brief Orchestrate Stage Zero pipeline (configure, allocate, load, optimize, cleanup).
+         * @brief Orchestrate Mean Trend Removal pipeline (configure, allocate, load, optimize, cleanup).
          * @param aConfigurations Global configuration object.
          */
         void Runner(configurations::Configurations &aConfigurations);
@@ -213,23 +213,23 @@ namespace exageostat::generators::stagezero {
          * @brief Constructor for the SyntheticGenerator class.
          * @return void
          */
-        StageZeroGenerator() = default;
+        MeanTrendRemovalGenerator() = default;
 
         /**
          * @brief Default destructor.
          */
-        ~StageZeroGenerator() override = default;
+        ~MeanTrendRemovalGenerator() override = default;
 
         // Pointer to the singleton instance
-        static StageZeroGenerator<T> *mpInstance;
+        static MeanTrendRemovalGenerator<T> *mpInstance;
 
     private:
 
         std::unique_ptr<ExaGeoStatData<T>> mData;
-        StageZeroArgs mArgs;
+        MeanTrendRemovalArgs mArgs;
 
     };
 
 } // namespace exageostat
 
-#endif //EXAGEOSTAT_STAGEZEROGENERATOR_HPP
+#endif //EXAGEOSTAT_MeanTrendRemovalGENERATOR_HPP

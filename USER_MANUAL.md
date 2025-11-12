@@ -8,12 +8,12 @@
 4. [Arguments](#arguments)
 5. [List of Descriptors](#list-of-descriptors)
 6. [Supported operations](#supported-operations)
-7. [Climate Data Processing](#climate-data-processing)
+7. [Global Climate Emulator](#climate-data-processing)
 8. [Manuals](#Manuals)
 9. [Contributing](#contributing)
 
 ## ExaGeoStatCPP
-> Current Version of ExaGeoStatCPP: 1.1.0
+> Current Version of ExaGeoStatCPP: 2.0.0
 ### Supported Operations:
 1. (Data Generation): Generating large geospatial synthetic datasets using  dense, Diagonal Super-Tile (DST) and Tile Low-Rank (TLR) approximation techniques.
 2. (Data Modeling): Modeling large geospatial datasets on dense, DST and TLR approximation techniques through the Maximum likelihood Estimation (MLE) operation.
@@ -81,8 +81,8 @@
 * To enable packaging system for distribution, add `-p` disabled by default.
 * To enable showing code warnings, add `-w` disabled by default.
 * To manually set mkl as blas vendor, add `--use-mkl`. MKL is required as blas vendor and it's automatically detected but in some environments it need to be manually set.
-* To enable PaRSEC as a runtime system, add `--use-parsec`, StarPU by default.
-* To enable climate emulator examples (Stage Zero + Climate Emulator), add `--climate-emulator` disabled by default. **Note:** Climate Emulator requires `--use-parsec`. Stage Zero works with both StarPU and PaRSEC.
+* To enable PaRSEC as a runtime system, add `--use-parsec`, StarPU is enabled by default.
+* To enable climate emulator examples (Mean Trend Removal + Climate Emulator), add `--climate-emulator` disabled by default. **Note:** Climate Emulator requires `--use-parsec`. Mean Trend Removal works with both StarPU and PaRSEC.
 
 ## Building
 
@@ -187,25 +187,25 @@ For example, `MaxRank`, `max-rank`, `max_rank`, `Max_Rank` ,`Maxrank` , `MaxrAnk
 
         --log
 
-### Stage Zero and Climate Processing Arguments
+### Mean Trend Removal and Climate Processing Arguments
 
-* {Mandatory for Stage Zero} To set the number of longitude points
+* {Mandatory for Mean Trend Removal} To set the number of longitude points
 
         --lon=<value>
 
-* {Mandatory for Stage Zero} To set the latitude band index
+* {Mandatory for Mean Trend Removal} To set the latitude band index
 
         --lat=<value>
 
-* {Mandatory for Stage Zero} To set the starting year for data processing
+* {Mandatory for Mean Trend Removal} To set the starting year for data processing
 
         --startyear=<value>
 
-* {Mandatory for Stage Zero} To set the ending year for data processing
+* {Mandatory for Mean Trend Removal} To set the ending year for data processing
 
         --endyear=<value>
 
-* {Mandatory for Stage Zero} To set the path to forcing data file
+* {Mandatory for Mean Trend Removal} To set the path to forcing data file
 
         --forcing-data-path=<path/to/file>
 
@@ -233,9 +233,9 @@ For example, `MaxRank`, `max-rank`, `max_rank`, `Max_Rank` ,`Maxrank` , `MaxrAnk
 
         --max-mle-iterations=<value>
 
-* {Mandatory for Stage Zero} To enable Stage Zero mode
+* {Mandatory for Mean Trend Removal} To enable Mean Trend Removal mode
 
-        --stage-zero
+        --mean-trend-removal
 
 * {Mandatory for Climate Emulator} To set the number of objects
 
@@ -279,7 +279,7 @@ For example, `MaxRank`, `max-rank`, `max_rank`, `Max_Rank` ,`Maxrank` , `MaxrAnk
 
         --parallel-jobs=<value>
 
-* {Optional} To enable Climate Emulator after Stage Zero
+* {Optional} To enable Climate Emulator after Mean Trend Removal
 
         --run-climate-emulator
 
@@ -540,11 +540,11 @@ ExaGeoStat<double>::ExaGeoStatPrediction(configurations, data, z_matrix);
 idw_error = idw(train_data=list(locations_x, locations_y, z_value), test_data=list(test_x, test_y), kernel=kernel, dts=dts, estimated_theta=estimated_theta, test_measurements=test_measurements)
 ```
 
-## Climate Data Processing
+## Global Climate Emulator
 
 ExaGeoStatCPP provides specialized tools for climate data analysis through two main components:
 
-### Stage Zero - Data Preprocessing
+### Mean Trend Removal - Data Preprocessing
 
 **Purpose:** Removes mean trends from climate time series data and produces normalized residuals for further analysis.
 
@@ -561,7 +561,7 @@ ExaGeoStatCPP provides specialized tools for climate data analysis through two m
 
 **Basic Usage:**
 ```bash
-mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
+mpirun -n 2 ./bin/examples/mean-trend-removal/Example_Mean_Trend_Removal \
   --kernel=trend_model \
   --lon=144 --lat=0 --dts=720 \
   --startyear=2020 --endyear=2020 \
@@ -573,7 +573,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
   --ub=0.95 \
   --tolerance=7 \
   --max-mle-iterations=30 \
-  --stage-zero \
+  --mean-trend-removal \
   --cores=4 \
   --gpus=0 \
   --p=1 \
@@ -586,7 +586,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
 
 ### Climate Emulator - Statistical Modeling
 
-**Purpose:** Builds statistical models from Stage Zero residuals to emulate climate behavior.
+**Purpose:** Builds statistical models from Mean Trend Removal residuals to emulate climate behavior.
 
 **Runtime:** Requires PaRSEC (StarPU not supported).
 
@@ -596,7 +596,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
 ```
 
 **Prerequisites:**
-1. Stage Zero output files (`z_*.csv` and `params.csv`)
+1. Mean Trend Removal output files (`z_*.csv` and `params.csv`)
 2. Auxiliary files matching your grid size: `<dts>_Et1.csv`, `<dts>_Et2.csv`, `<dts>_Ep.csv`
 
 **Basic Usage:**
@@ -619,7 +619,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
 **Key Parameters:**
 - `N`: Spatial problem size (typically `dts²`, e.g., N=5184 for dts=72)
 - `timeslot`: Number of time points to process (z_*.csv files)
-- `data_path`: Directory containing Stage Zero outputs
+- `data_path`: Directory containing Mean Trend Removal outputs
 
 ### Full Pipeline Script
 
@@ -627,7 +627,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
 
 **Script:** `FullPipeline.sh`
 
-**Stage Zero Processing:**
+**Mean Trend Removal Processing:**
 ```bash
 ./FullPipeline.sh \
   --lats=720 \
@@ -642,7 +642,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
   --cores=5
 ```
 
-**Full Pipeline (Stage Zero + Climate Emulator):**
+**Full Pipeline (Mean Trend Removal + Climate Emulator):**
 ```bash
 ./FullPipeline.sh \
   --lats=720 \
@@ -670,7 +670,7 @@ mpirun -n 2 ./bin/examples/stage-zero/Example_Stage_Zero \
 
 **Important Notes:**
 - Climate Emulator requires PaRSEC runtime
-- Stage Zero works with both StarPU and PaRSEC
+- Mean Trend Removal works with both StarPU and PaRSEC
 - Ensure `parallel-jobs × cores ≤ available CPU cores`
 - For detailed parameter descriptions, see the [Arguments](#arguments) section
 

@@ -56,7 +56,7 @@
   "ForcingDataPath": "",
   "StartYear": "2000",
   "EndYear": "2001",
-  "StageZero": "false",
+  "MeanTrendRemoval": "false",
   "IsClimateEmulator": "false",
   "Lat": "0",
   "Lon": "0"

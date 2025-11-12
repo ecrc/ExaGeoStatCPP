@@ -1,6 +1,6 @@
 #!/bin/bash
 ################################################################################
-# Synchronized StageZero Processing
+# Synchronized MeanTrendRemoval Processing
 # Processes each latitude band independently but writes to SHARED output files
 ################################################################################
 
@@ -16,7 +16,7 @@ NC='\033[0m'
 #==============================================================================
 
 # Default values (can be overridden by command-line arguments)
-# Stage Zero Configuration
+# Mean Trend Removal Configuration
 total_latitudes=72
 lon=144
 startyear=2000
@@ -26,7 +26,7 @@ forcing_data_path="/path/to/forcing_new.csv"
 resultspath="/path/to/results/"
 
 # Pipeline Configuration
-STAGEZERO_BIN="./bin/examples/stage-zero/Example_Stage_Zero"
+MeanTrendRemoval_BIN="./bin/examples/mean-trend-removal/Example_Mean_Trend_Removal"
 mpi_processes=2
 parallel_jobs=10
 
@@ -138,7 +138,7 @@ while [[ $# -gt 0 ]]; do
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
-            echo -e "${BLUE}===== REQUIRED Stage Zero Options =====${NC}"
+            echo -e "${BLUE}===== REQUIRED Mean Trend Removal Options =====${NC}"
             echo "  --lats=N                 Number of latitude bands to process"
             echo "  --lon=N                  Number of longitudes per latitude"
             echo "  --startyear=YYYY         Starting year for data processing"
@@ -150,10 +150,10 @@ while [[ $# -gt 0 ]]; do
             echo -e "${BLUE}===== OPTIONAL Pipeline Options =====${NC}"
             echo "  --mpi-processes=N        MPI processes per job (default: $mpi_processes)"
             echo "  --parallel-jobs=N        Number of parallel jobs (default: $parallel_jobs)"
-            echo "  --cores=N                Cores for Stage Zero and Emulator (default: auto-calculated)"
+            echo "  --cores=N                Cores for Mean Trend Removal and Emulator (default: auto-calculated)"
             echo ""
             echo -e "${BLUE}===== Climate Emulator Options =====${NC}"
-            echo "  --run-climate-emulator   Run climate emulator after Stage Zero"
+            echo "  --run-climate-emulator   Run climate emulator after Mean Trend Removal"
             echo "  --N=N                    Spatial problem size (default: $N)"
             echo "  --dts=N                  Dense tile size (default: $dts)"
             echo "  --timeslot=N             Number of z files to process (default: $timeslot)"
@@ -166,7 +166,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --gpus=N                 Number of GPUs (default: $gpus)"
             echo ""
             echo -e "${BLUE}===== Parameter Relationships =====${NC}"
-            echo "Stage Zero Output:"
+            echo "Mean Trend Removal Output:"
             echo "  - Creates: lats × lon spatial locations"
             echo "  - Generates: 365 × 24 × (endyear-startyear+1) z_*.csv files"
             echo "  - Each z file contains one timeslot for all spatial locations"
@@ -174,16 +174,16 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Climate Emulator Constraints:"
             echo "  - N should be equal to dts² (e.g., N=5184 requires dts=72)"
-            echo "  - N should be ≤ (lats × lon) from Stage Zero output"
-            echo "  - timeslot: number of z files to read (max = Stage Zero output count)"
+            echo "  - N should be ≤ (lats × lon) from Mean Trend Removal output"
+            echo "  - timeslot: number of z files to read (max = Mean Trend Removal output count)"
             echo ""
             echo -e "${BLUE}===== Examples =====${NC}"
-            echo "  1. Stage Zero only (3 years of data):"
+            echo "  1. Mean Trend Removal only (3 years of data):"
             echo "    $0 --lats=72 --lon=144 --startyear=2020 --endyear=2022 \\"
             echo "       --data-path=/path/to/ERA_data/ --forcing-data-path=/path/to/forcing.csv \\"
             echo "       --resultspath=/path/to/results/ --parallel-jobs=10 --cores=4"
             echo ""
-            echo "  2. Full Pipeline (Stage Zero + Climate Emulator):"
+            echo "  2. Full Pipeline (Mean Trend Removal + Climate Emulator):"
             echo "    $0 --lats=72 --lon=144 --startyear=2020 --endyear=2022 \\"
             echo "       --data-path=/path/to/ERA_data/ --forcing-data-path=/path/to/forcing.csv \\"
             echo "       --resultspath=/path/to/results/ --parallel-jobs=10 --cores=4 \\"
@@ -218,7 +218,7 @@ fi
 
 echo ""
 echo -e "${BLUE}=========================================="
-echo -e "  StageZero Pipeline"
+echo -e "  MeanTrendRemoval Pipeline"
 echo -e "==========================================${NC}"
 echo ""
 echo "Configuration:"
@@ -227,7 +227,7 @@ echo "  Grid:         ${total_latitudes} latitudes × ${lon} longitudes"
 echo "  Data path:    ${data_path}"
 echo "  Forcing:      ${forcing_data_path}"
 echo "  Results:      ${resultspath}"
-echo "  Binary:       ${STAGEZERO_BIN}"
+echo "  Binary:       ${MeanTrendRemoval_BIN}"
 echo ""
 echo "Parallelization:"
 echo "  System cores: ${cpu_cores}"
@@ -278,7 +278,7 @@ for lat in $(seq 0 $((total_latitudes - 1))); do
     
     # Run this latitude in background
     (
-        mpirun -n ${mpi_processes} ${STAGEZERO_BIN} \
+        mpirun -n ${mpi_processes} ${MeanTrendRemoval_BIN} \
             --kernel=trend_model \
             --lon=${lon} \
             --lat=${lat} \
@@ -293,7 +293,7 @@ for lat in $(seq 0 $((total_latitudes - 1))); do
             --ub=0.95 \
             --tolerance=7 \
             --max-mle-iterations=30 \
-            --stage-zero \
+            --mean-trend-removal \
             --cores=${cores} \
             --gpus=0 \
             --p=1 \
@@ -326,7 +326,7 @@ wait
 
 echo ""
 echo -e "${BLUE}=========================================="
-echo -e "  Stage Zero Processing Complete"
+echo -e "  Mean Trend Removal Processing Complete"
 echo -e "==========================================${NC}"
 
 # Show summary

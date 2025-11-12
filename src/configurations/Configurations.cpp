@@ -64,7 +64,7 @@ Configurations::Configurations() {
     SetTolerance(0);
     //TODO:currently,we support real data only in parsec.In the future,we should support synthetic and real data for both runtimes
     SetIsSynthetic(false);
-    SetStageZero(false);
+    SetMeanTrendRemoval(false);
 #endif
 }
 
@@ -116,17 +116,17 @@ void Configurations::ValidateConfiguration() {
         }
     }
 
-    if (GetStageZero()) {
+    if (GetMeanTrendRemoval()) {
         if (GetResultsPath().empty()) {
             throw domain_error("You need to set the results path (--resultspath) before starting");
         }
 
         if (GetLatitudeBand() < 0) {
-            throw domain_error("You need to set the latitude band (--lat) for StageZero");
+            throw domain_error("You need to set the latitude band (--lat) for Mean Trend Removal");
         }
         
         if (GetLongitudeCount() <= 0) {
-            throw domain_error("You need to set the longitude count (--lon) for StageZero");
+            throw domain_error("You need to set the longitude count (--lon) for Mean Trend Removal");
         }
     }
 
@@ -149,8 +149,8 @@ void Configurations::ValidateConfiguration() {
         throw domain_error("You need to set the data path, before starting");
     }
 #else
-    if(GetStageZero() && GetKernelName().empty()){
-        throw domain_error("You need to set the Kernel for stage 0, before starting");
+    if(GetMeanTrendRemoval() && GetKernelName().empty()){
+        throw domain_error("You need to set the Kernel for Mean Trend Removal, before starting");
     }
 #endif
 
@@ -258,11 +258,11 @@ void Configurations::PrintUsage() {
     LOGGER("--enable-inverse : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
     LOGGER("--mpiio : Used to enable MPI IO, Used with PaRSEC runtime only.")
     LOGGER("--log-file-path: Used to set path of file where events and results are logged.")
-    LOGGER("--start-year=value : Used to set the starting year for NetCDF data processing (StageZero).")
-    LOGGER("--end-year=value : Used to set the ending year for NetCDF data processing (StageZero).")
-    LOGGER("--lat=value : Used to set the latitude band index for StageZero climate data processing (required for StageZero).")
-    LOGGER("--lon=value : Used to set the longitude count for StageZero climate data processing (required for StageZero).")
-    LOGGER("--resultspath=PATH : Used to set the output directory path for StageZero results (required for StageZero).")
+    LOGGER("--start-year=value : Used to set the starting year for NetCDF data processing (MeanTrendRemoval).")
+    LOGGER("--end-year=value : Used to set the ending year for NetCDF data processing (MeanTrendRemoval).")
+    LOGGER("--lat=value : Used to set the latitude band index for MeanTrendRemoval climate data processing (required for MeanTrendRemoval).")
+    LOGGER("--lon=value : Used to set the longitude count for MeanTrendRemoval climate data processing (required for MeanTrendRemoval).")
+    LOGGER("--resultspath=PATH : Used to set the output directory path for MeanTrendRemoval results (required for MeanTrendRemoval).")
     LOGGER("\n\n")
 
     exit(0);

@@ -248,8 +248,8 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(MPIIO, bool, aMPIIO, "mpiio")
         CREATE_GETTER_FUNCTION(MPIIO, bool, "mpiio")
 
-        CREATE_SETTER_FUNCTION(StageZero, bool, aIsEnabled, "stagezero")
-        CREATE_GETTER_FUNCTION(StageZero, bool, "stagezero")
+        CREATE_SETTER_FUNCTION(MeanTrendRemoval, bool, aIsEnabled, "MeanTrendRemoval")
+        CREATE_GETTER_FUNCTION(MeanTrendRemoval, bool, "MeanTrendRemoval")
 
         CREATE_SETTER_FUNCTION(ForcingDataPath, const std::string&, aPath, "forcingdatapath")
         CREATE_GETTER_FUNCTION(ForcingDataPath, std::string, "forcingdatapath")
@@ -282,7 +282,7 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(ResultsPath, const std::string&, aResultsPath, "resultspath")
         CREATE_GETTER_FUNCTION(ResultsPath, std::string, "resultspath")
 
-        // StageZero climate data grid parameters (required for Stage Zero)
+        // MeanTrendRemoval climate data grid parameters (required for Mean Trend Removal)
         CREATE_SETTER_FUNCTION(LatitudeBand, int, aLatBand, "lat")
         CREATE_GETTER_FUNCTION(LatitudeBand, int, "lat")
         

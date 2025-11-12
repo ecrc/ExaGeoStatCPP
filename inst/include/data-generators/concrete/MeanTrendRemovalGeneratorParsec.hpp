@@ -1,5 +1,5 @@
-#ifndef EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP
-#define EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP
+#ifndef EXAGEOSTAT_MeanTrendRemovalGENERATORPARSEC_HPP
+#define EXAGEOSTAT_MeanTrendRemovalGENERATORPARSEC_HPP
 
 #include "../DataGenerator.hpp"
 #include <configurations/Configurations.hpp>
@@ -27,12 +27,12 @@ extern "C" {
 #include <dplasma/types.h>
 }
 
-namespace exageostat::generators::stagezero {
+namespace exageostat::generators::MeanTrendRemoval {
 
     /**
-     * @brief Holds runtime configuration and state for Stage Zero with PaRSEC.
+     * @brief Holds runtime configuration and state for Mean Trend Removal with PaRSEC.
      */
-    struct StageZeroArgsParsec {
+    struct MeanTrendRemovalArgsParsec {
         // Model/config
         int mM = 10;                        // harmonics for mean-trend
         int mT = 365 * 24;                  // period in hours (used to compute N)
@@ -83,16 +83,16 @@ namespace exageostat::generators::stagezero {
     };
 
     /**
-     * @brief Stage Zero data generator using PaRSEC/DPLASMA for climate data preprocessing.
+     * @brief Mean Trend Removal data generator using PaRSEC/DPLASMA for climate data preprocessing.
      * @details This class implements mean trend removal from time series climate data
      * using PaRSEC runtime and DPLASMA linear algebra operations.
      * @tparam T Data Type: float or double
      */
     template<typename T>
-    class StageZeroGeneratorParsec : public DataGenerator<T> {
+    class MeanTrendRemovalGeneratorParsec : public DataGenerator<T> {
     public:
         /**
-         * @brief Creates data using the Stage Zero mean trend removal pipeline.
+         * @brief Creates data using the Mean Trend Removal mean trend removal pipeline.
          * @param[in] aConfigurations Reference to Configurations object.
          * @param[in] aKernel Reference to Kernel object.
          * @return Unique pointer to ExaGeoStatData object.
@@ -101,10 +101,10 @@ namespace exageostat::generators::stagezero {
                                                       exageostat::kernels::Kernel<T> &aKernel) override;
 
         /**
-         * @brief Gets the singleton instance of StageZeroGeneratorParsec.
-         * @return Pointer to StageZeroGeneratorParsec instance.
+         * @brief Gets the singleton instance of MeanTrendRemovalGeneratorParsec.
+         * @return Pointer to MeanTrendRemovalGeneratorParsec instance.
          */
-        static StageZeroGeneratorParsec<T> *GetInstance();
+        static MeanTrendRemovalGeneratorParsec<T> *GetInstance();
 
         /**
          * @brief Releases the singleton instance.
@@ -113,16 +113,16 @@ namespace exageostat::generators::stagezero {
 
     private:
         /// Singleton instance
-        static StageZeroGeneratorParsec<T> *mpInstance;
+        static MeanTrendRemovalGeneratorParsec<T> *mpInstance;
 
         /// Runtime arguments and state
-        StageZeroArgsParsec mArgs;
+        MeanTrendRemovalArgsParsec mArgs;
         
         /// Data object (for compatibility with base class)
         std::unique_ptr<ExaGeoStatData<T>> mData;
 
         /**
-         * @brief Main execution pipeline for Stage Zero.
+         * @brief Main execution pipeline for Mean Trend Removal.
          * @param[in] aConfigurations Reference to Configurations object.
          */
         void Runner(exageostat::configurations::Configurations &aConfigurations);
@@ -192,7 +192,7 @@ namespace exageostat::generators::stagezero {
          * @param[in] aData Pointer to generator instance.
          * @return Objective function value.
          */
-        static double StageZeroObjectiveCallback(unsigned aN, const double *aTheta, double *aGrad, void *aData);
+        static double MeanTrendRemovalObjectiveCallback(unsigned aN, const double *aTheta, double *aGrad, void *aData);
 
         /**
          * @brief Checks if a year is a leap year.
@@ -225,11 +225,11 @@ namespace exageostat::generators::stagezero {
     };
 
     /**
-     * @brief Instantiates the StageZeroGeneratorParsec class for float and double types.
+     * @brief Instantiates the MeanTrendRemovalGeneratorParsec class for float and double types.
      * @tparam T Data Type: float or double
      */
-    EXAGEOSTAT_INSTANTIATE_CLASS(StageZeroGeneratorParsec)
+    EXAGEOSTAT_INSTANTIATE_CLASS(MeanTrendRemovalGeneratorParsec)
 
 }//namespace exageostat
 
-#endif //EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP 
+#endif //EXAGEOSTAT_MeanTrendRemovalGENERATORPARSEC_HPP 

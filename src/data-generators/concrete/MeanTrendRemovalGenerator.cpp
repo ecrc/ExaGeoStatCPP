@@ -3,17 +3,21 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file StageZeroGeneratorParsec.cpp
- * @brief Implementation of StageZeroGeneratorParsec for climate data preprocessing using PaRSEC/DPLASMA
+ * @file MeanTrendRemovalGenerator.cpp
+ * @brief Implementation of MeanTrendRemovalGenerator for climate data preprocessing using CHAMELEON/StarPU
  * @version 1.1.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
  * @date 2024-02-04
 **/
 
-#include <data-generators/concrete/StageZeroGeneratorParsec.hpp>
+#include <data-generators/concrete/MeanTrendRemovalGenerator.hpp>
 #include <data-generators/LocationGenerator.hpp>
-#include <hardware/ExaGeoStatHardware.hpp>
+#if !DEFAULT_RUNTIME
+#include <data-loader/concrete/ParsecLoader.hpp>
+#else
+#include <data-loader/concrete/CSVLoader.hpp>
+#endif
 #include <pnetcdf.h>
 #include <nlopt.h>
 #include <mpi.h>
@@ -30,6 +34,8 @@
 #include <memory>
 #include <sys/file.h>
 #include <unistd.h>
+#include <chameleon.h>
+#include <chameleon/runtime.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -42,29 +48,29 @@ namespace {
 constexpr int kForcingOffset = 238;
 }
 
-using namespace exageostat::generators::stagezero;
+using namespace exageostat::generators::MeanTrendRemoval;
 using namespace exageostat::common;
 using namespace exageostat::configurations;
 using namespace exageostat::results;
 
 template<typename T>
-StageZeroGeneratorParsec<T> *StageZeroGeneratorParsec<T>::GetInstance() {
+MeanTrendRemovalGenerator<T> *MeanTrendRemovalGenerator<T>::GetInstance() {
     if (mpInstance == nullptr) {
-        mpInstance = new StageZeroGeneratorParsec<T>();
+        mpInstance = new MeanTrendRemovalGenerator<T>();
     }
     return mpInstance;
 }
 
 template<typename T>
 std::unique_ptr<ExaGeoStatData<T>>
-StageZeroGeneratorParsec<T>::CreateData(exageostat::configurations::Configurations &aConfigurations,
-                                        exageostat::kernels::Kernel<T> &aKernel) {
+MeanTrendRemovalGenerator<T>::CreateData(Configurations &aConfigurations,
+                                  exageostat::kernels::Kernel<T> &aKernel) {
     this->Runner(aConfigurations);
     return std::move(this->mData);
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::ReleaseInstance() {
+void MeanTrendRemovalGenerator<T>::ReleaseInstance() {
     if (mpInstance != nullptr) {
         delete mpInstance;
         mpInstance = nullptr;
@@ -72,7 +78,7 @@ void StageZeroGeneratorParsec<T>::ReleaseInstance() {
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::Runner(exageostat::configurations::Configurations &aConfigurations) {
+void MeanTrendRemovalGenerator<T>::Runner(Configurations &aConfigurations) {
     int rank, nprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
@@ -94,20 +100,21 @@ void StageZeroGeneratorParsec<T>::Runner(exageostat::configurations::Configurati
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::ConfigureGenerator() {
+void MeanTrendRemovalGenerator<T>::ConfigureGenerator() {
     
     // Values for the mean trend removal
     mArgs.mM = 10;
     mArgs.mT = 365*24;
     mArgs.mNoYears = 751;
     
+    // Only support trend_model for this workflow
     if (mArgs.mConfigs->GetKernelName() == "TrendModel" || mArgs.mConfigs->GetKernelName() == "trend_model") {
         mArgs.mNumParams = 1;
     } else {
-        throw std::invalid_argument("Unsupported kernel for Stage Zero: only 'TrendModel' is supported");
+        throw std::invalid_argument("Unsupported kernel for Mean Trend Removal: only 'TrendModel' is supported");
     }
     
-    // Derive observation years and N from configuration
+    // Derive observation years and N from configuration (keep forcing length separate)
     int start_year = mArgs.mConfigs->GetStartYear();
     int end_year   = mArgs.mConfigs->GetEndYear();
     if (end_year < start_year) {
@@ -116,12 +123,14 @@ void StageZeroGeneratorParsec<T>::ConfigureGenerator() {
     int obs_years = (end_year - start_year + 1);
     mArgs.mN = static_cast<size_t>(mArgs.mT) * static_cast<size_t>(obs_years);
     
-    // Number of locations (longitude count)
+    // Number of locations (longitude count) - now required
     mArgs.mNumLocs = mArgs.mConfigs->GetLongitudeCount();
+    
+    
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
+void MeanTrendRemovalGenerator<T>::ReadNetCDFFiles() {
 
     int ncid, retval;
     MPI_Offset lat_len, lon_len, time_len;
@@ -161,7 +170,7 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
 
     ncid = openFileNCmpi(path);
 
-    // Dimension IDs and lengths with error checks
+    // Dimension IDs and lengths with error checks (exactly like reference)
     if ((retval = ncmpi_inq_dimid(ncid, "longitude", &lon_varid)))
         std::cerr << "Error: " << ncmpi_strerror(retval) << std::endl;
     if ((retval = ncmpi_inq_dimlen(ncid, lon_varid, &lon_len)))
@@ -248,7 +257,7 @@ void StageZeroGeneratorParsec<T>::ReadNetCDFFiles() {
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::ReadForcingData() {
+void MeanTrendRemovalGenerator<T>::ReadForcingData() {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     
@@ -267,7 +276,7 @@ void StageZeroGeneratorParsec<T>::ReadForcingData() {
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::Allocate() {
+void MeanTrendRemovalGenerator<T>::Allocate() {
 
     mArgs.mStartingTheta = new double[mArgs.mNumParams];
     mArgs.mTargetTheta = new double[mArgs.mNumParams];
@@ -294,10 +303,10 @@ void StageZeroGeneratorParsec<T>::Allocate() {
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::RunMeanTrend() {
+void MeanTrendRemovalGenerator<T>::RunMeanTrend() {
     const int no_locs = mArgs.mNumLocs;
 
-    fprintf(stderr, "\n========== StageZero Configuration ==========\n");
+    fprintf(stderr, "\n========== MeanTrendRemoval Configuration ==========\n");
     fprintf(stderr, "Data: %s (years %d-%d)\n", 
             mArgs.mConfigs->GetDataPath().c_str(),
             mArgs.mConfigs->GetStartYear(), 
@@ -318,7 +327,7 @@ void StageZeroGeneratorParsec<T>::RunMeanTrend() {
     nlopt_opt opt = nlopt_create(NLOPT_LN_BOBYQA, mArgs.mNumParams);
     nlopt_set_lower_bounds(opt, mArgs.mLb);
     nlopt_set_upper_bounds(opt, mArgs.mUp);
-    nlopt_set_max_objective(opt, &StageZeroGeneratorParsec<T>::StageZeroObjectiveCallback, (void *)this);
+    nlopt_set_max_objective(opt, &MeanTrendRemovalGenerator<T>::MeanTrendRemovalObjectiveCallback, (void *)this);
     
     nlopt_set_ftol_abs(opt, mArgs.mConfigs->GetTolerance());
     nlopt_set_maxeval(opt, mArgs.mConfigs->GetMaxMleIterations());
@@ -335,7 +344,7 @@ void StageZeroGeneratorParsec<T>::RunMeanTrend() {
         theta[0] = mArgs.mStartingTheta[0];
         double opt_f = 0.0;
 
-        nlopt_set_max_objective(opt, &StageZeroGeneratorParsec<T>::StageZeroObjectiveCallback, (void *)this);
+        nlopt_set_max_objective(opt, &MeanTrendRemovalGenerator<T>::MeanTrendRemovalObjectiveCallback, (void *)this);
         nlopt_result nlres = nlopt_optimize(opt, theta.data(), &opt_f);
         
         fprintf(stderr, "[Location %d/%d] Optimization complete: result=%d, theta=%.10f, objective=%.10f, iterations=%d\n", 
@@ -351,7 +360,7 @@ void StageZeroGeneratorParsec<T>::RunMeanTrend() {
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::CleanUp() {
+void MeanTrendRemovalGenerator<T>::CleanUp() {
 
     delete[] mArgs.mStartingTheta;
     delete[] mArgs.mTargetTheta;
@@ -366,46 +375,39 @@ void StageZeroGeneratorParsec<T>::CleanUp() {
     free(mArgs.mT2mHourlyPerYear);
     free(mArgs.mT2mHourlyPerYearCount);
     
-    // Clean up PaRSEC descriptors
+    // Clean up CHAMELEON descriptors
     if (mArgs.mpDescZ) {
-        parsec_data_free(mArgs.mpDescZ->mat);
-        free(mArgs.mpDescZ);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpDescZ);
         mArgs.mpDescZ = nullptr;
     }
     if (mArgs.mpX) {
-        parsec_data_free(mArgs.mpX->mat);
-        free(mArgs.mpX);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpX);
         mArgs.mpX = nullptr;
     }
     if (mArgs.mpXtX) {
-        parsec_data_free(mArgs.mpXtX->mat);
-        free(mArgs.mpXtX);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpXtX);
         mArgs.mpXtX = nullptr;
     }
     if (mArgs.mpDescPart1) {
-        parsec_data_free(mArgs.mpDescPart1->mat);
-        free(mArgs.mpDescPart1);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpDescPart1);
         mArgs.mpDescPart1 = nullptr;
     }
     if (mArgs.mpDescPart2) {
-        parsec_data_free(mArgs.mpDescPart2->mat);
-        free(mArgs.mpDescPart2);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpDescPart2);
         mArgs.mpDescPart2 = nullptr;
     }
     if (mArgs.mpPart2Vector) {
-        parsec_data_free(mArgs.mpPart2Vector->mat);
-        free(mArgs.mpPart2Vector);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpPart2Vector);
         mArgs.mpPart2Vector = nullptr;
     }
     if (mArgs.mpEstimatedMeanTrend) {
-        parsec_data_free(mArgs.mpEstimatedMeanTrend->mat);
-        free(mArgs.mpEstimatedMeanTrend);
+        CHAMELEON_Desc_Destroy((CHAM_desc_t**)&mArgs.mpEstimatedMeanTrend);
         mArgs.mpEstimatedMeanTrend = nullptr;
     }
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::SetupMLEComponents() {
+void MeanTrendRemovalGenerator<T>::SetupMLEComponents() {
     
     int N = mArgs.mN;
     int nparams = 3 + 2*mArgs.mM;
@@ -413,121 +415,61 @@ void StageZeroGeneratorParsec<T>::SetupMLEComponents() {
     
     mArgs.mIterCount = 0;
     
-    // Get PaRSEC context from hardware layer
-    try {
-        mArgs.mpParsecContext = static_cast<parsec_context_t*>(ExaGeoStatHardware::GetParsecContext());
-        if (mArgs.mpParsecContext) {
-            fprintf(stderr, "[Setup] PaRSEC context obtained successfully\n");
-        } else {
-            fprintf(stderr, "[Setup] Warning: PaRSEC context is null\n");
-        }
-    } catch (const std::exception& e) {
-        throw std::runtime_error("Could not get PaRSEC context: " + std::string(e.what()));
-    }
-    
-    // Create PaRSEC block-cyclic descriptors using proper initialization
-    int rank = 0; // Single process
-    int nodes = 1; // Single node
-    int tile_size = dts;
+    // Single process grid for CHAMELEON
+    int p_grid = 1, q_grid = 1;
     
     // Z vector (observations) - N x 1
-    mArgs.mpDescZ = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpDescZ, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank, 
-                                   tile_size, tile_size, N, 1, 0, 0, N, 1, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpDescZ->mat = parsec_data_allocate((size_t)mArgs.mpDescZ->super.nb_local_tiles *
-                                             (size_t)mArgs.mpDescZ->super.bsiz *
-                                             (size_t)parsec_datadist_getsizeoftype(mArgs.mpDescZ->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpDescZ, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
     
     // X matrix (design matrix) - N x nparams
-    mArgs.mpX = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpX, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank,
-                                   tile_size, tile_size, N, nparams, 0, 0, N, nparams, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpX->mat = parsec_data_allocate((size_t)mArgs.mpX->super.nb_local_tiles *
-                                         (size_t)mArgs.mpX->super.bsiz *
-                                         (size_t)parsec_datadist_getsizeoftype(mArgs.mpX->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpX, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, N, nparams, 0, 0, N, nparams, p_grid, q_grid);
     
     // XtX matrix - nparams x nparams
-    mArgs.mpXtX = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpXtX, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank,
-                                   tile_size, tile_size, nparams, nparams, 0, 0, nparams, nparams, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpXtX->mat = parsec_data_allocate((size_t)mArgs.mpXtX->super.nb_local_tiles *
-                                           (size_t)mArgs.mpXtX->super.bsiz *
-                                           (size_t)parsec_datadist_getsizeoftype(mArgs.mpXtX->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpXtX, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, nparams, nparams, 0, 0, nparams, nparams, p_grid, q_grid);
     
     // part1 scalar - 1 x 1
-    mArgs.mpDescPart1 = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpDescPart1, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank,
-                                   tile_size, tile_size, 1, 1, 0, 0, 1, 1, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpDescPart1->mat = parsec_data_allocate((size_t)mArgs.mpDescPart1->super.nb_local_tiles *
-                                                 (size_t)mArgs.mpDescPart1->super.bsiz *
-                                                 (size_t)parsec_datadist_getsizeoftype(mArgs.mpDescPart1->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpDescPart1, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     
     // part2 scalar - 1 x 1
-    mArgs.mpDescPart2 = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpDescPart2, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank,
-                                   tile_size, tile_size, 1, 1, 0, 0, 1, 1, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpDescPart2->mat = parsec_data_allocate((size_t)mArgs.mpDescPart2->super.nb_local_tiles *
-                                                 (size_t)mArgs.mpDescPart2->super.bsiz *
-                                                 (size_t)parsec_datadist_getsizeoftype(mArgs.mpDescPart2->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpDescPart2, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, 1, 1, 0, 0, 1, 1, p_grid, q_grid);
     
     // part2_vector - nparams x 1
-    mArgs.mpPart2Vector = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpPart2Vector, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank,
-                                   tile_size, tile_size, nparams, 1, 0, 0, nparams, 1, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpPart2Vector->mat = parsec_data_allocate((size_t)mArgs.mpPart2Vector->super.nb_local_tiles *
-                                                   (size_t)mArgs.mpPart2Vector->super.bsiz *
-                                                   (size_t)parsec_datadist_getsizeoftype(mArgs.mpPart2Vector->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpPart2Vector, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, nparams, 1, 0, 0, nparams, 1, p_grid, q_grid);
     
     // estimated_mean_trend vector - N x 1
-    mArgs.mpEstimatedMeanTrend = (parsec_matrix_block_cyclic_t*)malloc(sizeof(parsec_matrix_block_cyclic_t));
-    parsec_matrix_block_cyclic_init(mArgs.mpEstimatedMeanTrend, PARSEC_MATRIX_DOUBLE, PARSEC_MATRIX_TILE, rank,
-                                   tile_size, tile_size, N, 1, 0, 0, N, 1, 1, nodes, 1, 1, 0, 0);
-    mArgs.mpEstimatedMeanTrend->mat = parsec_data_allocate((size_t)mArgs.mpEstimatedMeanTrend->super.nb_local_tiles *
-                                                          (size_t)mArgs.mpEstimatedMeanTrend->super.bsiz *
-                                                          (size_t)parsec_datadist_getsizeoftype(mArgs.mpEstimatedMeanTrend->super.mtype));
+    CHAMELEON_Desc_Create((CHAM_desc_t**)&mArgs.mpEstimatedMeanTrend, NULL, ChamRealDouble,
+                          dts, dts, dts*dts, N, 1, 0, 0, N, 1, p_grid, q_grid);
     
-    fprintf(stderr, "[Setup] All PaRSEC descriptors created successfully\n");
+    fprintf(stderr, "[Setup] All CHAMELEON descriptors created successfully\n");
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::ConvertT2MToZForLocation(int location_index) {
+void MeanTrendRemovalGenerator<T>::ConvertT2MToZForLocation(int location_index) {
     
-    parsec_matrix_block_cyclic_t *DESC_Z = mArgs.mpDescZ;
+    auto *DESC_Z = static_cast<CHAM_desc_t *>(mArgs.mpDescZ);
     int N = mArgs.mN;
 
     if (location_index < 0 || location_index >= mArgs.mNumLocs) {
         throw std::runtime_error("ConvertT2MToZForLocation: invalid location index");
     }
 
-    // Copy data directly to PaRSEC descriptor
-    double *z_data = (double*)DESC_Z->mat;
+    // Copy data from specified location to a LAPACK buffer, then tile it into Z
+    std::vector<double> z_lap(static_cast<size_t>(N), 0.0);
     int count = std::min(N, mArgs.mT2mHourlyPerYearCount[location_index]);
-    int mb = DESC_Z->super.mb;
-    int nb = DESC_Z->super.nb;
-    int mt = (N + mb - 1) / mb;
-    int nt = (1 + nb - 1) / nb;
-    int bsiz = DESC_Z->super.bsiz;
-    for (int tj = 0; tj < nt; ++tj) {
-        for (int ti = 0; ti < mt; ++ti) {
-            double *tile_ptr = z_data + (tj * mt + ti) * bsiz;
-            int row_offset = ti * mb;
-            int col_offset = tj * nb;
-            int rows = std::min(mb, N - row_offset);
-            int cols = std::min(nb, 1 - col_offset);
-            if (cols <= 0) continue;
-            for (int cj = 0; cj < cols; ++cj) {
-                for (int ri = 0; ri < rows; ++ri) {
-                    int global_row = row_offset + ri;
-                    double val = (global_row < count) ? mArgs.mT2mHourlyPerYear[location_index][global_row] : 0.0;
-                    tile_ptr[ri + cj * mb] = val;
-                }
-            }
-        }
+    for (int i = 0; i < count; i++) {
+        z_lap[static_cast<size_t>(i)] = mArgs.mT2mHourlyPerYear[location_index][i];
     }
+    CHAMELEON_Lapack_to_Tile(static_cast<void*>(z_lap.data()), N, DESC_Z);
 }
 
 template<typename T>
-void StageZeroGeneratorParsec<T>::GenerateDesignMatrixExact(double *matrix, int m, int n, int m0, int n0, double *localtheta) {
+void MeanTrendRemovalGenerator<T>::GenerateDesignMatrixExact(double *matrix, int m, int n, int m0, int n0, double *localtheta) {
     // localtheta layout: [theta, T, M, forcing...]
     const double theta = localtheta[0];
     const int    T_val = static_cast<int>(localtheta[1]);
@@ -580,7 +522,7 @@ void StageZeroGeneratorParsec<T>::GenerateDesignMatrixExact(double *matrix, int 
 }
 
 template<typename T>
-bool StageZeroGeneratorParsec<T>::WriteToFileAtPosition(const std::string &file_path, 
+bool MeanTrendRemovalGenerator<T>::WriteToFileAtPosition(const std::string &file_path, 
                                                        const std::string &data, 
                                                        long position) {
     const int max_retries = 10;
@@ -623,106 +565,80 @@ bool StageZeroGeneratorParsec<T>::WriteToFileAtPosition(const std::string &file_
 }
 
 template<typename T>
-double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
-                                               std::vector<double> &aGrad, void *apObj) {
+double MeanTrendRemovalGenerator<T>::MLEAlgorithm(const std::vector<double> &aThetaVec,
+                                           std::vector<double> &aGrad, void *apObj) {
     
-    parsec_matrix_block_cyclic_t *Zobs = mArgs.mpDescZ;
-    parsec_matrix_block_cyclic_t *X = mArgs.mpX;
-    parsec_matrix_block_cyclic_t *XtX = mArgs.mpXtX;
-    parsec_matrix_block_cyclic_t *part1 = mArgs.mpDescPart1;
-    parsec_matrix_block_cyclic_t *part2 = mArgs.mpDescPart2;
-    parsec_matrix_block_cyclic_t *part2_vector = mArgs.mpPart2Vector;
-    int N = static_cast<int>(mArgs.mN);
+    // Get descriptors
+    auto *Zobs = static_cast<CHAM_desc_t *>(mArgs.mpDescZ);
+    auto *X = static_cast<CHAM_desc_t *>(mArgs.mpX);
+    auto *XtX = static_cast<CHAM_desc_t *>(mArgs.mpXtX);
+    auto *part1 = static_cast<CHAM_desc_t *>(mArgs.mpDescPart1);
+    auto *part2 = static_cast<CHAM_desc_t *>(mArgs.mpDescPart2);
+    auto *part2_vector = static_cast<CHAM_desc_t *>(mArgs.mpPart2Vector);
+    int N = X->m;
     double value = 0.0;
-    const bool is_final_call = (apObj == nullptr);
+    const bool is_final_call = (apObj == nullptr); // final call after optimization
     
+    // Null pointer checks
     if (!X) { throw std::runtime_error("X descriptor is null"); }
     if (!Zobs) { throw std::runtime_error("Zobs descriptor is null"); }
     
+    
+    
+    // Compose local parameter vector
     double* localtheta = (double *) malloc((3+mArgs.mNoYears) * sizeof(double));
-    localtheta[0] = aThetaVec[0];
-    localtheta[1] = mArgs.mT;
-    localtheta[2] = mArgs.mM;
+    localtheta[0] = aThetaVec[0];  // theta[0]
+    localtheta[1] = mArgs.mT;      // Direct access: 8760
+    localtheta[2] = mArgs.mM;      // Direct access: 10
     
     for(int ii=0; ii<mArgs.mNoYears; ii++)
-        localtheta[3+ii] = mArgs.mForcing[ii];
+        localtheta[3+ii] = mArgs.mForcing[ii];  // Direct access to forcing array
     
     try {
         // Step 1: generate design matrix X
         {
-            int Nrows = static_cast<int>(mArgs.mN);
-            int Ncols = 3 + 2*mArgs.mM;
-            
-            // Create LAPACK buffer
+            int Nrows = X->m;
+            int Ncols = X->n;
             double *x_lap = (double*)calloc((size_t)Nrows * (size_t)Ncols, sizeof(double));
             if (!x_lap) { throw std::runtime_error("Allocation failed for design matrix buffer"); }
-            
             this->GenerateDesignMatrixExact(x_lap, Nrows, Ncols, 0, 0, localtheta);
-            
-            // Tile-aware copy from LAPACK (column-major) to PaRSEC tiled layout
-            double *x_data = (double*)X->mat;
-            int mb = X->super.mb;
-            int nb = X->super.nb;
-            int mt = (Nrows + mb - 1) / mb;
-            int nt = (Ncols + nb - 1) / nb;
-            int bsiz = X->super.bsiz;
-            for (int tj = 0; tj < nt; ++tj) {
-                for (int ti = 0; ti < mt; ++ti) {
-                    double *tile_ptr = x_data + (tj * mt + ti) * bsiz;
-                    int row_offset = ti * mb;
-                    int col_offset = tj * nb;
-                    int rows = std::min(mb, Nrows - row_offset);
-                    int cols = std::min(nb, Ncols - col_offset);
-                    for (int cj = 0; cj < cols; ++cj) {
-                        for (int ri = 0; ri < rows; ++ri) {
-                            int global_row = row_offset + ri;
-                            int global_col = col_offset + cj;
-                            tile_ptr[ri + cj * mb] = x_lap[global_row + global_col * Nrows];
-                        }
-                    }
-                }
-            }
-            
+            CHAMELEON_Lapack_to_Tile((void*)x_lap, Nrows, X);
             free(x_lap);
         }
         
-        // Ensure workspaces are clean before computations (equivalent to CHAMELEON_dlaset_Tile)
-        dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)part1);
-        dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)part2);
-        dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)part2_vector);
-        dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)XtX);
+        // Ensure workspaces are clean before computations
+        CHAMELEON_dlaset_Tile(ChamUpperLower, 0.0, 0.0, part1);
+        CHAMELEON_dlaset_Tile(ChamUpperLower, 0.0, 0.0, part2);
+        CHAMELEON_dlaset_Tile(ChamUpperLower, 0.0, 0.0, part2_vector);
+        CHAMELEON_dlaset_Tile(ChamUpperLower, 0.0, 0.0, XtX);
 
         // Step 2: part1 = Z^T * Z
-        dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans,
-                     1.0, (parsec_tiled_matrix_t*)Zobs, (parsec_tiled_matrix_t*)Zobs, 0.0, (parsec_tiled_matrix_t*)part1);
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, Zobs, Zobs, 0.0, part1);
         
         // Step 3: part2_vector = X^T * Z
-        dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans,
-                         1.0, (parsec_tiled_matrix_t*)X, (parsec_tiled_matrix_t*)Zobs, 0.0, (parsec_tiled_matrix_t*)part2_vector);
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, X, Zobs, 0.0, part2_vector);
     
         // Step 4: XtX = X^T * X
-            dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans,
-                         1.0, (parsec_tiled_matrix_t*)X, (parsec_tiled_matrix_t*)X, 0.0, (parsec_tiled_matrix_t*)XtX);
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, X, X, 0.0, XtX);
 
-        // Step 5: Cholesky decomposition
-        int info = dplasma_dpotrf(mArgs.mpParsecContext, dplasmaLower, (parsec_tiled_matrix_t*)XtX);
-        
+        // Step 5: Cholesky decomposition of XtX
+        {
+            int info = CHAMELEON_dpotrf_Tile(ChamLower, XtX);
             if(info != 0) {
                 if (apObj) { free(localtheta); return -1e18; }
                 else {
-                    fprintf(stderr, "[Optimization] ERROR: Cholesky decomposition failed (matrix not positive definite)\n");
+                    fprintf(stderr, "[MeanTrendRemoval] ERROR: Cholesky(X^T X) failed in final pass. Aborting.\n");
                     free(localtheta);
                     exit(1);
                 }
             }
+        }
     
-        // Step 6: Triangular solve
-            dplasma_dtrsm(mArgs.mpParsecContext, dplasmaLeft, dplasmaLower, dplasmaNoTrans, dplasmaNonUnit,
-                         1.0, (parsec_tiled_matrix_t*)XtX, (parsec_tiled_matrix_t*)part2_vector);
-        
+        // Step 6: First triangular solve: y = L^{-1} (X^T Z)
+        CHAMELEON_dtrsm_Tile(ChamLeft, ChamLower, ChamNoTrans, ChamNonUnit, 1.0, XtX, part2_vector);
+        // For the final pass compute beta = L^{-T} y before forming the trend
         if (!apObj) {
-            dplasma_dtrsm(mArgs.mpParsecContext, dplasmaLeft, dplasmaLower, dplasmaTrans, dplasmaNonUnit,
-                         1.0, (parsec_tiled_matrix_t*)XtX, (parsec_tiled_matrix_t*)part2_vector);
+            CHAMELEON_dtrsm_Tile(ChamLeft, ChamLower, ChamTrans, ChamNonUnit, 1.0, XtX, part2_vector);
         }
 
         // If this is an optimization callback, compute and return the C objective using y^T y
@@ -730,78 +646,46 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
             double part1_val_cb = 0.0;
             if (part1 && part1->mat) part1_val_cb = static_cast<double *>(part1->mat)[0];
             // Compute part2 = y^T y
-            dplasma_dlaset(mArgs.mpParsecContext, dplasmaUpperLower, 0.0, 0.0, (parsec_tiled_matrix_t*)part2);
-            dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans, 1.0, 
-                         (parsec_tiled_matrix_t*)part2_vector, (parsec_tiled_matrix_t*)part2_vector, 0.0, (parsec_tiled_matrix_t*)part2);
+            CHAMELEON_dlaset_Tile(ChamUpperLower, 0.0, 0.0, part2);
+            CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, part2_vector, part2_vector, 0.0, part2);
             double part2_val_cb = 0.0;
             if (part2 && part2->mat) part2_val_cb = static_cast<double *>(part2->mat)[0];
-            
             // If numerical issues cause part1 <= part2, penalize
             if (part1_val_cb <= part2_val_cb) {
                 free(localtheta);
                 return -1e18;
             }
             value = (-1.0) * std::log(part1_val_cb - part2_val_cb);
-            
             mArgs.mIterCount++;
             free(localtheta);
             return value;
         }
 
+        // Optional: second triangular solve is only needed for final beta; handled below
+
         // Step 7: Final computation with CSV output
         // Create estimated_mean_trend = X * beta (using part2_vector as beta)
-        parsec_matrix_block_cyclic_t *estimated_mean_trend = mArgs.mpEstimatedMeanTrend;
-        
-            dplasma_dgemm(mArgs.mpParsecContext, dplasmaNoTrans, dplasmaNoTrans,
-                         1.0, (parsec_tiled_matrix_t*)X, (parsec_tiled_matrix_t*)part2_vector, 0.0, (parsec_tiled_matrix_t*)estimated_mean_trend);
+        auto *estimated_mean_trend = static_cast<CHAM_desc_t *>(mArgs.mpEstimatedMeanTrend);
+        CHAMELEON_dgemm_Tile(ChamNoTrans, ChamNoTrans, 1.0, X, part2_vector, 0.0, estimated_mean_trend);
         
         // Residuals = Z - trend (stored back into estimated_mean_trend)
-        dplasma_dgeadd(mArgs.mpParsecContext, dplasmaNoTrans, 1.0, (parsec_tiled_matrix_t*)Zobs, -1.0, (parsec_tiled_matrix_t*)estimated_mean_trend);
+        CHAMELEON_dgeadd_Tile(ChamNoTrans, 1.0, Zobs, -1.0, estimated_mean_trend);
         
         // Compute sigma² = residuals^T * residuals
-        dplasma_dgemm(mArgs.mpParsecContext, dplasmaTrans, dplasmaNoTrans, 1.0, 
-                     (parsec_tiled_matrix_t*)estimated_mean_trend, (parsec_tiled_matrix_t*)estimated_mean_trend, 0.0, (parsec_tiled_matrix_t*)part2);
+        auto *sigma_desc = static_cast<CHAM_desc_t *>(mArgs.mpDescPart2);
+        CHAMELEON_dgemm_Tile(ChamTrans, ChamNoTrans, 1.0, estimated_mean_trend, estimated_mean_trend, 0.0, sigma_desc);
         
-        // Get sigma² value and divide by N
-        double sigma_squared_raw = static_cast<double *>(part2->mat)[0];
+        // Get sigma² value and divide by N (like C version)
+        double sigma_squared_raw = static_cast<double *>(sigma_desc->mat)[0];
         double sigma_squared = sigma_squared_raw / N;
+        
+        // Pull residuals to LAPACK layout for correct order and normalization
+        double *emt_lap = (double*)calloc((size_t)N, sizeof(double));
+        if (!emt_lap) { throw std::runtime_error("Allocation failed for emt_lap"); }
+        CHAMELEON_Tile_to_Lapack(estimated_mean_trend, emt_lap, N);
         
         // Standardize residuals: residuals = residuals / sqrt(sigma²)
         double sqrt_sigma = std::sqrt(sigma_squared);
-        
-        // Extract residuals from PaRSEC tiled matrix (Tile to Lapack)
-        double *emt_lap = (double*)calloc((size_t)N, sizeof(double));
-        if (!emt_lap) { throw std::runtime_error("Allocation failed for residuals buffer"); }
-        
-        // Use same tile extraction pattern as your ConvertT2MToZForLocation (but in reverse)
-        parsec_matrix_block_cyclic_t *desc = estimated_mean_trend;
-        double *emt_data = (double*)desc->mat;
-        int mb = desc->super.mb;
-        int nb = desc->super.nb;
-        int mt = (N + mb - 1) / mb;
-        int nt = (1 + nb - 1) / nb;
-        int bsiz = desc->super.bsiz;
-        
-        for (int tj = 0; tj < nt; ++tj) {
-            for (int ti = 0; ti < mt; ++ti) {
-                double *tile_ptr = emt_data + (tj * mt + ti) * bsiz;
-                int row_offset = ti * mb;
-                int col_offset = tj * nb;
-                int rows = std::min(mb, N - row_offset);
-                int cols = std::min(nb, 1 - col_offset);
-                if (cols <= 0) continue;
-                for (int cj = 0; cj < cols; ++cj) {
-                    for (int ri = 0; ri < rows; ++ri) {
-                        int global_row = row_offset + ri;
-                        if (global_row < N) {
-                            emt_lap[global_row] = tile_ptr[ri + cj * mb];
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Normalize ALL N elements
         for (int i = 0; i < N; ++i) {
             emt_lap[i] /= sqrt_sigma;
         }
@@ -822,12 +706,16 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
         // Store parameters
         params[location_index][0] = aThetaVec[0];  // optimized theta
         params[location_index][1] = sigma_squared;  // sigma²
-        double *part2_vector_data_local = (double*)part2_vector->mat;
+        int vlen = part2_vector->m;
+        double *p2v_lap = (double*)calloc((size_t)vlen, sizeof(double));
+        if (!p2v_lap) { throw std::runtime_error("Allocation failed for p2v_lap"); }
+        CHAMELEON_Tile_to_Lapack(part2_vector, p2v_lap, vlen);
         for(int i = 0; i < 3 + 2*mArgs.mM; i++) {
-            params[location_index][i+2] = part2_vector_data_local[i];
+            params[location_index][i+2] = p2v_lap[i];
         }
         
         free(emt_lap);
+        free(p2v_lap);
         
         // Write CSV files on the final call and when processing the last location of this latitude band
         if (is_final_call && (location_index == mArgs.mNumLocs - 1)) {
@@ -927,8 +815,8 @@ double StageZeroGeneratorParsec<T>::MLEAlgorithm(const std::vector<double> &aThe
 }
 
 template<typename T>
-double StageZeroGeneratorParsec<T>::StageZeroObjectiveCallback(unsigned aN, const double *aTheta, double *aGrad, void *aData) {
-    auto *generator = static_cast<StageZeroGeneratorParsec<T> *>(aData);
+double MeanTrendRemovalGenerator<T>::MeanTrendRemovalObjectiveCallback(unsigned aN, const double *aTheta, double *aGrad, void *aData) {
+    auto *generator = static_cast<MeanTrendRemovalGenerator<T> *>(aData);
     std::vector<double> theta_vec(aTheta, aTheta + aN);
     std::vector<double> grad_vec(aN);
     double result = generator->MLEAlgorithm(theta_vec, grad_vec, aData);
@@ -936,7 +824,7 @@ double StageZeroGeneratorParsec<T>::StageZeroObjectiveCallback(unsigned aN, cons
 }
 
 template<typename T>
-bool StageZeroGeneratorParsec<T>::IsLeapYear(const int &aYear) {
+bool MeanTrendRemovalGenerator<T>::IsLeapYear(const int &aYear) {
     if (aYear % 400 == 0) {
         return true;
     } else if (aYear % 100 == 0) {
@@ -949,7 +837,7 @@ bool StageZeroGeneratorParsec<T>::IsLeapYear(const int &aYear) {
 }
 
 template<typename T>
-double * StageZeroGeneratorParsec<T>::ReadObsFile(char *aFileName, const int &aNumLoc) {
+double * MeanTrendRemovalGenerator<T>::ReadObsFile(char *aFileName, const int &aNumLoc) {
     FILE *fp;
     char *line = NULL;
     size_t len = 0;
@@ -971,4 +859,8 @@ double * StageZeroGeneratorParsec<T>::ReadObsFile(char *aFileName, const int &aN
     return z_vec;
 }
 
-template<typename T> StageZeroGeneratorParsec<T> *StageZeroGeneratorParsec<T>::mpInstance = nullptr; 
+template<typename T> MeanTrendRemovalGenerator<T> *MeanTrendRemovalGenerator<T>::mpInstance = nullptr;
+
+// Explicit instantiation of MeanTrendRemovalGenerator for supported types
+template class MeanTrendRemovalGenerator<float>;
+template class MeanTrendRemovalGenerator<double>;

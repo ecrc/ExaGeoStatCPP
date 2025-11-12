@@ -28,7 +28,7 @@ namespace exageostat::api {
     public:
 
         /**
-         * @brief Generates Data using stage zero mean-trend
+         * @brief Generates Data using Mean Trend Removal mean-trend
          * @param[in] aConfigurations Reference to Configurations object containing user input data.
          * @param[out] aData Reference to an ExaGeoStatData<T> object where generated data will be stored.
          * @return void

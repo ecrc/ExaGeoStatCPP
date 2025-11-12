@@ -4,8 +4,8 @@
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
- * @file StageZeroDataGenerator.cpp
- * @brief Example to run Stage Zero data generation (mean-trend pipeline).
+ * @file MeanTrendRemovalDataGenerator.cpp
+ * @brief Example to run Mean Trend Removal data generation (mean-trend pipeline).
  * @version 2.0.0
  **/
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     auto hardware = ExaGeoStatHardware(configurations);
     
     std::unique_ptr<ExaGeoStatData<double>> data;
-    // Generate Stage Zero mean-trend data
+    // Generate Mean Trend Removal mean-trend data
     ExaGeoStat<double>::ExaGeoStatGenerateMeanTrendData(configurations, data);
 
     // Finalize Hardware

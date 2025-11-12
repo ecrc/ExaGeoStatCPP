@@ -17,9 +17,9 @@
 #include <runtime-solver/RuntimeSolverFactory.hpp>
 
 #ifdef USE_CLIMATE_EMULATOR
-#include <data-generators/concrete/StageZeroGenerator.hpp>
+#include <data-generators/concrete/MeanTrendRemovalGenerator.hpp>
 #if !DEFAULT_RUNTIME
-#include <data-generators/concrete/StageZeroGeneratorParsec.hpp>
+#include <data-generators/concrete/MeanTrendRemovalGeneratorParsec.hpp>
 #endif
 #endif
 
@@ -30,7 +30,7 @@ using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
 #ifdef USE_CLIMATE_EMULATOR
-using namespace exageostat::generators::stagezero;
+using namespace exageostat::generators::MeanTrendRemoval;
 #endif
 
 
@@ -43,7 +43,7 @@ void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
     int seed = 0;
     std::srand(seed);
     aConfigurations.PrintSummary();
-    LOGGER("** ExaGeoStat stage zero data generation **")
+    LOGGER("** ExaGeoStat Mean Trend Removal data generation **")
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
@@ -53,12 +53,12 @@ void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
     unique_ptr<DataGenerator<T>> data_generator;
 #if DEFAULT_RUNTIME
     // Use StarPU/CHAMELEON version
-    data_generator = unique_ptr<DataGenerator<T>>(StageZeroGenerator<T>::GetInstance());
-    LOGGER("Using StageZeroGenerator (StarPU/CHAMELEON runtime)")
+    data_generator = unique_ptr<DataGenerator<T>>(MeanTrendRemovalGenerator<T>::GetInstance());
+    LOGGER("Using MeanTrendRemovalGenerator (StarPU/CHAMELEON runtime)")
 #else
     // Use PaRSEC version
-    data_generator = unique_ptr<DataGenerator<T>>(StageZeroGeneratorParsec<T>::GetInstance());
-    LOGGER("Using StageZeroGeneratorParsec (PaRSEC runtime)")
+    data_generator = unique_ptr<DataGenerator<T>>(MeanTrendRemovalGeneratorParsec<T>::GetInstance());
+    LOGGER("Using MeanTrendRemovalGeneratorParsec (PaRSEC runtime)")
 #endif
     
     aData = data_generator->CreateData(aConfigurations, *pKernel);
