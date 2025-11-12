@@ -156,10 +156,9 @@ while getopts ":tevhHi:cmpTwr" opt; do
   h) ##### Prints the help #####
     echo "Usage of $(basename "$0"):"
     echo ""
-    printf "%20s %s\n" "--use-mkl :" "to use MKL as a BLA vendor."
-    printf "%20s %s\n" "--use-parsec :" "to use ParSec runtime."
-    printf "%20s %s\n" "--climate-emulator :" "to enable climate emulator examples (mean-trend-removal + Climate-Emulator)."
-    printf "%20s %b\n" "" "  ${RED}NOTE:${NC} Climate-Emulator example requires --use-parsec."
+    printf "%20s %s\n" "--use-mkl :" "to use Intel MKL as the default BLAS library."
+    printf "%20s %s\n" "--use-parsec :" "to use PaRSEC runtime."
+    printf "%20s %s\n" "--climate-emulator :" "to enable climate emulator examples (If no PaRSEC, so just the mean trend removal will be enabled)."
     printf "%20s %s\n" "-i [path] :" "specify installation path, default = ${PWD}/installdir/_deps/"
     printf "%20s %s\n" "-t :" "to enable building tests."
     printf "%20s %s\n" "-T :" "to enable building heavy tests."

@@ -1,14 +1,15 @@
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file MeanTrendRemovalGenerator.cpp
  * @brief Implementation of MeanTrendRemovalGenerator for climate data preprocessing using CHAMELEON/StarPU
- * @version 1.1.0
+ * @version 2.0.0
+ * @author Ali Hakam
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2024-02-04
+ * @date 2025-11-12
 **/
 
 #include <data-generators/concrete/MeanTrendRemovalGenerator.hpp>

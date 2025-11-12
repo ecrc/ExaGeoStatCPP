@@ -1,7 +1,17 @@
 #!/bin/bash
 ################################################################################
-# Synchronized MeanTrendRemoval Processing
-# Processes each latitude band independently but writes to SHARED output files
+# Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
+# All rights reserved.
+# ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+#
+# @file FullPipeline.sh
+# @brief Synchronized Mean Trend Removal Processing - Processes each latitude band 
+#        independently but writes to SHARED output files and runs the Climate Emulator.
+# @version 2.0.0
+# @author Ali Hakam
+# @author Mahmoud ElKarargy
+# @author Sameh Abdulah
+# @date 2025-11-12
 ################################################################################
 
 # Color codes for terminal output

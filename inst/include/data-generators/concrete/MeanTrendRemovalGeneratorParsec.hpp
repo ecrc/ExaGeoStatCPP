@@ -1,5 +1,20 @@
-#ifndef EXAGEOSTAT_MeanTrendRemovalGENERATORPARSEC_HPP
-#define EXAGEOSTAT_MeanTrendRemovalGENERATORPARSEC_HPP
+
+// Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
+/**
+ * @file MeanTrendRemovalGeneratorParsec.hpp
+ * @brief Defines MeanTrendRemovalGeneratorParsec for climate data preprocessing using PaRSEC/DPLASMA
+ * @version 2.0.0
+ * @author Ali Hakam
+ * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
+ * @date 2025-11-12
+**/
+
+#ifndef EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP
+#define EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP
 
 #include "../DataGenerator.hpp"
 #include <configurations/Configurations.hpp>

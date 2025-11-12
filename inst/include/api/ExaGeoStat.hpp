@@ -1,14 +1,15 @@
 
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file ExaGeoStat.hpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.1.0
+ * @version 2.0.0
+ * @author Ali Hakam
  * @author Mahmoud ElKarargy
- * @date 2024-02-04
+ * @date 2025-11-12
 **/
 
 #ifndef EXAGEOSTATCPP_EXAGEOSTAT_HPP

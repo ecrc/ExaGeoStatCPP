@@ -1,5 +1,5 @@
 
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
@@ -7,9 +7,10 @@
  * @file TrendModel.cpp
  * @brief Implementation of the TrendModel kernel.
  * @version 2.0.0
+ * @author Ali Hakam
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2024-11-11
+ * @date 2025-11-12
 **/
 
 #include <kernels/concrete/TrendModel.hpp>

@@ -93,6 +93,7 @@ To install the `ExaGeoStatCPP` project locally (C++ version), run the following 
    ```bash
    ./configure -e --climate-emulator
    ```
+   Note: If using StarPU (default), only Stage-Zero will be built. For full Climate-Emulator, add `--use-parsec`.
 
 4. Run `clean_build.sh` (use the `-h` flag for help, to know the needed arguments to run with your specific options). This step is **not required** when using R.
    ```bash

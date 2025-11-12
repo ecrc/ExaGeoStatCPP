@@ -1,5 +1,20 @@
-#ifndef EXAGEOSTAT_MeanTrendRemovalGENERATOR_HPP
-#define EXAGEOSTAT_MeanTrendRemovalGENERATOR_HPP
+
+// Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
+// All rights reserved.
+// ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
+
+/**
+ * @file MeanTrendRemovalGenerator.hpp
+ * @brief Defines MeanTrendRemovalGenerator for climate data preprocessing using CHAMELEON/StarPU
+ * @version 2.0.0
+ * @author Ali Hakam
+ * @author Mahmoud ElKarargy
+ * @author Sameh Abdulah
+ * @date 2025-11-12
+**/
+
+#ifndef EXAGEOSTAT_STAGEZEROGENERATOR_HPP
+#define EXAGEOSTAT_STAGEZEROGENERATOR_HPP
 
 #include "../DataGenerator.hpp"
 #include <configurations/Configurations.hpp>
