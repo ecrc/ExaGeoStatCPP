@@ -248,8 +248,8 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(MPIIO, bool, aMPIIO, "mpiio")
         CREATE_GETTER_FUNCTION(MPIIO, bool, "mpiio")
 
-        CREATE_SETTER_FUNCTION(MeanTrendRemoval, bool, aIsEnabled, "MeanTrendRemoval")
-        CREATE_GETTER_FUNCTION(MeanTrendRemoval, bool, "MeanTrendRemoval")
+        CREATE_SETTER_FUNCTION(MeanTrendRemoval, bool, aIsEnabled, "meantrendremoval")
+        CREATE_GETTER_FUNCTION(MeanTrendRemoval, bool, "meantrendremoval")
 
         CREATE_SETTER_FUNCTION(ForcingDataPath, const std::string&, aPath, "forcingdatapath")
         CREATE_GETTER_FUNCTION(ForcingDataPath, std::string, "forcingdatapath")

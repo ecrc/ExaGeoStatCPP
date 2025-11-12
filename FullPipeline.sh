@@ -304,6 +304,7 @@ for lat in $(seq 0 $((total_latitudes - 1))); do
             --tolerance=7 \
             --max-mle-iterations=30 \
             --mean-trend-removal \
+            --log \
             --cores=${cores} \
             --gpus=0 \
             --p=1 \

@@ -13,10 +13,10 @@
  * @date 2025-11-12
 **/
 
-#ifndef EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP
-#define EXAGEOSTAT_STAGEZEROGENERATORPARSEC_HPP
+#ifndef EXAGEOSTAT_MEAN_TREND_REMOVAL_GENERATOR_PARSEC_HPP
+#define EXAGEOSTAT_MEAN_TREND_REMOVAL_GENERATOR_PARSEC_HPP
 
-#include "../DataGenerator.hpp"
+#include <data-generators/DataGenerator.hpp>
 #include <configurations/Configurations.hpp>
 #include <cstddef>
 #include <memory>
@@ -247,4 +247,4 @@ namespace exageostat::generators::MeanTrendRemoval {
 
 }//namespace exageostat
 
-#endif //EXAGEOSTAT_MeanTrendRemovalGENERATORPARSEC_HPP 
+#endif //EXAGEOSTAT_MEAN_TREND_REMOVAL_GENERATOR_PARSEC_HPP 

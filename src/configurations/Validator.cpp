@@ -85,7 +85,7 @@ const std::unordered_map<std::string, std::string> Validator::mArgumentToCategor
         {"mpiio",             "Bool"},
         {"mloemmom",          "Bool"},
         {"dimension",         "Dimension"},
-        {"MeanTrendRemoval",       "Bool"},
+        {"meantrendremoval",  "Bool"},
         {"issynthetic",       "Bool"},
         {"datapath",          "Path"},
         {"resultspath",       "Path"},
