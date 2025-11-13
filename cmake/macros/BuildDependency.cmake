@@ -73,11 +73,24 @@ macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_ge
     else ()
         # For non-CMake projects, run autogen.sh if auto_generation is true, then configure the project with specified flags.
         if (${auto_generation})
-            execute_process(COMMAND ./autogen.sh
-                    WORKING_DIRECTORY ${${name}_srcpath}
-                    COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
+            if (EXISTS "${${name}_srcpath}/autogen.sh")
+                message(STATUS "autogen.sh found. Running ./autogen.sh.")
+                execute_process(
+                        COMMAND ./autogen.sh
+                        WORKING_DIRECTORY ${${name}_srcpath}
+                        COMMAND_ERROR_IS_FATAL ANY
+                )
+            else ()
+                message(STATUS "autogen.sh not found. Running autoreconf -i.")
+                execute_process(
+                        COMMAND autoreconf -i
+                        WORKING_DIRECTORY ${${name}_srcpath}
+                        COMMAND_ERROR_IS_FATAL ANY
+                )
+            endif ()
         endif ()
-        execute_process(COMMAND ./configure --prefix=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags}
+        execute_process(
+                COMMAND ./configure --prefix=${CMAKE_INSTALL_PREFIX}/${capital_name} ${flags} CFLAGS=-fPIC
                 WORKING_DIRECTORY ${${name}_srcpath}
                 COMMAND_ERROR_IS_FATAL ANY)  # Halt on error
     endif ()
@@ -85,6 +98,11 @@ macro(BuildDependency raw_name url tag flags is_using_cmake is_using_git auto_ge
     # Include the ProcessorCount module to determine the number of CPUs for parallel build and install commands.
     include(ProcessorCount)
     ProcessorCount(N)
+    # Subtract 5 from N, ensuring it doesn't go below 0
+    math(EXPR N "${N} - 5")
+    if (N LESS 0)
+        set(N 1)
+    endif()
     # Build the project using make, with parallel jobs based on processor count. This applies to both CMake and non-CMake projects.
     if (${is_using_cmake})
         execute_process(COMMAND make -j ${N}

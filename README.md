@@ -72,20 +72,28 @@ To build and run this software, you will need:
 ### C++ source code installation
 To install the `ExaGeoStatCPP` project locally (C++ version), run the following commands in your terminal:
 
-1. Clone the project from the remote gitHub repository into your local machine using the following command
+1. Clone the project:
    ```bash
    git clone https://github.com/ecrc/ExaGeoStatCPP.git 
    ```
 
-2. Change your current directory by getting into the `ExaGeoStatCPP` project directory
+2. Navigate to the cloned directory:
    ```bash
    cd ExaGeoStatCPP
    ```
 
-3. Run `configure` script   (use the `-h` flag for help, to know the supported options and their corresponding flags). This step is **not required** when using R.
+3. Run `configure` script (use the `-h` flag for help, to know the supported options and their corresponding flags). This step is **not required** when using R.
+   
+   **Basic configuration:**
    ```bash
    ./configure -e 
    ```
+   
+   **To enable the Global Climate Emulator:**
+   ```bash
+   ./configure -e --climate-emulator
+   ```
+   Note: If using StarPU (default), only Mean-Trend-Removal will be built. For full Climate-Emulator, add `--use-parsec`.
 
 4. Run `clean_build.sh` (use the `-h` flag for help, to know the needed arguments to run with your specific options). This step is **not required** when using R.
    ```bash
@@ -96,6 +104,7 @@ To install the `ExaGeoStatCPP` project locally (C++ version), run the following 
    ```bash
    export PKG_CONFIG_PATH=$PWD/installdir/_deps/DEPENDENCY_NAME/lib/pkgconfig:$PKG_CONFIG_PATH
    ```
+   or copy/paste the output pkg-config paths from the configure step
 
 Now, you can use the pkg-config executable to collect compiler and linker flags for
 ExaGeoStatCPP.
@@ -237,7 +246,8 @@ predict_data(
 
 This example walks through initializing hardware, simulating spatial data, estimating model parameters, and making predictions using **ExaGeoStatCPP** in R.
 
-> Please take a look at the end-to-end examples as a reference for using all the operations.
+> **Note:** Please take a look at the end-to-end examples in the `examples/` directory as a reference for using all the operations.
+
 
 ## Contributing
 Find detailed information on how to contribute to ExaGeoStatCPP [here](CONTRIBUTING.md)

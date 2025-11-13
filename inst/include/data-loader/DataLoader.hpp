@@ -67,6 +67,35 @@ namespace exageostat::dataLoader {
         virtual void
         WriteData(const T &aMatrixPointer, const int &aProblemSize, const int &aP, std::string &aLoggerPath,
                   exageostat::dataunits::Locations<T> &aLocations) = 0;
+
+        /**
+         * @brief Abstract method for loading data based on provided configurations and kernel.
+         * @param[in] aConfigurations Reference to the configurations object that contains parameters for loading data.
+         * @param[in] aKernel Reference to the kernel object that defines the operations to be applied while loading the data.
+         * @return A unique pointer to the loaded ExaGeoStatData object.
+         *
+         */
+        virtual std::unique_ptr<ExaGeoStatData<T>>
+        LoadData(configurations::Configurations &aConfigurations, exageostat::kernels::Kernel<T> &aKernel)  = 0;
+
+        /**
+         * @brief Factory method for creating a DataLoader instance based on the given configurations.
+         * This method dynamically determines the type of data loader to instantiate based on compile-time conditions.
+         * @param[in] aConfigurations Reference to the configurations object that contains parameters for loading data.
+         * @return A unique pointer to a DataLoader instance configured as per the specified runtime conditions.
+         *
+         */
+        static std::unique_ptr<DataLoader<T>>
+        CreateDataLoader(exageostat::configurations::Configurations &apConfigurations);
+
+        /**
+         * @brief Releases the singleton instance of the currently active DataLoader.
+         * This method ensures proper deallocation of the singleton instance of the data loader,
+         * depending on the selected runtime.
+         *
+         */
+        static void ReleaseDataLoader();
+
     };
 
     /**
