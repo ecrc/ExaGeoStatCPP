@@ -43,9 +43,7 @@ int main(int argc, char **argv) {
     configurations.SetDenseTileSize(dts);
 
     // initialize ExaGeoStat hardware with the selected number of cores and  gpus.
-    auto hardware = ExaGeoStatHardware(configurations.GetComputation(), configurations.GetCoresNumber(),
-                                       configurations.GetGPUsNumbers(), configurations.GetPGrid(),
-                                       configurations.GetQGrid());
+    auto hardware = ExaGeoStatHardware(configurations);
     //Data Setup
     std::unique_ptr<ExaGeoStatData<double>> data = std::make_unique<ExaGeoStatData<double>>(
             configurations.GetProblemSize(), configurations.GetDimension());

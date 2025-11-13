@@ -10,9 +10,26 @@
 # @author Sameh Abdulah
 # @date 2023-02-14
 
-# Add source files to the parent scope
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp
-        ${SOURCES}
-        PARENT_SCOPE
-        )
+# Add source files to the parent scope - always include SyntheticGenerator
+list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/SyntheticGenerator.cpp)
+
+# Add runtime-specific generators based on runtime type
+if (RUNTIME_TYPE STREQUAL "STARPU")
+    # StarPU synthetic data generator
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/StarpuGenerator.cpp)
+elseif (RUNTIME_TYPE STREQUAL "PARSEC")
+    # PaRSEC synthetic data generator
+    list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/runtime/ParsecGenerator.cpp)
+endif()
+
+# Add Mean Trend Removal generators only if climate emulator is enabled
+if (USE_CLIMATE_EMULATOR)
+    if (RUNTIME_TYPE STREQUAL "STARPU")
+        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/MeanTrendRemovalGenerator.cpp)
+    elseif (RUNTIME_TYPE STREQUAL "PARSEC")
+        list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/MeanTrendRemovalGeneratorParsec.cpp)
+    endif()
+endif()
+
+# Set the final SOURCES to parent scope
+set(SOURCES ${SOURCES} PARENT_SCOPE)

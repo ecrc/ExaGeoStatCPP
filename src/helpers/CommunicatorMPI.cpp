@@ -10,9 +10,12 @@
  * @author Sameh Abdulah
  * @date 2023-11-10
 **/
-
+#include <iostream>
 #include <helpers/CommunicatorMPI.hpp>
+#if DEFAULT_RUNTIME
 #include <linear-algebra-solvers/concrete/ChameleonHeaders.hpp>
+#endif
+#include <hardware/ExaGeoStatHardware.hpp>
 
 using namespace exageostat::helpers;
 
@@ -27,12 +30,18 @@ int CommunicatorMPI::GetRank() const {
 #ifdef USE_MPI
     if (!mIsHardwareInitialized) {
         return 0;
-    } else {
+    }
+    #if DEFAULT_RUNTIME
+    else {
         return CHAMELEON_Comm_rank();
     }
-#else
-    return 0;
+    #else
+    else {
+        return ExaGeoStatHardware::GetParsecMPIRank();
+    }
+    #endif
 #endif
+    return 0;
 }
 
 void CommunicatorMPI::SetHardwareInitialization() {

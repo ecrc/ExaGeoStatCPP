@@ -1,28 +1,73 @@
 
-// Copyright (c) 2017-2024 King Abdullah University of Science and Technology,
+// Copyright (c) 2017-2025 King Abdullah University of Science and Technology,
 // All rights reserved.
 // ExaGeoStat is a software package, provided by King Abdullah University of Science and Technology (KAUST).
 
 /**
  * @file ExaGeoStat.cpp
  * @brief High-Level Wrapper class containing the static API for ExaGeoStat operations.
- * @version 1.1.0
+ * @version 2.0.0
+ * @author Ali Hakam
  * @author Mahmoud ElKarargy
- * @date 2024-02-04
+ * @date 2025-11-12
 **/
 
 #include <api/ExaGeoStat.hpp>
 #include <data-generators/DataGenerator.hpp>
-#include <data-units/ModelingDataHolders.hpp>
 #include <prediction/Prediction.hpp>
+#include <runtime-solver/RuntimeSolverFactory.hpp>
+
+#ifdef USE_CLIMATE_EMULATOR
+#include <data-generators/concrete/MeanTrendRemovalGenerator.hpp>
+#if !DEFAULT_RUNTIME
+#include <data-generators/concrete/MeanTrendRemovalGeneratorParsec.hpp>
+#endif
+#endif
 
 using namespace std;
-using namespace nlopt;
 
 using namespace exageostat::api;
 using namespace exageostat::generators;
 using namespace exageostat::dataunits;
 using namespace exageostat::configurations;
+#ifdef USE_CLIMATE_EMULATOR
+using namespace exageostat::generators::MeanTrendRemoval;
+#endif
+
+
+#ifdef USE_CLIMATE_EMULATOR
+template<typename T>
+void ExaGeoStat<T>::ExaGeoStatGenerateMeanTrendData(
+    configurations::Configurations &aConfigurations,
+    std::unique_ptr <ExaGeoStatData <T>> &aData) {
+
+    int seed = 0;
+    std::srand(seed);
+    aConfigurations.PrintSummary();
+    LOGGER("** ExaGeoStat Mean Trend Removal data generation **")
+    // Register and create a kernel object
+    kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
+                                                                                      aConfigurations.GetTimeSlot());
+    
+    // Create a unique pointer to a DataGenerator object
+    // Automatically select PaRSEC version when PaRSEC runtime is enabled
+    unique_ptr<DataGenerator<T>> data_generator;
+#if DEFAULT_RUNTIME
+    // Use StarPU/CHAMELEON version
+    data_generator = unique_ptr<DataGenerator<T>>(MeanTrendRemovalGenerator<T>::GetInstance());
+    LOGGER("Using MeanTrendRemovalGenerator (StarPU/CHAMELEON runtime)")
+#else
+    // Use PaRSEC version
+    data_generator = unique_ptr<DataGenerator<T>>(MeanTrendRemovalGeneratorParsec<T>::GetInstance());
+    LOGGER("Using MeanTrendRemovalGeneratorParsec (PaRSEC runtime)")
+#endif
+    
+    aData = data_generator->CreateData(aConfigurations, *pKernel);
+    delete pKernel;
+    LOGGER("\t*Data generation finished*")
+
+}
+#endif
 
 template<typename T>
 void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::unique_ptr<ExaGeoStatData<T>> &aData) {
@@ -34,13 +79,12 @@ void ExaGeoStat<T>::ExaGeoStatLoadData(Configurations &aConfigurations, std::uni
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
-    // Add the data generation arguments.
-    aConfigurations.InitializeDataGenerationArguments();
     // Create a unique pointer to a DataGenerator object
     unique_ptr<DataGenerator<T>> data_generator = DataGenerator<T>::CreateGenerator(aConfigurations);
     aData = data_generator->CreateData(aConfigurations, *pKernel);
     delete pKernel;
     LOGGER("\t*Data generation/loading finished*")
+
 }
 
 template<typename T>
@@ -52,67 +96,14 @@ T ExaGeoStat<T>::ExaGeoStatDataModeling(Configurations &aConfigurations, std::un
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
-    // Add the data modeling arguments.
-    aConfigurations.InitializeDataModelingArguments();
-
-    int parameters_number = pKernel->GetParametersNumbers();
-    int max_number_of_iterations = aConfigurations.GetMaxMleIterations();
-    // Setting struct of data to pass to the modeling.
-    auto modeling_data = new mModelingData(aData, aConfigurations, *apMeasurementsMatrix, *pKernel);
-    // Create nlopt
-    double opt_f;
-    opt optimizing_function(nlopt::LN_BOBYQA, parameters_number);
-    // Initialize problem's bound.
-    optimizing_function.set_lower_bounds(aConfigurations.GetLowerBounds());
-    optimizing_function.set_upper_bounds(aConfigurations.GetUpperBounds());
-    optimizing_function.set_ftol_abs(aConfigurations.GetTolerance());
-    // Set max iterations value.
-    optimizing_function.set_maxeval(max_number_of_iterations);
-    optimizing_function.set_max_objective(ExaGeoStatMLETileAPI, (void *) modeling_data);
-
-    if (aConfigurations.GetComputation() == common::EXACT_DENSE) {
-        LOGGER("\t--> Modeling Using Dense Tile - Chameleon")
-    } else if (aConfigurations.GetComputation() == common::DIAGONAL_APPROX){
-        LOGGER("\t--> Modeling Using Diagonal Super Tile - Chameleon")
-    }
-    else {
-        LOGGER("\t--> Modeling Using Tile Low Rank - HiCMA")
-    }
-
-    // Optimize mle using nlopt.
-    optimizing_function.optimize(aConfigurations.GetStartingTheta(), opt_f);
-    aConfigurations.SetEstimatedTheta(aConfigurations.GetStartingTheta());
-
-    auto theta = aConfigurations.GetStartingTheta();
-
-    LOGGER("--> Final Theta Values (", true)
-    for (int i = 0; i < parameters_number; i++) {
-        LOGGER_PRECISION(theta[i])
-        if (i != parameters_number - 1) {
-            LOGGER_PRECISION(", ")
-        }
-    }
-    LOGGER_PRECISION(")")
-    LOGGER("")
-
-    delete pKernel;
-    delete modeling_data;
-    return optimizing_function.last_optimum_value();
-}
-
-template<typename T>
-double
-ExaGeoStat<T>::ExaGeoStatMLETileAPI(const std::vector<double> &aTheta, std::vector<double> &aGrad, void *apInfo) {
-
-    auto config = ((mModelingData<T> *) apInfo)->mpConfiguration;
-    auto data = ((mModelingData<T> *) apInfo)->mpData;
-    auto measurements = ((mModelingData<T> *) apInfo)->mpMeasurementsMatrix;
-    auto kernel = ((mModelingData<T> *) apInfo)->mpKernel;
+    // Initialize all theta: starting, estimated, lower and upper bounds.
+    aConfigurations.InitializeAllTheta();
 
     // We do Date Modeling with any computation.
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(
-            config->GetComputation());
-    return linear_algebra_solver->ExaGeoStatMLETile(*data, *config, aTheta.data(), measurements, *kernel);
+    auto runtime_solver = runtimesolver::RuntimeSolverFactory<T>::CreateRuntimeSolver();
+    T result = runtime_solver->ModelingOperations(aData, aConfigurations, apMeasurementsMatrix, *pKernel);
+    delete pKernel;
+    return result;
 }
 
 
@@ -126,9 +117,10 @@ void ExaGeoStat<T>::ExaGeoStatPrediction(Configurations &aConfigurations, std::u
     // Register and create a kernel object
     kernels::Kernel<T> *pKernel = plugins::PluginRegistry<kernels::Kernel<T>>::Create(aConfigurations.GetKernelName(),
                                                                                       aConfigurations.GetTimeSlot());
-    // Add the data prediction arguments.
-    aConfigurations.InitializeDataPredictionArguments();
+    // Initialize all theta: starting, estimated, lower and upper bounds.
+    aConfigurations.InitializeAllTheta();
     prediction::Prediction<T>::PredictMissingData(aData, aConfigurations, apMeasurementsMatrix, *pKernel,
                                                   apTrainLocations, apTestLocations);
     delete pKernel;
 }
+

@@ -1,0 +1,145 @@
+extern "C" %{
+/*
+ * Copyright (c) 2017-2018 The Universiy of Tennessee and The Universiy
+ *                         of Tennessee Research Foundation. All rights
+ *                         reserved.
+ */
+
+#include <runtime/parsec/ParsecHeader.h>
+#include <runtime/parsec/JDFHelperFunctions.h>
+
+/* Helper function to compute the log-determinant contribution of one tile */
+static double ParsecCoreDmdet(double *apA, int aM, int aLda) {
+    double aRes = 0.0;
+    for (int i = 0; i < aM; i++) {
+        if(apA[i + i * aLda] > 0) {
+            aRes += log(apA[i + i * aLda]);
+        }
+    }
+    return aRes;
+}
+
+%}
+
+/* Input and output descriptors */
+apDescA                [ type = "parsec_tiled_matrix_t *" ]
+apDescDet              [ type = "parsec_tiled_matrix_t *" ]
+
+/**************************************************
+ *                   Read Task                  *
+ **************************************************/
+Read(m)
+
+m = 0 .. apDescA->lmt-1
+
+: apDescA(m, m)
+
+READ apA <- apDescA(m, m)           // [ type = DB ]
+
+WRITE apD <- NEW
+        -> apD0 Determinant(m)
+
+BODY
+{
+    int aTempM = (m == apDescA->lmt-1) 
+        ? parsec_imin(apDescA->mb, apDescA->m - (apDescA->lmt-1) * apDescA->mb)
+        : apDescA->mb;
+    *((double *)apD) = ParsecCoreDmdet(apA, aTempM, apDescA->mb);
+}
+END
+
+/**************************************************
+ *                Determinant Task              *
+ **************************************************/
+Determinant(m)
+
+m = 0 .. apDescA->lmt-1
+
+: apDescDet(0, 0)
+
+READ apD0 <- apD Read(m)
+
+RW apD <- apDescDet(0, 0)
+     -> apDescDet(0, 0)
+
+CTL ctl1 -> (m != apDescA->lmt-1)? ctl2 Determinant(m+1)
+CTL ctl2 <- (m != 0)? ctl1 Determinant(m-1)
+
+BODY
+{
+    /* Update accumulator */
+    *((double *)apD) += *((double *)apD0);
+}
+END
+
+extern "C" %{
+
+/**
+ * @brief Create a new DMatrixDet taskpool.
+ * @param [in] apDcA  Pointer to the distributed input matrix.
+ * @param [in] apDcDet Pointer to the output determinant descriptor.
+ * @return parsec_taskpool_t* The taskpool object to schedule.
+ */
+parsec_taskpool_t*
+ParsecDMatrixDet_New(parsec_tiled_matrix_t *apDcA, parsec_tiled_matrix_t *apDcDet) 
+{
+    parsec_taskpool_t* aDMatrixDetTaskpool;
+    parsec_DMatrixDet_taskpool_t* aTaskpool = NULL;
+
+    aTaskpool = parsec_DMatrixDet_new(apDcA, apDcDet); 
+    aDMatrixDetTaskpool = (parsec_taskpool_t*)aTaskpool;
+
+    /* Uncomment below if DB arena is needed:
+       parsec_add2arena(&aTaskpool->arenas_datatypes[PARSEC_DMatrixDet_DB_ADT_IDX],
+                            parsec_datatype_double_t, matrix_UpperLower,
+                            1, 1, 1, 1,
+                            PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+    */
+
+    parsec_add2arena(&aTaskpool->arenas_datatypes[PARSEC_DMatrixDet_DEFAULT_ADT_IDX],
+                     parsec_datatype_double_t, matrix_UpperLower,
+                     1, apDcA->mb, apDcA->nb, apDcA->mb,
+                     PARSEC_ARENA_ALIGNMENT_SSE, -1 );
+
+    return aDMatrixDetTaskpool;
+}
+
+/**
+ * @brief Destroy the DMatrixDet taskpool.
+ * Releases resources associated with the PaRSEC taskpool used for determinant calculation.
+ * @param [in,out] apTaskpool The taskpool to be destroyed.
+ */
+void ParsecDMatrixDet_Destruct(parsec_taskpool_t *apTaskpool)
+{
+    parsec_DMatrixDet_taskpool_t *aDMatrixDetTaskpool = (parsec_DMatrixDet_taskpool_t *)apTaskpool;
+    parsec_del2arena(&aDMatrixDetTaskpool->arenas_datatypes[PARSEC_DMatrixDet_DEFAULT_ADT_IDX]);
+    //parsec_del2arena(&aDMatrixDetTaskpool->arenas_datatypes[PARSEC_DMatrixDet_DB_ADT_IDX]);
+    parsec_taskpool_free(apTaskpool);
+}
+
+/**
+ * @brief Allocate and generate the determinant.
+ * @param [in] apParsec  Pointer to the PaRSEC context.
+ * @param [in,out] apDcA   Pointer to the distributed input matrix.
+ * @param [in,out] apDcDet Pointer to the output determinant descriptor.
+ * @return int Returns 0 on success.
+ */
+int ParsecDMatrixDet(parsec_context_t *apParsec,
+                     parsec_tiled_matrix_t *apDcA,
+                     parsec_tiled_matrix_t *apDcDet)
+{
+    parsec_taskpool_t *aDMatrixDet = NULL;
+
+    aDMatrixDet = ParsecDMatrixDet_New(apDcA, apDcDet); 
+
+    if( aDMatrixDet != NULL ){
+        parsec_context_add_taskpool(apParsec, aDMatrixDet);
+        parsec_context_start(apParsec);
+        parsec_context_wait(apParsec);
+        ParsecDMatrixDet_Destruct(aDMatrixDet);
+    }
+
+    return 0;
+}
+
+%}
