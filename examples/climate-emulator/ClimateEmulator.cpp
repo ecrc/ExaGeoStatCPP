@@ -9,7 +9,8 @@
  * @version 2.0.0
  * @author Mahmoud ElKarargy
  * @author Sameh Abdulah
- * @date 2024-09-23
+ * @author Qinglei Cao
+ * @date 2025-11-13
 **/
 
 #include <configurations/Configurations.hpp>
