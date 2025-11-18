@@ -43,7 +43,6 @@ Configurations::Configurations() {
     SetUpperBounds(theta);
     SetEstimatedTheta(theta);
     SetSeed(static_cast<unsigned int>(time(0)));
-    SetLogger(false);
     SetUnknownObservationsNb(0);
     SetApproximationMode(1);
     SetActualObservationsFilePath("");
