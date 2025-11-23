@@ -17,8 +17,8 @@ set(name "NLOPT")
 set(tag "v2.7.1")
 # 'version' specifies "2.7.1" as the version of the NLOPT library, ensuring compatibility with the project's requirements.
 set(version "2.7.1")
-# 'flag' is intended for additional configuration options during the build process. A space is placed as a placeholder.
-set(flag " ")
+# 'flag' is intended for additional configuration options during the build process. Disable Python and SWIG to avoid Python compatibility issues.
+set(flag "-DNLOPT_PYTHON=OFF -DNLOPT_SWIG=OFF")
 # 'is_cmake' indicates that NLOPT uses CMake for its build system, which is set to ON.
 set(is_cmake ON)
 # 'is_git' denotes that the NLOPT source code is hosted in a Git repository, which is set to ON.
