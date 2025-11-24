@@ -13,12 +13,12 @@
 # Configuration settings for the integration of the NLOPT library
 # 'name' is assigned to "NLOPT", serving as the identifier for this library within the script.
 set(name "NLOPT")
-# 'tag' defines "v2.7.1" as the version tag of NLOPT, indicating the specific release to be utilized.
-set(tag "v2.7.1")
-# 'version' specifies "2.7.1" as the version of the NLOPT library, ensuring compatibility with the project's requirements.
-set(version "2.7.1")
-# 'flag' is intended for additional configuration options during the build process. Disable Python and SWIG to avoid Python compatibility issues.
-set(flag "-DNLOPT_PYTHON=OFF -DNLOPT_SWIG=OFF")
+# 'tag' defines "v2.8.0" as the version tag of NLOPT, indicating the specific release to be utilized.
+set(tag "v2.8.0")
+# 'version' specifies "2.8.0" as the version of the NLOPT library, ensuring compatibility with the project's requirements (Python 3.13+ compatible).
+set(version "2.8.0")
+# 'flag' is intended for additional configuration options during the build process. Disable ALL language bindings to avoid Python compatibility issues.
+set(flag -DNLOPT_PYTHON=OFF \-DNLOPT_SWIG=OFF \-DNLOPT_OCTAVE=OFF \-DNLOPT_MATLAB=OFF \-DNLOPT_GUILE=OFF)
 # 'is_cmake' indicates that NLOPT uses CMake for its build system, which is set to ON.
 set(is_cmake ON)
 # 'is_git' denotes that the NLOPT source code is hosted in a Git repository, which is set to ON.
