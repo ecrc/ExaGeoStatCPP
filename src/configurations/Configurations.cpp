@@ -57,13 +57,9 @@ Configurations::Configurations() {
     SetAccuracy(0);
     SetIsNonGaussian(false);
     mIsThetaInit = false;
-
-#if !DEFAULT_RUNTIME
-    // Set default values for Hicma-Parsec params
+    #if !DEFAULT_RUNTIME
+    // Set default values for PaRSEC runtime params
     SetTolerance(0);
-    //TODO:currently,we support real data only in parsec.In the future,we should support synthetic and real data for both runtimes
-    SetIsSynthetic(false);
-    SetMeanTrendRemoval(false);
 #endif
 }
 
@@ -93,6 +89,9 @@ void Configurations::ValidateConfiguration() {
     if (!GetDataPath().empty()) {
         SetIsSynthetic(false);
     }
+    if (GetMeanTrendRemoval()) {
+        SetIsSynthetic(false);
+    }
 
     if (GetIsMSPE() || GetIsMLOEMMOM() || GetIsIDW()) {
         if (GetUnknownObservationsNb() <= 1) {
@@ -101,8 +100,9 @@ void Configurations::ValidateConfiguration() {
         }
     }
 
+    // Auto-enable logging if log path is provided
     if (!GetLoggerPath().empty() && !GetLogger()) {
-        throw domain_error("To enable logging, please utilize the '--log' option in order to specify a log file.");
+        SetLogger(true);
     }
 
     if (GetUnknownObservationsNb() >= GetProblemSize()) {
@@ -130,28 +130,30 @@ void Configurations::ValidateConfiguration() {
     }
 
 #if DEFAULT_RUNTIME
-    // Throw Errors if any of these arguments aren't given by the user.
+    // StarPU runtime: kernel always required
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
     if (GetMaxRank() == -1) {
         SetMaxRank(1);
     }
-//#else
+#else
+    // PaRSEC runtime: kernel required for synthetic data or Mean Trend Removal
+    if (GetKernelName().empty() && (GetIsSynthetic() || GetMeanTrendRemoval())) {
+        throw domain_error("You need to set the Kernel, before starting");
+    }
     if(GetMaxRank() == -1){
         SetMaxRank(GetDenseTileSize() / 2);
     }
     if (mDictionary.find("tolerance") == mDictionary.end()) {
         SetTolerance(8);
     }
-     if (GetDataPath().empty()) {
-        throw domain_error("You need to set the data path, before starting");
-    }
-#else
-    if(GetMeanTrendRemoval() && GetKernelName().empty()){
-        throw domain_error("You need to set the Kernel for Mean Trend Removal, before starting");
-    }
 #endif
+
+    // Both runtimes: data_path required if not synthetic OR if Mean Trend Removal
+    if ((!GetIsSynthetic() || GetMeanTrendRemoval()) && GetDataPath().empty()) {
+        throw domain_error("You need to set the data path (use --data_path), before starting");
+    }
 
     size_t found = GetKernelName().find("NonGaussian");
     // Check if the substring was found
