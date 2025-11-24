@@ -23,6 +23,18 @@ using namespace exageostat::api;
 
 int main(int argc, char **argv) {
 
+    // Climate Emulator requires PaRSEC runtime
+    #if DEFAULT_RUNTIME
+        std::cerr << "\n========================================\n";
+        std::cerr << "ERROR: Climate Emulator is NOT supported with StarPU runtime!\n";
+        std::cerr << "========================================\n\n";
+        std::cerr << "Climate Emulator requires PaRSEC runtime.\n";
+        std::cerr << "Please reconfigure and rebuild with PaRSEC:\n";
+        std::cerr << "  ./configure -e --climate-emulator --use-parsec\n";
+        std::cerr << "Note: Stage Zero example works with both StarPU and PaRSEC.\n";
+        std::cerr << "========================================\n\n";
+        return 1;
+    #endif
     // Create a new configurations object.
     Configurations configurations;
     // Initialize the arguments with the provided command line arguments
