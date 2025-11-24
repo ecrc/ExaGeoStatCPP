@@ -16,6 +16,7 @@
 #include <nlohmann/json.hpp>
 
 #include <configurations/Parser.hpp>
+#include <configurations/Configurations.hpp>
 
 using namespace std;
 using namespace exageostat::configurations::parser;
@@ -32,6 +33,12 @@ void Parser::ParseCLI(const int &aArgC, char **apArgV, unordered_map<string, any
 
     for (int i = 1; i < aArgC; ++i) {
         argument = apArgV[i];
+        
+        // Check for help flag before processing
+        if (argument == "--help" || argument == "-h") {
+            exageostat::configurations::Configurations::PrintUsage();
+        }
+        
         argument = argument.substr(2);
         equal_sign_Idx = static_cast<int>(argument.find('='));
         argument_name = argument.substr(0, equal_sign_Idx);
