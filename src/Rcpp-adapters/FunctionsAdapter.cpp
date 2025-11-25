@@ -373,4 +373,110 @@ namespace exageostat::adapters {
 
         delete[] z_values;
     }
+
+    List
+    R_ExaGeoStatMeanTrendRemoval(const int &aLongitudeCount, const int &aStartYear, const int &aEndYear,
+                                  const int &aDenseTileSize, const string &aDataPath, const string &aForcingDataPath,
+                                  const string &aResultsPath, const vector<double> &aStartingTheta,
+                                  const vector<double> &aLb, const vector<double> &aUb, const int &aTolerance,
+                                  const int &aMaxMleIterations, const int &aCores, const int &aGPUs,
+                                  const int &aPGrid, const int &aQGrid, const string &aLogPath) {
+
+        // Create configurations object
+        Configurations configurations;
+        
+        // Set Mean Trend Removal specific parameters
+        configurations.SetMeanTrendRemoval(true);
+        configurations.SetKernelName("TrendModel");
+        configurations.SetLongitudeCount(aLongitudeCount);
+        configurations.SetStartYear(aStartYear);
+        configurations.SetEndYear(aEndYear);
+        configurations.SetDenseTileSize(aDenseTileSize);
+        configurations.SetDataPath(aDataPath);
+        configurations.SetForcingDataPath(aForcingDataPath);
+        configurations.SetResultsPath(aResultsPath);
+        configurations.SetStartingTheta(aStartingTheta);
+        configurations.SetLowerBounds(aLb);
+        configurations.SetUpperBounds(aUb);
+        configurations.SetTolerance(aTolerance);
+        configurations.SetMaxMleIterations(aMaxMleIterations);
+        configurations.SetCoresNumber(aCores);
+        configurations.SetGPUsNumbers(aGPUs);
+        configurations.SetPGrid(aPGrid);
+        configurations.SetQGrid(aQGrid);
+        configurations.SetComputation(EXACT_DENSE);
+        configurations.SetIsSynthetic(false);
+        
+        if (!aLogPath.empty()) {
+            configurations.SetLogger(true);
+            configurations.SetLoggerPath(aLogPath);
+        }
+
+        // Create data object
+        unique_ptr<ExaGeoStatData<double>> data;
+        
+        // Run Mean Trend Removal using the dedicated function
+        #ifdef USE_CLIMATE_EMULATOR
+        ExaGeoStat<double>::ExaGeoStatGenerateMeanTrendData(configurations, data);
+        #else
+        // If climate emulator is not enabled, throw error
+        throw std::runtime_error("Mean Trend Removal requires USE_CLIMATE_EMULATOR to be enabled. "
+                               "Rebuild with: ./configure -r -e --climate-emulator");
+        #endif
+
+        // Mean Trend Removal is file-based - results are written to CSV files
+        int obs_years = aEndYear - aStartYear + 1;
+        int expected_files = 365 * 24 * obs_years; // Hourly data (one z_*.csv per hour)
+        
+        return List::create(
+            Named("results_path") = aResultsPath,
+            Named("num_time_points") = expected_files,
+            Named("num_locations") = aLongitudeCount
+        );
+    }
+
+    List
+    R_ExaGeoStatClimateEmulator(const int &aProblemSize, const int &aDenseTileSize, const int &aTimeslot,
+                                 const int &aObjectsNumber, const string &aDataPath, const int &aCores,
+                                 const int &aGPUs, const double &aAddDiagonal, const int &aAccuracy,
+                                 const int &aBandDenseDP, const int &aHnb, const string &aVerbose,
+                                 const string &aLogPath) {
+
+        // Create configurations object
+        Configurations configurations;
+        
+        // Set Climate Emulator specific parameters
+        configurations.SetIsClimateEmulator(true);
+        configurations.SetProblemSize(aProblemSize);
+        configurations.SetDenseTileSize(aDenseTileSize);
+        configurations.SetTimeSlot(aTimeslot);
+        configurations.SetObjectsNumber(aObjectsNumber);
+        configurations.SetDataPath(aDataPath);
+        configurations.SetCoresNumber(aCores);
+        configurations.SetGPUsNumbers(aGPUs);
+        configurations.SetDiagonalAddition(aAddDiagonal);
+        configurations.SetAccuracy(aAccuracy);
+        configurations.SetDenseBandDP(aBandDenseDP);
+        configurations.SetHNB(aHnb);
+        configurations.SetVerbosity(validator::Validator::CheckVerboseValue(aVerbose));
+        configurations.SetComputation(TILE_LOW_RANK);
+        configurations.SetIsSynthetic(false);
+        
+        if (!aLogPath.empty()) {
+            configurations.SetLogger(true);
+            configurations.SetLoggerPath(aLogPath);
+        }
+
+        // Create data object
+        unique_ptr<ExaGeoStatData<double>> data;
+        
+        // Load data and run climate emulator
+        ExaGeoStat<double>::ExaGeoStatLoadData(configurations, data);
+        ExaGeoStat<double>::ExaGeoStatDataModeling(configurations, data, nullptr);
+        
+        // Climate Emulator doesn't return a value like MLE (no optimization)
+        return List::create(
+            Named("completed") = true
+        );
+    }
 }

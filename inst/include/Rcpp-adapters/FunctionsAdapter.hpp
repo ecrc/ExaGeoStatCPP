@@ -238,5 +238,65 @@ namespace exageostat::adapters {
                                const std::vector<double> &aEstimatedTheta,
                                const std::vector<double> &aTestMeasurementsValues);
 
+    /**
+     * @brief Performs Mean Trend Removal on climate data.
+     * @details Removes mean trends from climate time series data and produces normalized residuals for further analysis.
+     * This function works with both StarPU and PaRSEC runtimes.
+     * @param[in] aLongitudeCount Number of longitude points in the grid.
+     * @param[in] aStartYear Start year for the analysis period.
+     * @param[in] aEndYear End year for the analysis period.
+     * @param[in] aDenseTileSize Tile size for dense matrix computations.
+     * @param[in] aDataPath Path to the ERA5/climate data directory.
+     * @param[in] aForcingDataPath Path to the forcing data CSV file.
+     * @param[in] aResultsPath Path where results will be saved (z_*.csv and params.csv).
+     * @param[in] aStartingTheta Initial parameter values for optimization.
+     * @param[in] aLb Lower bounds for optimization parameters.
+     * @param[in] aUb Upper bounds for optimization parameters.
+     * @param[in] aTolerance Tolerance level for the optimization algorithm (10^(-tolerance)).
+     * @param[in] aMaxMleIterations Maximum number of MLE iterations.
+     * @param[in] aCores Number of CPU cores to use.
+     * @param[in] aGPUs Number of GPUs to use.
+     * @param[in] aPGrid Process grid P dimension for MPI.
+     * @param[in] aQGrid Process grid Q dimension for MPI.
+     * @param[in] aLogPath Optional path for logging.
+     * @return List containing: results_path (output directory), num_time_points (number of z_*.csv files), num_locations (number of spatial locations).
+     *
+     */
+    Rcpp::List
+    R_ExaGeoStatMeanTrendRemoval(const int &aLongitudeCount, const int &aStartYear, const int &aEndYear,
+                                  const int &aDenseTileSize, const std::string &aDataPath,
+                                  const std::string &aForcingDataPath, const std::string &aResultsPath,
+                                  const std::vector<double> &aStartingTheta, const std::vector<double> &aLb,
+                                  const std::vector<double> &aUb, const int &aTolerance,
+                                  const int &aMaxMleIterations, const int &aCores, const int &aGPUs,
+                                  const int &aPGrid, const int &aQGrid, const std::string &aLogPath);
+
+    /**
+     * @brief Runs the Climate Emulator for statistical modeling of climate data.
+     * @details Builds statistical models from Mean Trend Removal residuals to emulate climate behavior.
+     * This function requires PaRSEC runtime (StarPU not supported).
+     * @param[in] aProblemSize Spatial problem size (typically dts²).
+     * @param[in] aDenseTileSize Tile size for matrix computations.
+     * @param[in] aTimeslot Number of time points to process (z_*.csv files).
+     * @param[in] aObjectsNumber Number of objects for parallel processing.
+     * @param[in] aDataPath Directory containing Mean Trend Removal outputs (z_*.csv and params.csv).
+     * @param[in] aCores Number of CPU cores to use.
+     * @param[in] aGPUs Number of GPUs to use.
+     * @param[in] aAddDiagonal Value to add to diagonal for numerical stability.
+     * @param[in] aAccuracy Accuracy for low-rank approximation (10^(-accuracy)).
+     * @param[in] aBandDenseDp Band dense parameter.
+     * @param[in] aHnb Hierarchical matrix parameter.
+     * @param[in] aVerbose Verbosity level ("standard" or "detailed").
+     * @param[in] aLogPath Optional path for logging.
+     * @return List containing: completed (TRUE indicating successful completion).
+     *
+     */
+    Rcpp::List
+    R_ExaGeoStatClimateEmulator(const int &aProblemSize, const int &aDenseTileSize, const int &aTimeslot,
+                                 const int &aObjectsNumber, const std::string &aDataPath, const int &aCores,
+                                 const int &aGPUs, const double &aAddDiagonal, const int &aAccuracy,
+                                 const int &aBandDenseDP, const int &aHnb, const std::string &aVerbose,
+                                 const std::string &aLogPath);
+
 }
 #endif //EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP

@@ -128,4 +128,42 @@ RCPP_MODULE(ExaGeoStatCPP) {
                  _["test_measurements"]
              ));
 
+    function("mean_trend_removal", &exageostat::adapters::R_ExaGeoStatMeanTrendRemoval,
+             List::create(
+                 _["lon"],
+                 _["startyear"],
+                 _["endyear"],
+                 _["dts"],
+                 _["data_path"],
+                 _["forcing_data_path"],
+                 _["results_path"],
+                 _["starting_theta"],
+                 _["lb"],
+                 _["ub"],
+                 _["tolerance"] = 7,
+                 _["max_mle_iterations"] = 30,
+                 _["cores"] = 1,
+                 _["gpus"] = 0,
+                 _["p"] = 1,
+                 _["q"] = 1,
+                 _["log_path"] = ""
+             ));
+
+    function("climate_emulator", &exageostat::adapters::R_ExaGeoStatClimateEmulator,
+             List::create(
+                 _["N"],
+                 _["dts"],
+                 _["timeslot"],
+                 _["objects_number"],
+                 _["data_path"],
+                 _["cores"] = 1,
+                 _["gpus"] = 0,
+                 _["add_diagonal"] = 10.0,
+                 _["accuracy"] = 0,
+                 _["band_dense_dp"] = 1000,
+                 _["hnb"] = 300,
+                 _["verbose"] = "detailed",
+                 _["log_path"] = ""
+             ));
+
 }
