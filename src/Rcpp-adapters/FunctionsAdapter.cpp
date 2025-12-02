@@ -157,14 +157,14 @@ namespace exageostat::adapters {
     vector<double> R_ExaGeoStatPredictData(const string &aKernelName, const string &aDistanceMatrix,
                                            const vector<double> &aEstimatedTheta, const int &aDenseTileSize,
                                            const int &aLowTileSize, const string &aDimension,
-                                           vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData) {
+                                           vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData,
+                                           vector<double> &aTestMeasurementsValues) {
 
         Configurations configurations;
         configurations.SetIsMSPE(TRUE);
         configurations.SetEstimatedTheta(aEstimatedTheta);
-        vector<double> empty_vector;
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, empty_vector);
+                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues);
         return Results::GetInstance()->GetPredictedMissedValues();
     }
 

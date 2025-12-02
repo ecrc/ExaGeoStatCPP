@@ -87,7 +87,8 @@ RCPP_MODULE(ExaGeoStatCPP) {
                  _["lts"] = 0,
                  _["dimension"] = "2D", 
                  _["train_data"], 
-                 _["test_data"]
+                 _["test_data"],
+                 _["test_measurements"] = std::vector<double>()
              ));
 
     function("mloe_mmom", &exageostat::adapters::R_ExaGeoStatMLOE_MMOM,

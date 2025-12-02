@@ -63,7 +63,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
     } else {
         z_miss_number = apTestLocations->GetSize();
         n_z_obs = apTrainLocations->GetSize();
-        z_actual = nullptr;
+        z_actual = new T[z_miss_number * p];
     }
     aConfigurations.SetObservationNumber(n_z_obs);
     auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
@@ -191,7 +191,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
         }
         Results::GetInstance()->SetPredictedMissedValues(z_miss_vector);
         if (z_actual) {
-            LOGGER("\t\t- Prediction value: " << avg_pred_value[0])
+            LOGGER("\t\t- MSPE value: " << avg_pred_value[0])
         }
         delete[] prediction_error_mspe;
     }
@@ -235,7 +235,12 @@ void Prediction<T>::InitializePredictionArguments(Configurations &aConfiguration
             aMissLocation.GetLocationX()[i] = apTestLocations->GetLocationX()[i];
             aMissLocation.GetLocationY()[i] = apTestLocations->GetLocationY()[i];
         }
-        memcpy(apZObs, apMeasurementsMatrix, aObsLocation.GetSize() * sizeof(T));
+        // Copy train measurements (n_z_obs * p elements for multivariate)
+        memcpy(apZObs, apMeasurementsMatrix, aObsLocation.GetSize() * aP * sizeof(T));
+        // Extract test measurements from apMeasurementsMatrix for MSPE calculation
+        if (apZActual) {
+            memcpy(apZActual, apMeasurementsMatrix + aObsLocation.GetSize() * aP, aMissLocation.GetSize() * aP * sizeof(T));
+        }
     }
     delete[] z;
 #endif
