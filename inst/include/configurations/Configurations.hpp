@@ -321,6 +321,9 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(IsMSPE, bool, aIsMSPE, "mspe")
         CREATE_GETTER_FUNCTION(IsMSPE, bool, "mspe")
 
+        CREATE_SETTER_FUNCTION(HasTestMeasurements, bool, aHasTestMeasurements, "hastestmeasurements")
+        CREATE_GETTER_FUNCTION(HasTestMeasurements, bool, "hastestmeasurements")
+
         CREATE_SETTER_FUNCTION(IsIDW, bool, aIsIDW, "idw")
         CREATE_GETTER_FUNCTION(IsIDW, bool, "idw")
 

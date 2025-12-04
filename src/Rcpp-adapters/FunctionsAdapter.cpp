@@ -327,6 +327,10 @@ namespace exageostat::adapters {
         dataunits::Locations<double> train_locations(train_data_size, aConfigurations.GetDimension());
         dataunits::Locations<double> test_locations(test_data_size, aConfigurations.GetDimension());
 
+        // Track whether test measurements were provided for MSPE logging
+        bool has_test_measurements = !aTestMeasurementsValues.empty();
+        aConfigurations.SetHasTestMeasurements(has_test_measurements);
+        
         // Allocate memory for z_values to hold elements from both sources
         auto *z_values = new double[aTrainData.back().size() + aTestMeasurementsValues.size()];
 
@@ -341,10 +345,11 @@ namespace exageostat::adapters {
             }
         }
         memcpy(z_values, aTrainData.back().data(), aTrainData.back().size() * sizeof(double));
-        // Calculate the starting position for the next part of the data in z_values
-        auto *destination = z_values + aTrainData.back().size();
-        // Copy data from aTestMeasurementsValues to the next part of z_values, after the previously copied data
-        memcpy(destination, aTestMeasurementsValues.data(), aTestMeasurementsValues.size() * sizeof(double));
+        // Copy test measurements if provided
+        if (has_test_measurements) {
+            auto *destination = z_values + aTrainData.back().size();
+            memcpy(destination, aTestMeasurementsValues.data(), aTestMeasurementsValues.size() * sizeof(double));
+        }
 
         for (int i = 0; i < test_data_size; i++) {
             test_locations.SetLocationX(*aTestData[0].data(), test_data_size);

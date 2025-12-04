@@ -190,7 +190,8 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
             z_miss_vector.push_back(z_miss[idx]);
         }
         Results::GetInstance()->SetPredictedMissedValues(z_miss_vector);
-        if (z_actual) {
+        // Only log MSPE if test measurements were actually provided
+        if (z_actual && aConfigurations.GetHasTestMeasurements()) {
             LOGGER("\t\t- MSPE value: " << avg_pred_value[0])
         }
         delete[] prediction_error_mspe;
@@ -237,8 +238,8 @@ void Prediction<T>::InitializePredictionArguments(Configurations &aConfiguration
         }
         // Copy train measurements (n_z_obs * p elements for multivariate)
         memcpy(apZObs, apMeasurementsMatrix, aObsLocation.GetSize() * aP * sizeof(T));
-        // Extract test measurements from apMeasurementsMatrix for MSPE calculation
-        if (apZActual) {
+        // Extract test measurements only if they were actually provided
+        if (apZActual && apMeasurementsMatrix && aConfigurations.GetHasTestMeasurements()) {
             memcpy(apZActual, apMeasurementsMatrix + aObsLocation.GetSize() * aP, aMissLocation.GetSize() * aP * sizeof(T));
         }
     }
