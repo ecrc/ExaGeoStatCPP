@@ -44,7 +44,7 @@ result <- predict_data(
   kernel=kernel, 
   dts=dts, 
   estimated_theta=estimated_theta,
-  test_measurements=test_z
+  #test_measurements=test_z
 )
 cat("Predicted values:", result, "\n")
 cat("Actual values:", test_z, "\n")
