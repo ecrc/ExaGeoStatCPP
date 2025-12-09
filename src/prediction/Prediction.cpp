@@ -66,11 +66,12 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
         z_actual = new T[z_miss_number * p];
     }
     aConfigurations.SetObservationNumber(n_z_obs);
-    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(common::EXACT_DENSE);
+    auto linear_algebra_solver = linearAlgebra::LinearAlgebraFactory<T>::CreateLinearAlgebraSolver(aConfigurations.GetComputation());
 
     VERBOSE("\t- Total number of Z: " << aConfigurations.GetProblemSize())
     LOGGER("\t- Number of Z Miss: " << z_miss_number)
     LOGGER("\t- Number of Z observations: " << n_z_obs)
+    LOGGER("\t- Computation mode: " << aConfigurations.GetComputation())
 
     // FISHER Prediction Function Call
     if (aConfigurations.GetIsFisher()) {
@@ -125,7 +126,7 @@ void Prediction<T>::PredictMissingData(unique_ptr<ExaGeoStatData<T>> &aData, Con
     // Prediction is only supported with 2D.
     auto obs_locations = new Locations<T>(n_z_obs, aConfigurations.GetDimension());
 
-    // We Predict date with only Exact computation. This is a pre-request.
+    // Initialize prediction arguments using the configured computation mode
     InitializePredictionArguments(aConfigurations, aData, linear_algebra_solver, z_obs, z_actual, *miss_locations,
                                   *obs_locations, apMeasurementsMatrix, p, apTrainLocations, apTestLocations);
 

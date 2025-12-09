@@ -107,7 +107,8 @@ namespace exageostat::adapters {
                                                 const int &aLowTileSize, const std::string &aDimension,
                                                 std::vector<std::vector<double>> &aTrainData,
                                                 std::vector<std::vector<double>> &aTestData,
-                                                std::vector<double> &aTestMeasurementsValues);
+                                                std::vector<double> &aTestMeasurementsValues,
+                                                const std::string &aComputation);
 
     /**
      * @brief Calculates the Mean Logarithmic Error (MLOE) and the Mean Measure of Model Output (MMOM) for ExaGeoStat predictions.
@@ -238,7 +239,8 @@ namespace exageostat::adapters {
                                const std::string &aDimension, std::vector<std::vector<double>> &aTrainData,
                                std::vector<std::vector<double>> &aTestData,
                                const std::vector<double> &aEstimatedTheta,
-                               const std::vector<double> &aTestMeasurementsValues);
+                               const std::vector<double> &aTestMeasurementsValues,
+                               const std::string &aComputation);
 
 }
 #endif //EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP

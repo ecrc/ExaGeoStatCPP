@@ -41,13 +41,15 @@ test_x <- c(0.2, 0.330)
 test_y <- c(0.104, 0.14)
 test_z <- c(-0.10838, -0.10838)
 
+cat("Using computation mode:", computation, "\n")
 result <- predict_data(
   kernel=kernel,
   estimated_theta=estimated_theta,
   dts=dts,
   train_data=list(exageostat_data$x, exageostat_data$y, exageostat_data$m),
   test_data=list(test_x, test_y),
-  test_measurements=test_z
+  test_measurements=test_z,
+  computation=computation
   )
 
 cat("Predicted values:", result, "\n")

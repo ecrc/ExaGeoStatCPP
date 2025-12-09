@@ -4,7 +4,7 @@ library(ExaGeoStatCPP)
 ncores <- 4
 ngpus <- 0
 dts <- 8
-computation <- "exact"
+computation <- "tlr"
 dimension <- "2D"
 kernel <- "UnivariateMaternNuggetsStationary"
 p <- 1
@@ -38,13 +38,15 @@ estimated_theta <- c(1, 0.1, 0.5, 0.1)
 
 cat("Testing with SMALL dataset (14 train + 2 test)\n")
 cat("With test_measurements for MSPE calculation\n")
+cat("Using computation mode:", computation, "\n")
 result <- predict_data(
   train_data=list(locations_x, locations_y, z_value), 
   test_data=list(test_x, test_y), 
   kernel=kernel, 
   dts=dts, 
   estimated_theta=estimated_theta,
-  #test_measurements=test_z
+  test_measurements=test_z,
+  computation=computation
 )
 cat("Predicted values:", result, "\n")
 cat("Actual values:", test_z, "\n")

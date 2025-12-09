@@ -158,13 +158,13 @@ namespace exageostat::adapters {
                                            const vector<double> &aEstimatedTheta, const int &aDenseTileSize,
                                            const int &aLowTileSize, const string &aDimension,
                                            vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData,
-                                           vector<double> &aTestMeasurementsValues) {
+                                           vector<double> &aTestMeasurementsValues, const string &aComputation) {
 
         Configurations configurations;
         configurations.SetIsMSPE(TRUE);
         configurations.SetEstimatedTheta(aEstimatedTheta);
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues);
+                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues, aComputation);
         return Results::GetInstance()->GetPredictedMissedValues();
     }
 
@@ -180,7 +180,7 @@ namespace exageostat::adapters {
 
         vector<double> empty_vector;
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, empty_vector);
+                              aTrainData, aTestData, aEstimatedTheta, empty_vector, "exact");
 
         vector<double> mloe_mmom_values;
         mloe_mmom_values.push_back(Results::GetInstance()->GetMLOE());
@@ -198,7 +198,7 @@ namespace exageostat::adapters {
 
         vector<double> empty_vector;
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, empty_vector);
+                              aTrainData, aTestData, aEstimatedTheta, empty_vector, "exact");
 
         return Results::GetInstance()->GetFisherMatrix();
     }
@@ -213,7 +213,7 @@ namespace exageostat::adapters {
         configurations.SetIsIDW(TRUE);
 
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues);
+                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues, "exact");
 
         return Results::GetInstance()->GetIDWError();
     }
@@ -304,9 +304,10 @@ namespace exageostat::adapters {
     PredictionSetupHelper(Configurations &aConfigurations, const string &aKernelName, const string &aDistanceMatrix,
                           const int &aDenseTileSize, const int &aLowTileSize, const string &aDimension,
                           vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData,
-                          const vector<double> &aEstimatedTheta, const vector<double> &aTestMeasurementsValues) {
+                          const vector<double> &aEstimatedTheta, const vector<double> &aTestMeasurementsValues,
+                          const string &aComputation) {
 
-        aConfigurations.SetComputation(EXACT_DENSE);
+        aConfigurations.SetComputation(validator::Validator::CheckComputationValue(aComputation));
 
         ValidateDataDimensions(aTrainData, "train");
         ValidateDataDimensions(aTestData, "test");

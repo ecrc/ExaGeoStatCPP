@@ -80,15 +80,16 @@ RCPP_MODULE(ExaGeoStatCPP) {
 
     function("predict_data", &exageostat::adapters::R_ExaGeoStatPredictData,
              List::create(
-                 _["kernel"], 
-                 _["distance_matrix"] = "euclidean", 
-                 _["estimated_theta"], 
-                 _["dts"], 
-                 _["lts"] = 0,
-                 _["dimension"] = "2D", 
-                 _["train_data"], 
-                 _["test_data"],
-                 _["test_measurements"] = std::vector<double>()
+                _["kernel"], 
+                _["distance_matrix"] = "euclidean", 
+                _["estimated_theta"], 
+                _["dts"], 
+                _["lts"] = 0,
+                _["dimension"] = "2D", 
+                _["train_data"], 
+                _["test_data"],
+                _["test_measurements"] = std::vector<double>(),
+                _["computation"] = "exact"
              ));
 
     function("mloe_mmom", &exageostat::adapters::R_ExaGeoStatMLOE_MMOM,
