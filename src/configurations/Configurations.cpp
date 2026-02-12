@@ -116,6 +116,10 @@ void Configurations::ValidateConfiguration() {
     }
 
     if (GetMeanTrendRemoval()) {
+        if (GetDataPath().empty()) {
+            throw domain_error("You need to set the data path (--datapath) for Mean Trend Removal");
+        }
+        
         if (GetResultsPath().empty()) {
             throw domain_error("You need to set the results path (--resultspath) before starting");
         }
@@ -144,12 +148,18 @@ void Configurations::ValidateConfiguration() {
     if (mDictionary.find("tolerance") == mDictionary.end()) {
         SetTolerance(8);
     }
-     if (GetDataPath().empty()) {
+    // Only require data path when NOT generating synthetic data
+    if (GetDataPath().empty() && !GetIsSynthetic()) {
         throw domain_error("You need to set the data path, before starting");
     }
 #else
+    // PaRSEC runtime validations
     if(GetMeanTrendRemoval() && GetKernelName().empty()){
         throw domain_error("You need to set the Kernel for Mean Trend Removal, before starting");
+    }
+    // Climate Emulator requires data path for loading NetCDF files
+    if(GetIsClimateEmulator() && GetDataPath().empty()){
+        throw domain_error("You need to set the data path (--datapath) for Climate Emulator");
     }
 #endif
 
