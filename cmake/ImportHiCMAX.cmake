@@ -13,7 +13,7 @@
 # 'name' sets the identifier for the HICMA-X library within this script to "HICMA-X".
 set(name "HICMA-X")
 # Set the version tag for HiCMA-X.
-set(tag "FIX-package-installation-MK")
+set(tag "main")
 # Flags to configure the build for HiCMA-X, including precision settings for DPLASMA
 # and disabling GPU support for both CUDA and HIP.
 set(flags '-DDPLASMA_PRECISIONS="s;d"' \-DPARSEC_WITH_DEVEL_HEADERS=ON \-DCMAKE_Fortran_FLAGS="-Wno-main"
@@ -26,7 +26,7 @@ set(is_git ON)
 # Indicates that autogen scripts are not required for HiCMA-X.
 set(auto_gen OFF)
 # Set the URL of the HiCMA-X GitHub repository.
-set(url "https://github.com/SAbdulah/hicma-x-dev.git")
+set(url "https://github.com/ecrc/hicma-x")
 # Include the macro to import HiCMA-X as a dependency.
 include(macros/ImportDependency)
 
@@ -36,7 +36,9 @@ ImportDependency(${name} ${tag} "" ${url} "${flags}" "" ${is_cmake} ${is_git} ${
 # Include necessary directories for HiCMA-X and its dependencies.
 include_directories(${HICMA_X_SRC_DIR})
 include_directories(${HICMA_X_SRC_DIR}/dplasma/src)
+include_directories(${HICMA_X_SRC_DIR}/dplasma/src/include)
 include_directories(${HICMA_X_SRC_DIR}/hicma_parsec)
 include_directories(${HICMA_X_SRC_DIR}/bin/dplasma/src)
+include_directories(${HICMA_X_SRC_DIR}/bin/dplasma/src/include)
 # Display a status message indicating that HiCMA-X has been successfully included.
 message(STATUS "HiCMA-X done")

@@ -8,6 +8,7 @@ extern "C" %{
 #include <runtime/parsec/ParsecHeader.h>
 #include <runtime/parsec/JDFHelperFunctions.h>
 #define GENERATE_RANDOM_DATA 0
+#define MEMORY_IN_CHOLEKSY_DP 0
 
 %}
 

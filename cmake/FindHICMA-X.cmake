@@ -34,10 +34,10 @@ if(PKG_CONFIG_FOUND)
         set(HICMA-X_FOUND TRUE)
         set(HICMA-X_LIBRARIES ${DPLASMA_PKG_LIBRARIES} ${PARSEC_PKG_LIBRARIES})
         set(HICMA-X_LIBRARY_DIRS "${HICMA_X_LIB_PATH}")
-        # Add a search for lib64 directories and set HICMA-X_LIBRARY_DIRS_DEP
-        set(HICMA-X_LIBRARY_DIRS_DEP "${HICMA_X_LIB_PATH}64")
+        # HICMA-X may install to lib or lib64 depending on platform; search both.
+        set(HICMA-X_LIBRARY_DIRS_DEP "${HICMA_X_LIB_PATH}" "${HICMA_X_LIB_PATH}64")
 
-        find_library(HICMA_PARSEC_LIB hicma_parsec PATHS ${HICMA-X_LIBRARY_DIRS_DEP})
+        find_library(HICMA_PARSEC_LIB hicma_parsec PATHS ${HICMA-X_LIBRARY_DIRS_DEP} NO_DEFAULT_PATH)
 
         if(HICMA_PARSEC_LIB)
             list(APPEND HICMA-X_LIBRARIES ${HICMA_PARSEC_LIB})
@@ -72,12 +72,15 @@ if(NOT HICMA-X_FOUND)
             DOC "Path to HICMA-X library"
             )
 
-    # Search for the hicma_parsec library in the lib64 directory if it's not found in the standard lib
+    # Search for the hicma_parsec library in lib and lib64 (platform-dependent)
     find_library(HICMA_PARSEC_LIB
             NAMES hicma_parsec
             PATHS
+            ${CMAKE_CURRENT_LIST_DIR}/../hicma-x/lib
             ${CMAKE_CURRENT_LIST_DIR}/../hicma-x/lib64
+            /usr/local/lib
             /usr/local/lib64
+            /usr/lib
             /usr/lib64
             DOC "Path to HICMA-Parsec library"
             )

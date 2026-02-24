@@ -65,27 +65,28 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
         v = 1;
     }
 
-    // Create a vector with all arguments (matches parsec-operations-support branch)
+    // Create a vector with all arguments (mapped to HICMA-X long option names)
+    // argv[0] must contain a '/' to avoid NULL pointer crash in hicma_parsec_params_init
     std::vector<std::string> new_args = {
-        "-g", to_string(g),
-        "-NB", to_string(t),
-        "-K", to_string(t),
-        "-N", to_string(N),
-        "-v", to_string(v),
-        "-I", to_string(I),
-        "-a", to_string(a),
-        "-J", to_string(J),
-        "-c", to_string(c),
-        "-K", to_string(K),
-        "-j", to_string(j),
-        "-z", to_string(z),
-        "-u", to_string(u),
-        "-G", to_string(G),
-        "-U", to_string(U),
-        "-E", to_string(E),
-        "-y", to_string(y),
-        "-Z", to_string(Z),
-        "-i", to_string(i)
+        "./exageostat",  // argv[0] - program name with path to avoid NULL pointer crash
+        "--gpus", to_string(g),
+        "--NB", to_string(t),
+        "--N", to_string(N),
+        "--verbose", to_string(v),
+        "--band_dense_dp", to_string(I),
+        "--adaptive_decision", to_string(a),
+        "--time_slots", to_string(J),
+        "--cores", to_string(c),
+        "--numobj", to_string(K),
+        "--adddiag", to_string(j),
+        "--HNB", to_string(z),
+        "--maxrank", to_string(u),
+        "--genmaxrank", to_string(G),
+        "--compmaxrank", to_string(U),
+        "--auto_band", to_string(E),
+        "--band_dense_sp", to_string(y),
+        "--band_dense", to_string(Z),
+        "--band_low_rank_dp", to_string(i)
     };
 
     // Convert std::vector<std::string> to char** for the new argv
@@ -98,15 +99,12 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     }
 
 #if !DEFAULT_RUNTIME
-    int iparam[IPARAM_SIZEOF] = {0};
-    double dparam[DPARAM_SIZEOF];
-    char *cparam[CPARAM_SIZEOF];
     this->mpHicmaParams = make_unique<hicma_parsec_params_t>();
     this->mpParamsKernel = make_unique<starsh_params_t>();
     this->mpHicmaData = make_unique<hicma_parsec_data_t>();
     this->mpAnalysis = make_unique<hicma_parsec_matrix_analysis_t>();
 
-    mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
+    mpParsecContext = hicma_parsec_init(new_argc, new_argv, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
     SetParsecMPIRank(this->mpHicmaParams->rank);
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
@@ -193,12 +191,7 @@ void ExaGeoStatHardware::FinalizeHardware() {
     }
 #else
     if (mpParsecContext) {
-
-        int iparam[IPARAM_SIZEOF] = {0};
-        double dparam[DPARAM_SIZEOF];
-        char *cparam[CPARAM_SIZEOF];
-
-        hicma_parsec_fini((parsec_context_t *) mpParsecContext, 0, NULL, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get(), this->mpAnalysis.get());
+        hicma_parsec_fini((parsec_context_t *) mpParsecContext, 0, NULL, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get(), this->mpAnalysis.get());
         mpParsecContext = nullptr;
     }
 #endif
