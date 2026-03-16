@@ -119,7 +119,7 @@ void GetMatrixNorm(parsec_context_t *apContext, double *apNormGlobal, parsec_til
 
     parsec_context_add_taskpool(apContext, pTaskpool);
     parsec_context_start(apContext);
-    parsec_context_wait(apContext);
+    parsec_taskpool_wait(pTaskpool);
     GetMatrixNormDestructor(pTaskpool);
 
     /* Reduce to the global norm */
@@ -131,6 +131,8 @@ void GetMatrixNorm(parsec_context_t *apContext, double *apNormGlobal, parsec_til
     MPI_Allreduce(MPI_IN_PLACE, pNormTile, aNT * aNT, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     MPI_Allreduce(&norm_process, apNormGlobal, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     *apNormGlobal = sqrt(*apNormGlobal);
+
+    parsec_context_wait(apContext);
 
     free(pNormTile);
     free(pNormTmp);

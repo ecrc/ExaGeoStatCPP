@@ -17,7 +17,10 @@
 #define EXAGEOSTATCPP_LOGGER_HPP
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <string>
+#include <chrono>
 #include <sys/time.h>
 
 #include <common/Definitions.hpp>

@@ -27,7 +27,7 @@ static int ReadCSVToComplexTimeSlotCore(const char* apFilename, void *apData, in
                 // fscanf can be used to read directly into the array.
                 status = fscanf(pFile, "%lf\n", &real);
                 pData[j*aM+i] = (complex double)real;
-#if DEBUG_INFO_GB24
+#if DEBUG_INFO_CLIMATE_EMULATOR
                 if (status != 1) {
                     fprintf(stderr, "Error reading file at row %d, column %d\n", i, j);
                     fclose(pFile);
@@ -37,7 +37,7 @@ static int ReadCSVToComplexTimeSlotCore(const char* apFilename, void *apData, in
             }
         }
 
-#if DEBUG_INFO_GB24
+#if DEBUG_INFO_CLIMATE_EMULATOR
         climate_emulator_print_matrix_col_complex(pData, 10, 10, aM);
 #endif
 
@@ -52,7 +52,7 @@ static int ReadCSVToComplexTimeSlotCore(const char* apFilename, void *apData, in
                 // fscanf can be used to read directly into the array.
                 status = fscanf(pFile, "%lf,", &real);
                 pData[j*aM+i] = make_cuDoubleComplex(real, 0);
-#if DEBUG_INFO_GB24
+#if DEBUG_INFO_CLIMATE_EMULATOR
                 if (status != 1) {
                     fprintf(stderr, "Error reading file at row %d, column %d\n", i, j);
                     fclose(pFile);

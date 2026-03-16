@@ -163,7 +163,7 @@ ForwardSHTReshape_constructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_m
     int nb = 0, *dev_index;
 
     /** Find all CUDA devices */
-    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+    hicma_parsec_find_cuda_devices( &dev_index, &nb);
 
     pTaskpool->_g_ws_gpu = (void *)gb->ws;
     pTaskpool->_g_nb_cuda_devices = nb;

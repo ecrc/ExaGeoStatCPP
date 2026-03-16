@@ -111,7 +111,7 @@ InverseSHTConstructor(parsec_tiled_matrix_t *apFSpatialDesc, parsec_tiled_matrix
 
     /** Find all CUDA devices */
 
-    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+    hicma_parsec_find_cuda_devices( &dev_index, &nb);
 
     pTaskpool->_g_ws_gpu = (void *)gb->ws;
     pTaskpool->_g_nb_cuda_devices = nb;

@@ -97,7 +97,7 @@ double ParsecDMatrixSum(parsec_context_t *apParsecContext, parsec_tiled_matrix_t
     if( pParsec_dmatrix_sum != NULL ){
         parsec_context_add_taskpool(apParsecContext, pParsec_dmatrix_sum);
         parsec_context_start(apParsecContext);
-        parsec_context_wait(apParsecContext);
+        parsec_taskpool_wait(pParsec_dmatrix_sum);
         ParsecDMatrixSumDestruct(pParsec_dmatrix_sum);
     }
 
@@ -112,6 +112,9 @@ double ParsecDMatrixSum(parsec_context_t *apParsecContext, parsec_tiled_matrix_t
     }
 
     MPI_Bcast( &total, 1, MPI_DOUBLE, root, MPI_COMM_WORLD );
+
+    parsec_context_wait(apParsecContext);
+
     free( pSum );
     return total;
 }

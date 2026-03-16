@@ -65,7 +65,7 @@ BODY
 {
 #if defined(USE_CUDA)
     if( nb_cuda_devices > 0 ) {
-        int g = climate_emualtor_gpu_load_balance( n, gb->nodes, nb_cuda_devices );
+        int g = climate_emulator_gpu_load_balance( n, gb->nodes, nb_cuda_devices );
         parsec_advise_data_on_device( _f_apFlm->original,
                                     cuda_device_index[g],
                                     PARSEC_DEV_DATA_ADVICE_PREFERRED_DEVICE );
@@ -230,7 +230,7 @@ ForwardSHTConstructor(parsec_tiled_matrix_t *apFDataDesc, parsec_tiled_matrix_t 
     int nb = 0, *dev_index;
 
     /** Find all CUDA devices */
-    hicma_parsec_find_cuda_devices( parsec, &dev_index, &nb);
+    hicma_parsec_find_cuda_devices( &dev_index, &nb);
 
     pTaskpool->_g_ws_gpu = (void *)gb->ws;
     pTaskpool->_g_nb_cuda_devices = nb;

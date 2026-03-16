@@ -95,7 +95,7 @@ double ParsecDZSum(parsec_context_t *apParsecContext,
     if( parsec_dZ_sum != NULL ){
         parsec_context_add_taskpool(apParsecContext, parsec_dZ_sum);
         parsec_context_start(apParsecContext);
-        parsec_context_wait(apParsecContext);
+        parsec_taskpool_wait(parsec_dZ_sum);
         ParsecDZSumDestruct(parsec_dZ_sum);
     }
 
@@ -107,6 +107,9 @@ double ParsecDZSum(parsec_context_t *apParsecContext,
     }
 
     MPI_Bcast( &total, 1, MPI_DOUBLE, root, MPI_COMM_WORLD );
+
+    parsec_context_wait(apParsecContext);
+
     free( apSum );
     return total;
 }
