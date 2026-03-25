@@ -359,6 +359,23 @@ auto *parsec = (parsec_context_t *) ExaGeoStatHardware::GetParsecContext();
         hicma_parsec_process_id_print(hicma_data, hicma_params);
 #endif
 
+        SYNC_TIME_START();
+        hicma_parsec_decisions_update(parsec, hicma_data, hicma_params);
+        SYNC_TIME_PRINT(hicma_params->rank, ("Decision update: %d\n", hicma_params->adaptive_decision));
+
+#if !GENOMICS
+        if (hicma_params->kind_of_cholesky == DENSE_TLR_MP
+                || hicma_params->kind_of_cholesky == DENSE_MP_BAND
+                || hicma_params->kind_of_cholesky == DENSE_SP_HP_BAND
+                || hicma_params->kind_of_cholesky == DENSE_MP_GPU
+                || hicma_params->kind_of_cholesky == DENSE_MP_GPU_FP8
+                || hicma_params->kind_of_cholesky == DENSE_MP_GPU_FP8_SP) {
+            SYNC_TIME_START();
+            hicma_parsec_convert_d2s(parsec, hicma_data, hicma_params);
+            SYNC_TIME_PRINT(hicma_params->rank, ("Convert D2S\n"));
+        }
+#endif
+
 #if COUNT_VALUE_HALF 
         VERBOSE("Count values exceeding half-precision...");
         if (data->iter_count == 0)
@@ -398,10 +415,25 @@ auto *parsec = (parsec_context_t *) ExaGeoStatHardware::GetParsecContext();
         dplasma_dprint(parsec, hicma_params->uplo, (parsec_tiled_matrix_t*)(&hicma_data->dcA));
 #endif
 
-    if (rank == 0 && hicma_params->info != 0) {
-        fprintf(stderr, "-- Factorization is suspicious (info = %d) ! \n", hicma_params->info);
+    if (hicma_params->info != 0) {
+        if (rank == 0)
+            fprintf(stderr, "-- Factorization is suspicious (info = %d) ! \n", hicma_params->info);
+        exit(1);
     }
-    
+
+#if !GENOMICS
+        if (hicma_params->kind_of_cholesky == DENSE_TLR_MP
+                || hicma_params->kind_of_cholesky == DENSE_MP_BAND
+                || hicma_params->kind_of_cholesky == DENSE_SP_HP_BAND
+                || hicma_params->kind_of_cholesky == DENSE_MP_GPU
+                || hicma_params->kind_of_cholesky == DENSE_MP_GPU_FP8
+                || hicma_params->kind_of_cholesky == DENSE_MP_GPU_FP8_SP) {
+            SYNC_TIME_START();
+            hicma_parsec_convert_s2d(parsec, hicma_data, hicma_params);
+            SYNC_TIME_PRINT(hicma_params->rank, ("Convert S2D\n"));
+        }
+#endif
+
     auto NT = descC->lmt;
     auto* rank_array = hicma_params->rank_array;
      analysis->trsm_initial = (uint16_t **)malloc( NT * sizeof(uint16_t *) );
@@ -427,8 +459,12 @@ auto *parsec = (parsec_context_t *) ExaGeoStatHardware::GetParsecContext();
         analysis->trsm_num_initial[j] = (uint16_t)num_tmp;
     }
     analysis->initial_density = analysis->initial_density / NT / NT * 2;
+    parsec_tiled_matrix_t *uncompress_src = (parsec_tiled_matrix_t*)(&hicma_data->dcA);
+    if (hicma_params->band_size_dense >= NT && hicma_params->auto_band == 0 && !hicma_params->adaptive_memory) {
+        uncompress_src = (parsec_tiled_matrix_t*)(&hicma_data->dcAd);
+    }
     hicma_parsec_matrix_uncompress(parsec, uplo,(parsec_tiled_matrix_t*)(&hicma_data->dcA0),
-    (parsec_tiled_matrix_t*)(&hicma_data->dcA), (parsec_tiled_matrix_t*)(&hicma_data->dcAr),
+    uncompress_src, (parsec_tiled_matrix_t*)(&hicma_data->dcAr),
     analysis, hicma_params->band_size_dense, hicma_params->maxrank, &hicma_params->info);
     if (hicma_params->info != 0) {
         if (rank == 0)

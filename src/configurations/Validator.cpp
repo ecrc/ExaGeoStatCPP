@@ -72,6 +72,7 @@ const std::unordered_map<std::string, std::string> Validator::mArgumentToCategor
         {"banddensehp",       "Numerical"},
         {"objectsnumber",     "Numerical"},
         {"adaptivedecision",  "Numerical"},
+        {"kindofcholesky",    "Numerical"},
         {"adddiagonal",       "Numerical"},
         {"filetimeslot",      "Numerical"},
         {"filenumber",        "Numerical"},

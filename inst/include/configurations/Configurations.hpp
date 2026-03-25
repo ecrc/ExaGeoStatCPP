@@ -233,6 +233,9 @@ namespace exageostat::configurations {
         CREATE_SETTER_FUNCTION(AdaptiveDecision, int, aAdaptiveDecision, "adaptivedecision")
         CREATE_GETTER_FUNCTION(AdaptiveDecision, int, "adaptivedecision")
 
+        CREATE_SETTER_FUNCTION(KindOfCholesky, int, aKindOfCholesky, "kindofcholesky")
+        CREATE_GETTER_FUNCTION(KindOfCholesky, int, "kindofcholesky")
+
         CREATE_SETTER_FUNCTION(DiagonalAddition, int, aDiagonalAddition, "adddiagonal")
         CREATE_GETTER_FUNCTION(DiagonalAddition, int, "adddiagonal")
 

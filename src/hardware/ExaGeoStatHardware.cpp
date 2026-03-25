@@ -46,6 +46,7 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     const int j = aConfigurations.GetDiagonalAddition();
     const int J = aConfigurations.GetTimeSlot();
     const int K = aConfigurations.GetObjectsNumber();
+    const int W = aConfigurations.GetKindOfCholesky();
     const int I = aConfigurations.GetDenseBandDP();
     const int z = aConfigurations.GetHNB();
     const int u = aConfigurations.GetMaxRank();
@@ -88,6 +89,12 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
         "--band_dense", to_string(Z),
         "--band_low_rank_dp", to_string(i)
     };
+
+    // Only override HiCMA default when user provides a specific variant.
+    if (W >= 0) {
+        new_args.emplace_back("--kind_of_cholesky");
+        new_args.emplace_back(to_string(W));
+    }
 
     // Convert std::vector<std::string> to char** for the new argv
     int new_argc = new_args.size();

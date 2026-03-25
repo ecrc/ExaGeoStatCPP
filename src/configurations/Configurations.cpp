@@ -60,6 +60,7 @@ Configurations::Configurations() {
     #if !DEFAULT_RUNTIME
     // Set default values for PaRSEC runtime params
     SetTolerance(0);
+    SetKindOfCholesky(-1);
 #endif
 }
 
@@ -273,6 +274,7 @@ void Configurations::PrintUsage() {
     LOGGER("--band_dense_hp=value : Used to set dense band high precision (PaRSEC only).")
     LOGGER("--objects_number=value : Used to set the number of objects (PaRSEC only).")
     LOGGER("--adaptive_decision=value : Used to set adaptive decision for tile format (PaRSEC only).")
+    LOGGER("--kind_of_cholesky=value : Used to select HiCMA Cholesky variant (PaRSEC only).")
     LOGGER("--add_diagonal=value : Add value to diagonal elements (PaRSEC only).")
     LOGGER("--file_time_slot=value : Used to set time slot per file (PaRSEC only).")
     LOGGER("--file_number=value : Used to set file number (PaRSEC only).")
