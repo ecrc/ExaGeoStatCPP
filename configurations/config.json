@@ -43,7 +43,7 @@
   "FileLogPath": "logs.log",
   "FileLogName": "logs.log",
   "DistanceMetric": "euclidean",
-  "MaxMleIterations": "1",
+  "MaxMleIterations": "1000",
   "Accuracy": "0",
   "Tolerance": "1",
   "ZMiss": "1",

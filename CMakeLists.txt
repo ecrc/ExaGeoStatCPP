@@ -60,6 +60,8 @@ if (USE_CUDA)
     message("---------------------------------------- CUDA")
     # Enable CUDA and include CudaToolchain
     add_definitions(-DUSE_CUDA=TRUE)
+    # Set CUDA architectures BEFORE enabling CUDA language (required for CMake 3.21+)
+    set(CMAKE_CUDA_ARCHITECTURES "35;50;72")
     enable_language(CUDA)
     include(toolchains/CudaToolchain)
     # Set BLA_VENDOR to NVHPC for CUDA-enabled builds

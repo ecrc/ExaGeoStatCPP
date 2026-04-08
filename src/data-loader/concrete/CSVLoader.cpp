@@ -139,6 +139,7 @@ void CSVLoader<T>::ReadData(Configurations &aConfigurations, vector<T> &aMeasure
 
     file.close();
     LOGGER("\tData is read from " << data_path << " successfully.")
+    LOGGER("\tNumber of Locations: " << aConfigurations.GetProblemSize())
 }
 
 template<typename T>

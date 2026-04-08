@@ -116,6 +116,10 @@ void Configurations::ValidateConfiguration() {
     }
 
     if (GetMeanTrendRemoval()) {
+        if (GetDataPath().empty()) {
+            throw domain_error("You need to set the data path (--datapath) for Mean Trend Removal");
+        }
+        
         if (GetResultsPath().empty()) {
             throw domain_error("You need to set the results path (--resultspath) before starting");
         }
@@ -147,6 +151,19 @@ void Configurations::ValidateConfiguration() {
     }
     if (mDictionary.find("tolerance") == mDictionary.end()) {
         SetTolerance(8);
+    }
+    // Only require data path when NOT generating synthetic data
+    if (GetDataPath().empty() && !GetIsSynthetic()) {
+        throw domain_error("You need to set the data path, before starting");
+    }
+#else
+    // PaRSEC runtime validations
+    if(GetMeanTrendRemoval() && GetKernelName().empty()){
+        throw domain_error("You need to set the Kernel for Mean Trend Removal, before starting");
+    }
+    // Climate Emulator requires data path for loading NetCDF files
+    if(GetIsClimateEmulator() && GetDataPath().empty()){
+        throw domain_error("You need to set the data path (--datapath) for Climate Emulator");
     }
 #endif
 
@@ -223,72 +240,50 @@ void Configurations::PrintUsage() {
     LOGGER("--p=value : Used P-Grid.")
     LOGGER("--q=value : Used Q-Grid.")
     LOGGER("--time_slot=value : Time slot value for ST.")
-    LOGGER("--computation=value : Used computation (exact, tlr, diagonal_approx).")
-    LOGGER("--precision=value : Used precision (single, double, mixed).")
+    LOGGER("--computation=value : Used computation.")
+    LOGGER("--precision=value : Used precision (single/double/mixed).")
     LOGGER("--cores=value : Used to set the number of cores.")
     LOGGER("--gpus=value : Used to set the number of GPUs.")
     LOGGER("--dts=value : Used to set the Dense Tile size.")
     LOGGER("--lts=value : Used to set the Low Tile size.")
-    LOGGER("--band=value : Used to set the Tile diagonal thickness.")
-    LOGGER("--max_rank=value : Used to set the max rank value.")
-    LOGGER("--hnb=value : Used to set HNB value.")
-    LOGGER("--gen_max_rank=value : Used to set generation max rank.")
-    LOGGER("--comp_max_rank=value : Used to set computation max rank.")
-    LOGGER("--auto_band=value : Used to set auto band.")
-    LOGGER("--band_dense_sp=value : Used to set band dense single precision.")
-    LOGGER("--band_low_rank_dp=value : Used to set band low rank double precision.")
-    LOGGER("--observations_file=PATH/TO/File : Used to pass the observations file path.")
+    LOGGER("--band=value : Used to set the Tile diagonal thickness for TLR. Used with Chameleon/StarPU runtime.")
+    LOGGER("--Zmiss=value : Used to set number of unknown observation to be predicted.")
+    LOGGER("--max_rank=value : Used to the max rank value.")
+    LOGGER("--initial_theta=value : Initial theta parameters for optimization.")
+    LOGGER("--estimated_theta=value : Estimated kernel parameters for optimization.")
     LOGGER("--seed=value : Seed value for random number generation.")
-    LOGGER("--verbose=value : Run mode (0=quiet, 1=standard, 2=detailed).")
-    LOGGER("--log_path=value : Path to log file.")
-    LOGGER("--log : Enable logging.")
-    LOGGER("--initial_theta=value1,value2,... : Initial theta parameters for optimization.")
-    LOGGER("--estimated_theta=value1,value2,... : Estimated kernel parameters for optimization.")
-    LOGGER("--lb=value1,value2,... : Lower bounds for optimization.")
-    LOGGER("--ub=value1,value2,... : Upper bounds for optimization.")
-    LOGGER("--starting_theta=value1,value2,... : Starting theta parameters.")
-    LOGGER("--is_non_gaussian : Enable non-Gaussian mode.")
-    LOGGER("--OOC : Used to enable Out of Core (OOC) technology.")
-    LOGGER("--approximation_mode=value : Used to enable Approximation mode.")
-    LOGGER("--accuracy=value : Used to set the accuracy when using TLR.")
-    LOGGER("\t=== DATA GENERATION ARGUMENTS ===")
-    LOGGER("--data_path=PATH : Used to enter the path to the real data file.")
-    LOGGER("--is_synthetic : Use synthetic data generation.")
-    LOGGER("--resultspath=PATH : Used to set the output directory path for results.")
-    LOGGER("\t=== DATA MODELING ARGUMENTS ===")
-    LOGGER("--distance_metric=value : Used distance metric (eg=Euclidean, gcd=Great Circle Distance).")
-    LOGGER("--max_mle_iterations=value : Maximum number of MLE iterations.")
+    LOGGER("--verbose=value : Run mode whether quiet/standard/detailed.")
+    LOGGER("--log=true/false : Enable logging to file (default: false).")
+    LOGGER("--logpath=PATH : Directory path for log and output files.")
+    LOGGER("--distance_metric=value : Used distance metric either eg or gcd.")
+    LOGGER("--max_mle_iterations=value : Maximum number of MLE iterations (default: 1000).")
     LOGGER("--tolerance=value : MLE tolerance between two iterations.")
-    LOGGER("--recovery_file=PATH : Path to recovery file.")
-    LOGGER("\t=== DATA PREDICTION ARGUMENTS ===")
-    LOGGER("--Zmiss=value : Used to set number of unknown observations to be predicted.")
-    LOGGER("--observation_number=value : Used to set the number of observations.")
-    LOGGER("--mspe : Used to enable Mean Square Prediction Error.")
-    LOGGER("--fisher : Used to enable Fisher tile prediction function.")
-    LOGGER("--idw : Used to enable IDW prediction auxiliary function.")
-    LOGGER("--mloe-mmom : Used to enable MLOE MMOM.")
-    LOGGER("\t=== PARSEC RUNTIME SPECIFIC ARGUMENTS ===")
-    LOGGER("--band_dense=value : Used to set the dense band double precision (PaRSEC only).")
-    LOGGER("--band_dense_dp=value : Used to set dense band double precision (PaRSEC only).")
-    LOGGER("--band_dense_hp=value : Used to set dense band high precision (PaRSEC only).")
-    LOGGER("--objects_number=value : Used to set the number of objects (PaRSEC only).")
-    LOGGER("--adaptive_decision=value : Used to set adaptive decision for tile format (PaRSEC only).")
-    LOGGER("--add_diagonal=value : Add value to diagonal elements (PaRSEC only).")
-    LOGGER("--file_time_slot=value : Used to set time slot per file (PaRSEC only).")
-    LOGGER("--file_number=value : Used to set file number (PaRSEC only).")
-    LOGGER("--enable-inverse : Enable inverse spherical harmonics transform (PaRSEC only).")
-    LOGGER("--mpiio : Enable MPI IO (PaRSEC only).")
-    LOGGER("--log-file-path=PATH : Path to file where events and results are logged (PaRSEC only).")
-    LOGGER("\t=== MEAN TREND REMOVAL / CLIMATE EMULATOR ARGUMENTS ===")
-    LOGGER("--mean_trend_removal : Enable Mean Trend Removal.")
-    LOGGER("--is_climate_emulator : Enable Climate Emulator mode.")
-    LOGGER("--forcing_data_path=PATH : Path to forcing data file.")
-    LOGGER("--netcdf_data_path=PATH : Path to NetCDF data file.")
-    LOGGER("--start-year=value : Starting year for NetCDF data processing.")
-    LOGGER("--end-year=value : Ending year for NetCDF data processing.")
-    LOGGER("--lat=value : Latitude band index for climate data processing (required for MeanTrendRemoval).")
-    LOGGER("--lon=value : Longitude count for climate data processing (required for MeanTrendRemoval).")
-    LOGGER("\n")
+    LOGGER("--datapath=PATH : Path to input data file. Format depends on mode:")
+    LOGGER("                  - MLE/Modeling: CSV file (X,Y,Z format) with unique spatial locations")
+    LOGGER("                  - Emulator (Mean Trend Removal): Directory with NetCDF files (longitude, latitude, timestep)")
+    LOGGER("                  - Emulator (Climate): Directory with z_*.csv files from Mean Trend Removal output")
+    LOGGER("--mspe=true/false : (Used in prediction) Enable mean square prediction error computation.")
+    LOGGER("--fisher=true/false : (Used in prediction) Enable Fisher information matrix computation.")
+    LOGGER("--idw=true/false : (Used in prediction) Enable IDW (Inverse Distance Weighting) prediction.")
+    LOGGER("--mloe-mmom=true/false : (Used in prediction) Enable MLOE-MMOM auxiliary function.")
+    LOGGER("--OOC=true/false : Enable Out-of-Core technology.")
+    LOGGER("--approximation_mode=value : Enable Approximation mode (1=enabled, 0=disabled).")
+    LOGGER("--accuracy : Used to set the accuracy when using tlr. e.g. --accuracy=10 for 1e-10.")
+    LOGGER("--band_dense=value : Used to set the dense band double precision, Used with PaRSEC runtime only.")
+    LOGGER("--objects_number=value : Used to set the number of objects (number of viruses within a population), Used with PaRSEC runtime only.")
+    LOGGER("--adaptive_decision=value : Used to set the adaptive decision of each tile's format using norm approach, if enabled, otherwise 0, Used with PaRSEC runtime only.")
+    LOGGER("--add_diagonal=value : Used to add this number to diagonal elements to make the matrix positive definite, Used with PaRSEC runtime only.")
+    LOGGER("--file_time_slot=value : Used to set time slot per file, Used with PaRSEC runtime only.")
+    LOGGER("--file_number=value : Used to set file number, Used with PaRSEC runtime only.")
+    LOGGER("--enable-inverse=true/false : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
+    LOGGER("--mpiio=true/false : Used to enable MPI IO, Used with PaRSEC runtime only.")
+    LOGGER("--start-year=value : (Emulator only) Starting year for NetCDF data processing.")
+    LOGGER("--end-year=value : (Emulator only) Ending year for NetCDF data processing.")
+    LOGGER("--lat=value : (Emulator only) Latitude band index for climate data processing (required).")
+    LOGGER("--lon=value : (Emulator only) Longitude count for climate data processing (required).")
+    LOGGER("--meantrendremoval=true/false : (Emulator only) Enable Mean Trend Removal pipeline.")
+    LOGGER("--resultspath=PATH : (Emulator only) Output directory path for Mean Trend Removal results (required).")
+    LOGGER("\n\n")
 
     exit(0);
 }
@@ -328,10 +323,10 @@ void Configurations::PrintSummary() {
 #if DEFAULT_RUNTIME
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Data generation")
+            LOGGER("#Number of Locations: " << this->GetProblemSize())
         } else {
             LOGGER("#Real Data loader")
         }
-        LOGGER("#Number of Locations: " << this->GetProblemSize())
         LOGGER("#Threads per node: " << this->GetCoresNumber())
         LOGGER("#GPUs: " << this->GetGPUsNumbers())
         if (this->GetPrecision() == 1) {
