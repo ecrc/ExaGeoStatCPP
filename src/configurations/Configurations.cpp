@@ -156,8 +156,6 @@ void Configurations::ValidateConfiguration() {
     if (GetDataPath().empty() && !GetIsSynthetic()) {
         throw domain_error("You need to set the data path, before starting");
     }
-#else
-    // PaRSEC runtime validations
     if(GetMeanTrendRemoval() && GetKernelName().empty()){
         throw domain_error("You need to set the Kernel for Mean Trend Removal, before starting");
     }
