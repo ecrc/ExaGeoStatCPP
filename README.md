@@ -244,7 +244,67 @@ predict_data(
 
 ```
 
-This example walks through initializing hardware, simulating spatial data, estimating model parameters, and making predictions using **ExaGeoStatCPP** in R.
+
+```
+## R Example
+Here is another example demonstrating how to use **ExaGeoStatCPP** with nugget in R:
+
+```r
+# Load the ExaGeoStatCPP library
+library(ExaGeoStatCPP)
+
+# Set parameters for the simulation
+ncores <- 30
+ngpus <- 0
+problem_size <- 1600
+dts <- 320
+lts <- 0
+computation <- "exact"
+dimension <- "2D"
+kernel <- "UnivariateMaternNuggetsStationary"
+initial_theta <- c(1,0.1,0.5,0.1)
+lower_bound <- c(0.05,0.005,0.05,0.005)
+upper_bound <- c(5,5,5,5)
+acc <- 1e-9
+p <- 1
+q <- 1
+opt_itrs <- 100
+
+# Initialize hardware configuration
+hardware <- new(Hardware, computation, ncores, ngpus, p, q)
+
+# Simulate spatial data based on the specified kernel and parameters
+exageostat_data <- simulate_data(
+  kernel = kernel,
+  initial_theta = initial_theta,
+  problem_size = problem_size,
+  dts = dts,
+  dimension = dimension
+)
+
+# Estimate model parameters using MLE
+estimated_theta <- model_data(
+  matrix=exageostat_data$m,
+  x=exageostat_data$x,
+  y=exageostat_data$y,
+  kernel=kernel, dts=dts,
+  dimension=dimension,
+  lb=lower_bound,
+  ub=upper_bound,
+  mle_itr=opt_itrs)
+
+# Perform spatial prediction using the estimated parameters
+test_x <- c(0.2, 0.330)
+test_y <- c(0.104, 0.14)
+predict_data(
+  train_data=list(x=exageostat_data$x, y=exageostat_data$y, exageostat_data$m),
+  test_data=list(test_x, test_y),
+  kernel=kernel,
+  dts=dts,
+  estimated_theta=estimated_theta)
+```
+
+These two examples walk through initializing hardware, simulating spatial data, estimating model parameters, and making predictions using **ExaGeoStatCPP** in R.
 
 > **Note:** Please take a look at the end-to-end examples in the `examples/` directory as a reference for using all the operations.
 

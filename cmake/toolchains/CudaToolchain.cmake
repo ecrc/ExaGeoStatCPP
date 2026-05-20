@@ -15,7 +15,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set the CUDA architectures to be targeted
-set(CUDA_ARCHITECTURES "35;50;72")
+# Note: CMAKE_CUDA_ARCHITECTURES should be set before enable_language(CUDA) in main CMakeLists.txt
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES "35;50;72")
+endif()
 
 # Find the CUDA toolkit
 find_package(CUDAToolkit REQUIRED)

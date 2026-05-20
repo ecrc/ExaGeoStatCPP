@@ -57,13 +57,9 @@ Configurations::Configurations() {
     SetAccuracy(0);
     SetIsNonGaussian(false);
     mIsThetaInit = false;
-
-#if !DEFAULT_RUNTIME
-    // Set default values for Hicma-Parsec params
+    #if !DEFAULT_RUNTIME
+    // Set default values for PaRSEC runtime params
     SetTolerance(0);
-    //TODO:currently,we support real data only in parsec.In the future,we should support synthetic and real data for both runtimes
-    SetIsSynthetic(false);
-    SetMeanTrendRemoval(false);
 #endif
 }
 
@@ -93,6 +89,9 @@ void Configurations::ValidateConfiguration() {
     if (!GetDataPath().empty()) {
         SetIsSynthetic(false);
     }
+    if (GetMeanTrendRemoval()) {
+        SetIsSynthetic(false);
+    }
 
     if (GetIsMSPE() || GetIsMLOEMMOM() || GetIsIDW()) {
         if (GetUnknownObservationsNb() <= 1) {
@@ -101,8 +100,9 @@ void Configurations::ValidateConfiguration() {
         }
     }
 
+    // Auto-enable logging if log path is provided
     if (!GetLoggerPath().empty() && !GetLogger()) {
-        throw domain_error("To enable logging, please utilize the '--log' option in order to specify a log file.");
+        SetLogger(true);
     }
 
     if (GetUnknownObservationsNb() >= GetProblemSize()) {
@@ -116,6 +116,10 @@ void Configurations::ValidateConfiguration() {
     }
 
     if (GetMeanTrendRemoval()) {
+        if (GetDataPath().empty()) {
+            throw domain_error("You need to set the data path (--datapath) for Mean Trend Removal");
+        }
+        
         if (GetResultsPath().empty()) {
             throw domain_error("You need to set the results path (--resultspath) before starting");
         }
@@ -130,28 +134,41 @@ void Configurations::ValidateConfiguration() {
     }
 
 #if DEFAULT_RUNTIME
-    // Throw Errors if any of these arguments aren't given by the user.
+    // StarPU runtime: kernel always required
     if (GetKernelName().empty()) {
         throw domain_error("You need to set the Kernel, before starting");
     }
     if (GetMaxRank() == -1) {
         SetMaxRank(1);
     }
-//#else
+#else
+    // PaRSEC runtime: kernel required for synthetic data or Mean Trend Removal
+    if (GetKernelName().empty() && (GetIsSynthetic() || GetMeanTrendRemoval())) {
+        throw domain_error("You need to set the Kernel, before starting");
+    }
     if(GetMaxRank() == -1){
         SetMaxRank(GetDenseTileSize() / 2);
     }
     if (mDictionary.find("tolerance") == mDictionary.end()) {
         SetTolerance(8);
     }
-     if (GetDataPath().empty()) {
+    // Only require data path when NOT generating synthetic data
+    if (GetDataPath().empty() && !GetIsSynthetic()) {
         throw domain_error("You need to set the data path, before starting");
     }
-#else
     if(GetMeanTrendRemoval() && GetKernelName().empty()){
         throw domain_error("You need to set the Kernel for Mean Trend Removal, before starting");
     }
+    // Climate Emulator requires data path for loading NetCDF files
+    if(GetIsClimateEmulator() && GetDataPath().empty()){
+        throw domain_error("You need to set the data path (--datapath) for Climate Emulator");
+    }
 #endif
+
+    // Both runtimes: data_path required if not synthetic OR if Mean Trend Removal
+    if ((!GetIsSynthetic() || GetMeanTrendRemoval()) && GetDataPath().empty()) {
+        throw domain_error("You need to set the data path (use --data_path), before starting");
+    }
 
     size_t found = GetKernelName().find("NonGaussian");
     // Check if the substring was found
@@ -217,51 +234,53 @@ void Configurations::PrintUsage() {
     LOGGER("\n\t*** Available Arguments For ExaGeoStat Configurations ***")
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")
-    LOGGER("--dimension=value : Used Dimension.")
+    LOGGER("--dimension=value : Used Dimension (2D, 3D, ST).")
     LOGGER("--p=value : Used P-Grid.")
-    LOGGER("--q=value : Used P-Grid.")
+    LOGGER("--q=value : Used Q-Grid.")
     LOGGER("--time_slot=value : Time slot value for ST.")
     LOGGER("--computation=value : Used computation.")
-    LOGGER("--precision=value : Used precision.")
+    LOGGER("--precision=value : Used precision (single/double/mixed).")
     LOGGER("--cores=value : Used to set the number of cores.")
     LOGGER("--gpus=value : Used to set the number of GPUs.")
     LOGGER("--dts=value : Used to set the Dense Tile size.")
     LOGGER("--lts=value : Used to set the Low Tile size.")
-    LOGGER("--band=value : Used to set the Tile diagonal thickness.")
+    LOGGER("--band=value : Used to set the Tile diagonal thickness for TLR. Used with Chameleon/StarPU runtime.")
     LOGGER("--Zmiss=value : Used to set number of unknown observation to be predicted.")
-    LOGGER("--observations_file=PATH/TO/File : Used to pass the observations file path.")
     LOGGER("--max_rank=value : Used to the max rank value.")
     LOGGER("--initial_theta=value : Initial theta parameters for optimization.")
     LOGGER("--estimated_theta=value : Estimated kernel parameters for optimization.")
     LOGGER("--seed=value : Seed value for random number generation.")
     LOGGER("--verbose=value : Run mode whether quiet/standard/detailed.")
-    LOGGER("--log_path=value : Path to log file.")
+    LOGGER("--log=true/false : Enable logging to file (default: false).")
+    LOGGER("--logpath=PATH : Directory path for log and output files.")
     LOGGER("--distance_metric=value : Used distance metric either eg or gcd.")
-    LOGGER("--max_mle_iterations=value : Maximum number of MLE iterations.")
-    LOGGER("--tolerance : MLE tolerance between two iterations.")
-    LOGGER("--data_path : Used to enter the path to the real data file.")
-    LOGGER("--mspe: Used to enable mean square prediction error.")
-    LOGGER("--fisher: Used to enable fisher tile prediction function.")
-    LOGGER("--idw: Used to IDW prediction auxiliary function.")
-    LOGGER("--mloe-mmom: Used to enable MLOE MMOM.")
-    LOGGER("--OOC : Used to enable Out of core technology.")
-    LOGGER("--approximation_mode : Used to enable Approximation mode.")
-    LOGGER("--log : Enable logging.")
-    LOGGER("--accuracy : Used to set the accuracy when using tlr.")
+    LOGGER("--max_mle_iterations=value : Maximum number of MLE iterations (default: 1000).")
+    LOGGER("--tolerance=value : MLE tolerance between two iterations.")
+    LOGGER("--datapath=PATH : Path to input data file. Format depends on mode:")
+    LOGGER("                  - MLE/Modeling: CSV file (X,Y,Z format) with unique spatial locations")
+    LOGGER("                  - Emulator (Mean Trend Removal): Directory with NetCDF files (longitude, latitude, timestep)")
+    LOGGER("                  - Emulator (Climate): Directory with z_*.csv files from Mean Trend Removal output")
+    LOGGER("--mspe=true/false : (Used in prediction) Enable mean square prediction error computation.")
+    LOGGER("--fisher=true/false : (Used in prediction) Enable Fisher information matrix computation.")
+    LOGGER("--idw=true/false : (Used in prediction) Enable IDW (Inverse Distance Weighting) prediction.")
+    LOGGER("--mloe-mmom=true/false : (Used in prediction) Enable MLOE-MMOM auxiliary function.")
+    LOGGER("--OOC=true/false : Enable Out-of-Core technology.")
+    LOGGER("--approximation_mode=value : Enable Approximation mode (1=enabled, 0=disabled).")
+    LOGGER("--accuracy : Used to set the accuracy when using tlr. e.g. --accuracy=10 for 1e-10.")
     LOGGER("--band_dense=value : Used to set the dense band double precision, Used with PaRSEC runtime only.")
     LOGGER("--objects_number=value : Used to set the number of objects (number of viruses within a population), Used with PaRSEC runtime only.")
     LOGGER("--adaptive_decision=value : Used to set the adaptive decision of each tile's format using norm approach, if enabled, otherwise 0, Used with PaRSEC runtime only.")
-    LOGGER("--add_diagonal=value : Used to add this number to diagonal elements to make the matrix positive definite in electrodynamics problem, Used with PaRSEC runtime only.")
+    LOGGER("--add_diagonal=value : Used to add this number to diagonal elements to make the matrix positive definite, Used with PaRSEC runtime only.")
     LOGGER("--file_time_slot=value : Used to set time slot per file, Used with PaRSEC runtime only.")
     LOGGER("--file_number=value : Used to set file number, Used with PaRSEC runtime only.")
-    LOGGER("--enable-inverse : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
-    LOGGER("--mpiio : Used to enable MPI IO, Used with PaRSEC runtime only.")
-    LOGGER("--log-file-path: Used to set path of file where events and results are logged.")
-    LOGGER("--start-year=value : Used to set the starting year for NetCDF data processing (MeanTrendRemoval).")
-    LOGGER("--end-year=value : Used to set the ending year for NetCDF data processing (MeanTrendRemoval).")
-    LOGGER("--lat=value : Used to set the latitude band index for MeanTrendRemoval climate data processing (required for MeanTrendRemoval).")
-    LOGGER("--lon=value : Used to set the longitude count for MeanTrendRemoval climate data processing (required for MeanTrendRemoval).")
-    LOGGER("--resultspath=PATH : Used to set the output directory path for MeanTrendRemoval results (required for MeanTrendRemoval).")
+    LOGGER("--enable-inverse=true/false : Used to enable inverse spherical harmonics transform, Used with PaRSEC runtime only.")
+    LOGGER("--mpiio=true/false : Used to enable MPI IO, Used with PaRSEC runtime only.")
+    LOGGER("--start-year=value : (Emulator only) Starting year for NetCDF data processing.")
+    LOGGER("--end-year=value : (Emulator only) Ending year for NetCDF data processing.")
+    LOGGER("--lat=value : (Emulator only) Latitude band index for climate data processing (required).")
+    LOGGER("--lon=value : (Emulator only) Longitude count for climate data processing (required).")
+    LOGGER("--meantrendremoval=true/false : (Emulator only) Enable Mean Trend Removal pipeline.")
+    LOGGER("--resultspath=PATH : (Emulator only) Output directory path for Mean Trend Removal results (required).")
     LOGGER("\n\n")
 
     exit(0);
@@ -302,10 +321,10 @@ void Configurations::PrintSummary() {
 #if DEFAULT_RUNTIME
         if (this->GetIsSynthetic()) {
             LOGGER("#Synthetic Data generation")
+            LOGGER("#Number of Locations: " << this->GetProblemSize())
         } else {
             LOGGER("#Real Data loader")
         }
-        LOGGER("#Number of Locations: " << this->GetProblemSize())
         LOGGER("#Threads per node: " << this->GetCoresNumber())
         LOGGER("#GPUs: " << this->GetGPUsNumbers())
         if (this->GetPrecision() == 1) {
