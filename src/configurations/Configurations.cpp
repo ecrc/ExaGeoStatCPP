@@ -49,6 +49,7 @@ Configurations::Configurations() {
     SetRecoveryFile("");
     SetPrecision(DOUBLE);
     SetIsMSPE(false);
+    SetHasTestMeasurements(true);
     SetIsFisher(false);
     SetIsIDW(false);
     SetIsMLOEMMOM(false);

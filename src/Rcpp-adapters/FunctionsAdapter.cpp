@@ -157,14 +157,14 @@ namespace exageostat::adapters {
     vector<double> R_ExaGeoStatPredictData(const string &aKernelName, const string &aDistanceMatrix,
                                            const vector<double> &aEstimatedTheta, const int &aDenseTileSize,
                                            const int &aLowTileSize, const string &aDimension,
-                                           vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData) {
+                                           vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData,
+                                           vector<double> &aTestMeasurementsValues, const string &aComputation) {
 
         Configurations configurations;
         configurations.SetIsMSPE(TRUE);
         configurations.SetEstimatedTheta(aEstimatedTheta);
-        vector<double> empty_vector;
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, empty_vector);
+                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues, aComputation);
         return Results::GetInstance()->GetPredictedMissedValues();
     }
 
@@ -180,7 +180,7 @@ namespace exageostat::adapters {
 
         vector<double> empty_vector;
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, empty_vector);
+                              aTrainData, aTestData, aEstimatedTheta, empty_vector, "exact");
 
         vector<double> mloe_mmom_values;
         mloe_mmom_values.push_back(Results::GetInstance()->GetMLOE());
@@ -198,7 +198,7 @@ namespace exageostat::adapters {
 
         vector<double> empty_vector;
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, empty_vector);
+                              aTrainData, aTestData, aEstimatedTheta, empty_vector, "exact");
 
         return Results::GetInstance()->GetFisherMatrix();
     }
@@ -213,7 +213,7 @@ namespace exageostat::adapters {
         configurations.SetIsIDW(TRUE);
 
         PredictionSetupHelper(configurations, aKernelName, aDistanceMatrix, aDenseTileSize, aLowTileSize, aDimension,
-                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues);
+                              aTrainData, aTestData, aEstimatedTheta, aTestMeasurementsValues, "exact");
 
         return Results::GetInstance()->GetIDWError();
     }
@@ -304,9 +304,10 @@ namespace exageostat::adapters {
     PredictionSetupHelper(Configurations &aConfigurations, const string &aKernelName, const string &aDistanceMatrix,
                           const int &aDenseTileSize, const int &aLowTileSize, const string &aDimension,
                           vector <vector<double>> &aTrainData, vector <vector<double>> &aTestData,
-                          const vector<double> &aEstimatedTheta, const vector<double> &aTestMeasurementsValues) {
+                          const vector<double> &aEstimatedTheta, const vector<double> &aTestMeasurementsValues,
+                          const string &aComputation) {
 
-        aConfigurations.SetComputation(EXACT_DENSE);
+        aConfigurations.SetComputation(validator::Validator::CheckComputationValue(aComputation));
 
         ValidateDataDimensions(aTrainData, "train");
         ValidateDataDimensions(aTestData, "test");
@@ -327,6 +328,10 @@ namespace exageostat::adapters {
         dataunits::Locations<double> train_locations(train_data_size, aConfigurations.GetDimension());
         dataunits::Locations<double> test_locations(test_data_size, aConfigurations.GetDimension());
 
+        // Track whether test measurements were provided for MSPE logging
+        bool has_test_measurements = !aTestMeasurementsValues.empty();
+        aConfigurations.SetHasTestMeasurements(has_test_measurements);
+        
         // Allocate memory for z_values to hold elements from both sources
         auto *z_values = new double[aTrainData.back().size() + aTestMeasurementsValues.size()];
 
@@ -341,10 +346,11 @@ namespace exageostat::adapters {
             }
         }
         memcpy(z_values, aTrainData.back().data(), aTrainData.back().size() * sizeof(double));
-        // Calculate the starting position for the next part of the data in z_values
-        auto *destination = z_values + aTrainData.back().size();
-        // Copy data from aTestMeasurementsValues to the next part of z_values, after the previously copied data
-        memcpy(destination, aTestMeasurementsValues.data(), aTestMeasurementsValues.size() * sizeof(double));
+        // Copy test measurements if provided
+        if (has_test_measurements) {
+            auto *destination = z_values + aTrainData.back().size();
+            memcpy(destination, aTestMeasurementsValues.data(), aTestMeasurementsValues.size() * sizeof(double));
+        }
 
         for (int i = 0; i < test_data_size; i++) {
             test_locations.SetLocationX(*aTestData[0].data(), test_data_size);

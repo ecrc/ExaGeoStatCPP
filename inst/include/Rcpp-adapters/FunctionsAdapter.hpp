@@ -98,6 +98,7 @@ namespace exageostat::adapters {
      * @param[in] aDimension Dimensionality of the spatial data ("2D" or "3D").
      * @param[in] aTrainData Training data set used for predictions.
      * @param[in] aTestData Test data set for which predictions are made.
+     * @param[in] aTestMeasurementsValues Vector of actual measured values at the test locations, used for MSPE calculation.
      * @return Vector of predicted values based on the test data.
      *
      */
@@ -105,7 +106,9 @@ namespace exageostat::adapters {
                                                 const std::vector<double> &aEstimatedTheta, const int &aDenseTileSize,
                                                 const int &aLowTileSize, const std::string &aDimension,
                                                 std::vector<std::vector<double>> &aTrainData,
-                                                std::vector<std::vector<double>> &aTestData);
+                                                std::vector<std::vector<double>> &aTestData,
+                                                std::vector<double> &aTestMeasurementsValues,
+                                                const std::string &aComputation);
 
     /**
      * @brief Calculates the Mean Logarithmic Error (MLOE) and the Mean Measure of Model Output (MMOM) for ExaGeoStat predictions.
@@ -236,7 +239,8 @@ namespace exageostat::adapters {
                                const std::string &aDimension, std::vector<std::vector<double>> &aTrainData,
                                std::vector<std::vector<double>> &aTestData,
                                const std::vector<double> &aEstimatedTheta,
-                               const std::vector<double> &aTestMeasurementsValues);
+                               const std::vector<double> &aTestMeasurementsValues,
+                               const std::string &aComputation);
 
 }
 #endif //EXAGEOSTATCPP_FUNCTIONSADAPTER_HPP
