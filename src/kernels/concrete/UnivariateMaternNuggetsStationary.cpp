@@ -59,7 +59,7 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
         for (i = 0; i < aRowsNumber; i++) {
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
-                expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, j0, i0, aDistanceMetric,
+                expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
                                                                         flag) / aLocalTheta[1];
                 if (expr == 0) {
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
@@ -77,7 +77,7 @@ void UnivariateMaternNuggetsStationary<T>::GenerateCovarianceMatrix(T *apMatrixA
             j0 = aColumnOffset;
             for (j = 0; j < aColumnsNumber; j++) {
                 flag = 1;
-                expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, j0, i0, aDistanceMetric,
+                expr = DistanceCalculationHelpers<T>::CalculateDistance(aLocation1, aLocation2, i0, j0, aDistanceMetric,
                                                                         flag);
                 if (expr == 0) {
                     apMatrixA[i + j * aRowsNumber] = sigma_square + aLocalTheta[3];
