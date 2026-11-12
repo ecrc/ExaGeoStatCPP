@@ -165,10 +165,12 @@ ParsecGenerator<T>::CreateSyntheticData(Configurations &aConfigurations, exageos
         sym_two_dim_block_cyclic_init(&hicma_data->dcA0, (parsec_matrix_type_t ) matrix_RealDouble,
                 rank, dts, dts, problem_size, problem_size, 0, 0,
                 problem_size, problem_size, p_grid, nodes/p_grid, uplo);
-        hicma_data->dcA0.mat = parsec_data_allocate((size_t)hicma_data->dcA0.super.nb_local_tiles *
+        const auto *params = ExaGeoStatHardware::GetHicmaParams();
+        const bool dense_matrix = params->band_size_dense >= params->NT && !params->auto_band;
+        hicma_data->dcA0.mat = dense_matrix ? nullptr : parsec_data_allocate((size_t)hicma_data->dcA0.super.nb_local_tiles *
                 (size_t)hicma_data->dcA0.super.bsiz *
                 (size_t)parsec_datadist_getsizeoftype(hicma_data->dcA0.super.mtype));
-        parsec_data_collection_set_key((parsec_data_collection_t*)&hicma_data.dcA0, "dcA0");
+        parsec_data_collection_set_key((parsec_data_collection_t*)&hicma_data->dcA0, "dcA0");
     }
 	int ret = 0;
 

@@ -16,6 +16,7 @@
 **/
 
 #include <nlopt.hpp>
+#include <stdexcept>
 
 #include <runtime-solver/concrete/ParsecRuntimeSolver.hpp>
 #include <data-analyzer/DataAnalyzer.hpp>
@@ -25,6 +26,9 @@
 #include <runtime/parsec/ParsecHeader.h>
 extern "C"{
 #include <runtime/parsec/jdf/JobDescriptionFormat.h>
+// The convenience wrapper skips conversion when adaptive memory is enabled.
+parsec_taskpool_t *hicma_parsec_convert_s2d_New(parsec_context_t *, hicma_parsec_data_t *, hicma_parsec_params_t *);
+void hicma_parsec_convert_s2d_Destruct(parsec_taskpool_t *);
 }
 
 #include <data-units/ModelingDataHolders.hpp>
@@ -304,43 +308,49 @@ auto *parsec = (parsec_context_t *) ExaGeoStatHardware::GetParsecContext();
         SYNC_TIME_PRINT(hicma_params->rank, ("Check Rank after compression\n"));
 #endif
 
-        // Gathering rank info.
-        SYNC_TIME_START();
-        hicma_parsec_rank_stat(parsec, "init_rank_tile", (parsec_tiled_matrix_t*)(&hicma_data->dcAr),
-                                 hicma_params, &hicma_params->iminrk, &hicma_params->imaxrk, &hicma_params->iavgrk);
-        SYNC_TIME_PRINT(hicma_params->rank, ("Gather rank after matrix compression\tmin= %d max= %d avg= %lf\n",
-                                             hicma_params->iminrk, hicma_params->imaxrk, hicma_params->iavgrk));
-
-        // Band size auto-tuning.
-        SYNC_TIME_START();
-        hicma_parsec_band_size_dense_auto_tuning(parsec, hicma_data, hicma_params, params_kernel);
-        SYNC_TIME_PRINT(hicma_params->rank, ("Band_size auto-tuning\tband_size_dense= %d band_size_dist= %d band_size_auto_tuning_termination= %lf\n",
-                                             hicma_params->band_size_dense, hicma_params->band_size_dist,
-                                             hicma_params->band_size_auto_tuning_termination));
-        hicma_params->time_opt_band = sync_time_elapsed;
-        if (hicma_params->auto_band && hicma_params->band_size_dense > 1) {
+        const bool dense_matrix = hicma_params->band_size_dense >= hicma_params->NT
+            && !hicma_params->auto_band;
+        if (dense_matrix) {
+            hicma_parsec_matrix_pre_analysis(parsec, hicma_data, hicma_params, params_kernel, analysis);
+        } else {
+            // Gathering rank info.
             SYNC_TIME_START();
-            hicma_parsec_rank_stat(parsec, "init_rank_tile_auto_band",
-                                     reinterpret_cast<parsec_tiled_matrix_t*>(&hicma_data->dcAr),
-                                     hicma_params, &hicma_params->iminrk_auto_band,
-                                     &hicma_params->imaxrk_auto_band, &hicma_params->iavgrk_auto_band);
-            SYNC_TIME_PRINT(hicma_params->rank, ("Gather rank after band_size auto-tuning\tmin= %d max= %d avg= %lf\n",
-                                                 hicma_params->iminrk_auto_band, hicma_params->imaxrk_auto_band,
-                                                 hicma_params->iavgrk_auto_band));
+            hicma_parsec_rank_stat(parsec, "init_rank_tile", (parsec_tiled_matrix_t*)(&hicma_data->dcAr),
+                                     hicma_params, &hicma_params->iminrk, &hicma_params->imaxrk, &hicma_params->iavgrk);
+            SYNC_TIME_PRINT(hicma_params->rank, ("Gather rank after matrix compression\tmin= %d max= %d avg= %lf\n",
+                                                 hicma_params->iminrk, hicma_params->imaxrk, hicma_params->iavgrk));
+
+            // Band size auto-tuning.
+            SYNC_TIME_START();
+            hicma_parsec_band_size_dense_auto_tuning(parsec, hicma_data, hicma_params, params_kernel);
+            SYNC_TIME_PRINT(hicma_params->rank, ("Band_size auto-tuning\tband_size_dense= %d band_size_dist= %d band_size_auto_tuning_termination= %lf\n",
+                                                 hicma_params->band_size_dense, hicma_params->band_size_dist,
+                                                 hicma_params->band_size_auto_tuning_termination));
+            hicma_params->time_opt_band = sync_time_elapsed;
+            if (hicma_params->auto_band && hicma_params->band_size_dense > 1) {
+                SYNC_TIME_START();
+                hicma_parsec_rank_stat(parsec, "init_rank_tile_auto_band",
+                                         reinterpret_cast<parsec_tiled_matrix_t*>(&hicma_data->dcAr),
+                                         hicma_params, &hicma_params->iminrk_auto_band,
+                                         &hicma_params->imaxrk_auto_band, &hicma_params->iavgrk_auto_band);
+                SYNC_TIME_PRINT(hicma_params->rank, ("Gather rank after band_size auto-tuning\tmin= %d max= %d avg= %lf\n",
+                                                     hicma_params->iminrk_auto_band, hicma_params->imaxrk_auto_band,
+                                                     hicma_params->iavgrk_auto_band));
+            }
+
+            // Memory calculation.
+            SYNC_TIME_START();
+            hicma_parsec_memory_calculation(parsec, hicma_params);
+            SYNC_TIME_PRINT(hicma_params->rank, ("Memory for matrix allocation\tactual= %lf GB maxrank= %lf GB\n",
+                                                 hicma_params->memory_per_node, hicma_params->memory_per_node_maxrank));
+
+            // Sparse analysis.
+            SYNC_TIME_START();
+            hicma_parsec_sparse_analysis(parsec, hicma_data, hicma_params, analysis);
+            SYNC_TIME_PRINT(hicma_params->rank, ("Matrix analysis\tsparse= %d band_size_dist= %d WORKLOAD_BALANCE= %d\n",
+                                                 hicma_params->sparse, hicma_params->band_size_dist, WORKLOAD_BALANCE));
+            hicma_params->time_analysis = sync_time_elapsed;
         }
-
-        // Memory calculation.
-        SYNC_TIME_START();
-        hicma_parsec_memory_calculation(parsec, hicma_params);
-        SYNC_TIME_PRINT(hicma_params->rank, ("Memory for matrix allocation\tactual= %lf GB maxrank= %lf GB\n",
-                                             hicma_params->memory_per_node, hicma_params->memory_per_node_maxrank));
-
-        // Sparse analysis.
-        SYNC_TIME_START();
-        hicma_parsec_sparse_analysis(parsec, hicma_data, hicma_params, analysis);
-        SYNC_TIME_PRINT(hicma_params->rank, ("Matrix analysis\tsparse= %d band_size_dist= %d WORKLOAD_BALANCE= %d\n",
-                                             hicma_params->sparse, hicma_params->band_size_dist, WORKLOAD_BALANCE));
-        hicma_params->time_analysis = sync_time_elapsed;
 
         if (hicma_params->check) {
             SYNC_TIME_START();
@@ -398,60 +408,73 @@ auto *parsec = (parsec_context_t *) ExaGeoStatHardware::GetParsecContext();
         dplasma_dprint(parsec, hicma_params->uplo, (parsec_tiled_matrix_t*)(&hicma_data->dcA));
 #endif
 
-    if (rank == 0 && hicma_params->info != 0) {
-        fprintf(stderr, "-- Factorization is suspicious (info = %d) ! \n", hicma_params->info);
-    }
-    
-    auto NT = descC->lmt;
-    auto* rank_array = hicma_params->rank_array;
-     analysis->trsm_initial = (uint16_t **)malloc( NT * sizeof(uint16_t *) );
-    for(int i = 0; i < NT-1; i++)
-        analysis->trsm_initial[i] = (uint16_t *)malloc( (NT-i+1) * sizeof(uint16_t) );
-    analysis->trsm_num_initial = (uint16_t *)calloc( NT, sizeof(uint16_t) );
-
-    /* Allocate memory */
-    /* Final rank ditribution */
-    analysis->initial_rank = (uint16_t *)calloc( NT * NT, sizeof(uint16_t) );
-    analysis->final_rank = (uint8_t *)calloc( NT * NT, sizeof(uint8_t) );
-    for(int j = 0; j < NT-1; j++) {
-        int num_tmp = 0;
-        for(int i = j+1; i < NT; i++) {
-            if( rank_array[j*NT+i] > 0 ) {
-                analysis->initial_rank[j*NT+i] = (uint16_t)rank_array[j*NT+i];
-                analysis->final_rank[j*NT+i] = (uint8_t)1;
-                analysis->initial_density += 1.0;
-                analysis->trsm_initial[j][num_tmp] = (uint16_t)i;
-                num_tmp += 1;
-            }
-        }
-        analysis->trsm_num_initial[j] = (uint16_t)num_tmp;
-    }
-    analysis->initial_density = analysis->initial_density / NT / NT * 2;
-    hicma_parsec_matrix_uncompress(parsec, uplo,(parsec_tiled_matrix_t*)(&hicma_data->dcA0),
-    (parsec_tiled_matrix_t*)(&hicma_data->dcA), (parsec_tiled_matrix_t*)(&hicma_data->dcAr),
-    analysis, hicma_params->band_size_dense, hicma_params->maxrank, &hicma_params->info);
     if (hicma_params->info != 0) {
-        if (rank == 0)
-            fprintf(stderr, "\nCheck Uncompression : %d\n", hicma_params->info);
-        exit(1);
+        throw std::runtime_error("Likelihood Cholesky failed");
+    }
+
+    auto *likelihood_factor = reinterpret_cast<parsec_tiled_matrix_t *>(&hicma_data->dcA0);
+    if (dense_matrix) {
+        const bool full_fp64 = hicma_params->band_size_dense_dp >= hicma_params->NT
+            && !hicma_params->adaptive_decision;
+        if (!full_fp64) {
+            auto *conversion = hicma_parsec_convert_s2d_New(parsec, hicma_data, hicma_params);
+            if (!conversion) {
+                throw std::runtime_error("Could not construct mixed factor conversion");
+            }
+            parsec_context_add_taskpool(parsec, conversion);
+            parsec_context_start(parsec);
+            parsec_context_wait(parsec);
+            hicma_parsec_convert_s2d_Destruct(conversion);
+        }
+        likelihood_factor = hicma_params->adaptive_memory
+            ? reinterpret_cast<parsec_tiled_matrix_t *>(&hicma_data->dcA)
+            : reinterpret_cast<parsec_tiled_matrix_t *>(&hicma_data->dcAd);
+    } else {
+        auto NT = descC->lmt;
+        auto* rank_array = hicma_params->rank_array;
+         analysis->trsm_initial = (uint16_t **)malloc( NT * sizeof(uint16_t *) );
+        for(int i = 0; i < NT-1; i++)
+            analysis->trsm_initial[i] = (uint16_t *)malloc( (NT-i+1) * sizeof(uint16_t) );
+        analysis->trsm_num_initial = (uint16_t *)calloc( NT, sizeof(uint16_t) );
+
+        /* Allocate memory */
+        /* Final rank ditribution */
+        analysis->initial_rank = (uint16_t *)calloc( NT * NT, sizeof(uint16_t) );
+        analysis->final_rank = (uint8_t *)calloc( NT * NT, sizeof(uint8_t) );
+        for(int j = 0; j < NT-1; j++) {
+            int num_tmp = 0;
+            for(int i = j+1; i < NT; i++) {
+                if( rank_array[j*NT+i] > 0 ) {
+                    analysis->initial_rank[j*NT+i] = (uint16_t)rank_array[j*NT+i];
+                    analysis->final_rank[j*NT+i] = (uint8_t)1;
+                    analysis->initial_density += 1.0;
+                    analysis->trsm_initial[j][num_tmp] = (uint16_t)i;
+                    num_tmp += 1;
+                }
+            }
+            analysis->trsm_num_initial[j] = (uint16_t)num_tmp;
+        }
+        analysis->initial_density = analysis->initial_density / NT / NT * 2;
+        hicma_parsec_matrix_uncompress(parsec, uplo,(parsec_tiled_matrix_t*)(&hicma_data->dcA0),
+        (parsec_tiled_matrix_t*)(&hicma_data->dcA), (parsec_tiled_matrix_t*)(&hicma_data->dcAr),
+        analysis, hicma_params->band_size_dense, hicma_params->maxrank, &hicma_params->info);
+        if (hicma_params->info != 0) {
+            if (rank == 0)
+                fprintf(stderr, "\nCheck Uncompression : %d\n", hicma_params->info);
+            exit(1);
+        }
     }
 
 #if DEBUG_INFO
-for(int i = 0; i< hicma_data->dcA0.grid.rows; i++){
-
-    for(int j = 0; j< hicma_data->dcA0.grid.cols; j++){
-        printf("%f ", ((double *) hicma_data->dcA0.mat)[i * hicma_data->dcA0.grid.cols +j]);
+    sum = ParsecDMatrixSum(parsec, likelihood_factor);
+    if (rank == 0) {
+        fprintf(stderr, "\nC: sum after cholesky %.17g\n", sum);
     }
-    printf("\n");
-}
-        sum = ParsecDMatrixSum(parsec, (parsec_tiled_matrix_t *)(&hicma_data->dcA0));
-        if (rank == 0)
-            fprintf(stderr, "\nC: sum after cholesky %.17g\n", sum);
 #endif
 
         VERBOSE("Calculating the log determinant ...");
         START_TIMING(logdet_calculate);
-        ParsecDMatrixDet(parsec, (parsec_tiled_matrix_t*)(&hicma_data->dcA0), descdet);
+        ParsecDMatrixDet(parsec, likelihood_factor, descdet);
         int root = descdet->super.rank_of(&descdet->super, 0, 0);
         if (descdet->super.myrank == root){
             *determinant = *((double*)(descdet->super.data_of(&descdet->super, 0, 0)->device_copies[0]->device_private));
@@ -470,11 +493,18 @@ for(int i = 0; i< hicma_data->dcA0.grid.rows; i++){
         VERBOSE("Solving the linear system ...");
         START_TIMING(time_solve);
         parsec_taskpool_t *parsec_dtrsm = dplasma_dtrsm_New(dplasmaLeft, uplo, dplasmaNoTrans, dplasmaNonUnit,
-                                                             1.0, (parsec_tiled_matrix_t*)(&hicma_data->dcA0),
+                                                             1.0, likelihood_factor,
                                                              descZ);
+        if (!parsec_dtrsm) {
+            throw std::runtime_error("Could not construct likelihood triangular solve");
+        }
 #if NO_GPU_DPLASMA
         disable_GPU(parsec_dtrsm);
 #endif
+        parsec_context_add_taskpool(parsec, parsec_dtrsm);
+        parsec_context_start(parsec);
+        parsec_context_wait(parsec);
+        dplasma_dtrsm_Destruct(parsec_dtrsm);
         STOP_TIMING(time_solve);
         flops += FLOPS_DTRSM(PlasmaLeft, N, NRHS);
         VERBOSE(" Done.\n");
