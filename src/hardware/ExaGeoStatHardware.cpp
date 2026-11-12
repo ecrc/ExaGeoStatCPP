@@ -36,6 +36,7 @@ using namespace std;
 
 ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configurations &aConfigurations){
 
+#if !DEFAULT_RUNTIME
     // These variables are named according to HiCMA-X inputs
     const int N = aConfigurations.GetProblemSize();
     const int t = aConfigurations.GetDenseTileSize();
@@ -65,48 +66,47 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
         v = 1;
     }
 
-    // Create a vector with all arguments (matches parsec-operations-support branch)
+    // Use the long-option interface of the installed Jupiter HiCMA-X backend.
     std::vector<std::string> new_args = {
-        "-g", to_string(g),
-        "-NB", to_string(t),
-        "-K", to_string(t),
-        "-N", to_string(N),
-        "-v", to_string(v),
-        "-I", to_string(I),
-        "-a", to_string(a),
-        "-J", to_string(J),
-        "-c", to_string(c),
-        "-K", to_string(K),
-        "-j", to_string(j),
-        "-z", to_string(z),
-        "-u", to_string(u),
-        "-G", to_string(G),
-        "-U", to_string(U),
-        "-E", to_string(E),
-        "-y", to_string(y),
-        "-Z", to_string(Z),
-        "-i", to_string(i)
+        "./ExaGeoStatCPP",
+        "--gpus", to_string(g),
+        "--NB", to_string(t),
+        "--N", to_string(N),
+        "--verbose", to_string(v),
+        "--band_dense_dp", to_string(I),
+        "--adaptive_decision", to_string(a),
+        "--time_slots", to_string(J),
+        "--cores", to_string(c),
+        "--numobj", to_string(K),
+        "--adddiag", to_string(j),
+        "--HNB", to_string(z),
+        "--maxrank", to_string(u),
+        "--genmaxrank", to_string(G),
+        "--compmaxrank", to_string(U),
+        "--auto_band", to_string(E),
+        "--band_dense_sp", to_string(y),
+        "--band_dense", to_string(Z),
+        "--band_low_rank_dp", to_string(i)
     };
+
+    // The public accuracy option is the decimal exponent: 8 means 1e-8.
+    if (e > 0) new_args.insert(new_args.end(), {"--fixedacc", "1e-" + to_string(e)});
 
     // Convert std::vector<std::string> to char** for the new argv
     int new_argc = new_args.size();
-    char **new_argv = new char*[new_argc];
+    char **new_argv = new char*[new_argc + 1]();
 
     for (int i = 0; i < new_argc; ++i) {
         new_argv[i] = new char[new_args[i].length() + 1];
         strcpy(new_argv[i], new_args[i].c_str());
     }
 
-#if !DEFAULT_RUNTIME
-    int iparam[IPARAM_SIZEOF] = {0};
-    double dparam[DPARAM_SIZEOF];
-    char *cparam[CPARAM_SIZEOF];
     this->mpHicmaParams = make_unique<hicma_parsec_params_t>();
     this->mpParamsKernel = make_unique<starsh_params_t>();
     this->mpHicmaData = make_unique<hicma_parsec_data_t>();
     this->mpAnalysis = make_unique<hicma_parsec_matrix_analysis_t>();
 
-    mpParsecContext = hicma_parsec_init(new_argc, new_argv, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
+    mpParsecContext = hicma_parsec_init(new_argc, new_argv, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
     SetParsecMPIRank(this->mpHicmaParams->rank);
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();
@@ -194,11 +194,7 @@ void ExaGeoStatHardware::FinalizeHardware() {
 #else
     if (mpParsecContext) {
 
-        int iparam[IPARAM_SIZEOF] = {0};
-        double dparam[DPARAM_SIZEOF];
-        char *cparam[CPARAM_SIZEOF];
-
-        hicma_parsec_fini((parsec_context_t *) mpParsecContext, 0, NULL, iparam, dparam, cparam, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get(), this->mpAnalysis.get());
+        hicma_parsec_fini((parsec_context_t *) mpParsecContext, 0, NULL, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get(), this->mpAnalysis.get());
         mpParsecContext = nullptr;
     }
 #endif
