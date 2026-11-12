@@ -203,6 +203,11 @@ DescriptorData<T>::GetDescriptorMatrix(const DescriptorType &aDescriptorType, co
         throw std::runtime_error("To use Hicma descriptor you need to enable USE_HICMA!");
 #endif
     }
+#else
+    if (aDescriptorType != PARSEC_DESCRIPTOR) {
+        throw std::runtime_error("This build requires a PaRSEC descriptor.");
+    }
+    return static_cast<T *>(GetDescriptor(PARSEC_DESCRIPTOR, aDescriptorName).parsec_desc->mat);
 #endif
 }
 
