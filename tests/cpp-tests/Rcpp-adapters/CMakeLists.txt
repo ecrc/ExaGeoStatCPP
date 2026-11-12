@@ -10,6 +10,7 @@
 set(EXAGEOSTAT_TESTFILES
 
         ${CMAKE_CURRENT_SOURCE_DIR}/TestAllRFunctions.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TestRPredictProblemSize.cpp
         ${EXAGEOSTAT_TESTFILES}
         PARENT_SCOPE
         )
