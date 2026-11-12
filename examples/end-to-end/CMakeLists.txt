@@ -24,3 +24,7 @@ target_link_libraries(Example_Data_Generation_and_Modeling PUBLIC ${PROJECT_NAME
 target_link_libraries(Example_Data_Generation_Modeling_and_Prediction PUBLIC ${PROJECT_NAME}_INTERFACE)
 target_link_libraries(Example_Data_Prediction PUBLIC ${PROJECT_NAME}_INTERFACE)
 target_link_libraries(Example_Data_Generation_and_Prediction PUBLIC ${PROJECT_NAME}_INTERFACE)
+
+install(TARGETS Example_Data_Generation Example_Data_Modeling
+    Example_Data_Generation_and_Modeling Example_Data_Generation_Modeling_and_Prediction
+    Example_Data_Prediction Example_Data_Generation_and_Prediction RUNTIME DESTINATION bin)
