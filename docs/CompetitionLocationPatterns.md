@@ -7,7 +7,7 @@ The sampling rules are inspired by Section 2 of *The Third Competition on Spatia
 - `regular`: independent uniform x,y in [0,1).
 - `chessboard`: uniform sampling on even-parity cells of an 8-by-8 board.
 - `left-bottom`: square two independent uniform coordinates to concentrate points near zero.
-- `clusters`: equal mixture of five uniform disks, radius 0.12, centered at (0.2,0.2), (0.2,0.8), (0.5,0.5), (0.8,0.2), and (0.8,0.8).
+- `clusters`: 85% equal mixture of five Gaussian clusters centered at (0.2,0.2), (0.2,0.8), (0.5,0.5), (0.8,0.2), and (0.8,0.8), plus 15% uniform background. Standard deviations along x are (0.11,0.14,0.16,0.12,0.10), and along y (0.14,0.10,0.12,0.10,0.14). Out-of-domain draws are rejected. Diffuse tails and background replace the earlier isolated disks.
 
 Satellite locations in the paper came from observed data. Load the original coordinates for that case; no synthetic satellite reproduction is claimed. Use a fixed `--seed=42` for repeatability within the same runtime/platform. Standard C rand() is used, so bitwise portability across C libraries is not guaranteed.
 

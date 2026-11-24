@@ -20,10 +20,21 @@ struct LocationPatterns {
         for(int i=0;i<n;++i) {
             double a,b;
             if(pattern=="clusters") {
-                int c=static_cast<int>(5*Uniform());
-                // Uniform disks, radius .12, entirely inside the unit square.
-                double radius=.12*std::sqrt(Uniform()), angle=6.283185307179586*Uniform();
-                a=centers[c][0]+radius*std::cos(angle); b=centers[c][1]+radius*std::sin(angle);
+                // Diffuse clusters with overlapping tails and 15% uniform background.
+                // Reject out-of-domain draws instead of clipping onto the edges.
+                if (Uniform() < .15) {
+                    a=Uniform(); b=Uniform();
+                } else {
+                    const int c=static_cast<int>(5*Uniform());
+                    const double sx[5]={.11,.14,.16,.12,.10};
+                    const double sy[5]={.14,.10,.12,.10,.14};
+                    do {
+                        const double radius=std::sqrt(-2*std::log(1-Uniform()));
+                        const double angle=6.283185307179586*Uniform();
+                        a=centers[c][0]+sx[c]*radius*std::cos(angle);
+                        b=centers[c][1]+sy[c]*radius*std::sin(angle);
+                    } while(a<0 || a>=1 || b<0 || b>=1);
+                }
             } else {
                 do { a=Uniform(); b=Uniform(); }
                 while(pattern=="chessboard" && (static_cast<int>(8*a)+static_cast<int>(8*b))%2!=0);
