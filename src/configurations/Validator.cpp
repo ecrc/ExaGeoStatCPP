@@ -15,12 +15,14 @@
 
 #include <utilities/Logger.hpp>
 #include <configurations/Validator.hpp>
+#include <helpers/LocationPatterns.hpp>
 
 using namespace std;
 using namespace exageostat::common;
 using namespace exageostat::configurations::validator;
 
 const unordered_map<string, function<any(const string &)>> Validator::mCheckersMap = {
+        {"LocationPattern", [](const string &value) -> any { return exageostat::helpers::LocationPatterns::Validate(value); }},
         {"Theta",          [](const string &value) -> any { return CheckThetaValue(value); }},
         {"Tolerance",      [](const string &value) -> any { return CheckToleranceValue(value); }},
         {"FileHandler",    [](const string &value) -> any { return CheckLogFileValue(value); }},
@@ -35,6 +37,7 @@ const unordered_map<string, function<any(const string &)>> Validator::mCheckersM
 };
 
 const std::unordered_map<std::string, std::string> Validator::mArgumentToCategoryMap = {
+        {"locationpattern", "LocationPattern"},
         {"n",                 "Numerical"},
         {"kernel",            "Kernel"},
         {"p",                 "Numerical"},

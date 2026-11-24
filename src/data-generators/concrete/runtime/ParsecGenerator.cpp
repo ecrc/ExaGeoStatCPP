@@ -68,7 +68,7 @@ ParsecGenerator<T>::CreateSyntheticData(Configurations &aConfigurations, exageos
 
     // Generate Locations phase
     LocationGenerator<T>::GenerateLocations(problem_size/p, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(),
-                                            *locations);
+                                            *locations, aConfigurations.GetLocationPattern());
     data->SetLocations(*locations);
     location l1;
     l1.x = (double *) locations->GetLocationX();

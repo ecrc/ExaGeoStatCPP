@@ -15,6 +15,7 @@
 #define EXAGEOSTATCPP_LOCATIONGENERATOR_HPP
 
 #include <data-units/Locations.hpp>
+#include <string>
 
 namespace exageostat::generators {
 
@@ -41,6 +42,10 @@ namespace exageostat::generators {
          */
         static void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension,
                                       dataunits::Locations<T> &aLocations);
+
+        // Competition-inspired 2D sampling; the four-argument overload is unchanged.
+        static void GenerateLocations(const int &aN, const int &aTimeSlot, const common::Dimension &aDimension,
+                                      dataunits::Locations<T> &aLocations, const std::string &aPattern);
 
         /**
          * @brief Generate uniform distribution between rangeLow , rangeHigh.

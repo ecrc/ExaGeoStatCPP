@@ -15,6 +15,7 @@
 #include <algorithm>
 
 #include <data-generators/LocationGenerator.hpp>
+#include <helpers/LocationPatterns.hpp>
 #include <helpers/ByteHandler.hpp>
 
 using namespace exageostat::generators;
@@ -79,6 +80,25 @@ void LocationGenerator<T>::GenerateLocations(const int &aN, const int &aTimeSlot
             aLocations.GetLocationZ()[i] = (T) (i / aTimeSlot + 1);
         }
     }
+}
+
+template<typename T>
+void LocationGenerator<T>::GenerateLocations(const int &n, const int &time, const Dimension &dim,
+        Locations<T> &locations, const std::string &pattern) {
+    exageostat::helpers::LocationPatterns::Validate(pattern);
+    if (n <= 0) throw std::invalid_argument("Location count must be positive.");
+    if (pattern == "jittered-grid") {
+        GenerateLocations(n, time, dim, locations);
+        return;
+    }
+    if (dim != Dimension2D && dim != Dimension3D) throw std::invalid_argument("Competition patterns require spatial 2D or 3D.");
+    locations.SetSize(n);
+    locations.SetDimension(dim);
+    if (dim == Dimension3D)
+        exageostat::helpers::LocationPatterns::Fill3D(n, locations.GetLocationX(), locations.GetLocationY(), locations.GetLocationZ(), pattern);
+    else
+        exageostat::helpers::LocationPatterns::Fill(n, locations.GetLocationX(), locations.GetLocationY(), pattern);
+    SortLocations(n, dim, locations);
 }
 
 template<typename T>

@@ -13,6 +13,9 @@
 **/
 
 #include <hardware/ExaGeoStatHardware.hpp>
+#include <data-generators/LocationGenerator.hpp>
+#include <algorithm>
+#include <cstdlib>
 
 #if DEFAULT_RUNTIME
 #ifdef USE_MPI
@@ -107,6 +110,22 @@ ExaGeoStatHardware::ExaGeoStatHardware(exageostat::configurations::Configuration
     this->mpAnalysis = make_unique<hicma_parsec_matrix_analysis_t>();
 
     mpParsecContext = hicma_parsec_init(new_argc, new_argv, this->mpHicmaParams.get(), this->mpParamsKernel.get(), this->mpHicmaData.get());
+    // HiCMA-X owns the actual covariance coordinates in PaRSEC mode.
+    // Replace them as well as the application-side Locations object.
+    if (aConfigurations.GetLocationPattern() != "jittered-grid") {
+        if (mpHicmaParams->kind_of_problem != 8 || aConfigurations.GetDimension() != Dimension2D)
+            throw std::invalid_argument("Competition patterns require a spatial 2D Matern problem.");
+        std::srand(aConfigurations.GetSeed());
+        exageostat::dataunits::Locations<double> points(N, Dimension2D);
+        exageostat::generators::LocationGenerator<double>::GenerateLocations(
+            N, 1, Dimension2D, points, aConfigurations.GetLocationPattern());
+        auto *spatial = static_cast<STARSH_ssdata *>(mpParamsKernel->data);
+        std::copy_n(points.GetLocationX(), N, spatial->particles.point);
+        std::copy_n(points.GetLocationY(), N, spatial->particles.point + N);
+        // Keep subsequent application-side synthetic locations on the same stream.
+        std::srand(aConfigurations.GetSeed());
+    }
+
     SetParsecMPIRank(this->mpHicmaParams->rank);
 #endif
     exageostat::helpers::CommunicatorMPI::GetInstance()->SetHardwareInitialization();

@@ -48,7 +48,7 @@ StarpuGenerator<T>::CreateSyntheticData(Configurations &aConfigurations, exageos
 
     // Generate Locations phase
     LocationGenerator<T>::GenerateLocations(n, aConfigurations.GetTimeSlot(), aConfigurations.GetDimension(),
-                                            *locations);
+                                            *locations, aConfigurations.GetLocationPattern());
     data->SetLocations(*locations);
 
     // Generate Descriptors phase
