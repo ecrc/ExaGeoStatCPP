@@ -21,3 +21,10 @@ c++ -std=c++17 -I inst/include tests/TestLocationPatternsStandalone.cpp -o test-
 ```
 
 These check 100,000 points per pattern, repeatability, bounds, occupancy, concentration, and invalid pattern rejection. Do not compile this assertion-based test with NDEBUG.
+
+
+## 3D location generation
+
+`LocationPatterns::Fill3D` and the pattern-aware `LocationGenerator::GenerateLocations` overload support 3D regular, chessboard, lower-corner, and diffuse-cluster coordinates. Chessboard cells use parity of all three discretized coordinates. Lower-corner concentration squares independent uniform x,y,z. The 3D cluster mixture contains eight corner components centered at coordinates 0.2 or 0.8 and a center component at (0.5,0.5,0.5), with 15% uniform background. Corner standard deviations are 0.13 + 0.01*(index modulo 3); the center standard deviation is 0.18. Samples outside the unit cube are rejected.
+
+The new 3D sampling checks pass for 90,000 points per pattern. This does not establish PaRSEC covariance support: the public branch's hardware path still explicitly rejects non-default 3D patterns until its backend integration is validated. Do not use these previews as 3D performance measurements. The 2D and 3D extensions are synthetic designs, not exact competition reconstructions.

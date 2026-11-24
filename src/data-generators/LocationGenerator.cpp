@@ -91,10 +91,13 @@ void LocationGenerator<T>::GenerateLocations(const int &n, const int &time, cons
         GenerateLocations(n, time, dim, locations);
         return;
     }
-    if (dim != Dimension2D) throw std::invalid_argument("Competition patterns currently support spatial 2D only.");
+    if (dim != Dimension2D && dim != Dimension3D) throw std::invalid_argument("Competition patterns require spatial 2D or 3D.");
     locations.SetSize(n);
     locations.SetDimension(dim);
-    exageostat::helpers::LocationPatterns::Fill(n, locations.GetLocationX(), locations.GetLocationY(), pattern);
+    if (dim == Dimension3D)
+        exageostat::helpers::LocationPatterns::Fill3D(n, locations.GetLocationX(), locations.GetLocationY(), locations.GetLocationZ(), pattern);
+    else
+        exageostat::helpers::LocationPatterns::Fill(n, locations.GetLocationX(), locations.GetLocationY(), pattern);
     SortLocations(n, dim, locations);
 }
 
