@@ -214,6 +214,7 @@ void Configurations::InitializeAllTheta() {
 
 void Configurations::PrintUsage() {
 
+    LOGGER("--location-pattern=jittered-grid|regular|chessboard|left-bottom|clusters : Synthetic 2D sampling (default: jittered-grid).")
     LOGGER("\n\t*** Available Arguments For ExaGeoStat Configurations ***")
     LOGGER("--N=value : Problem size.")
     LOGGER("--kernel=value : Used Kernel.")

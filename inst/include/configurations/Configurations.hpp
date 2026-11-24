@@ -112,6 +112,12 @@ namespace exageostat::configurations {
 
         /** START OF THE COMMON ARGUMENTS BETWEEN ALL MODULES. **/
 
+        CREATE_SETTER_FUNCTION(LocationPattern, const std::string&, aPattern, "locationpattern")
+        std::string GetLocationPattern() {
+            auto it = mDictionary.find("locationpattern");
+            return it == mDictionary.end() ? "jittered-grid" : std::any_cast<std::string>(it->second);
+        }
+
         CREATE_SETTER_FUNCTION(ProblemSize, int, aProblemSize, "n")
         CREATE_GETTER_FUNCTION(ProblemSize, int, "n")
 
