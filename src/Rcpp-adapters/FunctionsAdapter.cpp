@@ -360,7 +360,11 @@ namespace exageostat::adapters {
         aConfigurations.SetDenseTileSize(aDenseTileSize);
         aConfigurations.SetLowTileSize(aLowTileSize);
         aConfigurations.SetDimension(validator::Validator::CheckDimensionValue(aDimension));
-        aConfigurations.SetProblemSize(data->GetLocations()->GetSize());
+        if (aConfigurations.GetIsFisher()) {
+            aConfigurations.SetProblemSize(train_data_size);
+        } else {
+            aConfigurations.SetProblemSize(train_data_size + test_data_size);
+        }
         aConfigurations.SetEstimatedTheta(aEstimatedTheta);
 
         // Temporarily release ownership to pass to the function.
